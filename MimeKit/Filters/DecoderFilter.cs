@@ -76,11 +76,12 @@ namespace MimeKit {
 			}
 		}
 
-		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputLength, bool flush)
+		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			EnsureOutputSize (Decoder.EstimateOutputLength (length), false);
 
 			outputLength = Decoder.Decode (input, startIndex, length, output);
+			outputIndex = 0;
 
 			return output;
 		}

@@ -76,7 +76,7 @@ namespace MimeKit {
 			}
 		}
 
-		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputLength, bool flush)
+		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			EnsureOutputSize (Encoder.EstimateOutputLength (length), false);
 
@@ -84,6 +84,8 @@ namespace MimeKit {
 				outputLength = Encoder.Flush (input, startIndex, length, output);
 			else
 				outputLength = Encoder.Encode (input, startIndex, length, output);
+
+			outputIndex = 0;
 
 			return output;
 		}

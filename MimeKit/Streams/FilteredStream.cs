@@ -41,7 +41,7 @@ namespace MimeKit {
 		List<IMimeFilter> filters = new List<IMimeFilter> ();
 		IOOperation lastOp = IOOperation.Read;
 		int filteredLength = 0;
-		int filteredOffset = 0;
+		int filteredIndex = 0;
 		byte[] filtered;
 		byte[] readbuf;
 		long position;
@@ -315,24 +315,24 @@ namespace MimeKit {
 
 			int nread;
 
-			if (filteredLength > 0) {
+			if (filteredLength == 0) {
 				if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
 					return nread;
 				
 				// filter the data we've just read...
 				filteredLength = nread;
-				filteredOffset = 0;
+				filteredIndex = 0;
 				filtered = readbuf;
 
 				foreach (var filter in filters)
-					filtered = filter.Filter (filtered, 0, filteredLength, out filteredLength);
+					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 			}
 
 			// copy our filtered data into our caller's buffer
 			nread = Math.Min (filteredLength, count);
-			Array.Copy (filtered, filteredOffset, buffer, offset, nread);
-			filteredOffset += nread;
+			Array.Copy (filtered, filteredIndex, buffer, offset, nread);
 			filteredLength -= nread;
+			filteredIndex += nread;
 
 			return nread;
 		}
@@ -359,16 +359,14 @@ namespace MimeKit {
 			lastOp = IOOperation.Write;
 			flushed = false;
 
-			filteredOffset = offset;
+			filteredIndex = offset;
 			filteredLength = count;
 			filtered = buffer;
 
-			foreach (var filter in filters) {
-				filtered = filter.Filter (filtered, filteredOffset, filteredLength, out filteredLength);
-				filteredOffset = 0;
-			}
+			foreach (var filter in filters)
+				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
-			Source.Write (filtered, filteredOffset, filteredLength);
+			Source.Write (filtered, filteredIndex, filteredLength);
 		}
 
 		/// <summary>
@@ -398,17 +396,18 @@ namespace MimeKit {
 
 			if (!flushed) {
 				filtered = new byte[0];
-				filteredOffset = 0;
+				filteredIndex = 0;
 				filteredLength = 0;
 
 				foreach (var filter in filters)
-					filtered = filter.Flush (filtered, 0, filteredLength, out filteredLength);
+					filtered = filter.Flush (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
 				flushed = true;
 			}
 
 			if (filteredLength > 0) {
-				Source.Write (filtered, 0, filteredLength);
+				Source.Write (filtered, filteredIndex, filteredLength);
+				filteredIndex = 0;
 				filteredLength = 0;
 			}
 

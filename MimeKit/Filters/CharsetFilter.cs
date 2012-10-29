@@ -106,14 +106,14 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputLength, bool flush)
+		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			bool decodeCompleted = false;
 			bool encodeCompleted = false;
 			int inputIndex = startIndex;
 			int inputLeft = length;
 			int nwritten, nread;
-			int outputIndex = 0;
+			int outputOffset = 0;
 			int outputLeft;
 			int charIndex;
 			int charsLeft;
@@ -138,17 +138,18 @@ namespace MimeKit {
 				while (!encodeCompleted) {
 					// we'll need at least as many output bytes as we have input chars
 					// Note: we add 6 more bytes to account for internal encoder state
-					EnsureOutputSize (outputIndex + charsLeft + 6, true);
-					outputLeft = output.Length - outputIndex;
+					EnsureOutputSize (outputOffset + charsLeft + 6, true);
+					outputLeft = output.Length - outputOffset;
 					
-					encoder.Convert (chars, charIndex, charsLeft, output, outputIndex, outputLeft, flush, out nread, out nwritten, out encodeCompleted);
-					outputIndex += nwritten;
+					encoder.Convert (chars, charIndex, charsLeft, output, outputOffset, outputLeft, flush, out nread, out nwritten, out encodeCompleted);
+					outputOffset += nwritten;
 					charIndex += nread;
 					charsLeft -= nread;
 				}
 			} while (!decodeCompleted);
 
-			outputLength = outputIndex;
+			outputLength = outputOffset;
+			outputIndex = 0;
 				
 			return output;
 		}

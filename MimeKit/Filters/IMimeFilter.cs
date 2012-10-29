@@ -41,10 +41,13 @@ namespace MimeKit {
 		/// <param name='length'>
 		/// The number of bytes of the input to filter.
 		/// </param>
+		/// <param name='outputIndex'>
+		/// The starting index of the output in the returned buffer.
+		/// </param>
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
-		byte[] Filter (byte[] input, int startIndex, int length, out int outputLength);
+		byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength);
 
 		/// <summary>
 		/// Filters the specified input, flushing all internally buffered data to the output.
@@ -58,10 +61,13 @@ namespace MimeKit {
 		/// <param name='length'>
 		/// The number of bytes of the input to filter.
 		/// </param>
+		/// <param name='outputIndex'>
+		/// The starting index of the output in the returned buffer.
+		/// </param>
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
-		byte[] Flush (byte[] input, int startIndex, int length, out int outputLength);
+		byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength);
 
 		/// <summary>
 		/// Resets the filter.

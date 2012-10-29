@@ -34,7 +34,7 @@ namespace MimeKit {
 		protected byte[] preload = null;
 		int preloadLength;
 		
-		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputLength, bool flush);
+		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);
 
 		protected static int GetIdealBufferSize (int need)
 		{
@@ -92,14 +92,19 @@ namespace MimeKit {
 		/// <param name='length'>
 		/// The number of bytes of the input to filter.
 		/// </param>
+		/// <param name='outputIndex'>
+		/// The starting index of the output in the returned buffer.
+		/// </param>
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
-		public byte[] Filter (byte[] input, int startIndex, int length, out int outputLength)
+		public byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
 			ValidateArguments (input, startIndex, length);
+
+			input = PreFilter (input, ref startIndex, ref length);
 			
-			return Filter (PreFilter (input, ref startIndex, ref length), startIndex, length, out outputLength, false);
+			return Filter (input, startIndex, length, out outputIndex, out outputLength, false);
 		}
 		
 		/// <summary>
@@ -114,14 +119,19 @@ namespace MimeKit {
 		/// <param name='length'>
 		/// The number of bytes of the input to filter.
 		/// </param>
+		/// <param name='outputIndex'>
+		/// The starting index of the output in the returned buffer.
+		/// </param>
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
-		public byte[] Flush (byte[] input, int startIndex, int length, out int outputLength)
+		public byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
 			ValidateArguments (input, startIndex, length);
 
-			return Filter (PreFilter (input, ref startIndex, ref length), startIndex, length, out outputLength, true);
+			input = PreFilter (input, ref startIndex, ref length);
+
+			return Filter (input, startIndex, length, out outputIndex, out outputLength, true);
 		}
 
 		/// <summary>
