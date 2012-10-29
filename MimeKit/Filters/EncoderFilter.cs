@@ -53,7 +53,7 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.EncoderFilter"/> class.
 		/// </summary>
 		/// <param name='encoder'>
-		/// Encoder.
+		/// A specific encoder for the filter to use.
 		/// </param>
 		public EncoderFilter (IMimeEncoder encoder)
 		{
@@ -64,7 +64,7 @@ namespace MimeKit {
 		/// Create a filter that will encode using specified encoding.
 		/// </summary>
 		/// <param name='encoding'>
-		/// Encoding.
+		/// The encoding to create a filter for.
 		/// </param>
 		public static IMimeFilter Create (ContentEncoding encoding)
 		{
