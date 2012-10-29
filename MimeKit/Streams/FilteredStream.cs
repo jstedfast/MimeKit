@@ -330,9 +330,12 @@ namespace MimeKit {
 
 			// copy our filtered data into our caller's buffer
 			nread = Math.Min (filteredLength, count);
-			Array.Copy (filtered, filteredIndex, buffer, offset, nread);
-			filteredLength -= nread;
-			filteredIndex += nread;
+
+			if (nread > 0) {
+				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
+				filteredLength -= nread;
+				filteredIndex += nread;
+			}
 
 			return nread;
 		}
