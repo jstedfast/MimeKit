@@ -1,0 +1,272 @@
+﻿//
+// Base64Encoder.cs
+//
+// Author: Jeffrey Stedfast <jeff@xamarin.com>
+//
+// Copyright (c) 2012 Jeffrey Stedfast
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+
+namespace MimeKit {
+	public class Base64Encoder : IMimeEncoder
+	{
+		static readonly byte[] base64_alphabet = new byte[64] {
+			0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x57, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+			0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66,
+			0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76,
+			0x77, 0x78, 0x79, 0x7A, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2B, 0x2F
+		};
+
+		const int QuartetsPerLine = 18;
+		const int MaxInputPerLine = QuartetsPerLine * 3;
+		const int MaxLineLength = (QuartetsPerLine * 4) + 1;
+
+		int quartets;
+		byte saved1;
+		byte saved2;
+		byte saved;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Base64Encoder"/> class.
+		/// </summary>
+		public Base64Encoder ()
+		{
+			Reset ();
+		}
+
+		/// <summary>
+		/// Clones the encoder.
+		/// </summary>
+		public object Clone ()
+		{
+			return MemberwiseClone ();
+		}
+
+		/// <summary>
+		/// Gets the encoding.
+		/// </summary>
+		/// <value>
+		/// The encoding.
+		/// </value>
+		public ContentEncoding Encoding {
+			get { return ContentEncoding.Base64; }
+		}
+
+		/// <summary>
+		/// Estimates the length of the output.
+		/// </summary>
+		/// <returns>
+		/// The estimated output length.
+		/// </returns>
+		/// <param name='inputLength'>
+		/// The input length.
+		/// </param>
+		public int EstimateOutputLength (int inputLength)
+		{
+			return (((inputLength + 2) / MaxInputPerLine) * MaxLineLength) + MaxLineLength;
+		}
+
+		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
+		{
+			if (input == null)
+				throw new ArgumentNullException ("input");
+
+			if (startIndex < 0 || startIndex > input.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > input.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (output.Length < EstimateOutputLength (length))
+				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", "output");
+		}
+
+		unsafe int UnsafeEncode (byte* input, int length, byte* output)
+		{
+			if (length == 0)
+				return 0;
+
+			int remaining = length;
+			byte* outptr = output;
+			byte* inptr = input;
+
+			if (length + saved > 2) {
+				byte* inend = inptr + length - 2;
+				int c1 = 0, c2 = 0, c3 = 0;
+
+				if (saved < 1)
+					c1 = *inptr++;
+				else
+					c1 = saved1;
+
+				if (saved < 2)
+					c2 = *inptr++;
+				else
+					c2 = saved2;
+
+				c3 = *inptr++;
+
+				do {
+					// encode our triplet into a quartet
+					*outptr++ = base64_alphabet[c1 >> 2];
+					*outptr++ = base64_alphabet[(c2 >> 4) | ((c1 & 0x3) << 4)];
+					*outptr++ = base64_alphabet[((c2 & 0x0f) << 2) | (c3 >> 6)];
+					*outptr++ = base64_alphabet[c3 & 0x3f];
+
+					// encode 18 quartets per line
+					if ((++quartets) >= 18) {
+						*outptr++ = (byte) '\n';
+						quartets = 0;
+					}
+
+					if (inptr >= inend)
+						break;
+
+					c1 = *inptr++;
+					c2 = *inptr++;
+					c3 = *inptr++;
+				} while (true);
+
+				remaining = 2 - (int) (inptr - inend);
+				saved = 0;
+			}
+
+			if (remaining > 0) {
+				// At this point, saved can only be 0 or 1.
+				if (saved == 0) {
+					// We can have up to 2 remaining input bytes.
+					saved = (byte) remaining;
+					saved1 = *inptr++;
+					if (remaining == 2)
+						saved2 = *inptr;
+					else
+						saved2 = 0;
+				} else {
+					// We have 1 remaining input byte.
+					saved2 = *inptr++;
+					saved = 2;
+				}
+				
+			}
+
+			return (int) (outptr - output);
+		}
+
+		/// <summary>
+		/// Encodes the specified input into the output buffer.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// The input buffer.
+		/// </param>
+		/// <param name='startIndex'>
+		/// The starting index of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// The output buffer.
+		/// </param>
+		public int Encode (byte[] input, int startIndex, int length, byte[] output)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					return UnsafeEncode (inptr + startIndex, length, outptr);
+				}
+			}
+		}
+
+		unsafe int UnsafeFlush (byte* input, int length, byte* output)
+		{
+			byte* outptr = output;
+			
+			if (length > 0)
+				outptr += UnsafeEncode (input, length, output);
+
+			if (saved >= 1) {
+				int c1 = saved1;
+				int c2 = saved2;
+
+				*outptr++ = base64_alphabet[c1 << 2];
+				*outptr++ = base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
+				if (saved == 2)
+					*outptr++ = base64_alphabet[(c2 & 0x0f) << 2];
+				else
+					*outptr++ = (byte) '=';
+				*outptr++ = (byte) '=';
+			}
+			
+			*outptr++ = (byte) '\n';
+			Reset ();
+			
+			return (int) (outptr - output);
+		}
+
+		/// <summary>
+		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// The input buffer.
+		/// </param>
+		/// <param name='startIndex'>
+		/// The starting index of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// The output buffer.
+		/// </param>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					return UnsafeFlush (inptr + startIndex, length, outptr);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Resets the encoder.
+		/// </summary>
+		public void Reset ()
+		{
+			quartets = 0;
+			saved1 = 0;
+			saved2 = 0;
+			saved = 0;
+		}
+	}
+}
