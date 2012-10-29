@@ -52,7 +52,7 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.FilteredStream"/> class.
 		/// </summary>
 		/// <param name='source'>
-		/// Source.
+		/// The underlying stream to filter from or filter to.
 		/// </param>
 		public FilteredStream (Stream source)
 		{
@@ -64,10 +64,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the source stream.
+		/// Gets the underlying source stream.
 		/// </summary>
 		/// <value>
-		/// The source.
+		/// The underlying source stream.
 		/// </value>
 		public Stream Source {
 			get; private set;
@@ -136,60 +136,60 @@ namespace MimeKit {
 		#region Stream implementation
 
 		/// <summary>
-		/// Gets a value indicating whether this instance can read.
+		/// Checks whether or not the stream supports reading.
 		/// </summary>
 		/// <value>
-		/// <c>true</c> if this instance can read; otherwise, <c>false</c>.
+		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanRead {
 			get { return Source.CanRead; }
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance can write.
+		/// Checks whether or not the stream supports writing.
 		/// </summary>
 		/// <value>
-		/// <c>true</c> if this instance can write; otherwise, <c>false</c>.
+		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanWrite {
 			get { return Source.CanWrite; }
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance can seek.
+		/// Checks whether or not the stream supports seeking.
 		/// </summary>
 		/// <value>
-		/// <c>true</c> if this instance can seek; otherwise, <c>false</c>.
+		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanSeek {
 			get { return false; }
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance can timeout.
+		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
 		/// <value>
-		/// <c>true</c> if this instance can timeout; otherwise, <c>false</c>.
+		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
 		}
 
 		/// <summary>
-		/// Gets the length.
+		/// Gets the length of the stream.
 		/// </summary>
 		/// <value>
-		/// The length.
+		/// The length of the stream.
 		/// </value>
 		public override long Length {
 			get { throw new NotSupportedException ("Cannot get the length of the stream"); }
 		}
 
 		/// <summary>
-		/// Gets or sets the position.
+		/// Gets or sets the position of the stream.
 		/// </summary>
 		/// <value>
-		/// The position.
+		/// The position of the stream.
 		/// </value>
 		public override long Position {
 			get { return position; }

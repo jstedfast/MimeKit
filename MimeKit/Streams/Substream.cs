@@ -27,14 +27,25 @@
 using System;
 using System.IO;
 
-namespace MimeKit
-{
+namespace MimeKit {
 	public class Substream : Stream
 	{
 		long position;
 		bool disposed;
 		bool eos;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Substream"/> class.
+		/// </summary>
+		/// <param name='source'>
+		/// The underlying source stream.
+		/// </param>
+		/// <param name='bound_start'>
+		/// The offset in the source stream that will mark the start of this substream.
+		/// </param>
+		/// <param name='bound_end'>
+		/// The offset in the source stream that will mark the end of this substream.
+		/// </param>
 		public Substream (Stream source, long bound_start, long bound_end)
 		{
 			if (source == null)
@@ -51,6 +62,36 @@ namespace MimeKit
 			Source = source;
 			position = 0;
 			eos = false;
+		}
+
+		/// <summary>
+		/// Gets the underlying source stream.
+		/// </summary>
+		/// <value>
+		/// The underlying source stream.
+		/// </value>
+		public Stream Source {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the start boundary offset of the underlying source stream.
+		/// </summary>
+		/// <value>
+		/// The start boundary offset of the underlying source stream.
+		/// </value>
+		public long BoundStart {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the end boundary offset of the underlying source stream.
+		/// </summary>
+		/// <value>
+		/// The end boundary offset of the underlying source stream.
+		/// </value>
+		public long BoundEnd {
+			get; private set;
 		}
 
 		void CheckDisposed ()
@@ -77,36 +118,54 @@ namespace MimeKit
 				throw new NotSupportedException ("The stream does not support writing");
 		}
 
-		public Stream Source {
-			get; private set;
-		}
-
-		public long BoundStart {
-			get; private set;
-		}
-
-		public long BoundEnd {
-			get; private set;
-		}
-
 		#region Stream implementation
 
+		/// <summary>
+		/// Checks whether or not the stream supports reading.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+		/// </value>
 		public override bool CanRead {
 			get { return Source.CanRead; }
 		}
 
+		/// <summary>
+		/// Checks whether or not the stream supports writing.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+		/// </value>
 		public override bool CanWrite {
 			get { return Source.CanWrite; }
 		}
 
+		/// <summary>
+		/// Checks whether or not the stream supports seeking.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+		/// </value>
 		public override bool CanSeek {
 			get { return Source.CanSeek; }
 		}
 
+		/// <summary>
+		/// Checks whether or not I/O operations can timeout.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
+		/// </value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
 		}
 
+		/// <summary>
+		/// Gets the length of the stream.
+		/// </summary>
+		/// <value>
+		/// The length of the stream.
+		/// </value>
 		public override long Length {
 			get {
 				CheckDisposed ();
@@ -118,6 +177,12 @@ namespace MimeKit
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the position of the stream.
+		/// </summary>
+		/// <value>
+		/// The position of the stream.
+		/// </value>
 		public override long Position {
 			get { return position; }
 			set {
@@ -128,11 +193,23 @@ namespace MimeKit
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the read timeout.
+		/// </summary>
+		/// <value>
+		/// The read timeout.
+		/// </value>
 		public override int ReadTimeout {
 			get { return Source.ReadTimeout; }
 			set { Source.ReadTimeout = value; }
 		}
 
+		/// <summary>
+		/// Gets or sets the write timeout.
+		/// </summary>
+		/// <value>
+		/// The write timeout.
+		/// </value>
 		public override int WriteTimeout {
 			get { return Source.WriteTimeout; }
 			set { Source.WriteTimeout = value; }
@@ -150,6 +227,27 @@ namespace MimeKit
 				throw new ArgumentOutOfRangeException ("count");
 		}
 
+		/// <summary>
+		/// Begins an asynchronous read.
+		/// </summary>
+		/// <returns>
+		/// The async result.
+		/// </returns>
+		/// <param name='buffer'>
+		/// The buffer to read data into.
+		/// </param>
+		/// <param name='offset'>
+		/// The buffer offset to start reading into.
+		/// </param>
+		/// <param name='count'>
+		/// The number of bytes to read.
+		/// </param>
+		/// <param name='callback'>
+		/// An async callback.
+		/// </param>
+		/// <param name='state'>
+		/// Custom state to pass to the async callback.
+		/// </param>
 		public override IAsyncResult BeginRead (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
 		{
 			CheckDisposed ();
@@ -158,6 +256,27 @@ namespace MimeKit
 			return base.BeginRead (buffer, offset, count, callback, state);
 		}
 
+		/// <summary>
+		/// Begins an asynchronous write.
+		/// </summary>
+		/// <returns>
+		/// The async result.
+		/// </returns>
+		/// <param name='buffer'>
+		/// The buffer containing data to write.
+		/// </param>
+		/// <param name='offset'>
+		/// The beginning offset of the buffer to write.
+		/// </param>
+		/// <param name='count'>
+		/// The number of bytes to write.
+		/// </param>
+		/// <param name='callback'>
+		/// The async callback.
+		/// </param>
+		/// <param name='state'>
+		/// Custom state to pass to the async callback.
+		/// </param>
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
 		{
 			CheckDisposed ();
@@ -166,6 +285,18 @@ namespace MimeKit
 			return base.BeginWrite (buffer, offset, count, callback, state);
 		}
 
+		/// <summary>
+		/// Reads data into the specified buffer.
+		/// </summary>
+		/// <param name='buffer'>
+		/// The buffer to read data into.
+		/// </param>
+		/// <param name='offset'>
+		/// The offset into the buffer to start reading data.
+		/// </param>
+		/// <param name='count'>
+		/// The number of bytes to read.
+		/// </param>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -194,6 +325,18 @@ namespace MimeKit
 			return nread;
 		}
 
+		/// <summary>
+		/// Writes the specified buffer.
+		/// </summary>
+		/// <param name='buffer'>
+		/// The buffer to write.
+		/// </param>
+		/// <param name='offset'>
+		/// The offset of the first byte to write.
+		/// </param>
+		/// <param name='count'>
+		/// The number of bytes to write.
+		/// </param>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -218,6 +361,15 @@ namespace MimeKit
 				eos = true;
 		}
 
+		/// <summary>
+		/// Seeks to the specified offset.
+		/// </summary>
+		/// <param name='offset'>
+		/// The offset from the specified origin.
+		/// </param>
+		/// <param name='origin'>
+		/// The origin from which to seek.
+		/// </param>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
 			CheckDisposed ();
@@ -273,6 +425,9 @@ namespace MimeKit
 			return position;
 		}
 
+		/// <summary>
+		/// Flushes any internal output buffers.
+		/// </summary>
 		public override void Flush ()
 		{
 			CheckDisposed ();
@@ -281,6 +436,12 @@ namespace MimeKit
 			Source.Flush ();
 		}
 
+		/// <summary>
+		/// Sets the length.
+		/// </summary>
+		/// <param name='length'>
+		/// The new length.
+		/// </param>
 		public override void SetLength (long length)
 		{
 			CheckDisposed ();
