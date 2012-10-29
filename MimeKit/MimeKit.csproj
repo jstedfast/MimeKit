@@ -61,6 +61,7 @@
     <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
     <Compile Include="Streams\FilteredStream.cs" />
     <Compile Include="Streams\Substream.cs" />
+    <Compile Include="Filters\PassThroughFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

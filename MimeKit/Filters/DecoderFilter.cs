@@ -66,13 +66,13 @@ namespace MimeKit {
 		/// <param name='encoding'>
 		/// The encoding.
 		/// </param>
-		public static DecoderFilter Create (ContentEncoding encoding)
+		public static IMimeFilter Create (ContentEncoding encoding)
 		{
 			switch (encoding) {
 			case ContentEncoding.Base64: return new DecoderFilter (new Base64Decoder ());
 			case ContentEncoding.QuotedPrintable: return new DecoderFilter (new QuotedPrintableDecoder ());
 			case ContentEncoding.UuEncode: return new DecoderFilter (new UuDecoder ());
-			default: return new DecoderFilter (new PassThroughDecoder (encoding));
+			default: return new PassThroughFilter ();
 			}
 		}
 
