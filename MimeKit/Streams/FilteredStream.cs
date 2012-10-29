@@ -81,6 +81,9 @@ namespace MimeKit {
 		/// </param>
 		public void Add (IMimeFilter filter)
 		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
 			filters.Add (filter);
 		}
 
@@ -92,6 +95,9 @@ namespace MimeKit {
 		/// </param>
 		public bool Contains (IMimeFilter filter)
 		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
 			return filters.Contains (filter);
 		}
 
@@ -103,6 +109,9 @@ namespace MimeKit {
 		/// </param>
 		public bool Remove (IMimeFilter filter)
 		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
 			return filters.Remove (filter);
 		}
 
