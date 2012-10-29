@@ -71,7 +71,7 @@ namespace MimeKit {
 			switch (encoding) {
 			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder ());
 			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder ());
-			case ContentEncoding.UuEncode: throw new NotImplementedException ();
+			case ContentEncoding.UuEncode: return new EncoderFilter (new UuEncoder ());
 			default: return new EncoderFilter (new PassThroughEncoder (encoding));
 			}
 		}
