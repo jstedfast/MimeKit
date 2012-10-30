@@ -111,7 +111,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", "output");
 		}
 
-		unsafe int UnsafeDecode (byte* input, int length, byte* output)
+		unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
 			byte* outptr = output;
@@ -187,7 +187,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
-					return UnsafeDecode (inptr + startIndex, length, outptr);
+					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
 		}

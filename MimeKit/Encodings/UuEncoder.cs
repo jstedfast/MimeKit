@@ -104,7 +104,7 @@ namespace MimeKit {
 			return c != 0 ? (byte) (c + 0x20) : (byte) '`';
 		}
 
-		unsafe int UnsafeEncode (byte* input, int length, byte[] outbuf, byte* output, byte *uuptr)
+		unsafe int Encode (byte* input, int length, byte[] outbuf, byte* output, byte *uuptr)
 		{
 			if (length == 0)
 				return 0;
@@ -227,17 +227,17 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
-					return UnsafeEncode (inptr + startIndex, length, output, outptr, uuptr);
+					return Encode (inptr + startIndex, length, output, outptr, uuptr);
 				}
 			}
 		}
 
-		unsafe int UnsafeFlush (byte* input, int length, byte[] outbuf, byte* output, byte* uuptr)
+		unsafe int Flush (byte* input, int length, byte[] outbuf, byte* output, byte* uuptr)
 		{
 			byte* outptr = output;
 
 			if (length > 0)
-				outptr += UnsafeEncode (input, length, outbuf, output, uuptr);
+				outptr += Encode (input, length, outbuf, output, uuptr);
 
 			byte* bufptr = uuptr + ((uulen / 3) * 4);
 			byte uufill = 0;
@@ -311,7 +311,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
-					return UnsafeFlush (inptr + startIndex, length, output, outptr, uuptr);
+					return Flush (inptr + startIndex, length, output, outptr, uuptr);
 				}
 			}
 		}

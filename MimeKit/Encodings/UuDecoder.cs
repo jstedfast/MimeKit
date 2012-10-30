@@ -118,7 +118,7 @@ namespace MimeKit {
 			return (byte) ((c - 0x20) & 0x3F);
 		}
 
-		unsafe int UnsafeDecode (byte* input, int length, byte* output)
+		unsafe int Decode (byte* input, int length, byte* output)
 		{
 			if (ended)
 				return 0;
@@ -212,7 +212,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
-					return UnsafeDecode (inptr + startIndex, length, outptr);
+					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
 		}

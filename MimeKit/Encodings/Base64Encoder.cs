@@ -103,7 +103,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", "output");
 		}
 
-		unsafe int UnsafeEncode (byte* input, int length, byte* output)
+		unsafe int Encode (byte* input, int length, byte* output)
 		{
 			if (length == 0)
 				return 0;
@@ -198,17 +198,17 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
-					return UnsafeEncode (inptr + startIndex, length, outptr);
+					return Encode (inptr + startIndex, length, outptr);
 				}
 			}
 		}
 
-		unsafe int UnsafeFlush (byte* input, int length, byte* output)
+		unsafe int Flush (byte* input, int length, byte* output)
 		{
 			byte* outptr = output;
 			
 			if (length > 0)
-				outptr += UnsafeEncode (input, length, output);
+				outptr += Encode (input, length, output);
 
 			if (saved >= 1) {
 				int c1 = saved1;
@@ -253,7 +253,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
-					return UnsafeFlush (inptr + startIndex, length, outptr);
+					return Flush (inptr + startIndex, length, outptr);
 				}
 			}
 		}
