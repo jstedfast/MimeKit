@@ -1,5 +1,5 @@
 //
-// UuDecoder.cs
+// UUDecoder.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //

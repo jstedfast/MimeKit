@@ -1,5 +1,5 @@
 //
-// UuEncoder.cs
+// UUEncoder.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
