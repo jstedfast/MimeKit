@@ -80,8 +80,10 @@ namespace MimeKit {
 
 			EnsureOutputSize (length + lwsp.Count, false);
 
-			fixed (byte* inptr = input, outptr = output) {
-				outputLength = Filter (inptr + startIndex, length, outptr);
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					outputLength = Filter (inptr + startIndex, length, outptr);
+				}
 			}
 
 			if (flush)
