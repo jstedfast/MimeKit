@@ -31,12 +31,16 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class HeaderList : ICollection<Header>, IList<Header>
 	{
+		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+
 		// this table references the first header of each field
-		Dictionary<string, Header> table = new Dictionary<string, Header> ();
-		List<Header> headers = new List<Header> ();
+		Dictionary<string, Header> table;
+		List<Header> headers;
 
 		public HeaderList ()
 		{
+			table = new Dictionary<string, Header> (icase);
+			headers = new List<Header> ();
 		}
 
 		public void Add (string field, string value)
@@ -162,7 +166,7 @@ namespace MimeKit {
 
 				// find the next matching header and add it to the lookup table
 				for (int i = index + 1; i < headers.Count; i++) {
-					if (headers[i].Field == header.Field) {
+					if (icase.Compare (headers[i].Field, header.Field) == 0) {
 						table.Add (headers[i].Field, headers[i]);
 						break;
 					}
@@ -224,7 +228,7 @@ namespace MimeKit {
 
 				// find the next matching header and add it to the lookup table
 				for (int i = index + 1; i < headers.Count; i++) {
-					if (headers[i].Field == header.Field) {
+					if (icase.Compare (headers[i].Field, header.Field) == 0) {
 						table.Add (headers[i].Field, headers[i]);
 						break;
 					}
@@ -252,7 +256,7 @@ namespace MimeKit {
 				header.Changed -= OnChanged;
 				value.Changed += OnChanged;
 
-				if (header.Field == value.Field) {
+				if (icase.Compare (header.Field, value.Field) == 0) {
 					// replace the old header with the new one
 					if (table[header.Field] == header)
 						table[header.Field] = value;
@@ -263,7 +267,7 @@ namespace MimeKit {
 
 						// find the next matching header and add it to the lookup table
 						for (int i = index + 1; i < headers.Count; i++) {
-							if (headers[i].Field == header.Field) {
+							if (icase.Compare (headers[i].Field, header.Field) == 0) {
 								table.Add (headers[i].Field, headers[i]);
 								break;
 							}
