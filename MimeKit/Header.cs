@@ -31,7 +31,12 @@ namespace MimeKit {
 	{
 		string text;
 
-		internal Header (string field, string value, long offset)
+		internal Header (string field, string value, long offset) : this (field, value)
+		{
+			Offset = offset;
+		}
+
+		public Header (string field, string value)
 		{
 			if (field == null)
 				throw new ArgumentNullException ("field");
@@ -39,13 +44,8 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
-			Offset = offset;
 			Field = field;
 			text = value;
-		}
-
-		public Header (string field, string value) : this (field, value, -1)
-		{
 		}
 
 		public string Field {
@@ -69,7 +69,7 @@ namespace MimeKit {
 			}
 		}
 
-		public long Offset {
+		public long? Offset {
 			get; private set;
 		}
 
