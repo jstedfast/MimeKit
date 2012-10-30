@@ -34,6 +34,6 @@ namespace MimeKit {
 		Binary,
 		Base64,
 		QuotedPrintable,
-		UuEncode
+		UUEncode
 	}
 }

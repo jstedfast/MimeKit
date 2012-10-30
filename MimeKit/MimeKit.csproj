@@ -48,8 +48,6 @@
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="Encodings\PassThroughDecoder.cs" />
     <Compile Include="Encodings\PassThroughEncoder.cs" />
-    <Compile Include="Encodings\UuDecoder.cs" />
-    <Compile Include="Encodings\UuEncoder.cs" />
     <Compile Include="Filters\CharsetFilter.cs" />
     <Compile Include="Filters\DecoderFilter.cs" />
     <Compile Include="Filters\EncoderFilter.cs" />
@@ -67,6 +65,8 @@
     <Compile Include="IMimeEntity.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="HeaderList.cs" />
+    <Compile Include="Encodings\UUDecoder.cs" />
+    <Compile Include="Encodings\UUEncoder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

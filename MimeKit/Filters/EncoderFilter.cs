@@ -1,4 +1,4 @@
-﻿//
+//
 // EncoderFilter.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
@@ -71,7 +71,7 @@ namespace MimeKit {
 			switch (encoding) {
 			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder ());
 			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder ());
-			case ContentEncoding.UuEncode: return new EncoderFilter (new UuEncoder ());
+			case ContentEncoding.UUEncode: return new EncoderFilter (new UUEncoder ());
 			default: return new PassThroughFilter ();
 			}
 		}
