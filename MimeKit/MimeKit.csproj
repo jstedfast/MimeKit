@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
-    <Compile Include="ByteExtensions.cs" />
     <Compile Include="Encodings\IMimeDecoder.cs" />
     <Compile Include="Encodings\IMimeEncoder.cs" />
     <Compile Include="ContentEncoding.cs" />
@@ -64,6 +63,7 @@
     <Compile Include="Filters\PassThroughFilter.cs" />
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
+    <Compile Include="Utils\ByteExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
