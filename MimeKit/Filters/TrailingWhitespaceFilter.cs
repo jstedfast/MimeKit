@@ -48,6 +48,14 @@ namespace MimeKit {
 			while (inptr < inend) {
 				if ((*inptr).IsBlank ()) {
 					lwsp.Add (*inptr);
+				} else if (*inptr == (byte) '\r') {
+					*outptr++ = *inptr;
+					lwsp.Clear ();
+					count++;
+				} else if (*inptr == (byte) '\n') {
+					*outptr++ = *inptr;
+					lwsp.Clear ();
+					count++;
 				} else {
 					if (lwsp.Count > 0) {
 						lwsp.CopyTo (output, count);
