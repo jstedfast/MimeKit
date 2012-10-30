@@ -64,6 +64,9 @@
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
+    <Compile Include="IMimeEntity.cs" />
+    <Compile Include="Header.cs" />
+    <Compile Include="HeaderList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
