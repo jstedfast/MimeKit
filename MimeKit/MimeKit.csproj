@@ -57,7 +57,6 @@
     <Compile Include="Encodings\QuotedPrintableDecoder.cs" />
     <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
     <Compile Include="Streams\FilteredStream.cs" />
-    <Compile Include="Streams\Substream.cs" />
     <Compile Include="Filters\PassThroughFilter.cs" />
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
@@ -67,6 +66,7 @@
     <Compile Include="HeaderList.cs" />
     <Compile Include="Encodings\UUDecoder.cs" />
     <Compile Include="Encodings\UUEncoder.cs" />
+    <Compile Include="Streams\BoundStream.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

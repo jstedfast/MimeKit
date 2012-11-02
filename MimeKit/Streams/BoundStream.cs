@@ -28,47 +28,53 @@ using System;
 using System.IO;
 
 namespace MimeKit {
-	public class Substream : Stream
+	public class BoundStream : Stream
 	{
 		long position;
 		bool disposed;
 		bool eos;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Substream"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.BoundStream"/> class.
 		/// </summary>
 		/// <param name='baseStream'>
 		/// The underlying stream.
 		/// </param>
-		/// <param name='start'>
+		/// <param name='startBoundary'>
 		/// The offset in the base stream that will mark the start of this substream.
 		/// </param>
-		/// <param name='end'>
+		/// <param name='endBoundary'>
 		/// The offset in the base stream that will mark the end of this substream.
 		/// </param>
-		public Substream (Stream baseStream, long start, long end)
+		/// <param name='leaveOpen'>
+		/// <c>true</c> to leave the baseStream open after the
+		/// <see cref="MimeKit.BoundStream"/> is disposed;
+		/// otherwise, <c>false</c>.
+		/// </param>
+		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
 		{
 			if (baseStream == null)
 				throw new ArgumentNullException ("baseStream");
 
-			if (start < 0)
-				throw new ArgumentOutOfRangeException ("start");
+			if (startBoundary < 0)
+				throw new ArgumentOutOfRangeException ("startBoundary");
 
-			if (end >= 0 && end < start)
-				throw new ArgumentOutOfRangeException ("end");
+			if (endBoundary >= 0 && endBoundary < startBoundary)
+				throw new ArgumentOutOfRangeException ("endBoundary");
 
-			EndBoundary = end < 0 ? -1 : end;
-			StartBoundary = start;
+			EndBoundary = endBoundary < 0 ? -1 : endBoundary;
+			StartBoundary = startBoundary;
 			BaseStream = baseStream;
+			LeaveOpen = leaveOpen;
 			position = 0;
 			eos = false;
 		}
 
 		/// <summary>
-		/// Gets the underlying source stream.
+		/// Gets the underlying stream.
 		/// </summary>
 		/// <value>
-		/// The underlying source stream.
+		/// The underlying stream.
 		/// </value>
 		public Stream BaseStream {
 			get; private set;
@@ -92,6 +98,18 @@ namespace MimeKit {
 		/// </value>
 		public long EndBoundary {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Checks whether or not the underlying stream will remain open after
+		/// the <see cref="MimeKit.BoundStream"/> is disposed.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if the underlying stream should remain open after the
+		/// <see cref="MimeKit.BoundStream"/> is disposed; otherwise, <c>false</c>.
+		/// </value>
+		bool LeaveOpen {
+			get; set;
 		}
 
 		void CheckDisposed ()
@@ -460,6 +478,9 @@ namespace MimeKit {
 
 		protected override void Dispose (bool disposing)
 		{
+			if (disposing && !LeaveOpen)
+				BaseStream.Dispose ();
+
 			base.Dispose (disposing);
 			disposed = true;
 		}
