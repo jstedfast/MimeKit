@@ -1,5 +1,5 @@
 //
-// Parameter.cs
+// ContentDisposition.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -27,44 +27,43 @@
 using System;
 
 namespace MimeKit {
-	public sealed class Parameter
+	public sealed class ContentDisposition
 	{
-		string text;
+		string disposition;
 
-		public Parameter (string name, string value)
+		public ContentDisposition ()
 		{
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			if (name == string.Empty)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
-			Name = name;
-			Value = value;
+			Parameters = new ParameterList ();
+			Parameters.Changed += OnParametersChanged;
 		}
 
-		public string Name {
-			get; private set;
-		}
-
-		public string Value {
-			get { return text; }
+		public string Disposition {
+			get { return disposition; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (text == value)
+				if (value == string.Empty)
+					throw new ArgumentException ("The disposition is not allowed to be empty.");
+
+				if (disposition == value)
 					return;
 
-				text = value;
+				disposition = value;
 				OnChanged ();
 			}
 		}
 
+		public ParameterList Parameters {
+			get; private set;
+		}
+
 		public event EventHandler Changed;
+
+		void OnParametersChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
+		}
 
 		void OnChanged ()
 		{

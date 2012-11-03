@@ -1,5 +1,5 @@
 //
-// Parameter.cs
+// HeaderChangedEventArgs.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -27,49 +27,27 @@
 using System;
 
 namespace MimeKit {
-	public sealed class Parameter
+	public enum HeaderListChangedAction {
+		Added,
+		Changed,
+		Removed,
+		Cleared
+	}
+
+	public class HeaderListChangedEventArgs : EventArgs
 	{
-		string text;
-
-		public Parameter (string name, string value)
+		internal HeaderListChangedEventArgs (Header header, HeaderListChangedAction action)
 		{
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			if (name == string.Empty)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
-			Name = name;
-			Value = value;
+			Header = header;
+			Action = action;
 		}
 
-		public string Name {
+		public HeaderListChangedAction Action {
 			get; private set;
 		}
 
-		public string Value {
-			get { return text; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException ("value");
-
-				if (text == value)
-					return;
-
-				text = value;
-				OnChanged ();
-			}
-		}
-
-		public event EventHandler Changed;
-
-		void OnChanged ()
-		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+		public Header Header {
+			get; private set;
 		}
 	}
 }

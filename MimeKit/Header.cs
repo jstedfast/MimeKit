@@ -27,7 +27,7 @@
 using System;
 
 namespace MimeKit {
-	public class Header
+	public sealed class Header
 	{
 		string text;
 

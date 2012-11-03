@@ -29,7 +29,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public class HeaderList : ICollection<Header>, IList<Header>
+	public sealed class HeaderList : ICollection<Header>, IList<Header>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
@@ -116,7 +116,7 @@ namespace MimeKit {
 			header.Changed += OnHeaderChanged;
 			headers.Add (header);
 
-			OnChanged ();
+			OnChanged (header, HeaderListChangedAction.Added);
 		}
 
 		public void Clear ()
@@ -127,7 +127,7 @@ namespace MimeKit {
 			headers.Clear ();
 			table.Clear ();
 
-			OnChanged ();
+			OnChanged (null, HeaderListChangedAction.Cleared);
 		}
 
 		public bool Contains (Header header)
@@ -163,7 +163,7 @@ namespace MimeKit {
 
 			headers.RemoveAt (index);
 
-			OnChanged ();
+			OnChanged (header, HeaderListChangedAction.Removed);
 
 			return true;
 		}
@@ -199,7 +199,7 @@ namespace MimeKit {
 			headers.Insert (index, header);
 			header.Changed += OnHeaderChanged;
 
-			OnChanged ();
+			OnChanged (header, HeaderListChangedAction.Added);
 		}
 
 		public void RemoveAt (int index)
@@ -225,7 +225,7 @@ namespace MimeKit {
 
 			headers.RemoveAt (index);
 
-			OnChanged ();
+			OnChanged (header, HeaderListChangedAction.Removed);
 		}
 
 		public Header this [int index] {
@@ -275,7 +275,8 @@ namespace MimeKit {
 
 				headers[index] = value;
 
-				OnChanged ();
+				OnChanged (header, HeaderListChangedAction.Removed);
+				OnChanged (value, HeaderListChangedAction.Added);
 			}
 		}
 
@@ -299,17 +300,17 @@ namespace MimeKit {
 
 		#endregion
 
-		public event EventHandler Changed;
+		public event EventHandler<HeaderListChangedEventArgs> Changed;
 
 		void OnHeaderChanged (object sender, EventArgs args)
 		{
-			OnChanged ();
+			OnChanged ((Header) sender, HeaderListChangedAction.Changed);
 		}
 
-		void OnChanged ()
+		void OnChanged (Header header, HeaderListChangedAction action)
 		{
 			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+				Changed (this, new HeaderListChangedEventArgs (header, action));
 		}
 	}
 }

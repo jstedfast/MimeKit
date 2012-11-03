@@ -29,7 +29,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public class ParameterList : ICollection<Parameter>, IList<Parameter>
+	public sealed class ParameterList : ICollection<Parameter>, IList<Parameter>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 

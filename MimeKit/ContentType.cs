@@ -27,7 +27,7 @@
 using System;
 
 namespace MimeKit {
-	public class ContentType
+	public sealed class ContentType
 	{
 		string type, subtype;
 

@@ -1,5 +1,5 @@
 //
-// Parameter.cs
+// Multipart.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,51 +25,43 @@
 //
 
 using System;
+using System.IO;
 
 namespace MimeKit {
-	public sealed class Parameter
+	public class Multipart : MimeEntity
 	{
-		string text;
+		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
-		public Parameter (string name, string value)
+		string boundary;
+
+		public Multipart (string subtype) : base ("multipart", subtype)
 		{
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			if (name == string.Empty)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
-			Name = name;
-			Value = value;
+			// FIXME: generate a random boundary
 		}
 
-		public string Name {
-			get; private set;
-		}
-
-		public string Value {
-			get { return text; }
+		public string Boundary {
+			get { return boundary; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (text == value)
+				if (boundary == value)
 					return;
 
-				text = value;
-				OnChanged ();
+				ContentType.Parameters["boundary"] = value;
 			}
 		}
 
-		public event EventHandler Changed;
-
-		void OnChanged ()
+		protected override void OnContentTypeChanged (object sender, EventArgs e)
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			boundary = ContentType.Parameters["boundary"];
+
+			base.OnContentTypeChanged (sender, e);
+		}
+
+		public override void CopyTo (Stream stream)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

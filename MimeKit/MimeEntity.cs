@@ -25,20 +25,99 @@
 //
 
 using System;
+using System.IO;
 
 namespace MimeKit {
-	public class MimeEntity
+	public abstract class MimeEntity
 	{
-		public MimeEntity ()
+		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+
+		string content_id;
+
+		protected MimeEntity (string type, string subtype)
 		{
+			ContentType = new ContentType (type, subtype);
+			ContentType.Changed += OnContentTypeChanged;
+
+			Headers = new HeaderList ();
+			Headers.Changed += OnHeadersChanged;
+		}
+
+		public ContentDisposition ContentDisposition {
+			get; private set;
 		}
 
 		public ContentType ContentType {
-			get; set;
+			get; private set;
+		}
+
+		public string ContentId {
+			get { return content_id; }
+			set {
+				if (content_id == value)
+					return;
+
+				Headers.Changed -= OnHeadersChanged;
+
+				if (value != null) {
+					value = value.Trim ();
+
+					if (value != string.Empty)
+						Headers["Content-Id"] = "<" + value + ">";
+					else
+						Headers["Content-Id"] = string.Empty;
+				} else {
+					Headers.Remove ("Content-Id");
+				}
+
+				Headers.Changed += OnHeadersChanged;
+				content_id = value;
+				OnChanged ();
+			}
 		}
 
 		public HeaderList Headers {
 			get; private set;
+		}
+
+		public abstract void CopyTo (Stream stream);
+
+		protected virtual void OnContentDispositionChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
+		}
+
+		protected virtual void OnContentTypeChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
+		}
+
+		protected virtual void OnHeadersChanged (object sender, HeaderListChangedEventArgs e)
+		{
+			switch (e.Action) {
+			case HeaderListChangedAction.Added:
+			case HeaderListChangedAction.Changed:
+				if (icase.Compare (e.Header.Field, "Content-Disposition") == 0) {
+				} else if (icase.Compare (e.Header.Field, "Content-Type") == 0) {
+				} else if (icase.Compare (e.Header.Field, "Content-Id") == 0) {
+					// FIXME: extract only the value between <>'s
+					content_id = e.Header.Value;
+				}
+				break;
+			case HeaderListChangedAction.Removed:
+				if (icase.Compare (e.Header.Field, "Content-Disposition") == 0) {
+				} else if (icase.Compare (e.Header.Field, "Content-Type") == 0) {
+				} else if (icase.Compare (e.Header.Field, "Content-Id") == 0) {
+					content_id = null;
+				}
+				break;
+			case HeaderListChangedAction.Cleared:
+				break;
+			default:
+				throw new ArgumentOutOfRangeException ();
+			}
+
+			OnChanged ();
 		}
 
 		public event EventHandler Changed;
