@@ -61,12 +61,15 @@
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
-    <Compile Include="IMimeEntity.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="HeaderList.cs" />
     <Compile Include="Encodings\UUDecoder.cs" />
     <Compile Include="Encodings\UUEncoder.cs" />
     <Compile Include="Streams\BoundStream.cs" />
+    <Compile Include="MimeEntity.cs" />
+    <Compile Include="ContentType.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

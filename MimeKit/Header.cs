@@ -41,6 +41,9 @@ namespace MimeKit {
 			if (field == null)
 				throw new ArgumentNullException ("field");
 
+			if (field == string.Empty)
+				throw new ArgumentException ("Header field names are not allowed to be empty.");
+
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
@@ -64,8 +67,7 @@ namespace MimeKit {
 				text = value;
 				Offset = -1;
 
-				if (Changed != null)
-					Changed (this, EventArgs.Empty);
+				OnChanged ();
 			}
 		}
 
@@ -74,5 +76,11 @@ namespace MimeKit {
 		}
 
 		public event EventHandler Changed;
+
+		void OnChanged ()
+		{
+			if (Changed != null)
+				Changed (this, EventArgs.Empty);
+		}
 	}
 }

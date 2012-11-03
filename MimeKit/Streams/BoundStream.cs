@@ -191,6 +191,9 @@ namespace MimeKit {
 				if (EndBoundary != -1)
 					return EndBoundary - StartBoundary;
 
+				if (eos)
+					return position;
+
 				return BaseStream.Length - StartBoundary;
 			}
 		}
