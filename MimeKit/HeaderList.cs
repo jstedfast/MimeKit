@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -93,6 +94,11 @@ namespace MimeKit {
 					Add (field, value);
 				}
 			}
+		}
+
+		public void WriteTo (Stream stream)
+		{
+			throw new NotImplementedException ();
 		}
 
 		#region ICollection implementation

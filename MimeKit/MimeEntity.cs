@@ -80,7 +80,7 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		public abstract void CopyTo (Stream stream);
+		public abstract void WriteTo (Stream stream);
 
 		protected virtual void OnContentDispositionChanged (object sender, EventArgs e)
 		{

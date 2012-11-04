@@ -225,7 +225,7 @@ namespace MimeKit {
 				value.Changed += OnParamChanged;
 				parameters[index] = value;
 
-				OnParamChanged ();
+				OnChanged ();
 			}
 		}
 

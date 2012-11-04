@@ -59,7 +59,7 @@ namespace MimeKit {
 			base.OnContentTypeChanged (sender, e);
 		}
 
-		public override void CopyTo (Stream stream)
+		public override void WriteTo (Stream stream)
 		{
 			throw new NotImplementedException ();
 		}

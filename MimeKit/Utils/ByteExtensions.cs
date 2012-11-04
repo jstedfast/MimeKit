@@ -27,6 +27,24 @@
 using System;
 
 namespace MimeKit {
+	[Flags]
+	enum CharType : ushort {
+		None                  = 0,
+		IsAscii               = (1 << 0),
+		IsAttrChar            = (1 << 1),
+		IsBlank               = (1 << 2),
+		IsControl             = (1 << 3),
+		IsDomainSafe          = (1 << 4),
+		IsEncodedPhraseSafe   = (1 << 5),
+		IsEncodedWordSafe     = (1 << 6),
+		IsQuotedPrintableSafe = (1 << 7),
+		IsSpace               = (1 << 8),
+		IsSpecial             = (1 << 9),
+		IsTokenSpecial        = (1 << 10),
+		IsWhitespace          = (1 << 11),
+		IsXDigit              = (1 << 12),
+	}
+
 	static class ByteExtensions
 	{
 		const string AttributeCharacters = "*'% "; // attribute-char from rfc2184
@@ -38,30 +56,12 @@ namespace MimeKit {
 		const string TokenSpecials = "()<>@,;:\\\"/[]?=";
 		const string Whitespace = " \t\r\n";
 
-		[Flags]
-		enum CharType : ushort {
-			None                  = 0,
-			IsAscii               = (1 << 0),
-			IsAttrChar            = (1 << 1),
-			IsBlank               = (1 << 2),
-			IsControl             = (1 << 3),
-			IsDomainSpecial       = (1 << 4),
-			IsEncodedPhraseSafe   = (1 << 5),
-			IsEncodedWordSafe     = (1 << 6),
-			IsQuotedPrintableSafe = (1 << 7),
-			IsSpace               = (1 << 8),
-			IsSpecial             = (1 << 9),
-			IsTokenSpecial        = (1 << 10),
-			IsWhitespace          = (1 << 11),
-			IsXDigit              = (1 << 12),
-		}
-
 		static CharType[] table = new CharType[256];
 
 		static void RemoveFlags (string values, CharType bit)
 		{
 			for (int i = 0; i < values.Length; i++)
-				table[values[i]] &= ~bit;
+				table[(byte) values[i]] &= ~bit;
 		}
 
 		static void SetFlags (string values, CharType bit, CharType bitcopy, bool remove)
@@ -69,7 +69,7 @@ namespace MimeKit {
 			int i;
 
 			if (remove) {
-				for (i = 0; i < 256; i++)
+				for (i = 0; i < 128; i++)
 					table[i] |= bit;
 
 				for (i = 0; i < values.Length; i++)
@@ -97,7 +97,6 @@ namespace MimeKit {
 		static ByteExtensions ()
 		{
 			for (int i = 0; i < 256; i++) {
-				table[i] = 0;
 				if (i < 128) {
 					if (i < 32 || i == 127)
 						table[i] |= CharType.IsControl;
@@ -111,6 +110,8 @@ namespace MimeKit {
 						table[i] |= CharType.IsXDigit;
 
 					table[i] |= CharType.IsAscii;
+				} else {
+					table[i] |= CharType.IsControl;
 				}
 			}
 
@@ -120,7 +121,7 @@ namespace MimeKit {
 			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None, false);
 			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl, false);
 			SetFlags (Specials, CharType.IsSpecial, CharType.None, false);
-			SetFlags (DomainSpecials, CharType.IsDomainSpecial, CharType.None, false);
+			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
 			RemoveFlags (AttributeCharacters + TokenSpecials, CharType.IsAttrChar);
 			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);
@@ -155,12 +156,22 @@ namespace MimeKit {
 
 		public static bool IsDomain (this byte c)
 		{
-			return !table[c].HasFlag (CharType.IsDomainSpecial);
+			return table[c].HasFlag (CharType.IsDomainSafe);
 		}
 
 		public static bool IsQpSafe (this byte c)
 		{
 			return table[c].HasFlag (CharType.IsQuotedPrintableSafe);
+		}
+
+		public static bool IsType (this byte c, CharType type)
+		{
+			return (table[c] & type) != 0;
+		}
+
+		public static bool IsWhitespace (this byte c)
+		{
+			return table[c].HasFlag (CharType.IsWhitespace);
 		}
 
 		public static bool IsXDigit (this byte c)
