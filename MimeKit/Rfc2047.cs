@@ -38,7 +38,7 @@ namespace MimeKit {
 
 		class Token {
 			public ContentEncoding Encoding;
-			public Encoding Charset;
+			public int CodePage;
 			public int StartIndex;
 			public int Length;
 			public bool Is8bit;
@@ -141,7 +141,7 @@ namespace MimeKit {
 			inptr++;
 
 			token = new Token ((int) (inptr - input), (int) (inend - inptr));
-			token.Charset = CharsetUtils.GetEncoding (charset.ToString ());
+			token.CodePage = CharsetUtils.GetCodePage (charset.ToString ());
 			token.Encoding = encoding;
 
 			return true;
@@ -391,9 +391,224 @@ namespace MimeKit {
 			return tokens;
 		}
 
+		static unsafe int DecodeToken (Token token, IMimeDecoder decoder, byte* input, byte* output)
+		{
+			byte* inptr = input + token.StartIndex;
+
+			return decoder.Decode (inptr, token.Length, output);
+		}
+
+		class InvalidByteCountFallback : DecoderFallback
+		{
+			class InvalidByteCountFallbackBuffer : DecoderFallbackBuffer
+			{
+				InvalidByteCountFallback fallback;
+				string replacement = "?";
+				int current = 0;
+				bool invalid;
+
+				public InvalidByteCountFallbackBuffer (InvalidByteCountFallback fallback)
+				{
+					this.fallback = fallback;
+				}
+
+				public override bool Fallback (byte[] bytesUnknown, int index)
+				{
+					fallback.InvalidByteCount++;
+					invalid = true;
+					current = 0;
+					return true;
+				}
+
+				public override char GetNextChar ()
+				{
+					if (!invalid)
+						return '\0';
+
+					if (current == replacement.Length)
+						return '\0';
+
+					return replacement[current++];
+				}
+
+				public override bool MovePrevious ()
+				{
+					if (current == 0)
+						return false;
+
+					current--;
+
+					return true;
+				}
+
+				public override int Remaining {
+					get { return invalid ? replacement.Length - current : 0; }
+				}
+
+				public override void Reset ()
+				{
+					invalid = false;
+					current = 0;
+
+					base.Reset ();
+				}
+			}
+
+			public InvalidByteCountFallback ()
+			{
+				Reset ();
+			}
+
+			public int InvalidByteCount {
+				get; private set;
+			}
+
+			public void Reset ()
+			{
+				InvalidByteCount = 0;
+			}
+
+			public override DecoderFallbackBuffer CreateFallbackBuffer ()
+			{
+				return new InvalidByteCountFallbackBuffer (this);
+			}
+
+			public override int MaxCharCount {
+				get { return 1; }
+			}
+		}
+
+		static unsafe char[] Convert8BitToUnicode (byte* input, int length, out int charCount)
+		{
+			// FIXME: allow user to provide aditional fallback codepages? or at least include locale charset?
+			int[] codepages = new int[] { 65001 /* utf-8 */, 28591 /* iso-8859-1 */};
+			var invalid = new InvalidByteCountFallback ();
+			int min = Int32.MaxValue;
+			char[] output = null;
+			Encoding encoding;
+			Decoder decoder;
+			int best = -1;
+			int count;
+
+			for (int i = 0; i < codepages.Length; i++) {
+				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
+				decoder = encoding.GetDecoder ();
+
+				count = decoder.GetCharCount (input, length, true);
+				if (invalid.InvalidByteCount < min) {
+					min = invalid.InvalidByteCount;
+					best = codepages[i];
+
+					if (min == 0)
+						break;
+				}
+
+				invalid.Reset ();
+			}
+
+			encoding = CharsetUtils.GetEncoding (best);
+			decoder = encoding.GetDecoder ();
+
+			count = decoder.GetCharCount (input, length, true);
+			output = new char[count];
+
+			fixed (char* outptr = output) {
+				charCount = decoder.GetChars (input, length, outptr, count, true);
+			}
+
+			return output;
+		}
+
+		static unsafe char[] ConvertToUnicode (int codepage, byte* input, int length, out int charCount)
+		{
+			Encoding encoding = null;
+
+			if (codepage != -1)
+				encoding = CharsetUtils.GetEncoding (codepage);
+
+			if (encoding == null)
+				return Convert8BitToUnicode (input, length, out charCount);
+
+			var decoder = encoding.GetDecoder ();
+			int count = decoder.GetCharCount (input, length, true);
+			char[] output = new char[count];
+
+			fixed (char* outptr = output) {
+				charCount = decoder.GetChars (input, length, outptr, count, true);
+			}
+
+			return output;
+		}
+
 		static unsafe string DecodeTokens (List<Token> tokens, byte* input, int length)
 		{
-			throw new NotImplementedException ();
+			StringBuilder decoded = new StringBuilder (length);
+			IMimeDecoder qp = new QuotedPrintableDecoder (true);
+			IMimeDecoder base64 = new Base64Decoder ();
+			byte[] output = new byte[length];
+			byte* inptr, inend, outptr;
+			Token token;
+			int len;
+
+			fixed (byte* outbuf = output) {
+				for (int i = 0; i < tokens.Count; i++) {
+					token = tokens[i];
+
+					if (token.Encoding != ContentEncoding.Default) {
+						// In order to work around broken mailers, we need to combine the raw
+						// decoded content of runs of identically encoded word tokens before
+						// converting to unicode strings.
+						ContentEncoding encoding = token.Encoding;
+						int codepage = token.CodePage;
+						IMimeDecoder decoder;
+						int outlen, n;
+
+						// find the end of this run (and measure the buffer length we'll need)
+						for (n = i + 1; n < tokens.Count; n++) {
+							if (tokens[n].Encoding != encoding || tokens[n].CodePage != codepage)
+								break;
+						}
+
+						// base64 / quoted-printable decode each of the tokens...
+						if (encoding == ContentEncoding.Base64)
+							decoder = base64;
+						else
+							decoder = qp;
+
+						outptr = outbuf;
+						outlen = 0;
+						do {
+							// Note: by not resetting the decoder state each loop, we effectively
+							// treat the payloads as one continuous block, thus allowing us to
+							// handle cases where a hex-encoded triplet of a quoted-printable
+							// encoded payload is split between 2 or more encoded-word tokens.
+							len = DecodeToken (tokens[i], decoder, input, outptr);
+							outptr += len;
+							outlen += len;
+							i++;
+						} while (i != n);
+
+						decoder.Reset ();
+						i--;
+
+						var unicode = ConvertToUnicode (codepage, outbuf, outlen, out len);
+						decoded.Append (unicode, 0, len);
+					} else if (token.Is8bit) {
+						// *sigh* I hate broken mailers...
+						var unicode = Convert8BitToUnicode (input + token.StartIndex, token.Length, out len);
+						decoded.Append (unicode, 0, len);
+					} else {
+						// pure 7bit ascii, a breath of fresh air...
+						inptr = input + token.StartIndex;
+						inend = inptr + token.Length;
+
+						while (inptr < inend)
+							decoded.Append ((char) *inptr++);
+					}
+				}
+			}
+
+			return decoded.ToString ();
 		}
 
 		static unsafe string DecodePhrase (byte* phrase, int length)
@@ -438,6 +653,16 @@ namespace MimeKit {
 					return DecodeText (inptr, text.Length);
 				}
 			}
+		}
+
+		public static byte[] EncodePhrase (Encoding charset, string phrase)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public static byte[] EncodeText (Encoding charset, string text)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

@@ -33,7 +33,6 @@ namespace MimeKit {
 		const CharType SpaceOrCtrl = CharType.IsSpace | CharType.IsControl;
 
 		string textValue;
-		byte[] rawValue;
 
 		public Header (string field, byte[] value)
 		{
@@ -47,7 +46,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("value");
 
 			Field = field;
-			rawValue = value;
+			RawValue = value;
 		}
 
 		public Header (string field, string value)
@@ -62,7 +61,8 @@ namespace MimeKit {
 				throw new ArgumentNullException ("value");
 
 			Field = field;
-			textValue = value;
+
+			SetValue (Encoding.UTF8, value);
 		}
 
 		static unsafe bool TryParse (byte* input, int length, out Header header)
@@ -118,30 +118,19 @@ namespace MimeKit {
 		}
 
 		public byte[] RawValue {
-			get { return rawValue; }
-			internal set { rawValue = value; }
+			get; private set;
 		}
 
 		public string Value {
 			get {
-				if (textValue != null)
-					return textValue;
-
-				textValue = Rfc2047.DecodeText (rawValue);
+				if (textValue == null)
+					textValue = Rfc2047.DecodeText (RawValue);
 
 				return textValue;
 			}
 			set {
 				SetValue (Encoding.UTF8, value);
 			}
-		}
-
-		public string GetValue (Encoding encoding)
-		{
-			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
-
-			return encoding.GetString (rawValue);
 		}
 
 		public void SetValue (Encoding encoding, string value)
@@ -154,7 +143,7 @@ namespace MimeKit {
 
 			textValue = value.Trim ();
 
-			rawValue = Rfc2047.EncodeText (encoding, textValue);
+			RawValue = Rfc2047.EncodeText (encoding, textValue);
 			Offset = null;
 
 			OnChanged ();

@@ -36,14 +36,26 @@ namespace MimeKit {
 		}
 
 		QpDecoderState state;
+		bool rfc2047;
 		byte saved;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
 		/// </summary>
-		public QuotedPrintableDecoder ()
+		/// <param name='rfc2047'>
+		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
+		/// </param>
+		public QuotedPrintableDecoder (bool rfc2047)
 		{
+			this.rfc2047 = rfc2047;
 			Reset ();
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
+		/// </summary>
+		public QuotedPrintableDecoder () : this (false)
+		{
 		}
 
 		/// <summary>
@@ -97,7 +109,22 @@ namespace MimeKit {
 				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", "output");
 		}
 
-		unsafe int Decode (byte* input, int length, byte* output)
+		/// <summary>
+		/// Decodes the specified input into the output buffer.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// A pointer to the beginning of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// A pointer to the beginning of the output buffer.
+		/// </param>
+		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
 			byte* outptr = output;
@@ -113,9 +140,11 @@ namespace MimeKit {
 						if (c == '=') {
 							state = QpDecoderState.EqualSign;
 							break;
+						} else if (rfc2047 && c == '_') {
+							*outptr++ = (byte) ' ';
+						} else {
+							*outptr++ = c;
 						}
-
-						*outptr++ = c;
 					}
 					break;
 				case QpDecoderState.EqualSign:

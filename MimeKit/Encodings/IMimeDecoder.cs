@@ -55,6 +55,23 @@ namespace MimeKit {
 		/// The number of bytes written to the output buffer.
 		/// </returns>
 		/// <param name='input'>
+		/// A pointer to the beginning of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// A pointer to the beginning of the output buffer.
+		/// </param>
+		unsafe int Decode (byte* input, int length, byte* output);
+
+		/// <summary>
+		/// Decodes the specified input into the output buffer.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
 		/// The input buffer.
 		/// </param>
 		/// <param name='startIndex'>

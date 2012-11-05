@@ -118,7 +118,22 @@ namespace MimeKit {
 			return (byte) ((c - 0x20) & 0x3F);
 		}
 
-		unsafe int Decode (byte* input, int length, byte* output)
+		/// <summary>
+		/// Decodes the specified input into the output buffer.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// A pointer to the beginning of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// A pointer to the beginning of the output buffer.
+		/// </param>
+		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			if (ended)
 				return 0;

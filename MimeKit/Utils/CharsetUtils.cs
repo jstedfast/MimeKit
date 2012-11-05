@@ -40,15 +40,15 @@ namespace MimeKit {
 
 			aliases = new Dictionary<string, Encoding> ();
 
-			aliases.Add ("utf8", Encoding.GetEncoding (65001));
+			aliases.Add ("utf8", GetEncoding (65001));
 
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
-			aliases.Add ("ansi_x3.4-1968", Encoding.GetEncoding (20127));
+			aliases.Add ("ansi_x3.4-1968", GetEncoding (20127));
 
 			// Korean charsets
 			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
-			encoding = Encoding.GetEncoding (51949); // euc-kr
+			encoding = GetEncoding (51949); // euc-kr
 			aliases.Add ("ks_c_5601-1987", encoding);
 			aliases.Add ("5601",           encoding);
 			aliases.Add ("ksc-5601",       encoding);
@@ -59,14 +59,14 @@ namespace MimeKit {
 			aliases.Add ("euc-kr",         encoding);
 
 			// Chinese charsets
-			encoding = Encoding.GetEncoding (950); // big5
+			encoding = GetEncoding (950); // big5
 			aliases.Add ("big5",           encoding);
 			aliases.Add ("big5-0",         encoding);
 			aliases.Add ("big5.eten-0",    encoding);
 			aliases.Add ("big5hkscs-0",    encoding);
 
 			// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
-			encoding = Encoding.GetEncoding (51936); // euc-cn
+			encoding = GetEncoding (51936); // euc-cn
 			aliases.Add ("gb2312",         encoding);
 			aliases.Add ("gb-2312",        encoding);
 			aliases.Add ("gb2312-0",       encoding);
@@ -77,18 +77,18 @@ namespace MimeKit {
 			aliases.Add ("gbk",            encoding);
 
 			// add aliases for gb18030
-			encoding = Encoding.GetEncoding (54936); // gb18030
+			encoding = GetEncoding (54936); // gb18030
 			aliases.Add ("gb18030-0",      encoding);
 			aliases.Add ("gb18030",        encoding);
 
 			// Japanese charsets
-			encoding = Encoding.GetEncoding (51932); // euc-jp
+			encoding = GetEncoding (51932); // euc-jp
 			aliases.Add ("eucjp-0",        encoding);
 			aliases.Add ("euc-jp",         encoding);
 			aliases.Add ("ujis-0",         encoding);
 			aliases.Add ("ujis",           encoding);
 
-			encoding = Encoding.GetEncoding (932); // shift_jis
+			encoding = GetEncoding (932); // shift_jis
 			aliases.Add ("jisx0208.1983-0", encoding);
 			aliases.Add ("jisx0212.1990-0", encoding);
 			aliases.Add ("pck",             encoding);
@@ -129,7 +129,7 @@ namespace MimeKit {
 			return GetMimeCharset (encoding);
 		}
 
-		static int GetIsoCodePage (string charset)
+		static int ParseIsoCodePage (string charset)
 		{
 			if (charset.Length < 6)
 				return -1;
@@ -180,7 +180,7 @@ namespace MimeKit {
 			return codepage;
 		}
 
-		static int GetCodePage (string charset)
+		static int ParseCodePage (string charset)
 		{
 			int codepage;
 			int i;
@@ -204,7 +204,7 @@ namespace MimeKit {
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
 			} else if (charset.StartsWith ("iso")) {
-				if ((codepage = GetIsoCodePage (charset.Substring (3))) != -1)
+				if ((codepage = ParseIsoCodePage (charset.Substring (3))) != -1)
 					return codepage;
 			} else if (charset.StartsWith ("cp")) {
 				i = 2;
@@ -229,6 +229,32 @@ namespace MimeKit {
 			return -1;
 		}
 
+		public static int GetCodePage (string charset)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			charset = charset.ToLowerInvariant ();
+
+			Encoding encoding;
+
+			lock (aliases) {
+				if (!aliases.TryGetValue (charset, out encoding)) {
+					int codepage = ParseCodePage (charset);
+
+					if (codepage == -1)
+						return -1;
+
+					encoding = GetEncoding (codepage);
+
+					if (encoding != null)
+						aliases.Add (encoding.HeaderName, encoding);
+				}
+			}
+
+			return encoding.CodePage;
+		}
+
 		public static Encoding GetEncoding (string charset)
 		{
 			if (charset == null)
@@ -240,17 +266,27 @@ namespace MimeKit {
 
 			lock (aliases) {
 				if (!aliases.TryGetValue (charset, out encoding)) {
-					int codepage = GetCodePage (charset);
+					int codepage = ParseCodePage (charset);
 
 					if (codepage == -1)
 						return null;
 
-					encoding = Encoding.GetEncoding (codepage);
-					aliases.Add (encoding.HeaderName, encoding);
+					encoding = GetEncoding (codepage);
+
+					if (encoding != null)
+						aliases.Add (encoding.HeaderName, encoding);
 				}
 			}
 
 			return encoding;
+		}
+
+		public static Encoding GetEncoding (int codepage)
+		{
+			var encoderFallback = new EncoderReplacementFallback ("?");
+			var decoderFallback = new DecoderReplacementFallback ("?");
+
+			return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
 		}
 	}
 }
