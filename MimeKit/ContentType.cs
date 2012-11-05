@@ -36,19 +36,34 @@ namespace MimeKit {
 			if (type == null)
 				throw new ArgumentNullException ("type");
 
-			if (type == string.Empty)
-				throw new ArgumentException ("The type is not allowed to be empty.");
+			if (type.Length == 0)
+				throw new ArgumentException ("The type is not allowed to be empty.", "type");
+
+			for (int i = 0; i < type.Length; i++) {
+				if (type[i] > 127 || !IsAtom ((byte) type[i]))
+					throw new ArgumentException ("Illegal characters in type.", "type");
+			}
 
 			if (subtype == null)
 				throw new ArgumentNullException ("subtype");
 
-			if (subtype == string.Empty)
-				throw new ArgumentException ("The subtype is not allowed to be empty.");
+			if (subtype.Length == 0)
+				throw new ArgumentException ("The subtype is not allowed to be empty.", "subtype");
+
+			for (int i = 0; i < subtype.Length; i++) {
+				if (subtype[i] > 127 || !IsAtom ((byte) subtype[i]))
+					throw new ArgumentException ("Illegal characters in subtype.", "subtype");
+			}
 
 			Parameters = new ParameterList ();
 			Parameters.Changed += OnParametersChanged;
 			this.subtype = subtype;
 			this.type = type;
+		}
+
+		static bool IsAtom (byte c)
+		{
+			return c.IsAtom ();
 		}
 
 		public string Type {
@@ -57,8 +72,13 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (value == string.Empty)
-					throw new ArgumentException ("The type is not allowed to be empty.");
+				if (value.Length == 0)
+					throw new ArgumentException ("Type is not allowed to be empty.", "value");
+
+				for (int i = 0; i < value.Length; i++) {
+					if (value[i] > 127 || !IsAtom ((byte) value[i]))
+						throw new ArgumentException ("Illegal characters in type.", "value");
+				}
 
 				if (type == value)
 					return;
@@ -75,8 +95,13 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (value == string.Empty)
-					throw new ArgumentException ("The subtype is not allowed to be empty.");
+				if (value.Length == 0)
+					throw new ArgumentException ("Subtype is not allowed to be empty.", "value");
+
+				for (int i = 0; i < value.Length; i++) {
+					if (value[i] > 127 || !IsAtom ((byte) value[i]))
+						throw new ArgumentException ("Illegal characters in subtype.", "value");
+				}
 
 				if (subtype == value)
 					return;

@@ -30,21 +30,10 @@ using System.Text;
 namespace MimeKit {
 	public sealed class Header
 	{
-		const CharType SpaceOrCtrl = CharType.IsSpace | CharType.IsControl;
-
 		string textValue;
 
-		public Header (string field, byte[] value)
+		Header (string field, byte[] value)
 		{
-			if (field == null)
-				throw new ArgumentNullException ("field");
-
-			if (field == string.Empty)
-				throw new ArgumentException ("Header field names are not allowed to be empty.");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
 			Field = field;
 			RawValue = value;
 		}
@@ -54,8 +43,13 @@ namespace MimeKit {
 			if (field == null)
 				throw new ArgumentNullException ("field");
 
-			if (field == string.Empty)
-				throw new ArgumentException ("Header field names are not allowed to be empty.");
+			if (field.Length == 0)
+				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
+
+			for (int i = 0; i < field.Length; i++) {
+				if (field[i] > 127 || !IsAtom ((byte) field[i]))
+					throw new ArgumentException ("Illegal characters in header field name.", "field");
+			}
 
 			if (value == null)
 				throw new ArgumentNullException ("value");
@@ -63,6 +57,11 @@ namespace MimeKit {
 			Field = field;
 
 			SetValue (Encoding.UTF8, value);
+		}
+
+		static bool IsAtom (byte c)
+		{
+			return c.IsAtom ();
 		}
 
 		static unsafe bool TryParse (byte* input, int length, out Header header)
@@ -74,7 +73,7 @@ namespace MimeKit {
 			int count;
 
 			// find the end of the field name
-			while (inptr < inend && *inptr != ':' && !(*inptr).IsType (SpaceOrCtrl))
+			while (inptr < inend && IsAtom (*inptr))
 				field.Append ((char) *inptr++);
 
 			if (inptr == inend || *inptr != ':') {

@@ -36,14 +36,24 @@ namespace MimeKit {
 			if (name == null)
 				throw new ArgumentNullException ("name");
 
-			if (name == string.Empty)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.");
+			if (name.Length == 0)
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+
+			for (int i = 0; i < name.Length; i++) {
+				if (name[i] > 127 || !IsAtom ((byte) name[i]))
+					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+			}
 
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
 			Name = name;
 			Value = value;
+		}
+
+		static bool IsAtom (byte c)
+		{
+			return c.IsAtom ();
 		}
 
 		public string Name {

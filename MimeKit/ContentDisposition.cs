@@ -29,6 +29,7 @@ using System;
 namespace MimeKit {
 	public sealed class ContentDisposition
 	{
+		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 		string disposition;
 
 		public ContentDisposition ()
@@ -43,8 +44,11 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (value == string.Empty)
-					throw new ArgumentException ("The disposition is not allowed to be empty.");
+				if (value.Length == 0)
+					throw new ArgumentException ("The disposition is not allowed to be empty.", "value");
+
+				if (icase.Compare ("attachment", value) != 0 && icase.Compare ("inline", value))
+					throw new ArgumentException ("The disposition is only allowed to be either 'attachment' or 'inline'.", "value");
 
 				if (disposition == value)
 					return;
