@@ -80,7 +80,12 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		public abstract void WriteTo (Stream stream);
+		public virtual void WriteTo (Stream stream)
+		{
+			Headers.WriteTo (stream);
+
+			stream.WriteByte ((byte) '\n');
+		}
 
 		protected virtual void OnContentDispositionChanged (object sender, EventArgs e)
 		{

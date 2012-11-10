@@ -47,7 +47,7 @@ namespace MimeKit {
 				if (value.Length == 0)
 					throw new ArgumentException ("The disposition is not allowed to be empty.", "value");
 
-				if (icase.Compare ("attachment", value) != 0 && icase.Compare ("inline", value))
+				if (icase.Compare ("attachment", value) != 0 && icase.Compare ("inline", value) != 0)
 					throw new ArgumentException ("The disposition is only allowed to be either 'attachment' or 'inline'.", "value");
 
 				if (disposition == value)

@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -98,7 +99,16 @@ namespace MimeKit {
 
 		public void WriteTo (Stream stream)
 		{
-			throw new NotImplementedException ();
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			foreach (var header in headers) {
+				var name = Encoding.ASCII.GetBytes (header.Field);
+
+				stream.Write (name, 0, name.Length);
+				stream.WriteByte ((byte) ':');
+				stream.Write (header.RawValue, 0, header.RawValue.Length);
+			}
 		}
 
 		#region ICollection implementation

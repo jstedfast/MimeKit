@@ -288,5 +288,201 @@ namespace MimeKit {
 
 			return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
 		}
+
+		class InvalidByteCountFallback : DecoderFallback
+		{
+			class InvalidByteCountFallbackBuffer : DecoderFallbackBuffer
+			{
+				InvalidByteCountFallback fallback;
+				string replacement = "?";
+				int current = 0;
+				bool invalid;
+
+				public InvalidByteCountFallbackBuffer (InvalidByteCountFallback fallback)
+				{
+					this.fallback = fallback;
+				}
+
+				public override bool Fallback (byte[] bytesUnknown, int index)
+				{
+					fallback.InvalidByteCount++;
+					invalid = true;
+					current = 0;
+					return true;
+				}
+
+				public override char GetNextChar ()
+				{
+					if (!invalid)
+						return '\0';
+
+					if (current == replacement.Length)
+						return '\0';
+
+					return replacement[current++];
+				}
+
+				public override bool MovePrevious ()
+				{
+					if (current == 0)
+						return false;
+
+					current--;
+
+					return true;
+				}
+
+				public override int Remaining {
+					get { return invalid ? replacement.Length - current : 0; }
+				}
+
+				public override void Reset ()
+				{
+					invalid = false;
+					current = 0;
+
+					base.Reset ();
+				}
+			}
+
+			public InvalidByteCountFallback ()
+			{
+				Reset ();
+			}
+
+			public int InvalidByteCount {
+				get; private set;
+			}
+
+			public void Reset ()
+			{
+				InvalidByteCount = 0;
+			}
+
+			public override DecoderFallbackBuffer CreateFallbackBuffer ()
+			{
+				return new InvalidByteCountFallbackBuffer (this);
+			}
+
+			public override int MaxCharCount {
+				get { return 1; }
+			}
+		}
+
+		internal static unsafe char[] ConvertToUnicode (byte* input, int length, out int charCount)
+		{
+			var invalid = new InvalidByteCountFallback ();
+			int min = Int32.MaxValue;
+			char[] output = null;
+			Encoding encoding;
+			Decoder decoder;
+			int[] codepages;
+			int best = -1;
+			int count;
+
+			// Note: 65001 is UTF-8 and 28591 is iso-8859-1
+			if (Encoding.Default.CodePage != 65001 && Encoding.Default.CodePage != 28591) {
+				codepages = new int[] { 65001, Encoding.Default.CodePage, 28591 };
+			} else {
+				codepages = new int[] { 65001, 28591 };
+			}
+
+			for (int i = 0; i < codepages.Length; i++) {
+				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
+				decoder = encoding.GetDecoder ();
+
+				count = decoder.GetCharCount (input, length, true);
+				if (invalid.InvalidByteCount < min) {
+					min = invalid.InvalidByteCount;
+					best = codepages[i];
+
+					if (min == 0)
+						break;
+				}
+
+				invalid.Reset ();
+			}
+
+			encoding = CharsetUtils.GetEncoding (best);
+			decoder = encoding.GetDecoder ();
+
+			count = decoder.GetCharCount (input, length, true);
+			output = new char[count];
+
+			fixed (char* outptr = output) {
+				charCount = decoder.GetChars (input, length, outptr, count, true);
+			}
+
+			return output;
+		}
+
+		public static string ConvertToUnicode (byte[] buffer, int startIndex, int length)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			int count;
+
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return new string (ConvertToUnicode (inptr + startIndex, length, out count), 0, count);
+				}
+			}
+		}
+
+		internal static unsafe char[] ConvertToUnicode (Encoding encoding, byte* input, int length, out int charCount)
+		{
+			var decoder = encoding.GetDecoder ();
+			int count = decoder.GetCharCount (input, length, true);
+			char[] output = new char[count];
+
+			fixed (char* outptr = output) {
+				charCount = decoder.GetChars (input, length, outptr, count, true);
+			}
+
+			return output;
+		}
+
+		internal static unsafe char[] ConvertToUnicode (int codepage, byte* input, int length, out int charCount)
+		{
+			Encoding encoding = null;
+
+			if (codepage != -1)
+				encoding = CharsetUtils.GetEncoding (codepage);
+
+			if (encoding == null)
+				return ConvertToUnicode (input, length, out charCount);
+
+			return ConvertToUnicode (encoding, input, length, out charCount);
+		}
+
+		public static string ConvertToUnicode (Encoding encoding, byte[] buffer, int startIndex, int length)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			int count;
+
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return new string (ConvertToUnicode (encoding, inptr + startIndex, length, out count), 0, count);
+				}
+			}
+		}
 	}
 }

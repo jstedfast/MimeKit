@@ -26,17 +26,41 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace MimeKit {
-	public class Multipart : MimeEntity
+	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
-		string boundary;
+		string boundary, preamble, epilogue;
+		byte[] rawPreamble, rawEpilogue;
+		List<MimeEntity> subparts;
 
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
-			// FIXME: generate a random boundary
+			subparts = new List<MimeEntity> ();
+			Boundary = GenerateBoundary ();
+		}
+
+		public Multipart () : this ("mixed")
+		{
+		}
+
+		static string GenerateBoundary ()
+		{
+			var base64 = new Base64Encoder ();
+			var rand = new Random ();
+			var digest = new byte[16];
+			var b64buf = new byte[32];
+			int length;
+
+			rand.NextBytes (digest);
+			length = base64.Flush (digest, 0, 16, b64buf);
+
+			return "=-" + Encoding.ASCII.GetString (b64buf, 0, length);
 		}
 
 		public string Boundary {
@@ -52,6 +76,48 @@ namespace MimeKit {
 			}
 		}
 
+		public string Preamble {
+			get {
+				if (preamble == null && rawPreamble != null)
+					preamble = CharsetUtils.ConvertToUnicode (rawPreamble, 0, rawPreamble.Length);
+
+				return preamble;
+			}
+			set {
+				if (preamble == value)
+					return;
+
+				if (value != null) {
+					rawPreamble = Encoding.ASCII.GetBytes (value);
+					preamble = value;
+				} else {
+					rawPreamble = null;
+					preamble = null;
+				}
+			}
+		}
+
+		public string Epilogue {
+			get {
+				if (epilogue == null && rawEpilogue != null)
+					epilogue = CharsetUtils.ConvertToUnicode (rawEpilogue, 0, rawEpilogue.Length);
+
+				return epilogue;
+			}
+			set {
+				if (epilogue == value)
+					return;
+
+				if (value != null) {
+					rawEpilogue = Encoding.ASCII.GetBytes (value);
+					epilogue = value;
+				} else {
+					rawEpilogue = null;
+					epilogue = null;
+				}
+			}
+		}
+
 		protected override void OnContentTypeChanged (object sender, EventArgs e)
 		{
 			boundary = ContentType.Parameters["boundary"];
@@ -61,7 +127,124 @@ namespace MimeKit {
 
 		public override void WriteTo (Stream stream)
 		{
-			throw new NotImplementedException ();
+			base.WriteTo (stream);
+
+			if (rawPreamble != null) {
+				stream.Write (rawPreamble, 0, rawPreamble.Length);
+				stream.WriteByte ((byte) '\n');
+			}
+
+			var bytes = Encoding.ASCII.GetBytes ("--" + boundary + "--\n");
+
+			foreach (var part in subparts) {
+				stream.Write (bytes, 0, bytes.Length - 3);
+				stream.WriteByte ((byte) '\n');
+				part.WriteTo (stream);
+			}
+
+			stream.Write (bytes, 0, bytes.Length);
+
+			if (rawEpilogue != null) {
+				stream.Write (rawEpilogue, 0, rawEpilogue.Length);
+				stream.WriteByte ((byte) '\n');
+			}
 		}
+
+		#region ICollection implementation
+
+		public int Count {
+			get { return subparts.Count; }
+		}
+
+		public bool IsReadOnly {
+			get { return false; }
+		}
+
+		public void Add (MimeEntity part)
+		{
+			if (part == null)
+				throw new ArgumentNullException ("part");
+
+			subparts.Add (part);
+		}
+
+		public void Clear ()
+		{
+			subparts.Clear ();
+		}
+
+		public bool Contains (MimeEntity part)
+		{
+			if (part == null)
+				throw new ArgumentNullException ("part");
+
+			return subparts.Contains (part);
+		}
+
+		public void CopyTo (MimeEntity[] array, int arrayIndex)
+		{
+			subparts.CopyTo (array, arrayIndex);
+		}
+
+		public bool Remove (MimeEntity part)
+		{
+			if (part == null)
+				throw new ArgumentNullException ("part");
+
+			return subparts.Remove (part);
+		}
+
+		#endregion
+
+		#region IList implementation
+
+		public int IndexOf (MimeEntity part)
+		{
+			if (part == null)
+				throw new ArgumentNullException ("part");
+
+			return subparts.IndexOf (part);
+		}
+
+		public void Insert (int index, MimeEntity part)
+		{
+			if (index < 0 || index > subparts.Count)
+				throw new ArgumentOutOfRangeException ("index");
+
+			if (part == null)
+				throw new ArgumentNullException ("part");
+
+			subparts.Insert (index, part);
+		}
+
+		public void RemoveAt (int index)
+		{
+			subparts.RemoveAt (index);
+		}
+
+		public MimeEntity this[int index] {
+			get { return subparts[index]; }
+			set { subparts[index] = value; }
+		}
+
+		#endregion
+
+		#region IEnumerable implementation
+
+		public IEnumerator<MimeEntity> GetEnumerator ()
+		{
+			return subparts.GetEnumerator ();
+		}
+
+		#endregion
+
+		#region IEnumerable implementation
+
+		IEnumerator IEnumerable.GetEnumerator ()
+		{
+			return subparts.GetEnumerator ();
+		}
+
+		#endregion
 	}
 }

@@ -398,148 +398,6 @@ namespace MimeKit {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
-		class InvalidByteCountFallback : DecoderFallback
-		{
-			class InvalidByteCountFallbackBuffer : DecoderFallbackBuffer
-			{
-				InvalidByteCountFallback fallback;
-				string replacement = "?";
-				int current = 0;
-				bool invalid;
-
-				public InvalidByteCountFallbackBuffer (InvalidByteCountFallback fallback)
-				{
-					this.fallback = fallback;
-				}
-
-				public override bool Fallback (byte[] bytesUnknown, int index)
-				{
-					fallback.InvalidByteCount++;
-					invalid = true;
-					current = 0;
-					return true;
-				}
-
-				public override char GetNextChar ()
-				{
-					if (!invalid)
-						return '\0';
-
-					if (current == replacement.Length)
-						return '\0';
-
-					return replacement[current++];
-				}
-
-				public override bool MovePrevious ()
-				{
-					if (current == 0)
-						return false;
-
-					current--;
-
-					return true;
-				}
-
-				public override int Remaining {
-					get { return invalid ? replacement.Length - current : 0; }
-				}
-
-				public override void Reset ()
-				{
-					invalid = false;
-					current = 0;
-
-					base.Reset ();
-				}
-			}
-
-			public InvalidByteCountFallback ()
-			{
-				Reset ();
-			}
-
-			public int InvalidByteCount {
-				get; private set;
-			}
-
-			public void Reset ()
-			{
-				InvalidByteCount = 0;
-			}
-
-			public override DecoderFallbackBuffer CreateFallbackBuffer ()
-			{
-				return new InvalidByteCountFallbackBuffer (this);
-			}
-
-			public override int MaxCharCount {
-				get { return 1; }
-			}
-		}
-
-		static unsafe char[] Convert8BitToUnicode (byte* input, int length, out int charCount)
-		{
-			// FIXME: allow user to provide aditional fallback codepages? or at least include locale charset?
-			int[] codepages = new int[] { 65001 /* utf-8 */, 28591 /* iso-8859-1 */};
-			var invalid = new InvalidByteCountFallback ();
-			int min = Int32.MaxValue;
-			char[] output = null;
-			Encoding encoding;
-			Decoder decoder;
-			int best = -1;
-			int count;
-
-			for (int i = 0; i < codepages.Length; i++) {
-				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
-				decoder = encoding.GetDecoder ();
-
-				count = decoder.GetCharCount (input, length, true);
-				if (invalid.InvalidByteCount < min) {
-					min = invalid.InvalidByteCount;
-					best = codepages[i];
-
-					if (min == 0)
-						break;
-				}
-
-				invalid.Reset ();
-			}
-
-			encoding = CharsetUtils.GetEncoding (best);
-			decoder = encoding.GetDecoder ();
-
-			count = decoder.GetCharCount (input, length, true);
-			output = new char[count];
-
-			fixed (char* outptr = output) {
-				charCount = decoder.GetChars (input, length, outptr, count, true);
-			}
-
-			return output;
-		}
-
-		static unsafe char[] ConvertToUnicode (int codepage, byte* input, int length, out int charCount)
-		{
-			Encoding encoding = null;
-
-			if (codepage != -1)
-				encoding = CharsetUtils.GetEncoding (codepage);
-
-			if (encoding == null)
-				return Convert8BitToUnicode (input, length, out charCount);
-
-			var decoder = encoding.GetDecoder ();
-			int count = decoder.GetCharCount (input, length, true);
-			char[] output = new char[count];
-
-			fixed (char* outptr = output) {
-				charCount = decoder.GetChars (input, length, outptr, count, true);
-			}
-
-			return output;
-		}
-
 		static unsafe string DecodeTokens (List<Token> tokens, byte* input, int length)
 		{
 			StringBuilder decoded = new StringBuilder (length);
@@ -591,11 +449,11 @@ namespace MimeKit {
 						decoder.Reset ();
 						i--;
 
-						var unicode = ConvertToUnicode (codepage, outbuf, outlen, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (codepage, outbuf, outlen, out len);
 						decoded.Append (unicode, 0, len);
 					} else if (token.Is8bit) {
 						// *sigh* I hate broken mailers...
-						var unicode = Convert8BitToUnicode (input + token.StartIndex, token.Length, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (input + token.StartIndex, token.Length, out len);
 						decoded.Append (unicode, 0, len);
 					} else {
 						// pure 7bit ascii, a breath of fresh air...
