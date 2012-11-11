@@ -847,7 +847,7 @@ namespace MimeKit {
 						// include the whitespace between these 2 words in the
 						// resulting rfc2047 encoded-word.
 						start = prev.StartIndex + prev.Length;
-						length = prev.Length + word.Length;
+						length = (word.StartIndex + word.Length) - start;
 
 						str.Append (' ');
 					} else {
