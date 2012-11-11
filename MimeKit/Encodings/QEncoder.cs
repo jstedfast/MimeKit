@@ -1,5 +1,5 @@
-﻿//
-// QuotedPrintableEncoder.cs
+//
+// QEncoder.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -27,25 +27,26 @@
 using System;
 
 namespace MimeKit {
-	public class QuotedPrintableEncoder : IMimeEncoder
+	public enum QEncodeMode {
+		Phrase,
+		Text
+	}
+
+	public class QEncoder : IMimeEncoder
 	{
 		static readonly byte[] hex_alphabet = new byte[16] {
 			0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // '0' -> '7'
 			0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, // '8' -> 'F'
 		};
 
-		const int TripletsPerLine = 23;
-		const int DesiredLineLength = TripletsPerLine * 3;
-		const int MaxLineLength = DesiredLineLength + 2; // "=\n"
-
-		short currentLineLength;
-		short saved;
+		CharType mask;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.QEncoder"/> class.
 		/// </summary>
-		public QuotedPrintableEncoder ()
+		public QEncoder (QEncodeMode mode)
 		{
+			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
 			Reset ();
 		}
 
@@ -78,7 +79,7 @@ namespace MimeKit {
 		/// </param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return ((inputLength / TripletsPerLine) * MaxLineLength) + MaxLineLength;
+			return inputLength * 3;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -111,61 +112,14 @@ namespace MimeKit {
 			while (inptr < inend) {
 				byte c = *inptr++;
 
-				if (c == (byte) '\r') {
-					if (saved != -1) {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[saved & 0x0f];
-						currentLineLength += 3;
-					}
-
-					saved = c;
-				} else if (c == (byte) '\n') {
-					if (saved != -1 && saved != '\r') {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[saved & 0x0f];
-					}
-
-					*outptr++ = (byte) '\n';
-					currentLineLength = 0;
-					saved = -1;
+				if (c == ' ') {
+					*outptr++ = (byte) '_';
+				} else if (c != '_' && c.IsType (mask)) {
+					*outptr++ = c;
 				} else {
-					if (saved != -1) {
-						byte b = (byte) saved;
-
-						if (b.IsQpSafe ()) {
-							*outptr++ = b;
-							currentLineLength++;
-						} else {
-							*outptr++ = (byte) '=';
-							*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-							*outptr++ = hex_alphabet[saved & 0x0f];
-						}
-					}
-
-					if (currentLineLength > DesiredLineLength) {
-						*outptr++ = (byte) '=';
-						*outptr++ = (byte) '\n';
-						currentLineLength = 0;
-					}
-
-					if (c.IsQpSafe ()) {
-						// delay output of whitespace character
-						if (c.IsBlank ()) {
-							saved = c;
-						} else {
-							*outptr++ = c;
-							currentLineLength++;
-							saved = -1;
-						}
-					} else {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[c & 0x0f];
-						currentLineLength += 3;
-						saved = -1;
-					}
+					*outptr++ = (byte) '=';
+					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
+					*outptr++ = hex_alphabet[c & 0x0f];
 				}
 			}
 
@@ -204,32 +158,12 @@ namespace MimeKit {
 		unsafe int Flush (byte* input, int length, byte* output)
 		{
 			byte* outptr = output;
-			
+
 			if (length > 0)
 				outptr += Encode (input, length, output);
 
-			if (saved != -1) {
-				// spaces and tabs must be encoded if they the last character on the line
-				byte c = (byte) saved;
-
-				if (c.IsBlank () || !c.IsQpSafe ()) {
-					*outptr++ = (byte) '=';
-					*outptr++ = hex_alphabet[(saved >> 4) & 0xf];
-					*outptr++ = hex_alphabet[saved & 0xf];
-				} else {
-					*outptr++ = c;
-				}
-			}
-
-			if (saved != '\n') {
-				// we end with =\n so that the \n isn't interpreted as
-				// a real \n when it gets decoded later
-				*outptr++ = (byte) '=';
-				*outptr++ = (byte) '\n';
-			}
-
 			Reset ();
-			
+
 			return (int) (outptr - output);
 		}
 
@@ -267,8 +201,6 @@ namespace MimeKit {
 		/// </summary>
 		public void Reset ()
 		{
-			currentLineLength = 0;
-			saved = -1;
 		}
 	}
 }

@@ -32,8 +32,19 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public static class Rfc2047
 	{
+		static int maxLineLength = 72;
+
 		public static bool EnableWorkarounds {
 			get; set;
+		}
+
+		public static int MaxLineLength {
+			get { return maxLineLength; }
+			set { maxLineLength = value; }
+		}
+
+		static int MaxPreEncodedLength {
+			get { return MaxLineLength / 2; }
 		}
 
 		class Token {
@@ -513,14 +524,381 @@ namespace MimeKit {
 			}
 		}
 
+		static byte[] CharsetConvert (Encoding charset, char[] word, int length, out int converted)
+		{
+			var encoder = charset.GetEncoder ();
+			int count = encoder.GetByteCount (word, 0, length, true);
+			byte[] encoded = new byte[count];
+
+			converted = encoder.GetBytes (word, 0, length, encoded, count, true);
+
+			return encoded;
+		}
+
+		static ContentEncoding GetBestContentEncoding (byte[] text, int startIndex, int length)
+		{
+			int count = 0;
+
+			for (int i = startIndex; i < startIndex + length; i++) {
+				if (text[i] > 127)
+					count++;
+			}
+
+			if ((double) count < (length * 0.17))
+				return ContentEncoding.QuotedPrintable;
+
+			return ContentEncoding.Base64;
+		}
+
+		static void AppendEncodeWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		{
+			char[] chars = new char[length];
+			IMimeEncoder encoder;
+			byte[] word, encoded;
+			char encoding;
+			int len;
+
+			text.CopyTo (startIndex, chars, 0, length);
+
+			try {
+				word = CharsetConvert (charset, chars, length, out len);
+			} catch {
+				charset = CharsetUtils.GetEncoding (65001); // UTF-8
+				word = CharsetConvert (charset, chars, length, out len);
+			}
+
+			if (GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
+				encoder = new Base64Encoder (true);
+				encoding = 'b';
+			} else {
+				encoder = new QEncoder (mode);
+				encoding = 'q';
+			}
+
+			encoded = new byte[encoder.EstimateOutputLength (len)];
+			len = encoder.Flush (word, 0, len, encoded);
+
+			str.AppendFormat ("=?{0}?{1}?", charset.HeaderName, encoding);
+			for (int i = 0; i < len; i++)
+				str.Append ((char) encoded[i]);
+			str.Append ("?=");
+		}
+
+		static void AppendQuoted (StringBuilder str, string text, int startIndex, int length)
+		{
+			int lastIndex = startIndex + length;
+			char c;
+
+			str.Append ('"');
+
+			for (int i = startIndex; i < lastIndex; i++) {
+				c = text[i];
+
+				if (c == '"' || c == '\\')
+					str.Append ('\\');
+
+				str.Append (c);
+			}
+
+			str.Append ('"');
+		}
+
+		enum WordType {
+			Atom,
+			QuotedString,
+			EncodedWord
+		}
+
+		class Word {
+			public WordType Type;
+			public int StartIndex;
+			public int Length;
+			public int Encoding;
+
+			public Word (WordType type, int encoding, int start, int end)
+			{
+				Encoding = encoding;
+				StartIndex = start;
+				Length = end - start;
+				Type = type;
+			}
+		}
+
+		static bool IsAtom (char c)
+		{
+			return ((byte) c).IsAtom ();
+		}
+
+		static bool IsBlank (char c)
+		{
+			return c == ' ' || c == '\t';
+		}
+
+		static bool IsCtrl (char c)
+		{
+			return ((byte) c).IsCtrl ();
+		}
+
+		static List<Word> GetRfc822Words (string text, bool phrase)
+		{
+			int encoding = 0, count = 0, start = 0;
+			List<Word> words = new List<Word> ();
+			WordType type = WordType.Atom;
+			Word word;
+			int i = 0;
+			char c;
+
+			while (i < text.Length) {
+				c = text[i++];
+
+				if (c < 256 && IsBlank (c)) {
+					if (count > 0) {
+						word = new Word (type, encoding, start, i - 1);
+						words.Add (word);
+						count = 0;
+					}
+
+					type = WordType.Atom;
+					encoding = 0;
+					start = i;
+				} else {
+					count++;
+					if (c < 128) {
+						if (IsCtrl (c)) {
+							type = WordType.EncodedWord;
+							encoding = Math.Max (encoding, 1);
+						} else if (phrase && !IsAtom (c)) {
+								// phrases can have quoted strings
+								if (type == WordType.Atom)
+									type = WordType.QuotedString;
+							}
+					} else if (c < 256) {
+							type = WordType.EncodedWord;
+							encoding = Math.Max (encoding, 1);
+						} else {
+							type = WordType.EncodedWord;
+							encoding = 2;
+						}
+
+					if (count >= MaxPreEncodedLength) {
+						// Note: if the word is longer than what we can fit on
+						// one line, then we need to encode it.
+						if (type == WordType.Atom)
+							type = WordType.EncodedWord;
+
+						word = new Word (type, encoding, start, i - 1);
+						words.Add (word);
+
+						// Note: we don't reset 'type' as it needs to be preserved
+						// when breaking long words.
+						encoding = 0;
+						count = 0;
+						start = i;
+					}
+				}
+			}
+
+			if (count > 0) {
+				word = new Word (type, encoding, start, text.Length);
+				words.Add (word);
+			}
+
+			return words;
+		}
+
+		static bool ShouldMergeWords (List<Word> words, Word word, int i)
+		{
+			Word next = words[i];
+			int length = (next.StartIndex + next.Length) - word.StartIndex;
+
+			switch (word.Type) {
+			case WordType.Atom:
+				if (next.Type == WordType.EncodedWord)
+					return false;
+
+				return length < MaxLineLength - 8;
+			case WordType.QuotedString:
+				if (next.Type == WordType.EncodedWord)
+					return false;
+
+				return length < MaxLineLength - 8;
+			case WordType.EncodedWord:
+				if (next.Type == WordType.Atom) {
+					// whether we merge or not is dependent upon:
+					// 1. the number of atoms in a row after 'word'
+					// 2. if there is another encoded-word after
+					//    the string of atoms.
+					bool merge = false;
+					int natoms = 0;
+
+					for (int j = i + 1; j < words.Count && natoms < 3; j++) {
+						if (words[j].Type != WordType.Atom) {
+							merge = true;
+							break;
+						}
+
+						natoms++;
+					}
+
+					// if all the words after the encoded-word are atoms, don't merge
+					if (!merge)
+						return false;
+				}
+
+				// avoid merging with qstrings
+				if (next.Type == WordType.QuotedString)
+					return false;
+
+				return length < MaxPreEncodedLength;
+			default:
+				return false;
+			}
+		}
+
+		static List<Word> Merge (List<Word> words)
+		{
+			if (words.Count < 2)
+				return words;
+
+			List<Word> merged = new List<Word> ();
+			Word word, next;
+			int length;
+			bool merge;
+
+			word = words[0];
+			merged.Add (word);
+
+			// first pass: merge qstrings with adjacent qstrings and encoded-words with adjacent encoded-words
+			for (int i = 1; i < words.Count; i++) {
+				next = words[i];
+
+				if (word.Type != WordType.Atom && word.Type == next.Type) {
+					length = (next.StartIndex + next.Length) - word.StartIndex;
+
+					if (word.Type == WordType.EncodedWord) {
+						merge = length < MaxPreEncodedLength;
+					} else {
+						merge = length < MaxLineLength - 8;
+					}
+
+					if (merge) {
+						word.Length = length;
+						continue;
+					}
+				}
+
+				merged.Add (next);
+				word = next;
+			}
+
+			words = merged;
+			merged = new List<Word> ();
+
+			word = words[0];
+			merged.Add (word);
+
+			// second pass: now merge atoms with the other words
+			for (int i = 1; i < words.Count; i++) {
+				next = words[i];
+
+				if (ShouldMergeWords (words, word, i)) {
+					// the resulting word is the max of the 2 types
+					word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
+					word.Encoding = Math.Max (word.Encoding, next.Encoding);
+					word.Length = (next.StartIndex + next.Length) - word.StartIndex;
+				} else {
+					merged.Add (next);
+					word = next;
+				}
+			}
+
+			return merged;
+		}
+
+		static byte[] Encode (Encoding charset, string text, bool phrase)
+		{
+			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
+			var words = Merge (GetRfc822Words (text, phrase));
+			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
+			var ascii = CharsetUtils.GetEncoding ("us-ascii");
+			var str = new StringBuilder ();
+			int start, length;
+			Word prev = null;
+			byte[] encoded;
+
+			// FIXME: might want this to fold lines as well?
+			foreach (var word in words) {
+				// append the correct number of spaces between words...
+				if (prev != null && !(prev.Type == WordType.EncodedWord && word.Type == WordType.EncodedWord)) {
+					start = prev.StartIndex + prev.Length;
+					length = word.StartIndex - start;
+					str.Append (text, start, length);
+				}
+
+				switch (word.Type) {
+				case WordType.Atom:
+					str.Append (text, word.StartIndex, word.Length);
+					break;
+				case WordType.QuotedString:
+					AppendQuoted (str, text, word.StartIndex, word.Length);
+					break;
+				case WordType.EncodedWord:
+					if (prev != null && prev.Type == WordType.EncodedWord) {
+						// include the whitespace between these 2 words in the
+						// resulting rfc2047 encoded-word.
+						start = prev.StartIndex + prev.Length;
+						length = prev.Length + word.Length;
+
+						str.Append (' ');
+					} else {
+						start = word.StartIndex;
+						length = word.Length;
+					}
+
+					switch (word.Encoding) {
+					case 0: // us-ascii
+						AppendEncodeWord (str, ascii, text, start, length, mode);
+						break;
+					case 1: // iso-8859-1
+						AppendEncodeWord (str, latin1, text, start, length, mode);
+						break;
+					default: // custom charset
+						AppendEncodeWord (str, charset, text, start, length, mode);
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+			}
+
+			encoded = new byte[str.Length];
+			for (int i = 0; i < str.Length; i++)
+				encoded[i] = (byte) str[i];
+
+			return encoded;
+		}
+
 		public static byte[] EncodePhrase (Encoding charset, string phrase)
 		{
-			throw new NotImplementedException ();
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (phrase == null)
+				throw new ArgumentNullException ("phrase");
+
+			return Encode (charset, phrase, true);
 		}
 
 		public static byte[] EncodeText (Encoding charset, string text)
 		{
-			throw new NotImplementedException ();
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			return Encode (charset, text, false);
 		}
 	}
 }

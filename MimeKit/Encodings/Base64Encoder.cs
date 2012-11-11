@@ -41,6 +41,7 @@ namespace MimeKit {
 		const int MaxLineLength = (QuartetsPerLine * 4) + 1;
 
 		int quartets;
+		bool rfc2047;
 		byte saved1;
 		byte saved2;
 		byte saved;
@@ -48,9 +49,20 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Base64Encoder"/> class.
 		/// </summary>
-		public Base64Encoder ()
+		/// <param name='rfc2047'>
+		/// <c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.
+		/// </param>
+		public Base64Encoder (bool rfc2047)
 		{
+			this.rfc2047 = rfc2047;
 			Reset ();
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Base64Encoder"/> class.
+		/// </summary>
+		public Base64Encoder () : this (false)
+		{
 		}
 
 		/// <summary>
@@ -136,7 +148,7 @@ namespace MimeKit {
 					*outptr++ = base64_alphabet[c3 & 0x3f];
 
 					// encode 18 quartets per line
-					if ((++quartets) >= 18) {
+					if (!rfc2047 && (++quartets) >= 18) {
 						*outptr++ = (byte) '\n';
 						quartets = 0;
 					}
@@ -222,8 +234,10 @@ namespace MimeKit {
 					*outptr++ = (byte) '=';
 				*outptr++ = (byte) '=';
 			}
-			
-			*outptr++ = (byte) '\n';
+
+			if (!rfc2047)
+				*outptr++ = (byte) '\n';
+
 			Reset ();
 			
 			return (int) (outptr - output);
