@@ -430,9 +430,12 @@ namespace MimeKit {
 
 		protected override void Dispose (bool disposing)
 		{
-			if (!disposing) {
-				filters.Clear ();
-				filters = null;
+			if (disposing) {
+				if (filters != null) {
+					filters.Clear ();
+					filters = null;
+				}
+
 				readbuf = null;
 			}
 
