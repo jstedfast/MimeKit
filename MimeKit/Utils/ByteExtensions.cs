@@ -53,7 +53,7 @@ namespace MimeKit {
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1
 		const string EncodedPhraseSpecials = "!*+-/=_";          // rfc2047 5.3
 		const string Specials = "()<>@,;:\\\".[]";
-		const string TokenSpecials = "()<>@,;:\\\"/[]?=";
+		internal const string TokenSpecials = "()<>@,;:\\\"/[]?=";
 		const string Whitespace = " \t\r\n";
 
 		static CharType[] table = new CharType[256];
@@ -162,6 +162,11 @@ namespace MimeKit {
 		public static bool IsQpSafe (this byte c)
 		{
 			return table[c].HasFlag (CharType.IsQuotedPrintableSafe);
+		}
+
+		public static bool IsTokenSpecial (this byte c)
+		{
+			return table[c].HasFlag (CharType.IsTokenSpecial);
 		}
 
 		public static bool IsType (this byte c, CharType type)

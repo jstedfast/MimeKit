@@ -900,5 +900,26 @@ namespace MimeKit {
 
 			return Encode (charset, text, false);
 		}
+
+		public static string Quote (string value)
+		{
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (value.IndexOfAny (ByteExtensions.TokenSpecials.ToCharArray ()) == -1)
+				return value;
+
+			var sb = new StringBuilder ();
+
+			sb.Append ("\"");
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] == '\\' || value[i] == '"')
+					sb.Append ('\\');
+				sb.Append (value[i]);
+			}
+			sb.Append ("\"");
+
+			return sb.ToString ();
+		}
 	}
 }

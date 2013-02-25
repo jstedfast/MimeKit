@@ -31,8 +31,9 @@ namespace MimeKit {
 	public sealed class Header
 	{
 		string textValue;
+		byte[] rawValue;
 
-		Header (string field, byte[] value)
+		internal Header (string field, byte[] value)
 		{
 			Field = field;
 			RawValue = value;
@@ -117,7 +118,16 @@ namespace MimeKit {
 		}
 
 		public byte[] RawValue {
-			get; private set;
+			get { return rawValue; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				rawValue = value;
+				Offset = null;
+
+				OnChanged ();
+			}
 		}
 
 		public string Value {
@@ -143,9 +153,6 @@ namespace MimeKit {
 			textValue = value.Trim ();
 
 			RawValue = Rfc2047.EncodeText (encoding, textValue);
-			Offset = null;
-
-			OnChanged ();
 		}
 
 		public long? Offset {

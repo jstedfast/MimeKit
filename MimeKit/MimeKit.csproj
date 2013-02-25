@@ -75,6 +75,9 @@
     <Compile Include="Rfc2047.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
     <Compile Include="Encodings\QEncoder.cs" />
+    <Compile Include="InternetAddress.cs" />
+    <Compile Include="Mailbox.cs" />
+    <Compile Include="Utils\StringBuilderExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
