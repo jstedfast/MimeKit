@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public class Group : InternetAddress
+	public sealed class Group : InternetAddress
 	{
 		InternetAddressList members;
 

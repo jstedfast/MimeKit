@@ -80,6 +80,7 @@
     <Compile Include="Utils\StringBuilderExtensions.cs" />
     <Compile Include="Group.cs" />
     <Compile Include="InternetAddressList.cs" />
+    <Compile Include="DomainList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

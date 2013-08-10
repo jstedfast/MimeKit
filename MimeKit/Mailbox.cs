@@ -26,15 +26,32 @@
 
 using System;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace MimeKit {
-	public class Mailbox : InternetAddress
+	public sealed class Mailbox : InternetAddress
 	{
 		string address;
 
+		public Mailbox (string name, IEnumerable<string> route, string address) : base (name)
+		{
+			Route = new DomainList (route);
+			Route.Changed += RouteChanged;
+
+			this.address = address;
+		}
+
 		public Mailbox (string name, string address) : base (name)
 		{
+			Route = new DomainList ();
+			Route.Changed += RouteChanged;
+
 			this.address = address;
+		}
+
+		public DomainList Route {
+			get; private set;
 		}
 
 		public string Address {
@@ -62,6 +79,10 @@ namespace MimeKit {
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
+			string route = Route.ToString ();
+			if (!string.IsNullOrEmpty (route))
+				route += ":";
+
 			if (!string.IsNullOrEmpty (Name)) {
 				var encoded = Rfc2047.EncodePhrase (charset, Name);
 				var str = Encoding.ASCII.GetString (encoded);
@@ -87,13 +108,31 @@ namespace MimeKit {
 					sb.Append (str);
 				}
 
-				if ((lineLength + Address.Length + 3) > Rfc2047.MaxLineLength) {
-					sb.Append ("\t\n<");
+				if ((lineLength + route.Length + Address.Length + 3) > Rfc2047.MaxLineLength) {
+					sb.Append ("\n\t<");
 					lineLength = 2;
 				} else {
 					sb.Append (" <");
 					lineLength += 2;
 				}
+
+				lineLength += route.Length;
+				sb.Append (route);
+
+				lineLength += Address.Length + 1;
+				sb.Append (Address);
+				sb.Append ('>');
+			} else if (!string.IsNullOrEmpty (route)) {
+				if ((lineLength + route.Length + Address.Length + 2) > Rfc2047.MaxLineLength) {
+					sb.Append ("\n\t<");
+					lineLength = 2;
+				} else {
+					sb.Append ('<');
+					lineLength++;
+				}
+
+				lineLength += route.Length;
+				sb.Append (route);
 
 				lineLength += Address.Length + 1;
 				sb.Append (Address);
@@ -123,8 +162,15 @@ namespace MimeKit {
 				return sb.ToString ();
 			}
 
+			string route = Route.ToString ();
+			if (!string.IsNullOrEmpty (route))
+				route += ":";
+
 			if (!string.IsNullOrEmpty (Name))
-				return Rfc2047.Quote (Name) + " <" + Address + ">";
+				return Rfc2047.Quote (Name) + " <" + route + Address + ">";
+
+			if (!string.IsNullOrEmpty (route))
+				return "<" + route + Address + ">";
 
 			return Address;
 		}
@@ -132,6 +178,11 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			return ToString (Encoding.UTF8, false);
+		}
+
+		void RouteChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
 		}
 	}
 }
