@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -215,8 +216,6 @@ namespace MimeKit {
 
 		public static bool TryParse (byte[] text, int startIndex, int count, out InternetAddressList addresses)
 		{
-			int index = startIndex;
-
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
@@ -226,20 +225,43 @@ namespace MimeKit {
 			if (count < 0 || startIndex + count >= text.Length)
 				throw new ArgumentOutOfRangeException ("count");
 
-			return TryParse (text, ref index, index + count, false, false, out addresses);
+			int index = startIndex;
+
+			return TryParse (text, ref index, startIndex + count, false, false, out addresses);
 		}
 
 		public static bool TryParse (byte[] text, int startIndex, out InternetAddressList addresses)
 		{
-			int index = startIndex;
-
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
 			if (startIndex < 0 || startIndex >= text.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
+			int index = startIndex;
+
 			return TryParse (text, ref index, text.Length, false, false, out addresses);
+		}
+
+		public static bool TryParse (byte[] text, out InternetAddressList addresses)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			int index = 0;
+
+			return TryParse (text, ref index, text.Length, false, false, out addresses);
+		}
+
+		public static bool TryParse (string text, out InternetAddressList addresses)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (buffer, ref index, buffer.Length, false, false, out addresses);
 		}
 
 		public static InternetAddressList Parse (byte[] text, int startIndex, int count)
@@ -253,7 +275,7 @@ namespace MimeKit {
 			if (count < 0 || startIndex + count > text.Length)
 				throw new ArgumentOutOfRangeException ("count");
 
-			TryParse (text, ref index, index + count, false, true, out addresses);
+			TryParse (text, ref index, startIndex + count, false, true, out addresses);
 
 			return addresses;
 		}
@@ -266,6 +288,20 @@ namespace MimeKit {
 		public static InternetAddressList Parse (byte[] text)
 		{
 			return Parse (text, 0, text.Length);
+		}
+
+		public static InternetAddressList Parse (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			InternetAddressList addresses;
+			int index;
+
+			TryParse (buffer, ref index, buffer.Length, false, true, out addresses);
+
+			return addresses;
 		}
 	}
 }
