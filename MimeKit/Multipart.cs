@@ -33,8 +33,6 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
-
 		string boundary, preamble, epilogue;
 		byte[] rawPreamble, rawEpilogue;
 		List<MimeEntity> children;
