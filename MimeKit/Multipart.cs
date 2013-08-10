@@ -37,11 +37,11 @@ namespace MimeKit {
 
 		string boundary, preamble, epilogue;
 		byte[] rawPreamble, rawEpilogue;
-		List<MimeEntity> subparts;
+		List<MimeEntity> children;
 
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
-			subparts = new List<MimeEntity> ();
+			children = new List<MimeEntity> ();
 			Boundary = GenerateBoundary ();
 		}
 
@@ -127,6 +127,9 @@ namespace MimeKit {
 
 		public override void WriteTo (Stream stream)
 		{
+			if (boundary == null)
+				Boundary = GenerateBoundary ();
+
 			base.WriteTo (stream);
 
 			if (rawPreamble != null) {
@@ -136,7 +139,7 @@ namespace MimeKit {
 
 			var bytes = Encoding.ASCII.GetBytes ("--" + boundary + "--\n");
 
-			foreach (var part in subparts) {
+			foreach (var part in children) {
 				stream.Write (bytes, 0, bytes.Length - 3);
 				stream.WriteByte ((byte) '\n');
 				part.WriteTo (stream);
@@ -153,7 +156,7 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		public int Count {
-			get { return subparts.Count; }
+			get { return children.Count; }
 		}
 
 		public bool IsReadOnly {
@@ -165,12 +168,12 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			subparts.Add (part);
+			children.Add (part);
 		}
 
 		public void Clear ()
 		{
-			subparts.Clear ();
+			children.Clear ();
 		}
 
 		public bool Contains (MimeEntity part)
@@ -178,12 +181,12 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			return subparts.Contains (part);
+			return children.Contains (part);
 		}
 
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
-			subparts.CopyTo (array, arrayIndex);
+			children.CopyTo (array, arrayIndex);
 		}
 
 		public bool Remove (MimeEntity part)
@@ -191,7 +194,7 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			return subparts.Remove (part);
+			return children.Remove (part);
 		}
 
 		#endregion
@@ -203,28 +206,28 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			return subparts.IndexOf (part);
+			return children.IndexOf (part);
 		}
 
 		public void Insert (int index, MimeEntity part)
 		{
-			if (index < 0 || index > subparts.Count)
+			if (index < 0 || index > children.Count)
 				throw new ArgumentOutOfRangeException ("index");
 
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			subparts.Insert (index, part);
+			children.Insert (index, part);
 		}
 
 		public void RemoveAt (int index)
 		{
-			subparts.RemoveAt (index);
+			children.RemoveAt (index);
 		}
 
 		public MimeEntity this[int index] {
-			get { return subparts[index]; }
-			set { subparts[index] = value; }
+			get { return children[index]; }
+			set { children[index] = value; }
 		}
 
 		#endregion
@@ -233,7 +236,7 @@ namespace MimeKit {
 
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
-			return subparts.GetEnumerator ();
+			return children.GetEnumerator ();
 		}
 
 		#endregion
@@ -242,7 +245,7 @@ namespace MimeKit {
 
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
-			return subparts.GetEnumerator ();
+			return children.GetEnumerator ();
 		}
 
 		#endregion

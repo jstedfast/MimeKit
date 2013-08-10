@@ -31,7 +31,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class HeaderList : ICollection<Header>, IList<Header>
+	public sealed class HeaderList : IList<Header>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
