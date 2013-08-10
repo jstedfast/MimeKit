@@ -31,16 +31,18 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class InternetAddressList : IList<InternetAddress>
 	{
-		List<InternetAddress> list;
+		List<InternetAddress> list = new List<InternetAddress> ();
 
 		public InternetAddressList (IEnumerable<InternetAddress> addresses)
 		{
-			list = new List<InternetAddress> (addresses);
+			foreach (var address in addresses) {
+				address.Changed += AddressChanged;
+				list.Add (address);
+			}
 		}
 
 		public InternetAddressList ()
 		{
-			list = new List<InternetAddress> ();
 		}
 
 		#region IList implementation
@@ -52,11 +54,19 @@ namespace MimeKit {
 
 		public void Insert (int index, InternetAddress address)
 		{
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
+			address.Changed += AddressChanged;
 			list.Insert (index, address);
 		}
 
 		public void RemoveAt (int index)
 		{
+			if (index < 0 || index >= list.Count)
+				throw new ArgumentOutOfRangeException ("index");
+
+			list[index].Changed -= AddressChanged;
 			list.RemoveAt (index);
 		}
 
@@ -71,11 +81,18 @@ namespace MimeKit {
 
 		public void Add (InternetAddress address)
 		{
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
+			address.Changed += AddressChanged;
 			list.Add (address);
 		}
 
 		public void Clear ()
 		{
+			foreach (var address in list)
+				address.Changed -= AddressChanged;
+
 			list.Clear ();
 		}
 
@@ -91,7 +108,15 @@ namespace MimeKit {
 
 		public bool Remove (InternetAddress address)
 		{
-			return list.Remove (address);
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
+			if (list.Remove (address)) {
+				address.Changed -= AddressChanged;
+				return true;
+			}
+
+			return false;
 		}
 
 		public int Count {
@@ -121,6 +146,19 @@ namespace MimeKit {
 		}
 
 		#endregion
+
+		public event EventHandler Changed;
+
+		protected virtual void OnChanged ()
+		{
+			if (Changed != null)
+				Changed (this, EventArgs.Empty);
+		}
+
+		void AddressChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
+		}
 	}
 }
 

@@ -37,11 +37,13 @@ namespace MimeKit {
 		public Group (string name, IEnumerable<InternetAddress> addresses) : base (name)
 		{
 			members = new InternetAddressList (addresses);
+			members.Changed += MembersChanged;
 		}
 
 		public Group (string name) : base (name)
 		{
 			members = new InternetAddressList ();
+			members.Changed += MembersChanged;
 		}
 
 		public InternetAddressList Members {
@@ -124,6 +126,11 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			return ToString (Encoding.UTF8, false);
+		}
+
+		void MembersChanged (object sender, EventArgs e)
+		{
+			OnChanged ();
 		}
 	}
 }

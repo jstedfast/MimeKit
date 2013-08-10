@@ -32,7 +32,7 @@ namespace MimeKit {
 	{
 		string name;
 
-		public InternetAddress (string name)
+		protected InternetAddress (string name)
 		{
 			this.name = name;
 		}
