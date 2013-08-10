@@ -34,10 +34,19 @@ namespace MimeKit {
 	{
 		static int maxLineLength = 72;
 
+		/// <summary>
+		/// Determines whether the decoders will work around common broken encodings.
+		/// </summary>
+		/// <value><c>true</c> if the work-arounds are enabled; otherwise, <c>false</c>.</value>
 		public static bool EnableWorkarounds {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the maximum line length used by the encoders. The encoders
+		/// use this value to determine where to place line breaks.
+		/// </summary>
+		/// <value>The maximum line length.</value>
 		public static int MaxLineLength {
 			get { return maxLineLength; }
 			set { maxLineLength = value; }
@@ -487,19 +496,43 @@ namespace MimeKit {
 			return DecodeTokens (tokens, phrase, length);
 		}
 
-		public static string DecodePhrase (byte[] phrase)
+		/// <summary>
+		/// Decodes the specified number of bytes of the phrase starting
+		/// at the specified starting index.
+		/// </summary>
+		/// <returns>The decoded phrase.</returns>
+		/// <param name="text">The phrase to decode.</param>
+		/// <param name="startIndex">The starting index.</param>
+		/// <param name="count">The number of bytes to decode.</param>
+		public static string DecodePhrase (byte[] phrase, int startIndex, int count)
 		{
 			if (phrase == null)
 				throw new ArgumentNullException ("phrase");
 
-			if (phrase.Length == 0)
+			if (startIndex < 0 || startIndex > phrase.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count > phrase.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (count == 0)
 				return string.Empty;
 
 			unsafe {
 				fixed (byte* inptr = phrase) {
-					return DecodePhrase (inptr, phrase.Length);
+					return DecodePhrase (inptr + startIndex, count);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decodes the specified phrase.
+		/// </summary>
+		/// <returns>The decoded phrase.</returns>
+		/// <param name="text">The phrase to decode.</param>
+		public static string DecodePhrase (byte[] phrase)
+		{
+			return DecodePhrase (phrase, 0, phrase.Length);
 		}
 
 		static unsafe string DecodeText (byte* text, int length)
@@ -509,19 +542,43 @@ namespace MimeKit {
 			return DecodeTokens (tokens, text, length);
 		}
 
-		public static string DecodeText (byte[] text)
+		/// <summary>
+		/// Decodes the specified number of bytes of unstructured text starting
+		/// at the specified starting index.
+		/// </summary>
+		/// <returns>The decoded text.</returns>
+		/// <param name="text">The text to decode.</param>
+		/// <param name="startIndex">The starting index.</param>
+		/// <param name="count">The number of bytes to decode.</param>
+		public static string DecodeText (byte[] text, int startIndex, int count)
 		{
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			if (text.Length == 0)
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count > text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (count == 0)
 				return string.Empty;
 
 			unsafe {
 				fixed (byte* inptr = text) {
-					return DecodeText (inptr, text.Length);
+					return DecodeText (inptr + startIndex, count);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decodes the unstructured text.
+		/// </summary>
+		/// <returns>The decoded text.</returns>
+		/// <param name="text">The text to decode.</param>
+		public static string DecodeText (byte[] text)
+		{
+			return DecodeText (text, 0, text.Length);
 		}
 
 		static byte[] CharsetConvert (Encoding charset, char[] word, int length, out int converted)
@@ -879,6 +936,13 @@ namespace MimeKit {
 			return encoded;
 		}
 
+		/// <summary>
+		/// Encodes the phrase using the specified charset encoding according
+		/// to the rules of RFC 2047.
+		/// </summary>
+		/// <returns>The encoded phrase.</returns>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="phrase">The phrase to encode.</param>
 		public static byte[] EncodePhrase (Encoding charset, string phrase)
 		{
 			if (charset == null)
@@ -890,6 +954,13 @@ namespace MimeKit {
 			return Encode (charset, phrase, true);
 		}
 
+		/// <summary>
+		/// Encodes the unstructured text using the specified charset encoding
+		/// according to the rules of RFC 2047.
+		/// </summary>
+		/// <returns>The encoded text.</returns>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
 		public static byte[] EncodeText (Encoding charset, string text)
 		{
 			if (charset == null)
@@ -901,21 +972,26 @@ namespace MimeKit {
 			return Encode (charset, text, false);
 		}
 
-		public static string Quote (string value)
+		/// <summary>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </summary>
+		/// <param name="value">The text to quote.</param>
+		public static string Quote (string text)
 		{
-			if (value == null)
+			if (text == null)
 				throw new ArgumentNullException ("value");
 
-			if (value.IndexOfAny (ByteExtensions.TokenSpecials.ToCharArray ()) == -1)
-				return value;
+			if (text.IndexOfAny (ByteExtensions.TokenSpecials.ToCharArray ()) == -1)
+				return text;
 
 			var sb = new StringBuilder ();
 
 			sb.Append ("\"");
-			for (int i = 0; i < value.Length; i++) {
-				if (value[i] == '\\' || value[i] == '"')
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == '\\' || text[i] == '"')
 					sb.Append ('\\');
-				sb.Append (value[i]);
+				sb.Append (text[i]);
 			}
 			sb.Append ("\"");
 
