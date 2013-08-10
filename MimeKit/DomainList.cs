@@ -152,13 +152,13 @@ namespace MimeKit {
 			StringBuilder sb = new StringBuilder ();
 
 			for (int i = 0; i < list.Count; i++) {
-				if (string.IsNullOrEmpty (list[i]) && sb.Length == 0)
+				if (string.IsNullOrWhiteSpace (list[i]) && sb.Length == 0)
 					continue;
 
 				if (sb.Length > 0)
 					sb.Append (',');
 
-				if (!string.IsNullOrEmpty (list[i]))
+				if (!string.IsNullOrWhiteSpace (list[i]))
 					sb.Append ('@');
 
 				sb.Append (list[i]);
@@ -173,6 +173,60 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		/// <summary>
+		/// Attempts to parse a DomainList from the text buffer starting at the
+		/// specified index. The index will only be updated if a DomainList was
+		/// successfully parsed.
+		/// </summary>
+		/// <returns><c>true</c> if a DomainList was successfully parsed;
+		/// <c>false</c> otherwise.</returns>
+		/// <param name="text">The text buffer to parse.</param>
+		/// <param name="index">The index to start parsing.</param>
+		/// <param name="route">The parsed DomainList.</param>
+		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out DomainList route)
+		{
+			List<string> domains = new List<string> ();
+			int startIndex = index;
+			string domain;
+
+			route = null;
+
+			do {
+				// skip over the '@'
+				index++;
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete domain-list at offset: {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
+				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, throwOnError, out domain))
+					return false;
+
+				domains.Add (domain);
+
+				// Note: obs-domain-list allows for null domains between commas
+				do {
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index >= endIndex || text[index] != (byte) ',')
+						break;
+
+					index++;
+				} while (true);
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+			} while (index < text.Length && text[index] == (byte) '@');
+
+			route = new DomainList (domains);
+
+			return true;
 		}
 	}
 }

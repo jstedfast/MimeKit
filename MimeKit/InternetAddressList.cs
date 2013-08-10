@@ -173,6 +173,99 @@ namespace MimeKit {
 		{
 			OnChanged ();
 		}
+
+		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool isGroup, bool throwOnError, out InternetAddressList addresses)
+		{
+			List<InternetAddress> list = new List<InternetAddress> ();
+			InternetAddress address;
+
+			addresses = null;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			while (index < endIndex) {
+				if (isGroup && text[index] == (byte) ';')
+					break;
+
+				if (!InternetAddress.TryParse (text, ref index, endIndex, throwOnError, out address)) {
+					// skip this address...
+					while (index < endIndex && text[index] != (byte) ',' && (!isGroup || text[index] != (byte) ';'))
+						index++;
+				} else {
+					list.Add (address);
+				}
+
+				// Note: we loop here in case there are any null addresses between commas
+				do {
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index >= endIndex || text[index] != (byte) ',')
+						break;
+
+					index++;
+				} while (true);
+			}
+
+			addresses = new InternetAddressList (list);
+
+			return true;
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, int count, out InternetAddressList addresses)
+		{
+			int index = startIndex;
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count >= text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			return TryParse (text, ref index, index + count, false, false, out addresses);
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, out InternetAddressList addresses)
+		{
+			int index = startIndex;
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			return TryParse (text, ref index, text.Length, false, false, out addresses);
+		}
+
+		public static InternetAddressList Parse (byte[] text, int startIndex, int count)
+		{
+			InternetAddressList addresses;
+			int index = startIndex;
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count > text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			TryParse (text, ref index, index + count, false, true, out addresses);
+
+			return addresses;
+		}
+
+		public static InternetAddressList Parse (byte[] text, int startIndex)
+		{
+			return Parse (text, startIndex, text.Length - startIndex);
+		}
+
+		public static InternetAddressList Parse (byte[] text)
+		{
+			return Parse (text, 0, text.Length);
+		}
 	}
 }
-
