@@ -169,11 +169,13 @@ namespace MimeKit {
 				throw new ArgumentNullException ("part");
 
 			children.Add (part);
+			OnChanged ();
 		}
 
 		public void Clear ()
 		{
 			children.Clear ();
+			OnChanged ();
 		}
 
 		public bool Contains (MimeEntity part)
@@ -194,7 +196,12 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			return children.Remove (part);
+			if (children.Remove (part)) {
+				OnChanged ();
+				return true;
+			}
+
+			return false;
 		}
 
 		#endregion
@@ -218,11 +225,13 @@ namespace MimeKit {
 				throw new ArgumentNullException ("part");
 
 			children.Insert (index, part);
+			OnChanged ();
 		}
 
 		public void RemoveAt (int index)
 		{
 			children.RemoveAt (index);
+			OnChanged ();
 		}
 
 		public MimeEntity this[int index] {
