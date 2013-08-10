@@ -59,6 +59,7 @@ namespace MimeKit {
 
 			address.Changed += AddressChanged;
 			list.Insert (index, address);
+			OnChanged ();
 		}
 
 		public void RemoveAt (int index)
@@ -68,11 +69,21 @@ namespace MimeKit {
 
 			list[index].Changed -= AddressChanged;
 			list.RemoveAt (index);
+			OnChanged ();
 		}
 
 		public InternetAddress this [int index] {
 			get { return list[index]; }
-			set { list[index] = value; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				if (list[index] == value)
+					return;
+
+				list[index] = value;
+				OnChanged ();
+			}
 		}
 
 		#endregion
@@ -86,6 +97,7 @@ namespace MimeKit {
 
 			address.Changed += AddressChanged;
 			list.Add (address);
+			OnChanged ();
 		}
 
 		public void Clear ()
@@ -94,6 +106,7 @@ namespace MimeKit {
 				address.Changed -= AddressChanged;
 
 			list.Clear ();
+			OnChanged ();
 		}
 
 		public bool Contains (InternetAddress address)
@@ -113,6 +126,7 @@ namespace MimeKit {
 
 			if (list.Remove (address)) {
 				address.Changed -= AddressChanged;
+				OnChanged ();
 				return true;
 			}
 
