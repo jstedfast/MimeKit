@@ -50,11 +50,13 @@ namespace MimeKit {
 			while (index < endIndex && depth > 0) {
 				if (text[index] == (byte) '\\') {
 					escaped = !escaped;
-				} else {
+				} else if (!escaped) {
 					if (text[index] == (byte) '(')
 						depth++;
 					else if (text[index] == (byte) ')')
 						depth--;
+					escaped = false;
+				} else {
 					escaped = false;
 				}
 

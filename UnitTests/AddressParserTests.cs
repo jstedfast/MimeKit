@@ -68,7 +68,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestExampleAddrSpecRfc822 ()
+		public void TestExampleAddrSpecFromRfc822 ()
 		{
 			InternetAddressList expected = new InternetAddressList ();
 			InternetAddressList result;
@@ -78,6 +78,20 @@ namespace UnitTests {
 
 			expected.Add (new Mailbox ("", "\":sysmail\"@Some-Group.Some-Org"));
 			expected.Add (new Mailbox ("", "Muhammed.Ali@Vegas.WBA"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestExampleMailboxWithCommentsFromRfc5322 ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "Pete(A nice \\) chap) <pete(his account)@silly.test(his host)>";
+			expected.Add (new Mailbox ("Pete", "pete@silly.test"));
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
@@ -181,6 +195,25 @@ namespace UnitTests {
 				new Mailbox ("", "joe"),
 				new Mailbox ("", "alex"),
 				new Mailbox ("", "bob"),
+			}));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestExampleGroupWithCommentsFromRfc5322 ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "A Group(Some people):Chris Jones <c@(Chris's host.)public.example>, joe@example.org, John <jdoe@one.test> (my dear friend); (the end of the group)";
+
+			expected.Add (new Group ("A Group", new InternetAddress[] {
+				new Mailbox ("Chris Jones", "c@public.example"),
+				new Mailbox ("", "joe@example.org"),
+				new Mailbox ("John", "jdoe@one.test")
 			}));
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
