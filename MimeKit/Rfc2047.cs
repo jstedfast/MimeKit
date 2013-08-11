@@ -1017,7 +1017,7 @@ namespace MimeKit {
 		/// <param name="text">The text to unquote.</param>
 		public static string Unquote (string text)
 		{
-			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '"' });
+			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '\\', '"' });
 
 			if (index == -1)
 				return text;
