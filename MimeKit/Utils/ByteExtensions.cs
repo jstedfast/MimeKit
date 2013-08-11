@@ -31,22 +31,24 @@ namespace MimeKit {
 	enum CharType : ushort {
 		None                  = 0,
 		IsAscii               = (1 << 0),
-		IsAttrChar            = (1 << 1),
-		IsBlank               = (1 << 2),
-		IsControl             = (1 << 3),
-		IsDomainSafe          = (1 << 4),
-		IsEncodedPhraseSafe   = (1 << 5),
-		IsEncodedWordSafe     = (1 << 6),
-		IsQuotedPrintableSafe = (1 << 7),
-		IsSpace               = (1 << 8),
-		IsSpecial             = (1 << 9),
-		IsTokenSpecial        = (1 << 10),
-		IsWhitespace          = (1 << 11),
-		IsXDigit              = (1 << 12),
+		IsAtom                = (1 << 1),
+		IsAttrChar            = (1 << 2),
+		IsBlank               = (1 << 3),
+		IsControl             = (1 << 4),
+		IsDomainSafe          = (1 << 5),
+		IsEncodedPhraseSafe   = (1 << 6),
+		IsEncodedWordSafe     = (1 << 7),
+		IsQuotedPrintableSafe = (1 << 8),
+		IsSpace               = (1 << 9),
+		IsSpecial             = (1 << 10),
+		IsTokenSpecial        = (1 << 11),
+		IsWhitespace          = (1 << 12),
+		IsXDigit              = (1 << 13),
 	}
 
 	static class ByteExtensions
 	{
+		const string AtomSafeCharacters = "!#$%@'*+-/=?^_`{|}~";
 		const string AttributeCharacters = "*'% "; // attribute-char from rfc2184
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
@@ -105,7 +107,7 @@ namespace MimeKit {
 					if ((i >= 33 && i <= 60) || (i >= 62 && i <= 126) || i == 32)
 						table[i] |= (CharType.IsQuotedPrintableSafe | CharType.IsEncodedWordSafe);
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z'))
-						table[i] |= CharType.IsEncodedPhraseSafe;
+						table[i] |= CharType.IsEncodedPhraseSafe | CharType.IsAtom;
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'f') || (i >= 'A' && i <= 'F'))
 						table[i] |= CharType.IsXDigit;
 
@@ -119,6 +121,7 @@ namespace MimeKit {
 			table['\t'] |= CharType.IsQuotedPrintableSafe | CharType.IsBlank;
 
 			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None, false);
+			SetFlags (AtomSafeCharacters, CharType.IsAtom, CharType.None, false);
 			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl, false);
 			SetFlags (Specials, CharType.IsSpecial, CharType.None, false);
 			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
@@ -134,9 +137,7 @@ namespace MimeKit {
 
 		public static bool IsAtom (this byte c)
 		{
-			const CharType NonAtomFlags = CharType.IsSpecial | CharType.IsSpace | CharType.IsControl;
-
-			return !table[c].HasFlag (NonAtomFlags);
+			return table[c].HasFlag (CharType.IsAtom);
 		}
 
 		public static bool IsAttr (this byte c)
