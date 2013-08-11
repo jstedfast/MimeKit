@@ -178,7 +178,7 @@ namespace MimeKit {
 				}
 			}
 
-			return (int) (inptr - output);
+			return (int) (outptr - output);
 		}
 
 		/// <summary>
