@@ -1014,7 +1014,7 @@ namespace MimeKit {
 		/// Unquotes the specified text, removing any escaped backslashes and
 		/// double-quotes within.
 		/// </summary>
-		/// <param name="name">The text to unquote.</param>
+		/// <param name="text">The text to unquote.</param>
 		public static string Unquote (string text)
 		{
 			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '"' });
