@@ -79,7 +79,8 @@ This led me, at first, to implement another MIME parser library called [GMime](h
 which is implemented in C and later added a C# binding called GMime-Sharp.
 
 Now that I typically find myself working in C# rather than lower level languages like C, I decided to
-begin writing a new parser in C# which would not depend on GMime.
+begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
+flexibility in that I'd be able use Generics and create a more .NET-compliant API.
 
 ## Contributing
 
