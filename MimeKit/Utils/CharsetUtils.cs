@@ -46,52 +46,70 @@ namespace MimeKit {
 			// treated the same as US-ASCII.
 			aliases.Add ("ansi_x3.4-1968", GetEncoding (20127));
 
-			// Korean charsets
-			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
-			encoding = GetEncoding (51949); // euc-kr
-			aliases.Add ("ks_c_5601-1987", encoding);
-			aliases.Add ("5601",           encoding);
-			aliases.Add ("ksc-5601",       encoding);
-			aliases.Add ("ksc-5601-1987",  encoding);
-			aliases.Add ("ksc-5601_1987",  encoding);
-			aliases.Add ("ks_c_5861-1992", encoding);
-			aliases.Add ("euckr-0",        encoding);
-			aliases.Add ("euc-kr",         encoding);
+			try {
+				// Korean charsets
+				// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
+				encoding = GetEncoding (51949); // euc-kr
+				aliases.Add ("ks_c_5601-1987", encoding);
+				aliases.Add ("5601",           encoding);
+				aliases.Add ("ksc-5601",       encoding);
+				aliases.Add ("ksc-5601-1987",  encoding);
+				aliases.Add ("ksc-5601_1987",  encoding);
+				aliases.Add ("ks_c_5861-1992", encoding);
+				aliases.Add ("euckr-0",        encoding);
+				aliases.Add ("euc-kr",         encoding);
+			} catch {
+			}
 
-			// Chinese charsets
-			encoding = GetEncoding (950); // big5
-			aliases.Add ("big5",           encoding);
-			aliases.Add ("big5-0",         encoding);
-			aliases.Add ("big5.eten-0",    encoding);
-			aliases.Add ("big5hkscs-0",    encoding);
+			try {
+				// Chinese charsets
+				encoding = GetEncoding (950); // big5
+				aliases.Add ("big5",           encoding);
+				aliases.Add ("big5-0",         encoding);
+				aliases.Add ("big5.eten-0",    encoding);
+				aliases.Add ("big5hkscs-0",    encoding);
+			} catch {
+			}
 
-			// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
-			encoding = GetEncoding (51936); // euc-cn
-			aliases.Add ("gb2312",         encoding);
-			aliases.Add ("gb-2312",        encoding);
-			aliases.Add ("gb2312-0",       encoding);
-			aliases.Add ("gb2312-80",      encoding);
-			aliases.Add ("gb2312.1980-0",  encoding);
-			aliases.Add ("euc-cn",         encoding);
-			aliases.Add ("gbk-0",          encoding);
-			aliases.Add ("gbk",            encoding);
+			try {
+				// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
+				encoding = GetEncoding (51936); // euc-cn
+				aliases.Add ("gb2312",         encoding);
+				aliases.Add ("gb-2312",        encoding);
+				aliases.Add ("gb2312-0",       encoding);
+				aliases.Add ("gb2312-80",      encoding);
+				aliases.Add ("gb2312.1980-0",  encoding);
+				aliases.Add ("euc-cn",         encoding);
+				aliases.Add ("gbk-0",          encoding);
+				aliases.Add ("gbk",            encoding);
+			} catch {
+			}
 
-			// add aliases for gb18030
-			encoding = GetEncoding (54936); // gb18030
-			aliases.Add ("gb18030-0",      encoding);
-			aliases.Add ("gb18030",        encoding);
+			try {
+				// add aliases for gb18030
+				encoding = GetEncoding (54936); // gb18030
+				aliases.Add ("gb18030-0",      encoding);
+				aliases.Add ("gb18030",        encoding);
+			} catch {
+			}
 
-			// Japanese charsets
-			encoding = GetEncoding (51932); // euc-jp
-			aliases.Add ("eucjp-0",        encoding);
-			aliases.Add ("euc-jp",         encoding);
-			aliases.Add ("ujis-0",         encoding);
-			aliases.Add ("ujis",           encoding);
+			try {
+				// Japanese charsets
+				encoding = GetEncoding (51932); // euc-jp
+				aliases.Add ("eucjp-0",        encoding);
+				aliases.Add ("euc-jp",         encoding);
+				aliases.Add ("ujis-0",         encoding);
+				aliases.Add ("ujis",           encoding);
+			} catch {
+			}
 
-			encoding = GetEncoding (932); // shift_jis
-			aliases.Add ("jisx0208.1983-0", encoding);
-			aliases.Add ("jisx0212.1990-0", encoding);
-			aliases.Add ("pck",             encoding);
+			try {
+				encoding = GetEncoding (932); // shift_jis
+				aliases.Add ("jisx0208.1983-0", encoding);
+				aliases.Add ("jisx0212.1990-0", encoding);
+				aliases.Add ("pck",             encoding);
+			} catch {
+			}
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
 			// Encodings 50220 and 50222 are both associated with the name "iso-2022-jp", but they
@@ -185,7 +203,7 @@ namespace MimeKit {
 			int codepage;
 			int i;
 
-			if (charset.StartsWith ("windows")) {
+			if (charset.StartsWith ("windows", StringComparison.Ordinal)) {
 				i = 7;
 
 				if (i == charset.Length)
@@ -203,10 +221,18 @@ namespace MimeKit {
 
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
-			} else if (charset.StartsWith ("iso")) {
-				if ((codepage = ParseIsoCodePage (charset.Substring (3))) != -1)
+			} else if (charset.StartsWith ("iso", StringComparison.Ordinal)) {
+				i = 3;
+
+				if (i == charset.Length)
+					return -1;
+
+				if (charset[i] == '-' || charset[i] == '_')
+					i++;
+
+				if ((codepage = ParseIsoCodePage (charset.Substring (i))) != -1)
 					return codepage;
-			} else if (charset.StartsWith ("cp")) {
+			} else if (charset.StartsWith ("cp", StringComparison.Ordinal)) {
 				i = 2;
 
 				if (i == charset.Length)
