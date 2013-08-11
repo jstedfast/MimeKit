@@ -1,5 +1,5 @@
 //
-// Test.cs
+// AddressParserTests.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -31,7 +31,7 @@ using NUnit.Framework;
 using MimeKit;
 
 namespace UnitTests {
-	[TestFixture()]
+	[TestFixture]
 	public class AddressParserTests
 	{
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)

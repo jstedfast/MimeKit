@@ -249,47 +249,6 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string Demangle (string name)
-		{
-			int index = name.IndexOfAny (new char[] { '\r', '\n', '\t', '"' });
-
-			if (index == -1)
-				return name;
-
-			StringBuilder sb = new StringBuilder ();
-			bool escaped = false;
-			bool quoted = false;
-
-			for (int i = 0; i < name.Length; i++) {
-				switch (name[i]) {
-				case '\r':
-				case '\n':
-					break;
-				case '\t':
-					sb.Append (' ');
-					break;
-				case '\\':
-					if (escaped)
-						sb.Append ('\\');
-					escaped = !escaped;
-					break;
-				case '"':
-					if (escaped) {
-						sb.Append ('"');
-						escaped = false;
-					} else {
-						quoted = !quoted;
-					}
-					break;
-				default:
-					sb.Append (name[i]);
-					break;
-				}
-			}
-
-			return sb.ToString ();
-		}
-
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
 		{
 			address = null;
@@ -335,14 +294,14 @@ namespace MimeKit {
 				// rfc2822 group address
 				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
 
-				return TryParseGroup (text, startIndex, ref index, endIndex, Demangle (name), throwOnError, out address);
+				return TryParseGroup (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
 				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, Demangle (name), throwOnError, out address);
+				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
 			}
 
 			if (text[index] == '.' || text[index] == (byte) '@') {

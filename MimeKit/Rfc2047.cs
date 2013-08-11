@@ -1009,5 +1009,51 @@ namespace MimeKit {
 
 			return sb.ToString ();
 		}
+
+		/// <summary>
+		/// Unquotes the specified text, removing any escaped backslashes and
+		/// double-quotes within.
+		/// </summary>
+		/// <param name="name">The text to unquote.</param>
+		public static string Unquote (string text)
+		{
+			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '"' });
+
+			if (index == -1)
+				return text;
+
+			StringBuilder sb = new StringBuilder ();
+			bool escaped = false;
+			bool quoted = false;
+
+			for (int i = 0; i < text.Length; i++) {
+				switch (text[i]) {
+					case '\r':
+					case '\n':
+					break;
+					case '\t':
+					sb.Append (' ');
+					break;
+					case '\\':
+					if (escaped)
+						sb.Append ('\\');
+					escaped = !escaped;
+					break;
+					case '"':
+					if (escaped) {
+						sb.Append ('"');
+						escaped = false;
+					} else {
+						quoted = !quoted;
+					}
+					break;
+					default:
+					sb.Append (text[i]);
+					break;
+				}
+			}
+
+			return sb.ToString ();
+		}
 	}
 }
