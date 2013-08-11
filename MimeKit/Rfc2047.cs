@@ -1028,18 +1028,18 @@ namespace MimeKit {
 
 			for (int i = 0; i < text.Length; i++) {
 				switch (text[i]) {
-					case '\r':
-					case '\n':
+				case '\r':
+				case '\n':
 					break;
-					case '\t':
+				case '\t':
 					sb.Append (' ');
 					break;
-					case '\\':
+				case '\\':
 					if (escaped)
 						sb.Append ('\\');
 					escaped = !escaped;
 					break;
-					case '"':
+				case '"':
 					if (escaped) {
 						sb.Append ('"');
 						escaped = false;
@@ -1047,7 +1047,7 @@ namespace MimeKit {
 						quoted = !quoted;
 					}
 					break;
-					default:
+				default:
 					sb.Append (text[i]);
 					break;
 				}
