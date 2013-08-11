@@ -68,6 +68,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestExampleAddrSpecRfc822 ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "\":sysmail\"@  Some-Group. Some-Org,\n Muhammed.(I am  the greatest) Ali @(the)Vegas.WBA";
+
+			expected.Add (new Mailbox ("", "\":sysmail\"@Some-Group.Some-Org"));
+			expected.Add (new Mailbox ("", "Muhammed.Ali@Vegas.WBA"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
 		public void TestMailboxes ()
 		{
 			InternetAddressList expected = new InternetAddressList ();
@@ -122,6 +138,51 @@ namespace UnitTests {
 			mailbox.Name = "Kristoffer Brånemyr";
 			mailbox.Address = "ztion@swipenet.se";
 			text = "=?iso-8859-1?q?Kristoffer_Br=E5nemyr?= <ztion@swipenet.se>";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			mailbox.Name = "François Pons";
+			mailbox.Address = "fpons@mandrakesoft.com";
+			text = "=?iso-8859-1?q?Fran=E7ois?= Pons <fpons@mandrakesoft.com>";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestListWithGroupAndAddrspec ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "GNOME Hackers: Miguel de Icaza <miguel@gnome.org>, Havoc Pennington <hp@redhat.com>;, fejj@helixcode.com";
+
+			expected.Add (new Group ("GNOME Hackers", new InternetAddress[] {
+				new Mailbox ("Miguel de Icaza", "miguel@gnome.org"),
+				new Mailbox ("Havoc Pennington", "hp@redhat.com")
+			}));
+			expected.Add (new Mailbox ("", "fejj@helixcode.com"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestLocalGroupWithoutSemicolon ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "Local recipients: phil, joe, alex, bob";
+
+			expected.Add (new Group ("Local recipients", new InternetAddress[] {
+				new Mailbox ("", "phil"),
+				new Mailbox ("", "joe"),
+				new Mailbox ("", "alex"),
+				new Mailbox ("", "bob"),
+			}));
+
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}

@@ -418,6 +418,18 @@ namespace MimeKit {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
+		static unsafe string GetDebugString (byte *input, int length)
+		{
+			StringBuilder sb = new StringBuilder ();
+			byte *inend = input + length;
+			byte *inptr = input;
+
+			while (inptr < inend)
+				sb.Append ((char) *inptr++);
+
+			return sb.ToString ();
+		}
+
 		static unsafe string DecodeTokens (List<Token> tokens, byte* input, int length)
 		{
 			StringBuilder decoded = new StringBuilder (length);

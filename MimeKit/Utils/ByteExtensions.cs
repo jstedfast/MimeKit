@@ -48,7 +48,7 @@ namespace MimeKit {
 
 	static class ByteExtensions
 	{
-		const string AtomSafeCharacters = "!#$%@'*+-/=?^_`{|}~";
+		const string AtomSafeCharacters = "!#$%'*+-/=?^_`{|}~";
 		const string AttributeCharacters = "*'% "; // attribute-char from rfc2184
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
@@ -125,6 +125,7 @@ namespace MimeKit {
 			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl, false);
 			SetFlags (Specials, CharType.IsSpecial, CharType.None, false);
 			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
+			RemoveFlags (Specials, CharType.IsAtom);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
 			RemoveFlags (AttributeCharacters + TokenSpecials, CharType.IsAttrChar);
 			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);

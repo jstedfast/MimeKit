@@ -75,7 +75,7 @@ namespace MimeKit {
 			localpart = null;
 
 			do {
-				if (!text[index].IsAtom () || text[index] == '"') {
+				if (!text[index].IsAtom () && text[index] != '"') {
 					if (throwOnError)
 						throw new ParseException (string.Format ("Invalid local-part at offset {0}", startIndex), startIndex, index);
 
@@ -136,6 +136,16 @@ namespace MimeKit {
 			}
 
 			index++;
+			if (index >= endIndex) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
 			if (index >= endIndex) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
