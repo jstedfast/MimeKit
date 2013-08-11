@@ -98,7 +98,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMailboxes ()
+		public void TestSimpleMailboxes ()
 		{
 			InternetAddressList expected = new InternetAddressList ();
 			Mailbox mailbox = new Mailbox ("", "");
@@ -148,6 +148,17 @@ namespace UnitTests {
 			text = "Jeffrey Stedfast <fejj(recursive (comment) block)@helixcode.(and a comment here)com>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestMailboxesWithRfc2047EncodedNames ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			Mailbox mailbox = new Mailbox ("", "");
+			InternetAddressList result;
+			string text;
+
+			expected.Add (mailbox);
 
 			mailbox.Name = "Kristoffer Brånemyr";
 			mailbox.Address = "ztion@swipenet.se";
