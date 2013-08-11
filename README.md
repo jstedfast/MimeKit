@@ -71,7 +71,7 @@ MimeKit is Copyright (C) 2012, 2013 Jeffrey Stedfast and is licensed udner the M
 As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of E-Mail client
 (and server) software had less-than-satisfactory MIME implementations. More often than not these E-Mail clients
 created broken MIME messages and/or would incorrectly try to parse a MIME message thus subtracting from the full
-benefits that MIME was meant to provide. GMime is meant to address this issue by following the MIME specification
+benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
 as closely as possible while also providing programmers with an extremely easy to use high-level application
 programming interface.
 
