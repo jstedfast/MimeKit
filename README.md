@@ -46,7 +46,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 
 ## License Information
 
-MimeKit is Copyright (C) 2012, 2013 Jeffrey Stedfast and is licensed udner the MIT/X11 license:
+MimeKit is Copyright (C) 2012, 2013 Jeffrey Stedfast and is licensed under the MIT/X11 license:
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
