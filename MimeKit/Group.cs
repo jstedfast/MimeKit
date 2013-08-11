@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class Group : InternetAddress
+	public sealed class Group : InternetAddress, IEquatable<Group>
 	{
 		InternetAddressList members;
 
@@ -50,7 +50,7 @@ namespace MimeKit {
 			get { return members; }
 		}
 
-		public override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
 		{
 			if (sb == null)
 				throw new ArgumentNullException ("sb");
@@ -123,10 +123,15 @@ namespace MimeKit {
 			return sb.ToString ();
 		}
 
-		public override string ToString ()
+		#region IEquatable implementation
+		public bool Equals (Group other)
 		{
-			return ToString (Encoding.UTF8, false);
+			if (other == null)
+				return false;
+
+			return Name == other.Name && Members == other.Members;
 		}
+		#endregion
 
 		void MembersChanged (object sender, EventArgs e)
 		{

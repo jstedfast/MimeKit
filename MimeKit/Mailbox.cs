@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class Mailbox : InternetAddress
+	public sealed class Mailbox : InternetAddress, IEquatable<Mailbox>
 	{
 		string address;
 
@@ -68,7 +68,7 @@ namespace MimeKit {
 			}
 		}
 
-		public override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
 		{
 			if (sb == null)
 				throw new ArgumentNullException ("sb");
@@ -175,10 +175,15 @@ namespace MimeKit {
 			return Address;
 		}
 
-		public override string ToString ()
+		#region IEquatable implementation
+		public bool Equals (Mailbox other)
 		{
-			return ToString (Encoding.UTF8, false);
+			if (other == null)
+				return false;
+
+			return Name == other.Name && Address == other.Address;
 		}
+		#endregion
 
 		void RouteChanged (object sender, EventArgs e)
 		{

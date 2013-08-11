@@ -95,11 +95,11 @@ namespace MimeKit {
 			while (index < endIndex) {
 				if (text[index] == (byte) '\\') {
 					escaped = !escaped;
-				} else {
-					escaped = false;
-
+				} else if (!escaped) {
 					if (text[index] == (byte) '"')
 						break;
+				} else {
+					escaped = false;
 				}
 
 				index++;
@@ -139,16 +139,6 @@ namespace MimeKit {
 			return false;
 		}
 
-		public static bool SkipPhrase (byte[] text, ref int index, int endIndex, bool throwOnError)
-		{
-			while (SkipWord (text, ref index, endIndex, throwOnError)) {
-				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-					return false;
-			}
-
-			return true;
-		}
-
 		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, bool throwOnError, string tokenType, out string dotatom)
 		{
 			StringBuilder token = new StringBuilder ();
@@ -165,7 +155,7 @@ namespace MimeKit {
 				}
 
 				while (index < endIndex && text[index].IsAtom ()) {
-					token.Append (text[index]);
+					token.Append ((char) text[index]);
 					index++;
 				}
 
@@ -205,7 +195,7 @@ namespace MimeKit {
 
 			do {
 				while (index < endIndex && text[index].IsDomain ()) {
-					token.Append (text[index]);
+					token.Append ((char) text[index]);
 					index++;
 				}
 

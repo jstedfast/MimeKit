@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public class InternetAddressList : IList<InternetAddress>
+	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
 	{
 		List<InternetAddress> list = new List<InternetAddress> ();
 
@@ -161,6 +161,71 @@ namespace MimeKit {
 		}
 
 		#endregion
+
+		#region IEquatable implementation
+
+		public bool Equals (InternetAddressList other)
+		{
+			if (other == null)
+				return false;
+
+			if (other.Count != Count)
+				return false;
+
+			for (int i = 0; i < Count; i++) {
+				if (!list[i].Equals (other[i]))
+					return false;
+			}
+
+			return true;
+		}
+
+		#endregion
+
+		internal void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		{
+			if (sb == null)
+				throw new ArgumentNullException ("sb");
+
+			if (lineLength < 0)
+				throw new ArgumentOutOfRangeException ("lineLength");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			foreach (var addr in list)
+				addr.Encode (sb, ref lineLength, charset);
+		}
+
+		public string ToString (Encoding charset, bool encode)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			var sb = new StringBuilder ();
+
+			if (encode) {
+				int lineLength = 0;
+
+				Encode (sb, ref lineLength, charset);
+
+				return sb.ToString ();
+			}
+
+			for (int i = 0; i < list.Count; i++) {
+				if (i > 0)
+					sb.Append (", ");
+
+				sb.Append (list[i].ToString ());
+			}
+
+			return sb.ToString ();
+		}
+
+		public override string ToString ()
+		{
+			return ToString (Encoding.UTF8, false);
+		}
 
 		public event EventHandler Changed;
 
@@ -297,7 +362,7 @@ namespace MimeKit {
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			InternetAddressList addresses;
-			int index;
+			int index = 0;
 
 			TryParse (buffer, ref index, buffer.Length, false, true, out addresses);
 

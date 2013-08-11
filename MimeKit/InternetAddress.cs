@@ -50,9 +50,14 @@ namespace MimeKit {
 			}
 		}
 
-		public abstract void Encode (StringBuilder sb, ref int lineLength, Encoding charset);
+		internal abstract void Encode (StringBuilder sb, ref int lineLength, Encoding charset);
 
 		public abstract string ToString (Encoding charset, bool encode);
+
+		public override string ToString ()
+		{
+			return ToString (Encoding.UTF8, false);
+		}
 
 		public event EventHandler Changed;
 
@@ -234,6 +239,47 @@ namespace MimeKit {
 			return true;
 		}
 
+		static string Demangle (string name)
+		{
+			int index = name.IndexOfAny (new char[] { '\r', '\n', '\t', '"' });
+
+			if (index == -1)
+				return name;
+
+			StringBuilder sb = new StringBuilder ();
+			bool escaped = false;
+			bool quoted = false;
+
+			for (int i = 0; i < name.Length; i++) {
+				switch (name[i]) {
+				case '\r':
+				case '\n':
+					break;
+				case '\t':
+					sb.Append (' ');
+					break;
+				case '\\':
+					if (escaped)
+						sb.Append ('\\');
+					escaped = !escaped;
+					break;
+				case '"':
+					if (escaped) {
+						sb.Append ('"');
+						escaped = false;
+					} else {
+						quoted = !quoted;
+					}
+					break;
+				default:
+					sb.Append (name[i]);
+					break;
+				}
+			}
+
+			return sb.ToString ();
+		}
+
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
 		{
 			address = null;
@@ -245,41 +291,51 @@ namespace MimeKit {
 			int startIndex = index;
 			int length = 0;
 
-			if (!ParseUtils.SkipPhrase (text, ref index, endIndex, throwOnError))
-				return false;
+			while (index < endIndex && ParseUtils.SkipWord (text, ref index, endIndex, throwOnError)) {
+				length = index - startIndex;
 
-			length = index - startIndex;
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+			}
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
-
-			if (index >= endIndex) {
-				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete address found at offset {0}", startIndex), startIndex, index);
-
-				address = null;
-				return false;
-			}
 
 			// specials    =  "(" / ")" / "<" / ">" / "@"  ; Must be in quoted-
 			//             /  "," / ";" / ":" / "\" / <">  ;  string, to use
 			//             /  "." / "[" / "]"              ;  within a word.
 
+			if (index >= endIndex || text[index] == (byte) ',' || text[index] == ';') {
+				// we've completely gobbled up an addr-spec w/o a domain
+				byte sentinel = index < endIndex ? text[index] : (byte) ',';
+				string addrspec;
+
+				// rewind back to the beginning of the local-part
+				index = startIndex;
+
+				if (!TryParseAddrspec (text, ref index, endIndex, sentinel, throwOnError, out addrspec))
+					return false;
+
+				address = new Mailbox (string.Empty, addrspec);
+
+				return true;
+			}
+
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
 				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
 
-				return TryParseGroup (text, startIndex, ref index, endIndex, name, throwOnError, out address);
+				return TryParseGroup (text, startIndex, ref index, endIndex, Demangle (name), throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
 				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, name, throwOnError, out address);
+				return TryParseMailbox (text, startIndex, ref index, endIndex, Demangle (name), throwOnError, out address);
 			}
 
-			if (text[index] == '.' || text[index] == (byte) '@' || text[index] == (byte) ',' || text[index] == ';') {
+			if (text[index] == '.' || text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
 				string addrspec;
 
