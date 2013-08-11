@@ -184,7 +184,7 @@ namespace MimeKit {
 					inptr++;
 
 				if (inptr > text)
-					lwsp = new Token ((int) (inptr - input), (int) (inptr - text));
+					lwsp = new Token ((int) (text - input), (int) (inptr - text));
 				else
 					lwsp = null;
 
