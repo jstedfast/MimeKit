@@ -68,7 +68,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestExampleAddrSpecFromRfc822 ()
+		public void TestExampleAddrSpecWithQuotedLocalPartAndCommentsFromRfc822 ()
 		{
 			InternetAddressList expected = new InternetAddressList ();
 			InternetAddressList result;
