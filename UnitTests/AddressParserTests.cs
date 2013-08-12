@@ -230,5 +230,35 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
+
+		[Test]
+		public void TestObsoleteMailboxRoutingSyntax ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "Routed Address <@route:user@domain.com>";
+
+			expected.Add (new Mailbox ("Routed Address", new string[] { "route" }, "user@domain.com"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
+		public void TestObsoleteMailboxRoutingSyntaxWithEmptyDomains ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "Routed Address <@route1,,@route2,,,@route3:user@domain.com>";
+
+			expected.Add (new Mailbox ("Routed Address", new string[] { "route1", "route2", "route3" }, "user@domain.com"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
 	}
 }
