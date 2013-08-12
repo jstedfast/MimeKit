@@ -167,11 +167,11 @@ namespace MimeKit {
 			return true;
 		}
 
-		static unsafe List<Token> TokenizePhrase (byte* input, int length)
+		static unsafe List<Token> TokenizePhrase (byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
-			byte* text, word, inptr = input;
-			byte* inend = input + length;
+			byte* text, word, inptr = inbuf + startIndex;
+			byte* inend = inptr + length;
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
@@ -184,7 +184,7 @@ namespace MimeKit {
 					inptr++;
 
 				if (inptr > text)
-					lwsp = new Token ((int) (text - input), (int) (inptr - text));
+					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 				else
 					lwsp = null;
 
@@ -248,7 +248,7 @@ namespace MimeKit {
 					}
 
 					n = (int) (inptr - word);
-					if (TryGetEncodedWordToken (input, word, n, out token)) {
+					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
 						if (!encoded && lwsp != null) {
@@ -263,7 +263,7 @@ namespace MimeKit {
 						if (lwsp != null)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - input), n);
+						token = new Token ((int) (word - inbuf), n);
 						token.Is8bit = !ascii;
 						tokens.Add (token);
 
@@ -281,7 +281,7 @@ namespace MimeKit {
 						inptr++;
 					}
 
-					token = new Token ((int) (word - input), (int) (inptr - word));
+					token = new Token ((int) (word - inbuf), (int) (inptr - word));
 					token.Is8bit = !ascii;
 					tokens.Add (token);
 
@@ -292,11 +292,11 @@ namespace MimeKit {
 			return tokens;
 		}
 
-		static unsafe List<Token> TokenizeText (byte* input, int length)
+		static unsafe List<Token> TokenizeText (byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
-			byte* text, word, inptr = input;
-			byte* inend = input + length;
+			byte* text, word, inptr = inbuf + startIndex;
+			byte* inend = inptr + length;
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
@@ -309,7 +309,7 @@ namespace MimeKit {
 					inptr++;
 
 				if (inptr > text)
-					lwsp = new Token ((int) (inptr - input), (int) (inptr - text));
+					lwsp = new Token ((int) (inptr - inbuf), (int) (inptr - text));
 				else
 					lwsp = null;
 
@@ -378,7 +378,7 @@ namespace MimeKit {
 					}
 
 					n = (int) (inptr - word);
-					if (TryGetEncodedWordToken (input, word, n, out token)) {
+					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
 						if (!encoded && lwsp != null) {
@@ -393,7 +393,7 @@ namespace MimeKit {
 						if (lwsp != null)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - input), n);
+						token = new Token ((int) (word - inbuf), n);
 						token.Is8bit = !ascii;
 						tokens.Add (token);
 
@@ -430,13 +430,12 @@ namespace MimeKit {
 			return sb.ToString ();
 		}
 
-		static unsafe string DecodeTokens (List<Token> tokens, byte* input, int length)
+		static unsafe string DecodeTokens (List<Token> tokens, byte[] input, int startIndex, byte* inbuf, int length)
 		{
 			StringBuilder decoded = new StringBuilder (length);
 			IMimeDecoder qp = new QuotedPrintableDecoder (true);
 			IMimeDecoder base64 = new Base64Decoder ();
 			byte[] output = new byte[length];
-			byte* inptr, inend, outptr;
 			Token token;
 			int len;
 
@@ -465,14 +464,14 @@ namespace MimeKit {
 						else
 							decoder = qp;
 
-						outptr = outbuf;
+						byte* outptr = outbuf;
 						outlen = 0;
 						do {
 							// Note: by not resetting the decoder state each loop, we effectively
 							// treat the payloads as one continuous block, thus allowing us to
 							// handle cases where a hex-encoded triplet of a quoted-printable
 							// encoded payload is split between 2 or more encoded-word tokens.
-							len = DecodeToken (tokens[i], decoder, input, outptr);
+							len = DecodeToken (tokens[i], decoder, inbuf, outptr);
 							outptr += len;
 							outlen += len;
 							i++;
@@ -481,16 +480,16 @@ namespace MimeKit {
 						decoder.Reset ();
 						i--;
 
-						var unicode = CharsetUtils.ConvertToUnicode (codepage, outbuf, outlen, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (codepage, output, 0, outlen, out len);
 						decoded.Append (unicode, 0, len);
 					} else if (token.Is8bit) {
 						// *sigh* I hate broken mailers...
-						var unicode = CharsetUtils.ConvertToUnicode (input + token.StartIndex, token.Length, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (input, startIndex + token.StartIndex, token.Length, out len);
 						decoded.Append (unicode, 0, len);
 					} else {
 						// pure 7bit ascii, a breath of fresh air...
-						inptr = input + token.StartIndex;
-						inend = inptr + token.Length;
+						byte* inptr = inbuf + token.StartIndex;
+						byte* inend = inptr + token.Length;
 
 						while (inptr < inend)
 							decoded.Append ((char) *inptr++);
@@ -499,13 +498,6 @@ namespace MimeKit {
 			}
 
 			return decoded.ToString ();
-		}
-
-		static unsafe string DecodePhrase (byte* phrase, int length)
-		{
-			var tokens = TokenizePhrase (phrase, length);
-
-			return DecodeTokens (tokens, phrase, length);
 		}
 
 		/// <summary>
@@ -531,8 +523,10 @@ namespace MimeKit {
 				return string.Empty;
 
 			unsafe {
-				fixed (byte* inptr = phrase) {
-					return DecodePhrase (inptr + startIndex, count);
+				fixed (byte* inbuf = phrase) {
+					var tokens = TokenizePhrase (inbuf, startIndex, count);
+
+					return DecodeTokens (tokens, phrase, startIndex, inbuf, count);
 				}
 			}
 		}
@@ -545,13 +539,6 @@ namespace MimeKit {
 		public static string DecodePhrase (byte[] phrase)
 		{
 			return DecodePhrase (phrase, 0, phrase.Length);
-		}
-
-		static unsafe string DecodeText (byte* text, int length)
-		{
-			var tokens = TokenizeText (text, length);
-
-			return DecodeTokens (tokens, text, length);
 		}
 
 		/// <summary>
@@ -577,8 +564,10 @@ namespace MimeKit {
 				return string.Empty;
 
 			unsafe {
-				fixed (byte* inptr = text) {
-					return DecodeText (inptr + startIndex, count);
+				fixed (byte* inbuf = text) {
+					var tokens = TokenizeText (inbuf, startIndex, count);
+
+					return DecodeTokens (tokens, text, startIndex, inbuf, count);
 				}
 			}
 		}

@@ -395,7 +395,7 @@ namespace MimeKit {
 			}
 		}
 
-		internal static unsafe char[] ConvertToUnicode (byte* input, int length, out int charCount)
+		internal static char[] ConvertToUnicode (byte[] input, int startIndex, int length, out int charCount)
 		{
 			var invalid = new InvalidByteCountFallback ();
 			int min = Int32.MaxValue;
@@ -417,7 +417,7 @@ namespace MimeKit {
 				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
 				decoder = encoding.GetDecoder ();
 
-				count = decoder.GetCharCount (input, length, true);
+				count = decoder.GetCharCount (input, startIndex, length, true);
 				if (invalid.InvalidByteCount < min) {
 					min = invalid.InvalidByteCount;
 					best = codepages[i];
@@ -432,12 +432,10 @@ namespace MimeKit {
 			encoding = CharsetUtils.GetEncoding (best);
 			decoder = encoding.GetDecoder ();
 
-			count = decoder.GetCharCount (input, length, true);
+			count = decoder.GetCharCount (input, startIndex, length, true);
 			output = new char[count];
 
-			fixed (char* outptr = output) {
-				charCount = decoder.GetChars (input, length, outptr, count, true);
-			}
+			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
 
 			return output;
 		}
@@ -455,27 +453,21 @@ namespace MimeKit {
 
 			int count;
 
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return new string (ConvertToUnicode (inptr + startIndex, length, out count), 0, count);
-				}
-			}
+			return new string (ConvertToUnicode (buffer, startIndex, length, out count), 0, count);
 		}
 
-		internal static unsafe char[] ConvertToUnicode (Encoding encoding, byte* input, int length, out int charCount)
+		internal static char[] ConvertToUnicode (Encoding encoding, byte[] input, int startIndex, int length, out int charCount)
 		{
 			var decoder = encoding.GetDecoder ();
-			int count = decoder.GetCharCount (input, length, true);
+			int count = decoder.GetCharCount (input, startIndex, length, true);
 			char[] output = new char[count];
 
-			fixed (char* outptr = output) {
-				charCount = decoder.GetChars (input, length, outptr, count, true);
-			}
+			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
 
 			return output;
 		}
 
-		internal static unsafe char[] ConvertToUnicode (int codepage, byte* input, int length, out int charCount)
+		internal static char[] ConvertToUnicode (int codepage, byte[] input, int startIndex, int length, out int charCount)
 		{
 			Encoding encoding = null;
 
@@ -483,9 +475,9 @@ namespace MimeKit {
 				encoding = CharsetUtils.GetEncoding (codepage);
 
 			if (encoding == null)
-				return ConvertToUnicode (input, length, out charCount);
+				return ConvertToUnicode (input, startIndex, length, out charCount);
 
-			return ConvertToUnicode (encoding, input, length, out charCount);
+			return ConvertToUnicode (encoding, input, startIndex, length, out charCount);
 		}
 
 		public static string ConvertToUnicode (Encoding encoding, byte[] buffer, int startIndex, int length)
@@ -504,11 +496,7 @@ namespace MimeKit {
 
 			int count;
 
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return new string (ConvertToUnicode (encoding, inptr + startIndex, length, out count), 0, count);
-				}
-			}
+			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out count), 0, count);
 		}
 	}
 }
