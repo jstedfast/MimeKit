@@ -206,9 +206,9 @@ namespace MimeKit {
 		{
 			if (c >= 0x41) {
 				if (c >= 0x61)
-					return (byte) (c - 0x61);
+					return (byte) (c - (0x61 - 0x0a));
 
-				return (byte) (c - 0x41);
+				return (byte) (c - (0x41 - 0x0A));
 			}
 
 			return (byte) (c - 0x30);
