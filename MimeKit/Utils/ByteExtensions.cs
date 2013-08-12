@@ -48,7 +48,7 @@ namespace MimeKit {
 
 	static class ByteExtensions
 	{
-		const string AtomSafeCharacters = "!#$%'*+-/=?^_`{|}~";
+		const string AtomSafeCharacters = "!#$%&'*+-/=?^_`{|}~";
 		const string AttributeCharacters = "*'% "; // attribute-char from rfc2184
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
