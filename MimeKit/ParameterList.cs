@@ -47,6 +47,27 @@ namespace MimeKit {
 			Add (new Parameter (name, value));
 		}
 
+		public bool Contains (string name)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			return table.ContainsKey (name);
+		}
+
+		public int IndexOf (string name)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			for (int i = 0; i < parameters.Count; i++) {
+				if (parameters[i].Name == name)
+					return i;
+			}
+
+			return -1;
+		}
+
 		public void Insert (int index, string name, string value)
 		{
 			if (index < 0 || index > Count)
