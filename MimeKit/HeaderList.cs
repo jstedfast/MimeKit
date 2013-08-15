@@ -50,6 +50,27 @@ namespace MimeKit {
 			Add (new Header (field, value));
 		}
 
+		public bool Contains (string field)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			return table.ContainsKey (field);
+		}
+
+		public int IndexOf (string field)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			for (int i = 0; i < headers.Count; i++) {
+				if (headers[i].Field == field)
+					return i;
+			}
+
+			return -1;
+		}
+
 		public void Insert (int index, string field, string value)
 		{
 			if (index < 0 || index > Count)
