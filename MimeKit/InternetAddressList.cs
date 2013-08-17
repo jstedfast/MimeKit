@@ -334,6 +334,9 @@ namespace MimeKit {
 			InternetAddressList addresses;
 			int index = startIndex;
 
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
 			if (startIndex < 0 || startIndex > text.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
@@ -347,12 +350,31 @@ namespace MimeKit {
 
 		public static InternetAddressList Parse (byte[] text, int startIndex)
 		{
-			return Parse (text, startIndex, text.Length - startIndex);
+			InternetAddressList addresses;
+			int index = startIndex;
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			TryParse (text, ref index, text.Length, false, true, out addresses);
+
+			return addresses;
 		}
 
 		public static InternetAddressList Parse (byte[] text)
 		{
-			return Parse (text, 0, text.Length);
+			InternetAddressList addresses;
+			int index = 0;
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			TryParse (text, ref index, text.Length, false, true, out addresses);
+
+			return addresses;
 		}
 
 		public static InternetAddressList Parse (string text)

@@ -121,10 +121,12 @@ namespace MimeKit {
 
 		public static bool SkipAtom (byte[] text, ref int index, int endIndex)
 		{
+			int start = index;
+
 			while (index < endIndex && text[index].IsAtom ())
 				index++;
 
-			return true;
+			return index > start;
 		}
 
 		public static bool SkipWord (byte[] text, ref int index, int endIndex, bool throwOnError)

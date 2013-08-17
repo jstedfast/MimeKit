@@ -25,17 +25,24 @@
 //
 
 using System;
+using System.Text;
 
 namespace MimeKit {
 	public sealed class ContentDisposition
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		ParameterList parameters;
 		string disposition;
 
-		public ContentDisposition ()
+		public ContentDisposition (string disposition)
 		{
-			Parameters = new ParameterList ();
-			Parameters.Changed += OnParametersChanged;
+			parameters = new ParameterList ();
+			parameters.Changed += OnParametersChanged;
+			Disposition = disposition;
+		}
+
+		public ContentDisposition () : this ("attachment")
+		{
 		}
 
 		public string Disposition {
@@ -59,7 +66,7 @@ namespace MimeKit {
 		}
 
 		public ParameterList Parameters {
-			get; private set;
+			get { return parameters; }
 		}
 
 		public event EventHandler Changed;
@@ -73,6 +80,131 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
+		{
+			string type;
+			int atom;
+
+			disposition = null;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			atom = index;
+			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+
+				return false;
+			}
+
+			type = Encoding.ASCII.GetString (text, atom, index - atom);
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			disposition = new ContentDisposition (type);
+
+			if (index >= endIndex)
+				return true;
+
+			if (text[index] != (byte) ';') {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Expected ';' at position {0}", index), index, index);
+
+				return false;
+			}
+
+			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out disposition.parameters);
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, int count, out ContentDisposition disposition)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count >= text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			int index = startIndex;
+
+			return TryParse (text, ref index, startIndex + count, false, out disposition);
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, out ContentDisposition disposition)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int index = startIndex;
+
+			return TryParse (text, ref index, text.Length, false, out disposition);
+		}
+
+		public static bool TryParse (byte[] text, out ContentDisposition disposition)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			int index = 0;
+
+			return TryParse (text, ref index, text.Length, false, out disposition);
+		}
+
+		public static ContentDisposition Parse (byte[] text, int startIndex, int count)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count > text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			ContentDisposition disposition;
+			int index = startIndex;
+
+			TryParse (text, ref index, startIndex + count, true, out disposition);
+
+			return disposition;
+		}
+
+		public static ContentDisposition Parse (byte[] text, int startIndex)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			ContentDisposition disposition;
+			int index = startIndex;
+
+			TryParse (text, ref index, text.Length, true, out disposition);
+
+			return disposition;
+		}
+
+		public static ContentDisposition Parse (byte[] text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			ContentDisposition disposition;
+			int index = 0;
+
+			TryParse (text, ref index, text.Length, true, out disposition);
+
+			return disposition;
 		}
 	}
 }

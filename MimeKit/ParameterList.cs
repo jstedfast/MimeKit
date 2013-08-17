@@ -25,11 +25,12 @@
 //
 
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class ParameterList : ICollection<Parameter>, IList<Parameter>
+	public sealed class ParameterList : IList<Parameter>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
@@ -281,6 +282,13 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
+		{
+			paramList = null;
+
+			return false;
 		}
 	}
 }

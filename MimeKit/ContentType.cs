@@ -25,10 +25,12 @@
 //
 
 using System;
+using System.Text;
 
 namespace MimeKit {
 	public sealed class ContentType
 	{
+		ParameterList parameters;
 		string type, subtype;
 
 		public ContentType (string type, string subtype)
@@ -55,8 +57,8 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in subtype.", "subtype");
 			}
 
-			Parameters = new ParameterList ();
-			Parameters.Changed += OnParametersChanged;
+			parameters = new ParameterList ();
+			parameters.Changed += OnParametersChanged;
 			this.subtype = subtype;
 			this.type = type;
 		}
@@ -113,7 +115,7 @@ namespace MimeKit {
 		}
 
 		public ParameterList Parameters {
-			get; private set;
+			get { return parameters; }
 		}
 
 		public event EventHandler Changed;
@@ -127,6 +129,157 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ContentType contentType)
+		{
+			string type, subtype;
+			int atom;
+
+			contentType = null;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			atom = index;
+			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+
+				return false;
+			}
+
+			type = Encoding.ASCII.GetString (text, atom, index - atom);
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex || text[index] != (byte) '/') {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Expected '/' at position {0}", index), index, index);
+
+				return false;
+			}
+
+			// skip over the '/'
+			index++;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			atom = index;
+			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+
+				return false;
+			}
+
+			subtype = Encoding.ASCII.GetString (text, atom, index - atom);
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			contentType = new ContentType (type, subtype);
+
+			if (index >= endIndex)
+				return true;
+
+			if (text[index] != (byte) ';') {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Expected ';' at position {0}", index), index, index);
+
+				return false;
+			}
+
+			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out contentType.parameters);
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, int count, out ContentType contentType)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count >= text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			int index = startIndex;
+
+			return TryParse (text, ref index, startIndex + count, false, out contentType);
+		}
+
+		public static bool TryParse (byte[] text, int startIndex, out ContentType contentType)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex >= text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int index = startIndex;
+
+			return TryParse (text, ref index, text.Length, false, out contentType);
+		}
+
+		public static bool TryParse (byte[] text, out ContentType contentType)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			int index = 0;
+
+			return TryParse (text, ref index, text.Length, false, out contentType);
+		}
+
+		public static ContentType Parse (byte[] text, int startIndex, int count)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || startIndex + count > text.Length)
+				throw new ArgumentOutOfRangeException ("count");
+
+			ContentType contentType;
+			int index = startIndex;
+
+			TryParse (text, ref index, startIndex + count, true, out contentType);
+
+			return contentType;
+		}
+
+		public static ContentType Parse (byte[] text, int startIndex)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			ContentType contentType;
+			int index = startIndex;
+
+			TryParse (text, ref index, text.Length, true, out contentType);
+
+			return contentType;
+		}
+
+		public static ContentType Parse (byte[] text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			ContentType contentType;
+			int index = 0;
+
+			TryParse (text, ref index, text.Length, true, out contentType);
+
+			return contentType;
 		}
 	}
 }
