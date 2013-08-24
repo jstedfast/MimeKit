@@ -57,8 +57,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in subtype.", "subtype");
 			}
 
-			parameters = new ParameterList ();
-			parameters.Changed += OnParametersChanged;
+			Parameters = new ParameterList ();
 			this.subtype = subtype;
 			this.type = type;
 		}
@@ -116,6 +115,13 @@ namespace MimeKit {
 
 		public ParameterList Parameters {
 			get { return parameters; }
+			private set {
+				if (parameters != null)
+					parameters.Changed -= OnParametersChanged;
+
+				value.Changed += OnParametersChanged;
+				parameters = value;
+			}
 		}
 
 		public event EventHandler Changed;
@@ -210,7 +216,13 @@ namespace MimeKit {
 			if (index >= endIndex)
 				return true;
 
-			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out contentType.parameters);
+			ParameterList parameters;
+			if (!ParameterList.TryParse (text, ref index, endIndex, throwOnError, out parameters))
+				return false;
+
+			contentType.Parameters = parameters;
+
+			return true;
 		}
 
 		public static bool TryParse (byte[] text, int startIndex, int count, out ContentType contentType)

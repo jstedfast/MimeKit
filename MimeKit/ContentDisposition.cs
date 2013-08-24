@@ -36,8 +36,7 @@ namespace MimeKit {
 
 		public ContentDisposition (string disposition)
 		{
-			parameters = new ParameterList ();
-			parameters.Changed += OnParametersChanged;
+			Parameters = new ParameterList ();
 			Disposition = disposition;
 		}
 
@@ -67,6 +66,13 @@ namespace MimeKit {
 
 		public ParameterList Parameters {
 			get { return parameters; }
+			private set {
+				if (parameters != null)
+					parameters.Changed -= OnParametersChanged;
+
+				value.Changed += OnParametersChanged;
+				parameters = value;
+			}
 		}
 
 		public event EventHandler Changed;
@@ -125,7 +131,13 @@ namespace MimeKit {
 			if (index >= endIndex)
 				return true;
 
-			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out disposition.parameters);
+			ParameterList parameters;
+			if (!ParameterList.TryParse (text, ref index, endIndex, throwOnError, out parameters))
+				return false;
+
+			disposition.Parameters = parameters;
+
+			return true;
 		}
 
 		public static bool TryParse (byte[] text, int startIndex, int count, out ContentDisposition disposition)
