@@ -493,11 +493,12 @@ namespace MimeKit {
 			if (TryParseCharset (text, ref index, endIndex, out charset))
 				encoding = CharsetUtils.GetEncoding (charset);
 
+			var decoder =  new HexDecoder ();
 			int length = endIndex - index;
-			var decoded = new byte[length];
+			var decoded = new byte[decoder.EstimateOutputLength (length)];
 
 			// hex decode...
-			length = new HexDecoder ().Decode (text, index, length, decoded);
+			length = decoder.Decode (text, index, length, decoded);
 
 			if (encoding == null)
 				return CharsetUtils.ConvertToUnicode (decoded, 0, length);
@@ -516,6 +517,9 @@ namespace MimeKit {
 			do {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
+
+				if (index >= endIndex)
+					break;
 
 				NameValuePair pair;
 				if (!TryParseNameValuePair (text, ref index, endIndex, throwOnError, out pair))
@@ -546,6 +550,8 @@ namespace MimeKit {
 
 					return false;
 				}
+
+				index++;
 			} while (true);
 
 			paramList = new ParameterList ();
@@ -562,9 +568,9 @@ namespace MimeKit {
 						if (part.Encoded) {
 							value += DecodeRfc2184 (text, part.ValueStart, part.ValueLength);
 						} else if (part.ValueLength > 2 && text[part.ValueStart] == (byte) '"') {
-							value += CharsetUtils.ConvertToUnicode (text, param.ValueStart + 1, param.ValueLength - 2);
+							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart + 1, part.ValueLength - 2);
 						} else if (part.ValueLength > 0) {
-							value += CharsetUtils.ConvertToUnicode (text, param.ValueStart, param.ValueLength);
+							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart, part.ValueLength);
 						}
 					}
 				} else if (param.Encoded) {

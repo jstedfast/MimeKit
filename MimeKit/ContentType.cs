@@ -131,25 +131,35 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
+		static bool SkipType (byte[] text, ref int index, int endIndex)
+		{
+			int startIndex = index;
+
+			while (index < endIndex && text[index].IsAtom () && text[index] != (byte) '/')
+				index++;
+
+			return index > startIndex;
+		}
+
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ContentType contentType)
 		{
 			string type, subtype;
-			int atom;
+			int start;
 
 			contentType = null;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			atom = index;
-			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+			start = index;
+			if (!SkipType (text, ref index, endIndex)) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+					throw new ParseException (string.Format ("Invalid type token at position {0}", start), start, index);
 
 				return false;
 			}
 
-			type = Encoding.ASCII.GetString (text, atom, index - atom);
+			type = Encoding.ASCII.GetString (text, start, index - start);
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
@@ -167,15 +177,15 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			atom = index;
+			start = index;
 			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+					throw new ParseException (string.Format ("Invalid atom token at position {0}", start), start, index);
 
 				return false;
 			}
 
-			subtype = Encoding.ASCII.GetString (text, atom, index - atom);
+			subtype = Encoding.ASCII.GetString (text, start, index - start);
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
@@ -191,6 +201,14 @@ namespace MimeKit {
 
 				return false;
 			}
+
+			index++;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex)
+				return true;
 
 			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out contentType.parameters);
 		}
@@ -232,6 +250,17 @@ namespace MimeKit {
 			int index = 0;
 
 			return TryParse (text, ref index, text.Length, false, out contentType);
+		}
+
+		public static bool TryParse (string text, out ContentType contentType)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (buffer, ref index, buffer.Length, false, out contentType);
 		}
 
 		public static ContentType Parse (byte[] text, int startIndex, int count)
@@ -278,6 +307,20 @@ namespace MimeKit {
 			int index = 0;
 
 			TryParse (text, ref index, text.Length, true, out contentType);
+
+			return contentType;
+		}
+
+		public static ContentType Parse (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			ContentType contentType;
+			int index = 0;
+
+			TryParse (buffer, ref index, buffer.Length, true, out contentType);
 
 			return contentType;
 		}

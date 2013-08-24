@@ -117,6 +117,14 @@ namespace MimeKit {
 				return false;
 			}
 
+			index++;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex)
+				return true;
+
 			return ParameterList.TryParse (text, ref index, endIndex, throwOnError, out disposition.parameters);
 		}
 
@@ -157,6 +165,17 @@ namespace MimeKit {
 			int index = 0;
 
 			return TryParse (text, ref index, text.Length, false, out disposition);
+		}
+
+		public static bool TryParse (string text, out ContentDisposition disposition)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
 		}
 
 		public static ContentDisposition Parse (byte[] text, int startIndex, int count)
@@ -203,6 +222,20 @@ namespace MimeKit {
 			int index = 0;
 
 			TryParse (text, ref index, text.Length, true, out disposition);
+
+			return disposition;
+		}
+
+		public static ContentDisposition Parse (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			ContentDisposition disposition;
+			int index = 0;
+
+			TryParse (buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}

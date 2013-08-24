@@ -1,0 +1,109 @@
+//
+// ContentTypeTests.cs
+//
+// Author: Jeffrey Stedfast <jeff@xamarin.com>
+//
+// Copyright (c) 2013 Jeffrey Stedfast
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+using System.Text;
+using NUnit.Framework;
+
+using MimeKit;
+
+namespace UnitTests {
+	[TestFixture]
+	public class ContentTypeTests
+	{
+		[Test]
+		public void TestSimpleContentType ()
+		{
+			string text = "text/plain";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.Type, "text", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.Subtype, "plain", "Media subtype does not match: {0}", text);
+		}
+
+		[Test]
+		public void TestSimpleContentTypeWithParameter ()
+		{
+			string text = "multipart/mixed; boundary=\"boundary-text\"";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.Type, "multipart", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.Subtype, "mixed", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("boundary"), "Parameter list does not contain boundary param: {0}", text);
+			Assert.AreEqual (type.Parameters["boundary"], "boundary-text", "boundary values do not match: {0}", text);
+		}
+
+		[Test]
+		public void TestMultipartParameterExampleFromRfc2184 ()
+		{
+			ContentType type;
+			string text;
+
+			text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.Type, "message", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.Subtype, "external-body", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("access-type"), "Parameter list does not contain access-type param: {0}", text);
+			Assert.AreEqual (type.Parameters["access-type"], "URL", "access-type values do not match: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("URL"), "Parameter list does not contain URL param: {0}", text);
+			Assert.AreEqual (type.Parameters["URL"], "ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar", "access-type values do not match: {0}", text);
+		}
+
+		[Test]
+		public void TestEncodedParameterExampleFromRfc2184 ()
+		{
+			ContentType type;
+			string text;
+
+			text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.Type, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.Subtype, "x-stuff", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
+			Assert.AreEqual (type.Parameters["title"], "This is ***fun***", "title values do not match: {0}", text);
+		}
+
+		[Test]
+		public void TestMultipartEncodedParameterExampleFromRfc2184 ()
+		{
+			ContentType type;
+			string text;
+
+			text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.Type, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.Subtype, "x-stuff", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
+			Assert.AreEqual (type.Parameters["title"], "This is even more ***fun*** isn't it!", "title values do not match: {0}", text);
+		}
+	}
+}
