@@ -284,11 +284,300 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
+		static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
+		{
+			int startIndex = index;
+
+			value = 0;
+
+			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9')
+				value = (value * 10) + (text[index++] - (byte) '0');
+
+			return index > startIndex;
+		}
+
+		static bool SkipParamName (byte[] text, ref int index, int endIndex)
+		{
+			int startIndex = index;
+
+			while (index < endIndex && text[index].IsTToken () && text[index] != (byte) '*')
+				index++;
+
+			return index > startIndex;
+		}
+
+		class NameValuePair : IComparable<NameValuePair> {
+			public int ValueLength;
+			public int ValueStart;
+			public bool Encoded;
+			public string Name;
+			public int? Id;
+
+			#region IComparable implementation
+			public int CompareTo (NameValuePair other)
+			{
+				if (!Id.HasValue) {
+					if (other.Id.HasValue)
+						return -1;
+
+					return 0;
+				}
+
+				if (!other.Id.HasValue)
+					return 1;
+
+				return Id.Value - other.Id.Value;
+			}
+			#endregion
+		}
+
+		static bool TryParseNameValuePair (byte[] text, ref int index, int endIndex, bool throwOnError, out NameValuePair pair)
+		{
+			int valueIndex, startIndex;
+			bool encoded = false;
+			int? id = null;
+			string name;
+
+			pair = null;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			startIndex = index;
+			if (!SkipParamName (text, ref index, endIndex)) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Invalid parameter name token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			name = Encoding.ASCII.GetString (text, startIndex, index - startIndex);
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			if (text[index] == (byte) '*') {
+				encoded = true;
+				index++;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
+				int value;
+				if (TryParseInt32 (text, ref index, endIndex, out value)) {
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index >= endIndex) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+						return false;
+					}
+
+					if (text[index] != (byte) '*') {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Invalid parameter token at offset {0}", startIndex), startIndex, index);
+
+						return false;
+					}
+
+					index++;
+
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index >= endIndex) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+						return false;
+					}
+
+					id = value;
+				}
+			}
+
+			if (text[index] != (byte) '=') {
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+			}
+
+			index++;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex) {
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+			}
+
+			valueIndex = index;
+
+			if (text[index] == (byte) '"')
+				ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError);
+			else
+				ParseUtils.SkipTToken (text, ref index, endIndex);
+
+			pair = new NameValuePair () {
+				ValueLength = index - valueIndex,
+				ValueStart = valueIndex,
+				Encoded = encoded,
+				Name = name,
+				Id = id
+			};
+
+			return true;
+		}
+
+		static bool TryParseCharset (byte[] text, ref int index, int endIndex, out string charset)
+		{
+			int startIndex = index;
+			int charsetEnd;
+			int i;
+
+			charset = null;
+
+			for (i = index; i < endIndex; i++) {
+				if (text[i] == (byte) '\'')
+					break;
+			}
+
+			if (i == startIndex || i == endIndex)
+				return false;
+
+			charsetEnd = i;
+
+			for (i++; i < endIndex; i++) {
+				if (text[i] == (byte) '\'')
+					break;
+			}
+
+			if (i == endIndex)
+				return false;
+
+			charset = Encoding.ASCII.GetString (text, startIndex, charsetEnd - startIndex);
+			index = i + 1;
+
+			return true;
+		}
+
+		static string DecodeRfc2184 (byte[] text, int startIndex, int count)
+		{
+			int endIndex = startIndex + count;
+			Encoding encoding = null;
+			int index = startIndex;
+			string charset;
+
+			if (TryParseCharset (text, ref index, endIndex, out charset))
+				encoding = CharsetUtils.GetEncoding (charset);
+
+			int length = endIndex - index;
+			var decoded = new byte[length];
+
+			// hex decode...
+			length = new HexDecoder ().Decode (text, index, length, decoded);
+
+			if (encoding == null)
+				return CharsetUtils.ConvertToUnicode (decoded, 0, length);
+
+			return CharsetUtils.ConvertToUnicode (encoding, decoded, 0, length);
+		}
+
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
+			var rfc2184 = new Dictionary<string, List<NameValuePair>> ();
+			var @params = new List<NameValuePair> ();
+			List<NameValuePair> list;
+
 			paramList = null;
 
-			return false;
+			do {
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				NameValuePair pair;
+				if (!TryParseNameValuePair (text, ref index, endIndex, throwOnError, out pair))
+					return false;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				if (pair.Encoded && pair.Id.HasValue) {
+					if (rfc2184.TryGetValue (pair.Name, out list)) {
+						list.Add (pair);
+					} else {
+						list = new List<NameValuePair> ();
+						rfc2184.Add (pair.Name, list);
+						@params.Add (pair);
+						list.Add (pair);
+					}
+				} else {
+					@params.Add (pair);
+				}
+
+				if (index >= endIndex)
+					break;
+
+				if (text[index] != (byte) ';') {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Invalid parameter list token at offset {0}", index), index, index);
+
+					return false;
+				}
+			} while (true);
+
+			paramList = new ParameterList ();
+
+			foreach (var param in @params) {
+				string value;
+
+				if (param.Encoded) {
+					if (param.Id.HasValue) {
+						list = rfc2184[param.Name];
+						list.Sort ();
+
+						value = string.Empty;
+						foreach (var part in list)
+							value += DecodeRfc2184 (text, part.ValueStart, part.ValueLength);
+					} else {
+						value = DecodeRfc2184 (text, param.ValueStart, param.ValueLength);
+					}
+				} else if (param.ValueLength > 2 && text[param.ValueStart] == (byte) '"') {
+					value = Rfc2047.DecodeText (text, param.ValueStart + 1, param.ValueLength - 2);
+				} else if (param.ValueLength > 0) {
+					value = Rfc2047.DecodeText (text, param.ValueStart, param.ValueLength);
+				} else {
+					value = string.Empty;
+				}
+
+				paramList.Add (new Parameter (param.Name, value));
+			}
+
+			return true;
 		}
 	}
 }

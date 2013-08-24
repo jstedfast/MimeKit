@@ -129,6 +129,16 @@ namespace MimeKit {
 			return index > start;
 		}
 
+		public static bool SkipTToken (byte[] text, ref int index, int endIndex)
+		{
+			int start = index;
+
+			while (index < endIndex && text[index].IsTToken ())
+				index++;
+
+			return index > start;
+		}
+
 		public static bool SkipWord (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
 			if (text[index] == (byte) '"')

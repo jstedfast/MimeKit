@@ -166,6 +166,11 @@ namespace MimeKit {
 			return table[c].HasFlag (CharType.IsQuotedPrintableSafe);
 		}
 
+		public static bool IsTToken (this byte c)
+		{
+			return !c.IsTokenSpecial () && !c.IsWhitespace () && !c.IsCtrl ();
+		}
+
 		public static bool IsTokenSpecial (this byte c)
 		{
 			return table[c].HasFlag (CharType.IsTokenSpecial);

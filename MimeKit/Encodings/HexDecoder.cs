@@ -1,9 +1,9 @@
-﻿//
-// QuotedPrintableDecoder.cs
+//
+// HexDecoder.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,34 +27,21 @@
 using System;
 
 namespace MimeKit {
-	public class QuotedPrintableDecoder : IMimeDecoder
+	public class HexDecoder : IMimeDecoder
 	{
-		enum QpDecoderState : byte {
+		enum HexDecoderState : byte {
 			PassThrough,
-			EqualSign,
+			Percent,
 			DecodeByte
 		}
 
-		QpDecoderState state;
-		bool rfc2047;
+		HexDecoderState state;
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.HexDecoder"/> class.
 		/// </summary>
-		/// <param name='rfc2047'>
-		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
-		/// </param>
-		public QuotedPrintableDecoder (bool rfc2047)
-		{
-			this.rfc2047 = rfc2047;
-			Reset ();
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
-		/// </summary>
-		public QuotedPrintableDecoder () : this (false)
+		public HexDecoder ()
 		{
 		}
 
@@ -73,7 +60,7 @@ namespace MimeKit {
 		/// The encoding.
 		/// </value>
 		public ContentEncoding Encoding {
-			get { return ContentEncoding.QuotedPrintable; }
+			get { return ContentEncoding.Default; }
 		}
 
 		/// <summary>
@@ -133,47 +120,38 @@ namespace MimeKit {
 
 			while (inptr < inend) {
 				switch (state) {
-				case QpDecoderState.PassThrough:
+				case HexDecoderState.PassThrough:
 					while (inptr < inend) {
 						c = *inptr++;
 
-						if (c == '=') {
-							state = QpDecoderState.EqualSign;
+						if (c == '%') {
+							state = HexDecoderState.Percent;
 							break;
-						} else if (rfc2047 && c == '_') {
-							*outptr++ = (byte) ' ';
 						} else {
 							*outptr++ = c;
 						}
 					}
 					break;
-				case QpDecoderState.EqualSign:
+				case HexDecoderState.Percent:
 					c = *inptr++;
-					if (c == '\n') {
-						// this is a soft break ("=\n")
-						state = QpDecoderState.PassThrough;
-					} else {
-						state = QpDecoderState.DecodeByte;
-						saved = c;
-					}
+					state = HexDecoderState.DecodeByte;
+					saved = c;
 					break;
-				case QpDecoderState.DecodeByte:
+				case HexDecoderState.DecodeByte:
 					c = *inptr++;
 					if (c.IsXDigit () && saved.IsXDigit ()) {
 						saved = saved.ToXDigit ();
 						c = c.ToXDigit ();
 
 						*outptr++ = (byte) ((saved << 4) | c);
-					} else if (saved == '\r' && c == '\n') {
-						// end-of-line
 					} else {
 						// invalid encoded sequence - pass it through undecoded
-						*outptr++ = (byte) '=';
+						*outptr++ = (byte) '%';
 						*outptr++ = saved;
 						*outptr++ = c;
 					}
 
-					state = QpDecoderState.PassThrough;
+					state = HexDecoderState.PassThrough;
 					break;
 				}
 			}
@@ -215,7 +193,7 @@ namespace MimeKit {
 		/// </summary>
 		public void Reset ()
 		{
-			state = QpDecoderState.PassThrough;
+			state = HexDecoderState.PassThrough;
 			saved = 0;
 		}
 	}
