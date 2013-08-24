@@ -508,7 +508,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
-			var rfc2184 = new Dictionary<string, List<NameValuePair>> ();
+			var rfc2184 = new Dictionary<string, List<NameValuePair>> (icase);
 			var @params = new List<NameValuePair> ();
 			List<NameValuePair> list;
 
