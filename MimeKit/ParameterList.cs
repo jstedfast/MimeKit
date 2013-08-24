@@ -364,7 +364,7 @@ namespace MimeKit {
 			}
 
 			if (text[index] == (byte) '*') {
-				encoded = true;
+				// the parameter is either encoded or it has a part id
 				index++;
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -389,26 +389,24 @@ namespace MimeKit {
 						return false;
 					}
 
-					if (text[index] != (byte) '*') {
-						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid parameter token at offset {0}", startIndex), startIndex, index);
+					if (text[index] == (byte) '*') {
+						encoded = true;
+						index++;
 
-						return false;
-					}
+						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+							return false;
 
-					index++;
+						if (index >= endIndex) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-						return false;
-
-					if (index >= endIndex) {
-						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
-
-						return false;
+							return false;
+						}
 					}
 
 					id = value;
+				} else {
+					encoded = true;
 				}
 			}
 
@@ -526,7 +524,7 @@ namespace MimeKit {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (pair.Encoded && pair.Id.HasValue) {
+				if (pair.Id.HasValue) {
 					if (rfc2184.TryGetValue (pair.Name, out list)) {
 						list.Add (pair);
 					} else {
@@ -555,17 +553,22 @@ namespace MimeKit {
 			foreach (var param in @params) {
 				string value;
 
-				if (param.Encoded) {
-					if (param.Id.HasValue) {
-						list = rfc2184[param.Name];
-						list.Sort ();
+				if (param.Id.HasValue) {
+					list = rfc2184[param.Name];
+					list.Sort ();
 
-						value = string.Empty;
-						foreach (var part in list)
+					value = string.Empty;
+					foreach (var part in list) {
+						if (part.Encoded) {
 							value += DecodeRfc2184 (text, part.ValueStart, part.ValueLength);
-					} else {
-						value = DecodeRfc2184 (text, param.ValueStart, param.ValueLength);
+						} else if (part.ValueLength > 2 && text[part.ValueStart] == (byte) '"') {
+							value += CharsetUtils.ConvertToUnicode (text, param.ValueStart + 1, param.ValueLength - 2);
+						} else if (part.ValueLength > 0) {
+							value += CharsetUtils.ConvertToUnicode (text, param.ValueStart, param.ValueLength);
+						}
 					}
+				} else if (param.Encoded) {
+					value = DecodeRfc2184 (text, param.ValueStart, param.ValueLength);
 				} else if (param.ValueLength > 2 && text[param.ValueStart] == (byte) '"') {
 					value = Rfc2047.DecodeText (text, param.ValueStart + 1, param.ValueLength - 2);
 				} else if (param.ValueLength > 0) {
