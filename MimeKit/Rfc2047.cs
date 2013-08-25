@@ -576,7 +576,7 @@ namespace MimeKit {
 			int count = encoder.GetByteCount (word, 0, length, true);
 			byte[] encoded = new byte[count];
 
-			converted = encoder.GetBytes (word, 0, length, encoded, count, true);
+			converted = encoder.GetBytes (word, 0, length, encoded, 0, true);
 
 			return encoded;
 		}
@@ -872,7 +872,6 @@ namespace MimeKit {
 			Word prev = null;
 			byte[] encoded;
 
-			// FIXME: might want this to fold lines as well?
 			foreach (var word in words) {
 				// append the correct number of spaces between words...
 				if (prev != null && !(prev.Type == WordType.EncodedWord && word.Type == WordType.EncodedWord)) {
@@ -916,6 +915,8 @@ namespace MimeKit {
 				default:
 					break;
 				}
+
+				prev = word;
 			}
 
 			encoded = new byte[str.Length];

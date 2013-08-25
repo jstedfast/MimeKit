@@ -260,5 +260,31 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
+
+		[Test]
+		public void TestEncodingSimpleMailboxWithQuotedName ()
+		{
+			var mailbox = new Mailbox ("Stedfast, Jeffrey", "fejj@gnome.org");
+			var list = new InternetAddressList ();
+			list.Add (mailbox);
+
+			var expected = "\"Stedfast, Jeffrey\" <fejj@gnome.org>";
+			var actual = list.ToString (Encoding.UTF8, true);
+
+			Assert.AreEqual (expected, actual, "Encoding quoted mailbox did not match expected result: {0}", expected);
+		}
+
+		[Test]
+		public void TestEncodingSimpleMailboxWithLatin1Name ()
+		{
+			var mailbox = new Mailbox ("Kristoffer Brånemyr", "ztion@swipenet.se");
+			var list = new InternetAddressList ();
+			list.Add (mailbox);
+
+			var expected = "Kristoffer =?iso-8859-1?q?Br=E5nemyr?= <ztion@swipenet.se>";
+			var actual = list.ToString (CharsetUtils.GetEncoding ("iso-8859-1"), true);
+
+			Assert.AreEqual (expected, actual, "Encoding latin1 mailbox did not match expected result: {0}", expected);
+		}
 	}
 }
