@@ -72,8 +72,7 @@ As a developer and user of Electronic Mail clients, I had come to realize that t
 (and server) software had less-than-satisfactory MIME implementations. More often than not these E-Mail clients
 created broken MIME messages and/or would incorrectly try to parse a MIME message thus subtracting from the full
 benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
-as closely as possible while also providing programmers with an extremely easy to use high-level application
-programming interface.
+as closely as possible while also providing programmers with an extremely easy to use high-level API.
 
 This led me, at first, to implement another MIME parser library called [GMime](http://spruce.sourceforge.net/gmime)
 which is implemented in C and later added a C# binding called GMime-Sharp.
