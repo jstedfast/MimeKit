@@ -165,7 +165,8 @@ namespace MimeKit {
 			}
 		}
 
-		static bool GetNextValue (string charset, Encoder encoder, HexEncoder hex, char[] chars, ref int index, int maxLength, out string value)
+		static bool GetNextValue (string charset, Encoder encoder, HexEncoder hex, char[] chars, ref int index,
+		                          ref byte[] bytes, ref byte[] encoded, int maxLength, out string value)
 		{
 			int length = chars.Length - index;
 
@@ -184,11 +185,8 @@ namespace MimeKit {
 				}
 			}
 
-			byte[] bytes = new byte[Math.Max (maxLength, 6)];
-			byte[] encoded = new byte[bytes.Length];
-			int ratio, count, n;
-
 			length = Math.Min (maxLength, length);
+			int ratio, count, n;
 
 			do {
 				count = encoder.GetByteCount (chars, index, length, true);
@@ -277,6 +275,8 @@ namespace MimeKit {
 			int maxLength = Rfc2047.MaxLineLength - (Name.Length + 6);
 			var bestEncoding = GetBestEncoding (Value, encoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
+			var bytes = new byte[Math.Max (maxLength, 6)];
+			var hexbuf = new byte[bytes.Length * 3 + 3];
 			var encoder = bestEncoding.GetEncoder ();
 			var chars = Value.ToCharArray ();
 			var hex = new HexEncoder ();
@@ -286,7 +286,7 @@ namespace MimeKit {
 			int length;
 
 			do {
-				encoded = GetNextValue (charset, encoder, hex, chars, ref index, maxLength, out value);
+				encoded = GetNextValue (charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out value);
 				length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
