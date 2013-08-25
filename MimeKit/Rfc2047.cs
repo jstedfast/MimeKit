@@ -714,10 +714,10 @@ namespace MimeKit {
 							type = WordType.EncodedWord;
 							encoding = Math.Max (encoding, 1);
 						} else if (phrase && !IsAtom (c)) {
-								// phrases can have quoted strings
-								if (type == WordType.Atom)
-									type = WordType.QuotedString;
-							}
+							// phrases can have quoted strings
+							if (type == WordType.Atom)
+								type = WordType.QuotedString;
+						}
 					} else if (c < 256) {
 						type = WordType.EncodedWord;
 						encoding = Math.Max (encoding, 1);
