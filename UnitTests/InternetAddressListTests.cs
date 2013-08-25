@@ -32,7 +32,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class AddressParserTests
+	public class InternetAddressListTests
 	{
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)
 		{

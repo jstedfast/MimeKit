@@ -35,8 +35,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddressParserTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
+    <Compile Include="InternetAddressListTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
