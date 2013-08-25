@@ -971,9 +971,6 @@ namespace MimeKit {
 			if (text == null)
 				throw new ArgumentNullException ("value");
 
-			if (text.IndexOfAny (ByteExtensions.TokenSpecials.ToCharArray ()) == -1)
-				return text;
-
 			var sb = new StringBuilder ();
 
 			sb.Append ("\"");
