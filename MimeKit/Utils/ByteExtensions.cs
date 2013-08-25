@@ -99,10 +99,10 @@ namespace MimeKit {
 		static ByteExtensions ()
 		{
 			for (int i = 0; i < 256; i++) {
-				if (i < 128) {
-					if (i < 32 || i == 127)
+				if (i < 127) {
+					if (i < 32)
 						table[i] |= CharType.IsControl;
-					if (i > 32 && i < 127)
+					if (i > 32)
 						table[i] |= CharType.IsAttrChar;
 					if ((i >= 33 && i <= 60) || (i >= 62 && i <= 126) || i == 32)
 						table[i] |= (CharType.IsQuotedPrintableSafe | CharType.IsEncodedWordSafe);
@@ -113,12 +113,15 @@ namespace MimeKit {
 
 					table[i] |= CharType.IsAscii;
 				} else {
+					if (i == 127)
+						table[i] |= CharType.IsAscii;
+
 					table[i] |= CharType.IsControl;
 				}
 			}
 
-			table[(int) ' '] |= CharType.IsSpace | CharType.IsBlank;
 			table['\t'] |= CharType.IsQuotedPrintableSafe | CharType.IsBlank;
+			table[' '] |= CharType.IsSpace | CharType.IsBlank;
 
 			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None, false);
 			SetFlags (AtomSafeCharacters, CharType.IsAtom, CharType.None, false);
