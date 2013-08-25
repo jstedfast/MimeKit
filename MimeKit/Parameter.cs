@@ -83,52 +83,59 @@ namespace MimeKit {
 
 		static EncodeMethod GetEncodeMethod (string name, string value, out string quoted)
 		{
+			var method = EncodeMethod.None;
+
 			quoted = null;
 
 			if (name.Length + 1 + value.Length >= Rfc2047.MaxLineLength)
 				return EncodeMethod.Rfc2184;
 
 			for (int i = 0; i < value.Length; i++) {
-				if (value[i] > 127 || ((byte) value[i]).IsCtrl ())
+				if (value[i] >= 127 || ((byte) value[i]).IsCtrl ())
 					return EncodeMethod.Rfc2184;
 
-				if (!((byte) value[i]).IsAttr ()) {
-					quoted = Rfc2047.Quote (value);
-
-					if (name.Length + 1 + quoted.Length >= Rfc2047.MaxLineLength)
-						return EncodeMethod.Rfc2184;
-
-					return EncodeMethod.Quote;
-				}
+				if (!((byte) value[i]).IsAttr ())
+					method = EncodeMethod.Quote;
 			}
 
-			return EncodeMethod.None;
+			if (method == EncodeMethod.Quote) {
+				quoted = Rfc2047.Quote (value);
+
+				if (name.Length + 1 + quoted.Length >= Rfc2047.MaxLineLength)
+					return EncodeMethod.Rfc2184;
+			}
+
+			return method;
 		}
 
 		static EncodeMethod GetEncodeMethod (char[] value, int startIndex, int length)
 		{
-			for (int i = startIndex; i < length; i++) {
-				if (((byte) value[i]) > 127 || ((byte) value[i]).IsCtrl ())
+			var method = EncodeMethod.None;
+
+			for (int i = startIndex; i < startIndex + length; i++) {
+				if (value[i] >= 127 || ((byte) value[i]).IsCtrl ())
 					return EncodeMethod.Rfc2184;
 
 				if (!((byte) value[i]).IsAttr ())
-					return EncodeMethod.Quote;
+					method = EncodeMethod.Quote;
 			}
 
-			return EncodeMethod.None;
+			return method;
 		}
 
 		static EncodeMethod GetEncodeMethod (byte[] value, int length)
 		{
+			var method = EncodeMethod.None;
+
 			for (int i = 0; i < length; i++) {
-				if (value[i] > 127 || value[i].IsCtrl ())
+				if (value[i] >= 127 || value[i].IsCtrl ())
 					return EncodeMethod.Rfc2184;
 
 				if (!value[i].IsAttr ())
-					return EncodeMethod.Quote;
+					method = EncodeMethod.Quote;
 			}
 
-			return EncodeMethod.None;
+			return method;
 		}
 
 		static bool IsCtrl (char c)
@@ -179,11 +186,15 @@ namespace MimeKit {
 
 			byte[] bytes = new byte[Math.Max (maxLength, 6)];
 			byte[] encoded = new byte[bytes.Length];
-			int count, n;
+			int ratio, count, n;
+
+			length = Math.Min (maxLength, length);
 
 			do {
-				if ((count = encoder.GetByteCount (chars, index, length, true)) > maxLength && length > 1) {
-					length -= Math.Max ((count - maxLength) / 4, 1);
+				count = encoder.GetByteCount (chars, index, length, true);
+				if (count > maxLength && length > 1) {
+					ratio = (int) Math.Round ((double) count / (double) length);
+					length -= Math.Max ((count - maxLength) / ratio, 1);
 					continue;
 				}
 
@@ -208,16 +219,18 @@ namespace MimeKit {
 
 					n = hex.Encode (bytes, 0, count, encoded);
 					if (n > 3 && (charset.Length + 2 + n) > maxLength) {
+						int y = charset.Length + 2;
 						int x = 0;
 
-						for (int i = n - 1; i >= 0 && (n - x) > maxLength; i--) {
+						for (int i = n - 1; i >= 0 && y + i >= maxLength; i--) {
 							if (encoded[i] == (byte) '%')
 								x--;
 							else
 								x++;
 						}
 
-						length -= Math.Max (x / 4, 1);
+						ratio = (int) Math.Round ((double) count / (double) length);
+						length -= Math.Max (x / ratio, 1);
 						break;
 					}
 
@@ -308,6 +321,7 @@ namespace MimeKit {
 				sb.Append ('=');
 				sb.Append (value);
 				lineLength += length;
+				i++;
 			} while (index < chars.Length);
 		}
 

@@ -105,5 +105,47 @@ namespace UnitTests {
 			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
 			Assert.AreEqual (type.Parameters["title"], "This is even more ***fun*** isn't it!", "title values do not match: {0}", text);
 		}
+
+		[Test]
+		public void TestBreakingOfLongParamValues ()
+		{
+			string encoded, expected;
+			ContentType type;
+
+			expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*0=\"this is a really really long filename that should force MimeKi\";\n\tname*1=\"t to break it apart - yay!.html\"";
+			type = new ContentType ("text", "plain");
+			type.Parameters.Add ("charset", "iso-8859-1");
+			type.Parameters.Add ("name", "this is a really really long filename that should force MimeKit to break it apart - yay!.html");
+			encoded = type.ToString (Encoding.UTF8, true);
+			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+		}
+
+		[Test]
+		public void TestEncodingOfParamValues ()
+		{
+			string encoded, expected;
+			ContentType type;
+
+			expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*=iso-8859-1''Kristoffer%20Br%E5nemyr";
+			type = new ContentType ("text", "plain");
+			type.Parameters.Add ("charset", "iso-8859-1");
+			type.Parameters.Add ("name", "Kristoffer Brånemyr");
+			encoded = type.ToString (Encoding.UTF8, true);
+			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+		}
+
+		[Test]
+		public void TestEncodingOfLongParamValues ()
+		{
+			string encoded, expected;
+			ContentType type;
+
+			expected = "Content-Type: text/plain; charset=utf-8;\n\tname*0*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*1*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5";
+			type = new ContentType ("text", "plain");
+			type.Parameters.Add ("charset", "utf-8");
+			type.Parameters.Add ("name", new string ('å', 32));
+			encoded = type.ToString (Encoding.UTF8, true);
+			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+		}
 	}
 }
