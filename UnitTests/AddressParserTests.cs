@@ -42,7 +42,7 @@ namespace UnitTests {
 				Assert.AreEqual (expected.GetType (), result.GetType (),
 				                 "Address #{0} differs in type: {1}", i, text);
 
-				Assert.AreEqual (expected[i].ToString (), result[i].ToString ());
+				Assert.AreEqual (expected[i].ToString (), result[i].ToString (), "Display strings differ for {0}", text);
 			}
 		}
 

@@ -719,12 +719,12 @@ namespace MimeKit {
 									type = WordType.QuotedString;
 							}
 					} else if (c < 256) {
-							type = WordType.EncodedWord;
-							encoding = Math.Max (encoding, 1);
-						} else {
-							type = WordType.EncodedWord;
-							encoding = 2;
-						}
+						type = WordType.EncodedWord;
+						encoding = Math.Max (encoding, 1);
+					} else {
+						type = WordType.EncodedWord;
+						encoding = 2;
+					}
 
 					if (count >= MaxPreEncodedLength) {
 						// Note: if the word is longer than what we can fit on

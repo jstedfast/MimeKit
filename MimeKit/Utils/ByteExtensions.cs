@@ -49,7 +49,7 @@ namespace MimeKit {
 	static class ByteExtensions
 	{
 		const string AtomSafeCharacters = "!#$%&'*+-/=?^_`{|}~";
-		const string AttributeCharacters = "*'% "; // attribute-char from rfc2184
+		const string AttributeSpecials = "*'%";    // attribute specials from rfc2184
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1
@@ -127,7 +127,7 @@ namespace MimeKit {
 			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
 			RemoveFlags (Specials, CharType.IsAtom);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
-			RemoveFlags (AttributeCharacters + TokenSpecials, CharType.IsAttrChar);
+			RemoveFlags (AttributeSpecials + TokenSpecials, CharType.IsAttrChar);
 			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);
 		}
 
@@ -166,7 +166,7 @@ namespace MimeKit {
 			return table[c].HasFlag (CharType.IsQuotedPrintableSafe);
 		}
 
-		public static bool IsTToken (this byte c)
+		public static bool IsToken (this byte c)
 		{
 			return !c.IsTokenSpecial () && !c.IsWhitespace () && !c.IsCtrl ();
 		}

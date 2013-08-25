@@ -271,6 +271,35 @@ namespace MimeKit {
 
 		#endregion
 
+		internal void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		{
+			if (sb == null)
+				throw new ArgumentNullException ("sb");
+
+			if (lineLength < 0)
+				throw new ArgumentOutOfRangeException ("lineLength");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			foreach (var param in parameters)
+				param.Encode (sb, ref lineLength, charset);
+		}
+
+		public override string ToString ()
+		{
+			var values = new StringBuilder ();
+
+			foreach (var param in parameters) {
+				if (values.Length == 0)
+					values.Append (param.ToString ().Substring (2));
+				else
+					values.Append (param.ToString ());
+			}
+
+			return values.ToString ();
+		}
+
 		public event EventHandler Changed;
 
 		void OnParamChanged (object sender, EventArgs args)
@@ -300,7 +329,7 @@ namespace MimeKit {
 		{
 			int startIndex = index;
 
-			while (index < endIndex && text[index].IsTToken () && text[index] != (byte) '*')
+			while (index < endIndex && text[index].IsAttr ())
 				index++;
 
 			return index > startIndex;

@@ -1,0 +1,183 @@
+//
+// HexEncoder.cs
+//
+// Author: Jeffrey Stedfast <jeff@xamarin.com>
+//
+// Copyright (c) 2013 Jeffrey Stedfast
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+
+namespace MimeKit {
+	public class HexEncoder : IMimeEncoder
+	{
+		static readonly byte[] hex_alphabet = new byte[16] {
+			0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // '0' -> '7'
+			0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, // '8' -> 'F'
+		};
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableEncoder"/> class.
+		/// </summary>
+		public HexEncoder ()
+		{
+		}
+
+		/// <summary>
+		/// Clones the encoder.
+		/// </summary>
+		public object Clone ()
+		{
+			return MemberwiseClone ();
+		}
+
+		/// <summary>
+		/// Gets the encoding.
+		/// </summary>
+		/// <value>
+		/// The encoding.
+		/// </value>
+		public ContentEncoding Encoding {
+			get { return ContentEncoding.Default; }
+		}
+
+		/// <summary>
+		/// Estimates the length of the output.
+		/// </summary>
+		/// <returns>
+		/// The estimated output length.
+		/// </returns>
+		/// <param name='inputLength'>
+		/// The input length.
+		/// </param>
+		public int EstimateOutputLength (int inputLength)
+		{
+			return inputLength * 3;
+		}
+
+		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
+		{
+			if (input == null)
+				throw new ArgumentNullException ("input");
+
+			if (startIndex < 0 || startIndex > input.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > input.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (output.Length < EstimateOutputLength (length))
+				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", "output");
+		}
+
+		static unsafe int Encode (byte* input, int length, byte* output)
+		{
+			if (length == 0)
+				return 0;
+
+			byte* inend = input + length;
+			byte* outptr = output;
+			byte* inptr = input;
+
+			while (inptr < inend) {
+				byte c = *inptr++;
+
+				if (c.IsAttr ()) {
+					*outptr++ = c;
+				} else {
+					*outptr++ = (byte) '%';
+					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
+					*outptr++ = hex_alphabet[c & 0x0f];
+				}
+			}
+
+			return (int) (outptr - output);
+		}
+
+		/// <summary>
+		/// Encodes the specified input into the output buffer.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// The input buffer.
+		/// </param>
+		/// <param name='startIndex'>
+		/// The starting index of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// The output buffer.
+		/// </param>
+		public int Encode (byte[] input, int startIndex, int length, byte[] output)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					return Encode (inptr + startIndex, length, outptr);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
+		/// </summary>
+		/// <returns>
+		/// The number of bytes written to the output buffer.
+		/// </returns>
+		/// <param name='input'>
+		/// The input buffer.
+		/// </param>
+		/// <param name='startIndex'>
+		/// The starting index of the input buffer.
+		/// </param>
+		/// <param name='length'>
+		/// The length of the input buffer.
+		/// </param>
+		/// <param name='output'>
+		/// The output buffer.
+		/// </param>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					return Encode (inptr + startIndex, length, outptr);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Resets the encoder.
+		/// </summary>
+		public void Reset ()
+		{
+		}
+	}
+}

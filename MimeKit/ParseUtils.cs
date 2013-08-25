@@ -133,7 +133,7 @@ namespace MimeKit {
 		{
 			int start = index;
 
-			while (index < endIndex && text[index].IsTToken ())
+			while (index < endIndex && text[index].IsToken ())
 				index++;
 
 			return index > start;

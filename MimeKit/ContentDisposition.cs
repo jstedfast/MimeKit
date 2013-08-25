@@ -75,6 +75,30 @@ namespace MimeKit {
 			}
 		}
 
+		public string ToString (Encoding charset, bool encode)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			var sb = new StringBuilder ("Content-Disposition: ");
+			sb.Append (Disposition);
+
+			if (encode) {
+				int lineLength = sb.Length;
+
+				Parameters.Encode (sb, ref lineLength, charset);
+			} else {
+				sb.Append (Parameters.ToString ());
+			}
+
+			return sb.ToString ();
+		}
+
+		public override string ToString ()
+		{
+			return ToString (Encoding.UTF8, false);
+		}
+
 		public event EventHandler Changed;
 
 		void OnParametersChanged (object sender, EventArgs e)
