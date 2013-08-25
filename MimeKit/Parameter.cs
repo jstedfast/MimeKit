@@ -148,7 +148,7 @@ namespace MimeKit {
 			int encoding = 0; // us-ascii
 
 			for (int i = 0; i < value.Length; i++) {
-				if (value[i] < 128) {
+				if (value[i] < 127) {
 					if (IsCtrl (value[i]))
 						encoding = Math.Max (encoding, 1);
 				} else if (value[i] < 256) {
@@ -201,41 +201,52 @@ namespace MimeKit {
 
 				count = encoder.GetBytes (chars, index, length, bytes, 0, true);
 
-				switch (GetEncodeMethod (bytes, count)) {
-				case EncodeMethod.Quote:
-					value = Rfc2047.Quote (Encoding.ASCII.GetString (bytes, 0, count));
-					index += length;
-					return false;
-				case EncodeMethod.None:
-					value = Encoding.ASCII.GetString (bytes, 0, count);
-					index += length;
-					return false;
-				default:
-					n = hex.EstimateOutputLength (count);
-					if (encoded.Length < n)
-						Array.Resize<byte> (ref encoded, n);
+				// Note: the first chunk needs to be encoded in order to declare the charset
+				if (index > 0 || charset == "us-ascii") {
+					var method = GetEncodeMethod (bytes, count);
 
-					n = hex.Encode (bytes, 0, count, encoded);
-					if (n > 3 && (charset.Length + 2 + n) > maxLength) {
-						int y = charset.Length + 2;
-						int x = 0;
-
-						for (int i = n - 1; i >= 0 && y + i >= maxLength; i--) {
-							if (encoded[i] == (byte) '%')
-								x--;
-							else
-								x++;
-						}
-
-						ratio = (int) Math.Round ((double) count / (double) length);
-						length -= Math.Max (x / ratio, 1);
-						break;
+					if (method == EncodeMethod.Quote) {
+						value = Rfc2047.Quote (Encoding.ASCII.GetString (bytes, 0, count));
+						index += length;
+						return false;
 					}
 
-					value = charset + "''" + Encoding.ASCII.GetString (encoded, 0, n);
-					index += length;
-					return true;
+					if (method == EncodeMethod.None) {
+						value = Encoding.ASCII.GetString (bytes, 0, count);
+						index += length;
+						return false;
+					}
 				}
+
+				n = hex.EstimateOutputLength (count);
+				if (encoded.Length < n)
+					Array.Resize<byte> (ref encoded, n);
+
+				// only the first value gets a charset declaration
+				int charsetLength = index == 0 ? charset.Length + 2 : 0;
+
+				n = hex.Encode (bytes, 0, count, encoded);
+				if (n > 3 && (charsetLength + n) > maxLength) {
+					int x = 0;
+
+					for (int i = n - 1; i >= 0 && charsetLength + i >= maxLength; i--) {
+						if (encoded[i] == (byte) '%')
+							x--;
+						else
+							x++;
+					}
+
+					ratio = (int) Math.Round ((double) count / (double) length);
+					length -= Math.Max (x / ratio, 1);
+					continue;
+				}
+
+				if (index == 0)
+					value = charset + "''" + Encoding.ASCII.GetString (encoded, 0, n);
+				else
+					value = Encoding.ASCII.GetString (encoded, 0, n);
+				index += length;
+				return true;
 			} while (true);
 		}
 

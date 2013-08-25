@@ -140,10 +140,10 @@ namespace UnitTests {
 			string encoded, expected;
 			ContentType type;
 
-			expected = "Content-Type: text/plain; charset=utf-8;\n\tname*0*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*1*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5";
+			expected = "Content-Type: text/plain; charset=utf-8;\n\tname*0*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*1*=%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*2*=%E5%E5%E5%E5";
 			type = new ContentType ("text", "plain");
 			type.Parameters.Add ("charset", "utf-8");
-			type.Parameters.Add ("name", new string ('å', 32));
+			type.Parameters.Add ("name", new string ('å', 40));
 			encoded = type.ToString (Encoding.UTF8, true);
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
 		}
