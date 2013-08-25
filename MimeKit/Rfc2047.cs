@@ -463,7 +463,7 @@ namespace MimeKit {
 							outptr += len;
 							outlen += len;
 							i++;
-						} while (i != n);
+						} while (i < n);
 
 						decoder.Reset ();
 						i--;
@@ -660,12 +660,14 @@ namespace MimeKit {
 			public int StartIndex;
 			public int Length;
 			public int Encoding;
+			public int ByteCount;
 
-			public Word (WordType type, int encoding, int start, int end)
+			public Word (WordType type, int encoding, int start, int end, int count)
 			{
 				Encoding = encoding;
 				StartIndex = start;
 				Length = end - start;
+				ByteCount = count;
 				Type = type;
 			}
 		}
@@ -685,13 +687,15 @@ namespace MimeKit {
 			return ((byte) c).IsCtrl ();
 		}
 
-		static List<Word> GetRfc822Words (string text, bool phrase)
+		static List<Word> GetRfc822Words (Encoding charset, string text, bool phrase)
 		{
 			int encoding = 0, count = 0, start = 0;
-			List<Word> words = new List<Word> ();
-			WordType type = WordType.Atom;
+			var encoder = charset.GetEncoder ();
+			var words = new List<Word> ();
+			var type = WordType.Atom;
+			var chars = new char[2];
+			int n, i = 0;
 			Word word;
-			int i = 0;
 			char c;
 
 			while (i < text.Length) {
@@ -699,7 +703,7 @@ namespace MimeKit {
 
 				if (c < 256 && IsBlank (c)) {
 					if (count > 0) {
-						word = new Word (type, encoding, start, i - 1);
+						word = new Word (type, encoding, start, i - 1, count);
 						words.Add (word);
 						count = 0;
 					}
@@ -708,8 +712,7 @@ namespace MimeKit {
 					encoding = 0;
 					start = i;
 				} else {
-					count++;
-					if (c < 128) {
+					if (c < 127) {
 						if (IsCtrl (c)) {
 							type = WordType.EncodedWord;
 							encoding = Math.Max (encoding, 1);
@@ -718,10 +721,21 @@ namespace MimeKit {
 							if (type == WordType.Atom)
 								type = WordType.QuotedString;
 						}
+						count++;
 					} else if (c < 256) {
 						type = WordType.EncodedWord;
 						encoding = Math.Max (encoding, 1);
+						count++;
 					} else {
+						if (char.IsSurrogatePair (text, i - 1)) {
+							chars[1] = text[i++];
+							n = 2;
+						} else {
+							n = 1;
+						}
+
+						chars[0] = c;
+						count += encoder.GetByteCount (chars, 0, n, true);
 						type = WordType.EncodedWord;
 						encoding = 2;
 					}
@@ -732,7 +746,7 @@ namespace MimeKit {
 						if (type == WordType.Atom)
 							type = WordType.EncodedWord;
 
-						word = new Word (type, encoding, start, i - 1);
+						word = new Word (type, encoding, start, i, count);
 						words.Add (word);
 
 						// Note: we don't reset 'type' as it needs to be preserved
@@ -745,17 +759,19 @@ namespace MimeKit {
 			}
 
 			if (count > 0) {
-				word = new Word (type, encoding, start, text.Length);
+				word = new Word (type, encoding, start, text.Length, count);
 				words.Add (word);
 			}
 
 			return words;
 		}
 
-		static bool ShouldMergeWords (List<Word> words, Word word, int i)
+		static bool ShouldMergeWords (IList<Word> words, Word word, int i)
 		{
 			Word next = words[i];
-			int length = (next.StartIndex + next.Length) - word.StartIndex;
+
+			int lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+			int length = word.ByteCount + lwspCount + next.ByteCount;
 
 			switch (word.Type) {
 			case WordType.Atom:
@@ -807,8 +823,8 @@ namespace MimeKit {
 				return words;
 
 			List<Word> merged = new List<Word> ();
+			int lwspCount, length;
 			Word word, next;
-			int length;
 			bool merge;
 
 			word = words[0];
@@ -819,7 +835,8 @@ namespace MimeKit {
 				next = words[i];
 
 				if (word.Type != WordType.Atom && word.Type == next.Type) {
-					length = (next.StartIndex + next.Length) - word.StartIndex;
+					lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+					length = word.ByteCount + lwspCount + next.ByteCount;
 
 					if (word.Type == WordType.EncodedWord) {
 						merge = length < MaxPreEncodedLength;
@@ -828,7 +845,8 @@ namespace MimeKit {
 					}
 
 					if (merge) {
-						word.Length = length;
+						word.Length = (next.StartIndex + next.Length) - word.StartIndex;
+						word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
 						continue;
 					}
 				}
@@ -849,9 +867,12 @@ namespace MimeKit {
 
 				if (ShouldMergeWords (words, word, i)) {
 					// the resulting word is the max of the 2 types
+					lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+
 					word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
 					word.Encoding = Math.Max (word.Encoding, next.Encoding);
 					word.Length = (next.StartIndex + next.Length) - word.StartIndex;
+					word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
 				} else {
 					merged.Add (next);
 					word = next;
@@ -864,7 +885,7 @@ namespace MimeKit {
 		static byte[] Encode (Encoding charset, string text, bool phrase)
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
-			var words = Merge (GetRfc822Words (text, phrase));
+			var words = Merge (GetRfc822Words (charset, text, phrase));
 			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
 			var ascii = CharsetUtils.GetEncoding ("us-ascii");
 			var str = new StringBuilder ();
