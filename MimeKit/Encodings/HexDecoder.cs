@@ -127,9 +127,9 @@ namespace MimeKit {
 						if (c == '%') {
 							state = HexDecoderState.Percent;
 							break;
-						} else {
-							*outptr++ = c;
 						}
+
+						*outptr++ = c;
 					}
 					break;
 				case HexDecoderState.Percent:
