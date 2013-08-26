@@ -512,7 +512,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string DecodeRfc2184 (ref Encoding encoding, NameValuePair part, byte[] text)
+		static string DecodeRfc2184 (ref Encoding encoding, HexDecoder hex, NameValuePair part, byte[] text)
 		{
 			int endIndex = part.ValueStart + part.ValueLength;
 			int index = part.ValueStart;
@@ -525,12 +525,11 @@ namespace MimeKit {
 					encoding = Encoding.UTF8;
 			}
 
-			var decoder =  new HexDecoder ();
 			int length = endIndex - index;
-			var decoded = new byte[decoder.EstimateOutputLength (length)];
+			var decoded = new byte[hex.EstimateOutputLength (length)];
 
 			// hex decode...
-			length = decoder.Decode (text, index, length, decoded);
+			length = hex.Decode (text, index, length, decoded);
 
 			if (encoding == null)
 				return CharsetUtils.ConvertToUnicode (decoded, 0, length);
@@ -587,6 +586,7 @@ namespace MimeKit {
 			} while (true);
 
 			paramList = new ParameterList ();
+			var hex = new HexDecoder ();
 
 			foreach (var param in @params) {
 				Encoding encoding = null;
@@ -599,15 +599,19 @@ namespace MimeKit {
 					value = string.Empty;
 					foreach (var part in list) {
 						if (part.Encoded) {
-							value += DecodeRfc2184 (ref encoding, part, text);
+							value += DecodeRfc2184 (ref encoding, hex, part, text);
 						} else if (part.ValueLength > 2 && text[part.ValueStart] == (byte) '"') {
 							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart + 1, part.ValueLength - 2);
+							hex.Reset ();
 						} else if (part.ValueLength > 0) {
 							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart, part.ValueLength);
+							hex.Reset ();
 						}
 					}
+					hex.Reset ();
 				} else if (param.Encoded) {
-					value = DecodeRfc2184 (ref encoding, param, text);
+					value = DecodeRfc2184 (ref encoding, hex, param, text);
+					hex.Reset ();
 				} else if (param.ValueLength > 2 && text[param.ValueStart] == (byte) '"') {
 					value = Rfc2047.DecodeText (text, param.ValueStart + 1, param.ValueLength - 2);
 				} else if (param.ValueLength > 0) {
