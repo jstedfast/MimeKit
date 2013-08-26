@@ -512,17 +512,21 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string DecodeRfc2184 (ref Encoding encoding, HexDecoder hex, NameValuePair part, byte[] text)
+		static string DecodeRfc2184 (ref Decoder decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
 		{
-			int endIndex = part.ValueStart + part.ValueLength;
-			int index = part.ValueStart;
+			int endIndex = startIndex + count;
+			int index = startIndex;
 			string charset;
 
-			if (encoding == null && part.Encoded) {
+			if (decoder == null) {
+				Encoding encoding;
+
 				if (TryGetCharset (text, ref index, endIndex, out charset))
 					encoding = CharsetUtils.GetEncoding (charset);
 				else
 					encoding = Encoding.UTF8;
+
+				decoder = encoding.GetDecoder ();
 			}
 
 			int length = endIndex - index;
@@ -531,17 +535,22 @@ namespace MimeKit {
 			// hex decode...
 			length = hex.Decode (text, index, length, decoded);
 
-			if (encoding == null)
+			if (decoder == null)
 				return CharsetUtils.ConvertToUnicode (decoded, 0, length);
 
-			return CharsetUtils.ConvertToUnicode (encoding, decoded, 0, length);
+			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
+			char[] output = new char[outLength];
+
+			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
+
+			return new string (output, 0, outLength);
 		}
 
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
 			var rfc2184 = new Dictionary<string, List<NameValuePair>> (icase);
 			var @params = new List<NameValuePair> ();
-			List<NameValuePair> list;
+			List<NameValuePair> parts;
 
 			paramList = null;
 
@@ -560,13 +569,13 @@ namespace MimeKit {
 					return false;
 
 				if (pair.Id.HasValue) {
-					if (rfc2184.TryGetValue (pair.Name, out list)) {
-						list.Add (pair);
+					if (rfc2184.TryGetValue (pair.Name, out parts)) {
+						parts.Add (pair);
 					} else {
-						list = new List<NameValuePair> ();
-						rfc2184.Add (pair.Name, list);
+						parts = new List<NameValuePair> ();
+						rfc2184.Add (pair.Name, parts);
 						@params.Add (pair);
-						list.Add (pair);
+						parts.Add (pair);
 					}
 				} else {
 					@params.Add (pair);
@@ -589,33 +598,39 @@ namespace MimeKit {
 			var hex = new HexDecoder ();
 
 			foreach (var param in @params) {
-				Encoding encoding = null;
+				int startIndex = param.ValueStart;
+				int length = param.ValueLength;
+				Decoder decoder = null;
 				string value;
 
 				if (param.Id.HasValue) {
-					list = rfc2184[param.Name];
-					list.Sort ();
+					parts = rfc2184[param.Name];
+					parts.Sort ();
 
 					value = string.Empty;
-					foreach (var part in list) {
-						if (part.Encoded) {
-							value += DecodeRfc2184 (ref encoding, hex, part, text);
-						} else if (part.ValueLength > 2 && text[part.ValueStart] == (byte) '"') {
-							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart + 1, part.ValueLength - 2);
+					for (int i = 0; i < parts.Count; i++) {
+						startIndex = parts[i].ValueStart;
+						length = parts[i].ValueLength;
+
+						if (parts[i].Encoded) {
+							bool flush = i + 1 >= parts.Count || !parts[i+1].Encoded;
+							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
+						} else if (length > 2 && text[startIndex] == (byte) '"') {
+							value += CharsetUtils.ConvertToUnicode (text, startIndex + 1, length - 2);
 							hex.Reset ();
-						} else if (part.ValueLength > 0) {
-							value += CharsetUtils.ConvertToUnicode (text, part.ValueStart, part.ValueLength);
+						} else if (length > 0) {
+							value += CharsetUtils.ConvertToUnicode (text, startIndex, length);
 							hex.Reset ();
 						}
 					}
 					hex.Reset ();
 				} else if (param.Encoded) {
-					value = DecodeRfc2184 (ref encoding, hex, param, text);
+					value = DecodeRfc2184 (ref decoder, hex, text, startIndex, length, true);
 					hex.Reset ();
-				} else if (param.ValueLength > 2 && text[param.ValueStart] == (byte) '"') {
-					value = Rfc2047.DecodeText (text, param.ValueStart + 1, param.ValueLength - 2);
-				} else if (param.ValueLength > 0) {
-					value = Rfc2047.DecodeText (text, param.ValueStart, param.ValueLength);
+				} else if (length > 2 && text[startIndex] == (byte) '"') {
+					value = Rfc2047.DecodeText (text, startIndex + 1, length - 2);
+				} else if (length > 0) {
+					value = Rfc2047.DecodeText (text, startIndex, length);
 				} else {
 					value = string.Empty;
 				}
