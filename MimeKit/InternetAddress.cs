@@ -207,9 +207,9 @@ namespace MimeKit {
 			}
 
 			if (route != null)
-				address = new Mailbox (name, route, addrspec);
+				address = new MailboxAddress (name, route, addrspec);
 			else
-				address = new Mailbox (name, addrspec);
+				address = new MailboxAddress (name, addrspec);
 
 			index++;
 
@@ -232,9 +232,9 @@ namespace MimeKit {
 			}
 
 			if (InternetAddressList.TryParse (text, ref index, endIndex, true, throwOnError, out members))
-				address = new Group (name, members);
+				address = new GroupAddress (name, members);
 			else
-				address = new Group (name);
+				address = new GroupAddress (name);
 
 			if (index >= endIndex || text[index] != (byte) ';') {
 				if (throwOnError)
@@ -285,7 +285,7 @@ namespace MimeKit {
 				if (!TryParseAddrspec (text, ref index, endIndex, sentinel, throwOnError, out addrspec))
 					return false;
 
-				address = new Mailbox (string.Empty, addrspec);
+				address = new MailboxAddress (string.Empty, addrspec);
 
 				return true;
 			}
@@ -314,7 +314,7 @@ namespace MimeKit {
 				if (!TryParseAddrspec (text, ref index, endIndex, (byte) ',', throwOnError, out addrspec))
 					return false;
 
-				address = new Mailbox (string.Empty, addrspec);
+				address = new MailboxAddress (string.Empty, addrspec);
 
 				return true;
 			}

@@ -1,5 +1,5 @@
 //
-// Mailbox.cs
+// MailboxAddress.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -30,11 +30,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class Mailbox : InternetAddress, IEquatable<Mailbox>
+	public sealed class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
 	{
 		string address;
 
-		public Mailbox (string name, IEnumerable<string> route, string address) : base (name)
+		public MailboxAddress (string name, IEnumerable<string> route, string address) : base (name)
 		{
 			Route = new DomainList (route);
 			Route.Changed += RouteChanged;
@@ -42,7 +42,7 @@ namespace MimeKit {
 			this.address = address;
 		}
 
-		public Mailbox (string name, string address) : base (name)
+		public MailboxAddress (string name, string address) : base (name)
 		{
 			Route = new DomainList ();
 			Route.Changed += RouteChanged;
@@ -176,7 +176,7 @@ namespace MimeKit {
 		}
 
 		#region IEquatable implementation
-		public bool Equals (Mailbox other)
+		public bool Equals (MailboxAddress other)
 		{
 			if (other == null)
 				return false;

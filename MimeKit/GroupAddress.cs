@@ -1,5 +1,5 @@
 //
-// Group.cs
+// GroupAddress.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -30,17 +30,17 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public sealed class Group : InternetAddress, IEquatable<Group>
+	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
 		InternetAddressList members;
 
-		public Group (string name, IEnumerable<InternetAddress> addresses) : base (name)
+		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : base (name)
 		{
 			members = new InternetAddressList (addresses);
 			members.Changed += MembersChanged;
 		}
 
-		public Group (string name) : base (name)
+		public GroupAddress (string name) : base (name)
 		{
 			members = new InternetAddressList ();
 			members.Changed += MembersChanged;
@@ -124,7 +124,7 @@ namespace MimeKit {
 		}
 
 		#region IEquatable implementation
-		public bool Equals (Group other)
+		public bool Equals (GroupAddress other)
 		{
 			if (other == null)
 				return false;
