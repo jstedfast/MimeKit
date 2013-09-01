@@ -207,11 +207,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
-		/// <param name="header">The parsed disposition.</param>
+		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
 		{
 			if (buffer == null)
@@ -231,10 +231,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="header">The parsed disposition.</param>
+		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, out ContentDisposition disposition)
 		{
 			if (buffer == null)
@@ -251,9 +251,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
-		/// <param name="header">The parsed disposition.</param>
+		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, out ContentDisposition disposition)
 		{
 			if (buffer == null)
@@ -269,7 +269,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
-		/// <param name="header">The parsed disposition.</param>
+		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (string text, out ContentDisposition disposition)
 		{
 			if (text == null)
