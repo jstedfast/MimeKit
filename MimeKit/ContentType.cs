@@ -33,6 +33,11 @@ namespace MimeKit {
 		ParameterList parameters;
 		string type, subtype;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <param name="mediaType">Media type.</param>
+		/// <param name="mediaSubtype">Media subtype.</param>
 		public ContentType (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
@@ -67,18 +72,22 @@ namespace MimeKit {
 			return c.IsAtom ();
 		}
 
-		public string Type {
+		/// <summary>
+		/// Gets or sets the type of the media.
+		/// </summary>
+		/// <value>The type of the media.</value>
+		public string MediaType {
 			get { return type; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
 				if (value.Length == 0)
-					throw new ArgumentException ("Type is not allowed to be empty.", "value");
+					throw new ArgumentException ("MediaType is not allowed to be empty.", "value");
 
 				for (int i = 0; i < value.Length; i++) {
 					if (value[i] > 127 || !IsAtom ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in type.", "value");
+						throw new ArgumentException ("Illegal characters in media type.", "value");
 				}
 
 				if (type == value)
@@ -90,18 +99,22 @@ namespace MimeKit {
 			}
 		}
 
-		public string Subtype {
+		/// <summary>
+		/// Gets or sets the media subtype.
+		/// </summary>
+		/// <value>The media subtype.</value>
+		public string MediaSubtype {
 			get { return subtype; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
 				if (value.Length == 0)
-					throw new ArgumentException ("Subtype is not allowed to be empty.", "value");
+					throw new ArgumentException ("MediaSubtype is not allowed to be empty.", "value");
 
 				for (int i = 0; i < value.Length; i++) {
 					if (value[i] > 127 || !IsAtom ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in subtype.", "value");
+						throw new ArgumentException ("Illegal characters in media subtype.", "value");
 				}
 
 				if (subtype == value)
@@ -113,6 +126,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets the parameters.
+		/// </summary>
+		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
 			private set {
@@ -124,6 +141,14 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Checks if the this instance of <see cref="MimeKit.ContentType"/> matches
+		/// the specified mediaType and mediaSubtype.
+		/// 
+		/// Note: If the specified mediaType or mediaSubtype are "*", they match anything.
+		/// </summary>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
 		public bool Matches (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
@@ -139,27 +164,54 @@ namespace MimeKit {
 			return false;
 		}
 
+		internal string Encode (Encoding charset)
+		{
+			int lineLength = "Content-Type: ".Length;
+			var value = new StringBuilder (" ");
+
+			value.Append (MediaType);
+			value.Append ('/');
+			value.Append (MediaSubtype);
+
+			Parameters.Encode (value, ref lineLength, charset);
+
+			return value.ToString ();
+		}
+
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.ContentType"/> to a string,
+		/// optionally encoding the parameters.
+		/// </summary>
+		/// <returns>The serialized string.</returns>
+		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
+		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
 		public string ToString (Encoding charset, bool encode)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			var sb = new StringBuilder ("Content-Type: ");
-			sb.Append (Type);
-			sb.Append ('/');
-			sb.Append (Subtype);
+			var value = new StringBuilder ("Content-Type: ");
+			value.Append (MediaType);
+			value.Append ('/');
+			value.Append (MediaSubtype);
 
 			if (encode) {
-				int lineLength = sb.Length;
+				int lineLength = value.Length;
 
-				Parameters.Encode (sb, ref lineLength, charset);
+				Parameters.Encode (value, ref lineLength, charset);
 			} else {
-				sb.Append (Parameters.ToString ());
+				value.Append (Parameters.ToString ());
 			}
 
-			return sb.ToString ();
+			return value.ToString ();
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ContentType"/>.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ContentType"/>.</returns>
 		public override string ToString ()
 		{
 			return ToString (Encoding.UTF8, false);
@@ -266,46 +318,73 @@ namespace MimeKit {
 			return true;
 		}
 
-		public static bool TryParse (byte[] text, int startIndex, int count, out ContentType contentType)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentType"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="type">The parsed content type.</param>
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentType type)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= text.Length)
+			if (startIndex < 0 || startIndex >= buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (count < 0 || startIndex + count >= text.Length)
-				throw new ArgumentOutOfRangeException ("count");
+			if (length < 0 || startIndex + length >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
 
 			int index = startIndex;
 
-			return TryParse (text, ref index, startIndex + count, false, out contentType);
+			return TryParse (buffer, ref index, startIndex + length, false, out type);
 		}
 
-		public static bool TryParse (byte[] text, int startIndex, out ContentType contentType)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentType"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="type">The parsed content type.</param>
+		public static bool TryParse (byte[] buffer, int startIndex, out ContentType type)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= text.Length)
+			if (startIndex < 0 || startIndex >= buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
 			int index = startIndex;
 
-			return TryParse (text, ref index, text.Length, false, out contentType);
+			return TryParse (buffer, ref index, buffer.Length, false, out type);
 		}
 
-		public static bool TryParse (byte[] text, out ContentType contentType)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentType"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="type">The parsed content type.</param>
+		public static bool TryParse (byte[] buffer, out ContentType type)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
 			int index = 0;
 
-			return TryParse (text, ref index, text.Length, false, out contentType);
+			return TryParse (buffer, ref index, buffer.Length, false, out type);
 		}
 
-		public static bool TryParse (string text, out ContentType contentType)
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.ContentType"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="type">The parsed content type.</param>
+		public static bool TryParse (string text, out ContentType type)
 		{
 			if (text == null)
 				throw new ArgumentNullException ("text");
@@ -313,69 +392,88 @@ namespace MimeKit {
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
-			return TryParse (buffer, ref index, buffer.Length, false, out contentType);
+			return TryParse (buffer, ref index, buffer.Length, false, out type);
 		}
 
-		public static ContentType Parse (byte[] text, int startIndex, int count)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The start index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
+		public static ContentType Parse (byte[] buffer, int startIndex, int length)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (count < 0 || startIndex + count > text.Length)
-				throw new ArgumentOutOfRangeException ("count");
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
 
-			ContentType contentType;
 			int index = startIndex;
+			ContentType type;
 
-			TryParse (text, ref index, startIndex + count, true, out contentType);
+			TryParse (buffer, ref index, startIndex + length, true, out type);
 
-			return contentType;
+			return type;
 		}
 
-		public static ContentType Parse (byte[] text, int startIndex)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The start index of the buffer.</param>
+		public static ContentType Parse (byte[] buffer, int startIndex)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			ContentType contentType;
 			int index = startIndex;
+			ContentType type;
 
-			TryParse (text, ref index, text.Length, true, out contentType);
+			TryParse (buffer, ref index, buffer.Length, true, out type);
 
-			return contentType;
+			return type;
 		}
 
-		public static ContentType Parse (byte[] text)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		public static ContentType Parse (byte[] buffer)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			ContentType contentType;
+			ContentType type;
 			int index = 0;
 
-			TryParse (text, ref index, text.Length, true, out contentType);
+			TryParse (buffer, ref index, buffer.Length, true, out type);
 
-			return contentType;
+			return type;
 		}
 
+		/// <summary>
+		/// Parse the specified text into a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <param name="buffer">The text.</param>
 		public static ContentType Parse (string text)
 		{
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			ContentType contentType;
+			ContentType type;
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out contentType);
+			TryParse (buffer, ref index, buffer.Length, true, out type);
 
-			return contentType;
+			return type;
 		}
 	}
 }

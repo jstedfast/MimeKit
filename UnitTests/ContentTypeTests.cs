@@ -41,8 +41,8 @@ namespace UnitTests {
 			ContentType type;
 
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.Type, "text", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.Subtype, "plain", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (type.MediaType, "text", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "plain", "Media subtype does not match: {0}", text);
 		}
 
 		[Test]
@@ -52,8 +52,8 @@ namespace UnitTests {
 			ContentType type;
 
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.Type, "multipart", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.Subtype, "mixed", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
 			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
 			Assert.IsTrue (type.Parameters.Contains ("boundary"), "Parameter list does not contain boundary param: {0}", text);
 			Assert.AreEqual (type.Parameters["boundary"], "boundary-text", "boundary values do not match: {0}", text);
@@ -67,8 +67,8 @@ namespace UnitTests {
 
 			text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.Type, "message", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.Subtype, "external-body", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (type.MediaType, "message", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "external-body", "Media subtype does not match: {0}", text);
 			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
 			Assert.IsTrue (type.Parameters.Contains ("access-type"), "Parameter list does not contain access-type param: {0}", text);
 			Assert.AreEqual (type.Parameters["access-type"], "URL", "access-type values do not match: {0}", text);
@@ -84,8 +84,8 @@ namespace UnitTests {
 
 			text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.Type, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.Subtype, "x-stuff", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
 			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
 			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
 			Assert.AreEqual (type.Parameters["title"], "This is ***fun***", "title values do not match: {0}", text);
@@ -99,8 +99,8 @@ namespace UnitTests {
 
 			text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.Type, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.Subtype, "x-stuff", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
 			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
 			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
 			Assert.AreEqual (type.Parameters["title"], "This is even more ***fun*** isn't it!", "title values do not match: {0}", text);
