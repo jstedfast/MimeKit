@@ -35,11 +35,11 @@ namespace MimeKit {
 			if (text.Length == 0)
 				return text;
 
-			if (text[text.Length - 1] == ' ') {
-				text[text.Length - 1] = '\n';
-				text.Append ('\t');
+			if (char.IsWhiteSpace (text[text.Length - 1])) {
+				text.Insert (text.Length - 1, Environment.NewLine);
 			} else {
-				text.Append ("\n\t");
+				text.Append (Environment.NewLine);
+				text.Append ("\t");
 			}
 
 			return text;
