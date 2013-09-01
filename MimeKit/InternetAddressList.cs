@@ -101,6 +101,19 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		public void AddRange (IEnumerable<InternetAddress> addresses)
+		{
+			if (addresses == null)
+				throw new ArgumentNullException ("addresses");
+
+			foreach (var address in addresses) {
+				address.Changed += AddressChanged;
+				list.Add (address);
+			}
+
+			OnChanged ();
+		}
+
 		public void Clear ()
 		{
 			foreach (var address in list)
