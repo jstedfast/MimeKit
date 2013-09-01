@@ -33,7 +33,7 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public sealed class HeaderList : IList<Header>
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		// this table references the first header of each field
 		Dictionary<string, Header> table;

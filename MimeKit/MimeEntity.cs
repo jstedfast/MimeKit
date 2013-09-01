@@ -30,7 +30,7 @@ using System.IO;
 namespace MimeKit {
 	public abstract class MimeEntity
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		string content_id;
 
