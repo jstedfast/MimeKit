@@ -37,6 +37,14 @@ namespace MimeKit {
 		byte[] rawPreamble, rawEpilogue;
 		List<MimeEntity> children;
 
+		public Multipart (HeaderList headers, ContentType type) : base (headers, type)
+		{
+			children = new List<MimeEntity> ();
+
+			if ((boundary = type.Parameters["boundary"]) == null)
+				type.Parameters["boundary"] = boundary = GenerateBoundary ();
+		}
+
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
 			children = new List<MimeEntity> ();

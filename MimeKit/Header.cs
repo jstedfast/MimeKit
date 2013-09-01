@@ -31,12 +31,11 @@ namespace MimeKit {
 	public sealed class Header
 	{
 		string textValue;
-		byte[] rawValue;
 
 		internal Header (string field, byte[] value)
 		{
-			Field = field;
 			RawValue = value;
+			Field = field;
 		}
 
 		public Header (string field, string value)
@@ -65,32 +64,54 @@ namespace MimeKit {
 			return c.IsAtom ();
 		}
 
-		static unsafe bool TryParse (byte* input, int length, out Header header)
+		static bool IsBlankOrControl (byte c)
 		{
-			StringBuilder field = new StringBuilder ();
+			return c.IsType (CharType.IsBlank | CharType.IsControl);
+		}
+
+		internal static unsafe bool TryParse (byte* input, int length, bool strict, out Header header)
+		{
 			byte* inend = input + length;
+			byte* start = input;
 			byte* inptr = input;
-			byte[] value;
-			int count;
 
 			// find the end of the field name
-			while (inptr < inend && IsAtom (*inptr))
-				field.Append ((char) *inptr++);
+			if (strict) {
+				while (inptr < inend && IsAtom (*inptr))
+					inptr++;
+			} else {
+				while (inptr < inend && *inptr != (byte) ':' && !IsBlankOrControl (*inptr))
+					inptr++;
+			}
 
 			if (inptr == inend || *inptr != ':') {
 				header = null;
 				return false;
 			}
 
+			var chars = new char[(int) (inptr - start)];
+			fixed (char* outbuf = chars) {
+				char* outptr = outbuf;
+
+				while (start < inptr)
+					*outptr++ = (char) *start++;
+			}
+
+			var field = new string (chars);
+
 			inptr++;
 
-			count = length - (int) (inptr - input);
-			value = new byte[count];
+			int count = (int) (inend - inptr);
+			var value = new byte[count];
 
-			for (int i = 0; i < count; i++)
-				value[i] = *inptr++;
+			fixed (byte *outbuf = value) {
+				byte* outptr = outbuf;
 
-			header = new Header (field.ToString (), value);
+				while (inptr < inend)
+					*outptr++ = *inptr++;
+			}
+
+			header = new Header (field, value);
 
 			return true;
 		}
@@ -108,7 +129,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inptr = buffer) {
-					return TryParse (inptr + startIndex, length, out header);
+					return TryParse (inptr + startIndex, length, true, out header);
 				}
 			}
 		}
@@ -118,22 +139,13 @@ namespace MimeKit {
 		}
 
 		public byte[] RawValue {
-			get { return rawValue; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException ("value");
-
-				rawValue = value;
-				Offset = null;
-
-				OnChanged ();
-			}
+			get; private set;
 		}
 
 		public string Value {
 			get {
 				if (textValue == null)
-					textValue = Rfc2047.DecodeText (RawValue);
+					textValue = Unfold (Rfc2047.DecodeText (RawValue));
 
 				return textValue;
 			}
@@ -152,11 +164,14 @@ namespace MimeKit {
 
 			textValue = value.Trim ();
 
-			RawValue = Rfc2047.EncodeText (encoding, textValue);
+			// FIXME: fold & end in newline?
+			RawValue = Rfc2047.EncodeText (encoding, " " + textValue);
+			Offset = null;
+			OnChanged ();
 		}
 
 		public long? Offset {
-			get; private set;
+			get; internal set;
 		}
 
 		public event EventHandler Changed;
@@ -165,6 +180,48 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		static unsafe string Unfold (string text)
+		{
+			int startIndex;
+			int endIndex;
+			int i = 0;
+
+			if (text == null)
+				return string.Empty;
+
+			while (i < text.Length && char.IsWhiteSpace (text[i]))
+				i++;
+
+			if (i == text.Length)
+				return string.Empty;
+
+			startIndex = i;
+			endIndex = i;
+
+			while (i < text.Length) {
+				if (!char.IsWhiteSpace (text[i]))
+					endIndex = i;
+			}
+
+			endIndex++;
+
+			int count = endIndex - startIndex;
+			char[] chars = new char[count];
+
+			fixed (char* outbuf = chars) {
+				char* outptr = outbuf;
+
+				for (i = startIndex; i < endIndex; i++) {
+					if (text[i] != '\r' && text[i] != '\n')
+						*outptr++ = text[i];
+				}
+
+				count = (int) (outptr - outbuf);
+			}
+
+			return new string (chars, 0, count);
 		}
 	}
 }

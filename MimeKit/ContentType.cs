@@ -124,6 +124,21 @@ namespace MimeKit {
 			}
 		}
 
+		public bool Matches (string mediaType, string mediaSubtype)
+		{
+			if (mediaType == null)
+				throw new ArgumentNullException ("mediaType");
+
+			if (mediaSubtype == null)
+				throw new ArgumentNullException ("mediaSubtype");
+
+			var stricase = StringComparer.OrdinalIgnoreCase;
+			if (mediaType == "*" || stricase.Compare (mediaType, type) == 0)
+				return mediaSubtype == "*" || stricase.Compare (mediaSubtype, subtype) == 0;
+
+			return false;
+		}
+
 		public string ToString (Encoding charset, bool encode)
 		{
 			if (charset == null)

@@ -31,20 +31,60 @@ namespace MimeKit {
 	public abstract class MimeEntity
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		ContentDisposition disposition;
+		string contentId;
 
-		string content_id;
-
-		protected MimeEntity (string type, string subtype)
+		protected MimeEntity (string mediaType, string mediaSubtype)
 		{
-			ContentType = new ContentType (type, subtype);
-			ContentType.Changed += OnContentTypeChanged;
+			Initialize (new HeaderList (), new ContentType (mediaType, mediaSubtype));
+		}
 
-			Headers = new HeaderList ();
-			Headers.Changed += OnHeadersChanged;
+		protected MimeEntity (HeaderList headers, ContentType type)
+		{
+			if (headers == null)
+				throw new ArgumentNullException ("headers");
+
+			if (type == null)
+				throw new ArgumentNullException ("type");
+
+			Initialize (headers, type);
+		}
+
+		void Initialize (HeaderList headers, ContentType type)
+		{
+			type.Changed += OnContentTypeChanged;
+			headers.Changed += OnHeadersChanged;
+
+			foreach (var header in headers)
+				UpdatePropertyValue (header, true);
+
+			ContentType = type;
+			Headers = headers;
 		}
 
 		public ContentDisposition ContentDisposition {
-			get; private set;
+			get { return disposition; }
+			set {
+				if (disposition == value)
+					return;
+
+				Headers.Changed -= OnHeadersChanged;
+
+				if (disposition != null) {
+					disposition.Changed -= OnContentDispositionChanged;
+					if (value == null)
+						Headers.Remove ("Content-Disposition");
+				}
+
+				disposition = value;
+				if (disposition != null) {
+					disposition.Changed += OnContentDispositionChanged;
+					Headers["Content-Disposition"] = disposition.ToString ();
+				}
+
+				Headers.Changed += OnHeadersChanged;
+				OnChanged ();
+			}
 		}
 
 		public ContentType ContentType {
@@ -52,9 +92,9 @@ namespace MimeKit {
 		}
 
 		public string ContentId {
-			get { return content_id; }
+			get { return contentId; }
 			set {
-				if (content_id == value)
+				if (contentId == value)
 					return;
 
 				Headers.Changed -= OnHeadersChanged;
@@ -71,7 +111,7 @@ namespace MimeKit {
 				}
 
 				Headers.Changed += OnHeadersChanged;
-				content_id = value;
+				contentId = value;
 				OnChanged ();
 			}
 		}
@@ -97,26 +137,38 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		void UpdatePropertyValue (Header header, bool initializing)
+		{
+			if (icase.Compare (header.Field, "Content-Disposition") == 0) {
+				ContentDisposition = ContentDisposition.Parse (header.RawValue);
+			} else if (icase.Compare (header.Field, "Content-Type") == 0) {
+				if (initializing)
+					return;
+
+				ContentType = ContentType.Parse (header.RawValue);
+			} else if (icase.Compare (header.Field, "Content-Id") == 0) {
+				// FIXME: extract only the value between <>'s
+				contentId = header.Value;
+			}
+		}
+
 		protected virtual void OnHeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				if (icase.Compare (e.Header.Field, "Content-Disposition") == 0) {
-				} else if (icase.Compare (e.Header.Field, "Content-Type") == 0) {
-				} else if (icase.Compare (e.Header.Field, "Content-Id") == 0) {
-					// FIXME: extract only the value between <>'s
-					content_id = e.Header.Value;
-				}
+				UpdatePropertyValue (e.Header, false);
 				break;
 			case HeaderListChangedAction.Removed:
 				if (icase.Compare (e.Header.Field, "Content-Disposition") == 0) {
-				} else if (icase.Compare (e.Header.Field, "Content-Type") == 0) {
+					ContentDisposition = null;
 				} else if (icase.Compare (e.Header.Field, "Content-Id") == 0) {
-					content_id = null;
+					contentId = null;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
+				ContentDisposition = null;
+				contentId = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();

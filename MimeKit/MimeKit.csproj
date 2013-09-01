@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
+    <Compile Include="ContentObject.cs" />
     <Compile Include="ContentType.cs" />
     <Compile Include="DomainList.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
@@ -69,10 +70,12 @@
     <Compile Include="Header.cs" />
     <Compile Include="HeaderList.cs" />
     <Compile Include="HeaderListChangedEventArgs.cs" />
+    <Compile Include="IContentObject.cs" />
     <Compile Include="InternetAddress.cs" />
     <Compile Include="InternetAddressList.cs" />
     <Compile Include="MailboxAddress.cs" />
     <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimePart.cs" />
     <Compile Include="Multipart.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterList.cs" />

@@ -349,5 +349,13 @@ namespace MimeKit {
 			if (Changed != null)
 				Changed (this, new HeaderListChangedEventArgs (header, action));
 		}
+
+		public bool TryGetHeader (string field, out Header header)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			return table.TryGetValue (field, out header);
+		}
 	}
 }

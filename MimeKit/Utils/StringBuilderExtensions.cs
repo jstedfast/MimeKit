@@ -95,6 +95,34 @@ namespace MimeKit {
 
 			return text;
 		}
+
+#if DEBUG
+		public static void AppendCStringByte (this StringBuilder text, byte c)
+		{
+			switch (c) {
+			case 0x00: text.Append ("\\0"); break;
+			case 0x07: text.Append ("\\a"); break;
+			case 0x08: text.Append ("\\b"); break;
+			case 0x09: text.Append ("\\t"); break;
+			case 0x0A: text.Append ("\\n"); break;
+			case 0x0B: text.Append ("\\v"); break;
+			case 0x0D: text.Append ("\\r"); break;
+			default:
+				if (c < 020 || c > 0x7e) {
+					text.AppendFormat ("\\x{0:x,2}", c);
+				} else {
+					text.Append ((char) c);
+				}
+				break;
+			}
+		}
+
+		public static void AppendCString (this StringBuilder text, byte[] cstr, int startIndex, int length)
+		{
+			for (int i = startIndex; i < startIndex + length; i++)
+				text.AppendCStringByte (cstr[i]);
+		}
+#endif
 	}
 }
 
