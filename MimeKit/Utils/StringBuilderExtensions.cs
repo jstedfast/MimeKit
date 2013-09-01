@@ -30,22 +30,22 @@ using System.Text;
 namespace MimeKit {
 	static class StringBuilderExtensions
 	{
-		public static StringBuilder LineWrap (this StringBuilder sb)
+		public static StringBuilder LineWrap (this StringBuilder text)
 		{
-			if (sb.Length == 0)
-				return sb;
+			if (text.Length == 0)
+				return text;
 
-			if (sb[sb.Length - 1] == ' ') {
-				sb[sb.Length - 1] = '\n';
-				sb.Append ('\t');
+			if (text[text.Length - 1] == ' ') {
+				text[text.Length - 1] = '\n';
+				text.Append ('\t');
 			} else {
-				sb.Append ("\n\t");
+				text.Append ("\n\t");
 			}
 
-			return sb;
+			return text;
 		}
 
-		public static StringBuilder AppendFolded (this StringBuilder sb, string value, ref int lineLength)
+		public static StringBuilder AppendFolded (this StringBuilder text, string value, ref int lineLength)
 		{
 			int wordIndex = 0;
 			int lwspIndex;
@@ -76,11 +76,11 @@ namespace MimeKit {
 
 				int length = lwspIndex - wordIndex;
 				if (lineLength > 1 && (lineLength + length) > Rfc2047.MaxLineLength) {
-					sb.LineWrap ();
+					text.LineWrap ();
 					lineLength = 1;
 				}
 
-				sb.Append (value, wordIndex, length);
+				text.Append (value, wordIndex, length);
 				lineLength += length;
 
 				wordIndex = lwspIndex;
@@ -88,12 +88,12 @@ namespace MimeKit {
 					wordIndex++;
 
 				if (wordIndex < value.Length && wordIndex > lwspIndex) {
-					sb.Append (' ');
+					text.Append (' ');
 					lineLength++;
 				}
 			}
 
-			return sb;
+			return text;
 		}
 	}
 }

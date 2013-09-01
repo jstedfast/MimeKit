@@ -33,33 +33,33 @@ namespace MimeKit {
 		ParameterList parameters;
 		string type, subtype;
 
-		public ContentType (string type, string subtype)
+		public ContentType (string mediaType, string mediaSubtype)
 		{
-			if (type == null)
-				throw new ArgumentNullException ("type");
+			if (mediaType == null)
+				throw new ArgumentNullException ("mediaType");
 
-			if (type.Length == 0)
-				throw new ArgumentException ("The type is not allowed to be empty.", "type");
+			if (mediaType.Length == 0)
+				throw new ArgumentException ("The type is not allowed to be empty.", "mediaType");
 
-			for (int i = 0; i < type.Length; i++) {
-				if (type[i] > 127 || !IsAtom ((byte) type[i]))
-					throw new ArgumentException ("Illegal characters in type.", "type");
+			for (int i = 0; i < mediaType.Length; i++) {
+				if (mediaType[i] >= 127 || !IsAtom ((byte) mediaType[i]))
+					throw new ArgumentException ("Illegal characters in type.", "mediaType");
 			}
 
-			if (subtype == null)
-				throw new ArgumentNullException ("subtype");
+			if (mediaSubtype == null)
+				throw new ArgumentNullException ("mediaSubtype");
 
-			if (subtype.Length == 0)
-				throw new ArgumentException ("The subtype is not allowed to be empty.", "subtype");
+			if (mediaSubtype.Length == 0)
+				throw new ArgumentException ("The subtype is not allowed to be empty.", "mediaSubtype");
 
-			for (int i = 0; i < subtype.Length; i++) {
-				if (subtype[i] > 127 || !IsAtom ((byte) subtype[i]))
-					throw new ArgumentException ("Illegal characters in subtype.", "subtype");
+			for (int i = 0; i < mediaSubtype.Length; i++) {
+				if (mediaSubtype[i] >= 127 || !IsAtom ((byte) mediaSubtype[i]))
+					throw new ArgumentException ("Illegal characters in subtype.", "mediaSubtype");
 			}
 
 			Parameters = new ParameterList ();
-			this.subtype = subtype;
-			this.type = type;
+			subtype = mediaSubtype;
+			type = mediaType;
 		}
 
 		static bool IsAtom (byte c)

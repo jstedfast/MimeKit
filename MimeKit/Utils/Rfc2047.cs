@@ -167,7 +167,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static unsafe List<Token> TokenizePhrase (byte* inbuf, int startIndex, int length)
+		static unsafe IList<Token> TokenizePhrase (byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
@@ -292,7 +292,7 @@ namespace MimeKit {
 			return tokens;
 		}
 
-		static unsafe List<Token> TokenizeText (byte* inbuf, int startIndex, int length)
+		static unsafe IList<Token> TokenizeText (byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
@@ -418,7 +418,7 @@ namespace MimeKit {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
-		static unsafe string DecodeTokens (List<Token> tokens, byte[] input, int startIndex, byte* inbuf, int length)
+		static unsafe string DecodeTokens (IList<Token> tokens, byte[] input, int startIndex, byte* inbuf, int length)
 		{
 			StringBuilder decoded = new StringBuilder (length);
 			IMimeDecoder qp = new QuotedPrintableDecoder (true);
@@ -687,7 +687,7 @@ namespace MimeKit {
 			return ((byte) c).IsCtrl ();
 		}
 
-		static List<Word> GetRfc822Words (Encoding charset, string text, bool phrase)
+		static IList<Word> GetRfc822Words (Encoding charset, string text, bool phrase)
 		{
 			int encoding = 0, count = 0, start = 0;
 			var encoder = charset.GetEncoder ();
@@ -817,12 +817,12 @@ namespace MimeKit {
 			}
 		}
 
-		static List<Word> Merge (List<Word> words)
+		static IList<Word> Merge (IList<Word> words)
 		{
 			if (words.Count < 2)
 				return words;
 
-			List<Word> merged = new List<Word> ();
+			var merged = new List<Word> ();
 			int lwspCount, length;
 			Word word, next;
 			bool merge;

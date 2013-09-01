@@ -40,8 +40,8 @@ namespace MimeKit {
 
 		List<IMimeFilter> filters = new List<IMimeFilter> ();
 		IOOperation lastOp = IOOperation.Read;
-		int filteredLength = 0;
-		int filteredIndex = 0;
+		int filteredLength;
+		int filteredIndex;
 		byte[] filtered;
 		byte[] readbuf;
 		long position;
@@ -220,7 +220,7 @@ namespace MimeKit {
 			set { Source.WriteTimeout = value; }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");

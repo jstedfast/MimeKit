@@ -68,7 +68,7 @@ namespace MimeKit {
 			return inbuf;
 		}
 
-		void ValidateArguments (byte[] input, int startIndex, int length)
+		static void ValidateArguments (byte[] input, int startIndex, int length)
 		{
 			if (input == null)
 				throw new ArgumentNullException ("input");
