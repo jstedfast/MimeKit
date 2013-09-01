@@ -33,22 +33,18 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
-		string boundary, preamble, epilogue;
-		byte[] rawPreamble, rawEpilogue;
+		string preamble, epilogue;
 		List<MimeEntity> children;
 
 		public Multipart (HeaderList headers, ContentType type) : base (headers, type)
 		{
 			children = new List<MimeEntity> ();
-
-			if ((boundary = type.Parameters["boundary"]) == null)
-				type.Parameters["boundary"] = boundary = GenerateBoundary ();
 		}
 
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
+			ContentType.Parameters["boundary"] = GenerateBoundary ();
 			children = new List<MimeEntity> ();
-			Boundary = GenerateBoundary ();
 		}
 
 		public Multipart () : this ("mixed")
@@ -70,22 +66,26 @@ namespace MimeKit {
 		}
 
 		public string Boundary {
-			get { return boundary; }
+			get { return ContentType.Parameters["boundary"]; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (boundary == value)
+				if (Boundary == value)
 					return;
 
 				ContentType.Parameters["boundary"] = value;
 			}
 		}
 
+		internal byte[] RawPreamble {
+			get; set;
+		}
+
 		public string Preamble {
 			get {
-				if (preamble == null && rawPreamble != null)
-					preamble = CharsetUtils.ConvertToUnicode (rawPreamble, 0, rawPreamble.Length);
+				if (preamble == null && RawPreamble != null)
+					preamble = CharsetUtils.ConvertToUnicode (RawPreamble, 0, RawPreamble.Length);
 
 				return preamble;
 			}
@@ -94,19 +94,24 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					rawPreamble = Encoding.ASCII.GetBytes (value);
+					// FIXME: fold the preamble?
+					RawPreamble = Encoding.ASCII.GetBytes (value);
 					preamble = value;
 				} else {
-					rawPreamble = null;
+					RawPreamble = null;
 					preamble = null;
 				}
 			}
 		}
 
+		internal byte[] RawEpilogue {
+			get; set;
+		}
+
 		public string Epilogue {
 			get {
-				if (epilogue == null && rawEpilogue != null)
-					epilogue = CharsetUtils.ConvertToUnicode (rawEpilogue, 0, rawEpilogue.Length);
+				if (epilogue == null && RawEpilogue != null)
+					epilogue = CharsetUtils.ConvertToUnicode (RawEpilogue, 0, RawEpilogue.Length);
 
 				return epilogue;
 			}
@@ -115,35 +120,29 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					rawEpilogue = Encoding.ASCII.GetBytes (value);
+					// FIXME: fold the epilogue?
+					RawEpilogue = Encoding.ASCII.GetBytes (value);
 					epilogue = value;
 				} else {
-					rawEpilogue = null;
+					RawEpilogue = null;
 					epilogue = null;
 				}
 			}
 		}
 
-		protected override void OnContentTypeChanged (object sender, EventArgs e)
-		{
-			boundary = ContentType.Parameters["boundary"];
-
-			base.OnContentTypeChanged (sender, e);
-		}
-
 		public override void WriteTo (Stream stream)
 		{
-			if (boundary == null)
+			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
 			base.WriteTo (stream);
 
-			if (rawPreamble != null) {
-				stream.Write (rawPreamble, 0, rawPreamble.Length);
+			if (RawPreamble != null) {
+				stream.Write (RawPreamble, 0, RawPreamble.Length);
 				stream.WriteByte ((byte) '\n');
 			}
 
-			var bytes = Encoding.ASCII.GetBytes ("--" + boundary + "--\n");
+			var bytes = Encoding.ASCII.GetBytes ("--" + Boundary + "--\n");
 
 			foreach (var part in children) {
 				stream.Write (bytes, 0, bytes.Length - 3);
@@ -153,8 +152,8 @@ namespace MimeKit {
 
 			stream.Write (bytes, 0, bytes.Length);
 
-			if (rawEpilogue != null) {
-				stream.Write (rawEpilogue, 0, rawEpilogue.Length);
+			if (RawEpilogue != null) {
+				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
 				stream.WriteByte ((byte) '\n');
 			}
 		}
