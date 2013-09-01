@@ -276,6 +276,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return TryParse (inptr + startIndex, buffer.Length - startIndex, true, out header);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
