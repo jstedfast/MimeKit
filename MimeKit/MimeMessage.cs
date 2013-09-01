@@ -26,21 +26,49 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	public sealed class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-		InternetAddressList from, replyto, to, cc, bcc;
+
+		static readonly string[] StandardAddressHeaders = new string[] {
+			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
+		};
+
+		Dictionary<string, InternetAddressList> addresses;
 
 		internal MimeMessage (HeaderList headers)
 		{
+			addresses = new Dictionary<string, InternetAddressList> (icase);
+			headers.Changed += HeadersChanged;
 			Headers = headers;
+
+			foreach (var name in StandardAddressHeaders) {
+				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses.Add (name, list);
+			}
+
+			// load up our address headers...
+			foreach (var header in headers) {
+				InternetAddressList parsed, list;
+
+				if (!addresses.TryGetValue (header.Field, out list))
+					continue;
+
+				if (!InternetAddressList.TryParse (header.RawValue, out parsed))
+					continue;
+
+				list.AddRange (parsed);
+				parsed.Clear ();
+			}
 		}
 
-		public MimeMessage ()
+		public MimeMessage () : this (new HeaderList ())
 		{
-			Headers = new HeaderList ();
 		}
 
 		public HeaderList Headers {
@@ -64,24 +92,28 @@ namespace MimeKit {
 			return all;
 		}
 
+		public InternetAddressList Sender {
+			get { return addresses["Sender"]; }
+		}
+
 		public InternetAddressList From {
-			get; set;
+			get { return addresses["From"]; }
 		}
 
 		public InternetAddressList ReplyTo {
-			get; set;
+			get { return addresses["Reply-To"]; }
 		}
 
 		public InternetAddressList To {
-			get; set;
+			get { return addresses["To"]; }
 		}
 
 		public InternetAddressList Cc {
-			get; set;
+			get { return addresses["Cc"]; }
 		}
 
 		public InternetAddressList Bcc {
-			get; set;
+			get { return addresses["Bcc"]; }
 		}
 
 		public string Subject {
@@ -104,7 +136,91 @@ namespace MimeKit {
 
 		public void WriteTo (Stream stream)
 		{
-			// FIXME: implement me
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			Headers.WriteTo (stream);
+
+			if (Body == null) {
+				stream.Write (MimeEntity.NewLine, 0, MimeEntity.NewLine.Length);
+			} else {
+				Body.WriteTo (stream);
+			}
+		}
+
+		void SerializeAddressList (string field, InternetAddressList list)
+		{
+			var builder = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
+
+			list.Encode (builder, ref lineLength, Encoding.UTF8);
+
+			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+
+			Headers.Changed -= HeadersChanged;
+			Headers.Replace (new Header (field, raw));
+			Headers.Changed += HeadersChanged;
+		}
+
+		void InternetAddressListChanged (object sender, EventArgs e)
+		{
+			var list = (InternetAddressList) sender;
+
+			foreach (var name in StandardAddressHeaders) {
+				if (addresses[name] == list) {
+					SerializeAddressList (name, list);
+					break;
+				}
+			}
+		}
+
+		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		{
+			InternetAddressList parsed, list;
+
+			switch (e.Action) {
+			case HeaderListChangedAction.Added:
+				if (addresses.TryGetValue (e.Header.Field, out list)) {
+					// parse the addresses in the new header and add them to our address list
+					if (InternetAddressList.TryParse (e.Header.RawValue, out parsed)) {
+						list.Changed -= InternetAddressListChanged;
+						list.AddRange (parsed);
+						parsed.Clear ();
+						list.Changed += InternetAddressListChanged;
+					}
+				}
+				break;
+			case HeaderListChangedAction.Changed:
+			case HeaderListChangedAction.Removed:
+				if (addresses.TryGetValue (e.Header.Field, out list)) {
+					// clear the address list and reload
+					list.Changed -= InternetAddressListChanged;
+					list.Clear ();
+
+					foreach (var header in Headers) {
+						if (icase.Compare (e.Header.Field, header.Field) != 0)
+							continue;
+
+						if (!InternetAddressList.TryParse (header.RawValue, out parsed))
+							continue;
+
+						list.AddRange (parsed);
+						parsed.Clear ();
+					}
+
+					list.Changed += InternetAddressListChanged;
+				}
+				break;
+			case HeaderListChangedAction.Cleared:
+				foreach (var kvp in addresses) {
+					kvp.Value.Changed -= InternetAddressListChanged;
+					kvp.Value.Clear ();
+					kvp.Value.Changed += InternetAddressListChanged;
+				}
+				break;
+			default:
+				throw new ArgumentOutOfRangeException ();
+			}
 		}
 	}
 }
