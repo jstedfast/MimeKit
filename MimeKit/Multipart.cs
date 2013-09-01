@@ -139,22 +139,23 @@ namespace MimeKit {
 
 			if (RawPreamble != null) {
 				stream.Write (RawPreamble, 0, RawPreamble.Length);
-				stream.WriteByte ((byte) '\n');
+				stream.Write (NewLine, 0, NewLine.Length);
 			}
 
-			var bytes = Encoding.ASCII.GetBytes ("--" + Boundary + "--\n");
+			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
 			foreach (var part in children) {
-				stream.Write (bytes, 0, bytes.Length - 3);
-				stream.WriteByte ((byte) '\n');
+				stream.Write (boundary, 0, boundary.Length - 2);
+				stream.Write (NewLine, 0, NewLine.Length);
 				part.WriteTo (stream);
 			}
 
-			stream.Write (bytes, 0, bytes.Length);
+			stream.Write (boundary, 0, boundary.Length);
+			stream.Write (NewLine, 0, NewLine.Length);
 
 			if (RawEpilogue != null) {
 				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
-				stream.WriteByte ((byte) '\n');
+				stream.Write (NewLine, 0, NewLine.Length);
 			}
 		}
 
