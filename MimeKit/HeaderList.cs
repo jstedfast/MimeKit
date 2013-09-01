@@ -39,17 +39,31 @@ namespace MimeKit {
 		Dictionary<string, Header> table;
 		List<Header> headers;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.HeaderList"/> class.
+		/// </summary>
 		public HeaderList ()
 		{
 			table = new Dictionary<string, Header> (icase);
 			headers = new List<Header> ();
 		}
 
+		/// <summary>
+		/// Adds a header with the specified field and value.
+		/// </summary>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="value">The header value.</param>
 		public void Add (string field, string value)
 		{
 			Add (new Header (field, value));
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="HeaderList"/> contains a header with the specified field name.
+		/// </summary>
+		/// <returns><value>true</value> if the requested header exists;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="field">The name of the header field.</param>
 		public bool Contains (string field)
 		{
 			if (field == null)
@@ -58,6 +72,11 @@ namespace MimeKit {
 			return table.ContainsKey (field);
 		}
 
+		/// <summary>
+		/// Gets the index of the requested header, if it exists.
+		/// </summary>
+		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
+		/// <param name="field">The name of the header field.</param>
 		public int IndexOf (string field)
 		{
 			if (field == null)
@@ -71,6 +90,12 @@ namespace MimeKit {
 			return -1;
 		}
 
+		/// <summary>
+		/// Inserts a header with the specified field and value at the given index.
+		/// </summary>
+		/// <param name="index">The index to insert the header.</param>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="value">The header value.</param>
 		public void Insert (int index, string field, string value)
 		{
 			if (index < 0 || index > Count)
@@ -79,6 +104,12 @@ namespace MimeKit {
 			Insert (index, new Header (field, value));
 		}
 
+		/// <summary>
+		/// Removes the first occurance of the specified header field.
+		/// </summary>
+		/// <returns><value>true</value> if the frst occurance of the specified
+		/// header wasremoved; otherwise <value>false</value>.</returns>
+		/// <param name="field">The name of the header field.</param>
 		public bool Remove (string field)
 		{
 			if (field == null)
@@ -91,6 +122,11 @@ namespace MimeKit {
 			return Remove (header);
 		}
 
+		/// <summary>
+		/// Gets or sets the value of the first occurance of a header
+		/// with the specified field name.
+		/// </summary>
+		/// <param name="field">The name of the header field.</param>
 		public string this [string field] {
 			get {
 				if (field == null)
@@ -118,6 +154,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Writes the <see cref="MimeKit.HeaderList"/> to a stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
 		public void WriteTo (Stream stream)
 		{
 			if (stream == null)
@@ -134,6 +174,10 @@ namespace MimeKit {
 
 		#region ICollection implementation
 
+		/// <summary>
+		/// Gets the number of headers in the <see cref="MimeKit.HeaderList"/>.
+		/// </summary>
+		/// <value>The number of headers.</value>
 		public int Count {
 			get { return headers.Count; }
 		}
@@ -142,6 +186,10 @@ namespace MimeKit {
 			get { return false; }
 		}
 
+		/// <summary>
+		/// Adds the specified header.
+		/// </summary>
+		/// <param name="header">The header to add.</param>
 		public void Add (Header header)
 		{
 			if (header == null)
@@ -156,6 +204,9 @@ namespace MimeKit {
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
 
+		/// <summary>
+		/// Removes all headers from the <see cref="MimeKit.HeaderList"/>.
+		/// </summary>
 		public void Clear ()
 		{
 			foreach (var header in headers)
@@ -167,16 +218,33 @@ namespace MimeKit {
 			OnChanged (null, HeaderListChangedAction.Cleared);
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="HeaderList"/> contains the specified header.
+		/// </summary>
+		/// <returns><value>true</value> if the specified header is contained;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="header">The header.</param>
 		public bool Contains (Header header)
 		{
 			return headers.Contains (header);
 		}
 
+		/// <summary>
+		/// Copies all of the contained headers to the specified array.
+		/// </summary>
+		/// <param name="array">The array to copy the headers to.</param>
+		/// <param name="arrayIndex">The index into the array.</param>
 		public void CopyTo (Header[] array, int arrayIndex)
 		{
 			headers.CopyTo (array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Removes the specified header.
+		/// </summary>
+		/// <returns><value>true</value> if the specified header was removed;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="header">The header.</param>
 		public bool Remove (Header header)
 		{
 			int index = headers.IndexOf (header);
@@ -209,11 +277,21 @@ namespace MimeKit {
 
 		#region IList implementation
 
+		/// <summary>
+		/// Gets the index of the requested header, if it exists.
+		/// </summary>
+		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
+		/// <param name="header">The header.</param>
 		public int IndexOf (Header header)
 		{
 			return headers.IndexOf (header);
 		}
 
+		/// <summary>
+		/// Inserts the specified header at the given index.
+		/// </summary>
+		/// <param name="index">The index to insert the header.</param>
+		/// <param name="header">The header.</param>
 		public void Insert (int index, Header header)
 		{
 			if (index < 0 || index > Count)
@@ -239,6 +317,10 @@ namespace MimeKit {
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
 
+		/// <summary>
+		/// Removes the header at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > Count)
@@ -265,6 +347,10 @@ namespace MimeKit {
 			OnChanged (header, HeaderListChangedAction.Removed);
 		}
 
+		/// <summary>
+		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public Header this [int index] {
 			get {
 				return headers[index];
@@ -321,6 +407,10 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of headers.
+		/// </summary>
+		/// <returns>The enumerator.</returns>
 		public IEnumerator<Header> GetEnumerator ()
 		{
 			return headers.GetEnumerator ();
@@ -350,7 +440,7 @@ namespace MimeKit {
 				Changed (this, new HeaderListChangedEventArgs (header, action));
 		}
 
-		public bool TryGetHeader (string field, out Header header)
+		internal bool TryGetHeader (string field, out Header header)
 		{
 			if (field == null)
 				throw new ArgumentNullException ("field");
