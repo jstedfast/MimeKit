@@ -198,7 +198,7 @@ namespace MimeKit {
 			if (!table.ContainsKey (header.Field))
 				table.Add (header.Field, header);
 
-			header.Changed += OnHeaderChanged;
+			header.Changed += HeaderChanged;
 			headers.Add (header);
 
 			OnChanged (header, HeaderListChangedAction.Added);
@@ -210,7 +210,7 @@ namespace MimeKit {
 		public void Clear ()
 		{
 			foreach (var header in headers)
-				header.Changed -= OnHeaderChanged;
+				header.Changed -= HeaderChanged;
 
 			headers.Clear ();
 			table.Clear ();
@@ -252,7 +252,7 @@ namespace MimeKit {
 			if (index == -1)
 				return false;
 
-			header.Changed -= OnHeaderChanged;
+			header.Changed -= HeaderChanged;
 
 			if (table[header.Field] == header) {
 				table.Remove (header.Field);
@@ -271,6 +271,43 @@ namespace MimeKit {
 			OnChanged (header, HeaderListChangedAction.Removed);
 
 			return true;
+		}
+
+		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// 
+		/// If no headers with the specified header's field name exist, it is simply added.
+		/// </summary>
+		/// <param name="header">The header.</param>
+		public void Replace (Header header)
+		{
+			int i;
+
+			if (header == null)
+				throw new ArgumentNullException ("header");
+
+			Header first;
+			if (!table.TryGetValue (header.Field, out first)) {
+				Add (header);
+				return;
+			}
+
+			for (i = headers.Count - 1; i >= 0; i--) {
+				if (headers[i] == first)
+					break;
+
+				headers[i].Changed -= HeaderChanged;
+				headers.RemoveAt (i);
+			}
+
+			header.Changed += HeaderChanged;
+			first.Changed -= HeaderChanged;
+
+			table[header.Field] = header;
+			headers[i] = header;
+
+			OnChanged (first, HeaderListChangedAction.Removed);
+			OnChanged (header, HeaderListChangedAction.Added);
 		}
 
 		#endregion
@@ -312,7 +349,7 @@ namespace MimeKit {
 			}
 
 			headers.Insert (index, header);
-			header.Changed += OnHeaderChanged;
+			header.Changed += HeaderChanged;
 
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
@@ -328,7 +365,7 @@ namespace MimeKit {
 
 			var header = headers[index];
 
-			header.Changed -= OnHeaderChanged;
+			header.Changed -= HeaderChanged;
 
 			if (table[header.Field] == header) {
 				table.Remove (header.Field);
@@ -364,8 +401,8 @@ namespace MimeKit {
 				if (header == value)
 					return;
 
-				header.Changed -= OnHeaderChanged;
-				value.Changed += OnHeaderChanged;
+				header.Changed -= HeaderChanged;
+				value.Changed += HeaderChanged;
 
 				if (icase.Compare (header.Field, value.Field) == 0) {
 					// replace the old header with the new one
@@ -429,7 +466,7 @@ namespace MimeKit {
 
 		public event EventHandler<HeaderListChangedEventArgs> Changed;
 
-		void OnHeaderChanged (object sender, EventArgs args)
+		void HeaderChanged (object sender, EventArgs args)
 		{
 			OnChanged ((Header) sender, HeaderListChangedAction.Changed);
 		}
