@@ -41,11 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentDisposition.cs" />
-    <Compile Include="ContentEncoding.cs" />
-    <Compile Include="ContentObject.cs" />
-    <Compile Include="ContentType.cs" />
-    <Compile Include="DomainList.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />
@@ -66,20 +61,6 @@
     <Compile Include="Filters\MimeFilterBase.cs" />
     <Compile Include="Filters\PassThroughFilter.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
-    <Compile Include="GroupAddress.cs" />
-    <Compile Include="Header.cs" />
-    <Compile Include="HeaderList.cs" />
-    <Compile Include="HeaderListChangedEventArgs.cs" />
-    <Compile Include="IContentObject.cs" />
-    <Compile Include="InternetAddress.cs" />
-    <Compile Include="InternetAddressList.cs" />
-    <Compile Include="MailboxAddress.cs" />
-    <Compile Include="MimeEntity.cs" />
-    <Compile Include="MimePart.cs" />
-    <Compile Include="Multipart.cs" />
-    <Compile Include="Parameter.cs" />
-    <Compile Include="ParameterList.cs" />
-    <Compile Include="ParseException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\BoundStream.cs" />
     <Compile Include="Streams\FilteredStream.cs" />
@@ -89,6 +70,27 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="ContentDisposition.cs" />
+    <Compile Include="ContentEncoding.cs" />
+    <Compile Include="ContentObject.cs" />
+    <Compile Include="ContentType.cs" />
+    <Compile Include="DomainList.cs" />
+    <Compile Include="GroupAddress.cs" />
+    <Compile Include="Header.cs" />
+    <Compile Include="HeaderList.cs" />
+    <Compile Include="HeaderListChangedEventArgs.cs" />
+    <Compile Include="IContentObject.cs" />
+    <Compile Include="InternetAddress.cs" />
+    <Compile Include="InternetAddressList.cs" />
+    <Compile Include="MailboxAddress.cs" />
+    <Compile Include="MessagePart.cs" />
+    <Compile Include="MessagePartial.cs" />
+    <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimePart.cs" />
+    <Compile Include="Multipart.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterList.cs" />
+    <Compile Include="ParseException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

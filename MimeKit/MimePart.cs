@@ -36,7 +36,7 @@ namespace MimeKit {
 		{
 		}
 
-		public MimePart (HeaderList headers, ContentType type) : base (headers, type)
+		internal MimePart (HeaderList headers, ContentType type) : base (headers, type)
 		{
 		}
 

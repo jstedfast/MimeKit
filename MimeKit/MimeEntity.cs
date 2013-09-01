@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace MimeKit {
 	public abstract class MimeEntity
@@ -34,32 +35,32 @@ namespace MimeKit {
 		ContentDisposition disposition;
 		string contentId;
 
-		protected MimeEntity (string mediaType, string mediaSubtype)
+		// Note: this ctor is only used by the parser...
+		internal protected MimeEntity (HeaderList headers, ContentType type)
 		{
-			Initialize (new HeaderList (), new ContentType (mediaType, mediaSubtype));
-		}
-
-		protected MimeEntity (HeaderList headers, ContentType type)
-		{
-			if (headers == null)
-				throw new ArgumentNullException ("headers");
-
-			if (type == null)
-				throw new ArgumentNullException ("type");
-
-			Initialize (headers, type);
-		}
-
-		void Initialize (HeaderList headers, ContentType type)
-		{
-			type.Changed += OnContentTypeChanged;
 			headers.Changed += OnHeadersChanged;
+			type.Changed += ContentTypeChanged;
 
 			foreach (var header in headers)
 				UpdatePropertyValue (header, true);
 
 			ContentType = type;
 			Headers = headers;
+		}
+
+		protected MimeEntity (string mediaType, string mediaSubtype)
+		{
+			ContentType = new ContentType (mediaType, mediaSubtype);
+			Headers = new HeaderList ();
+
+			ContentType.Changed += ContentTypeChanged;
+			Headers.Changed += OnHeadersChanged;
+
+			SerializeContentType ();
+		}
+
+		public HeaderList Headers {
+			get; private set;
 		}
 
 		public ContentDisposition ContentDisposition {
@@ -71,15 +72,15 @@ namespace MimeKit {
 				Headers.Changed -= OnHeadersChanged;
 
 				if (disposition != null) {
-					disposition.Changed -= OnContentDispositionChanged;
+					disposition.Changed -= ContentDispositionChanged;
 					if (value == null)
 						Headers.Remove ("Content-Disposition");
 				}
 
 				disposition = value;
 				if (disposition != null) {
-					disposition.Changed += OnContentDispositionChanged;
-					Headers["Content-Disposition"] = disposition.ToString ();
+					disposition.Changed += ContentDispositionChanged;
+					SerializeContentDisposition ();
 				}
 
 				Headers.Changed += OnHeadersChanged;
@@ -116,10 +117,6 @@ namespace MimeKit {
 			}
 		}
 
-		public HeaderList Headers {
-			get; private set;
-		}
-
 		public virtual void WriteTo (Stream stream)
 		{
 			Headers.WriteTo (stream);
@@ -127,13 +124,45 @@ namespace MimeKit {
 			stream.WriteByte ((byte) '\n');
 		}
 
-		protected virtual void OnContentDispositionChanged (object sender, EventArgs e)
+		void SerializeContentDisposition ()
 		{
+			var text = disposition.Encode (Encoding.UTF8);
+			var raw = Encoding.ASCII.GetBytes (text);
+
+			Header header;
+			if (!Headers.TryGetHeader ("Content-Disposition", out header))
+				Headers.Add (new Header ("Content-Disposition", raw));
+			else
+				header.RawValue = raw;
+		}
+
+		void SerializeContentType ()
+		{
+			var text = ContentType.Encode (Encoding.UTF8);
+			var raw = Encoding.ASCII.GetBytes (text);
+
+			Header header;
+			if (!Headers.TryGetHeader ("Content-Type", out header))
+				Headers.Add (new Header ("Content-Type", raw));
+			else
+				header.RawValue = raw;
+		}
+
+		void ContentDispositionChanged (object sender, EventArgs e)
+		{
+			Headers.Changed -= OnHeadersChanged;
+			SerializeContentDisposition ();
+			Headers.Changed += OnHeadersChanged;
+
 			OnChanged ();
 		}
 
-		protected virtual void OnContentTypeChanged (object sender, EventArgs e)
+		void ContentTypeChanged (object sender, EventArgs e)
 		{
+			Headers.Changed -= OnHeadersChanged;
+			SerializeContentType ();
+			Headers.Changed += OnHeadersChanged;
+
 			OnChanged ();
 		}
 
@@ -183,6 +212,37 @@ namespace MimeKit {
 		{
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
+		}
+
+		internal static MimeEntity Create (HeaderList headers, ContentType type)
+		{
+			if (headers == null)
+				throw new ArgumentNullException ("headers");
+
+			if (type == null)
+				throw new ArgumentNullException ("type");
+
+			if (icase.Compare (type.MediaType, "message") == 0) {
+				if (icase.Compare (type.MediaSubtype, "partial") == 0)
+					return new MessagePartial (headers, type);
+
+				return new MessagePart (headers, type);
+			}
+
+			if (icase.Compare (type.MediaType, "multipart") == 0) {
+				//if (icase.Compare (type.Subtype, "encrypted") == 0)
+				//	return new MultipartEncrypted (headers, type);
+
+				//if (icase.Compare (type.Subtype, "signed") == 0)
+				//	return new MultipartSigned (headers, type);
+
+				return new Multipart (headers, type);
+			}
+
+			//if (type.Matches ("text", "*"))
+			//	return new TextPart (headers, type);
+
+			return new MimePart (headers, type);
 		}
 	}
 }
