@@ -32,6 +32,11 @@ namespace MimeKit {
 	{
 		string text;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Parameter"/> class.
+		/// </summary>
+		/// <param name="name">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
 		public Parameter (string name, string value)
 		{
 			if (name == null)
@@ -57,10 +62,18 @@ namespace MimeKit {
 			return c.IsAttr ();
 		}
 
+		/// <summary>
+		/// Gets the parameter name.
+		/// </summary>
+		/// <value>The parameter name.</value>
 		public string Name {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets the parameter value.
+		/// </summary>
+		/// <value>The parameter value.</value>
 		public string Value {
 			get { return text; }
 			set {
@@ -250,17 +263,8 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		internal void Encode (StringBuilder sb, ref int lineLength, Encoding encoding)
+		internal void Encode (StringBuilder builder, ref int lineLength, Encoding encoding)
 		{
-			if (sb == null)
-				throw new ArgumentNullException ("sb");
-
-			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException ("lineLength");
-
-			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
-
 			string quoted;
 
 			var method = GetEncodeMethod (Name, Value, out quoted);
@@ -269,17 +273,17 @@ namespace MimeKit {
 
 			if (method != EncodeMethod.Rfc2184) {
 				if (lineLength + 2 + Name.Length + 1 + quoted.Length >= Rfc2047.MaxLineLength) {
-					sb.Append (";\n\t");
+					builder.Append (";\n\t");
 					lineLength = 1;
 				} else {
-					sb.Append ("; ");
+					builder.Append ("; ");
 					lineLength += 2;
 				}
 
 				lineLength += Name.Length + 1 + quoted.Length;
-				sb.Append (Name);
-				sb.Append ('=');
-				sb.Append (quoted);
+				builder.Append (Name);
+				builder.Append ('=');
+				builder.Append (quoted);
 				return;
 			}
 
@@ -302,40 +306,46 @@ namespace MimeKit {
 
 				if (i == 0 && index == chars.Length) {
 					if (lineLength + 2 + length >= Rfc2047.MaxLineLength) {
-						sb.Append (";\n\t");
+						builder.Append (";\n\t");
 						lineLength = 1;
 					} else {
-						sb.Append ("; ");
+						builder.Append ("; ");
 						lineLength += 2;
 					}
 
-					sb.Append (Name);
+					builder.Append (Name);
 					if (encoded)
-						sb.Append ('*');
-					sb.Append ('=');
-					sb.Append (value);
+						builder.Append ('*');
+					builder.Append ('=');
+					builder.Append (value);
 					lineLength += length;
 					return;
 				}
 
-				sb.Append (";\n\t");
+				builder.Append (";\n\t");
 				lineLength = 1;
 
 				id = i.ToString ();
 				length += id.Length + 1;
 
-				sb.Append (Name);
-				sb.Append ('*');
-				sb.Append (id);
+				builder.Append (Name);
+				builder.Append ('*');
+				builder.Append (id);
 				if (encoded)
-					sb.Append ('*');
-				sb.Append ('=');
-				sb.Append (value);
+					builder.Append ('*');
+				builder.Append ('=');
+				builder.Append (value);
 				lineLength += length;
 				i++;
 			} while (index < chars.Length);
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.Parameter"/>.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.Parameter"/>.</returns>
 		public override string ToString ()
 		{
 			return Name + "=" + Rfc2047.Quote (Value);
