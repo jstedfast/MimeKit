@@ -34,16 +34,27 @@ namespace MimeKit {
 		ParameterList parameters;
 		string disposition;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <param name="disposition">The disposition.</param>
 		public ContentDisposition (string disposition)
 		{
 			Parameters = new ParameterList ();
 			Disposition = disposition;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
 		public ContentDisposition () : this ("attachment")
 		{
 		}
 
+		/// <summary>
+		/// Gets or sets the disposition.
+		/// </summary>
+		/// <value>The disposition.</value>
 		public string Disposition {
 			get { return disposition; }
 			set {
@@ -64,6 +75,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets the parameters.
+		/// </summary>
+		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
 			private set {
@@ -75,25 +90,50 @@ namespace MimeKit {
 			}
 		}
 
+		internal string Encode (Encoding charset)
+		{
+			int lineLength = "Content-Disposition: ".Length;
+			var value = new StringBuilder (" ");
+
+			value.Append (disposition);
+
+			Parameters.Encode (value, ref lineLength, charset);
+
+			return value.ToString ();
+		}
+
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.ContentDisposition"/> to a string,
+		/// optionally encoding the parameters.
+		/// </summary>
+		/// <returns>The serialized string.</returns>
+		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
+		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
 		public string ToString (Encoding charset, bool encode)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			var sb = new StringBuilder ("Content-Disposition: ");
-			sb.Append (Disposition);
+			var value = new StringBuilder ("Content-Disposition: ");
+			value.Append (disposition);
 
 			if (encode) {
-				int lineLength = sb.Length;
+				int lineLength = value.Length;
 
-				Parameters.Encode (sb, ref lineLength, charset);
+				Parameters.Encode (value, ref lineLength, charset);
 			} else {
-				sb.Append (Parameters.ToString ());
+				value.Append (Parameters.ToString ());
 			}
 
-			return sb.ToString ();
+			return value.ToString ();
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ContentDisposition"/>.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ContentDisposition"/>.</returns>
 		public override string ToString ()
 		{
 			return ToString (Encoding.UTF8, false);
@@ -164,45 +204,72 @@ namespace MimeKit {
 			return true;
 		}
 
-		public static bool TryParse (byte[] text, int startIndex, int count, out ContentDisposition disposition)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="header">The parsed disposition.</param>
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= text.Length)
+			if (startIndex < 0 || startIndex >= buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (count < 0 || startIndex + count >= text.Length)
-				throw new ArgumentOutOfRangeException ("count");
+			if (length < 0 || startIndex + length >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
 
 			int index = startIndex;
 
-			return TryParse (text, ref index, startIndex + count, false, out disposition);
+			return TryParse (buffer, ref index, startIndex + length, false, out disposition);
 		}
 
-		public static bool TryParse (byte[] text, int startIndex, out ContentDisposition disposition)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="header">The parsed disposition.</param>
+		public static bool TryParse (byte[] buffer, int startIndex, out ContentDisposition disposition)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= text.Length)
+			if (startIndex < 0 || startIndex >= buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
 			int index = startIndex;
 
-			return TryParse (text, ref index, text.Length, false, out disposition);
+			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
 		}
 
-		public static bool TryParse (byte[] text, out ContentDisposition disposition)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="header">The parsed disposition.</param>
+		public static bool TryParse (byte[] buffer, out ContentDisposition disposition)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
 			int index = 0;
 
-			return TryParse (text, ref index, text.Length, false, out disposition);
+			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
 		}
 
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="header">The parsed disposition.</param>
 		public static bool TryParse (string text, out ContentDisposition disposition)
 		{
 			if (text == null)
@@ -214,54 +281,73 @@ namespace MimeKit {
 			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
 		}
 
-		public static ContentDisposition Parse (byte[] text, int startIndex, int count)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The start index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer, int startIndex, int length)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (count < 0 || startIndex + count > text.Length)
-				throw new ArgumentOutOfRangeException ("count");
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
 
 			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (text, ref index, startIndex + count, true, out disposition);
+			TryParse (buffer, ref index, startIndex + length, true, out disposition);
 
 			return disposition;
 		}
 
-		public static ContentDisposition Parse (byte[] text, int startIndex)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The start index of the buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer, int startIndex)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
 			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (text, ref index, text.Length, true, out disposition);
+			TryParse (buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}
 
-		public static ContentDisposition Parse (byte[] text)
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <param name="buffer">The input buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
 			ContentDisposition disposition;
 			int index = 0;
 
-			TryParse (text, ref index, text.Length, true, out disposition);
+			TryParse (buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}
 
+		/// <summary>
+		/// Parse the specified text into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <param name="text">The input text.</param>
 		public static ContentDisposition Parse (string text)
 		{
 			if (text == null)
