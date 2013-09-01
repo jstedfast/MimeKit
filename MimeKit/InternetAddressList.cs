@@ -195,19 +195,10 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal void Encode (StringBuilder builder, ref int lineLength, Encoding charset)
 		{
-			if (sb == null)
-				throw new ArgumentNullException ("sb");
-
-			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException ("lineLength");
-
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
 			foreach (var addr in list)
-				addr.Encode (sb, ref lineLength, charset);
+				addr.Encode (builder, ref lineLength, charset);
 		}
 
 		public string ToString (Encoding charset, bool encode)
@@ -215,24 +206,24 @@ namespace MimeKit {
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			var sb = new StringBuilder ();
+			var builder = new StringBuilder ();
 
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (sb, ref lineLength, charset);
+				Encode (builder, ref lineLength, charset);
 
-				return sb.ToString ();
+				return builder.ToString ();
 			}
 
 			for (int i = 0; i < list.Count; i++) {
 				if (i > 0)
-					sb.Append (", ");
+					builder.Append (", ");
 
-				sb.Append (list[i].ToString ());
+				builder.Append (list[i].ToString ());
 			}
 
-			return sb.ToString ();
+			return builder.ToString ();
 		}
 
 		public override string ToString ()
