@@ -37,17 +37,31 @@ namespace MimeKit {
 		Dictionary<string, Parameter> table;
 		List<Parameter> parameters;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParameterList"/> class.
+		/// </summary>
 		public ParameterList ()
 		{
 			table = new Dictionary<string, Parameter> (icase);
 			parameters = new List<Parameter> ();
 		}
 
+		/// <summary>
+		/// Adds a parameter with the specified name and value.
+		/// </summary>
+		/// <param name="name">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
 		public void Add (string name, string value)
 		{
 			Add (new Parameter (name, value));
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="MimeKit.ParameterList"/> contains a parameter with the specified name.
+		/// </summary>
+		/// <returns><value>true</value> if the requested parameter exists;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="name">The parameter name.</param>
 		public bool Contains (string name)
 		{
 			if (name == null)
@@ -56,6 +70,11 @@ namespace MimeKit {
 			return table.ContainsKey (name);
 		}
 
+		/// <summary>
+		/// Gets the index of the requested parameter, if it exists.
+		/// </summary>
+		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
+		/// <param name="name">The parameter name.</param>
 		public int IndexOf (string name)
 		{
 			if (name == null)
@@ -69,6 +88,12 @@ namespace MimeKit {
 			return -1;
 		}
 
+		/// <summary>
+		/// Inserts a parameter with the specified name and value at the given index.
+		/// </summary>
+		/// <param name="index">The index to insert the parameter.</param>
+		/// <param name="field">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
 		public void Insert (int index, string name, string value)
 		{
 			if (index < 0 || index > Count)
@@ -77,6 +102,12 @@ namespace MimeKit {
 			Insert (index, new Parameter (name, value));
 		}
 
+		/// <summary>
+		/// Removes the first occurance of the specified parameter.
+		/// </summary>
+		/// <returns><value>true</value> if the frst occurance of the specified
+		/// parameter was removed; otherwise <value>false</value>.</returns>
+		/// <param name="name">The parameter name.</param>
 		public bool Remove (string name)
 		{
 			if (name == null)
@@ -89,6 +120,11 @@ namespace MimeKit {
 			return Remove (param);
 		}
 
+		/// <summary>
+		/// Gets or sets the value of the first occurance of a parameter
+		/// with the specified name.
+		/// </summary>
+		/// <param name="name">The parameter name.</param>
 		public string this [string name] {
 			get {
 				if (name == null)
@@ -118,6 +154,10 @@ namespace MimeKit {
 
 		#region ICollection implementation
 
+		/// <summary>
+		/// Gets the number of parameters in the <see cref="MimeKit.ParameterList"/>.
+		/// </summary>
+		/// <value>The number of parameters.</value>
 		public int Count {
 			get { return parameters.Count; }
 		}
@@ -126,6 +166,10 @@ namespace MimeKit {
 			get { return false; }
 		}
 
+		/// <summary>
+		/// Adds the specified parameter.
+		/// </summary>
+		/// <param name="param">The parameter to add.</param>
 		public void Add (Parameter param)
 		{
 			if (param == null)
@@ -141,6 +185,9 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Removes all parameters from the <see cref="MimeKit.ParameterList"/>.
+		/// </summary>
 		public void Clear ()
 		{
 			foreach (var param in parameters)
@@ -152,16 +199,33 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="MimeKit.ParameterList"/> contains the specified parameter.
+		/// </summary>
+		/// <returns><value>true</value> if the specified parameter is contained;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="param">The parameter.</param>
 		public bool Contains (Parameter param)
 		{
 			return parameters.Contains (param);
 		}
 
+		/// <summary>
+		/// Copies all of the contained parameters to the specified array.
+		/// </summary>
+		/// <param name="array">The array to copy the parameters to.</param>
+		/// <param name="arrayIndex">The index into the array.</param>
 		public void CopyTo (Parameter[] array, int arrayIndex)
 		{
 			parameters.CopyTo (array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Removes the specified parameter.
+		/// </summary>
+		/// <returns><value>true</value> if the specified parameter was removed;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="param">The parameter.</param>
 		public bool Remove (Parameter param)
 		{
 			if (param == null)
@@ -182,11 +246,21 @@ namespace MimeKit {
 
 		#region IList implementation
 
+		/// <summary>
+		/// Gets the index of the requested parameter, if it exists.
+		/// </summary>
+		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
+		/// <param name="param">The parameter.</param>
 		public int IndexOf (Parameter param)
 		{
 			return parameters.IndexOf (param);
 		}
 
+		/// <summary>
+		/// Inserts the specified parameter at the given index.
+		/// </summary>
+		/// <param name="index">The index to insert the parameter.</param>
+		/// <param name="param">The parameter.</param>
 		public void Insert (int index, Parameter param)
 		{
 			if (index < 0 || index > Count)
@@ -205,6 +279,10 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Removes the parameter at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > Count)
@@ -219,6 +297,10 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public Parameter this [int index] {
 			get {
 				return parameters[index];
@@ -255,6 +337,10 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of parameters.
+		/// </summary>
+		/// <returns>The enumerator.</returns>
 		public IEnumerator<Parameter> GetEnumerator ()
 		{
 			return parameters.GetEnumerator ();
@@ -271,21 +357,18 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal void Encode (StringBuilder builder, ref int lineLength, Encoding charset)
 		{
-			if (sb == null)
-				throw new ArgumentNullException ("sb");
-
-			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException ("lineLength");
-
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
 			foreach (var param in parameters)
-				param.Encode (sb, ref lineLength, charset);
+				param.Encode (builder, ref lineLength, charset);
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ParameterList"/>.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current
+		/// <see cref="MimeKit.ParameterList"/>.</returns>
 		public override string ToString ()
 		{
 			var values = new StringBuilder ();

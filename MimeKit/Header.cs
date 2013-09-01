@@ -102,7 +102,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <value>The raw value of the header.</value>
 		public byte[] RawValue {
-			get; private set;
+			get; internal set;
 		}
 
 		/// <summary>

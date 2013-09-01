@@ -59,7 +59,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="HeaderList"/> contains a header with the specified field name.
+		/// Checks if the <see cref="MimeKit.HeaderList"/> contains a header with the specified field name.
 		/// </summary>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
@@ -108,7 +108,7 @@ namespace MimeKit {
 		/// Removes the first occurance of the specified header field.
 		/// </summary>
 		/// <returns><value>true</value> if the frst occurance of the specified
-		/// header wasremoved; otherwise <value>false</value>.</returns>
+		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		public bool Remove (string field)
 		{
