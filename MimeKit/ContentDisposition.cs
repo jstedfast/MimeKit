@@ -30,7 +30,7 @@ using System.Text;
 namespace MimeKit {
 	public sealed class ContentDisposition
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		ParameterList parameters;
 		string disposition;
 
