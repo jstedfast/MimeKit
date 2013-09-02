@@ -66,6 +66,7 @@
     <Compile Include="Streams\FilteredStream.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
+    <Compile Include="Utils\MimeUtils.cs" />
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
@@ -107,7 +108,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="Hierarchical" ResourceNamePolicy="FileFormatDefault" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
         </Policies>
       </Properties>
     </MonoDevelop>

@@ -30,6 +30,18 @@ using System.Text;
 namespace MimeKit {
 	static class ParseUtils
 	{
+		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
+		{
+			int startIndex = index;
+
+			value = 0;
+
+			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9')
+				value = (value * 10) + (text[index++] - (byte) '0');
+
+			return index > startIndex;
+		}
+
 		public static bool SkipWhiteSpace (byte[] text, ref int index, int endIndex)
 		{
 			int startIndex = index;

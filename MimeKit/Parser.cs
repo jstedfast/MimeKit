@@ -715,7 +715,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe BoundaryType ScanContent (Stream content, out int crlf)
+		unsafe BoundaryType ScanContent (Stream content)
 		{
 			int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
@@ -782,11 +782,9 @@ namespace MimeKit {
 			if (found != BoundaryType.Eos) {
 				// the last \r\n belongs to the boundary
 				if (input[inputIndex - 1] == (byte) '\r')
-					crlf = 2;
+					stream.SetLength (stream.Length - 2);
 				else
-					crlf = 1;
-			} else {
-				crlf = 0;
+					stream.SetLength (stream.Length - 1);
 			}
 
 			return found;
@@ -795,18 +793,14 @@ namespace MimeKit {
 		BoundaryType ScanMimePartContent (MimePart part)
 		{
 			using (var memory = new MemoryStream ()) {
-				int crlf;
+				var found = ScanContent (memory);
+				var data = memory.ToArray ();
 
-				var found = ScanContent (memory, out crlf);
-				var data = memory.GetBuffer ();
-
-				if (found != BoundaryType.Eos) {
-					if (data.Length > crlf)
-						Array.Resize (ref data, data.Length - crlf);
-					else
-						data = new byte[0];
-				}
-
+				// FIXME: memory.ToArray() duplicates the buffer which hurts performance...
+				// Maybe the ContentObject should take a stream instead or perhaps we should
+				// use memory.GetBuffer() which returns the internal buffer, and then do
+				// Array.Resize (ref data, stream.Length) to resize it to the correct size.
+				// (The internal buffer is likely to be larger than what is actually needed.)
 				part.ContentObject = new ContentObject (data, part.ContentTransferEncoding);
 
 				return found;
@@ -889,16 +883,12 @@ namespace MimeKit {
 		BoundaryType ScanMultipartPreambleOrEpilogue (Multipart multipart, bool preamble)
 		{
 			using (var memory = new MemoryStream ()) {
-				int crlf;
-
-				var found = ScanContent (memory, out crlf);
-
-				// FIXME: remove trailing crlf
+				var found = ScanContent (memory);
 
 				if (preamble)
-					multipart.RawPreamble = memory.GetBuffer ();
+					multipart.RawPreamble = memory.ToArray ();
 				else
-					multipart.RawEpilogue = memory.GetBuffer ();
+					multipart.RawEpilogue = memory.ToArray ();
 
 				return found;
 			}

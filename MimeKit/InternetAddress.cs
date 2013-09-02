@@ -161,7 +161,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
+		internal static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
 		{
 			DomainList route = null;
 

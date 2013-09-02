@@ -29,7 +29,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	internal class PackedByteArray : IList<byte>
+	class PackedByteArray : IList<byte>
 	{
 		const int InitialBufferSize = 64;
 

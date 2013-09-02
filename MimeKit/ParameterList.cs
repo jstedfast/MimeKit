@@ -396,18 +396,6 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
-		{
-			int startIndex = index;
-
-			value = 0;
-
-			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9')
-				value = (value * 10) + (text[index++] - (byte) '0');
-
-			return index > startIndex;
-		}
-
 		static bool SkipParamName (byte[] text, ref int index, int endIndex)
 		{
 			int startIndex = index;
@@ -490,7 +478,7 @@ namespace MimeKit {
 				}
 
 				int value;
-				if (TryParseInt32 (text, ref index, endIndex, out value)) {
+				if (ParseUtils.TryParseInt32 (text, ref index, endIndex, out value)) {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
