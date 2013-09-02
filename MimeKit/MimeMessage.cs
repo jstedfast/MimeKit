@@ -33,7 +33,6 @@ namespace MimeKit {
 	public sealed class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-
 		static readonly string[] StandardAddressHeaders = new string[] {
 			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
 		};
@@ -46,13 +45,13 @@ namespace MimeKit {
 			headers.Changed += HeadersChanged;
 			Headers = headers;
 
+			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
 				var list = new InternetAddressList ();
-				list.Changed += InternetAddressListChanged;
 				addresses.Add (name, list);
 			}
 
-			// load up our address headers...
+			// parse all of our address headers
 			foreach (var header in headers) {
 				InternetAddressList parsed, list;
 
@@ -65,6 +64,10 @@ namespace MimeKit {
 				list.AddRange (parsed);
 				parsed.Clear ();
 			}
+
+			// listen for changes to our address lists
+			foreach (var name in StandardAddressHeaders)
+				addresses[name].Changed += InternetAddressListChanged;
 		}
 
 		public MimeMessage () : this (new HeaderList ())
@@ -127,6 +130,22 @@ namespace MimeKit {
 		}
 
 		public DateTime Date {
+			get; set;
+		}
+
+		public string References {
+			get; set;
+		}
+
+		public string InReplyTo {
+			get; set;
+		}
+
+		public string MessageId {
+			get; set;
+		}
+
+		public Version MimeVersion {
 			get; set;
 		}
 
