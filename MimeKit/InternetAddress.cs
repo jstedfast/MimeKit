@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	public abstract class InternetAddress
@@ -216,7 +217,7 @@ namespace MimeKit {
 
 		static bool TryParseGroup (byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
 		{
-			InternetAddressList members;
+			List<InternetAddress> members;
 
 			address = null;
 
