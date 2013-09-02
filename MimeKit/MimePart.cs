@@ -25,18 +25,19 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	public class MimePart : MimeEntity
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		//static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		ContentEncoding encoding;
 
-		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
+		internal MimePart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
 		{
 		}
 
-		internal MimePart (HeaderList headers, ContentType type) : base (headers, type)
+		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
 		}
 

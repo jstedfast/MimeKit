@@ -45,67 +45,53 @@ namespace MimeKit {
 		Version version;
 		DateTime date;
 
-		internal MimeMessage (HeaderList headers)
+		internal MimeMessage (IEnumerable<Header> headers)
 		{
 			addresses = new Dictionary<string, InternetAddressList> (icase);
-			headers.Changed += HeadersChanged;
-			Headers = headers;
+			Headers = new HeaderList ();
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
 				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
 				addresses.Add (name, list);
 			}
 
 			references = new List<string> ();
 			inreplyto = new List<string> ();
 
-			// parse all of our address headers
+			Headers.Changed += HeadersChanged;
+
+			// add all of our message headers...
 			foreach (var header in headers) {
-				int length = header.RawValue.Length;
-				List<InternetAddress> parsed;
-				InternetAddressList list;
-				int index = 0;
+				if (header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+					continue;
 
-				if (addresses.TryGetValue (header.Field, out list)) {
-					if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
-						continue;
-
-					list.AddRange (parsed);
-				} else if (icase.Compare (header.Field, "References") == 0) {
-					// while these aren't addresses per se, they are still a list of addr-spec tokens...
-					if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
-						continue;
-
-					foreach (var addr in parsed.OfType<MailboxAddress> ())
-						references.Add (addr.Address);
-				} else if (icase.Compare (header.Field, "In-Reply-To") == 0) {
-					// while these aren't addresses per se, they are still a list of addr-spec tokens...
-					if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
-						continue;
-
-					foreach (var addr in parsed.OfType<MailboxAddress> ())
-						inreplyto.Add (addr.Address);
-				} else if (icase.Compare (header.Field, "Message-Id") == 0) {
-					// while this isn't an addresses per se, it is still an addr-spec tokens...
-					if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
-						continue;
-
-					messageId = parsed.OfType<MailboxAddress> ().Select (x => x.Address).FirstOrDefault ();
-				} else if (icase.Compare (header.Field, "MIME-Version") == 0) {
-					// FIXME: implement a parser for this...
-				} else if (icase.Compare (header.Field, "Date") == 0) {
-					// FIXME: implement a parser for this...
-				}
+				Headers.Add (header);
 			}
-
-			// listen for changes to our address lists
-			foreach (var name in StandardAddressHeaders)
-				addresses[name].Changed += InternetAddressListChanged;
 		}
 
-		public MimeMessage () : this (new HeaderList ())
+		public MimeMessage ()
 		{
+			addresses = new Dictionary<string, InternetAddressList> (icase);
+			Headers = new HeaderList ();
+
+			Headers["From"] = string.Empty;
+			Headers["To"] = string.Empty;
+			Subject = string.Empty;
+			Date = DateTime.Now;
+
+			Headers.Changed += HeadersChanged;
+
+			// initialize our address lists
+			foreach (var name in StandardAddressHeaders) {
+				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses.Add (name, list);
+			}
+
+			references = new List<string> ();
+			inreplyto = new List<string> ();
 		}
 
 		public HeaderList Headers {
@@ -176,15 +162,25 @@ namespace MimeKit {
 				if (messageId == value)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-
-				messageId = value.Trim ();
-
-				if (value != null)
-					Headers["Message-Id"] = "<" + messageId + ">";
-				else
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
 					Headers.RemoveAll ("Message-Id");
+					Headers.Changed += HeadersChanged;
+					messageId = null;
+					return;
+				}
 
+				var buffer = Encoding.ASCII.GetBytes (value);
+				InternetAddress addr;
+				int index = 0;
+
+				if (!InternetAddress.TryParse (buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+					throw new ArgumentException ("Invalid Message-Id format.");
+
+				messageId = string.Format ("<{0}>", ((MailboxAddress) addr).Address);
+
+				Headers.Changed -= HeadersChanged;
+				Headers["Message-Id"] = messageId;
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -195,11 +191,11 @@ namespace MimeKit {
 				if (version.CompareTo (value) == 0)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["MIME-Version"] = value.ToString ();
-				Headers.Changed += HeadersChanged;
-
 				version = value;
+
+				Headers.Changed -= HeadersChanged;
+				Headers["MIME-Version"] = version.ToString ();
+				Headers.Changed += HeadersChanged;
 			}
 		}
 
@@ -262,47 +258,110 @@ namespace MimeKit {
 			}
 		}
 
+		void AddAddresses (Header header, InternetAddressList list)
+		{
+			int length = header.RawValue.Length;
+			List<InternetAddress> parsed;
+			int index = 0;
+
+			// parse the addresses in the new header and add them to our address list
+			if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
+				return;
+
+			list.Changed -= InternetAddressListChanged;
+			list.AddRange (parsed);
+			list.Changed += InternetAddressListChanged;
+		}
+
+		void ReloadAddressList (string field, InternetAddressList list)
+		{
+			// clear the address list and reload
+			list.Changed -= InternetAddressListChanged;
+			list.Clear ();
+
+			foreach (var header in Headers) {
+				if (icase.Compare (header.Field, field) != 0)
+					continue;
+
+				int length = header.RawValue.Length;
+				List<InternetAddress> parsed;
+				int index = 0;
+
+				if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
+					continue;
+
+				list.AddRange (parsed);
+			}
+
+			list.Changed += InternetAddressListChanged;
+		}
+
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			List<InternetAddress> parsed;
 			InternetAddressList list;
-			int index, length;
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
 				if (addresses.TryGetValue (e.Header.Field, out list)) {
-					// parse the addresses in the new header and add them to our address list
-					length = e.Header.RawValue.Length;
-					index = 0;
+					AddAddresses (e.Header, list);
+					break;
+				}
 
-					if (InternetAddressList.TryParse (e.Header.RawValue, ref index, length, false, false, out parsed)) {
-						list.Changed -= InternetAddressListChanged;
-						list.AddRange (parsed);
-						list.Changed += InternetAddressListChanged;
-					}
+				switch (e.Header.Field.ToUpperInvariant ()) {
+				case "MIME-VERSION":
+					break;
+				case "IN-REPLY-TO":
+					break;
+				case "REFERENCES":
+					break;
+				case "MESSAGE-ID":
+					break;
+				case "DATE":
+					break;
+				default:
+					break;
 				}
 				break;
 			case HeaderListChangedAction.Changed:
+				if (addresses.TryGetValue (e.Header.Field, out list)) {
+					ReloadAddressList (e.Header.Field, list);
+					break;
+				}
+
+				switch (e.Header.Field.ToUpperInvariant ()) {
+				case "MIME-VERSION":
+					break;
+				case "IN-REPLY-TO":
+					break;
+				case "REFERENCES":
+					break;
+				case "MESSAGE-ID":
+					break;
+				case "DATE":
+					break;
+				default:
+					break;
+				}
+				break;
 			case HeaderListChangedAction.Removed:
 				if (addresses.TryGetValue (e.Header.Field, out list)) {
-					// clear the address list and reload
-					list.Changed -= InternetAddressListChanged;
-					list.Clear ();
+					ReloadAddressList (e.Header.Field, list);
+					break;
+				}
 
-					foreach (var header in Headers) {
-						if (icase.Compare (e.Header.Field, header.Field) != 0)
-							continue;
-
-						length = e.Header.RawValue.Length;
-						index = 0;
-
-						if (!InternetAddressList.TryParse (e.Header.RawValue, ref index, length, false, false, out parsed))
-							continue;
-
-						list.AddRange (parsed);
-					}
-
-					list.Changed += InternetAddressListChanged;
+				switch (e.Header.Field.ToUpperInvariant ()) {
+				case "MIME-VERSION":
+					break;
+				case "IN-REPLY-TO":
+					break;
+				case "REFERENCES":
+					break;
+				case "MESSAGE-ID":
+					break;
+				case "DATE":
+					break;
+				default:
+					break;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:

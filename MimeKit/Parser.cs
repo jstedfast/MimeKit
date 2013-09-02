@@ -88,6 +88,7 @@ namespace MimeKit {
 
 	public class Parser
 	{
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 
@@ -108,7 +109,7 @@ namespace MimeKit {
 		int headerIndex;
 
 		List<Boundary> bounds;
-		HeaderList headers;
+		List<Header> headers;
 		ParserState state;
 		Stream stream;
 		long offset;
@@ -417,7 +418,7 @@ namespace MimeKit {
 			long length;
 			bool eoln;
 
-			headers = new HeaderList ();
+			headers = new List<Header> ();
 			ResetRawHeaderData ();
 			midline = false;
 
@@ -611,26 +612,24 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent, out bool exists)
+		ContentType GetContentType (ContentType parent)
 		{
 			ContentType type;
-			Header header;
 
-			exists = false;
+			foreach (var header in headers) {
+				if (icase.Compare (header.Field, "Content-Type") != 0)
+					continue;
 
-			if (!headers.TryGetHeader ("Content-Type", out header)) {
-				if (parent == null || !parent.Matches ("multipart", "digest"))
-					return new ContentType ("text", "plain");
+				if (!ContentType.TryParse (header.RawValue, out type))
+					return new ContentType ("application", "octet-stream");
 
-				return new ContentType ("message", "rfc822");
+				return type;
 			}
 
-			exists = true;
+			if (parent == null || !parent.Matches ("multipart", "digest"))
+				return new ContentType ("text", "plain");
 
-			if (!ContentType.TryParse (header.RawValue, out type))
-				return new ContentType ("application", "octet-stream");
-
-			return type;
+			return new ContentType ("message", "rfc822");
 		}
 
 		unsafe bool IsPossibleBoundary (byte* text, int length)
@@ -817,7 +816,6 @@ namespace MimeKit {
 		unsafe BoundaryType ScanMessagePart (MessagePart part)
 		{
 			BoundaryType found;
-			bool exists;
 
 			if (bounds.Count > 0) {
 				int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
@@ -853,8 +851,8 @@ namespace MimeKit {
 				return BoundaryType.Eos;
 			}
 
-			var type = GetContentType (null, out exists);
 			var message = new MimeMessage (headers);
+			var type = GetContentType (null);
 
 			if (type.Matches ("multipart", "*")) {
 				message.Body = ConstructMultipart (type, true, out found);
@@ -869,9 +867,7 @@ namespace MimeKit {
 
 		MimeEntity ConstructEntity (ContentType type, bool toplevel, out BoundaryType found)
 		{
-			var entity = MimeEntity.Create (headers, type);
-
-			// FIXME: strip out non-Content-* headers if toplevel?
+			var entity = MimeEntity.Create (type, headers, toplevel);
 
 			if (state == ParserState.HeadersEnd) {
 				// skip the empty line after the headers
@@ -912,7 +908,6 @@ namespace MimeKit {
 		{
 			BoundaryType found;
 			MimeEntity entity;
-			bool exists;
 
 			do {
 				// skip over the boundary marker
@@ -927,7 +922,8 @@ namespace MimeKit {
 				if (state == ParserState.Complete && headers.Count == 0)
 					return BoundaryType.EndBoundary;
 
-				var type = GetContentType (multipart.ContentType, out exists);
+				var type = GetContentType (multipart.ContentType);
+
 				if (type.Matches ("multipart", "*"))
 					entity = ConstructMultipart (type, false, out found);
 				else
@@ -954,9 +950,7 @@ namespace MimeKit {
 
 		Multipart ConstructMultipart (ContentType type, bool toplevel, out BoundaryType found)
 		{
-			// FIXME: strip out non-Content-* headers?
-
-			var multipart = (Multipart) MimeEntity.Create (headers, type);
+			var multipart = (Multipart) MimeEntity.Create (type, headers, toplevel);
 
 			if (state == ParserState.HeadersEnd) {
 				// skip the empty line after the headers
@@ -996,15 +990,13 @@ namespace MimeKit {
 
 		public MimeEntity ParseEntity ()
 		{
-			bool exists;
-
 			state = ParserState.Headers;
 			while (state < ParserState.HeadersEnd) {
 				if (Step () == ParserState.Error)
 					throw new Exception ("Failed to parse entity headers.");
 			}
 
-			var type = GetContentType (null, out exists);
+			var type = GetContentType (null);
 			BoundaryType found;
 
 			if (type.Matches ("multipart", "*"))
@@ -1016,7 +1008,6 @@ namespace MimeKit {
 		public MimeMessage ParseMessage ()
 		{
 			BoundaryType found;
-			bool exists;
 
 			// scan the from-line if we are parsing an mbox
 			while (state != ParserState.MessageHeaders) {
@@ -1030,12 +1021,13 @@ namespace MimeKit {
 					throw new Exception ("Failed to parse message headers.");
 			}
 
-			var type = GetContentType (null, out exists);
 			var message = new MimeMessage (headers);
 
 			if (isMboxStream && options.RespectContentLength) {
 				// FIXME:
 			}
+
+			var type = GetContentType (null);
 
 			if (type.Matches ("multipart", "*"))
 				message.Body = ConstructMultipart (type, true, out found);

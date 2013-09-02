@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	public abstract class MimeEntity
@@ -37,16 +38,20 @@ namespace MimeKit {
 		string contentId;
 
 		// Note: this ctor is only used by the parser...
-		internal protected MimeEntity (HeaderList headers, ContentType type)
+		internal protected MimeEntity (ContentType type, IEnumerable<Header> headers, bool toplevel)
 		{
-			headers.Changed += OnHeadersChanged;
-			type.Changed += ContentTypeChanged;
-
-			foreach (var header in headers)
-				UpdatePropertyValue (header, true);
-
+			Headers = new HeaderList ();
 			ContentType = type;
-			Headers = headers;
+
+			ContentType.Changed += ContentTypeChanged;
+			Headers.Changed += OnHeadersChanged;
+
+			foreach (var header in headers) {
+				if (toplevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				Headers.Add (header);
+			}
 		}
 
 		protected MimeEntity (string mediaType, string mediaSubtype)
@@ -215,7 +220,7 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		internal static MimeEntity Create (HeaderList headers, ContentType type)
+		internal static MimeEntity Create (ContentType type, IEnumerable<Header> headers, bool toplevel)
 		{
 			if (headers == null)
 				throw new ArgumentNullException ("headers");
@@ -225,9 +230,9 @@ namespace MimeKit {
 
 			if (icase.Compare (type.MediaType, "message") == 0) {
 				if (icase.Compare (type.MediaSubtype, "partial") == 0)
-					return new MessagePartial (headers, type);
+					return new MessagePartial (type, headers, toplevel);
 
-				return new MessagePart (headers, type);
+				return new MessagePart (type, headers, toplevel);
 			}
 
 			if (icase.Compare (type.MediaType, "multipart") == 0) {
@@ -237,13 +242,13 @@ namespace MimeKit {
 				//if (icase.Compare (type.Subtype, "signed") == 0)
 				//	return new MultipartSigned (headers, type);
 
-				return new Multipart (headers, type);
+				return new Multipart (type, headers, toplevel);
 			}
 
 			//if (type.Matches ("text", "*"))
 			//	return new TextPart (headers, type);
 
-			return new MimePart (headers, type);
+			return new MimePart (type, headers, toplevel);
 		}
 	}
 }

@@ -25,11 +25,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	public class MessagePart : MimeEntity
 	{
-		public MessagePart (HeaderList headers, ContentType type) : base (headers, type)
+		public MessagePart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
 		{
 		}
 
