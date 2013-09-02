@@ -136,9 +136,11 @@ namespace MimeKit {
 			get { return Headers["Subject"]; }
 			set {
 				if (value == null)
-					Headers.RemoveAll ("Subject");
-				else
-					Headers["Subject"] = value;
+					throw new ArgumentNullException ("value");
+
+				Headers.Changed -= HeadersChanged;
+				Headers["Subject"] = value;
+				Headers.Changed += HeadersChanged;
 			}
 		}
 
@@ -169,16 +171,11 @@ namespace MimeKit {
 		public string MessageId {
 			get { return messageId; }
 			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
 				if (messageId == value)
 					return;
-
-				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll ("Message-Id");
-					Headers.Changed += HeadersChanged;
-					messageId = null;
-					return;
-				}
 
 				var buffer = Encoding.ASCII.GetBytes (value);
 				InternetAddress addr;
@@ -187,7 +184,7 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.");
 
-				messageId = string.Format ("<{0}>", ((MailboxAddress) addr).Address);
+				messageId = "<" + ((MailboxAddress) addr).Address + ">";
 
 				Headers.Changed -= HeadersChanged;
 				Headers["Message-Id"] = messageId;
@@ -198,6 +195,9 @@ namespace MimeKit {
 		public Version MimeVersion {
 			get { return version; }
 			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
 				if (version.CompareTo (value) == 0)
 					return;
 
