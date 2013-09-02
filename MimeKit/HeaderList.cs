@@ -123,6 +123,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Removes all of the headers matching the specified field name.
+		/// </summary>
+		/// <param name="field">The name of the header field.</param>
+		public void RemoveAll (string field)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			table.Remove (field);
+
+			for (int i = headers.Count - 1; i >= 0; i--) {
+				if (icase.Compare (headers[i].Field, field) != 0)
+					continue;
+
+				var header = headers[i];
+				headers.RemoveAt (i);
+
+				OnChanged (header, HeaderListChangedAction.Removed);
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
