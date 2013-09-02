@@ -47,13 +47,12 @@ namespace MimeKit {
 		static readonly string[] StandardAddressHeaders = new string[] {
 			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
 		};
-		const string DateTimeFormat = "ddd, dd MMM yyyy HH:mm:ss K";
 
 		Dictionary<string, InternetAddressList> addresses;
 		IList<string> inreplyto, references;
+		DateTimeOffset date;
 		string messageId;
 		Version version;
-		DateTime date;
 
 		internal MimeMessage (IEnumerable<Header> headers)
 		{
@@ -144,7 +143,7 @@ namespace MimeKit {
 			}
 		}
 
-		public DateTime Date {
+		public DateTimeOffset Date {
 			get { return date; }
 			set {
 				if (date == value)
@@ -153,7 +152,7 @@ namespace MimeKit {
 				date = value;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = date.ToString (DateTimeFormat);
+				Headers["Date"] = DateUtils.ToString (date);
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -351,7 +350,7 @@ namespace MimeKit {
 						return;
 					break;
 				case MessageHeader.Date:
-					if (MimeUtils.TryParseDateTime (header.RawValue, 0, header.RawValue.Length, out date))
+					if (DateUtils.TryParseDateTime (header.RawValue, 0, header.RawValue.Length, out date))
 						return;
 					break;
 				}
@@ -386,7 +385,7 @@ namespace MimeKit {
 					messageId = MimeUtils.TryEnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
 					break;
 				case MessageHeader.Date:
-					MimeUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
+					DateUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
 					break;
 				default:
 					break;

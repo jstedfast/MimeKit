@@ -61,13 +61,6 @@ namespace MimeKit {
 			yield break;
 		}
 
-		public static bool TryParseDateTime (byte[] text, int startIndex, int length, out DateTime date)
-		{
-			// FIXME: implement a date parser
-			date = DateTime.Now;
-			return false;
-		}
-
 		public static bool TryParseVersion (byte[] text, int startIndex, int length, out Version version)
 		{
 			if (text == null)
