@@ -101,25 +101,24 @@ namespace MimeKit {
 		public string ContentId {
 			get { return contentId; }
 			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
 				if (contentId == value)
 					return;
 
+				var buffer = Encoding.ASCII.GetBytes (value);
+				InternetAddress addr;
+				int index = 0;
+
+				if (!InternetAddress.TryParse (buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+					throw new ArgumentException ("Invalid Content-Id format.");
+
+				contentId = "<" + ((MailboxAddress) addr).Address + ">";
+
 				Headers.Changed -= OnHeadersChanged;
-
-				if (value != null) {
-					value = value.Trim ();
-
-					if (value != string.Empty)
-						Headers["Content-Id"] = "<" + value + ">";
-					else
-						Headers["Content-Id"] = string.Empty;
-				} else {
-					Headers.Remove ("Content-Id");
-				}
-
+				Headers["Content-Id"] = contentId;
 				Headers.Changed += OnHeadersChanged;
-				contentId = value;
-				OnChanged ();
 			}
 		}
 
