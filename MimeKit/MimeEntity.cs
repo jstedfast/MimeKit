@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace MimeKit {
@@ -34,24 +35,39 @@ namespace MimeKit {
 	{
 		internal static readonly byte[] NewLine = Encoding.ASCII.GetBytes (Environment.NewLine);
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		protected bool IsInitializing { get; private set; }
 		ContentDisposition disposition;
 		string contentId;
 
+		protected enum ContentHeader
+		{
+			ContentTransferEncoding,
+			ContentDescription,
+			ContentDisposition,
+			ContentLocation,
+			ContentType,
+			ContentMd5,
+			ContentId,
+			Unknown
+		}
+
 		// Note: this ctor is only used by the parser...
-		internal protected MimeEntity (ContentType type, IEnumerable<Header> headers, bool toplevel)
+		internal protected MimeEntity (ContentType ctype, IEnumerable<Header> headers, bool toplevel)
 		{
 			Headers = new HeaderList ();
-			ContentType = type;
+			ContentType = ctype;
 
 			ContentType.Changed += ContentTypeChanged;
-			Headers.Changed += OnHeadersChanged;
+			Headers.Changed += HeadersChanged;
 
+			IsInitializing = true;
 			foreach (var header in headers) {
 				if (toplevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				Headers.Add (header);
 			}
+			IsInitializing = false;
 		}
 
 		protected MimeEntity (string mediaType, string mediaSubtype)
@@ -60,7 +76,7 @@ namespace MimeKit {
 			Headers = new HeaderList ();
 
 			ContentType.Changed += ContentTypeChanged;
-			Headers.Changed += OnHeadersChanged;
+			Headers.Changed += HeadersChanged;
 
 			SerializeContentType ();
 		}
@@ -75,7 +91,7 @@ namespace MimeKit {
 				if (disposition == value)
 					return;
 
-				Headers.Changed -= OnHeadersChanged;
+				Headers.Changed -= HeadersChanged;
 
 				if (disposition != null) {
 					disposition.Changed -= ContentDispositionChanged;
@@ -89,7 +105,7 @@ namespace MimeKit {
 					SerializeContentDisposition ();
 				}
 
-				Headers.Changed += OnHeadersChanged;
+				Headers.Changed += HeadersChanged;
 				OnChanged ();
 			}
 		}
@@ -116,9 +132,9 @@ namespace MimeKit {
 
 				contentId = "<" + ((MailboxAddress) addr).Address + ">";
 
-				Headers.Changed -= OnHeadersChanged;
+				Headers.Changed -= HeadersChanged;
 				Headers["Content-Id"] = contentId;
-				Headers.Changed += OnHeadersChanged;
+				Headers.Changed += HeadersChanged;
 			}
 		}
 
@@ -155,59 +171,86 @@ namespace MimeKit {
 
 		void ContentDispositionChanged (object sender, EventArgs e)
 		{
-			Headers.Changed -= OnHeadersChanged;
+			Headers.Changed -= HeadersChanged;
 			SerializeContentDisposition ();
-			Headers.Changed += OnHeadersChanged;
+			Headers.Changed += HeadersChanged;
 
 			OnChanged ();
 		}
 
 		void ContentTypeChanged (object sender, EventArgs e)
 		{
-			Headers.Changed -= OnHeadersChanged;
+			Headers.Changed -= HeadersChanged;
 			SerializeContentType ();
-			Headers.Changed += OnHeadersChanged;
+			Headers.Changed += HeadersChanged;
 
 			OnChanged ();
 		}
 
-		void UpdatePropertyValue (Header header, bool initializing)
+		static ContentHeader GetContentHeader (string field)
 		{
-			if (icase.Compare (header.Field, "Content-Disposition") == 0) {
-				ContentDisposition = ContentDisposition.Parse (header.RawValue);
-			} else if (icase.Compare (header.Field, "Content-Type") == 0) {
-				if (initializing)
-					return;
-
-				ContentType = ContentType.Parse (header.RawValue);
-			} else if (icase.Compare (header.Field, "Content-Id") == 0) {
-				// FIXME: extract only the value between <>'s
-				contentId = header.Value;
+			switch (field.ToUpperInvariant ()) {
+			case "CONTENT-TRANSFER-ENCODING": return ContentHeader.ContentTransferEncoding;
+			case "CONTENT-DESCRIPTION": return ContentHeader.ContentDescription;
+			case "CONTENT-DISPOSITION": return ContentHeader.ContentDisposition;
+			case "CONTENT-LOCATION": return ContentHeader.ContentLocation;
+			case "CONTENT-TYPE": return ContentHeader.ContentType;
+			case "CONTENT-MD5": return ContentHeader.ContentMd5;
+			case "CONTENT-ID": return ContentHeader.ContentId;
+			default: return ContentHeader.Unknown;
 			}
 		}
 
-		protected virtual void OnHeadersChanged (object sender, HeaderListChangedEventArgs e)
+		protected virtual void OnHeadersChanged (HeaderListChangedAction action, ContentHeader type, Header header)
 		{
-			switch (e.Action) {
+			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				UpdatePropertyValue (e.Header, false);
+				switch (type) {
+				case ContentHeader.ContentDisposition:
+					ContentDisposition = ContentDisposition.Parse (header.RawValue);
+					break;
+				case ContentHeader.ContentId:
+					contentId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					break;
+				default:
+					break;
+				}
 				break;
 			case HeaderListChangedAction.Removed:
-				if (icase.Compare (e.Header.Field, "Content-Disposition") == 0) {
+				switch (type) {
+				case ContentHeader.ContentDisposition:
+					if (ContentDisposition != null)
+						ContentDisposition.Changed -= ContentDispositionChanged;
 					ContentDisposition = null;
-				} else if (icase.Compare (e.Header.Field, "Content-Id") == 0) {
+					break;
+				case ContentHeader.ContentId:
 					contentId = null;
+					break;
+				default:
+					break;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
+				if (ContentDisposition != null)
+					ContentDisposition.Changed -= ContentDispositionChanged;
+
 				ContentDisposition = null;
 				contentId = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
 			}
+		}
 
+		protected void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		{
+			ContentHeader type = ContentHeader.Unknown;
+
+			if (e.Action != HeaderListChangedAction.Cleared)
+				type = GetContentHeader (e.Header.Field);
+
+			OnHeadersChanged (e.Action, type, e.Header);
 			OnChanged ();
 		}
 

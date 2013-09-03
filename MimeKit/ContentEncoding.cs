@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit {
 	public enum ContentEncoding {
 		Default,

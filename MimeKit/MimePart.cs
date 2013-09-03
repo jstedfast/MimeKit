@@ -25,12 +25,16 @@
 //
 
 using System;
+using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 namespace MimeKit {
 	public class MimePart : MimeEntity
 	{
-		//static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		static readonly string[] ContentTransferEncodings = new string[] {
+			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
+		};
 		ContentEncoding encoding;
 
 		internal MimePart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
@@ -41,40 +45,43 @@ namespace MimeKit {
 		{
 		}
 
+		public MimePart () : base ("application", "octet-stream")
+		{
+		}
+
 		public ContentEncoding ContentTransferEncoding {
 			get { return encoding; }
 			set {
 				if (encoding == value)
 					return;
 
-				Headers.Changed -= OnHeadersChanged;
+				var text = ContentTransferEncodings[(int) value];
 
 				encoding = value;
-				switch (encoding) {
-				case ContentEncoding.Default:
-					Headers.Remove ("Content-Transfer-Encoding");
-					break;
-				case ContentEncoding.SevenBit:
-					Headers["Content-Transfer-Encoding"] = "7bit";
-					break;
-				case ContentEncoding.EightBit:
-					Headers["Content-Transfer-Encoding"] = "8bit";
-					break;
-				case ContentEncoding.Binary:
-					Headers["Content-Transfer-Encoding"] = "binary";
-					break;
-				case ContentEncoding.Base64:
-					Headers["Content-Transfer-Encoding"] = "base64";
-					break;
-				case ContentEncoding.QuotedPrintable:
-					Headers["Content-Transfer-Encoding"] = "quoted-printable";
-					break;
-				case ContentEncoding.UUEncode:
-					Headers["Content-Transfer-Encoding"] = "x-uuencode";
-					break;
-				}
 
-				Headers.Changed += OnHeadersChanged;
+				Headers.Changed -= HeadersChanged;
+				if (text == null)
+					Headers.RemoveAll ("Content-Transfer-Encoding");
+				else
+					Headers["Content-Transfer-Encoding"] = text;
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		public string FileName {
+			get {
+				string filename = null;
+
+				if (ContentDisposition != null)
+					filename = ContentDisposition.Parameters["filename"];
+
+				if (string.IsNullOrWhiteSpace (filename))
+					filename = ContentType.Parameters["name"];
+
+				if (string.IsNullOrWhiteSpace (filename))
+					return null;
+
+				return filename.Trim ();
 			}
 		}
 
@@ -82,6 +89,76 @@ namespace MimeKit {
 			get; set;
 		}
 
-		// FIXME: implement the rest
+		public override void WriteTo (Stream stream)
+		{
+			base.WriteTo (stream);
+
+			if (ContentObject == null)
+				return;
+
+			var content = ContentObject.Content;
+
+			if (ContentObject.ContentEncoding != encoding) {
+				if (encoding == ContentEncoding.UUEncode) {
+					var begin = string.Format ("begin 0644 {0}{1}", FileName ?? "unknown", Environment.NewLine);
+					var buffer = Encoding.UTF8.GetBytes (begin);
+					stream.Write (buffer, 0, buffer.Length);
+				}
+
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (EncoderFilter.Create (encoding));
+					ContentObject.WriteTo (filtered);
+					filtered.Flush ();
+				}
+
+				if (encoding == ContentEncoding.UUEncode) {
+					var buffer = Encoding.ASCII.GetBytes ("end" + Environment.NewLine);
+					stream.Write (buffer, 0, buffer.Length);
+				}
+			} else {
+				stream.Write (content, 0, content.Length);
+			}
+		}
+
+		protected override void OnHeadersChanged (HeaderListChangedAction action, ContentHeader type, Header header)
+		{
+			string text;
+
+			base.OnHeadersChanged (action, type, header);
+
+			switch (action) {
+			case HeaderListChangedAction.Added:
+			case HeaderListChangedAction.Changed:
+				switch (type) {
+				case ContentHeader.ContentTransferEncoding:
+					text = header.Value.Trim ().ToLowerInvariant ();
+					encoding = ContentEncoding.Default;
+					for (int i = 0; i < ContentTransferEncodings.Length; i++) {
+						if (ContentTransferEncodings[i] == text) {
+							encoding = (ContentEncoding) i;
+							break;
+						}
+					}
+					break;
+				default:
+					break;
+				}
+				break;
+			case HeaderListChangedAction.Removed:
+				switch (type) {
+				case ContentHeader.ContentTransferEncoding:
+					encoding = ContentEncoding.Default;
+					break;
+				default:
+					break;
+				}
+				break;
+			case HeaderListChangedAction.Cleared:
+				encoding = ContentEncoding.Default;
+				break;
+			default:
+				throw new ArgumentOutOfRangeException ();
+			}
+		}
 	}
 }
