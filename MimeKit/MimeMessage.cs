@@ -197,7 +197,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (version.CompareTo (value) == 0)
+				if (version != null && version.CompareTo (value) == 0)
 					return;
 
 				version = value;
@@ -212,12 +212,6 @@ namespace MimeKit {
 			get; set;
 		}
 
-		static string GenerateMessageId ()
-		{
-			// FIXME: implement me
-			return null;
-		}
-
 		public void WriteTo (Stream stream)
 		{
 			if (stream == null)
@@ -227,7 +221,7 @@ namespace MimeKit {
 				Date = DateTime.Now;
 
 			if (messageId == null)
-				MessageId = GenerateMessageId ();
+				MessageId = MimeUtils.GenerateMessageId ();
 
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);

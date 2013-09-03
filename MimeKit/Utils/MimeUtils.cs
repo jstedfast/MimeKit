@@ -25,11 +25,30 @@
 //
 
 using System;
+using System.Net;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace MimeKit {
 	public static class MimeUtils
 	{
+		static int MessageIdCounter = 0;
+
+		public static string GenerateMessageId (string domain)
+		{
+			if (domain == null)
+				throw new ArgumentNullException ("domain");
+
+			return string.Format ("<{0}.{1}.{2}@{3}>", DateTime.Now.Ticks,
+			                      Process.GetCurrentProcess ().Id,
+			                      MessageIdCounter++, domain);
+		}
+
+		public static string GenerateMessageId ()
+		{
+			return GenerateMessageId (Dns.GetHostName ());
+		}
+
 		public static IEnumerable<string> TryEnumerateReferences (byte[] text, int startIndex, int length)
 		{
 			int endIndex = startIndex + length;
