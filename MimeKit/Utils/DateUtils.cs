@@ -89,7 +89,7 @@ namespace MimeKit {
 	{
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";
 		const string WeekdayCharacters = "SundayMondayTuesdayWednesdayThursdayFridaySaturday";
-		const string AlphaZoneCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()";
+		const string AlphaZoneCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		const string NumericZoneCharacters = "+-0123456789";
 		const string NumericCharacters = "0123456789";
 		const string TimeCharacters = "0123456789:";
