@@ -309,7 +309,7 @@ namespace MimeKit {
 					inptr++;
 
 				if (inptr > text)
-					lwsp = new Token ((int) (inptr - inbuf), (int) (inptr - text));
+					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 				else
 					lwsp = null;
 
