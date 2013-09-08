@@ -150,6 +150,11 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
+		public override string ToString ()
+		{
+			return Field + ":" + Value;
+		}
+
 		static unsafe string Unfold (string text)
 		{
 			int startIndex;
@@ -169,11 +174,9 @@ namespace MimeKit {
 			endIndex = i;
 
 			while (i < text.Length) {
-				if (!char.IsWhiteSpace (text[i]))
+				if (!char.IsWhiteSpace (text[i++]))
 					endIndex = i;
 			}
-
-			endIndex++;
 
 			int count = endIndex - startIndex;
 			char[] chars = new char[count];
