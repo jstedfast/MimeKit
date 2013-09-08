@@ -93,9 +93,9 @@ namespace MimeKit {
 		const int BlockSize = 4096;
 
 		// I/O buffering
-		byte[] input = new byte[ReadAheadSize + BlockSize + 1];
+		readonly byte[] input = new byte[ReadAheadSize + BlockSize + 1];
+		readonly int inputStart = ReadAheadSize;
 		int inputIndex = ReadAheadSize;
-		int inputStart = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
 
 		// mbox From-line state
@@ -458,7 +458,7 @@ namespace MimeKit {
 								*inend = (byte) ':';
 
 								while (*inptr != (byte) ':') {
-									if (!IsBlankOrControl (*inptr)) {
+									if (IsBlankOrControl (*inptr)) {
 										valid = false;
 										break;
 									}
@@ -531,7 +531,7 @@ namespace MimeKit {
 						// check to see if we've reached the end of the headers
 						if (!midline && IsEoln (start)) {
 							inputIndex = (int) (inptr - inbuf) + 1;
-							state = ParserState.HeadersEnd;
+							state = ParserState.Content;
 							ParseAndAppendHeader ();
 							headerIndex = 0;
 							return 0;
@@ -604,6 +604,8 @@ namespace MimeKit {
 			case ParserState.Content:
 				break;
 			case ParserState.Complete:
+				break;
+			case ParserState.Eos:
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
@@ -782,9 +784,9 @@ namespace MimeKit {
 			if (found != BoundaryType.Eos) {
 				// the last \r\n belongs to the boundary
 				if (input[inputIndex - 1] == (byte) '\r')
-					stream.SetLength (stream.Length - 2);
+					content.SetLength (stream.Length - 2);
 				else
-					stream.SetLength (stream.Length - 1);
+					content.SetLength (stream.Length - 1);
 			}
 
 			return found;
@@ -988,11 +990,19 @@ namespace MimeKit {
 
 			var type = GetContentType (null);
 			BoundaryType found;
+			MimeEntity entity;
 
 			if (type.Matches ("multipart", "*"))
-				return ConstructMultipart (type, true, out found);
+				entity = ConstructMultipart (type, true, out found);
+			else
+				entity = ConstructEntity (type, true, out found);
 
-			return ConstructEntity (type, true, out found);
+			if (found != BoundaryType.Eos)
+				state = ParserState.Complete;
+			else
+				state = ParserState.Eos;
+
+			return entity;
 		}
 
 		public MimeMessage ParseMessage ()
@@ -1001,8 +1011,12 @@ namespace MimeKit {
 
 			// scan the from-line if we are parsing an mbox
 			while (state != ParserState.MessageHeaders) {
-				if (Step () == ParserState.Error)
+				switch (Step ()) {
+				case ParserState.Error:
 					throw new Exception ("Failed to find mbox From marker.");
+				case ParserState.Eos:
+					throw new Exception ("End of stream.");
+				}
 			}
 
 			// parse the headers
@@ -1014,7 +1028,23 @@ namespace MimeKit {
 			var message = new MimeMessage (headers);
 
 			if (isMboxStream && options.RespectContentLength) {
-				// FIXME:
+				bounds[0].ContentEnd = -1;
+
+				foreach (var header in headers) {
+					if (icase.Compare (header.Field, "Content-Length") != 0)
+						continue;
+
+					var value = header.RawValue;
+					int length, index = 0;
+
+					if (!ParseUtils.TryParseInt32 (value, ref index, value.Length, out length))
+						continue;
+
+					long endOffset = mboxMarkerOffset + mboxMarkerLength + length;
+
+					bounds[0].ContentEnd = endOffset;
+					break;
+				}
 			}
 
 			var type = GetContentType (null);
@@ -1024,8 +1054,14 @@ namespace MimeKit {
 			else
 				message.Body = ConstructEntity (type, true, out found);
 
-			if (isMboxStream && found != BoundaryType.Eos)
-				state = ParserState.FromLine;
+			if (found != BoundaryType.Eos) {
+				if (isMboxStream)
+					state = ParserState.FromLine;
+				else
+					state = ParserState.Complete;
+			} else {
+				state = ParserState.Eos;
+			}
 
 			return message;
 		}
