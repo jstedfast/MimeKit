@@ -374,10 +374,8 @@ namespace MimeKit {
 			var values = new StringBuilder ();
 
 			foreach (var param in parameters) {
-				if (values.Length == 0)
-					values.Append (param.ToString ().Substring (2));
-				else
-					values.Append (param.ToString ());
+				values.Append ("; ");
+				values.Append (param.ToString ());
 			}
 
 			return values.ToString ();
