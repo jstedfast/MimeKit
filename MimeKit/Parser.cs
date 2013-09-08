@@ -80,7 +80,6 @@ namespace MimeKit {
 		FromLine,
 		MessageHeaders,
 		Headers,
-		HeadersEnd,
 		Content,
 		Complete,
 		Eos
@@ -566,7 +565,7 @@ namespace MimeKit {
 						inptr++;
 
 					if (inptr < inend) {
-						inputIndex = (int) (inptr - inbuf);
+						inputIndex = (int) (inptr - inbuf) + 1;
 						midline = false;
 						return true;
 					}
@@ -594,12 +593,6 @@ namespace MimeKit {
 			case ParserState.MessageHeaders:
 			case ParserState.Headers:
 				StepHeaders ();
-				break;
-			case ParserState.HeadersEnd:
-				if (SkipLine ())
-					state = ParserState.Content;
-				else
-					state = ParserState.Error;
 				break;
 			case ParserState.Content:
 				break;
@@ -784,9 +777,9 @@ namespace MimeKit {
 			if (found != BoundaryType.Eos) {
 				// the last \r\n belongs to the boundary
 				if (input[inputIndex - 1] == (byte) '\r')
-					content.SetLength (stream.Length - 2);
+					content.SetLength (content.Length - 2);
 				else
-					content.SetLength (stream.Length - 1);
+					content.SetLength (content.Length - 1);
 			}
 
 			return found;
@@ -865,14 +858,6 @@ namespace MimeKit {
 		{
 			var entity = MimeEntity.Create (type, headers, toplevel);
 
-			if (state == ParserState.HeadersEnd) {
-				// skip the empty line after the headers
-				if (Step () == ParserState.Error) {
-					found = BoundaryType.Eos;
-					return entity;
-				}
-			}
-
 			if (entity is MessagePart) {
 				found = ScanMessagePart ((MessagePart) entity);
 			} else {
@@ -911,8 +896,8 @@ namespace MimeKit {
 				if (Step () == ParserState.Error)
 					return BoundaryType.Eos;
 
-				if (state == ParserState.Complete && headers.Count == 0)
-					return BoundaryType.EndBoundary;
+				//if (state == ParserState.Complete && headers.Count == 0)
+				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
 
@@ -943,14 +928,6 @@ namespace MimeKit {
 		Multipart ConstructMultipart (ContentType type, bool toplevel, out BoundaryType found)
 		{
 			var multipart = (Multipart) MimeEntity.Create (type, headers, toplevel);
-
-			if (state == ParserState.HeadersEnd) {
-				// skip the empty line after the headers
-				if (Step () == ParserState.Error) {
-					found = BoundaryType.Eos;
-					return multipart;
-				}
-			}
 
 			var boundary = type.Parameters["boundary"];
 			if (boundary == null) {
@@ -983,7 +960,7 @@ namespace MimeKit {
 		public MimeEntity ParseEntity ()
 		{
 			state = ParserState.Headers;
-			while (state < ParserState.HeadersEnd) {
+			while (state < ParserState.Content) {
 				if (Step () == ParserState.Error)
 					throw new Exception ("Failed to parse entity headers.");
 			}
@@ -1020,7 +997,7 @@ namespace MimeKit {
 			}
 
 			// parse the headers
-			while (state < ParserState.HeadersEnd) {
+			while (state < ParserState.Content) {
 				if (Step () == ParserState.Error)
 					throw new Exception ("Failed to parse message headers.");
 			}
