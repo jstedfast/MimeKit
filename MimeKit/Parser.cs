@@ -776,10 +776,12 @@ namespace MimeKit {
 
 			if (found != BoundaryType.Eos) {
 				// the last \r\n belongs to the boundary
-				if (input[inputIndex - 1] == (byte) '\r')
-					content.SetLength (content.Length - 2);
-				else
-					content.SetLength (content.Length - 1);
+				if (content.Length > 0) {
+					if (input[inputIndex - 1] == (byte) '\r')
+						content.SetLength (content.Length - 2);
+					else
+						content.SetLength (content.Length - 1);
+				}
 			}
 
 			return found;
