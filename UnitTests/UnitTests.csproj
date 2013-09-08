@@ -38,6 +38,7 @@
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="DateParserTests.cs" />
+    <Compile Include="MimeParserTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -45,5 +46,14 @@
       <Project>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</Project>
       <Name>MimeKit</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestData\" />
+    <Folder Include="TestData\mbox\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\mbox\simple-mbox.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
