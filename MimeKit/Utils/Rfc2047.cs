@@ -624,7 +624,7 @@ namespace MimeKit {
 			encoded = new byte[encoder.EstimateOutputLength (len)];
 			len = encoder.Flush (word, 0, len, encoded);
 
-			str.AppendFormat ("=?{0}?{1}?", charset.HeaderName, encoding);
+			str.AppendFormat ("=?{0}?{1}?", CharsetUtils.GetMimeCharset (charset), encoding);
 			for (int i = 0; i < len; i++)
 				str.Append ((char) encoded[i]);
 			str.Append ("?=");

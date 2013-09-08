@@ -319,8 +319,8 @@ namespace MimeKit {
 		{
 			class InvalidByteCountFallbackBuffer : DecoderFallbackBuffer
 			{
-				InvalidByteCountFallback fallback;
-				string replacement = "?";
+				readonly InvalidByteCountFallback fallback;
+				const string replacement = "?";
 				int current = 0;
 				bool invalid;
 

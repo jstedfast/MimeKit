@@ -264,12 +264,6 @@ namespace MimeKit {
 
 		internal static MimeEntity Create (ContentType type, IEnumerable<Header> headers, bool toplevel)
 		{
-			if (headers == null)
-				throw new ArgumentNullException ("headers");
-
-			if (type == null)
-				throw new ArgumentNullException ("type");
-
 			if (icase.Compare (type.MediaType, "message") == 0) {
 				if (icase.Compare (type.MediaSubtype, "partial") == 0)
 					return new MessagePartial (type, headers, toplevel);
@@ -287,8 +281,8 @@ namespace MimeKit {
 				return new Multipart (type, headers, toplevel);
 			}
 
-			//if (type.Matches ("text", "*"))
-			//	return new TextPart (headers, type);
+			if (type.Matches ("text", "*"))
+				return new TextPart (type, headers, toplevel);
 
 			return new MimePart (type, headers, toplevel);
 		}
