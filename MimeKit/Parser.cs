@@ -71,6 +71,11 @@ namespace MimeKit {
 			boundary.Length = 5;
 			return boundary;
 		}
+
+		public override string ToString ()
+		{
+			return Encoding.UTF8.GetString (Marker);
+		}
 	}
 
 	enum ParserState
