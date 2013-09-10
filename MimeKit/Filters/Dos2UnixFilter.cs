@@ -1,5 +1,5 @@
 //
-// Unix2DosFilter.cs
+// Dos2UnixFilter.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -27,11 +27,11 @@
 using System;
 
 namespace MimeKit {
-	public class Unix2DosFilter : MimeFilterBase
+	public class Dos2UnixFilter : MimeFilterBase
 	{
 		byte pc;
 
-		public Unix2DosFilter ()
+		public Dos2UnixFilter ()
 		{
 		}
 
@@ -42,14 +42,14 @@ namespace MimeKit {
 			byte* inptr = inbuf;
 
 			while (inptr < inend) {
-				if (*inptr == (byte) '\r') {
-					*outptr++ = *inptr;
-				} else if (*inptr == (byte) '\n') {
-					if (pc != (byte) '\r')
-						*outptr++ = (byte) '\r';
+				if (*inptr == (byte) '\n') {
 					*outptr++ = *inptr;
 				} else {
-					*outptr++ = *inptr;
+					if (pc == (byte) '\r')
+						*outptr++ = pc;
+
+					if (*inptr != (byte) '\r')
+						*outptr++ = *inptr;
 				}
 
 				pc = *inptr++;
@@ -60,7 +60,10 @@ namespace MimeKit {
 
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			EnsureOutputSize (length * 2, false);
+			if (pc == (byte) '\r')
+				EnsureOutputSize (length + 1, false);
+			else
+				EnsureOutputSize (length, false);
 
 			outputIndex = 0;
 

@@ -56,6 +56,7 @@
     <Compile Include="Encodings\UUEncoder.cs" />
     <Compile Include="Filters\CharsetFilter.cs" />
     <Compile Include="Filters\DecoderFilter.cs" />
+    <Compile Include="Filters\Dos2UnixFilter.cs" />
     <Compile Include="Filters\EncoderFilter.cs" />
     <Compile Include="Filters\IMimeFilter.cs" />
     <Compile Include="Filters\MimeFilterBase.cs" />
