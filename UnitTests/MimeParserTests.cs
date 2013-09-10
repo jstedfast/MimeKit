@@ -62,6 +62,13 @@ namespace UnitTests {
 					entity = multipart[0];
 
 					Assert.IsInstanceOfType (typeof (TextPart), entity);
+
+					using (var memory = new MemoryStream ()) {
+						entity.WriteTo (memory);
+
+						var text = Encoding.ASCII.GetString (memory.ToArray ());
+						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n"), "Headers are not properly terminated.");
+					}
 				}
 			}
 		}

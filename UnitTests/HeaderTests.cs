@@ -51,8 +51,8 @@ namespace UnitTests {
 			int max = 0;
 
 			for (int i = 0; i < text.Length; i++) {
-				if (text[i] == '\r')
-					continue;
+				if (text[i] == '\r' && text[i + 1] == '\n')
+					i++;
 
 				if (text[i] == '\n') {
 					max = Math.Max (max, current);
