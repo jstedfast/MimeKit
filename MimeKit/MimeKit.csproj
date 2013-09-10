@@ -61,6 +61,7 @@
     <Compile Include="Filters\MimeFilterBase.cs" />
     <Compile Include="Filters\PassThroughFilter.cs" />
     <Compile Include="Filters\TrailingWhitespaceFilter.cs" />
+    <Compile Include="Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\BoundStream.cs" />
     <Compile Include="Streams\FilteredStream.cs" />
