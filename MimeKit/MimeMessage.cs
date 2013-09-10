@@ -229,7 +229,7 @@ namespace MimeKit {
 			Headers.WriteTo (stream);
 
 			if (Body == null) {
-				stream.Write (MimeEntity.NewLine, 0, MimeEntity.NewLine.Length);
+				stream.WriteByte ((byte) '\n');
 			} else {
 				Body.WriteTo (stream);
 			}
@@ -241,7 +241,7 @@ namespace MimeKit {
 			int lineLength = field.Length + 2;
 
 			list.Encode (builder, ref lineLength, Encoding.UTF8);
-			builder.Append (Environment.NewLine);
+			builder.Append ('\n');
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 

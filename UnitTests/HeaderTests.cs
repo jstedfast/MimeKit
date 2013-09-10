@@ -71,7 +71,7 @@ namespace UnitTests {
 			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 72 character limit.");
 			var raw = ByteArrayToString (header.RawValue);
 
-			Assert.IsTrue (raw.EndsWith (Environment.NewLine, StringComparison.Ordinal), "The RawValue does not end with a new line.");
+			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
 
 			Assert.IsTrue (GetMaxLineLength (raw) < Rfc2047.MaxLineLength, "The RawValue is not folded properly.");
 

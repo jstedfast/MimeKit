@@ -100,7 +100,7 @@ namespace MimeKit {
 
 			if (ContentObject.ContentEncoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
-					var begin = string.Format ("begin 0644 {0}{1}", FileName ?? "unknown", Environment.NewLine);
+					var begin = string.Format ("begin 0644 {0}\n", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 					stream.Write (buffer, 0, buffer.Length);
 				}
@@ -112,7 +112,7 @@ namespace MimeKit {
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
-					var buffer = Encoding.ASCII.GetBytes ("end" + Environment.NewLine);
+					var buffer = Encoding.ASCII.GetBytes ("end\n");
 					stream.Write (buffer, 0, buffer.Length);
 				}
 			} else {

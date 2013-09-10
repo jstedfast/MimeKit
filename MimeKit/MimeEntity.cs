@@ -33,7 +33,6 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public abstract class MimeEntity
 	{
-		internal static readonly byte[] NewLine = Encoding.ASCII.GetBytes (Environment.NewLine);
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		protected bool IsInitializing { get; private set; }
 		ContentDisposition disposition;
@@ -142,7 +141,7 @@ namespace MimeKit {
 		{
 			Headers.WriteTo (stream);
 
-			stream.Write (NewLine, 0, NewLine.Length);
+			stream.WriteByte ((byte) '\n');
 		}
 
 		void SerializeContentDisposition ()

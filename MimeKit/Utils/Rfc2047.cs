@@ -609,16 +609,15 @@ namespace MimeKit {
 					if (lineLength + token.Length + charset.Length + 7 > MaxLineLength) {
 						if (tab != 0) {
 							// tabs are the perfect breaking opportunity...
-							output.Insert (tab, Environment.NewLine);
+							output.Insert (tab, '\n');
 							lineLength = (lwsp - tab) + 1;
 						} else if (lwsp != 0) {
 							// break just before the last lwsp character
-							output.Insert (lwsp, Environment.NewLine);
+							output.Insert (lwsp, '\n');
 							lineLength = 1;
 						} else if (lineLength > 1) {
 							// force a line break...
-							output.Append (Environment.NewLine);
-							output.Append (structured ? '\t' : ' ');
+							output.Append (structured ? "\n\t" : "\n ");
 							lineLength = 1;
 						}
 					}
@@ -638,16 +637,15 @@ namespace MimeKit {
 				} else if (lineLength + token.Length > MaxLineLength) {
 					if (tab != 0) {
 						// tabs are the perfect breaking opportunity...
-						output.Insert (tab, Environment.NewLine);
+						output.Insert (tab, '\n');
 						lineLength = (lwsp - tab) + 1;
 					} else if (lwsp != 0) {
 						// break just before the last lwsp character
-						output.Insert (lwsp, Environment.NewLine);
+						output.Insert (lwsp, '\n');
 						lineLength = 1;
 					} else if (lineLength > 1) {
 						// force a line break...
-						output.Append (Environment.NewLine);
-						output.Append (structured ? '\t' : ' ');
+						output.Append (structured ? "\n\t" : "\n ");
 						lineLength = 1;
 					}
 
@@ -659,8 +657,7 @@ namespace MimeKit {
 						for (int n = token.StartIndex; n < half; n++)
 							output.Append ((char) input[n]);
 
-						output.Append (Environment.NewLine);
-						output.Append ('\t');
+						output.Append ("\n\t");
 
 						for (int n = half; n < token.StartIndex + token.Length; n++)
 							output.Append ((char) input[n]);
@@ -686,7 +683,7 @@ namespace MimeKit {
 			}
 
 			if (output[output.Length - 1] != '\n')
-				output.Append (Environment.NewLine);
+				output.Append ('\n');
 
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
