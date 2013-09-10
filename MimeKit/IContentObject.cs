@@ -31,8 +31,9 @@ namespace MimeKit {
 	public interface IContentObject
 	{
 		ContentEncoding ContentEncoding { get; set; }
-		byte[] Content { get; set; }
+		Stream Content { get; set; }
 
+		void DecodeTo (Stream stream);
 		void WriteTo (Stream stream);
 	}
 }

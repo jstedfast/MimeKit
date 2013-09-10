@@ -794,19 +794,19 @@ namespace MimeKit {
 
 		BoundaryType ScanMimePartContent (MimePart part)
 		{
-			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (memory);
-				var data = memory.ToArray ();
+			var memory = new MemoryStream ();
+			var found = ScanContent (memory);
 
-				// FIXME: memory.ToArray() duplicates the buffer which hurts performance...
-				// Maybe the ContentObject should take a stream instead or perhaps we should
-				// use memory.GetBuffer() which returns the internal buffer, and then do
-				// Array.Resize (ref data, stream.Length) to resize it to the correct size.
-				// (The internal buffer is likely to be larger than what is actually needed.)
-				part.ContentObject = new ContentObject (data, part.ContentTransferEncoding);
+			memory.Seek (0, SeekOrigin.Begin);
 
-				return found;
-			}
+			// FIXME: memory.ToArray() duplicates the buffer which hurts performance...
+			// Maybe the ContentObject should take a stream instead or perhaps we should
+			// use memory.GetBuffer() which returns the internal buffer, and then do
+			// Array.Resize (ref data, stream.Length) to resize it to the correct size.
+			// (The internal buffer is likely to be larger than what is actually needed.)
+			part.ContentObject = new ContentObject (memory, part.ContentTransferEncoding);
+
+			return found;
 		}
 
 		unsafe BoundaryType ScanMessagePart (MessagePart part)

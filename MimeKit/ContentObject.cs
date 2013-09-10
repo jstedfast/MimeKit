@@ -30,7 +30,7 @@ using System.IO;
 namespace MimeKit {
 	public class ContentObject : IContentObject
 	{
-		public ContentObject (byte[] content, ContentEncoding encoding)
+		public ContentObject (Stream content, ContentEncoding encoding)
 		{
 			ContentEncoding = encoding;
 			Content = content;
@@ -42,15 +42,33 @@ namespace MimeKit {
 			get; set;
 		}
 
-		public byte[] Content {
+		public Stream Content {
 			get; set;
 		}
 
 		public void WriteTo (Stream stream)
 		{
+			byte[] buf = new byte[4096];
+			int nread;
+
+			Content.Seek (0, SeekOrigin.Begin);
+
+			do {
+				if ((nread = Content.Read (buf, 0, buf.Length)) <= 0)
+					break;
+
+				stream.Write (buf, 0, nread);
+			} while (true);
+
+			Content.Seek (0, SeekOrigin.Begin);
+		}
+
+		public void DecodeTo (Stream stream)
+		{
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (ContentEncoding));
-				filtered.Write (Content, 0, Content.Length);
+				WriteTo (filtered);
+				filtered.Flush ();
 			}
 		}
 

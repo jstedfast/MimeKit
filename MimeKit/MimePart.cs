@@ -96,8 +96,6 @@ namespace MimeKit {
 			if (ContentObject == null)
 				return;
 
-			var content = ContentObject.Content;
-
 			if (ContentObject.ContentEncoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}\n", FileName ?? "unknown");
@@ -105,9 +103,10 @@ namespace MimeKit {
 					stream.Write (buffer, 0, buffer.Length);
 				}
 
+				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (EncoderFilter.Create (encoding));
-					ContentObject.WriteTo (filtered);
+					ContentObject.DecodeTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -116,7 +115,7 @@ namespace MimeKit {
 					stream.Write (buffer, 0, buffer.Length);
 				}
 			} else {
-				stream.Write (content, 0, content.Length);
+				ContentObject.WriteTo (stream);
 			}
 		}
 

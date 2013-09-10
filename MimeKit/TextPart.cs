@@ -63,7 +63,7 @@ namespace MimeKit {
 				byte[] content;
 
 				using (var memory = new MemoryStream ()) {
-					ContentObject.WriteTo (memory);
+					ContentObject.DecodeTo (memory);
 					content = memory.ToArray ();
 				}
 
@@ -93,10 +93,10 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new CharsetFilter (charset, Encoding.UTF8));
 
-					ContentObject.WriteTo (filtered);
+					ContentObject.DecodeTo (filtered);
 					filtered.Flush ();
 
-					return Encoding.UTF8.GetString (memory.ToArray ());
+					return Encoding.UTF8.GetString (memory.GetBuffer (), 0, (int) memory.Length);
 				}
 			}
 		}
@@ -114,8 +114,8 @@ namespace MimeKit {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			ContentObject.Content = charset.GetBytes (text);
-			ContentObject.ContentEncoding = ContentEncoding.Default;
+			var content = new MemoryStream (charset.GetBytes (text));
+			ContentObject = new ContentObject (content, ContentEncoding.Default);
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (charset);
 		}
 	}
