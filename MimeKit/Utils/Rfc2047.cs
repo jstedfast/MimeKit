@@ -1026,8 +1026,8 @@ namespace MimeKit {
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
 			var words = Merge (GetRfc822Words (charset, text, phrase));
-			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
-			var ascii = CharsetUtils.GetEncoding ("us-ascii");
+			var latin1 = CharsetUtils.GetEncoding (28591);
+			var ascii = CharsetUtils.GetEncoding (20127);
 			var str = new StringBuilder ();
 			int start, length;
 			Word prev = null;

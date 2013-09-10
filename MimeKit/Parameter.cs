@@ -172,8 +172,8 @@ namespace MimeKit {
 			}
 
 			switch (encoding) {
-			case 0: return CharsetUtils.GetEncoding ("us-ascii");
-			case 1: return CharsetUtils.GetEncoding ("iso-8859-1");
+			case 0: return CharsetUtils.GetEncoding (20127); // us-ascii
+			case 1: return CharsetUtils.GetEncoding (28591); // iso-8859-1
 			default: return defaultEncoding;
 			}
 		}
