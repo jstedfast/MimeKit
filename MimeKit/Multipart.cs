@@ -53,10 +53,10 @@ namespace MimeKit {
 
 		static string GenerateBoundary ()
 		{
-			var base64 = new Base64Encoder ();
+			var base64 = new Base64Encoder (true);
 			var rand = new Random ();
 			var digest = new byte[16];
-			var b64buf = new byte[32];
+			var b64buf = new byte[24];
 			int length;
 
 			rand.NextBytes (digest);

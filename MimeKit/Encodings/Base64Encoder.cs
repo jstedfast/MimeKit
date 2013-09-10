@@ -94,6 +94,9 @@ namespace MimeKit {
 		/// </param>
 		public int EstimateOutputLength (int inputLength)
 		{
+			if (rfc2047)
+				return ((inputLength + 2) / 3) * 4;
+
 			return (((inputLength + 2) / MaxInputPerLine) * MaxLineLength) + MaxLineLength;
 		}
 
