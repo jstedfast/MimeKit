@@ -134,10 +134,11 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
-			textValue = value.Trim ();
+			textValue = Unfold (value.Trim ());
 
-			// FIXME: fold & end in newline?
-			RawValue = Rfc2047.EncodeText (charset, " " + textValue);
+			var encoded = Rfc2047.EncodeText (charset, textValue);
+
+			RawValue = Rfc2047.FoldUnstructuredHeader (Field, encoded);
 			Offset = null;
 			OnChanged ();
 		}
@@ -155,7 +156,7 @@ namespace MimeKit {
 			return Field + ":" + Value;
 		}
 
-		static unsafe string Unfold (string text)
+		public static unsafe string Unfold (string text)
 		{
 			int startIndex;
 			int endIndex;

@@ -570,6 +570,149 @@ namespace MimeKit {
 			return DecodeText (text, 0, text.Length);
 		}
 
+		static byte[] FoldTokens (IList<Token> tokens, string field, byte[] input, bool structured)
+		{
+			StringBuilder output = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
+			int lwsp = 0, tab = 0;
+			Token token;
+
+			for (int i = 0; i < tokens.Count; i++) {
+				token = tokens[i];
+
+				if (input[token.StartIndex].IsWhitespace ()) {
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
+						if (input[n] == (byte) '\r')
+							continue;
+
+						lwsp = output.Length;
+						if (input[n] == (byte) '\t')
+							tab = output.Length;
+
+						output.Append ((char) input[n]);
+						if (input[n] == (byte) '\n') {
+							lwsp = tab = 0;
+							lineLength = 0;
+						} else {
+							lineLength++;
+						}
+					}
+
+					if (lineLength == 0 && i + 1 < tokens.Count) {
+						output.Append (structured ? '\t' : ' ');
+						lineLength = 1;
+					}
+				} else if (token.Encoding != ContentEncoding.Default) {
+					var encoding = CharsetUtils.GetEncoding (token.CodePage);
+					var charset = CharsetUtils.GetMimeCharset (encoding);
+
+					if (lineLength + token.Length + charset.Length + 7 > MaxLineLength) {
+						if (tab != 0) {
+							// tabs are the perfect breaking opportunity...
+							output.Insert (tab, Environment.NewLine);
+							lineLength = (lwsp - tab) + 1;
+						} else if (lwsp != 0) {
+							// break just before the last lwsp character
+							output.Insert (lwsp, Environment.NewLine);
+							lineLength = 1;
+						} else if (lineLength > 1) {
+							// force a line break...
+							output.Append (Environment.NewLine);
+							output.Append (structured ? '\t' : ' ');
+							lineLength = 1;
+						}
+					}
+
+					// Note: if the encoded-word token is longer than the fold length, oh well...
+					// it probably just means that we are folding a header written by a user-agent
+					// with a different max line length than ours.
+
+					output.AppendFormat ("=?{0}?{1}?", charset, token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+						output.Append ((char) input[n]);
+					output.Append ("?=");
+
+					lineLength += token.Length + charset.Length + 7;
+					lwsp = 0;
+					tab = 0;
+				} else if (lineLength + token.Length > MaxLineLength) {
+					if (tab != 0) {
+						// tabs are the perfect breaking opportunity...
+						output.Insert (tab, Environment.NewLine);
+						lineLength = (lwsp - tab) + 1;
+					} else if (lwsp != 0) {
+						// break just before the last lwsp character
+						output.Insert (lwsp, Environment.NewLine);
+						lineLength = 1;
+					} else if (lineLength > 1) {
+						// force a line break...
+						output.Append (Environment.NewLine);
+						output.Append (structured ? '\t' : ' ');
+						lineLength = 1;
+					}
+
+					if (token.Length >= MaxLineLength) {
+						// the token is longer than the allowable line length,
+						// so we'll have to break it apart...
+						int half = token.StartIndex + (MaxLineLength - lineLength);
+
+						for (int n = token.StartIndex; n < half; n++)
+							output.Append ((char) input[n]);
+
+						output.Append (Environment.NewLine);
+						output.Append ('\t');
+
+						for (int n = half; n < token.StartIndex + token.Length; n++)
+							output.Append ((char) input[n]);
+
+						lineLength = (token.Length - half) + 1;
+					} else {
+						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+							output.Append ((char) input[n]);
+
+						lineLength += token.Length;
+					}
+
+					lwsp = 0;
+					tab = 0;
+				} else {
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+						output.Append ((char) input[n]);
+
+					lineLength += token.Length;
+					lwsp = 0;
+					tab = 0;
+				}
+			}
+
+			if (output[output.Length - 1] != '\n')
+				output.Append (Environment.NewLine);
+
+			return Encoding.ASCII.GetBytes (output.ToString ());
+		}
+
+		internal static byte[] FoldStructuredHeader (string field, byte[] text)
+		{
+			unsafe {
+				fixed (byte* inbuf = text) {
+					var tokens = TokenizeText (inbuf, 0, text.Length);
+
+					return FoldTokens (tokens, field, text, true);
+				}
+			}
+		}
+
+		internal static byte[] FoldUnstructuredHeader (string field, byte[] text)
+		{
+			unsafe {
+				fixed (byte* inbuf = text) {
+					var tokens = TokenizeText (inbuf, 0, text.Length);
+
+					return FoldTokens (tokens, field, text, false);
+				}
+			}
+		}
+
 		static byte[] CharsetConvert (Encoding charset, char[] word, int length, out int converted)
 		{
 			var encoder = charset.GetEncoder ();

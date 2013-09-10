@@ -39,6 +39,7 @@
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="DateParserTests.cs" />
     <Compile Include="MimeParserTests.cs" />
+    <Compile Include="HeaderTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -241,6 +241,7 @@ namespace MimeKit {
 			int lineLength = field.Length + 2;
 
 			list.Encode (builder, ref lineLength, Encoding.UTF8);
+			builder.Append (Environment.NewLine);
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
