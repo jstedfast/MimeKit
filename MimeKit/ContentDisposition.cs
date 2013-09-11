@@ -96,8 +96,8 @@ namespace MimeKit {
 			var value = new StringBuilder (" ");
 
 			value.Append (disposition);
-
 			Parameters.Encode (value, ref lineLength, charset);
+			value.Append ('\n');
 
 			return value.ToString ();
 		}

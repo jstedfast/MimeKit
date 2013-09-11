@@ -59,6 +59,9 @@ namespace MimeKit {
 
 				encoding = value;
 
+				if (IsInitializing)
+					return;
+
 				Headers.Changed -= HeadersChanged;
 				if (text == null)
 					Headers.RemoveAll ("Content-Transfer-Encoding");
@@ -139,16 +142,12 @@ namespace MimeKit {
 						}
 					}
 					break;
-				default:
-					break;
 				}
 				break;
 			case HeaderListChangedAction.Removed:
 				switch (type) {
 				case ContentHeader.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
-					break;
-				default:
 					break;
 				}
 				break;

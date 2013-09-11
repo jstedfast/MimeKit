@@ -174,6 +174,7 @@ namespace MimeKit {
 			value.Append (MediaSubtype);
 
 			Parameters.Encode (value, ref lineLength, charset);
+			value.Append ('\n');
 
 			return value.ToString ();
 		}

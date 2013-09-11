@@ -90,6 +90,11 @@ namespace MimeKit {
 				if (disposition == value)
 					return;
 
+				if (IsInitializing) {
+					disposition = value;
+					return;
+				}
+
 				Headers.Changed -= HeadersChanged;
 
 				if (disposition != null) {
@@ -116,11 +121,16 @@ namespace MimeKit {
 		public string ContentId {
 			get { return contentId; }
 			set {
-				if (value == null)
-					throw new ArgumentNullException ("value");
-
 				if (contentId == value)
 					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll ("Content-Id");
+					Headers.Changed += HeadersChanged;
+					contentId = null;
+					return;
+				}
 
 				var buffer = Encoding.ASCII.GetBytes (value);
 				InternetAddress addr;
@@ -130,6 +140,9 @@ namespace MimeKit {
 					throw new ArgumentException ("Invalid Content-Id format.");
 
 				contentId = "<" + ((MailboxAddress) addr).Address + ">";
+
+				if (IsInitializing)
+					return;
 
 				Headers.Changed -= HeadersChanged;
 				Headers["Content-Id"] = contentId;
@@ -212,8 +225,6 @@ namespace MimeKit {
 				case ContentHeader.ContentId:
 					contentId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					break;
-				default:
-					break;
 				}
 				break;
 			case HeaderListChangedAction.Removed:
@@ -225,8 +236,6 @@ namespace MimeKit {
 					break;
 				case ContentHeader.ContentId:
 					contentId = null;
-					break;
-				default:
 					break;
 				}
 				break;
