@@ -30,6 +30,7 @@ using System.Text;
 namespace MimeKit {
 	public sealed class Header
 	{
+		internal readonly ParserOptions Options;
 		string textValue;
 
 		/// <summary>
@@ -58,6 +59,7 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
+			Options = ParserOptions.Default.Clone ();
 			Field = field;
 
 			SetValue (charset, value);
@@ -73,8 +75,9 @@ namespace MimeKit {
 		}
 
 		// Note: this ctor is only used by the parser
-		internal Header (string field, byte[] value)
+		internal Header (ParserOptions options, string field, byte[] value)
 		{
+			Options = options;
 			RawValue = value;
 			Field = field;
 		}
@@ -138,7 +141,7 @@ namespace MimeKit {
 
 			var encoded = Rfc2047.EncodeText (charset, textValue);
 
-			RawValue = Rfc2047.FoldUnstructuredHeader (Field, encoded);
+			RawValue = Rfc2047.FoldUnstructuredHeader (Options, Field, encoded);
 			Offset = null;
 			OnChanged ();
 		}
@@ -206,7 +209,7 @@ namespace MimeKit {
 			return c.IsType (CharType.IsBlank | CharType.IsControl);
 		}
 
-		internal static unsafe bool TryParse (byte* input, int length, bool strict, out Header header)
+		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header header)
 		{
 			byte* inend = input + length;
 			byte* start = input;
@@ -248,9 +251,39 @@ namespace MimeKit {
 					*outptr++ = *inptr++;
 			}
 
-			header = new Header (field, value);
+			header = new Header (options, field, value);
 
 			return true;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return TryParse (options.Clone (), inptr + startIndex, length, true, out header);
+				}
+			}
 		}
 
 		/// <summary>
@@ -263,20 +296,22 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out Header header)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
+		}
 
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
+		{
+			int length = buffer.Length - startIndex;
 
-			if (length < 0 || startIndex + length > buffer.Length)
-				throw new ArgumentOutOfRangeException ("length");
-
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return TryParse (inptr + startIndex, length, true, out header);
-				}
-			}
+			return TryParse (options, buffer, startIndex, length, out header);
 		}
 
 		/// <summary>
@@ -288,15 +323,54 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			int length = buffer.Length - startIndex;
 
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
+		{
+			return TryParse (options, buffer, 0, buffer.Length, out header);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (byte[] buffer, out Header header)
+		{
+			return TryParse (ParserOptions.Default, buffer, 0, buffer.Length, out header);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="header">The parsed header.</param>
+		public static bool TryParse (ParserOptions options, string text, out Header header)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
 
 			unsafe {
-				fixed (byte* inptr = buffer) {
-					return TryParse (inptr + startIndex, buffer.Length - startIndex, true, out header);
+				fixed (byte *inptr = buffer) {
+					return TryParse (options.Clone (), inptr, buffer.Length, true, out header);
 				}
 			}
 		}
@@ -309,16 +383,7 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (string text, out Header header)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var buffer = Encoding.UTF8.GetBytes (text);
-
-			unsafe {
-				fixed (byte *inptr = buffer) {
-					return TryParse (inptr, buffer.Length, true, out header);
-				}
-			}
+			return TryParse (ParserOptions.Default, text, out header);
 		}
 	}
 }

@@ -167,7 +167,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static unsafe IList<Token> TokenizePhrase (byte* inbuf, int startIndex, int length)
+		static unsafe IList<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
@@ -191,7 +191,7 @@ namespace MimeKit {
 				word = inptr;
 				ascii = true;
 				if (inptr < inend && IsAtom (*inptr)) {
-					if (EnableWorkarounds) {
+					if (options.EnableRfc2047Workarounds) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;
@@ -292,7 +292,7 @@ namespace MimeKit {
 			return tokens;
 		}
 
-		static unsafe IList<Token> TokenizeText (byte* inbuf, int startIndex, int length)
+		static unsafe IList<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
 			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
@@ -317,7 +317,7 @@ namespace MimeKit {
 					word = inptr;
 					ascii = true;
 
-					if (EnableWorkarounds) {
+					if (options.EnableRfc2047Workarounds) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;
@@ -493,11 +493,15 @@ namespace MimeKit {
 		/// at the specified starting index.
 		/// </summary>
 		/// <returns>The decoded phrase.</returns>
-		/// <param name="text">The phrase to decode.</param>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="phrase">The phrase to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
-		public static string DecodePhrase (byte[] phrase, int startIndex, int count)
+		public static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (phrase == null)
 				throw new ArgumentNullException ("phrase");
 
@@ -512,7 +516,7 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inbuf = phrase) {
-					var tokens = TokenizePhrase (inbuf, startIndex, count);
+					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
 
 					return DecodeTokens (tokens, phrase, startIndex, inbuf, count);
 				}
@@ -520,10 +524,34 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Decodes the specified number of bytes of the phrase starting
+		/// at the specified starting index.
+		/// </summary>
+		/// <returns>The decoded phrase.</returns>
+		/// <param name="phrase">The phrase to decode.</param>
+		/// <param name="startIndex">The starting index.</param>
+		/// <param name="count">The number of bytes to decode.</param>
+		public static string DecodePhrase (byte[] phrase, int startIndex, int count)
+		{
+			return DecodePhrase (ParserOptions.Default, phrase, startIndex, count);
+		}
+
+		/// <summary>
 		/// Decodes the specified phrase.
 		/// </summary>
 		/// <returns>The decoded phrase.</returns>
-		/// <param name="text">The phrase to decode.</param>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="phrase">The phrase to decode.</param>
+		public static string DecodePhrase (ParserOptions options, byte[] phrase)
+		{
+			return DecodePhrase (options, phrase, 0, phrase.Length);
+		}
+
+		/// <summary>
+		/// Decodes the specified phrase.
+		/// </summary>
+		/// <returns>The decoded phrase.</returns>
+		/// <param name="phrase">The phrase to decode.</param>
 		public static string DecodePhrase (byte[] phrase)
 		{
 			return DecodePhrase (phrase, 0, phrase.Length);
@@ -534,11 +562,15 @@ namespace MimeKit {
 		/// at the specified starting index.
 		/// </summary>
 		/// <returns>The decoded text.</returns>
+		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
-		public static string DecodeText (byte[] text, int startIndex, int count)
+		public static string DecodeText (ParserOptions options, byte[] text, int startIndex, int count)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
@@ -553,11 +585,35 @@ namespace MimeKit {
 
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (inbuf, startIndex, count);
+					var tokens = TokenizeText (options, inbuf, startIndex, count);
 
 					return DecodeTokens (tokens, text, startIndex, inbuf, count);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decodes the specified number of bytes of unstructured text starting
+		/// at the specified starting index.
+		/// </summary>
+		/// <returns>The decoded text.</returns>
+		/// <param name="text">The text to decode.</param>
+		/// <param name="startIndex">The starting index.</param>
+		/// <param name="count">The number of bytes to decode.</param>
+		public static string DecodeText (byte[] text, int startIndex, int count)
+		{
+			return DecodeText (ParserOptions.Default, text, startIndex, count);
+		}
+
+		/// <summary>
+		/// Decodes the unstructured text.
+		/// </summary>
+		/// <returns>The decoded text.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text to decode.</param>
+		public static string DecodeText (ParserOptions options, byte[] text)
+		{
+			return DecodeText (options, text, 0, text.Length);
 		}
 
 		/// <summary>
@@ -688,22 +744,22 @@ namespace MimeKit {
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
 
-		internal static byte[] FoldStructuredHeader (string field, byte[] text)
+		internal static byte[] FoldStructuredHeader (ParserOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (inbuf, 0, text.Length);
+					var tokens = TokenizeText (options, inbuf, 0, text.Length);
 
 					return FoldTokens (tokens, field, text, true);
 				}
 			}
 		}
 
-		internal static byte[] FoldUnstructuredHeader (string field, byte[] text)
+		internal static byte[] FoldUnstructuredHeader (ParserOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (inbuf, 0, text.Length);
+					var tokens = TokenizeText (options, inbuf, 0, text.Length);
 
 					return FoldTokens (tokens, field, text, false);
 				}

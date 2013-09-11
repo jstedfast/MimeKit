@@ -32,7 +32,7 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class TextPart : MimePart
 	{
-		internal TextPart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
+		internal TextPart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 		}
 

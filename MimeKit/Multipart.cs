@@ -36,7 +36,7 @@ namespace MimeKit {
 		string preamble, epilogue;
 		List<MimeEntity> children;
 
-		public Multipart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
+		public Multipart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 			children = new List<MimeEntity> ();
 		}

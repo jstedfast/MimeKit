@@ -54,10 +54,10 @@ namespace MimeKit {
 		string messageId;
 		Version version;
 
-		internal MimeMessage (IEnumerable<Header> headers)
+		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
 		{
 			addresses = new Dictionary<string, InternetAddressList> (icase);
-			Headers = new HeaderList ();
+			Headers = new HeaderList (options);
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
@@ -246,7 +246,7 @@ namespace MimeKit {
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
 			Headers.Changed -= HeadersChanged;
-			Headers.Replace (new Header (field, raw));
+			Headers.Replace (new Header (Headers.Options, field, raw));
 			Headers.Changed += HeadersChanged;
 		}
 

@@ -37,7 +37,7 @@ namespace MimeKit {
 		};
 		ContentEncoding encoding;
 
-		internal MimePart (ContentType type, IEnumerable<Header> headers, bool toplevel) : base (type, headers, toplevel)
+		internal MimePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 		}
 

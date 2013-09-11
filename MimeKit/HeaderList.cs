@@ -36,16 +36,22 @@ namespace MimeKit {
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		// this table references the first header of each field
+		internal readonly ParserOptions Options;
 		Dictionary<string, Header> table;
 		List<Header> headers;
+
+		internal HeaderList (ParserOptions options)
+		{
+			table = new Dictionary<string, Header> (icase);
+			headers = new List<Header> ();
+			Options = options;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.HeaderList"/> class.
 		/// </summary>
-		public HeaderList ()
+		public HeaderList () : this (ParserOptions.Default.Clone ())
 		{
-			table = new Dictionary<string, Header> (icase);
-			headers = new List<Header> ();
 		}
 
 		/// <summary>

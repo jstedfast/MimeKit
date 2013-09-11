@@ -385,7 +385,7 @@ namespace MimeKit {
 			fixed (byte* buf = headerBuffer) {
 				Header header;
 
-				if (!Header.TryParse (buf, headerIndex, false, out header)) {
+				if (!Header.TryParse (options, buf, headerIndex, false, out header)) {
 #if DEBUG
 					Debug.WriteLine ("Invalid header at offset {0}: {1}", headerOffset, ConvertToCString (headerBuffer, 0, headerIndex));
 #endif
@@ -446,7 +446,7 @@ namespace MimeKit {
 						byte* start = inptr;
 
 						// if we are scanning a new line, check for a folded header
-						if (!midline && checkFolded && (*inptr != (byte) ' ' && *inptr != (byte) '\t')) {
+						if (!midline && checkFolded && !(*inptr).IsBlank ()) {
 							ParseAndAppendHeader ();
 
 							headerOffset = GetOffset ((int) (inptr - inbuf));
@@ -847,7 +847,7 @@ namespace MimeKit {
 				return BoundaryType.Eos;
 			}
 
-			var message = new MimeMessage (headers);
+			var message = new MimeMessage (options, headers);
 			var type = GetContentType (null);
 
 			if (type.Matches ("multipart", "*")) {
@@ -863,7 +863,7 @@ namespace MimeKit {
 
 		MimeEntity ConstructEntity (ContentType type, bool toplevel, out BoundaryType found)
 		{
-			var entity = MimeEntity.Create (type, headers, toplevel);
+			var entity = MimeEntity.Create (options, type, headers, toplevel);
 
 			if (entity is MessagePart) {
 				found = ScanMessagePart ((MessagePart) entity);
@@ -934,7 +934,7 @@ namespace MimeKit {
 
 		Multipart ConstructMultipart (ContentType type, bool toplevel, out BoundaryType found)
 		{
-			var multipart = (Multipart) MimeEntity.Create (type, headers, toplevel);
+			var multipart = (Multipart) MimeEntity.Create (options, type, headers, toplevel);
 
 			var boundary = type.Parameters["boundary"];
 			if (boundary == null) {
@@ -1009,7 +1009,7 @@ namespace MimeKit {
 					throw new Exception ("Failed to parse message headers.");
 			}
 
-			var message = new MimeMessage (headers);
+			var message = new MimeMessage (options, headers);
 
 			if (isMboxStream && options.RespectContentLength) {
 				bounds[0].ContentEnd = -1;
