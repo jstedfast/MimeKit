@@ -214,7 +214,7 @@ namespace MimeKit {
 							inptr += 3;
 
 							// find the end of the rfc2047 encoded word token
-							while (inptr + 2 < inend && *inptr != '?' && *(inptr + 1) != '=') {
+							while (inptr + 2 < inend && !(*inptr == '?' && *(inptr + 1) == '=')) {
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
@@ -340,7 +340,7 @@ namespace MimeKit {
 							inptr += 3;
 
 							// find the end of the rfc2047 encoded word token
-							while (inptr + 2 < inend && *inptr != '?' && *(inptr + 1) != '=') {
+							while (inptr + 2 < inend && !(*inptr == '?' && *(inptr + 1) == '=')) {
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
