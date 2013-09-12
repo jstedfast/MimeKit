@@ -71,7 +71,7 @@ namespace MimeKit {
 				if (index >= endIndex)
 					break;
 
-				if (!InternetAddress.TryParseMailbox (text, startIndex, ref index, startIndex + length, "", false, out addr))
+				if (!InternetAddress.TryParseMailbox (text, startIndex, ref index, startIndex + length, "", 65001, false, out addr))
 					break;
 
 				yield return "<" + ((MailboxAddress) addr).Address + ">";

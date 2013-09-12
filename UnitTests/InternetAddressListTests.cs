@@ -308,8 +308,7 @@ namespace UnitTests {
 			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding arabic mailbox did not match expected result: {0}", expected);
-
-			InternetAddressList.TryParse (actual, out list);
+			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse arabic mailbox");
 			Assert.AreEqual (mailbox.Name, list[0].Name);
 		}
 
@@ -324,9 +323,23 @@ namespace UnitTests {
 			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding japanese mailbox did not match expected result: {0}", expected);
-
-			InternetAddressList.TryParse (actual, out list);
+			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse japanese mailbox");
 			Assert.AreEqual (mailbox.Name, list[0].Name);
+		}
+
+		[Test]
+		public void TestDecodedMailboxHasCorrectCharsetEncoding ()
+		{
+			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
+			var mailbox = new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se");
+			var list = new InternetAddressList ();
+			list.Add (mailbox);
+
+			var encoded = list.ToString (true);
+
+			InternetAddressList parsed;
+			Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
+			Assert.AreEqual (latin1.HeaderName, parsed[0].Encoding.HeaderName, "Parsed charset does not match");
 		}
 	}
 }

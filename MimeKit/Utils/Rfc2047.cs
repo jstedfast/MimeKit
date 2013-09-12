@@ -488,6 +488,44 @@ namespace MimeKit {
 			return decoded.ToString ();
 		}
 
+		internal static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count, out int codepage)
+		{
+			codepage = Encoding.UTF8.CodePage;
+
+			if (count == 0)
+				return string.Empty;
+
+			unsafe {
+				fixed (byte* inbuf = phrase) {
+					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
+
+					// collect the charsets used to encode each encoded-word token
+					// (and the number of tokens each charset was used in)
+					var codepages = new Dictionary<int, int> ();
+					foreach (var token in tokens) {
+						if (token.CodePage == 0)
+							continue;
+
+						if (!codepages.ContainsKey (token.CodePage))
+							codepages.Add (token.CodePage, 1);
+						else
+							codepages[token.CodePage]++;
+					}
+
+					int max = 0;
+					foreach (var kvp in codepages) {
+						if (kvp.Value <= max)
+							continue;
+
+						max = Math.Max (kvp.Value, max);
+						codepage = kvp.Key;
+					}
+
+					return DecodeTokens (tokens, phrase, startIndex, inbuf, count);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Decodes the specified number of bytes of the phrase starting
 		/// at the specified starting index.
@@ -1129,8 +1167,6 @@ namespace MimeKit {
 						break;
 					}
 					break;
-				default:
-					break;
 				}
 
 				prev = word;
@@ -1214,7 +1250,7 @@ namespace MimeKit {
 			if (index == -1)
 				return text;
 
-			StringBuilder sb = new StringBuilder ();
+			StringBuilder builder = new StringBuilder ();
 			bool escaped = false;
 			bool quoted = false;
 
@@ -1224,28 +1260,28 @@ namespace MimeKit {
 				case '\n':
 					break;
 				case '\t':
-					sb.Append (' ');
+					builder.Append (' ');
 					break;
 				case '\\':
 					if (escaped)
-						sb.Append ('\\');
+						builder.Append ('\\');
 					escaped = !escaped;
 					break;
 				case '"':
 					if (escaped) {
-						sb.Append ('"');
+						builder.Append ('"');
 						escaped = false;
 					} else {
 						quoted = !quoted;
 					}
 					break;
 				default:
-					sb.Append (text[i]);
+					builder.Append (text[i]);
 					break;
 				}
 			}
 
-			return sb.ToString ();
+			return builder.ToString ();
 		}
 	}
 }

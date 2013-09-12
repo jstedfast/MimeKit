@@ -202,8 +202,9 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
+		internal static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
+			Encoding encoding = Encoding.GetEncoding (codepage);
 			DomainList route = null;
 
 			address = null;
@@ -246,19 +247,19 @@ namespace MimeKit {
 				return false;
 			}
 
-			// FIXME: keep track of the charsets used so we can pass them in, here.
 			if (route != null)
-				address = new MailboxAddress (name, route, addrspec);
+				address = new MailboxAddress (encoding, name, route, addrspec);
 			else
-				address = new MailboxAddress (name, addrspec);
+				address = new MailboxAddress (encoding, name, addrspec);
 
 			index++;
 
 			return true;
 		}
 
-		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
+		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
+			Encoding encoding = Encoding.GetEncoding (codepage);
 			List<InternetAddress> members;
 
 			address = null;
@@ -273,9 +274,9 @@ namespace MimeKit {
 			}
 
 			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, throwOnError, out members))
-				address = new GroupAddress (name, members);
+				address = new GroupAddress (encoding, name, members);
 			else
-				address = new GroupAddress (name);
+				address = new GroupAddress (encoding, name);
 
 			if (index >= endIndex || text[index] != (byte) ';') {
 				if (throwOnError)
@@ -333,16 +334,18 @@ namespace MimeKit {
 
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
-				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length) : string.Empty;
+				int codepage;
+				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage) : string.Empty;
 
-				return TryParseGroup (options, text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
+				return TryParseGroup (options, text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
-				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length) : string.Empty;
+				int codepage;
+				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage) : string.Empty;
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
+				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == '.' || text[index] == (byte) '@') {
