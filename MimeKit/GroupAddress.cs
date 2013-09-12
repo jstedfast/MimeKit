@@ -26,104 +26,139 @@
 
 using System;
 using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit {
 	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
-		InternetAddressList members;
-
-		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : base (name)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
+		/// </summary>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="name">The name of the group.</param>
+		/// <param name="addresses">A list of addresses.</param>
+		public GroupAddress (Encoding encoding, string name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
 		{
-			members = new InternetAddressList (addresses);
-			members.Changed += MembersChanged;
+			Members = new InternetAddressList (addresses);
+			Members.Changed += MembersChanged;
 		}
 
-		public GroupAddress (string name) : base (name)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
+		/// </summary>
+		/// <param name="name">The name of the group.</param>
+		/// <param name="addresses">A list of addresses.</param>
+		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
 		{
-			members = new InternetAddressList ();
-			members.Changed += MembersChanged;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
+		/// </summary>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="name">The name of the group.</param>
+		public GroupAddress (Encoding encoding, string name) : base (encoding, name)
+		{
+			Members = new InternetAddressList ();
+			Members.Changed += MembersChanged;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
+		/// </summary>
+		/// <param name="name">The name of the group.</param>
+		public GroupAddress (string name) : this (Encoding.UTF8, name)
+		{
+		}
+
+		/// <summary>
+		/// Gets the members of the group.
+		/// </summary>
+		/// <value>The list of members.</value>
 		public InternetAddressList Members {
-			get { return members; }
+			get; private set;
 		}
 
-		internal override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal override void Encode (StringBuilder builder, ref int lineLength)
 		{
-			if (sb == null)
-				throw new ArgumentNullException ("sb");
+			if (builder == null)
+				throw new ArgumentNullException ("builder");
 
 			if (lineLength < 0)
 				throw new ArgumentOutOfRangeException ("lineLength");
 
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
 			if (!string.IsNullOrEmpty (Name)) {
-				var encoded = Rfc2047.EncodePhrase (charset, Name);
+				var encoded = Rfc2047.EncodePhrase (Encoding, Name);
 				var str = Encoding.ASCII.GetString (encoded);
 
 				if (lineLength + str.Length > Rfc2047.MaxLineLength) {
 					if (str.Length > Rfc2047.MaxLineLength) {
 						// we need to break up the name...
-						sb.AppendFolded (str, ref lineLength);
+						builder.AppendFolded (str, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
 						if (lineLength > 1) {
-							sb.LineWrap ();
+							builder.LineWrap ();
 							lineLength = 1;
 						}
 
 						lineLength += str.Length;
-						sb.Append (str);
+						builder.Append (str);
 					}
 				} else {
 					// we can safely fit the name on this line...
 					lineLength += str.Length;
-					sb.Append (str);
+					builder.Append (str);
 				}
 			}
 
-			sb.Append (": ");
+			builder.Append (": ");
 			lineLength += 2;
 
-			foreach (var member in members)
-				member.Encode (sb, ref lineLength, charset);
+			foreach (var member in Members)
+				member.Encode (builder, ref lineLength);
 		}
 
-		public override string ToString (Encoding charset, bool encode)
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.GroupAddress"/> to a string, optionally encoding it for transport.
+		/// </summary>
+		/// <returns>A string representing the <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.GroupAddress"/> will be encoded.</param>
+		public override string ToString (bool encode)
 		{
-			var sb = new StringBuilder ();
-
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
+			var builder = new StringBuilder ();
 
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (sb, ref lineLength, charset);
+				Encode (builder, ref lineLength);
 			} else {
-				sb.Append (Name);
-				sb.Append (':');
-				sb.Append (' ');
+				builder.Append (Name);
+				builder.Append (':');
+				builder.Append (' ');
 
-				for (int i = 0; i < members.Count; i++) {
+				for (int i = 0; i < Members.Count; i++) {
 					if (i > 0)
-						sb.Append (", ");
+						builder.Append (", ");
 
-					sb.Append (members[i]);
+					builder.Append (Members[i]);
 				}
 
-				sb.Append (';');
+				builder.Append (';');
 			}
 
-			return sb.ToString ();
+			return builder.ToString ();
 		}
 
 		#region IEquatable implementation
+
+		/// <summary>
+		/// Determines whether the specified <see cref="MimeKit.GroupAddress"/> is equal to the current <see cref="MimeKit.GroupAddress"/>.
+		/// </summary>
+		/// <param name="other">The <see cref="MimeKit.GroupAddress"/> to compare with the current <see cref="MimeKit.GroupAddress"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="MimeKit.GroupAddress"/> is equal to the current
+		/// <see cref="MimeKit.GroupAddress"/>; otherwise, <c>false</c>.</returns>
 		public bool Equals (GroupAddress other)
 		{
 			if (other == null)
@@ -131,6 +166,7 @@ namespace MimeKit {
 
 			return Name == other.Name && Members == other.Members;
 		}
+
 		#endregion
 
 		void MembersChanged (object sender, EventArgs e)

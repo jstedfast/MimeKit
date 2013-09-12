@@ -33,15 +33,40 @@ namespace MimeKit {
 	{
 		string address;
 
-		public MailboxAddress (string name, IEnumerable<string> route, string address) : base (name)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="name">The name of the mailbox.</param>
+		/// <param name="route">The route of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
 			Route = new DomainList (route);
 			Route.Changed += RouteChanged;
-
-			this.address = address;
+			Address = address;
 		}
 
-		public MailboxAddress (string name, string address) : base (name)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <param name="name">The name of the mailbox.</param>
+		/// <param name="route">The route of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		public MailboxAddress (string name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="name">The name of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
 		{
 			Route = new DomainList ();
 			Route.Changed += RouteChanged;
@@ -49,10 +74,27 @@ namespace MimeKit {
 			this.address = address;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <param name="name">The name of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
+		{
+		}
+
+		/// <summary>
+		/// Gets the mailbox route.
+		/// </summary>
+		/// <value>The mailbox route.</value>
 		public DomainList Route {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets the mailbox address.
+		/// </summary>
+		/// <value>The mailbox address.</value>
 		public string Address {
 			get { return address; }
 			set {
@@ -67,98 +109,97 @@ namespace MimeKit {
 			}
 		}
 
-		internal override void Encode (StringBuilder sb, ref int lineLength, Encoding charset)
+		internal override void Encode (StringBuilder builder, ref int lineLength)
 		{
-			if (sb == null)
-				throw new ArgumentNullException ("sb");
+			if (builder == null)
+				throw new ArgumentNullException ("builder");
 
 			if (lineLength < 0)
 				throw new ArgumentOutOfRangeException ("lineLength");
-
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
 
 			string route = Route.ToString ();
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 
 			if (!string.IsNullOrEmpty (Name)) {
-				var encoded = Rfc2047.EncodePhrase (charset, Name);
+				var encoded = Rfc2047.EncodePhrase (Encoding, Name);
 				var str = Encoding.ASCII.GetString (encoded);
 
 				if (lineLength + str.Length > Rfc2047.MaxLineLength) {
 					if (str.Length > Rfc2047.MaxLineLength) {
 						// we need to break up the name...
-						sb.AppendFolded (str, ref lineLength);
+						builder.AppendFolded (str, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
 						if (lineLength > 1) {
-							sb.LineWrap ();
+							builder.LineWrap ();
 							lineLength = 1;
 						}
 
 						lineLength += str.Length;
-						sb.Append (str);
+						builder.Append (str);
 					}
 				} else {
 					// we can safely fit the name on this line...
 					lineLength += str.Length;
-					sb.Append (str);
+					builder.Append (str);
 				}
 
 				if ((lineLength + route.Length + Address.Length + 3) > Rfc2047.MaxLineLength) {
-					sb.Append ("\n\t<");
+					builder.Append ("\n\t<");
 					lineLength = 2;
 				} else {
-					sb.Append (" <");
+					builder.Append (" <");
 					lineLength += 2;
 				}
 
 				lineLength += route.Length;
-				sb.Append (route);
+				builder.Append (route);
 
 				lineLength += Address.Length + 1;
-				sb.Append (Address);
-				sb.Append ('>');
+				builder.Append (Address);
+				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
 				if ((lineLength + route.Length + Address.Length + 2) > Rfc2047.MaxLineLength) {
-					sb.Append ("\n\t<");
+					builder.Append ("\n\t<");
 					lineLength = 2;
 				} else {
-					sb.Append ('<');
+					builder.Append ('<');
 					lineLength++;
 				}
 
 				lineLength += route.Length;
-				sb.Append (route);
+				builder.Append (route);
 
 				lineLength += Address.Length + 1;
-				sb.Append (Address);
-				sb.Append ('>');
+				builder.Append (Address);
+				builder.Append ('>');
 			} else {
 				if ((lineLength + Address.Length) > Rfc2047.MaxLineLength) {
-					sb.LineWrap ();
+					builder.LineWrap ();
 					lineLength = 1;
 				}
 
 				lineLength += Address.Length;
-				sb.Append (Address);
+				builder.Append (Address);
 			}
 		}
 
-		public override string ToString (Encoding charset, bool encode)
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.MailboxAddress"/> to a string, optionally encoding it for transport.
+		/// </summary>
+		/// <returns>A string representing the <see cref="MimeKit.MailboxAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.MailboxAddress"/> will be encoded.</param>
+		public override string ToString (bool encode)
 		{
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
 			if (encode) {
-				var sb = new StringBuilder ();
+				var builder = new StringBuilder ();
 				int lineLength = 0;
 
-				Encode (sb, ref lineLength, charset);
+				Encode (builder, ref lineLength);
 
-				return sb.ToString ();
+				return builder.ToString ();
 			}
 
 			string route = Route.ToString ();
@@ -175,6 +216,13 @@ namespace MimeKit {
 		}
 
 		#region IEquatable implementation
+
+		/// <summary>
+		/// Determines whether the specified <see cref="MimeKit.MailboxAddress"/> is equal to the current <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <param name="other">The <see cref="MimeKit.MailboxAddress"/> to compare with the current <see cref="MimeKit.MailboxAddress"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="MimeKit.MailboxAddress"/> is equal to the current
+		/// <see cref="MimeKit.MailboxAddress"/>; otherwise, <c>false</c>.</returns>
 		public bool Equals (MailboxAddress other)
 		{
 			if (other == null)
@@ -182,6 +230,7 @@ namespace MimeKit {
 
 			return Name == other.Name && Address == other.Address;
 		}
+
 		#endregion
 
 		void RouteChanged (object sender, EventArgs e)

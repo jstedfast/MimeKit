@@ -180,7 +180,7 @@ namespace MimeKit {
 				InternetAddress addr;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.");
 
 				messageId = "<" + ((MailboxAddress) addr).Address + ">";
@@ -240,7 +240,7 @@ namespace MimeKit {
 			var builder = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
-			list.Encode (builder, ref lineLength, Encoding.UTF8);
+			list.Encode (builder, ref lineLength);
 			builder.Append ('\n');
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
@@ -269,7 +269,7 @@ namespace MimeKit {
 			int index = 0;
 
 			// parse the addresses in the new header and add them to our address list
-			if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
+			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, false, out parsed))
 				return;
 
 			list.Changed -= InternetAddressListChanged;
@@ -291,7 +291,7 @@ namespace MimeKit {
 				List<InternetAddress> parsed;
 				int index = 0;
 
-				if (!InternetAddressList.TryParse (header.RawValue, ref index, length, false, false, out parsed))
+				if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, false, out parsed))
 					continue;
 
 				list.AddRange (parsed);

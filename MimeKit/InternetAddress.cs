@@ -31,13 +31,45 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public abstract class InternetAddress
 	{
+		Encoding encoding;
 		string name;
 
-		protected InternetAddress (string name)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.InternetAddress"/> class.
+		/// </summary>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="name">The name of the mailbox or group.</param>
+		protected InternetAddress (Encoding encoding, string name)
 		{
-			this.name = name;
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			Encoding = encoding;
+			Name = name;
 		}
 
+		/// <summary>
+		/// Gets or sets the character encoding to use when encoding the name of the address.
+		/// </summary>
+		/// <value>The character encoding.</value>
+		public Encoding Encoding {
+			get { return encoding; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				if (value == encoding)
+					return;
+
+				encoding = value;
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the name of the address.
+		/// </summary>
+		/// <value>The name of the address.</value>
 		public string Name {
 			get { return name; }
 			set {
@@ -49,13 +81,22 @@ namespace MimeKit {
 			}
 		}
 
-		internal abstract void Encode (StringBuilder sb, ref int lineLength, Encoding charset);
+		internal abstract void Encode (StringBuilder builder, ref int lineLength);
 
-		public abstract string ToString (Encoding charset, bool encode);
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string, optionally encoding it for transport.
+		/// </summary>
+		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddress"/> will be encoded.</param>
+		public abstract string ToString (bool encode);
 
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string suitable for display.
+		/// </summary>
+		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (Encoding.UTF8, false);
+			return ToString (false);
 		}
 
 		public event EventHandler Changed;
@@ -205,6 +246,7 @@ namespace MimeKit {
 				return false;
 			}
 
+			// FIXME: keep track of the charsets used so we can pass them in, here.
 			if (route != null)
 				address = new MailboxAddress (name, route, addrspec);
 			else
@@ -215,7 +257,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool TryParseGroup (byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
+		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, bool throwOnError, out InternetAddress address)
 		{
 			List<InternetAddress> members;
 
@@ -230,7 +272,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			if (InternetAddressList.TryParse (text, ref index, endIndex, true, throwOnError, out members))
+			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, throwOnError, out members))
 				address = new GroupAddress (name, members);
 			else
 				address = new GroupAddress (name);
@@ -248,7 +290,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
 		{
 			address = null;
 
@@ -291,14 +333,14 @@ namespace MimeKit {
 
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
-				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
+				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length) : string.Empty;
 
-				return TryParseGroup (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
+				return TryParseGroup (options, text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
-				string name = length > 0 ? Rfc2047.DecodePhrase (text, startIndex, length) : string.Empty;
+				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length) : string.Empty;
 
 				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), throwOnError, out address);
 			}

@@ -136,7 +136,7 @@ namespace MimeKit {
 				InternetAddress addr;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Content-Id format.");
 
 				contentId = "<" + ((MailboxAddress) addr).Address + ">";

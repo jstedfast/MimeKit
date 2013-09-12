@@ -210,6 +210,10 @@ namespace MimeKit {
 			get { return headers.Count; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -258,7 +262,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the contained headers to the specified array.
+		/// Copies all of the headers in the <see cref="MimeKit.HeaderList"/> to the specified array.
 		/// </summary>
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>

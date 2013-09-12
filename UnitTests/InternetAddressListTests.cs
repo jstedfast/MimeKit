@@ -269,7 +269,7 @@ namespace UnitTests {
 			list.Add (mailbox);
 
 			var expected = "\"Stedfast, Jeffrey\" <fejj@gnome.org>";
-			var actual = list.ToString (Encoding.UTF8, true);
+			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding quoted mailbox did not match expected result: {0}", expected);
 		}
@@ -277,21 +277,22 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingSimpleMailboxWithLatin1Name ()
 		{
-			var mailbox = new MailboxAddress ("Kristoffer Brånemyr", "ztion@swipenet.se");
+			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
+			var mailbox = new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
 			var expected = "Kristoffer =?iso-8859-1?q?Br=E5nemyr?= <ztion@swipenet.se>";
-			var actual = list.ToString (CharsetUtils.GetEncoding ("iso-8859-1"), true);
+			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding latin1 mailbox did not match expected result: {0}", expected);
 
-			mailbox = new MailboxAddress ("Tõivo Leedjärv", "leedjarv@interest.ee");
+			mailbox = new MailboxAddress (latin1, "Tõivo Leedjärv", "leedjarv@interest.ee");
 			list = new InternetAddressList ();
 			list.Add (mailbox);
 
 			expected = "=?iso-8859-1?b?VIH1aXZvIExlZWRqgeRydg==?= <leedjarv@interest.ee>";
-			actual = list.ToString (CharsetUtils.GetEncoding ("iso-8859-1"), true);
+			actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding latin1 mailbox did not match expected result: {0}", expected);
 		}
@@ -304,12 +305,12 @@ namespace UnitTests {
 			list.Add (mailbox);
 
 			var expected = "=?utf-8?b?2YfZhCDYqtiq2YPZhNmFINin2YTZhNi62Kk=?=\n =?utf-8?b?INin2YTYpdmG2KzZhNmK2LLZitip?=\n =?utf-8?b?IC/Yp9mE2LnYsdio2YrYqdif?= <do.you.speak@arabic.com>";
-			var actual = list.ToString (Encoding.UTF8, true);
+			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding arabic mailbox did not match expected result: {0}", expected);
 
 			InternetAddressList.TryParse (actual, out list);
-			Assert.AreEqual (mailbox.Name, ((MailboxAddress) list[0]).Name);
+			Assert.AreEqual (mailbox.Name, list[0].Name);
 		}
 
 		[Test]
@@ -320,12 +321,12 @@ namespace UnitTests {
 			list.Add (mailbox);
 
 			var expected = "=?utf-8?b?54uC44Gj44Gf44GT44Gu5LiW44Gn54uC44GG44Gq44KJ5rCX?=\n =?utf-8?b?44Gv56K644GL44Gg44CC?= <famous@quotes.ja>";
-			var actual = list.ToString (Encoding.UTF8, true);
+			var actual = list.ToString (true);
 
 			Assert.AreEqual (expected, actual, "Encoding japanese mailbox did not match expected result: {0}", expected);
 
 			InternetAddressList.TryParse (actual, out list);
-			Assert.AreEqual (mailbox.Name, ((MailboxAddress) list[0]).Name);
+			Assert.AreEqual (mailbox.Name, list[0].Name);
 		}
 	}
 }
