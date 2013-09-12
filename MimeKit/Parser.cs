@@ -187,7 +187,7 @@ namespace MimeKit {
 					byte *dest = buf + destIndex + length - 1;
 					byte *start = buf + sourceIndex;
 
-					while (src > start)
+					while (src >= start)
 						*dest-- = *src--;
 				} else {
 					byte* src = buf + sourceIndex;
