@@ -335,7 +335,14 @@ namespace MimeKit {
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
 				int codepage;
-				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage) : string.Empty;
+				string name;
+
+				if (length > 0) {
+					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+				} else {
+					name = string.Empty;
+					codepage = 65001;
+				}
 
 				return TryParseGroup (options, text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
 			}
@@ -343,7 +350,14 @@ namespace MimeKit {
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
 				int codepage;
-				string name = length > 0 ? Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage) : string.Empty;
+				string name;
+
+				if (length > 0) {
+					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+				} else {
+					name = string.Empty;
+					codepage = 65001;
+				}
 
 				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
 			}
