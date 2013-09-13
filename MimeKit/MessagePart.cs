@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace MimeKit {
@@ -34,16 +35,39 @@ namespace MimeKit {
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
+		/// </summary>
+		/// <param name="subtype">The message subtype.</param>
 		public MessagePart (string subtype) : base ("message", subtype)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
+		/// </summary>
 		public MessagePart () : base ("message", "rfc822")
 		{
 		}
 
+		/// <summary>
+		/// Gets or sets the message content.
+		/// </summary>
+		/// <value>The message content.</value>
 		public MimeMessage Message {
 			get; set;
+		}
+
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MessagePart"/> to the stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		public override void WriteTo (Stream stream)
+		{
+			base.WriteTo (stream);
+
+			if (Message != null)
+				Message.WriteTo (stream);
 		}
 	}
 }
