@@ -30,7 +30,15 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class MessagePart : MimeEntity
 	{
-		public MessagePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		internal MessagePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		{
+		}
+
+		public MessagePart (string subtype) : base ("message", subtype)
+		{
+		}
+
+		public MessagePart () : base ("message", "rfc822")
 		{
 		}
 

@@ -32,50 +32,75 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public sealed class DomainList : IList<string>
 	{
-		List<string> list;
+		readonly List<string> domains;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
+		/// </summary>
+		/// <param name="domains">A domain list.</param>
 		public DomainList (IEnumerable<string> domains)
 		{
-			list = new List<string> (domains);
+			domains = new List<string> (domains);
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
+		/// </summary>
 		public DomainList ()
 		{
-			list = new List<string> ();
+			domains = new List<string> ();
 		}
 
 		#region IList implementation
 
+		/// <summary>
+		/// Gets the index of the requested domain, if it exists.
+		/// </summary>
+		/// <returns>The index of the requested domain; otherwise <value>-1</value>.</returns>
+		/// <param name="domain">The domain.</param>
 		public int IndexOf (string domain)
 		{
-			return list.IndexOf (domain);
+			return domains.IndexOf (domain);
 		}
 
+		/// <summary>
+		/// Insert the domain at the specified index.
+		/// </summary>
+		/// <param name="index">The index to insert the domain.</param>
+		/// <param name="domain">The domain to insert.</param>
 		public void Insert (int index, string domain)
 		{
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			list.Insert (index, domain);
+			domains.Insert (index, domain);
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Removes the domain at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public void RemoveAt (int index)
 		{
-			list.RemoveAt (index);
+			domains.RemoveAt (index);
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Gets or sets the <see cref="MimeKit.DomainList"/> at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public string this [int index] {
-			get { return list[index]; }
+			get { return domains[index]; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				if (list[index] == value)
+				if (domains[index] == value)
 					return;
 
-				list[index] = value;
+				domains[index] = value;
 				OnChanged ();
 			}
 		}
@@ -84,34 +109,58 @@ namespace MimeKit {
 
 		#region ICollection implementation
 
+		/// <summary>
+		/// Add the specified domain.
+		/// </summary>
+		/// <param name="domain">The domain.</param>
 		public void Add (string domain)
 		{
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			list.Add (domain);
+			domains.Add (domain);
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Clears the domain list.
+		/// </summary>
 		public void Clear ()
 		{
-			list.Clear ();
+			domains.Clear ();
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="DomainList"/> contains the specified domain.
+		/// </summary>
+		/// <returns><value>true</value> if the specified domain is contained;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="domain">The domain.</param>
 		public bool Contains (string domain)
 		{
-			return list.Contains (domain);
+			return domains.Contains (domain);
 		}
 
+		/// <summary>
+		/// Copies all of the domains in the <see cref="MimeKit.DomainList"/> to the specified array.
+		/// </summary>
+		/// <param name="array">The array to copy the domains to.</param>
+		/// <param name="arrayIndex">The index into the array.</param>
 		public void CopyTo (string[] array, int arrayIndex)
 		{
-			list.CopyTo (array, arrayIndex);
+			domains.CopyTo (array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Removes the specified domain.
+		/// </summary>
+		/// <returns><value>true</value> if the specified domain was removed;
+		/// otherwise <value>false</value>.</returns>
+		/// <param name="domain">The domain.</param>
 		public bool Remove (string domain)
 		{
-			if (list.Remove (domain)) {
+			if (domains.Remove (domain)) {
 				OnChanged ();
 				return true;
 			}
@@ -119,10 +168,18 @@ namespace MimeKit {
 			return false;
 		}
 
+		/// <summary>
+		/// Gets the number of headers in the <see cref="MimeKit.DomainList"/>.
+		/// </summary>
+		/// <value>The number of headers.</value>
 		public int Count {
-			get { return list.Count; }
+			get { return domains.Count; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -131,9 +188,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of domains.
+		/// </summary>
+		/// <returns>The enumerator.</returns>
 		public IEnumerator<string> GetEnumerator ()
 		{
-			return list.GetEnumerator ();
+			return domains.GetEnumerator ();
 		}
 
 		#endregion
@@ -142,29 +203,33 @@ namespace MimeKit {
 
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
-			return list.GetEnumerator ();
+			return domains.GetEnumerator ();
 		}
 
 		#endregion
 
+		/// <summary>
+		/// Serializes the <see cref="MimeKit.DomainList"/> to a string.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.DomainList"/>.</returns>
 		public override string ToString ()
 		{
-			StringBuilder sb = new StringBuilder ();
+			StringBuilder builder = new StringBuilder ();
 
-			for (int i = 0; i < list.Count; i++) {
-				if (string.IsNullOrWhiteSpace (list[i]) && sb.Length == 0)
+			for (int i = 0; i < domains.Count; i++) {
+				if (string.IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
 					continue;
 
-				if (sb.Length > 0)
-					sb.Append (',');
+				if (builder.Length > 0)
+					builder.Append (',');
 
-				if (!string.IsNullOrWhiteSpace (list[i]))
-					sb.Append ('@');
+				if (!string.IsNullOrWhiteSpace (domains[i]))
+					builder.Append ('@');
 
-				sb.Append (list[i]);
+				builder.Append (domains[i]);
 			}
 
-			return sb.ToString ();
+			return builder.ToString ();
 		}
 
 		public event EventHandler Changed;

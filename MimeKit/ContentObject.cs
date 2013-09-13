@@ -30,6 +30,11 @@ using System.IO;
 namespace MimeKit {
 	public class ContentObject : IContentObject
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
+		/// </summary>
+		/// <param name="content">The content stream.</param>
+		/// <param name="encoding">The stream encoding.</param>
 		public ContentObject (Stream content, ContentEncoding encoding)
 		{
 			ContentEncoding = encoding;
@@ -38,14 +43,26 @@ namespace MimeKit {
 
 		#region IContentObject implementation
 
+		/// <summary>
+		/// Gets or sets the content encoding.
+		/// </summary>
+		/// <value>The content encoding.</value>
 		public ContentEncoding ContentEncoding {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the content stream.
+		/// </summary>
+		/// <value>The content stream.</value>
 		public Stream Content {
 			get; set;
 		}
 
+		/// <summary>
+		/// Writes the raw content stream to to another stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
 		public void WriteTo (Stream stream)
 		{
 			byte[] buf = new byte[4096];
@@ -63,6 +80,10 @@ namespace MimeKit {
 			Content.Seek (0, SeekOrigin.Begin);
 		}
 
+		/// <summary>
+		/// Decodes the content stream into another stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
 		public void DecodeTo (Stream stream)
 		{
 			using (var filtered = new FilteredStream (stream)) {
