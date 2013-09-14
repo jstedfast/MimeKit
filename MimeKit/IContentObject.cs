@@ -30,8 +30,8 @@ using System.IO;
 namespace MimeKit {
 	public interface IContentObject
 	{
-		ContentEncoding ContentEncoding { get; set; }
-		Stream Content { get; set; }
+		ContentEncoding Encoding { get; set; }
+		Stream Stream { get; set; }
 
 		void DecodeTo (Stream stream);
 		void WriteTo (Stream stream);

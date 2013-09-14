@@ -213,9 +213,9 @@ namespace MimeKit {
 						throw new ArgumentException ("partials");
 
 					var content = parts[i].ContentObject;
-					content.Content.Seek (0, SeekOrigin.Begin);
-					var filtered = new FilteredStream (content.Content);
-					filtered.Add (DecoderFilter.Create (content.ContentEncoding));
+					content.Stream.Seek (0, SeekOrigin.Begin);
+					var filtered = new FilteredStream (content.Stream);
+					filtered.Add (DecoderFilter.Create (content.Encoding));
 					chained.Add (filtered);
 				}
 

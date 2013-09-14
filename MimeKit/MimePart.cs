@@ -99,7 +99,7 @@ namespace MimeKit {
 			if (ContentObject == null)
 				return;
 
-			if (ContentObject.ContentEncoding != encoding) {
+			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}\n", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);

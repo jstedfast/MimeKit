@@ -37,8 +37,8 @@ namespace MimeKit {
 		/// <param name="encoding">The stream encoding.</param>
 		public ContentObject (Stream stream, ContentEncoding encoding)
 		{
-			ContentEncoding = encoding;
-			Content = stream;
+			Encoding = encoding;
+			Stream = stream;
 		}
 
 		#region IContentObject implementation
@@ -47,7 +47,7 @@ namespace MimeKit {
 		/// Gets or sets the content encoding.
 		/// </summary>
 		/// <value>The content encoding.</value>
-		public ContentEncoding ContentEncoding {
+		public ContentEncoding Encoding {
 			get; set;
 		}
 
@@ -55,7 +55,7 @@ namespace MimeKit {
 		/// Gets or sets the content stream.
 		/// </summary>
 		/// <value>The content stream.</value>
-		public Stream Content {
+		public Stream Stream {
 			get; set;
 		}
 
@@ -68,16 +68,16 @@ namespace MimeKit {
 			byte[] buf = new byte[4096];
 			int nread;
 
-			Content.Seek (0, SeekOrigin.Begin);
+			Stream.Seek (0, SeekOrigin.Begin);
 
 			do {
-				if ((nread = Content.Read (buf, 0, buf.Length)) <= 0)
+				if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
 					break;
 
 				stream.Write (buf, 0, nread);
 			} while (true);
 
-			Content.Seek (0, SeekOrigin.Begin);
+			Stream.Seek (0, SeekOrigin.Begin);
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@ namespace MimeKit {
 		public void DecodeTo (Stream stream)
 		{
 			using (var filtered = new FilteredStream (stream)) {
-				filtered.Add (DecoderFilter.Create (ContentEncoding));
+				filtered.Add (DecoderFilter.Create (Encoding));
 				WriteTo (filtered);
 				filtered.Flush ();
 			}
