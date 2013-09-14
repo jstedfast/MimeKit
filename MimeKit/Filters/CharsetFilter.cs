@@ -30,9 +30,9 @@ using System.Text;
 namespace MimeKit {
 	public class CharsetFilter : MimeFilterBase
 	{
-		char[] chars = new char[1024];
-		Decoder decoder;
-		Encoder encoder;
+		readonly char[] chars = new char[1024];
+		readonly Decoder decoder;
+		readonly Encoder encoder;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.CharsetFilter"/> class.
@@ -136,9 +136,7 @@ namespace MimeKit {
 				
 				// encode *all* input chars into the output buffer
 				while (!encodeCompleted) {
-					// we'll need at least as many output bytes as we have input chars
-					// Note: we add 6 more bytes to account for internal encoder state
-					EnsureOutputSize (outputOffset + charsLeft + 6, true);
+					EnsureOutputSize (outputOffset + TargetEncoding.GetMaxByteCount (charsLeft) + 4, true);
 					outputLeft = output.Length - outputOffset;
 					
 					encoder.Convert (chars, charIndex, charsLeft, output, outputOffset, outputLeft, flush, out nread, out nwritten, out encodeCompleted);
