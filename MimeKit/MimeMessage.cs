@@ -80,17 +80,10 @@ namespace MimeKit {
 			}
 		}
 
-		public MimeMessage ()
+		internal MimeMessage (ParserOptions options)
 		{
 			addresses = new Dictionary<string, InternetAddressList> (icase);
-			Headers = new HeaderList ();
-
-			Headers["From"] = string.Empty;
-			Headers["To"] = string.Empty;
-			Subject = string.Empty;
-			Date = DateTime.Now;
-
-			Headers.Changed += HeadersChanged;
+			Headers = new HeaderList (options);
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
@@ -101,6 +94,16 @@ namespace MimeKit {
 
 			references = new List<string> ();
 			inreplyto = new List<string> ();
+
+			Headers.Changed += HeadersChanged;
+		}
+
+		public MimeMessage () : this (ParserOptions.Default.Clone ())
+		{
+			Headers["From"] = string.Empty;
+			Headers["To"] = string.Empty;
+			Date = DateTimeOffset.Now;
+			Subject = string.Empty;
 		}
 
 		public HeaderList Headers {
@@ -218,7 +221,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("stream");
 
 			if (!Headers.Contains ("Date"))
-				Date = DateTime.Now;
+				Date = DateTimeOffset.Now;
 
 			if (messageId == null)
 				MessageId = MimeUtils.GenerateMessageId ();
