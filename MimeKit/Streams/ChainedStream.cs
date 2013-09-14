@@ -328,11 +328,12 @@ namespace MimeKit {
 
 				position = 0;
 				while (cur <= max && position < real) {
-					length = streams[current].Length;
+					length = streams[cur].Length;
 
 					if (real < position + length) {
 						// this is the stream which encompasses our seek offset
 						streams[cur].Seek (real - position, SeekOrigin.Begin);
+						position = real;
 						break;
 					}
 

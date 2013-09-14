@@ -40,6 +40,7 @@
     <Compile Include="DateParserTests.cs" />
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="HeaderTests.cs" />
+    <Compile Include="ChainedStreamTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
