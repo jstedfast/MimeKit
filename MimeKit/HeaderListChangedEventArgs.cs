@@ -34,7 +34,7 @@ namespace MimeKit {
 		Cleared
 	}
 
-	public class HeaderListChangedEventArgs : EventArgs
+	class HeaderListChangedEventArgs : EventArgs
 	{
 		internal HeaderListChangedEventArgs (Header header, HeaderListChangedAction action)
 		{

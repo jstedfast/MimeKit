@@ -496,7 +496,7 @@ namespace MimeKit {
 
 		#endregion
 
-		public event EventHandler<HeaderListChangedEventArgs> Changed;
+		internal event EventHandler<HeaderListChangedEventArgs> Changed;
 
 		void HeaderChanged (object sender, EventArgs args)
 		{

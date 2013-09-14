@@ -1,5 +1,5 @@
 //
-// Parser.cs
+// MimeParser.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //

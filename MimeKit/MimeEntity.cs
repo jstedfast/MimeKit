@@ -38,18 +38,6 @@ namespace MimeKit {
 		ContentDisposition disposition;
 		string contentId;
 
-		protected enum ContentHeader
-		{
-			ContentTransferEncoding,
-			ContentDescription,
-			ContentDisposition,
-			ContentLocation,
-			ContentType,
-			ContentMd5,
-			ContentId,
-			Unknown
-		}
-
 		// Note: this ctor is only used by the parser...
 		internal protected MimeEntity (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel)
 		{
@@ -95,12 +83,9 @@ namespace MimeKit {
 					return;
 				}
 
-				Headers.Changed -= HeadersChanged;
-
 				if (disposition != null) {
 					disposition.Changed -= ContentDispositionChanged;
-					if (value == null)
-						Headers.Remove ("Content-Disposition");
+					RemoveHeader ("Content-Disposition");
 				}
 
 				disposition = value;
@@ -109,7 +94,6 @@ namespace MimeKit {
 					SerializeContentDisposition ();
 				}
 
-				Headers.Changed += HeadersChanged;
 				OnChanged ();
 			}
 		}
@@ -125,9 +109,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll ("Content-Id");
-					Headers.Changed += HeadersChanged;
+					RemoveHeader ("Content-Id");
 					contentId = null;
 					return;
 				}
@@ -144,9 +126,7 @@ namespace MimeKit {
 				if (IsInitializing)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Content-Id"] = contentId;
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Content-Id", contentId);
 			}
 		}
 
@@ -157,16 +137,35 @@ namespace MimeKit {
 			stream.WriteByte ((byte) '\n');
 		}
 
+		protected void RemoveHeader (string name)
+		{
+			Headers.Changed -= HeadersChanged;
+			Headers.RemoveAll (name);
+			Headers.Changed += HeadersChanged;
+		}
+
+		protected void SetHeader (string name, string value)
+		{
+			Headers.Changed -= HeadersChanged;
+			Headers[name] = value;
+			Headers.Changed += HeadersChanged;
+		}
+
+		protected void SetHeader (string name, byte[] rawValue)
+		{
+			Header header = new Header (Headers.Options, name, rawValue);
+
+			Headers.Changed -= HeadersChanged;
+			Headers.Replace (header);
+			Headers.Changed += HeadersChanged;
+		}
+
 		void SerializeContentDisposition ()
 		{
 			var text = disposition.Encode (Encoding.UTF8);
 			var raw = Encoding.ASCII.GetBytes (text);
 
-			Header header;
-			if (!Headers.TryGetHeader ("Content-Disposition", out header))
-				Headers.Add (new Header (Headers.Options, "Content-Disposition", raw));
-			else
-				header.RawValue = raw;
+			SetHeader ("Content-Disposition", raw);
 		}
 
 		void SerializeContentType ()
@@ -174,11 +173,7 @@ namespace MimeKit {
 			var text = ContentType.Encode (Encoding.UTF8);
 			var raw = Encoding.ASCII.GetBytes (text);
 
-			Header header;
-			if (!Headers.TryGetHeader ("Content-Type", out header))
-				Headers.Add (new Header (Headers.Options, "Content-Type", raw));
-			else
-				header.RawValue = raw;
+			SetHeader ("Content-Type", raw);
 		}
 
 		void ContentDispositionChanged (object sender, EventArgs e)
@@ -199,42 +194,28 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
-		static ContentHeader GetContentHeader (string field)
-		{
-			switch (field.ToUpperInvariant ()) {
-			case "CONTENT-TRANSFER-ENCODING": return ContentHeader.ContentTransferEncoding;
-			case "CONTENT-DESCRIPTION": return ContentHeader.ContentDescription;
-			case "CONTENT-DISPOSITION": return ContentHeader.ContentDisposition;
-			case "CONTENT-LOCATION": return ContentHeader.ContentLocation;
-			case "CONTENT-TYPE": return ContentHeader.ContentType;
-			case "CONTENT-MD5": return ContentHeader.ContentMd5;
-			case "CONTENT-ID": return ContentHeader.ContentId;
-			default: return ContentHeader.Unknown;
-			}
-		}
-
-		protected virtual void OnHeadersChanged (HeaderListChangedAction action, ContentHeader type, Header header)
+		protected virtual void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
 		{
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (type) {
-				case ContentHeader.ContentDisposition:
+				switch (id) {
+				case HeaderId.ContentDisposition:
 					ContentDisposition = ContentDisposition.Parse (header.RawValue);
 					break;
-				case ContentHeader.ContentId:
+				case HeaderId.ContentId:
 					contentId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					break;
 				}
 				break;
 			case HeaderListChangedAction.Removed:
-				switch (type) {
-				case ContentHeader.ContentDisposition:
+				switch (id) {
+				case HeaderId.ContentDisposition:
 					if (ContentDisposition != null)
 						ContentDisposition.Changed -= ContentDispositionChanged;
 					ContentDisposition = null;
 					break;
-				case ContentHeader.ContentId:
+				case HeaderId.ContentId:
 					contentId = null;
 					break;
 				}
@@ -251,18 +232,18 @@ namespace MimeKit {
 			}
 		}
 
-		protected void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			ContentHeader type = ContentHeader.Unknown;
+			HeaderId id = HeaderId.Unknown;
 
 			if (e.Action != HeaderListChangedAction.Cleared)
-				type = GetContentHeader (e.Header.Field);
+				id = e.Header.Field.ToHeaderId ();
 
-			OnHeadersChanged (e.Action, type, e.Header);
+			OnHeadersChanged (e.Action, id, e.Header);
 			OnChanged ();
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		protected void OnChanged ()
 		{

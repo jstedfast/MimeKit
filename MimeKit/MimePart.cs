@@ -62,12 +62,10 @@ namespace MimeKit {
 				if (IsInitializing)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				if (text == null)
-					Headers.RemoveAll ("Content-Transfer-Encoding");
+				if (text != null)
+					SetHeader ("Content-Transfer-Encoding", text);
 				else
-					Headers["Content-Transfer-Encoding"] = text;
-				Headers.Changed += HeadersChanged;
+					RemoveHeader ("Content-Transfer-Encoding");
 			}
 		}
 
@@ -122,17 +120,17 @@ namespace MimeKit {
 			}
 		}
 
-		protected override void OnHeadersChanged (HeaderListChangedAction action, ContentHeader type, Header header)
+		protected override void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
 		{
 			string text;
 
-			base.OnHeadersChanged (action, type, header);
+			base.OnHeadersChanged (action, id, header);
 
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (type) {
-				case ContentHeader.ContentTransferEncoding:
+				switch (id) {
+				case HeaderId.ContentTransferEncoding:
 					text = header.Value.Trim ().ToLowerInvariant ();
 					encoding = ContentEncoding.Default;
 					for (int i = 0; i < ContentTransferEncodings.Length; i++) {
@@ -145,8 +143,8 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Removed:
-				switch (type) {
-				case ContentHeader.ContentTransferEncoding:
+				switch (id) {
+				case HeaderId.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
 					break;
 				}
