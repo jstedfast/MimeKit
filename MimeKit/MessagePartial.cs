@@ -219,7 +219,7 @@ namespace MimeKit {
 					chained.Add (filtered);
 				}
 
-				var parser = new Parser (options, chained);
+				var parser = new MimeParser (options, chained);
 
 				return parser.ParseMessage ();
 			}

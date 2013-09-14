@@ -78,7 +78,7 @@ namespace MimeKit {
 		}
 	}
 
-	enum ParserState
+	enum MimeParserState
 	{
 		Error = -1,
 		Initialized,
@@ -90,7 +90,7 @@ namespace MimeKit {
 		Eos
 	}
 
-	public class Parser
+	public class MimeParser
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
@@ -112,30 +112,30 @@ namespace MimeKit {
 		long headerOffset;
 		int headerIndex;
 
-		List<Boundary> bounds;
+		readonly List<Boundary> bounds;
+		MimeParserState state;
 		List<Header> headers;
-		ParserState state;
 		Stream stream;
 		long offset;
 
 		// other state
-		ParserOptions options;
-		bool isMboxStream;
+		readonly ParserOptions options;
+		readonly bool isMboxStream;
 		bool midline;
 
-		public Parser (Stream stream, bool isMboxStream) : this (ParserOptions.Default, stream, isMboxStream)
+		public MimeParser (Stream stream, bool isMboxStream) : this (ParserOptions.Default, stream, isMboxStream)
 		{
 		}
 
-		public Parser (ParserOptions options, Stream stream) : this (options, stream, false)
+		public MimeParser (ParserOptions options, Stream stream) : this (options, stream, false)
 		{
 		}
 
-		public Parser (Stream stream) : this (ParserOptions.Default, stream, false)
+		public MimeParser (Stream stream) : this (ParserOptions.Default, stream, false)
 		{
 		}
 
-		public Parser (ParserOptions options, Stream stream, bool isMboxStream)
+		public MimeParser (ParserOptions options, Stream stream, bool isMboxStream)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -152,9 +152,9 @@ namespace MimeKit {
 			if (isMboxStream) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
 				mboxMarkerBuffer = new byte[ReadAheadSize];
-				state = ParserState.FromLine;
+				state = MimeParserState.FromLine;
 			} else {
-				state = ParserState.Initialized;
+				state = MimeParserState.Initialized;
 			}
 		}
 
@@ -164,7 +164,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if this parser has reached the end of the input stream;
 		/// otherwise, <c>false</c>.</value>
 		public bool IsEndOfStream {
-			get { return state == ParserState.Eos; }
+			get { return state == MimeParserState.Eos; }
 		}
 
 		/// <summary>
@@ -301,7 +301,7 @@ namespace MimeKit {
 			do {
 				if (ReadAhead (Math.Max (ReadAheadSize, left)) <= left) {
 					// failed to find a From line; EOF reached
-					state = ParserState.Error;
+					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return -1;
 				}
@@ -356,7 +356,7 @@ namespace MimeKit {
 				}
 			} while (!complete);
 
-			state = ParserState.MessageHeaders;
+			state = MimeParserState.MessageHeaders;
 
 			return 0;
 		}
@@ -429,7 +429,7 @@ namespace MimeKit {
 			do {
 				if (ReadAhead (Math.Max (ReadAheadSize, left)) <= left) {
 					// failed to find a From line; EOF reached
-					state = ParserState.Error;
+					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return -1;
 				}
@@ -489,16 +489,16 @@ namespace MimeKit {
 								if (isMboxStream && length == 4 && IsMboxMarker (start)) {
 									// we've found the start of the next message...
 									inputIndex = (int) (start - inbuf);
-									state = ParserState.Complete;
+									state = MimeParserState.Complete;
 									headerIndex = 0;
 									return 0;
 								}
 
-								if (state == ParserState.MessageHeaders && headers.Count == 0) {
+								if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
 									// ignore From-lines that might appear at the start of a message
 									if (length != 4 || !IsMboxMarker (start)) {
 										inputIndex = (int) (start - inbuf);
-										state = ParserState.Error;
+										state = MimeParserState.Error;
 										headerIndex = 0;
 										return -1;
 									}
@@ -535,7 +535,7 @@ namespace MimeKit {
 						// check to see if we've reached the end of the headers
 						if (!midline && IsEoln (start)) {
 							inputIndex = (int) (inptr - inbuf) + 1;
-							state = ParserState.Content;
+							state = MimeParserState.Content;
 							ParseAndAppendHeader ();
 							headerIndex = 0;
 							return 0;
@@ -584,26 +584,26 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		ParserState Step ()
+		MimeParserState Step ()
 		{
 			switch (state) {
-			case ParserState.Error:
+			case MimeParserState.Error:
 				break;
-			case ParserState.Initialized:
-				state = isMboxStream ? ParserState.FromLine : ParserState.MessageHeaders;
+			case MimeParserState.Initialized:
+				state = isMboxStream ? MimeParserState.FromLine : MimeParserState.MessageHeaders;
 				break;
-			case ParserState.FromLine:
+			case MimeParserState.FromLine:
 				StepMboxMarker ();
 				break;
-			case ParserState.MessageHeaders:
-			case ParserState.Headers:
+			case MimeParserState.MessageHeaders:
+			case MimeParserState.Headers:
 				StepHeaders ();
 				break;
-			case ParserState.Content:
+			case MimeParserState.Content:
 				break;
-			case ParserState.Complete:
+			case MimeParserState.Complete:
 				break;
-			case ParserState.Eos:
+			case MimeParserState.Eos:
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
@@ -841,8 +841,8 @@ namespace MimeKit {
 			}
 
 			// parse the headers...
-			state = ParserState.Headers;
-			if (Step () == ParserState.Error) {
+			state = MimeParserState.Headers;
+			if (Step () == MimeParserState.Error) {
 				// Note: currently this can't happen because StepHeaders() never returns error
 				return BoundaryType.Eos;
 			}
@@ -899,8 +899,8 @@ namespace MimeKit {
 					return BoundaryType.Eos;
 
 				// parse the headers
-				state = ParserState.Headers;
-				if (Step () == ParserState.Error)
+				state = MimeParserState.Headers;
+				if (Step () == MimeParserState.Error)
 					return BoundaryType.Eos;
 
 				//if (state == ParserState.Complete && headers.Count == 0)
@@ -966,9 +966,9 @@ namespace MimeKit {
 
 		public MimeEntity ParseEntity ()
 		{
-			state = ParserState.Headers;
-			while (state < ParserState.Content) {
-				if (Step () == ParserState.Error)
+			state = MimeParserState.Headers;
+			while (state < MimeParserState.Content) {
+				if (Step () == MimeParserState.Error)
 					throw new Exception ("Failed to parse entity headers.");
 			}
 
@@ -982,9 +982,9 @@ namespace MimeKit {
 				entity = ConstructEntity (type, true, out found);
 
 			if (found != BoundaryType.Eos)
-				state = ParserState.Complete;
+				state = MimeParserState.Complete;
 			else
-				state = ParserState.Eos;
+				state = MimeParserState.Eos;
 
 			return entity;
 		}
@@ -994,18 +994,18 @@ namespace MimeKit {
 			BoundaryType found;
 
 			// scan the from-line if we are parsing an mbox
-			while (state != ParserState.MessageHeaders) {
+			while (state != MimeParserState.MessageHeaders) {
 				switch (Step ()) {
-				case ParserState.Error:
+				case MimeParserState.Error:
 					throw new Exception ("Failed to find mbox From marker.");
-				case ParserState.Eos:
+				case MimeParserState.Eos:
 					throw new Exception ("End of stream.");
 				}
 			}
 
 			// parse the headers
-			while (state < ParserState.Content) {
-				if (Step () == ParserState.Error)
+			while (state < MimeParserState.Content) {
+				if (Step () == MimeParserState.Error)
 					throw new Exception ("Failed to parse message headers.");
 			}
 
@@ -1040,11 +1040,11 @@ namespace MimeKit {
 
 			if (found != BoundaryType.Eos) {
 				if (isMboxStream)
-					state = ParserState.FromLine;
+					state = MimeParserState.FromLine;
 				else
-					state = ParserState.Complete;
+					state = MimeParserState.Complete;
 			} else {
-				state = ParserState.Eos;
+				state = MimeParserState.Eos;
 			}
 
 			return message;

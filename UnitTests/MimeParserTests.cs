@@ -39,7 +39,7 @@ namespace UnitTests {
 		public void TestSimpleMbox ()
 		{
 			using (var stream = File.OpenRead ("TestData/mbox/simple-mbox.txt")) {
-				var parser = new Parser (stream, true);
+				var parser = new MimeParser (stream, true);
 
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();

@@ -92,12 +92,12 @@
     <Compile Include="MessagePartial.cs" />
     <Compile Include="MimeEntity.cs" />
     <Compile Include="MimeMessage.cs" />
+    <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
     <Compile Include="Multipart.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
-    <Compile Include="Parser.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
   </ItemGroup>
