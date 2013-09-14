@@ -40,7 +40,7 @@ namespace MimeKit {
 		/// <param name="domains">A domain list.</param>
 		public DomainList (IEnumerable<string> domains)
 		{
-			domains = new List<string> (domains);
+			this.domains = new List<string> (domains);
 		}
 
 		/// <summary>
