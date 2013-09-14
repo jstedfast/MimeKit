@@ -335,6 +335,7 @@ namespace MimeKit {
 				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
 				filteredLength -= nread;
 				filteredIndex += nread;
+				position += nread;
 			}
 
 			return nread;
@@ -370,6 +371,7 @@ namespace MimeKit {
 				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
 			Source.Write (filtered, filteredIndex, filteredLength);
+			position += count;
 		}
 
 		/// <summary>
@@ -420,10 +422,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the length.
 		/// </summary>
-		/// <param name='length'>
+		/// <param name='value'>
 		/// The new length.
 		/// </param>
-		public override void SetLength (long length)
+		public override void SetLength (long value)
 		{
 			throw new NotSupportedException ("Cannot set a length on the stream");
 		}
