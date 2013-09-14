@@ -204,18 +204,22 @@ namespace MimeKit {
 
 			string id = parts[0].Id;
 
-			using (var memory = new MemoryStream ()) {
-				// concatenate all of the partial content streams...
+			using (var chained = new ChainedStream ()) {
+				// chain all of the partial content streams...
 				for (int i = 0; i < parts.Count; i++) {
 					int number = parts[i].Number.Value;
 
 					if (number != i + 1)
 						throw new ArgumentException ("partials");
 
-					parts[0].ContentObject.WriteTo (memory);
+					var content = parts[i].ContentObject;
+					content.Content.Seek (0, SeekOrigin.Begin);
+					var filtered = new FilteredStream (content.Content);
+					filtered.Add (DecoderFilter.Create (content.ContentEncoding));
+					chained.Add (filtered);
 				}
 
-				var parser = new Parser (options, memory);
+				var parser = new Parser (options, chained);
 
 				return parser.ParseMessage ();
 			}

@@ -33,12 +33,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
 		/// </summary>
-		/// <param name="content">The content stream.</param>
+		/// <param name="stream">The content stream.</param>
 		/// <param name="encoding">The stream encoding.</param>
-		public ContentObject (Stream content, ContentEncoding encoding)
+		public ContentObject (Stream stream, ContentEncoding encoding)
 		{
 			ContentEncoding = encoding;
-			Content = content;
+			Content = stream;
 		}
 
 		#region IContentObject implementation
