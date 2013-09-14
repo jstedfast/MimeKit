@@ -113,49 +113,35 @@ namespace MimeKit {
 		int headerIndex;
 
 		readonly List<Boundary> bounds;
+		readonly List<Header> headers;
+
 		MimeParserState state;
-		List<Header> headers;
+		ParserOptions options;
+		MimeFormat format;
 		Stream stream;
 		long offset;
 
 		// other state
-		readonly ParserOptions options;
-		readonly bool isMboxStream;
 		bool midline;
 
-		public MimeParser (Stream stream, bool isMboxStream) : this (ParserOptions.Default, stream, isMboxStream)
+		public MimeParser (Stream stream, MimeFormat format) : this (ParserOptions.Default, stream, format)
 		{
 		}
 
-		public MimeParser (ParserOptions options, Stream stream) : this (options, stream, false)
+		public MimeParser (Stream stream) : this (ParserOptions.Default, stream, MimeFormat.Default)
 		{
 		}
 
-		public MimeParser (Stream stream) : this (ParserOptions.Default, stream, false)
+		public MimeParser (ParserOptions options, Stream stream) : this (options, stream, MimeFormat.Default)
 		{
 		}
 
-		public MimeParser (ParserOptions options, Stream stream, bool isMboxStream)
+		public MimeParser (ParserOptions options, Stream stream, MimeFormat format)
 		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			if (options == null)
-				options = ParserOptions.Default;
-
-			this.isMboxStream = isMboxStream;
-			this.options = options.Clone ();
-			this.stream = stream;
-
 			bounds = new List<Boundary> ();
+			headers = new List<Header> ();
 
-			if (isMboxStream) {
-				bounds.Add (Boundary.CreateMboxBoundary ());
-				mboxMarkerBuffer = new byte[ReadAheadSize];
-				state = MimeParserState.FromLine;
-			} else {
-				state = MimeParserState.Initialized;
-			}
+			SetStream (options, stream, format);
 		}
 
 		/// <summary>
@@ -177,6 +163,54 @@ namespace MimeKit {
 
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
+		}
+
+		public void SetStream (ParserOptions options, Stream stream, MimeFormat format)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			this.options = options.Clone ();
+			this.format = format;
+			this.stream = stream;
+
+			inputIndex = inputStart;
+			inputEnd = inputStart;
+
+			mboxMarkerOffset = 0;
+			mboxMarkerLength = 0;
+
+			headers.Clear ();
+			headerOffset = 0;
+			headerIndex = 0;
+			offset = 0;
+
+			bounds.Clear ();
+			if (format == MimeFormat.Mbox) {
+				bounds.Add (Boundary.CreateMboxBoundary ());
+				mboxMarkerBuffer = new byte[ReadAheadSize];
+				state = MimeParserState.FromLine;
+			} else {
+				state = MimeParserState.Initialized;
+			}
+		}
+
+		public void SetStream (ParserOptions options, Stream stream)
+		{
+			SetStream (options, stream, MimeFormat.Default);
+		}
+
+		public void SetStream (Stream stream, MimeFormat format)
+		{
+			SetStream (ParserOptions.Default, stream, format);
+		}
+
+		public void SetStream (Stream stream)
+		{
+			SetStream (ParserOptions.Default, stream, MimeFormat.Default);
 		}
 
 		static unsafe void MemMove (byte[] buffer, int sourceIndex, int destIndex, int length)
@@ -422,8 +456,8 @@ namespace MimeKit {
 			long length;
 			bool eoln;
 
-			headers = new List<Header> ();
 			ResetRawHeaderData ();
+			headers.Clear ();
 			midline = false;
 
 			do {
@@ -486,7 +520,7 @@ namespace MimeKit {
 							if (!valid) {
 								length = inptr - start;
 
-								if (isMboxStream && length == 4 && IsMboxMarker (start)) {
+								if (format == MimeFormat.Mbox && length == 4 && IsMboxMarker (start)) {
 									// we've found the start of the next message...
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Complete;
@@ -590,7 +624,7 @@ namespace MimeKit {
 			case MimeParserState.Error:
 				break;
 			case MimeParserState.Initialized:
-				state = isMboxStream ? MimeParserState.FromLine : MimeParserState.MessageHeaders;
+				state = format == MimeFormat.Mbox ? MimeParserState.FromLine : MimeParserState.MessageHeaders;
 				break;
 			case MimeParserState.FromLine:
 				StepMboxMarker ();
@@ -637,7 +671,7 @@ namespace MimeKit {
 			if (length < 2)
 				return false;
 
-			if (isMboxStream && length >= 5 && IsMboxMarker (text))
+			if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (text))
 				return true;
 
 			if (*text == (byte) '-' && *(text + 1) == (byte) '-')
@@ -1011,7 +1045,7 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers);
 
-			if (isMboxStream && options.RespectContentLength) {
+			if (format == MimeFormat.Mbox && options.RespectContentLength) {
 				bounds[0].ContentEnd = -1;
 
 				foreach (var header in headers) {
@@ -1039,7 +1073,7 @@ namespace MimeKit {
 				message.Body = ConstructEntity (type, true, out found);
 
 			if (found != BoundaryType.Eos) {
-				if (isMboxStream)
+				if (format == MimeFormat.Mbox)
 					state = MimeParserState.FromLine;
 				else
 					state = MimeParserState.Complete;

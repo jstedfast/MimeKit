@@ -91,6 +91,7 @@
     <Compile Include="MessagePart.cs" />
     <Compile Include="MessagePartial.cs" />
     <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimeFormat.cs" />
     <Compile Include="MimeMessage.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
