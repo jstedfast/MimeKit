@@ -41,6 +41,7 @@
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
+    <Compile Include="MessagePartialTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,7 +55,13 @@
     <Folder Include="TestData\mbox\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestData\mbox\simple-mbox.txt">
+    <None Include="TestData\mbox\simple.mbox.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\partial\message-partial.1.msg.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\partial\message-partial.2.msg.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
