@@ -460,22 +460,22 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the length.
 		/// </summary>
-		/// <param name='length'>
+		/// <param name='value'>
 		/// The new length.
 		/// </param>
-		public override void SetLength (long length)
+		public override void SetLength (long value)
 		{
 			CheckDisposed ();
 
-			if (EndBoundary == -1 || StartBoundary + length > EndBoundary) {
+			if (EndBoundary == -1 || StartBoundary + value > EndBoundary) {
 				long end = BaseStream.Length;
 
-				if (StartBoundary + length > end)
-					BaseStream.SetLength (StartBoundary + length);
+				if (StartBoundary + value > end)
+					BaseStream.SetLength (StartBoundary + value);
 				
-				EndBoundary = StartBoundary + length;
+				EndBoundary = StartBoundary + value;
 			} else {
-				EndBoundary = StartBoundary + length;
+				EndBoundary = StartBoundary + value;
 			}
 		}
 

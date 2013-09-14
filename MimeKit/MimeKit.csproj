@@ -65,6 +65,7 @@
     <Compile Include="Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\BoundStream.cs" />
+    <Compile Include="Streams\ChainedStream.cs" />
     <Compile Include="Streams\FilteredStream.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
@@ -112,7 +113,7 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
         </Policies>
       </Properties>
     </MonoDevelop>

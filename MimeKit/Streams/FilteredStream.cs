@@ -427,6 +427,8 @@ namespace MimeKit {
 		/// </param>
 		public override void SetLength (long value)
 		{
+			CheckDisposed ();
+
 			throw new NotSupportedException ("Cannot set a length on the stream");
 		}
 
