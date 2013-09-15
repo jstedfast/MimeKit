@@ -37,6 +37,9 @@ namespace MimeKit {
 		/// <param name="encoding">The stream encoding.</param>
 		public ContentObject (Stream stream, ContentEncoding encoding)
 		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
 			Encoding = encoding;
 			Stream = stream;
 		}
@@ -48,7 +51,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <value>The content encoding.</value>
 		public ContentEncoding Encoding {
-			get; set;
+			get; private set;
 		}
 
 		/// <summary>
@@ -56,7 +59,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <value>The content stream.</value>
 		public Stream Stream {
-			get; set;
+			get; private set;
 		}
 
 		/// <summary>

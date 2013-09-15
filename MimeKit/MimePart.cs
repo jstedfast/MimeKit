@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace MimeKit {
 	public class MimePart : MimeEntity
@@ -36,6 +37,7 @@ namespace MimeKit {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
 		ContentEncoding encoding;
+		string content_md5;
 
 		internal MimePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
@@ -49,6 +51,24 @@ namespace MimeKit {
 		{
 		}
 
+		public string ContentMd5 {
+			get { return content_md5; }
+			set {
+				if (content_md5 == value)
+					return;
+
+				if (value != null)
+					content_md5 = value.Trim ();
+				else
+					content_md5 = null;
+
+				if (value != null)
+					SetHeader ("Content-Md5", content_md5);
+				else
+					RemoveHeader ("Content-Md5");
+			}
+		}
+
 		public ContentEncoding ContentTransferEncoding {
 			get { return encoding; }
 			set {
@@ -58,9 +78,6 @@ namespace MimeKit {
 				var text = ContentTransferEncodings[(int) value];
 
 				encoding = value;
-
-				if (IsInitializing)
-					return;
 
 				if (text != null)
 					SetHeader ("Content-Transfer-Encoding", text);
@@ -88,6 +105,42 @@ namespace MimeKit {
 
 		public ContentObject ContentObject {
 			get; set;
+		}
+
+		public string ComputeContentMd5 ()
+		{
+			if (ContentObject == null)
+				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
+
+			var stream = ContentObject.Stream;
+			stream.Seek (0, SeekOrigin.Begin);
+
+			byte[] checksum;
+
+			using (var filtered = new FilteredStream (stream)) {
+				if (ContentObject.Encoding > ContentEncoding.Binary)
+					filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
+
+				if (ContentType.Matches ("text", "*"))
+					filtered.Add (new Unix2DosFilter ());
+
+				using (var md5 = MD5.Create ())
+					checksum = md5.ComputeHash (filtered);
+			}
+
+			var base64 = new Base64Encoder (true);
+			var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
+			int n = base64.Flush (checksum, 0, checksum.Length, digest);
+
+			return Encoding.ASCII.GetString (digest, 0, n);
+		}
+
+		public bool VerifyContentMd5 ()
+		{
+			if (string.IsNullOrWhiteSpace (content_md5) || ContentObject == null)
+				return false;
+
+			return content_md5 == ComputeContentMd5 ();
 		}
 
 		public override void WriteTo (Stream stream)
@@ -140,6 +193,9 @@ namespace MimeKit {
 						}
 					}
 					break;
+				case HeaderId.ContentMd5:
+					content_md5 = header.Value.Trim ();
+					break;
 				}
 				break;
 			case HeaderListChangedAction.Removed:
@@ -147,10 +203,14 @@ namespace MimeKit {
 				case HeaderId.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
 					break;
+				case HeaderId.ContentMd5:
+					content_md5 = null;
+					break;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
 				encoding = ContentEncoding.Default;
+				content_md5 = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
