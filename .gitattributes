@@ -1,6 +1,5 @@
-*.mbox.txt eol=lf
-*.msg.txt eol=lf
 *.csproj eol=crlf
 *.sln eol=crlf
+*.txt eol=lf
 *.cs eol=lf
 *.md eol=lf

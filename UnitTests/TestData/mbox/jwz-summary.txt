@@ -1,0 +1,1648 @@
+From - 
+To: abel, bianchi, braun, cameron, carmen, jfp, jxr, kraut, lamb, lowery, lynn, mlittman, nancyg, sau, shoshi, slr, stornett@flash, tkl
+Subject: Star Trek Party!
+Date: Thu, 19 Sep 1991 12:41:43 -0400
+Content-Type: multipart/mixed
+   Content-Type: multipart/parallel
+      Content-Type: text/plain
+      Content-Type: audio/basic
+   Content-Type: multipart/mixed
+      Content-Type: image/gif
+      Content-Type: image/gif
+      Content-Type: application/octet-stream
+      Content-Type: application/atomicmail
+   Content-Type: audio/basic
+
+From - 
+From: Bob Kummerfeld <bob@cs.su.oz.au>
+To: nsb@thumper.bellcore.com
+Subject: just testing...
+Date: Fri, 29 Nov 1991 07:13:33 -0500
+Content-Type: audio/basic
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Nathaniel Borenstein <nsb>
+Subject: test of תירבע in mail headers
+Date: Thu, 06 Feb 1992 11:51:37 -0500
+Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Ned Freed <ned@innosoft.com>, Yutaka Sato 佐藤豊  <ysato@etl.go.jp>
+Subject: MIME & int'l mail
+Date: Fri, 12 Jun 1992 13:29:05 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+
+From - 
+From: beatty@COSMOS.VLSI.CS.CMU.EDU
+To: nsb@flash.bellcore.com
+Subject: mew-law encoding?
+Date: Fri, 28 Aug 1992 15:12:35 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+   Content-Type: message/rfc822
+      Content-Type: multipart/mixed
+         Content-Type: text/plain
+         Content-Type: audio/basic
+         Content-Type: text/plain
+   Content-Type: text/richtext
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+Subject: Re: MIME example in VIN
+Date: Sat, 06 Jun 1992 10:42:04 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: Re: [95:taka@fxis.fujix] MIME and Header encoding RFC.
+Date: Sat, 13 Jun 1992 11:23:08 +0000
+Content-Type: text/plain
+
+From - 
+From: "Nathaniel S. Borenstein" <nsb@thumper.bellcore.com>
+To: nsb
+Subject: Testing Multipart messaging
+Date: Fri, 29 Nov 1991 07:13:33 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/parallel
+      Content-Type: image/gif
+      Content-Type: audio/basic
+   Content-Type: application/atomicmail
+
+From - 
+From: Marshall Rose <mrose@dbc.mtview.ca.us>
+To: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+Subject: Re: near closure on audio stuff
+Date: Sat, 05 Oct 1991 16:00:40 -0700
+Content-Type: audio/basic
+
+From - 
+Subject: A parallel test
+Date: Fri, 29 Nov 1991 07:13:34 -0500
+Content-Type: multipart/mixed
+   Content-Type: multipart/parallel
+      Content-Type: text/plain
+      Content-Type: audio/basic
+
+From - 
+From: Bob Kummerfeld <bob@cs.su.oz.au>
+To: nsb@thumper.bellcore.com
+Subject: couldn't resist this
+Date: Thu, 26 Dec 1991 20:45:00 +0000
+Content-Type: image/pbm
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Dave Sincoskie <sincos>
+Subject: Re: PS -- Re: mailer error
+Date: Wed, 08 Jan 1992 11:21:00 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/xwd
+      Content-Type: text/plain
+
+From - 
+From: rhys@cs.uq.oz.au
+To: nsb@thumper.bellcore.com
+Subject: Test MIME message
+Date: Fri, 07 Feb 1992 14:33:38 +1100
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/plain
+      Content-Type: image/x-xbitmap
+      Content-Type: text/plain
+      Content-Type: image/x-xbitmap
+      Content-Type: text/richtext
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: Re: transparent.el
+Date: Tue, 16 Jun 1992 17:34:08 +0000
+Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+To: Yves J Caseau <caseau@france.bellcore.com>
+Subject: Please check this out
+Date: Fri, 29 Nov 1991 07:13:35 -0500
+Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+Subject: Re: MIME & int'l mail
+Date: Tue, 16 Jun 1992 09:46:49 -0400
+Content-Type: text/plain
+
+From - 
+From: Aleksandar Totic <atotic@netscape.com>
+To: atotic@mcom.com, jwz@mcom.com
+Subject: AppleDouble example
+Date: Mon, 26 Jun 1995 16:53:52 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/appledouble
+      Content-Type: application/applefile
+      Content-Type: application/octet-stream
+
+From - 
+From: Aleksandar Totic <atotic@netscape.com>
+To: atotic@mcom.com, jwz@mcom.com
+Subject: AppleDouble example
+Date: Mon, 26 Jun 1995 16:53:52 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/header-set
+      Content-Type: application/applefile
+      Content-Type: application/octet-stream
+
+From - 
+From: Gary Bolstridge <gary@GAROPA.NPT.NUWC.NAVY.MIL>
+Subject: Re: Newsletters & Shows
+Date: Wed, 26 Apr 1995 07:50:09 -0400
+Content-Type: Message/rfc822
+   Content-Type: text/plain
+
+From - 
+From: Peter Urka <pcu@umich.edu>
+Subject: Re: The Once and Future OS
+Date: Sun, 07 May 1995 16:21:03 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/postscript
+
+From - 
+From: Mail Delivery Subsystem <MAILER-DAEMON@netscape.com>
+Subject: Returned mail: Host unknown (Name server: maine.link.net: host not found)
+Date: Wed, 26 Apr 1995 17:08:35 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+
+From - 
+From: mailusr1@navstar1.mcom.com
+To: atzet@netscape.com
+Subject: Re: mailusr1@navstar1 3.0b6gold #1
+Date: Sun, 21 Jul 1996 17:02:55 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+
+From - 
+From: Charles Halle <ross@iclc.net>
+Subject: I  DID  IT - I'm a New Entrepreneur  -
+Date: Tue, 25 Apr 1995 20:51:43 +0000
+Content-Type: Application/octet-stream
+
+From skyojedi@phoenix.net Mon May  8 15:46:48 1995
+From: Skywalker of the Jedi <skyojedi@phoenix.net>
+Subject: M2 Screenshots from GO! - 4 Attachments [1/5]
+Date: Fri, 05 May 1995 04:11:15 +0000
+Content-Type: message/partial
+
+From skyojedi@phoenix.net Mon May  8 15:46:29 1995
+From: Skywalker of the Jedi <skyojedi@phoenix.net>
+Subject: M2 Screenshots from GO! - 3dom21.jpg [1/2]
+Date: Fri, 05 May 1995 03:57:42 +0000
+Content-Type: message/partial
+
+From - 
+From: Bob Kummerfeld <bob@cs.su.oz.au>
+To: nsb@thumper.bellcore.com
+Subject: another Hebrew test
+Date: Sat, 18 Jan 1992 17:19:00 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: text/plain
+
+From - 
+From: "Daniel A. Glasser" <dag%gorgon.UUCP@cs.wisc.edu>
+To: nsb@thumper.bellcore.com
+Subject: makeitso.gif
+Date: Sun, 07 Jun 1992 14:02:00 -0500
+Content-Type: image/gif
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: Re: How to see Japanese characters (Re: malformed message)
+Date: Tue, 09 Jun 1992 03:45:24 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+
+From - 
+From: Bob Oesterlin <oester+@rchland.ibm.com>
+To: nsb@thumper.bellcore.com
+Subject: /usr/sbin/sfplay
+Date: Mon, 08 Jun 1992 14:51:02 -0500
+Content-Type: application/octet-stream
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: Re: attach this, spanky
+Date: Wed, 26 Apr 1995 08:50:20 +0000
+Content-Type: message/rfc822
+   Content-Type: message/rfc822
+      Content-Type: message/rfc822
+         Content-Type: multipart/mixed
+            Content-Type: text/plain
+            Content-Type: message/rfc822
+               Content-Type: multipart/mixed
+                  Content-Type: text/plain
+                  Content-Type: text/html
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@sleepy.bellcore.com
+Subject: A Multi-media test
+Date: Wed, 15 May 1991 15:20:25 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/pbm
+   Content-Type: text/plain
+   Content-Type: audio/basic
+   Content-Type: text/plain
+   Content-Type: application/x-annotate
+   Content-Type: text/plain
+
+From - 
+From: Mark Crispin <mrc@Tomobiki-Cho.CAC.Washington.EDU>
+Subject: what's the use
+Date: Sun, 03 May 1992 23:07:57 +0000
+Content-Type: TEXT/PLAIN
+
+From - 
+From: Tom Brinck <hammer>
+To: msgs
+Subject: misdirected chinese mail
+Date: Wed, 03 Jun 1992 13:20:01 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/x-xbm
+      Content-Type: text/richtext
+
+From - 
+From: bob@sarad.cs.su.oz.au
+To: ggm@cc.uq.oz.au, nsb@thumper.bellcore.com
+Subject: sending files via email
+Date: Thu, 04 Feb 1993 17:27:10 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+
+From - 
+From: Ohm <ohm@aksi.net>
+Subject: nylon feet by request - ind_111.jpg [1/1]
+Date: Tue, 25 Apr 1995 23:25:47 +0000
+Content-Type: Image/JPEG
+
+From - 
+From: Internet-Drafts@CNRI.Reston.VA.US
+Subject: I-D ACTION:draft-smith-ipatm-bcast-00.txt
+Date: Tue, 25 Apr 1995 15:09:13 +0000
+Content-Type: Multipart/Mixed
+   Content-Type: text/plain
+   Content-Type: Multipart/MIXED
+      Content-Type: Message/External-body
+      Content-Type: Message/External-body
+      Content-Type: message/external-body
+      Content-Type: message/external-body
+      Content-Type: message/external-body
+
+From - 
+From: Internet-Drafts@CNRI.Reston.VA.US
+Subject: I-D ACTION:draft-smith-ipatm-bcast-00.txt
+Date: Tue, 25 Apr 1995 15:09:13 +0000
+Content-Type: Multipart/Mixed
+   Content-Type: text/plain
+   Content-Type: Multipart/Alternative
+      Content-Type: Message/External-body
+      Content-Type: Message/External-body
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: attached image cache test (test 2: inline disposition)
+Date: Thu, 13 Jun 1996 23:25:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: message/rfc822
+         Content-Type: message/rfc822
+            Content-Type: text/plain
+   Content-Type: text/html
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: attached image cache test (test 1: attachment disposition)
+Date: Thu, 13 Jun 1996 23:25:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: message/rfc822
+         Content-Type: message/rfc822
+            Content-Type: text/plain
+   Content-Type: text/html
+
+From - 
+From: "Jamie Zawinski, with suffix & ampersand" <jwz@netscape.com>
+Subject: posting HTML (was Re: Public News Server)
+Date: Wed, 05 Apr 1995 06:31:22 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+   Content-Type: text/enriched
+   Content-Type: text/plain
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: multipart/mixed
+         Content-Type: text/html
+         Content-Type: image/unknown
+   Content-Type: image/x-xbitmap
+   Content-Type: image/unknown
+   Content-Type: image/x-xbitmap
+   Content-Type: multipart/digest
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: text/html
+      Content-Type: message/rfc822
+         Content-Type: text/richtext
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@sleepy.bellcore.com
+Subject: meta-mail
+Date: Fri, 07 Jun 1991 09:09:05 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/pbm
+   Content-Type: text/plain
+
+From - 
+From: "T. V. Raman" <raman@cs.cornell.edu>
+To: nsb@thumper.bellcore.com
+Subject: Thanks! (part 1 of several)
+Date: Wed, 28 Oct 1992 11:46:54 -0500
+Content-Type: message/partial
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: MIME example in VIN
+Date: Sat, 06 Jun 1992 06:21:22 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+   Content-Type: image/gif
+   Content-Type: text/richtext
+   Content-Type: image/gif
+   Content-Type: text/richtext
+   Content-Type: image/gif
+   Content-Type: text/richtext
+
+From - 
+From: B Sudesh Tiwari <bst1@cornell.edu>
+Subject: Car for Sale, 1994 626 LX (NY) - 626lx.jpg [1/1]
+Date: Tue, 25 Apr 1995 15:09:57 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: Image/JPEG
+
+From - 
+From: Hal Software Systems <support@halsoft.com>
+Subject: Welcome to Ishmail
+Date: Sun, 30 Apr 1995 03:00:19 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/enriched
+   Content-Type: image/gif
+   Content-Type: text/enriched
+   Content-Type: audio/basic
+   Content-Type: text/enriched
+   Content-Type: message/external-body
+   Content-Type: text/enriched
+   Content-Type: message/external-body
+   Content-Type: text/enriched
+
+From - 
+From: nsb
+Subject: A multipart with quoted-printable test
+Date: Fri, 29 Nov 1991 07:13:36 -0500
+Content-Type: Multipart/mixed
+   Content-Type: image/gif
+   Content-Type: text/plain
+
+From - 
+From: Mark Crispin <MRC@panda.com>
+To: Keld J|rn Simonsen <keld@dkuug.dk>
+Subject: re: more content-charset stuff
+Date: Fri, 25 Oct 1991 21:39:38 -0700
+Content-Type: MULTIPART/MIXED
+   Content-Type: TEXT/plain
+   Content-Type: AUDIO/basic
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Bob Weiner <rsw@cs.brown.edu>
+Subject: How MIME looks in AMS (MIME format)
+Date: Thu, 09 Jan 1992 13:30:05 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/plain
+      Content-Type: audio/basic
+      Content-Type: text/plain
+      Content-Type: image/x-xwd
+      Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Marshall Rose <mrose@dbc.mtview.ca.us>
+Subject: Re: I'd like your opinion
+Date: Fri, 11 Sep 1992 13:34:20 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+
+From - 
+To: dnd
+Subject: Re: Happy New Year
+Date: Tue, 29 Sep 1992 10:19:23 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+   Content-Type: audio/basic
+   Content-Type: text/plain
+
+From - 
+From: "T. V. Raman" <raman@cs.cornell.edu>
+To: nsb@thumper.bellcore.com
+Subject: Thanks! (part 2 of 2)
+Date: Wed, 28 Oct 1992 11:47:04 -0500
+Content-Type: message/partial
+
+From - 
+From: The Info-Mac Moderators <Info-Mac-Request@sumex-aim.stanford.edu>
+Subject: Info-Mac Digest V13 #50
+Date: Wed, 26 Apr 1995 16:07:02 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/digest
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+      Content-Type: message/rfc822
+         Content-Type: text/plain
+
+From - 
+From: Lasse Hillerøe Petersen <lassehp@imv.aau.dk>
+Subject: SOLVED: MIME linewrap => A/UX Sendmail 8.6.9 discarding after CRLF.CRLF
+Date: Sun, 07 May 1995 15:21:33 +0200
+Content-Type: text/plain
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@sleepy.bellcore.com
+Subject: problem with MAILCAPS environment variable
+Date: Mon, 20 May 1991 15:23:07 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/x-annotate
+   Content-Type: text/plain
+   Content-Type: image/pbm
+   Content-Type: text/plain
+   Content-Type: image/pbm
+   Content-Type: text/plain
+
+From - 
+To: nsb
+Subject: greek mail
+Date: Tue, 16 Jun 1992 20:33:31 -0400
+Content-Type: text/richtext
+
+From - 
+From: Brad Huntting <huntting@advtech.uswest.com>
+To: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+Subject: Fwd: test of weather
+Date: Mon, 28 Sep 1992 13:04:17 -0600
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+
+From - 
+From: Terry Crowley <tcrowley@diamond.bbn.com>
+To: nsb@thumper.bellcore.com
+Subject: Re: Audio
+Date: Fri, 05 Feb 1993 14:48:28 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+
+From - Sat Jul 13 10:44:35 1996
+From: Vladimír Solnický <vs@utia.cas.cz>
+To: Shlomi Fish <shlomi@Medusa.Cortext.co.il>
+Subject: Re: Sending a Hebrew message with sendmail
+Date: Sat, 13 Jul 1996 16:58:55 +0200
+Content-Type: TEXT/PLAIN
+
+From - 
+From: Lou Montulli <montulli@mozilla.com>
+To: jwz@strumpet.mcom.com
+Subject: [Fwd: Netsurfer Digest: Vol. 02, #14 (HTML)]
+Date: Tue, 14 May 1996 10:59:03 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: text/html
+
+From - 
+From: "Herr Professor  dr S..........." <heinwvm@xs4all.nl>
+Subject: Canninefate Settlements Dicovered: Aryan House Boats.....(Summer School)
+Date: Tue, 25 Apr 1995 20:42:44 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+
+From - Wed Aug 16 17:17:29 1995
+From: Keith Moore <moore@cs.utk.edu>
+Subject: Re: MIME Content-MD5 header
+Date: Mon, 14 Aug 1995 06:39:48 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: text/plain
+   Content-Type: text/plain
+
+From - 
+From: Chris Schmandt <geek@media-lab.media.mit.edu>
+To: nsb@thumper.bellcore.com
+Subject: Re:  a response to MIME
+Date: Tue, 04 Feb 1992 09:57:27 -0500
+Content-Type: audio/basic
+
+From - 
+From: Keith Moore <moore@cs.utk.edu>
+To: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+Subject: Re: New richtext generation -- opinions?
+Date: Sun, 02 Feb 1992 19:38:26 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/pbm
+
+From - 
+From: Marshall Rose <mrose@dbc.mtview.ca.us>
+To: mh-mime@dbc.mtview.ca.us
+Subject: I'd like your opinion
+Date: Tue, 01 Sep 1992 18:24:36 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: multipart/mixed
+         Content-Type: multipart/mixed
+            Content-Type: text/richtext
+            Content-Type: text/richtext
+            Content-Type: text/richtext
+         Content-Type: multipart/mixed
+            Content-Type: text/richtext
+            Content-Type: text/richtext
+            Content-Type: multipart/mixed
+               Content-Type: text/richtext
+               Content-Type: text/richtext
+               Content-Type: text/richtext
+               Content-Type: text/richtext
+               Content-Type: text/richtext
+            Content-Type: multipart/mixed
+               Content-Type: text/richtext
+         Content-Type: multipart/mixed
+            Content-Type: text/richtext
+            Content-Type: text/richtext
+            Content-Type: text/richtext
+
+From - 
+From: Patrik F¥dltstr¥vm <paf@nada.kth.se>
+To: Brad Huntting <huntting@advtech.uswest.com>
+Subject: MIME letter with ISO-8859-1
+Date: Sun, 15 Nov 1992 15:09:59 +0100
+Content-Type: TEXT/PLAIN
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Steindler Alberto <steindle@uts340.univ.trieste.it>
+Subject: Re: MIME, how do you pronounce it?
+Date: Mon, 08 Mar 1993 12:42:53 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+
+From - 
+From: Daniel Glazman <glazman@grif.grif.fr>
+To: info-metamail@thumper.bellcore.com
+Subject: Meuf MIME-version
+Date: Mon, 22 Feb 1993 11:59:17 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+   Content-Type: image/x-xwd
+   Content-Type: text/richtext
+
+From Cat@Pic.net Mon May  1 19:09:31 1995
+From: Sorrow <Cat@Pic.net>
+Subject: Jessica... - jesica.bmp [1/1]
+Date: Sat, 29 Apr 1995 22:08:36 +0000
+Content-Type: text/plain
+
+From - Sun Jul 28 17:20:34 1996
+From: Frank Tabor <phranc@inmind.com>
+Subject: Re: Win95, Netscape and File Types
+Date: Sun, 28 Jul 1996 00:03:29 +0000
+Content-Type: multipart/mixed
+   Content-Type: multipart/alternative
+      Content-Type: text/plain
+      Content-Type: text/html
+   Content-Type: application/octet-stream
+
+From - Sat Jun  1 19:00:50 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/alternative 2
+Date: Sat, 01 Jun 1996 19:00:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/alternative
+      Content-Type: text/plain
+      Content-Type: text/richtext
+      Content-Type: text/enriched
+      Content-Type: text/html
+      Content-Type: text/something-you-dont-know
+   Content-Type: text/plain
+   Content-Type: multipart/alternative
+      Content-Type: text/plain
+      Content-Type: multipart/alternative
+         Content-Type: text/plain
+         Content-Type: text/html
+         Content-Type: text/x-barf
+      Content-Type: application/spankme
+   Content-Type: text/plain
+
+From - Sat Jun  1 19:00:50 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/alternative
+Date: Sat, 01 Jun 1996 19:00:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/alternative
+      Content-Type: text/plain
+      Content-Type: text/html
+      Content-Type: application/postscript
+
+From - 
+From: Chromosome Terror <abrdlher@reading.ac.uk>
+Subject: Alternative medicine
+Date: Wed, 26 Apr 1995 21:07:36 +0100
+Content-Type: MULTIPART/MIXED
+   Content-Type: TEXT/PLAIN
+   Content-Type: MESSAGE/RFC822
+      Content-Type: TEXT/PLAIN
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - Mon Jun  3 12:50:27 1996
+From: izzy@nugget.scr.atm.com
+To: jwz@netscape.com
+Subject: RE[4]: your generated HTML
+Date: Mon, 03 Jun 1996 09:42:32 -0700
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/gif
+
+From - Tue Apr  1 16:55:28 1997
+From: Jamie Zawinski <jwz@netscape.com>
+To: Paul Phillips <paulp@go2net.com>
+Subject: Netscape Announces Theme Park Plans
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: multipart/related
+      Content-Type: text/html
+      Content-Type: image/gif
+      Content-Type: image/gif
+      Content-Type: image/gif
+      Content-Type: image/gif
+      Content-Type: image/gif
+      Content-Type: image/jpeg
+      Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: multipart/related MHTML test case
+Date: Tue, 01 Apr 1997 16:55:24 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/jpeg
+
+From - Mon Aug 18 21:13:21 1997
+From: Chuck Simmons <chrlsim@futureone.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: 3.01 MIME prob message [Fwd: communicator 4.01  a conference problem]
+Date: Mon, 18 Aug 1997 21:07:07 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: multipart/alternative
+         Content-Type: text/plain
+         Content-Type: multipart/related
+            Content-Type: text/html
+            Content-Type: image/tiff
+
+From - Thu Feb  8 18:49:08 1996
+From: "Dr. Mark K. Joseph" <izzy@scr.atm.com>
+To: jwz@netscape.com
+Subject: Example of CID linking in a multipart/related MIME message
+Date: Thu, 08 Feb 1996 17:33:10 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+
+From - 
+From: "Harold A. Miller" <Hal.Miller@mel.dit.csiro.au>
+To: nsb@thumper.bellcore.com
+Subject: Re: Barbershop MIME
+Date: Thu, 12 Mar 1992 09:27:38 +1000
+Content-Type: audio/basic
+
+From - 
+From: develop!nextmime@ebony
+Subject: More richtext questions/comments
+Date: Fri, 25 Sep 1992 14:13:02 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+
+From - Wed Jun  5 03:37:45 1996
+From: "Mark M." <markm@voicenet.com>
+Subject: Re: Layman's explanation for limits on escrowed encryption ...
+Date: Mon, 27 May 1996 18:19:51 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/pgp-signature
+
+From - 
+From: "Jeffrey A. Stuart" <ncoast!tdi3!tdi4!jstuart@USENET.INS.CWRU.EDU>
+To: IN%, Multiple recipients of list OS2-L <OS2-L@HEARN.nic.SURFnet.nl>
+Subject: Re: New Virus Alert! No
+Date: Tue, 25 Apr 1995 18:28:11 -0400
+Content-Type: application/pgp
+
+From - 
+From: zxc <zxc@uiuc.edu>
+To: crobinso@clam.rutgers.edu
+Subject: Re: Netscape1.1
+Date: Wed, 26 Apr 1995 18:13:32 +0000
+Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: ietf-822@dimacs.rutgers.edu, info-metamail
+Subject: Barbershop MIME
+Date: Wed, 11 Mar 1992 16:27:37 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: message/external-body
+      Content-Type: text/plain
+      Content-Type: message/external-body
+      Content-Type: text/richtext
+
+From - 
+From: "Daniel A. Glasser" <dag@persoft.com>
+To: nsb@thumper.bellcore.com
+Subject: First impressions of metamail release 2
+Date: Tue, 17 Mar 1992 13:27:00 -0600
+Content-Type: text/richtext
+
+From - 
+From: nsb@thumper.bellcore.com
+Subject: GIF image (2/3)
+Date: Fri, 29 Nov 1991 07:13:36 -0500
+Content-Type: message/partial
+
+From - 
+From: "Michael J. McInerny" <mcinerny+@andrew.cmu.edu>
+To: Fred Hansen <wjh+@andrew.cmu.edu>
+Subject: Re: icons
+Date: Wed, 10 Jun 1992 14:20:39 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+      Content-Type: image/x-xwd
+      Content-Type: text/richtext
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Joe Wells <jbw@bigbird.bu.edu>
+Subject: Re: Could you translate (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=) for me?
+Date: Thu, 22 Oct 1992 09:15:31 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+
+From - 
+From: Terry Crowley <tcrowley@diamond.bbn.com>
+To: nsb@thumper.bellcore.com
+Subject: Audio
+Date: Fri, 05 Feb 1993 09:44:55 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: audio/basic
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Terry Crowley <tcrowley@diamond.bbn.com>
+Subject: Re: Audio
+Date: Fri, 05 Feb 1993 10:03:45 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/plain
+
+From - 
+From: Don Major <dwm@ctt.bellcore.com>
+To: dwm@ctt.bellcore.com, t-pem@thumper.bellcore.com
+Subject: Signed PKCS/MIME Message
+Date: Fri, 26 Feb 1993 00:30:16 -0500
+Content-Type: application/x-pkcs
+
+From - 
+From: Stefano Gazziano <GAZZIANO_S@CASACCIA.ENEA.IT>
+Subject: work space
+Date: Wed, 26 Apr 1995 18:22:47 +0001
+Content-Type: MESSAGE/RFC822
+   Content-Type: TEXT/PLAIN
+
+From - 
+To: "David A. Braun" <braun>, John Lamb <lamb>, Michael Littman <mlittman>
+Subject: Singing today?
+Date: Thu, 12 Dec 1991 11:38:21 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: audio/basic
+
+From - 
+From: "Nathaniel S. Borenstein" <nsb@thumper.bellcore.com>
+To: shoshi, mlittman, yacov, kraut, nsb, paul@flash, mo@gizmo, dana, bianchi@flash, abel, sincos
+Subject: An English/Hebrew test
+Date: Wed, 15 Jan 1992 16:24:40 -0500
+Content-Type: text/plain
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: Re: multi-bytes richtext
+Date: Thu, 18 Jun 1992 20:03:47 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: text/plain
+   Content-Type: application/octet-stream
+   Content-Type: application/octet-stream
+   Content-Type: application/octet-stream
+
+From - Thu Apr 25 10:19:58 1996
+From: Raph Levien <raph@callisto.hip.berkeley.edu>
+To: smime-dev@RSA.COM
+Subject: Multipart/signed message format
+Date: Thu, 25 Apr 1996 03:26:57 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Fri Nov  8 18:21:51 1996
+From: Eric Rosenquist <rosenqui@strataware.com>
+To: Lisa Repka <repka@netscape.com>, Jamie Zawinski <jwz@netscape.com>
+Subject: My encryption certificate for S/MIME testing
+Date: Fri, 08 Nov 1996 14:45:18 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-mime
+
+From - Thu Nov 21 13:20:54 1996
+From: Eric Rosenquist <rosenqui@strataware.com>
+To: "S/MIME Developers" <smime-dev@RSA.COM>
+Subject: My encryption certificate for S/MIME testing
+Date: Thu, 21 Nov 1996 16:10:23 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-mime
+
+From - 
+From: blaker@craswell.com
+Subject: enrypted
+Date: Thu, 01 Jan 1970 00:00:00 +0000
+Content-Type: application/x-pkcs7-mime
+
+From - Wed Dec 11 18:06:10 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: signed frog
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: multipart/signed
+   Content-Type: image/jpeg
+   Content-Type: application/x-pkcs7-signature
+
+From - Wed Dec 11 18:06:10 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: signed frog 2
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Wed Dec 11 18:06:10 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: doubly signed frog
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Wed Dec 11 18:06:10 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: triply signed frog
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Wed Dec 11 18:06:10 1996
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: quadruply signed frog
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Fri Dec 13 15:01:21 1996
+From: Blake Ramsdell <blaker@craswell.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: Re: can you send me an encrypted message?
+Date: Fri, 13 Dec 1996 15:09:42 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Fri Dec 13 15:01:22 1996
+From: Blake Ramsdell <blaker@craswell.com>
+To: jwz@netscape.com
+Subject: Encrypted message
+Date: Fri, 13 Dec 1996 15:10:21 -0800
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Apr 22 18:36:56 1996
+From: Arjun J Taneja <arjun@connectsoft.com>
+To: "smime-dev@rsa.com" <smime-dev@RSA.COM>
+Subject: Ready for interoperability testing.
+Date: Mon, 22 Apr 1996 18:20:32 -0500
+Content-Type: application/x-pkcs7-mime
+
+From - Thu Dec 19 13:29:25 1996
+From: Lisa Repka <repka@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: very cool
+Date: Thu, 19 Dec 1996 09:38:50 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - 
+From: Jamie Zawinski <jwz@netscape.com>
+To: jwz@netscape.com
+Subject: encrypted and signed
+Date: Thu, 01 Jan 1970 00:00:00 +0000
+Content-Type: application/x-pkcs7-mime
+
+From - Fri Mar  7 02:51:22 1997
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+Content-Type: message/rfc822
+   Content-Type: application/x-pkcs7-mime
+
+From - Fri Mar  7 02:51:23 1997
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message (mult/mixed)
+Date: Fri, 07 Mar 1997 02:51:07 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: application/x-pkcs7-mime
+
+From - Mon Mar 17 17:19:30 1997
+From: Dan Hugo <dhugo@netscape.com>
+To: jwz@netscape.com
+Subject: This is signed
+Date: Mon, 17 Mar 1997 17:17:35 -0800
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Mar 24 00:03:37 1997
+From: Lisa Repka <repka@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>, Dan Hugo <dhugo@netscape.com>
+Subject: testing out some new stuff
+Date: Sun, 23 Mar 1997 23:11:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Tue Apr 15 10:42:13 1997
+From: Dan Werbel <danw@ayce.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: Re: Obtaining other people's certificates
+Date: Tue, 15 Apr 1997 08:05:56 -0400
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Wed Apr 16 16:57:13 1997
+From: Jamie Zawinski <jwz@netscape.com>
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: encrypted
+Date: Wed, 16 Apr 1997 16:57:13 -0700
+Content-Type: application/x-pkcs7-mime
+
+From - 
+From: Jason Lawrence Weisberger <jweis@why.bother.com>
+To: Bob Lord <lord@netscape.com>
+Subject: Re: Hey!
+Date: Thu, 17 Apr 1997 15:03:44 -0700
+Content-Type: MULTIPART/SIGNED
+   Content-Type: TEXT/PLAIN
+
+From - 
+From: Jason Lawrence Weisberger <jweis@why.bother.com>
+To: Bob Lord <lord@netscape.com>
+Subject: Re: [Fwd: the one true mail client?]
+Date: Mon, 12 May 1997 22:46:45 -0700
+Content-Type: MULTIPART/SIGNED
+   Content-Type: TEXT/PLAIN
+   Content-Type: MULTIPART/MIXED
+      Content-Type: TEXT/PLAIN
+      Content-Type: MESSAGE/RFC822
+         Content-Type: text/plain
+      Content-Type: TEXT/X-VCARD
+   Content-Type: APPLICATION/X-PKCS7-SIGNATURE
+
+From - Sun Apr 28 13:05:40 1996
+From: Blake Ramsdell <BlakeR@deming.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Deming Software -- ready to go!
+Date: Sat, 27 Apr 1996 01:08:58 -0700
+Content-Type: application/x-pkcs7-mime
+
+From - Tue May 28 11:02:16 1996
+From: Ray2@FrontierTech.com
+To: smime-dev@RSA.COM
+Subject: Frontier Technologies testing, here's my cert
+Date: Tue, 28 May 1996 12:24:23 +0000
+Content-Type: Application/x-pkcs7-mime
+
+From - Mon Jun 10 11:45:25 1996
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Signed Confirmation
+Date: Mon, 10 Jun 1996 14:37:52 -0500
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Wed Sep 11 08:47:00 1996
+From: Peter Williams <peter@verisign.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: plase help by returning what gets delivered...
+Date: Mon, 09 Sep 1996 12:52:38 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: text/html
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Sep 23 13:04:41 1996
+From: Ron Craswell <ronc@deming.com>
+To: S-MIME DEV <smime-dev@RSA.COM>
+Subject: multipart/signed test
+Date: Mon, 23 Sep 1996 09:20:00 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - 
+From: Blake Ramsdell <blaker@craswell.com>
+To: smime-dev@RSA.COM, smime-editor@RSA.COM
+Subject: A cert from deming software
+Date: Mon, 07 Oct 1996 21:27:09 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Fri Oct 18 14:14:37 1996
+From: Kurt Stammberger <kurt@RSA.COM>
+To: "'set-discuss@commerce.net'" <set-discuss@commerce.net>, "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: S/MIME Cert
+Date: Fri, 18 Oct 1996 13:57:46 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/octet-stream
+
+From - Sat Nov  2 21:56:58 1996
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Signed SHA1 with VeriSign certification
+Date: Tue, 29 Oct 1996 15:12:00 -0500
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Jul 29 02:26:23 1996
+From: The Post Office <postmaster@mm1.sprynet.com>
+To: unlisted-recipients: ;
+Subject: email delivery error
+Date: Mon, 29 Jul 1996 02:13:08 -0700
+Content-Type: multipart/report
+
+From tro@partech.com Fri Apr 28 18:16:52 1995
+From: Tom Olin <tro@partech.com>
+Subject: Jumbo Bug Report
+Date: Fri, 28 Apr 1995 15:14:17 -0700
+Content-Type: text/plain
+
+From tro@partech.com Fri Apr 28 18:16:52 1995
+From: Tom Olin <tro@partech.com>
+Subject: Jumbo Bug Report
+Date: Fri, 28 Apr 1995 15:14:17 -0700
+Content-Type: application/octet-stream
+
+From - 
+From: Jean-Philippe Favreau <favreau@APM2.NCSL.NIST.GOV>
+Subject: Federal EDI - 836 IC open for comments
+Date: Wed, 26 Apr 1995 15:02:16 -0400
+Content-Type: application/octet-stream
+
+From - 
+From: Mark Crispin <MRC@CAC.Washington.EDU>
+To: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+Subject: re: audio mail
+Date: Sun, 06 Oct 1991 22:24:19 -0700
+Content-Type: MULTIPART/mixed
+   Content-Type: TEXT/plain
+   Content-Type: AUDIO/basic
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@thumper.bellcore.com
+Subject: A picture
+Date: Fri, 01 Nov 1991 10:50:01 -0500
+Content-Type: multipart/mixed
+   Content-Type: image/pbm
+
+From - 
+From: nsb@thumper.bellcore.com
+Subject: GIF image (3/3)
+Date: Fri, 29 Nov 1991 07:13:37 -0500
+Content-Type: message/partial
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Mark Crispin <mrc@Tomobiki-Cho.CAC.Washington.EDU>
+Subject: Re: MIME: Some real world FACTS of life
+Date: Mon, 04 May 1992 10:01:12 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+      Content-Type: audio/basic
+      Content-Type: text/richtext
+
+From - 
+From: jwz
+Subject: test of URLs in text/plain messages
+Date: Thu, 01 Jan 1970 00:00:00 +0000
+Content-Type: text/plain
+
+From - Thu Jun 13 23:27:17 1996
+From: Jamie Zawinski <jwz@netscape.com>
+Subject: uuencoded images
+Date: Thu, 13 Jun 1996 23:25:49 -0700
+Content-Type: text/plain
+
+From - Fri Sep 27 12:03:19 1996
+From: "Dr. Mark K. Joseph" <izzy@nugget.scr.atm.com>
+To: lewisg@Exchange.Microsoft.com
+Subject: RE: problem with relative urls and applets
+Date: Fri, 27 Sep 1996 09:36:54 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/vcard
+
+From - 
+From: Bob Kummerfeld <bob@cs.su.oz.au>
+To: nsb@thumper.bellcore.com
+Subject: RFC-XXXX
+Date: Sun, 08 Dec 1991 09:11:00 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/pgm
+
+From - 
+From: Darren New <dnew>
+To: Nathaniel Borenstein <nsb>
+Subject: Fwd: revised MIME architecture
+Date: Mon, 08 Jun 1992 15:56:59 -0400
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: message/external-body
+      Content-Type: text/richtext
+      Content-Type: text/SGML
+      Content-Type: text/richtext
+      Content-Type: message/external-body
+      Content-Type: text/richtext
+      Content-Type: image/gif
+      Content-Type: text/richtext
+
+From - 
+From: Yutaka Sato 佐藤豊 <ysato@etl.go.jp>
+To: nsb@thumper.bellcore.com
+Subject: Re: MIME & int'l mail
+Date: Sat, 13 Jun 1992 08:53:19 +0000
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: text/plain
+
+From - 
+From: Scott Isaacs <scotti@microsoft.com>
+To: "'html-erb@w3.org'" <html-erb@w3.org>
+Subject: Object Model Overviews
+Date: Mon, 16 Sep 1996 19:48:37 -0700
+Content-Type: text/plain
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@sleepy.bellcore.com
+Subject: A cheap digitizer test
+Date: Fri, 24 May 1991 10:40:25 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: image/pgm
+   Content-Type: text/plain
+
+From - 
+From: Stephen A Uhler <sau@sleepy.bellcore.com>
+To: nsb@thumper.bellcore.com
+Subject: Re:  your multipart stuff
+Date: Thu, 24 Oct 1991 11:44:49 -0400
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: audio/basic
+   Content-Type: text/plain
+   Content-Type: image/pbm
+   Content-Type: text/plain
+   Content-Type: application/x-annotate-2
+   Content-Type: text/plain
+
+From - 
+From: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+Subject: Binary (octet-stream) test
+Date: Fri, 29 Nov 1991 07:13:38 -0500
+Content-Type: application/octet-stream
+
+From - 
+From: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+To: ietf-822@dimacs.rutgers.edu
+Subject: Another MIME test
+Date: Sun, 29 Dec 1991 16:32:06 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/richtext
+      Content-Type: image/xwd
+      Content-Type: text/plain
+      Content-Type: audio/basic
+
+From - 
+From: nsb@thumper.bellcore.com
+Subject: GIF image (1/3)
+Date: Fri, 29 Nov 1991 07:13:39 -0500
+Content-Type: message/partial
+
+From - 
+From: Nathaniel Borenstein <nsb>
+To: Dave Crocker <dcrocker@mordor.stanford.edu>
+Subject: PS -- Re: RFC-HDR care and feeding
+Date: Mon, 27 Jan 1992 10:52:05 -0500
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: multipart/mixed
+      Content-Type: text/plain
+      Content-Type: image/gif
+      Content-Type: text/plain
+
