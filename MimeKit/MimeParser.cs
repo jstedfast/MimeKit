@@ -654,7 +654,7 @@ namespace MimeKit {
 				if (icase.Compare (header.Field, "Content-Type") != 0)
 					continue;
 
-				if (!ContentType.TryParse (header.RawValue, out type))
+				if (!ContentType.TryParse (options, header.RawValue, out type))
 					return new ContentType ("application", "octet-stream");
 
 				return type;

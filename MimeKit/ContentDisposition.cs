@@ -152,7 +152,7 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
 		{
 			string type;
 			int atom;
@@ -196,12 +196,40 @@ namespace MimeKit {
 				return true;
 
 			ParameterList parameters;
-			if (!ParameterList.TryParse (text, ref index, endIndex, throwOnError, out parameters))
+			if (!ParameterList.TryParse (options, text, ref index, endIndex, throwOnError, out parameters))
 				return false;
 
 			disposition.Parameters = parameters;
 
 			return true;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="disposition">The parsed disposition.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			int index = startIndex;
+
+			return TryParse (options, buffer, ref index, startIndex + length, false, out disposition);
 		}
 
 		/// <summary>
@@ -214,18 +242,31 @@ namespace MimeKit {
 		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
 		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out disposition);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="disposition">The parsed disposition.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentDisposition disposition)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
 			if (startIndex < 0 || startIndex >= buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("length");
-
 			int index = startIndex;
 
-			return TryParse (buffer, ref index, startIndex + length, false, out disposition);
+			return TryParse (options, buffer, ref index, buffer.Length, false, out disposition);
 		}
 
 		/// <summary>
@@ -237,15 +278,27 @@ namespace MimeKit {
 		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, out ContentDisposition disposition)
 		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, out disposition);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="disposition">The parsed disposition.</param>
+		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentDisposition disposition)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+			int index = 0;
 
-			int index = startIndex;
-
-			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
+			return TryParse (options, buffer, ref index, buffer.Length, false, out disposition);
 		}
 
 		/// <summary>
@@ -256,12 +309,7 @@ namespace MimeKit {
 		/// <param name="disposition">The parsed disposition.</param>
 		public static bool TryParse (byte[] buffer, out ContentDisposition disposition)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			int index = 0;
-
-			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
+			return TryParse (ParserOptions.Default, buffer, out disposition);
 		}
 
 		/// <summary>
@@ -278,17 +326,22 @@ namespace MimeKit {
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
-			return TryParse (buffer, ref index, buffer.Length, false, out disposition);
+			return TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out disposition);
 		}
 
 		/// <summary>
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
+		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
 		/// <param name="length">The length of the buffer.</param>
-		public static ContentDisposition Parse (byte[] buffer, int startIndex, int length)
+		public static ContentDisposition Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
@@ -301,7 +354,7 @@ namespace MimeKit {
 			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (buffer, ref index, startIndex + length, true, out disposition);
+			TryParse (options, buffer, ref index, startIndex + length, true, out disposition);
 
 			return disposition;
 		}
@@ -309,10 +362,27 @@ namespace MimeKit {
 		/// <summary>
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
-		public static ContentDisposition Parse (byte[] buffer, int startIndex)
+		/// <param name="length">The length of the buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer, int startIndex, int length)
 		{
+			return Parse (ParserOptions.Default, buffer, startIndex, length);
+		}
+
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The start index of the buffer.</param>
+		public static ContentDisposition Parse (ParserOptions options, byte[] buffer, int startIndex)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
@@ -322,7 +392,7 @@ namespace MimeKit {
 			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (options, buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}
@@ -330,23 +400,50 @@ namespace MimeKit {
 		/// <summary>
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
-		public static ContentDisposition Parse (byte[] buffer)
+		/// <param name="startIndex">The start index of the buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer, int startIndex)
 		{
+			return Parse (ParserOptions.Default, buffer, startIndex);
+		}
+
+		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="buffer">The input buffer.</param>
+		public static ContentDisposition Parse (ParserOptions options, byte[] buffer)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
 			ContentDisposition disposition;
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (options, buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}
 
 		/// <summary>
+		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
+		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		public static ContentDisposition Parse (byte[] buffer)
+		{
+			return Parse (ParserOptions.Default, buffer);
+		}
+
+		/// <summary>
 		/// Parse the specified text into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
+		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="text">The input text.</param>
 		public static ContentDisposition Parse (string text)
 		{
@@ -357,7 +454,7 @@ namespace MimeKit {
 			ContentDisposition disposition;
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, true, out disposition);
 
 			return disposition;
 		}

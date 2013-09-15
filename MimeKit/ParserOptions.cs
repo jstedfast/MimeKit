@@ -25,27 +25,59 @@
 //
 
 using System;
+using System.Text;
 
 namespace MimeKit {
 	public sealed class ParserOptions
 	{
+		/// <summary>
+		/// The default parser options.
+		/// </summary>
 		public static readonly ParserOptions Default;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether rfc2047 workarounds should be used.
+		/// </summary>
+		/// <value><c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
 		public bool EnableRfc2047Workarounds { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the Content-Length value should be
+		/// respected when parsing mbox streams.
+		/// </summary>
+		/// <value><c>true</c> if the Content-Length value should be respected;
+		/// otherwise, <c>false</c>.</value>
 		public bool RespectContentLength { get; set; }
+
+		/// <summary>
+		/// Gets or sets the charset encoding to use as a fallback for 8bit headers.
+		/// </summary>
+		/// <remarks>
+		/// <see cref="MimeKit.Rfc2047.DecodeText"/> and <see cref="MimeKit.Rfc2047.DecodePhrase"/>
+		/// use this charset encoding as a fallback when decoding 8bit text into unicode. The first
+		/// charset encoding attempted is UTF-8, followed by this charset encoding, before finally
+		/// falling back to iso-8859-1.
+		/// </remarks>
+		/// <value>The charset encoding.</value>
+		public Encoding CharsetEncoding { get; set; }
 
 		static ParserOptions ()
 		{
 			Default = new ParserOptions ();
 			Default.EnableRfc2047Workarounds = true;
 			Default.RespectContentLength = false;
+			Default.CharsetEncoding = Encoding.Default;
 		}
 
+		/// <summary>
+		/// Clones an instance of <see cref="MimeKit.ParserOptions"/>.
+		/// </summary>
 		public ParserOptions Clone ()
 		{
 			var options = new ParserOptions ();
 			options.EnableRfc2047Workarounds = EnableRfc2047Workarounds;
 			options.RespectContentLength = RespectContentLength;
+			options.CharsetEncoding = CharsetEncoding;
 
 			return options;
 		}

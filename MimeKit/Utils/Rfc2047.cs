@@ -443,7 +443,7 @@ namespace MimeKit {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
-		static unsafe string DecodeTokens (IList<Token> tokens, byte[] input, int startIndex, byte* inbuf, int length)
+		static unsafe string DecodeTokens (ParserOptions options, IList<Token> tokens, byte[] input, int startIndex, byte* inbuf, int length)
 		{
 			StringBuilder decoded = new StringBuilder (length);
 			IMimeDecoder qp = new QuotedPrintableDecoder (true);
@@ -493,11 +493,11 @@ namespace MimeKit {
 						decoder.Reset ();
 						i--;
 
-						var unicode = CharsetUtils.ConvertToUnicode (codepage, output, 0, outlen, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (options, codepage, output, 0, outlen, out len);
 						decoded.Append (unicode, 0, len);
 					} else if (token.Is8bit) {
 						// *sigh* I hate broken mailers...
-						var unicode = CharsetUtils.ConvertToUnicode (input, startIndex + token.StartIndex, token.Length, out len);
+						var unicode = CharsetUtils.ConvertToUnicode (options, input, startIndex + token.StartIndex, token.Length, out len);
 						decoded.Append (unicode, 0, len);
 					} else {
 						// pure 7bit ascii, a breath of fresh air...
@@ -546,7 +546,7 @@ namespace MimeKit {
 						codepage = kvp.Key;
 					}
 
-					return DecodeTokens (tokens, phrase, startIndex, inbuf, count);
+					return DecodeTokens (options, tokens, phrase, startIndex, inbuf, count);
 				}
 			}
 		}
@@ -581,7 +581,7 @@ namespace MimeKit {
 				fixed (byte* inbuf = phrase) {
 					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
 
-					return DecodeTokens (tokens, phrase, startIndex, inbuf, count);
+					return DecodeTokens (options, tokens, phrase, startIndex, inbuf, count);
 				}
 			}
 		}
@@ -650,7 +650,7 @@ namespace MimeKit {
 				fixed (byte* inbuf = text) {
 					var tokens = TokenizeText (options, inbuf, startIndex, count);
 
-					return DecodeTokens (tokens, text, startIndex, inbuf, count);
+					return DecodeTokens (options, tokens, text, startIndex, inbuf, count);
 				}
 			}
 		}

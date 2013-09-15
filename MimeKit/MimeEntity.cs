@@ -201,7 +201,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Changed:
 				switch (id) {
 				case HeaderId.ContentDisposition:
-					ContentDisposition = ContentDisposition.Parse (header.RawValue);
+					ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition);
 					break;
 				case HeaderId.ContentId:
 					contentId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
@@ -211,9 +211,10 @@ namespace MimeKit {
 			case HeaderListChangedAction.Removed:
 				switch (id) {
 				case HeaderId.ContentDisposition:
-					if (ContentDisposition != null)
-						ContentDisposition.Changed -= ContentDispositionChanged;
-					ContentDisposition = null;
+					if (disposition != null)
+						disposition.Changed -= ContentDispositionChanged;
+
+					disposition = null;
 					break;
 				case HeaderId.ContentId:
 					contentId = null;
@@ -221,10 +222,10 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
-				if (ContentDisposition != null)
-					ContentDisposition.Changed -= ContentDispositionChanged;
+				if (disposition != null)
+					disposition.Changed -= ContentDispositionChanged;
 
-				ContentDisposition = null;
+				disposition = null;
 				contentId = null;
 				break;
 			default:

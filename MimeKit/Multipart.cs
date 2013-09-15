@@ -85,7 +85,7 @@ namespace MimeKit {
 		public string Preamble {
 			get {
 				if (preamble == null && RawPreamble != null)
-					preamble = CharsetUtils.ConvertToUnicode (RawPreamble, 0, RawPreamble.Length);
+					preamble = CharsetUtils.ConvertToUnicode (Headers.Options, RawPreamble, 0, RawPreamble.Length);
 
 				return preamble;
 			}
@@ -111,7 +111,7 @@ namespace MimeKit {
 		public string Epilogue {
 			get {
 				if (epilogue == null && RawEpilogue != null)
-					epilogue = CharsetUtils.ConvertToUnicode (RawEpilogue, 0, RawEpilogue.Length);
+					epilogue = CharsetUtils.ConvertToUnicode (Headers.Options, RawEpilogue, 0, RawEpilogue.Length);
 
 				return epilogue;
 			}

@@ -619,7 +619,7 @@ namespace MimeKit {
 			return new string (output, 0, outLength);
 		}
 
-		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
 			var rfc2184 = new Dictionary<string, List<NameValuePair>> (icase);
 			var @params = new List<NameValuePair> ();
@@ -690,10 +690,10 @@ namespace MimeKit {
 							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
 						} else if (length >= 2 && text[startIndex] == (byte) '"') {
 							// FIXME: use Rfc2047.Unquote()??
-							value += CharsetUtils.ConvertToUnicode (text, startIndex + 1, length - 2);
+							value += CharsetUtils.ConvertToUnicode (options, text, startIndex + 1, length - 2);
 							hex.Reset ();
 						} else if (length > 0) {
-							value += CharsetUtils.ConvertToUnicode (text, startIndex, length);
+							value += CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
 							hex.Reset ();
 						}
 					}

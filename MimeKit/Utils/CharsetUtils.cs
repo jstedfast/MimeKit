@@ -386,9 +386,10 @@ namespace MimeKit {
 		}
 
 		// TODO: add a fallback list of charsets to ParserOptions and use that?
-		internal static char[] ConvertToUnicode (byte[] input, int startIndex, int length, out int charCount)
+		internal static char[] ConvertToUnicode (ParserOptions options, byte[] input, int startIndex, int length, out int charCount)
 		{
 			var invalid = new InvalidByteCountFallback ();
+			var userCharset = options.CharsetEncoding;
 			int min = Int32.MaxValue;
 			int bestCharCount = 0;
 			char[] output = null;
@@ -399,8 +400,8 @@ namespace MimeKit {
 			int count;
 
 			// Note: 65001 is UTF-8 and 28591 is iso-8859-1
-			if (Encoding.Default.CodePage != 65001 && Encoding.Default.CodePage != 28591) {
-				codepages = new int[] { 65001, Encoding.Default.CodePage, 28591 };
+			if (userCharset != null && userCharset.CodePage != 65001 && userCharset.CodePage != 28591) {
+				codepages = new int[] { 65001, userCharset.CodePage, 28591 };
 			} else {
 				codepages = new int[] { 65001, 28591 };
 			}
@@ -431,8 +432,11 @@ namespace MimeKit {
 			return output;
 		}
 
-		public static string ConvertToUnicode (byte[] buffer, int startIndex, int length)
+		public static string ConvertToUnicode (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
@@ -444,7 +448,7 @@ namespace MimeKit {
 
 			int count;
 
-			return new string (ConvertToUnicode (buffer, startIndex, length, out count), 0, count);
+			return new string (ConvertToUnicode (options, buffer, startIndex, length, out count), 0, count);
 		}
 
 		internal static char[] ConvertToUnicode (Encoding encoding, byte[] input, int startIndex, int length, out int charCount)
@@ -458,7 +462,7 @@ namespace MimeKit {
 			return output;
 		}
 
-		internal static char[] ConvertToUnicode (int codepage, byte[] input, int startIndex, int length, out int charCount)
+		internal static char[] ConvertToUnicode (ParserOptions options, int codepage, byte[] input, int startIndex, int length, out int charCount)
 		{
 			Encoding encoding = null;
 
@@ -470,7 +474,7 @@ namespace MimeKit {
 			}
 
 			if (encoding == null)
-				return ConvertToUnicode (input, startIndex, length, out charCount);
+				return ConvertToUnicode (options, input, startIndex, length, out charCount);
 
 			return ConvertToUnicode (encoding, input, startIndex, length, out charCount);
 		}
