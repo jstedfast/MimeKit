@@ -32,13 +32,13 @@ namespace MimeKit {
 	public static class CharsetUtils
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
-		static Dictionary<string, Encoding> aliases;
+		static readonly Dictionary<string, Encoding> aliases;
 
 		static CharsetUtils ()
 		{
 			Encoding encoding;
 
-			aliases = new Dictionary<string, Encoding> ();
+			aliases = new Dictionary<string, Encoding> (icase);
 
 			aliases.Add ("utf8", GetEncoding (65001));
 
@@ -58,7 +58,7 @@ namespace MimeKit {
 				aliases.Add ("ks_c_5861-1992", encoding);
 				aliases.Add ("euckr-0",        encoding);
 				aliases.Add ("euc-kr",         encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			try {
@@ -68,7 +68,7 @@ namespace MimeKit {
 				aliases.Add ("big5-0",         encoding);
 				aliases.Add ("big5.eten-0",    encoding);
 				aliases.Add ("big5hkscs-0",    encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			try {
@@ -82,7 +82,7 @@ namespace MimeKit {
 				aliases.Add ("euc-cn",         encoding);
 				aliases.Add ("gbk-0",          encoding);
 				aliases.Add ("gbk",            encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			try {
@@ -90,7 +90,7 @@ namespace MimeKit {
 				encoding = GetEncoding (54936); // gb18030
 				aliases.Add ("gb18030-0",      encoding);
 				aliases.Add ("gb18030",        encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			try {
@@ -100,7 +100,7 @@ namespace MimeKit {
 				aliases.Add ("euc-jp",         encoding);
 				aliases.Add ("ujis-0",         encoding);
 				aliases.Add ("ujis",           encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			try {
@@ -108,7 +108,7 @@ namespace MimeKit {
 				aliases.Add ("jisx0208.1983-0", encoding);
 				aliases.Add ("jisx0212.1990-0", encoding);
 				aliases.Add ("pck",             encoding);
-			} catch {
+			} catch (NotSupportedException) {
 			}
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
@@ -203,7 +203,7 @@ namespace MimeKit {
 			int codepage;
 			int i;
 
-			if (charset.StartsWith ("windows", StringComparison.Ordinal)) {
+			if (charset.StartsWith ("windows", StringComparison.OrdinalIgnoreCase)) {
 				i = 7;
 
 				if (i == charset.Length)
@@ -221,7 +221,7 @@ namespace MimeKit {
 
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
-			} else if (charset.StartsWith ("iso", StringComparison.Ordinal)) {
+			} else if (charset.StartsWith ("iso", StringComparison.OrdinalIgnoreCase)) {
 				i = 3;
 
 				if (i == charset.Length)
@@ -232,7 +232,7 @@ namespace MimeKit {
 
 				if ((codepage = ParseIsoCodePage (charset.Substring (i))) != -1)
 					return codepage;
-			} else if (charset.StartsWith ("cp", StringComparison.Ordinal)) {
+			} else if (charset.StartsWith ("cp", StringComparison.OrdinalIgnoreCase)) {
 				i = 2;
 
 				if (i == charset.Length)
@@ -257,36 +257,15 @@ namespace MimeKit {
 
 		public static int GetCodePage (string charset)
 		{
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
+			var encoding = GetEncoding (charset);
 
-			charset = charset.ToLowerInvariant ();
-
-			Encoding encoding;
-
-			lock (aliases) {
-				if (!aliases.TryGetValue (charset, out encoding)) {
-					int codepage = ParseCodePage (charset);
-
-					if (codepage == -1)
-						return -1;
-
-					encoding = GetEncoding (codepage);
-
-					if (encoding != null)
-						aliases.Add (encoding.HeaderName, encoding);
-				}
-			}
-
-			return encoding.CodePage;
+			return encoding != null ? encoding.CodePage : -1;
 		}
 
 		public static Encoding GetEncoding (string charset)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
-
-			charset = charset.ToLowerInvariant ();
 
 			Encoding encoding;
 
@@ -299,8 +278,10 @@ namespace MimeKit {
 
 					encoding = GetEncoding (codepage);
 
-					if (encoding != null)
-						aliases.Add (encoding.HeaderName, encoding);
+					if (encoding != null) {
+						aliases[encoding.HeaderName] = encoding;
+						aliases[charset] = encoding;
+					}
 				}
 			}
 
@@ -309,10 +290,12 @@ namespace MimeKit {
 
 		public static Encoding GetEncoding (int codepage)
 		{
-			var encoderFallback = new EncoderReplacementFallback ("?");
-			var decoderFallback = new DecoderReplacementFallback ("?");
+			//var encoderFallback = new EncoderReplacementFallback ("?");
+			//var decoderFallback = new DecoderReplacementFallback ("?");
+			//
+			//return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
 
-			return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
+			return Encoding.GetEncoding (codepage);
 		}
 
 		class InvalidByteCountFallback : DecoderFallback
