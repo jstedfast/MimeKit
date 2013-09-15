@@ -32,84 +32,61 @@ namespace MimeKit {
 	public static class CharsetUtils
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
-		static readonly Dictionary<string, Encoding> aliases;
+		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()
 		{
-			Encoding encoding;
+			aliases = new Dictionary<string, int> (icase);
 
-			aliases = new Dictionary<string, Encoding> (icase);
-
-			aliases.Add ("utf8", GetEncoding (65001));
+			aliases.Add ("utf-8", 65001);
+			aliases.Add ("utf8", 65001);
 
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
-			aliases.Add ("ansi_x3.4-1968", GetEncoding (20127));
+			aliases.Add ("ansi_x3.4-1968", 20127);
 
-			try {
-				// Korean charsets
-				// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
-				encoding = GetEncoding (51949); // euc-kr
-				aliases.Add ("ks_c_5601-1987", encoding);
-				aliases.Add ("5601",           encoding);
-				aliases.Add ("ksc-5601",       encoding);
-				aliases.Add ("ksc-5601-1987",  encoding);
-				aliases.Add ("ksc-5601_1987",  encoding);
-				aliases.Add ("ks_c_5861-1992", encoding);
-				aliases.Add ("euckr-0",        encoding);
-				aliases.Add ("euc-kr",         encoding);
-			} catch (NotSupportedException) {
-			}
+			// Korean charsets (aliases for euc-kr)
+			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
+			aliases.Add ("ks_c_5601-1987", 51949);
+			aliases.Add ("5601",           51949);
+			aliases.Add ("ksc-5601",       51949);
+			aliases.Add ("ksc-5601-1987",  51949);
+			aliases.Add ("ksc-5601_1987",  51949);
+			aliases.Add ("ks_c_5861-1992", 51949);
+			aliases.Add ("euckr-0",        51949);
+			aliases.Add ("euc-kr",         51949);
 
-			try {
-				// Chinese charsets
-				encoding = GetEncoding (950); // big5
-				aliases.Add ("big5",           encoding);
-				aliases.Add ("big5-0",         encoding);
-				aliases.Add ("big5.eten-0",    encoding);
-				aliases.Add ("big5hkscs-0",    encoding);
-			} catch (NotSupportedException) {
-			}
+			// Chinese charsets (aliases for big5)
+			aliases.Add ("big5",           950);
+			aliases.Add ("big5-0",         950);
+			aliases.Add ("big5.eten-0",    950);
+			aliases.Add ("big5hkscs-0",    950);
 
-			try {
-				// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
-				encoding = GetEncoding (51936); // euc-cn
-				aliases.Add ("gb2312",         encoding);
-				aliases.Add ("gb-2312",        encoding);
-				aliases.Add ("gb2312-0",       encoding);
-				aliases.Add ("gb2312-80",      encoding);
-				aliases.Add ("gb2312.1980-0",  encoding);
-				aliases.Add ("euc-cn",         encoding);
-				aliases.Add ("gbk-0",          encoding);
-				aliases.Add ("gbk",            encoding);
-			} catch (NotSupportedException) {
-			}
+			// Chinese charsets (aliases for gbk / euc-cn)
+			// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
+			aliases.Add ("gb2312",         51936);
+			aliases.Add ("gb-2312",        51936);
+			aliases.Add ("gb2312-0",       51936);
+			aliases.Add ("gb2312-80",      51936);
+			aliases.Add ("gb2312.1980-0",  51936);
+			aliases.Add ("euc-cn",         51936);
+			aliases.Add ("gbk-0",          51936);
+			aliases.Add ("gbk",            51936);
 
-			try {
-				// add aliases for gb18030
-				encoding = GetEncoding (54936); // gb18030
-				aliases.Add ("gb18030-0",      encoding);
-				aliases.Add ("gb18030",        encoding);
-			} catch (NotSupportedException) {
-			}
+			// Chinese charsets (aliases for gb18030)
+			aliases.Add ("gb18030-0",      54936);
+			aliases.Add ("gb18030",        54936);
 
-			try {
-				// Japanese charsets
-				encoding = GetEncoding (51932); // euc-jp
-				aliases.Add ("eucjp-0",        encoding);
-				aliases.Add ("euc-jp",         encoding);
-				aliases.Add ("ujis-0",         encoding);
-				aliases.Add ("ujis",           encoding);
-			} catch (NotSupportedException) {
-			}
+			// Japanese charsets (aliases for euc-jp)
+			aliases.Add ("eucjp-0",        51932);
+			aliases.Add ("euc-jp",         51932);
+			aliases.Add ("ujis-0",         51932);
+			aliases.Add ("ujis",           51932);
 
-			try {
-				encoding = GetEncoding (932); // shift_jis
-				aliases.Add ("jisx0208.1983-0", encoding);
-				aliases.Add ("jisx0212.1990-0", encoding);
-				aliases.Add ("pck",             encoding);
-			} catch (NotSupportedException) {
-			}
+			// Japanese charsets (aliases for Shift_JIS)
+			aliases.Add ("jisx0208.1983-0", 932);
+			aliases.Add ("jisx0212.1990-0", 932);
+			aliases.Add ("pck",             932);
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
 			// Encodings 50220 and 50222 are both associated with the name "iso-2022-jp", but they
@@ -139,12 +116,12 @@ namespace MimeKit {
 
 		public static string GetMimeCharset (string charset)
 		{
-			Encoding encoding = GetEncoding (charset);
-
-			if (encoding == null)
+			try {
+				var encoding = GetEncoding (charset);
+				return GetMimeCharset (encoding);
+			} catch (NotSupportedException) {
 				return charset;
-
-			return GetMimeCharset (encoding);
+			}
 		}
 
 		static int ParseIsoCodePage (string charset)
@@ -180,7 +157,7 @@ namespace MimeKit {
 				codepage += 28590;
 				break;
 			case 2022:
-				switch (suffix) {
+				switch (suffix.ToLowerInvariant ()) {
 				case "jp":
 					codepage = 50220;
 					break;
@@ -257,44 +234,74 @@ namespace MimeKit {
 
 		public static int GetCodePage (string charset)
 		{
-			var encoding = GetEncoding (charset);
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
 
-			return encoding != null ? encoding.CodePage : -1;
+			int codepage;
+
+			lock (aliases) {
+				if (!aliases.TryGetValue (charset, out codepage)) {
+					codepage = ParseCodePage (charset);
+
+					if (codepage == -1)
+						return -1;
+
+					try {
+						var encoding = Encoding.GetEncoding (codepage);
+						aliases[encoding.HeaderName] = codepage;
+					} catch (NotSupportedException) {
+						codepage = -1;
+					}
+
+					aliases[charset] = codepage;
+				}
+			}
+
+			return codepage;
+		}
+
+		public static Encoding GetEncoding (string charset, string fallback)
+		{
+			int codepage;
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (fallback == null)
+				throw new ArgumentNullException ("fallback");
+
+			if ((codepage = GetCodePage (charset)) == -1)
+				throw new NotSupportedException ();
+
+			var encoderFallback = new EncoderReplacementFallback (fallback);
+			var decoderFallback = new DecoderReplacementFallback (fallback);
+
+			return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
 		}
 
 		public static Encoding GetEncoding (string charset)
 		{
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
+			int codepage = GetCodePage (charset);
 
-			Encoding encoding;
+			if (codepage == -1)
+				throw new NotSupportedException ();
 
-			lock (aliases) {
-				if (!aliases.TryGetValue (charset, out encoding)) {
-					int codepage = ParseCodePage (charset);
+			return Encoding.GetEncoding (codepage);
+		}
 
-					if (codepage == -1)
-						return null;
+		public static Encoding GetEncoding (int codepage, string fallback)
+		{
+			if (fallback == null)
+				throw new ArgumentNullException ("fallback");
 
-					encoding = GetEncoding (codepage);
+			var encoderFallback = new EncoderReplacementFallback (fallback);
+			var decoderFallback = new DecoderReplacementFallback (fallback);
 
-					if (encoding != null) {
-						aliases[encoding.HeaderName] = encoding;
-						aliases[charset] = encoding;
-					}
-				}
-			}
-
-			return encoding;
+			return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
 		}
 
 		public static Encoding GetEncoding (int codepage)
 		{
-			//var encoderFallback = new EncoderReplacementFallback ("?");
-			//var decoderFallback = new DecoderReplacementFallback ("?");
-			//
-			//return Encoding.GetEncoding (codepage, encoderFallback, decoderFallback);
-
 			return Encoding.GetEncoding (codepage);
 		}
 
@@ -378,10 +385,12 @@ namespace MimeKit {
 			}
 		}
 
+		// TODO: add a fallback list of charsets to ParserOptions and use that?
 		internal static char[] ConvertToUnicode (byte[] input, int startIndex, int length, out int charCount)
 		{
 			var invalid = new InvalidByteCountFallback ();
 			int min = Int32.MaxValue;
+			int bestCharCount = 0;
 			char[] output = null;
 			Encoding encoding;
 			Decoder decoder;
@@ -403,6 +412,7 @@ namespace MimeKit {
 				count = decoder.GetCharCount (input, startIndex, length, true);
 				if (invalid.InvalidByteCount < min) {
 					min = invalid.InvalidByteCount;
+					bestCharCount = count;
 					best = codepages[i];
 
 					if (min == 0)
@@ -412,11 +422,9 @@ namespace MimeKit {
 				invalid.Reset ();
 			}
 
-			encoding = CharsetUtils.GetEncoding (best);
+			encoding = CharsetUtils.GetEncoding (best, "?");
 			decoder = encoding.GetDecoder ();
-
-			count = decoder.GetCharCount (input, startIndex, length, true);
-			output = new char[count];
+			output = new char[bestCharCount];
 
 			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
 
@@ -454,8 +462,12 @@ namespace MimeKit {
 		{
 			Encoding encoding = null;
 
-			if (codepage != -1)
-				encoding = CharsetUtils.GetEncoding (codepage);
+			if (codepage != -1) {
+				try {
+					encoding = CharsetUtils.GetEncoding (codepage);
+				} catch (NotSupportedException) {
+				}
+			}
 
 			if (encoding == null)
 				return ConvertToUnicode (input, startIndex, length, out charCount);

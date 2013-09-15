@@ -587,15 +587,22 @@ namespace MimeKit {
 			int index = startIndex;
 			string charset;
 
+			// Note: decoder is only null if this is the first segment
 			if (decoder == null) {
-				Encoding encoding;
-
-				if (TryGetCharset (text, ref index, endIndex, out charset))
-					encoding = CharsetUtils.GetEncoding (charset);
-				else
-					encoding = Encoding.UTF8;
-
-				decoder = encoding.GetDecoder ();
+				if (TryGetCharset (text, ref index, endIndex, out charset)) {
+					try {
+						var encoding = CharsetUtils.GetEncoding (charset, "?");
+						decoder = encoding.GetDecoder ();
+					} catch (NotSupportedException) {
+						var encoding = Encoding.GetEncoding (28591); // iso-8859-1
+						decoder = encoding.GetDecoder ();
+					}
+				} else {
+					// When no charset is specified, it should be safe to assume US-ASCII...
+					// but we all know what assume means, right??
+					var encoding = Encoding.GetEncoding (28591); // iso-8859-1
+					decoder = encoding.GetDecoder ();
+				}
 			}
 
 			int length = endIndex - index;
@@ -603,9 +610,6 @@ namespace MimeKit {
 
 			// hex decode...
 			length = hex.Decode (text, index, length, decoded);
-
-			if (decoder == null)
-				return CharsetUtils.ConvertToUnicode (decoded, 0, length);
 
 			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
 			char[] output = new char[outLength];

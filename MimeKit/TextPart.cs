@@ -69,10 +69,15 @@ namespace MimeKit {
 
 				Encoding encoding = null;
 
-				if (charset != null)
-					encoding = CharsetUtils.GetEncoding (charset);
+				if (charset != null) {
+					try {
+						encoding = CharsetUtils.GetEncoding (charset);
+					} catch (NotSupportedException) {
+					}
+				}
+
 				if (encoding == null)
-					encoding = CharsetUtils.GetEncoding (28591);
+					encoding = Encoding.GetEncoding (28591); // iso-8859-1
 
 				return encoding.GetString (content);
 			}
