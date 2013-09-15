@@ -175,7 +175,8 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			disposition = new ContentDisposition (type);
+			disposition = new ContentDisposition ();
+			disposition.disposition = type;
 
 			if (index >= endIndex)
 				return true;
