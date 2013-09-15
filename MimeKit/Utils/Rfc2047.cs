@@ -58,10 +58,32 @@ namespace MimeKit {
 
 		class Token {
 			public ContentEncoding Encoding;
+			public string CharsetName;
+			public string CultureName;
 			public int CodePage;
 			public int StartIndex;
 			public int Length;
 			public bool Is8bit;
+
+			public string CharsetCulture {
+				get {
+					if (!string.IsNullOrEmpty (CultureName))
+						return CharsetName + "*" + CultureName;
+
+					return CharsetName;
+				}
+			}
+
+			public Token (string charset, string culture, ContentEncoding encoding, int startIndex, int length)
+			{
+				CodePage = CharsetUtils.GetCodePage (charset);
+				CharsetName = charset;
+				CultureName = culture;
+				Encoding = encoding;
+
+				StartIndex = startIndex;
+				Length = length;
+			}
 
 			public Token (int startIndex, int length)
 			{
@@ -113,6 +135,7 @@ namespace MimeKit {
 			}
 
 			var charset = new StringBuilder ();
+			var culture = new StringBuilder ();
 
 			// find the end of the charset name
 			while (inptr < inend && *inptr != '?' && *inptr != '*') {
@@ -132,6 +155,7 @@ namespace MimeKit {
 					if (!IsAtom (*inptr))
 						return false;
 
+					culture.Append ((char) *inptr);
 					inptr++;
 				}
 			}
@@ -160,9 +184,10 @@ namespace MimeKit {
 			// skip over the '?' to get to the payload
 			inptr++;
 
-			token = new Token ((int) (inptr - input), (int) (inend - inptr));
-			token.CodePage = CharsetUtils.GetCodePage (charset.ToString ());
-			token.Encoding = encoding;
+			int start = (int) (inptr - input);
+			int len = (int) (inend - inptr);
+
+			token = new Token (charset.ToString (), culture.ToString (), encoding, start, len);
 
 			return true;
 		}
@@ -697,8 +722,7 @@ namespace MimeKit {
 						lineLength = 1;
 					}
 				} else if (token.Encoding != ContentEncoding.Default) {
-					var encoding = CharsetUtils.GetEncoding (token.CodePage);
-					var charset = CharsetUtils.GetMimeCharset (encoding);
+					string charset = token.CharsetCulture;
 
 					if (lineLength + token.Length + charset.Length + 7 > MaxLineLength) {
 						if (tab != 0) {
@@ -843,7 +867,7 @@ namespace MimeKit {
 			try {
 				word = CharsetConvert (charset, chars, length, out len);
 			} catch {
-				charset = CharsetUtils.GetEncoding (65001); // UTF-8
+				charset = Encoding.UTF8;
 				word = CharsetConvert (charset, chars, length, out len);
 			}
 
@@ -1120,8 +1144,7 @@ namespace MimeKit {
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
 			var words = Merge (GetRfc822Words (charset, text, phrase));
-			var latin1 = CharsetUtils.GetEncoding (28591);
-			var ascii = CharsetUtils.GetEncoding (20127);
+			var latin1 = Encoding.GetEncoding (28591);
 			var str = new StringBuilder ();
 			int start, length;
 			Word prev = null;
@@ -1157,7 +1180,7 @@ namespace MimeKit {
 
 					switch (word.Encoding) {
 					case 0: // us-ascii
-						AppendEncodeWord (str, ascii, text, start, length, mode);
+						AppendEncodeWord (str, Encoding.ASCII, text, start, length, mode);
 						break;
 					case 1: // iso-8859-1
 						AppendEncodeWord (str, latin1, text, start, length, mode);
