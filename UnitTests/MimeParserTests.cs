@@ -101,7 +101,7 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendLine (parser.MboxMarker);
+					builder.AppendFormat ("{0}\n", parser.MboxMarker);
 					if (message.From.Count > 0)
 						builder.AppendFormat ("From: {0}\n", message.From);
 					if (message.To.Count > 0)
@@ -109,7 +109,7 @@ namespace UnitTests {
 					builder.AppendFormat ("Subject: {0}\n", message.Subject);
 					builder.AppendFormat ("Date: {0}\n", DateUtils.ToString (message.Date));
 					DumpMimeTree (builder, message.Body, 0);
-					builder.AppendLine ();
+					builder.Append ("\n");
 				}
 			}
 
