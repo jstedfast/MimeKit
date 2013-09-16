@@ -298,6 +298,8 @@ namespace MimeKit {
 				length = Length;
 				real = length + offset;
 				break;
+			default:
+				throw new ArgumentOutOfRangeException ("origin");
 			}
 
 			// sanity check the resultant offset
