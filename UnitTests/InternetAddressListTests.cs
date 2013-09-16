@@ -232,6 +232,21 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMailboxWith8bitName ()
+		{
+			InternetAddressList expected = new InternetAddressList ();
+			InternetAddressList result;
+			string text;
+
+			text = "Patrik F¥dltstr¥vm <paf@nada.kth.se>";
+
+			expected.Add (new MailboxAddress ("Patrik F¥dltstr¥vm", "paf@nada.kth.se"));
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
 		public void TestObsoleteMailboxRoutingSyntax ()
 		{
 			InternetAddressList expected = new InternetAddressList ();

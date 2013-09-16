@@ -151,13 +151,27 @@ namespace MimeKit {
 			return index > start;
 		}
 
+		static bool Skip8bitAtom (byte[] text, ref int index, int endIndex)
+		{
+			int start = index;
+
+			while (index < endIndex && (text[index].IsAtom () || text[index] >= 127))
+				index++;
+
+			return index > start;
+		}
+
 		public static bool SkipWord (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
 			if (text[index] == (byte) '"')
 				return SkipQuoted (text, ref index, endIndex, throwOnError);
 
-			if (text[index].IsAtom ())
-				return SkipAtom (text, ref index, endIndex);
+			// Note: this is too strict; it does not allow raw 8bit text
+			//if (text[index].IsAtom ())
+			//	return SkipAtom (text, ref index, endIndex);
+
+			if (text[index].IsAtom () || text[index] >= 127)
+				return Skip8bitAtom (text, ref index, endIndex);
 
 			if (throwOnError)
 				throw new ParseException (string.Format ("Invalid word token at offset {0}", index), index, index);
