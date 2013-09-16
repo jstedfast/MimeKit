@@ -254,8 +254,9 @@ namespace MimeKit {
 			if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out minute) || minute > 59)
 				return false;
 
+			// Allow just hh:mm (i.e. w/o the :ss?)
 			if (index >= endIndex || text[index++] != (byte) ':')
-				return false;
+				return true;
 
 			if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out second) || second > 59)
 				return false;
@@ -377,7 +378,7 @@ namespace MimeKit {
 				return false;
 
 			if (!TryGetTimeZone (tokens[n], text, out tzone))
-				return false;
+				tzone = 0;
 
 			int minutes = tzone % 100;
 			int hours = tzone / 100;
