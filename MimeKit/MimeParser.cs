@@ -165,6 +165,10 @@ namespace MimeKit {
 			get { return mboxMarkerOffset; }
 		}
 
+		public string MboxMarker {
+			get { return Encoding.ASCII.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+		}
+
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format)
 		{
 			if (options == null)
