@@ -55,14 +55,10 @@
     <Folder Include="TestData\mbox\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestData\mbox\simple.mbox.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\partial\message-partial.1.msg.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\partial\message-partial.2.msg.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="TestData\mbox\simple.mbox.txt" />
+    <None Include="TestData\partial\message-partial.1.msg.txt" />
+    <None Include="TestData\partial\message-partial.2.msg.txt" />
+    <None Include="TestData\mbox\jwz.mbox.txt" />
+    <None Include="TestData\mbox\jwz-summary.txt" />
   </ItemGroup>
 </Project>

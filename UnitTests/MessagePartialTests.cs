@@ -26,8 +26,6 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -48,8 +46,8 @@ namespace UnitTests {
 		[Test]
 		public void TestReassemble ()
 		{
-			var message1 = Load ("TestData/partial/message-partial.1.msg.txt");
-			var message2 = Load ("TestData/partial/message-partial.2.msg.txt");
+			var message1 = Load ("../../TestData/partial/message-partial.1.msg.txt");
+			var message2 = Load ("../../TestData/partial/message-partial.2.msg.txt");
 
 			Assert.IsNotNull (message1, "Failed to parse message-partial.1.msg");
 			Assert.IsNotNull (message2, "Failed to parse message-partial.2.msg");
