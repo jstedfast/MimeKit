@@ -634,6 +634,12 @@ namespace MimeKit {
 				if (index >= endIndex)
 					break;
 
+				// handle empty parameter name/value pairs
+				if (text[index] == (byte) ';') {
+					index++;
+					continue;
+				}
+
 				NameValuePair pair;
 				if (!TryParseNameValuePair (text, ref index, endIndex, throwOnError, out pair))
 					return false;

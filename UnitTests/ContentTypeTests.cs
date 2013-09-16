@@ -77,6 +77,21 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestContentTypeWithEmptyParameter ()
+		{
+			ContentType type;
+			string text;
+
+			text = "multipart/mixed;;\n                Boundary=\"===========================_ _= 1212158(26598)\"";
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("boundary"), "Parameter list does not contain boundary param: {0}", text);
+			Assert.AreEqual (type.Parameters["boundary"], "===========================_ _= 1212158(26598)", "boundary values do not match: {0}", text);
+		}
+
+		[Test]
 		public void TestEncodedParameterExampleFromRfc2184 ()
 		{
 			ContentType type;
