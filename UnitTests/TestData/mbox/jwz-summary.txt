@@ -846,7 +846,7 @@ Content-Type: multipart/mixed
             Content-Type: text/richtext
 
 From - 
-From: "Patrik F¥ddltstr¥vvm" <paf@nada.kth.se>
+From: "Patrik F¥dltstr¥vm" <paf@nada.kth.se>
 To: "Brad Huntting" <huntting@advtech.uswest.com>
 Subject: MIME letter with ISO-8859-1
 Date: Sun, 15 Nov 1992 15:09:59 +0100
