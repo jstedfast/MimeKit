@@ -320,9 +320,9 @@ namespace MimeKit {
 
 		static unsafe bool IsMboxMarker (byte* text)
 		{
-			fixed (byte* mbox = Boundary.MboxFrom) {
-				return CStringsEqual (text, mbox, 5);
-			}
+			byte* inptr = text;
+
+			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
 		}
 
 		unsafe int StepMboxMarker ()
@@ -686,13 +686,13 @@ namespace MimeKit {
 			if (boundaryLength > length)
 				return false;
 
-			fixed (byte* boundaryptr = boundary, from = Boundary.MboxFrom) {
+			fixed (byte* boundaryptr = boundary) {
 				// make sure that the text matches the boundary
 				if (!CStringsEqual (text, boundaryptr, boundaryLength))
 					return false;
 
 				// if this is an mbox marker, we're done
-				if (CStringsEqual (text, from, 5))
+				if (IsMboxMarker (text))
 					return true;
 
 				// the boundary may optionally be followed by lwsp
