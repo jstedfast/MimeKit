@@ -302,11 +302,19 @@ namespace MimeKit {
 			int startIndex = index;
 			int length = 0;
 
-			while (index < endIndex && ParseUtils.SkipWord (text, ref index, endIndex, throwOnError)) {
+			while (index < endIndex && ParseUtils.Skip8bitWord (text, ref index, endIndex, throwOnError)) {
 				length = index - startIndex;
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-					return false;
+				do {
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					// Note: some clients don't quote dots in the name
+					if (index >= endIndex || text[index] != (byte) '.')
+						break;
+
+					index++;
+				} while (true);
 			}
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -362,7 +370,7 @@ namespace MimeKit {
 				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
 			}
 
-			if (text[index] == '.' || text[index] == (byte) '@') {
+			if (text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
 				string addrspec;
 
