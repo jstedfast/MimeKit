@@ -311,11 +311,8 @@ namespace MimeKit {
 			byte* s2 = str2;
 
 			while (s1 < se) {
-				if (*s1 != *s2)
+				if (*s1++ != *s2++)
 					return false;
-
-				s1++;
-				s2++;
 			}
 
 			return true;
