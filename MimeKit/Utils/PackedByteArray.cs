@@ -164,7 +164,7 @@ namespace MimeKit {
 
 		public void Insert (int index, byte item)
 		{
-			throw new NotImplementedException ();
+			throw new NotSupportedException ();
 		}
 
 		public void RemoveAt (int index)
@@ -221,7 +221,7 @@ namespace MimeKit {
 				return (byte) (buffer[i] & 0xFF);
 			}
 			set {
-				throw new NotImplementedException ();
+				throw new NotSupportedException ();
 			}
 		}
 
