@@ -204,7 +204,7 @@ namespace MimeKit {
 					ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition);
 					break;
 				case HeaderId.ContentId:
-					contentId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					contentId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					break;
 				}
 				break;

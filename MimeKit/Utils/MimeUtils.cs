@@ -26,6 +26,7 @@
 
 using System;
 using System.Net;
+using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -34,6 +35,11 @@ namespace MimeKit {
 	{
 		static int MessageIdCounter = 0;
 
+		/// <summary>
+		/// Generates a token suitable for a Message-Id.
+		/// </summary>
+		/// <returns>The message identifier.</returns>
+		/// <param name="domain">A domain to use.</param>
 		public static string GenerateMessageId (string domain)
 		{
 			if (domain == null)
@@ -44,34 +50,45 @@ namespace MimeKit {
 			                      MessageIdCounter++, domain);
 		}
 
+		/// <summary>
+		/// Generates a token suitable for a Message-Id.
+		/// </summary>
+		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
 			return GenerateMessageId (Dns.GetHostName ());
 		}
 
-		public static IEnumerable<string> TryEnumerateReferences (byte[] text, int startIndex, int length)
+		/// <summary>
+		/// Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+		/// </summary>
+		/// <returns>The references.</returns>
+		/// <param name="buffer">The raw byte buffer to parse.</param>
+		/// <param name="startIndex">The index into the buffer to start parsing.</param>
+		/// <param name="length">The length of the buffer to parse.</param>
+		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			InternetAddress addr;
 
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > text.Length)
+			if (length < 0 || startIndex + length > buffer.Length)
 				throw new ArgumentOutOfRangeException ("length");
 
 			do {
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, false))
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
 					break;
 
 				if (index >= endIndex)
 					break;
 
-				if (!InternetAddress.TryParseMailbox (text, startIndex, ref index, startIndex + length, "", 65001, false, out addr))
+				if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, startIndex + length, "", 65001, false, out addr))
 					break;
 
 				yield return "<" + ((MailboxAddress) addr).Address + ">";
@@ -80,15 +97,38 @@ namespace MimeKit {
 			yield break;
 		}
 
-		public static bool TryParseVersion (byte[] text, int startIndex, int length, out Version version)
+		/// <summary>
+		/// Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+		/// </summary>
+		/// <returns>The references.</returns>
+		/// <param name="text">The text to parse.</param>
+		public static IEnumerable<string> EnumerateReferences (string text)
 		{
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			var buffer = Encoding.UTF8.GetBytes (text);
+
+			return EnumerateReferences (buffer, 0, buffer.Length);
+		}
+
+		/// <summary>
+		/// Tries to parse a version from a header such as Mime-Version.
+		/// </summary>
+		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The raw byte buffer to parse.</param>
+		/// <param name="startIndex">The index into the buffer to start parsing.</param>
+		/// <param name="length">The length of the buffer to parse.</param>
+		/// <param name="version">The parsed version.</param>
+		public static bool TryParseVersion (byte[] buffer, int startIndex, int length, out Version version)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > text.Length)
+			if (length < 0 || startIndex + length > buffer.Length)
 				throw new ArgumentOutOfRangeException ("length");
 
 			List<int> values = new List<int> ();
@@ -99,21 +139,21 @@ namespace MimeKit {
 			version = null;
 
 			do {
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, false) || index >= endIndex)
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index >= endIndex)
 					return false;
 
-				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out value))
+				if (!ParseUtils.TryParseInt32 (buffer, ref index, endIndex, out value))
 					return false;
 
 				values.Add (value);
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, false))
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
 					return false;
 
 				if (index >= endIndex)
 					break;
 
-				if (text[index++] != (byte) '.')
+				if (buffer[index++] != (byte) '.')
 					return false;
 			} while (index < endIndex);
 
@@ -125,6 +165,22 @@ namespace MimeKit {
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		/// Tries to parse a version from a header such as Mime-Version.
+		/// </summary>
+		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="version">The parsed version.</param>
+		public static bool TryParseVersion (string text, out Version version)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+
+			return TryParseVersion (buffer, 0, buffer.Length, out version);
 		}
 	}
 }

@@ -385,7 +385,6 @@ namespace MimeKit {
 			}
 		}
 
-		// TODO: add a fallback list of charsets to ParserOptions and use that?
 		internal static char[] ConvertToUnicode (ParserOptions options, byte[] input, int startIndex, int length, out int charCount)
 		{
 			var invalid = new InvalidByteCountFallback ();

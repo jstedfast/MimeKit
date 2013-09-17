@@ -335,15 +335,15 @@ namespace MimeKit {
 						return;
 					break;
 				case MessageHeader.References:
-					foreach (var msgid in MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
 						references.Add (msgid);
 					break;
 				case MessageHeader.InReplyTo:
-					foreach (var msgid in MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
 						inreplyto.Add (msgid);
 					break;
 				case MessageHeader.MessageId:
-					messageId = MimeUtils.TryEnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					if (messageId != null)
 						return;
 					break;
@@ -372,15 +372,15 @@ namespace MimeKit {
 					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
 					break;
 				case MessageHeader.References:
-					foreach (var msgid in MimeUtils.TryEnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
 						references.Add (msgid);
 					break;
 				case MessageHeader.InReplyTo:
-					foreach (var msgid in MimeUtils.TryEnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
 						inreplyto.Add (msgid);
 					break;
 				case MessageHeader.MessageId:
-					messageId = MimeUtils.TryEnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
 					break;
 				case MessageHeader.Date:
 					DateUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
