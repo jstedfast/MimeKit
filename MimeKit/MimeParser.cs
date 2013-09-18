@@ -252,14 +252,14 @@ namespace MimeKit {
 			return (need + 63) & ~63;
 		}
 
-		int ReadAhead (int atleast)
+		int ReadAhead (int atleast, int save)
 		{
 			int left = inputEnd - inputIndex;
 
 			if (left >= atleast)
 				return left;
 
-			int index = inputIndex;
+			int index = inputIndex - save;
 			int start = inputStart;
 			int end = inputEnd;
 
@@ -279,7 +279,7 @@ namespace MimeKit {
 				start = end;
 			}
 
-			inputIndex = index;
+			inputIndex = index + save;
 			inputEnd = start;
 
 			end = input.Length;
@@ -334,7 +334,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 
 			do {
-				if (ReadAhead (Math.Max (ReadAheadSize, left)) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
@@ -462,7 +462,7 @@ namespace MimeKit {
 			midline = false;
 
 			do {
-				if (ReadAhead (Math.Max (ReadAheadSize, left)) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
@@ -612,7 +612,7 @@ namespace MimeKit {
 				}
 
 				inputIndex = inputEnd;
-				if (ReadAhead (ReadAheadSize) <= 0) {
+				if (ReadAhead (ReadAheadSize, 0) <= 0) {
 					midline = true;
 					return false;
 				}
@@ -760,7 +760,7 @@ namespace MimeKit {
 
 			do {
 				nleft = inputEnd - inputIndex;
-				if (ReadAhead (atleast) <= 0) {
+				if (ReadAhead (atleast, 2) <= 0) {
 					found = BoundaryType.Eos;
 					break;
 				}
@@ -851,7 +851,7 @@ namespace MimeKit {
 			if (bounds.Count > 0) {
 				int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (ReadAhead (atleast) <= 0)
+				if (ReadAhead (atleast, 0) <= 0)
 					return BoundaryType.Eos;
 
 				fixed (byte* inbuf = input) {
