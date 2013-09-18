@@ -463,17 +463,17 @@ namespace MimeKit {
 			headers.Clear ();
 			midline = false;
 
-			do {
-				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
-					// failed to find a From line; EOF reached
-					state = MimeParserState.Error;
-					inputIndex = inputEnd;
-					return -1;
-				}
+			fixed (byte* inbuf = input) {
+				do {
+					if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
+						// failed to find a From line; EOF reached
+						state = MimeParserState.Error;
+						inputIndex = inputEnd;
+						return -1;
+					}
 
-				needInput = false;
+					needInput = false;
 
-				fixed (byte* inbuf = input) {
 					byte* inptr = inbuf + inputIndex;
 					byte* inend = inbuf + inputEnd;
 
@@ -590,8 +590,8 @@ namespace MimeKit {
 						inputIndex = (int) (inptr - inbuf);
 						left = (int) (inend - inptr);
 					}
-				}
-			} while (true);
+				} while (true);
+			}
 		}
 
 		unsafe bool SkipLine ()
