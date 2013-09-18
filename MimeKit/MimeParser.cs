@@ -776,8 +776,20 @@ namespace MimeKit {
 				*inend = (byte) '\n';
 
 				while (inptr < inend) {
+					uint* dword = (uint*) inptr;
 					byte* start = inptr;
+					uint mask;
 
+					//while (*inptr != (byte) '\n')
+					//	inptr++;
+
+					// -funroll-loops, bitches.
+					do {
+						mask = *dword++ ^ 0x0A0A0A0A;
+						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+					} while (mask == 0);
+
+					inptr = (byte*) (dword - 1);
 					while (*inptr != (byte) '\n')
 						inptr++;
 
