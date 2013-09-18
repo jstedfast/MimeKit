@@ -60,6 +60,7 @@ namespace MimeKit {
 			Ended,
 		}
 
+		readonly UUDecoderState initial;
 		UUDecoderState state;
 		byte nsaved;
 		byte uulen;
@@ -68,9 +69,20 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.UUDecoder"/> class.
 		/// </summary>
-		public UUDecoder ()
+		/// <param name="payloadOnly">
+		/// If <c>true</c>, decoding begins immediately rather than after finding a begin-line.
+		/// </param>
+		public UUDecoder (bool payloadOnly)
 		{
+			initial = payloadOnly ? UUDecoderState.Payload : UUDecoderState.ExpectBegin;
 			Reset ();
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.UUDecoder"/> class.
+		/// </summary>
+		public UUDecoder () : this (false)
+		{
 		}
 
 		/// <summary>
@@ -365,7 +377,7 @@ namespace MimeKit {
 		/// </summary>
 		public void Reset ()
 		{
-			state = UUDecoderState.ExpectBegin;
+			state = initial;
 			nsaved = 0;
 			saved = 0;
 			uulen = 0;
