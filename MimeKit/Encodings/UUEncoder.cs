@@ -38,7 +38,7 @@ namespace MimeKit {
 		byte uulen;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.UuEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.UUEncoder"/> class.
 		/// </summary>
 		public UUEncoder ()
 		{

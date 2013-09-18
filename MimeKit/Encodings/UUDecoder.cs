@@ -48,13 +48,25 @@ namespace MimeKit {
 			 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
 		};
 
-		bool ended;
+		enum UUDecoderState : byte {
+			ExpectBegin,
+			B,
+			Be,
+			Beg,
+			Begi,
+			Begin,
+			ExpectPayload,
+			Payload,
+			Ended,
+		}
+
+		UUDecoderState state;
 		byte nsaved;
 		byte uulen;
 		uint saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.UuDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.UUDecoder"/> class.
 		/// </summary>
 		public UUDecoder ()
 		{
@@ -118,6 +130,110 @@ namespace MimeKit {
 			return (byte) ((c - 0x20) & 0x3F);
 		}
 
+		unsafe byte* ScanBeginMarker (byte* inptr, byte* inend)
+		{
+			while (inptr < inend) {
+				if (state == UUDecoderState.ExpectBegin) {
+					if (nsaved != (byte) '\n') {
+						while (inptr < inend && *inptr != (byte) '\n')
+							inptr++;
+					}
+
+					if (inptr == inend) {
+						nsaved = *(inptr - 1);
+						return inptr;
+					}
+
+					nsaved = *inptr++;
+					if (inptr == inend)
+						return inptr;
+
+					nsaved = *inptr++;
+					if (nsaved != (byte) 'b')
+						continue;
+
+					state = UUDecoderState.B;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.B) {
+					nsaved = *inptr++;
+					if (nsaved != (byte) 'e') {
+						state = UUDecoderState.ExpectBegin;
+						continue;
+					}
+
+					state = UUDecoderState.Be;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.Be) {
+					nsaved = *inptr++;
+					if (nsaved != (byte) 'g') {
+						state = UUDecoderState.ExpectBegin;
+						continue;
+					}
+
+					state = UUDecoderState.Beg;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.Beg) {
+					nsaved = *inptr++;
+					if (nsaved != (byte) 'i') {
+						state = UUDecoderState.ExpectBegin;
+						continue;
+					}
+
+					state = UUDecoderState.Begi;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.Begi) {
+					nsaved = *inptr++;
+					if (nsaved != (byte) 'n') {
+						state = UUDecoderState.ExpectBegin;
+						continue;
+					}
+
+					state = UUDecoderState.Begin;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.Begin) {
+					nsaved = *inptr++;
+					if (nsaved != (byte) ' ') {
+						state = UUDecoderState.ExpectBegin;
+						continue;
+					}
+
+					state = UUDecoderState.ExpectPayload;
+					if (inptr == inend)
+						return inptr;
+				}
+
+				if (state == UUDecoderState.ExpectPayload) {
+					while (inptr < inend && *inptr != (byte) '\n')
+						inptr++;
+
+					if (inptr == inend)
+						return inptr;
+
+					state = UUDecoderState.Payload;
+					nsaved = 0;
+
+					return inptr + 1;
+				}
+			}
+
+			return inptr;
+		}
+
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
@@ -135,7 +251,7 @@ namespace MimeKit {
 		/// </param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
-			if (ended)
+			if (state == UUDecoderState.Ended)
 				return 0;
 
 			bool last_was_eoln = uulen == 0;
@@ -144,17 +260,29 @@ namespace MimeKit {
 			byte* inptr = input;
 			byte c;
 
+			if (state < UUDecoderState.Payload) {
+				if ((inptr = ScanBeginMarker (inptr, inend)) == inend)
+					return 0;
+			}
+
 			while (inptr < inend) {
+				if (*inptr == (byte) '\r') {
+					inptr++;
+					continue;
+				}
+
 				if (*inptr == (byte) '\n') {
 					last_was_eoln = true;
 					inptr++;
 					continue;
-				} else if (uulen == 0 || last_was_eoln) {
+				}
+
+				if (uulen == 0 || last_was_eoln) {
 					// first octet on a line is the uulen octet
 					uulen = uudecode_rank[*inptr];
 					last_was_eoln = false;
 					if (uulen == 0) {
-						ended = true;
+						state = UUDecoderState.Ended;
 						break;
 					}
 
@@ -237,7 +365,7 @@ namespace MimeKit {
 		/// </summary>
 		public void Reset ()
 		{
-			ended = false;
+			state = UUDecoderState.ExpectBegin;
 			nsaved = 0;
 			saved = 0;
 			uulen = 0;
