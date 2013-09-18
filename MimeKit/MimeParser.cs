@@ -596,8 +596,8 @@ namespace MimeKit {
 
 		unsafe bool SkipLine ()
 		{
-			do {
-				fixed (byte* inbuf = input) {
+			fixed (byte* inbuf = input) {
+				do {
 					byte* inptr = inbuf + inputIndex;
 					byte* inend = inbuf + inputEnd;
 
@@ -611,14 +611,14 @@ namespace MimeKit {
 						midline = false;
 						return true;
 					}
-				}
 
-				inputIndex = inputEnd;
-				if (ReadAhead (ReadAheadSize, 0) <= 0) {
-					midline = true;
-					return false;
-				}
-			} while (true);
+					inputIndex = inputEnd;
+					if (ReadAhead (ReadAheadSize, 0) <= 0) {
+						midline = true;
+						return false;
+					}
+				} while (true);
+			}
 		}
 
 		MimeParserState Step ()
