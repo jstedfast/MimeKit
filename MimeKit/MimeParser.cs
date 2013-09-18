@@ -82,7 +82,7 @@ namespace MimeKit {
 	{
 		Error = -1,
 		Initialized,
-		FromLine,
+		MboxMarker,
 		MessageHeaders,
 		Headers,
 		Content,
@@ -196,7 +196,7 @@ namespace MimeKit {
 			if (format == MimeFormat.Mbox) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
 				mboxMarkerBuffer = new byte[ReadAheadSize];
-				state = MimeParserState.FromLine;
+				state = MimeParserState.MboxMarker;
 			} else {
 				state = MimeParserState.Initialized;
 			}
@@ -262,6 +262,7 @@ namespace MimeKit {
 			int index = inputIndex - save;
 			int start = inputStart;
 			int end = inputEnd;
+			int nread;
 
 			// attempt to align the end of the remaining input with BackBufferSize
 			if (index >= start) {
@@ -282,10 +283,9 @@ namespace MimeKit {
 			inputIndex = index + save;
 			inputEnd = start;
 
-			end = input.Length;
+			end = input.Length - 1;
 
-			int nread = stream.Read (input, start, end - start);
-			if (nread > 0) {
+			if ((nread = stream.Read (input, start, end - start)) > 0) {
 				inputEnd += nread;
 				offset += nread;
 			}
@@ -625,9 +625,9 @@ namespace MimeKit {
 			case MimeParserState.Error:
 				break;
 			case MimeParserState.Initialized:
-				state = format == MimeFormat.Mbox ? MimeParserState.FromLine : MimeParserState.MessageHeaders;
+				state = format == MimeFormat.Mbox ? MimeParserState.MboxMarker : MimeParserState.MessageHeaders;
 				break;
-			case MimeParserState.FromLine:
+			case MimeParserState.MboxMarker:
 				StepMboxMarker ();
 				break;
 			case MimeParserState.MessageHeaders:
@@ -1075,7 +1075,7 @@ namespace MimeKit {
 
 			if (found != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
-					state = MimeParserState.FromLine;
+					state = MimeParserState.MboxMarker;
 				else
 					state = MimeParserState.Complete;
 			} else {
