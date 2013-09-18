@@ -682,10 +682,10 @@ namespace MimeKit {
 			if (length < 2)
 				return false;
 
-			if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (text))
+			if (*text == (byte) '-' && *(text + 1) == (byte) '-')
 				return true;
 
-			if (*text == (byte) '-' && *(text + 1) == (byte) '-')
+			if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (text))
 				return true;
 
 			return false;
