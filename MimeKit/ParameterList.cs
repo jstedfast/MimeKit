@@ -709,9 +709,9 @@ namespace MimeKit {
 					hex.Reset ();
 				} else if (length >= 2 && text[startIndex] == (byte) '"') {
 					// FIXME: use Rfc2047.Unquote()??
-					value = Rfc2047.DecodeText (text, startIndex + 1, length - 2);
+					value = Rfc2047.DecodeText (options, text, startIndex + 1, length - 2);
 				} else if (length > 0) {
-					value = Rfc2047.DecodeText (text, startIndex, length);
+					value = Rfc2047.DecodeText (options, text, startIndex, length);
 				} else {
 					value = string.Empty;
 				}
