@@ -322,9 +322,17 @@ namespace MimeKit {
 
 		static unsafe bool IsMboxMarker (byte* text)
 		{
+#if COMPARE_QWORD
+			const ulong FromMask = 0x000000FFFFFFFFFF;
+			const ulong From     = 0x000000206D6F7246;
+			ulong* qword = (ulong*) text;
+
+			return (*qword & FromMask) == From;
+#else
 			byte* inptr = text;
 
 			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
+#endif
 		}
 
 		unsafe int StepMboxMarker ()
