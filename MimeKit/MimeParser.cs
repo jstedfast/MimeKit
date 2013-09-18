@@ -264,6 +264,8 @@ namespace MimeKit {
 			int end = inputEnd;
 			int nread;
 
+			left += save;
+
 			// attempt to align the end of the remaining input with BackBufferSize
 			if (index >= start) {
 				start -= left < ReadAheadSize ? left : ReadAheadSize;
