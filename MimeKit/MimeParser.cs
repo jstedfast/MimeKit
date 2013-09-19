@@ -95,9 +95,10 @@ namespace MimeKit {
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
+		const int PadSize = 4;
 
 		// I/O buffering
-		readonly byte[] input = new byte[ReadAheadSize + BlockSize + 1];
+		readonly byte[] input = new byte[ReadAheadSize + BlockSize + PadSize];
 		readonly int inputStart = ReadAheadSize;
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
@@ -283,7 +284,7 @@ namespace MimeKit {
 			inputIndex = index + save;
 			inputEnd = start;
 
-			end = input.Length - 1;
+			end = input.Length - PadSize;
 
 			if ((nread = stream.Read (input, start, end - start)) > 0) {
 				inputEnd += nread;
