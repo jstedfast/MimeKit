@@ -38,7 +38,7 @@ namespace MimeKit {
 			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
 		};
 
-		Dictionary<string, InternetAddressList> addresses;
+		readonly Dictionary<string, InternetAddressList> addresses;
 		IList<string> inreplyto, references;
 		DateTimeOffset date;
 		string messageId;

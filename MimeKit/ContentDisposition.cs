@@ -90,6 +90,132 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the name of the file.
+		/// </summary>
+		/// <value>The name of the file.</value>
+		public string FileName {
+			get { return Parameters["filename"]; }
+			set {
+				if (value != null)
+					Parameters["filename"] = value;
+				else
+					Parameters.Remove ("filename");
+
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the creation date.
+		/// </summary>
+		/// <value>The creation date.</value>
+		public DateTimeOffset? CreationDate {
+			get {
+				var value = Parameters["creation-date"];
+				if (string.IsNullOrWhiteSpace (value))
+					return null;
+
+				var buffer = Encoding.UTF8.GetBytes (value);
+				DateTimeOffset ctime;
+
+				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out ctime))
+					return null;
+
+				return ctime;
+			}
+			set {
+				if (value.HasValue)
+					Parameters["creation-date"] = DateUtils.ToString (value.Value);
+				else
+					Parameters.Remove ("creation-date");
+
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the modification date.
+		/// </summary>
+		/// <value>The modification date.</value>
+		public DateTimeOffset? ModificationDate {
+			get {
+				var value = Parameters["modification-date"];
+				if (string.IsNullOrWhiteSpace (value))
+					return null;
+
+				var buffer = Encoding.UTF8.GetBytes (value);
+				DateTimeOffset mtime;
+
+				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out mtime))
+					return null;
+
+				return mtime;
+			}
+			set {
+				if (value.HasValue)
+					Parameters["modification-date"] = DateUtils.ToString (value.Value);
+				else
+					Parameters.Remove ("modification-date");
+
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the read date.
+		/// </summary>
+		/// <value>The read date.</value>
+		public DateTimeOffset? ReadDate {
+			get {
+				var value = Parameters["read-date"];
+				if (string.IsNullOrWhiteSpace (value))
+					return null;
+
+				var buffer = Encoding.UTF8.GetBytes (value);
+				DateTimeOffset atime;
+
+				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out atime))
+					return null;
+
+				return atime;
+			}
+			set {
+				if (value.HasValue)
+					Parameters["read-date"] = DateUtils.ToString (value.Value);
+				else
+					Parameters.Remove ("read-date");
+
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the size.
+		/// </summary>
+		/// <value>The size.</value>
+		public long? Size {
+			get {
+				var value = Parameters["size"];
+				if (string.IsNullOrWhiteSpace (value))
+					return null;
+
+				long size;
+				if (!long.TryParse (value, out size))
+					return null;
+
+				return size;
+			}
+			set {
+				if (value.HasValue)
+					Parameters["size"] = value.Value.ToString ();
+				else
+					Parameters.Remove ("size");
+
+				OnChanged ();
+			}
+		}
+
 		internal string Encode (Encoding charset)
 		{
 			int lineLength = "Content-Disposition: ".Length;

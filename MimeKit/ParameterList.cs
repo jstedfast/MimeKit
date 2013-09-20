@@ -34,8 +34,8 @@ namespace MimeKit {
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 
-		Dictionary<string, Parameter> table;
-		List<Parameter> parameters;
+		readonly Dictionary<string, Parameter> table;
+		readonly List<Parameter> parameters;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParameterList"/> class.
@@ -92,7 +92,7 @@ namespace MimeKit {
 		/// Inserts a parameter with the specified name and value at the given index.
 		/// </summary>
 		/// <param name="index">The index to insert the parameter.</param>
-		/// <param name="field">The parameter name.</param>
+		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		public void Insert (int index, string name, string value)
 		{
