@@ -31,16 +31,6 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	enum MessageHeader
-	{
-		MimeVersion,
-		References,
-		InReplyTo,
-		MessageId,
-		Date,
-		Unknown
-	}
-
 	public sealed class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
@@ -303,26 +293,14 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		static MessageHeader GetMessageHeader (string field)
+		void ReloadHeader (HeaderId type, string field)
 		{
-			switch (field.ToUpperInvariant ()) {
-			case "MIME-VERSION": return MessageHeader.MimeVersion;
-			case "IN-REPLY-TO": return MessageHeader.InReplyTo;
-			case "REFERENCES": return MessageHeader.References;
-			case "MESSAGE-ID": return MessageHeader.MessageId;
-			case "DATE": return MessageHeader.Date;
-			default: return MessageHeader.Unknown;
-			}
-		}
-
-		void ReloadHeader (MessageHeader type, string field)
-		{
-			if (type == MessageHeader.Unknown)
+			if (type == HeaderId.Unknown)
 				return;
 
-			if (type == MessageHeader.References)
+			if (type == HeaderId.References)
 				references.Clear ();
-			else if (type == MessageHeader.InReplyTo)
+			else if (type == HeaderId.InReplyTo)
 				inreplyto.Clear ();
 
 			foreach (var header in Headers) {
@@ -330,24 +308,24 @@ namespace MimeKit {
 					continue;
 
 				switch (type) {
-				case MessageHeader.MimeVersion:
+				case HeaderId.MimeVersion:
 					if (MimeUtils.TryParseVersion (header.RawValue, 0, header.RawValue.Length, out version))
 						return;
 					break;
-				case MessageHeader.References:
+				case HeaderId.References:
 					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
 						references.Add (msgid);
 					break;
-				case MessageHeader.InReplyTo:
+				case HeaderId.InReplyTo:
 					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
 						inreplyto.Add (msgid);
 					break;
-				case MessageHeader.MessageId:
+				case HeaderId.MessageId:
 					messageId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					if (messageId != null)
 						return;
 					break;
-				case MessageHeader.Date:
+				case HeaderId.Date:
 					if (DateUtils.TryParseDateTime (header.RawValue, 0, header.RawValue.Length, out date))
 						return;
 					break;
@@ -357,7 +335,7 @@ namespace MimeKit {
 
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			var type = GetMessageHeader (e.Header.Field);
+			var type = e.Header.Field.ToHeaderId ();
 			InternetAddressList list;
 
 			switch (e.Action) {
@@ -368,24 +346,22 @@ namespace MimeKit {
 				}
 
 				switch (type) {
-				case MessageHeader.MimeVersion:
+				case HeaderId.MimeVersion:
 					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
 					break;
-				case MessageHeader.References:
+				case HeaderId.References:
 					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
 						references.Add (msgid);
 					break;
-				case MessageHeader.InReplyTo:
+				case HeaderId.InReplyTo:
 					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
 						inreplyto.Add (msgid);
 					break;
-				case MessageHeader.MessageId:
+				case HeaderId.MessageId:
 					messageId = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
 					break;
-				case MessageHeader.Date:
+				case HeaderId.Date:
 					DateUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
-					break;
-				default:
 					break;
 				}
 				break;
