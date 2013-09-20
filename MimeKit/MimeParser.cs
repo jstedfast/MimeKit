@@ -122,9 +122,6 @@ namespace MimeKit {
 		Stream stream;
 		long offset;
 
-		// other state
-		bool midline;
-
 		public MimeParser (Stream stream, MimeFormat format) : this (ParserOptions.Default, stream, format)
 		{
 		}
@@ -459,6 +456,7 @@ namespace MimeKit {
 			bool scanningFieldName = true;
 			bool checkFolded = false;
 			bool needInput = false;
+			bool midline = false;
 			bool valid = true;
 			int left = 0;
 			long length;
@@ -466,7 +464,6 @@ namespace MimeKit {
 
 			ResetRawHeaderData ();
 			headers.Clear ();
-			midline = false;
 
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
@@ -610,15 +607,12 @@ namespace MimeKit {
 
 				if (inptr < inend) {
 					inputIndex = (int) (inptr - inbuf) + 1;
-					midline = false;
 					return true;
 				}
 
 				inputIndex = inputEnd;
-				if (ReadAhead (inbuf, ReadAheadSize, 0) <= 0) {
-					midline = true;
+				if (ReadAhead (inbuf, ReadAheadSize, 0) <= 0)
 					return false;
-				}
 			} while (true);
 		}
 
@@ -754,9 +748,8 @@ namespace MimeKit {
 		{
 			int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
+			bool midline = false;
 			int length, nleft;
-
-			midline = false;
 
 			do {
 				nleft = inputEnd - inputIndex;
