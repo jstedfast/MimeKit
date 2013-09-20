@@ -142,6 +142,48 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the boundary parameter.
+		/// </summary>
+		/// <value>The boundary.</value>
+		public string Boundary {
+			get { return Parameters["boundary"]; }
+			set {
+				if (value != null)
+					Parameters["boundary"] = value;
+				else
+					Parameters.Remove ("boundary");
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the charset parameter.
+		/// </summary>
+		/// <value>The charset.</value>
+		public string Charset {
+			get { return Parameters["charset"]; }
+			set {
+				if (value != null)
+					Parameters["charset"] = value;
+				else
+					Parameters.Remove ("charset");
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the name parameter.
+		/// </summary>
+		/// <value>The name.</value>
+		public string Name {
+			get { return Parameters["name"]; }
+			set {
+				if (value != null)
+					Parameters["name"] = value;
+				else
+					Parameters.Remove ("name");
+			}
+		}
+
+		/// <summary>
 		/// Checks if the this instance of <see cref="MimeKit.ContentType"/> matches
 		/// the specified mediaType and mediaSubtype.
 		/// 

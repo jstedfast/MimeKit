@@ -101,13 +101,11 @@ namespace MimeKit {
 					Parameters["filename"] = value;
 				else
 					Parameters.Remove ("filename");
-
-				OnChanged ();
 			}
 		}
 
 		/// <summary>
-		/// Gets or sets the creation date.
+		/// Gets or sets the creation-date parameter.
 		/// </summary>
 		/// <value>The creation date.</value>
 		public DateTimeOffset? CreationDate {
@@ -129,13 +127,11 @@ namespace MimeKit {
 					Parameters["creation-date"] = DateUtils.ToString (value.Value);
 				else
 					Parameters.Remove ("creation-date");
-
-				OnChanged ();
 			}
 		}
 
 		/// <summary>
-		/// Gets or sets the modification date.
+		/// Gets or sets the modification-date parameter.
 		/// </summary>
 		/// <value>The modification date.</value>
 		public DateTimeOffset? ModificationDate {
@@ -157,13 +153,11 @@ namespace MimeKit {
 					Parameters["modification-date"] = DateUtils.ToString (value.Value);
 				else
 					Parameters.Remove ("modification-date");
-
-				OnChanged ();
 			}
 		}
 
 		/// <summary>
-		/// Gets or sets the read date.
+		/// Gets or sets the read-date parameter.
 		/// </summary>
 		/// <value>The read date.</value>
 		public DateTimeOffset? ReadDate {
@@ -185,13 +179,11 @@ namespace MimeKit {
 					Parameters["read-date"] = DateUtils.ToString (value.Value);
 				else
 					Parameters.Remove ("read-date");
-
-				OnChanged ();
 			}
 		}
 
 		/// <summary>
-		/// Gets or sets the size.
+		/// Gets or sets the size parameter.
 		/// </summary>
 		/// <value>The size.</value>
 		public long? Size {
@@ -211,8 +203,6 @@ namespace MimeKit {
 					Parameters["size"] = value.Value.ToString ();
 				else
 					Parameters.Remove ("size");
-
-				OnChanged ();
 			}
 		}
 
