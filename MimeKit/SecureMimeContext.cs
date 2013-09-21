@@ -85,34 +85,34 @@ namespace MimeKit {
 			CertificateStore.Open (OpenFlags.ReadWrite);
 		}
 
-		protected virtual X509Certificate2 GetCertificate (string emailName, X509KeyUsageFlags flags)
+		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags)
 		{
 			var certificates = CertificateStore.Certificates.Find (X509FindType.FindByKeyUsage, flags, true);
 
 			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) == emailName)
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
 					return certificate;
 			}
 
-			throw new ArgumentException ("A valid certificate could not be found.", "emailName");
+			throw new ArgumentException ("A valid certificate could not be found.", "mailbox");
 		}
 
-		protected virtual CmsSigner GetCmsSigner (string emailName)
+		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox)
 		{
-			return new CmsSigner (GetCertificate (emailName, X509KeyUsageFlags.DigitalSignature));
+			return new CmsSigner (GetCertificate (mailbox, X509KeyUsageFlags.DigitalSignature));
 		}
 
-		protected virtual CmsRecipient GetCmsRecipient (string emailName)
+		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			return new CmsRecipient (GetCertificate (emailName, X509KeyUsageFlags.DataEncipherment));
+			return new CmsRecipient (GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment));
 		}
 
-		protected virtual CmsRecipientCollection GetCmsRecipients (IList<string> emailNames)
+		protected virtual CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
 			var recipients = new CmsRecipientCollection ();
 
-			foreach (var emailName in emailNames)
-				recipients.Add (GetCmsRecipient (emailName));
+			foreach (var mailbox in mailboxes)
+				recipients.Add (GetCmsRecipient (mailbox));
 
 			return recipients;
 		}
@@ -120,20 +120,21 @@ namespace MimeKit {
 		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.ApplicationPkcs7Signature"/> instance
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
-		public override MimePart Sign (string signer, byte[] content)
+		/// <param name="digestAlgo">The digest algorithm used.</param>
+		public override MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
-			var certificates = CertificateStore.Certificates.Find (X509FindType.FindBySubjectName, signer, true);
-			if (certificates.Count == 0)
-				throw new ArgumentException ("A valid certificate for the specified signer could not be found.", "signer");
+			var cmsSigner = GetCmsSigner (signer);
 
-			return Sign (GetCmsSigner (signer), content);
+			digestAlgo = cmsSigner.DigestAlgorithm.FriendlyName;
+
+			return Sign (cmsSigner, content);
 		}
 
 		/// <summary>
@@ -241,7 +242,7 @@ namespace MimeKit {
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
-		public override MimePart Encrypt (string signer, IList<string> recipients, byte[] content)
+		public override MimePart Encrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
 			if (signer == null)
 				return Encrypt (null, GetCmsRecipients (recipients), content);
@@ -299,9 +300,9 @@ namespace MimeKit {
 		/// <returns>A new <see cref="MimeKit.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="keys">The keys.</param>
-		public override MimePart ExportKeys (IList<string> keys)
+		public override MimePart ExportKeys (IEnumerable<MailboxAddress> keys)
 		{
-			return ExportKeys (keys.Select (emailName => GetCertificate (emailName, X509KeyUsageFlags.DataEncipherment)));
+			return ExportKeys (keys.Select (mailbox => GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment)));
 		}
 
 		/// <summary>
@@ -327,6 +328,16 @@ namespace MimeKit {
 				throw new ArgumentNullException ("certificate");
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, new MemoryStream (certificate.RawData));
+		}
+
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing && CertificateStore != null) {
+				CertificateStore.Close ();
+				CertificateStore = null;
+			}
+
+			base.Dispose (disposing);
 		}
 	}
 }

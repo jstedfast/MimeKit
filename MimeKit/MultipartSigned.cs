@@ -72,9 +72,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Creates a new <see cref="MimeKit.MultipartSigned"/> instance with the entity as the content.
 		/// </summary>
+		/// <returns>A new <see cref="MimeKit.MultipartSigned"/> instance.</returns>
+		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
-		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
+		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -84,10 +86,9 @@ namespace MimeKit {
 
 			PrepareEntityForSigning (entity);
 
-			// FIXME: support PGP/MIME as well
-			var ctx = new SecureMimeContext ();
 			MimeEntity parsed;
 			byte[] cleartext;
+			string micalg;
 
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -114,12 +115,12 @@ namespace MimeKit {
 			}
 
 			// sign the cleartext content
-			var signature = ctx.Sign (signer, cleartext);
+			var signature = ctx.Sign (signer, cleartext, out micalg);
 			var signed = new MultipartSigned ();
 
 			// set the protocol and micalg Content-Type parameters
 			signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
-			signed.ContentType.Parameters["micalg"] = signer.DigestAlgorithm.FriendlyName;
+			signed.ContentType.Parameters["micalg"] = micalg;
 
 			// add the modified/parsed entity as our first part
 			signed.Add (parsed);
@@ -131,40 +132,114 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Creates a new <see cref="MimeKit.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			PrepareEntityForSigning (entity);
+
+			using (var ctx = new SecureMimeContext ()) {
+				MimeEntity parsed;
+				byte[] cleartext;
+
+				using (var memory = new MemoryStream ()) {
+					using (var filtered = new FilteredStream (memory)) {
+						// Note: see rfc3156, section 3 - second note
+						filtered.Add (new ArmoredFromFilter ());
+
+						// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+						filtered.Add (new TrailingWhitespaceFilter ());
+
+						// Note: see rfc2015 or rfc3156, section 5.1
+						filtered.Add (new Unix2DosFilter ());
+
+						entity.WriteTo (filtered);
+						filtered.Flush ();
+					}
+
+					memory.Position = 0;
+
+					// Note: we need to parse the modified entity structure to preserve any modifications
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					parsed = parser.ParseEntity ();
+
+					cleartext = memory.ToArray ();
+				}
+
+				// sign the cleartext content
+				var micalg = signer.DigestAlgorithm.FriendlyName;
+				var signature = ctx.Sign (signer, cleartext);
+				var signed = new MultipartSigned ();
+
+				// set the protocol and micalg Content-Type parameters
+				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+				signed.ContentType.Parameters["micalg"] = micalg;
+
+				// add the modified/parsed entity as our first part
+				signed.Add (parsed);
+
+				// add the detached signature as the second part
+				signed.Add (signature);
+
+				return signed;
+			}
+		}
+
+		/// <summary>
 		/// Verify the multipart/signed content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
 		public SignerInfoCollection Verify ()
 		{
-			// FIXME: support PGP/MIME as well
-			if (Count < 2 || !(this[1] is ApplicationPkcs7Signature))
-				return null;
+			var protocol = ContentType.Parameters["protocol"];
 
-			var signature = (ApplicationPkcs7Signature) this[1];
-			if (signature.ContentObject == null)
-				return null;
+			// FIXME: use CryptographyContext.Create() once we have a good general-purpose API.
+			// This will allow us to support PGP/MIME as well.
+			using (var ctx = new SecureMimeContext ()) {
+				if (Count < 2)
+					throw new FormatException ();
 
-			byte[] cleartext, signatureData;
-			var ctx = new SecureMimeContext ();
+				var signature = this[1] as MimePart;
+				if (signature == null)
+					throw new FormatException ();
 
-			using (var memory = new MemoryStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					// Note: see rfc2015 or rfc3156, section 5.1
-					filtered.Add (new Unix2DosFilter ());
+				var ctype = signature.ContentType;
+				var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
+				if (value.ToLowerInvariant () != protocol.ToLowerInvariant ())
+					throw new FormatException ();
 
-					this[0].WriteTo (filtered);
-					filtered.Flush ();
+				if (signature.ContentObject == null)
+					throw new FormatException ();
+
+				byte[] cleartext, signatureData;
+
+				using (var memory = new MemoryStream ()) {
+					using (var filtered = new FilteredStream (memory)) {
+						// Note: see rfc2015 or rfc3156, section 5.1
+						filtered.Add (new Unix2DosFilter ());
+
+						this[0].WriteTo (filtered);
+						filtered.Flush ();
+					}
+
+					cleartext = memory.ToArray ();
 				}
 
-				cleartext = memory.ToArray ();
-			}
+				using (var memory = new MemoryStream ()) {
+					signature.ContentObject.DecodeTo (memory);
+					signatureData = memory.ToArray ();
+				}
 
-			using (var memory = new MemoryStream ()) {
-				signature.ContentObject.DecodeTo (memory);
-				signatureData = memory.ToArray ();
+				return ctx.Verify (cleartext, signatureData);
 			}
-
-			return ctx.Verify (cleartext, signatureData);
 		}
 	}
 }

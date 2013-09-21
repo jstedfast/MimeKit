@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 
 namespace MimeKit {
-	public abstract class CryptographyContext
+	public abstract class CryptographyContext : IDisposable
 	{
 		/// <summary>
 		/// Gets the signature protocol.
@@ -55,7 +55,8 @@ namespace MimeKit {
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
-		public abstract MimePart Sign (string signer, byte[] content);
+		/// <param name="digestAlgo">The digest algorithm used.</param>
+		public abstract MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo);
 
 		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
 
@@ -68,7 +69,7 @@ namespace MimeKit {
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
-		public abstract MimePart Encrypt (string signer, IList<string> recipients, byte[] content);
+		public abstract MimePart Encrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
 
 		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
 
@@ -83,6 +84,41 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The keys.</returns>
 		/// <param name="keys">Keys.</param>
-		public abstract MimePart ExportKeys (IList<string> keys);
+		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> keys);
+
+		protected virtual void Dispose (bool disposing)
+		{
+		}
+
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeKit.CryptographyContext"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="MimeKit.CryptographyContext"/>. The
+		/// <see cref="Dispose"/> method leaves the <see cref="MimeKit.CryptographyContext"/> in an unusable state. After
+		/// calling <see cref="Dispose"/>, you must release all references to the <see cref="MimeKit.CryptographyContext"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.CryptographyContext"/> was occupying.</remarks>
+		public void Dispose ()
+		{
+			Dispose (true);
+		}
+
+		/// <summary>
+		/// Creates a <see cref="MimeKit.CryptographyContext"/> for the specified protocol.
+		/// </summary>
+		/// <param name="protocol">The protocol.</param>
+		public static CryptographyContext Create (string protocol)
+		{
+			switch (protocol.ToLowerInvariant ()) {
+			case "application/x-pkcs7-signature":
+			case "application/pkcs7-signature":
+			case "application/x-pkcs7-mime":
+			case "application/pkcs7-mime":
+			case "application/x-pkcs7-keys":
+			case "application/pkcs7-keys":
+				return new SecureMimeContext ();
+			default:
+				throw new NotSupportedException ();
+			}
+		}
 	}
 }
