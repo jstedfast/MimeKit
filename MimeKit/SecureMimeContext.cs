@@ -90,7 +90,7 @@ namespace MimeKit {
 			var certificates = CertificateStore.Certificates.Find (X509FindType.FindByKeyUsage, flags, true);
 
 			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName) == emailName)
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) == emailName)
 					return certificate;
 			}
 

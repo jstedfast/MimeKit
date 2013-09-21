@@ -45,7 +45,7 @@ namespace MimeKit {
 		{
 		}
 
-		void PrepareEntityForSigning (MimeEntity entity)
+		static void PrepareEntityForSigning (MimeEntity entity)
 		{
 			if (entity is Multipart) {
 				// Note: we do not want to modify multipart/signed parts
@@ -70,11 +70,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sign and add the entity using the signer.
+		/// Creates a new <see cref="MimeKit.MultipartSigned"/> instance with the entity as the content.
 		/// </summary>
 		/// <param name="signer">The signer.</param>
-		/// <param name="entity">The entity to sign and add.</param>
-		public void Sign (CmsSigner signer, MimeEntity entity)
+		/// <param name="entity">The entity to sign.</param>
+		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -115,19 +115,19 @@ namespace MimeKit {
 
 			// sign the cleartext content
 			var signature = ctx.Sign (signer, cleartext);
+			var signed = new MultipartSigned ();
 
 			// set the protocol and micalg Content-Type parameters
-			ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
-			ContentType.Parameters["micalg"] = signer.DigestAlgorithm.FriendlyName;
-
-			// remove any previously added subparts
-			Clear ();
+			signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+			signed.ContentType.Parameters["micalg"] = signer.DigestAlgorithm.FriendlyName;
 
 			// add the modified/parsed entity as our first part
-			Add (parsed);
+			signed.Add (parsed);
 
 			// add the detached signature as the second part
-			Add (signature);
+			signed.Add (signature);
+
+			return signed;
 		}
 
 		/// <summary>
