@@ -1,0 +1,227 @@
+
+
+
+
+
+
+Network Working Group                                         G. Vaudreuil
+Request for Comments: 2424                             Lucent Technologies
+Category: Standards Track                                       G. Parsons
+                                                          Northern Telecom
+                                                            September 1998
+
+
+                            Content Duration
+                         MIME Header Definition
+
+Status of this Memo
+
+   This document specifies an Internet standards track protocol for the
+   Internet community, and requests discussion and suggestions for
+   improvements.  Please refer to the current edition of the "Internet
+   Official Protocol Standards" (STD 1) for the standardization state
+   and status of this protocol.  Distribution of this memo is unlimited.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (1998).  All Rights Reserved.
+
+Overview
+
+   This document describes the MIME header Content-Duration that is
+   intended for use with any timed media content (typically audio/* or
+   video/*).
+
+1.  Abstract
+
+   This document describes the MIME header Content-Duration that is
+   intended for use with any time varying media content (typically
+   audio/* or video/*).  The length of time is represented in seconds
+   without any units indication.
+
+2. Content-Duration Header Field
+
+   Time varying media contents, for example, a spoken voice message or a
+   video clip, have an inherent time duration.  Many audio and video
+   encodings may include their duration as header information or may
+   allow accurate calculation based on the byte length of the data.
+   However, it may be useful to present the time duration of the content
+   in a MIME header to allow its simple determination without dealing
+   with the actual content.
+
+
+
+
+
+
+
+Vaudreuil & Parsons         Standards Track                     [Page 1]
+
+RFC 2424                    Content-Duration              September 1998
+
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [REQ].
+
+2.1 Syntax
+
+   The Content-Duration field's value is a single number specifying the
+   time duration in seconds of the content.  Formally:
+
+   duration := "Content-Duration" ":" 1*10DIGIT
+
+   Note that practically (though highly unlikely in MIME media), the
+   upper bound on the numerical value of the time duration is (2^^31 -
+   1) or 2147483647.
+
+2.2 Semantics
+
+   This field represents the time duration of the associated time
+   varying media content.  The time duration is noted in seconds with no
+   units tag.  The time value should be exact, however the exact value
+   of the time duration cannot be known without opening the content and
+   playing it.  If an exact value must be known, then the latter method
+   should be used.  This mechanism simply allows placing a sender
+   determined time duration value in the header for easy access.
+
+   Though there are several ways to present this duration to the
+   recipient (e.g. with the inbox headers, when audio attachment
+   opened), the actual use of this field on reception is a local
+   implementation issue.
+
+2.3 Example
+
+   In this example the content duration represents 33 seconds:
+
+       Content-Duration: 33
+
+3. VPIM Usage
+
+   The Content-Duration header field for the audio/32KADPCM sub-type is
+   a useful component of the VPIM specification [VPIM2].  All VPIM
+   Messages MUST contain this sub-type to carry the audio of a voice
+   message.  It may be useful in some instances (e.g. viewing on a
+   simple MIME or non-MIME desktop) to have the time duration of the
+   voice message available without having to open the audio content.
+
+
+
+
+
+
+
+Vaudreuil & Parsons         Standards Track                     [Page 2]
+
+RFC 2424                    Content-Duration              September 1998
+
+
+4. Security Considerations
+
+   This definition introduces the option of explicitly identifying the
+   time duration of an audio/* or video/* content outside of the binary
+   data that forms the content.  In some environments (though likely not
+   the majority), the identification of the actual time duration in a
+   header field may be a security issue and as a result should not be
+   noted.  Reliance on the time indicated in this header field cannot be
+   trusted for the purposes of determining the exact size of the data.
+   The exact length of the data must be determined by examining the data
+   itself.
+
+5. Authors' Addresses
+
+   Glenn W. Parsons
+   Northern Telecom
+   P.O. Box 3511, Station C
+   Ottawa, ON  K1Y 4H7
+   Canada
+
+   Phone: +1-613-763-7582
+   Fax: +1-613-763-4461
+   EMail: Glenn.Parsons@Nortel.ca
+
+
+   Gregory M. Vaudreuil
+   Lucent Technologies
+   17080 Dallas Parkway
+   Dallas, TX  75248-1905
+   United States
+
+   Phone/Fax: +1-972-733-2722
+   EMail: GregV@Lucent.Com
+
+6. References
+
+   [MIME2] Freed, N., and N. Borenstein, "Multipurpose Internet Mail
+           Extensions (MIME) Part Two: Media Types", RFC 2046, November
+           1996.
+
+   [VPIM2] Vaudreuil, G., and G. Parsons, "Voice Profile for Internet
+           Mail - version 2", RFC 2421, September 1998.
+
+   [REQ] Bradner, S., "Key words for use in RFCs to Indicate Requirement
+         Levels", BCP 14, RFC 2119, March 1997.
+
+
+
+
+
+
+Vaudreuil & Parsons         Standards Track                     [Page 3]
+
+RFC 2424                    Content-Duration              September 1998
+
+
+7.  Full Copyright Statement
+
+   Copyright (C) The Internet Society (1998).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Vaudreuil & Parsons         Standards Track                     [Page 4]
+

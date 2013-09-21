@@ -1,0 +1,171 @@
+
+
+
+
+
+
+Network Working Group                                          C. Rogers
+Request for Comments: 1927                                           ISI
+Category: Informational                                     1 April 1996
+
+
+       Suggested Additional MIME Types for Associating Documents
+
+Status of this Memo
+
+   This memo provides information for the Internet community.  This memo
+   does not specify an Internet standard of any kind.  Distribution of
+   this memo is unlimited.
+
+1)      New MIME Types: Staple and "Paper" Clip
+
+        1) indicates the degree of binding of multipart documents:
+           stapled documents should stay together on the desktop,
+           while paper clipped ones should be easily spreadable
+
+        2) big paper clips vs small ones; heirarchical assembly
+
+        3) big vs small for large documents vs. small ones?
+
+        4) warning!  the presence of electronic staples or paper clips
+           may break some programs, particularly those designed to do
+           high-speed copying!
+
+2)      patents on the electronic staple and paper clip
+
+        1) use First Virtual to record a charge each time new staples
+           or paper clips are made.
+
+        2) to reduce transmission charges, electronic staples should be
+           bought in boxes of 5000.  Reference: Apple's "bento"
+           technology?
+
+        3) electonic staples should have a standard "size and shape"
+           so a supply of staples could be used be used by several
+           programs.
+
+3)      recycling electronic staples and paper clips
+
+        1) to assure proper accounting, and to detect patent violations
+           (people making their own electronic staples), it may be
+           necessary to attach a certificate to each staple or paper
+           clip.
+
+
+
+
+
+Rogers                       Informational                      [Page 1]
+
+RFC 1927           MIME Types: Associating Documents        1 April 1996
+
+
+        2) When a file or folder is deleted, a "recycler" program could
+           look inside for staples or paper clips that could be reused
+           or recycled.
+
+                1) staples could be reycled for a small credit
+
+                2) paper clips could be reused.
+
+4)      custom-look electronic staples and paper clips
+
+        1) when stabled or clipped documents are displayed on the
+           desktop, there should be some icon or visual indicator to
+           show the presence of the (possibly removable) staple
+           or paper clip
+
+        2) "color=" and "shape=" attributes in the MIME line should
+           allow senders to customize the appearance of individual
+           staples or paper clips.
+
+                1) this could have some significance for office filing
+                   systems, for instance: a silver paper clip could
+                   trigger one workflow component, while
+                   a gold paper clip could trigger another.
+
+        3) "src=" would allow the specification of a URL of the image to
+           be shown, for even greater control of appearance.
+
+        4) it should be possible to specify 3D modelling of your custom
+           paper clip, for electronic desktops being viewed through
+           virtual reality headsets
+
+5)      electronic paper clip sculpture
+
+        1) instead of discarding or reusing paper clips, it should be
+           possible to "bend" them and display the resulting sculpture
+           on the desktop
+
+                1) a morphing interface would be suitable
+
+        2) linked chains of paper clips
+
+        3) each paper clip should keep track of how many times it has
+           been  bent.  Above a certain limit, the clip should fail.
+
+
+
+
+
+
+
+
+Rogers                       Informational                      [Page 2]
+
+RFC 1927           MIME Types: Associating Documents        1 April 1996
+
+
+6)      electronic paper clips as page flags
+
+        1) in addition to using electronic paper clips to group related
+           documents, it should be possible to attach an electronic
+           paper clip to a single page of a multipage document or
+           collection of documents.  This highlights or draws
+           attention to the page.
+
+        2) it should be possible to include positioning information
+           with the electronic paper clip, to mark specific paragraphs
+           or sentences
+
+        3) combinations of color, shape, size, position, orientation,
+           etc. could have special meaning
+
+7)      additional safety hazards of electronic paper clips
+
+        1) they should not be used on data flines which might end up in
+           the hands of very small children
+
+                1) thus, one should consider keeping them in a locked
+                   drawer of the electonic desk on home PCs
+
+        2) they should not be attached to documents on floppy disks, as
+           they may erase portions of the floppy
+
+Security Considerations
+
+   Security issues are not discussed in this memo.
+
+Author's Address
+
+   Craig Milo Rogers
+   USC/Information Sciences Institute
+   4676 Admiralty Way
+   Marina del Rey, CA 90292
+
+   Phone: 310-822-1511
+   EMail: rogers@isi.edu
+
+
+
+
+
+
+
+
+
+
+
+
+Rogers                       Informational                      [Page 3]
+
