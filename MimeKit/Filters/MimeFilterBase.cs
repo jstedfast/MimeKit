@@ -29,9 +29,9 @@ using System;
 namespace MimeKit {
     public abstract class MimeFilterBase : IMimeFilter
     {
-		protected byte[] inbuf = null;
 		protected byte[] output = null;
-		protected byte[] preload = null;
+		byte[] preload = null;
+		byte[] inbuf = null;
 		int preloadLength;
 		
 		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);

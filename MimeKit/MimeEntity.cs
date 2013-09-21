@@ -262,14 +262,20 @@ namespace MimeKit {
 			}
 
 			if (icase.Compare (type.MediaType, "multipart") == 0) {
-				//if (icase.Compare (type.Subtype, "encrypted") == 0)
-				//	return new MultipartEncrypted (headers, type);
+				//if (icase.Compare (type.MediaSubtype, "encrypted") == 0)
+				//	return new MultipartEncrypted (options, type, headers, toplevel);
 
-				//if (icase.Compare (type.Subtype, "signed") == 0)
-				//	return new MultipartSigned (headers, type);
+				if (icase.Compare (type.MediaSubtype, "signed") == 0)
+					return new MultipartSigned (options, type, headers, toplevel);
 
 				return new Multipart (options, type, headers, toplevel);
 			}
+
+			if (type.Matches ("application", "x-pkcs7-signature"))
+				return new ApplicationPkcs7Signature (options, type, headers, toplevel);
+
+			if (type.Matches ("application", "pkcs7-signature"))
+				return new ApplicationPkcs7Signature (options, type, headers, toplevel);
 
 			if (type.Matches ("text", "*"))
 				return new TextPart (options, type, headers, toplevel);
