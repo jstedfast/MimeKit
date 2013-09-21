@@ -107,12 +107,12 @@ namespace MimeKit {
 			return new CmsRecipient (GetCertificate (emailName, X509KeyUsageFlags.DataEncipherment));
 		}
 
-		protected virtual CmsRecipientCollection GetCmsRecipients (IList<string> subjectNames)
+		protected virtual CmsRecipientCollection GetCmsRecipients (IList<string> emailNames)
 		{
 			var recipients = new CmsRecipientCollection ();
 
-			foreach (var subjectName in subjectNames)
-				recipients.Add (GetCmsRecipient (subjectName));
+			foreach (var emailName in emailNames)
+				recipients.Add (GetCmsRecipient (emailName));
 
 			return recipients;
 		}
