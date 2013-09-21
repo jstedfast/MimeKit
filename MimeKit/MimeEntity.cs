@@ -271,11 +271,19 @@ namespace MimeKit {
 				return new Multipart (options, type, headers, toplevel);
 			}
 
-			if (type.Matches ("application", "x-pkcs7-signature"))
-				return new ApplicationPkcs7Signature (options, type, headers, toplevel);
+			if (type.Matches ("application", "*")) {
+				if (type.MediaSubtype.ToLowerInvariant () == "x-pkcs7-signature")
+					return new ApplicationPkcs7Signature (options, type, headers, toplevel);
 
-			if (type.Matches ("application", "pkcs7-signature"))
-				return new ApplicationPkcs7Signature (options, type, headers, toplevel);
+				if (type.MediaSubtype.ToLowerInvariant () == "pkcs7-signature")
+					return new ApplicationPkcs7Signature (options, type, headers, toplevel);
+
+				if (type.MediaSubtype.ToLowerInvariant () == "x-pkcs7-mime")
+					return new ApplicationPkcs7Mime (options, type, headers, toplevel);
+
+				if (type.MediaSubtype.ToLowerInvariant () == "pkcs7-mime")
+					return new ApplicationPkcs7Mime (options, type, headers, toplevel);
+			}
 
 			if (type.Matches ("text", "*"))
 				return new TextPart (options, type, headers, toplevel);

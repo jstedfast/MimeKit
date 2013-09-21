@@ -38,6 +38,9 @@ namespace MimeKit {
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MultipartSigned"/> class.
+		/// </summary>
 		public MultipartSigned () : base ("signed")
 		{
 		}
@@ -81,8 +84,9 @@ namespace MimeKit {
 
 			PrepareEntityForSigning (entity);
 
-			var ctx = new SMimeContext ();
-			MimePart signature;
+			// FIXME: support PGP/MIME as well
+			var ctx = new SecureMimeContext ();
+			MimeEntity parsed;
 			byte[] cleartext;
 
 			using (var memory = new MemoryStream ()) {
@@ -100,21 +104,27 @@ namespace MimeKit {
 					filtered.Flush ();
 				}
 
+				memory.Position = 0;
+
+				// Note: we need to parse the modified entity structure to preserve any modifications
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				parsed = parser.ParseEntity ();
+
 				cleartext = memory.ToArray ();
 			}
 
 			// sign the cleartext content
-			ctx.Sign (signer, cleartext, out signature);
+			var signature = ctx.Sign (signer, cleartext);
 
 			// set the protocol and micalg Content-Type parameters
 			ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
 			ContentType.Parameters["micalg"] = signer.DigestAlgorithm.FriendlyName;
 
-			// remove any previous added subparts
+			// remove any previously added subparts
 			Clear ();
 
-			// add the entity as our first part
-			Add (entity);
+			// add the modified/parsed entity as our first part
+			Add (parsed);
 
 			// add the detached signature as the second part
 			Add (signature);
@@ -126,6 +136,7 @@ namespace MimeKit {
 		/// <returns>A signer info collection.</returns>
 		public SignerInfoCollection Verify ()
 		{
+			// FIXME: support PGP/MIME as well
 			if (Count < 2 || !(this[1] is ApplicationPkcs7Signature))
 				return null;
 
@@ -134,7 +145,7 @@ namespace MimeKit {
 				return null;
 
 			byte[] cleartext, signatureData;
-			var ctx = new SMimeContext ();
+			var ctx = new SecureMimeContext ();
 
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {

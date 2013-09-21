@@ -77,11 +77,13 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="ApplicationPkcs7Mime.cs" />
     <Compile Include="ApplicationPkcs7Signature.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="ContentObject.cs" />
     <Compile Include="ContentType.cs" />
+    <Compile Include="CryptographyContext.cs" />
     <Compile Include="DomainList.cs" />
     <Compile Include="GroupAddress.cs" />
     <Compile Include="Header.cs" />
@@ -105,8 +107,8 @@
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
-    <Compile Include="SMimeContext.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="SecureMimeContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

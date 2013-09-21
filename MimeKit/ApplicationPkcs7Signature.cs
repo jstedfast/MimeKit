@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
@@ -40,12 +41,15 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.ApplicationPkcs7Signature"/>
 		/// class with a Content-Type of application/pkcs7-signature.
 		/// </summary>
-		public ApplicationPkcs7Signature () : base ("application", "pkcs7-signature")
+		/// <param name="content">The content stream.</param>
+		public ApplicationPkcs7Signature (Stream content) : base ("application", "pkcs7-signature")
 		{
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.Base64;
 			ContentDisposition.FileName = "smime.p7s";
 			ContentType.Name = "smime.p7s";
+
+			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }
