@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MimeKit {
+namespace MimeKit.Cryptography {
 	public abstract class CryptographyContext : IDisposable
 	{
 		/// <summary>

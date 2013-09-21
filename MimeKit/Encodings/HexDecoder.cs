@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class HexDecoder : IMimeDecoder
 	{
 		enum HexDecoderState : byte {
@@ -39,7 +39,7 @@ namespace MimeKit {
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.HexDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.HexDecoder"/> class.
 		/// </summary>
 		public HexDecoder ()
 		{

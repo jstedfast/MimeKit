@@ -27,16 +27,12 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 
-namespace MimeKit {
-	public enum SecureMimeType {
-		EnvelopedData,
-		SignedData,
-		CertsOnly
-	}
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 
+namespace MimeKit.Cryptography {
 	public class ApplicationPkcs7Mime : MimePart
 	{
 		internal ApplicationPkcs7Mime (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -44,7 +40,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.ApplicationPkcs7Mime"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.
 		/// </summary>
 		/// <param name="type">The S/MIME type.</param>
 		/// <param name="content">The content stream.</param>

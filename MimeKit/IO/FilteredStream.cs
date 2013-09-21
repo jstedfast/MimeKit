@@ -1,5 +1,5 @@
 ﻿//
-// Substream.cs
+// FilteredStream.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,113 +26,112 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
-namespace MimeKit {
-	public class BoundStream : Stream
+using MimeKit.IO.Filters;
+
+namespace MimeKit.IO {
+	public class FilteredStream : Stream
 	{
+		const int ReadBufferSize = 4096;
+
+		enum IOOperation : byte {
+			Read,
+			Write
+		}
+
+		List<IMimeFilter> filters = new List<IMimeFilter> ();
+		IOOperation lastOp = IOOperation.Read;
+		int filteredLength;
+		int filteredIndex;
+		byte[] filtered;
+		byte[] readbuf;
 		long position;
 		bool disposed;
-		bool eos;
+		bool flushed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.BoundStream"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.FilteredStream"/> class.
 		/// </summary>
-		/// <param name='baseStream'>
-		/// The underlying stream.
+		/// <param name='source'>
+		/// The underlying stream to filter from or filter to.
 		/// </param>
-		/// <param name='startBoundary'>
-		/// The offset in the base stream that will mark the start of this substream.
-		/// </param>
-		/// <param name='endBoundary'>
-		/// The offset in the base stream that will mark the end of this substream.
-		/// </param>
-		/// <param name='leaveOpen'>
-		/// <c>true</c> to leave the baseStream open after the
-		/// <see cref="MimeKit.BoundStream"/> is disposed;
-		/// otherwise, <c>false</c>.
-		/// </param>
-		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
+		public FilteredStream (Stream source)
 		{
-			if (baseStream == null)
-				throw new ArgumentNullException ("baseStream");
+			if (source == null)
+				throw new ArgumentNullException ("source");
 
-			if (startBoundary < 0)
-				throw new ArgumentOutOfRangeException ("startBoundary");
-
-			if (endBoundary >= 0 && endBoundary < startBoundary)
-				throw new ArgumentOutOfRangeException ("endBoundary");
-
-			EndBoundary = endBoundary < 0 ? -1 : endBoundary;
-			StartBoundary = startBoundary;
-			BaseStream = baseStream;
-			LeaveOpen = leaveOpen;
-			position = 0;
-			eos = false;
+			position = source.Position;
+			Source = source;
 		}
 
 		/// <summary>
-		/// Gets the underlying stream.
+		/// Gets the underlying source stream.
 		/// </summary>
 		/// <value>
-		/// The underlying stream.
+		/// The underlying source stream.
 		/// </value>
-		public Stream BaseStream {
+		public Stream Source {
 			get; private set;
 		}
 
 		/// <summary>
-		/// Gets the start boundary offset of the underlying stream.
+		/// Adds the specified filter.
 		/// </summary>
-		/// <value>
-		/// The start boundary offset of the underlying stream.
-		/// </value>
-		public long StartBoundary {
-			get; private set;
+		/// <param name='filter'>
+		/// Filter.
+		/// </param>
+		public void Add (IMimeFilter filter)
+		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
+			filters.Add (filter);
 		}
 
 		/// <summary>
-		/// Gets the end boundary offset of the underlying stream.
+		/// Contains the specified filter.
 		/// </summary>
-		/// <value>
-		/// The end boundary offset of the underlying stream.
-		/// </value>
-		public long EndBoundary {
-			get; private set;
+		/// <param name='filter'>
+		/// Filter.
+		/// </param>
+		public bool Contains (IMimeFilter filter)
+		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
+			return filters.Contains (filter);
 		}
 
 		/// <summary>
-		/// Checks whether or not the underlying stream will remain open after
-		/// the <see cref="MimeKit.BoundStream"/> is disposed.
+		/// Remove the specified filter.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the underlying stream should remain open after the
-		/// <see cref="MimeKit.BoundStream"/> is disposed; otherwise, <c>false</c>.
-		/// </value>
-		bool LeaveOpen {
-			get; set;
+		/// <param name='filter'>
+		/// Filter.
+		/// </param>
+		public bool Remove (IMimeFilter filter)
+		{
+			if (filter == null)
+				throw new ArgumentNullException ("filter");
+
+			return filters.Remove (filter);
 		}
 
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("Substream");
-		}
-
-		void CheckCanSeek ()
-		{
-			if (!BaseStream.CanSeek)
-				throw new NotSupportedException ("The stream does not support seeking");
+				throw new ObjectDisposedException ("FilteredStream");
 		}
 
 		void CheckCanRead ()
 		{
-			if (!BaseStream.CanRead)
+			if (!Source.CanRead)
 				throw new NotSupportedException ("The stream does not support reading");
 		}
 
 		void CheckCanWrite ()
 		{
-			if (!BaseStream.CanWrite)
+			if (!Source.CanWrite)
 				throw new NotSupportedException ("The stream does not support writing");
 		}
 
@@ -145,7 +144,7 @@ namespace MimeKit {
 		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanRead {
-			get { return BaseStream.CanRead; }
+			get { return Source.CanRead; }
 		}
 
 		/// <summary>
@@ -155,7 +154,7 @@ namespace MimeKit {
 		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanWrite {
-			get { return BaseStream.CanWrite; }
+			get { return Source.CanWrite; }
 		}
 
 		/// <summary>
@@ -165,7 +164,7 @@ namespace MimeKit {
 		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanSeek {
-			get { return BaseStream.CanSeek; }
+			get { return false; }
 		}
 
 		/// <summary>
@@ -175,7 +174,7 @@ namespace MimeKit {
 		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanTimeout {
-			get { return BaseStream.CanTimeout; }
+			get { return Source.CanTimeout; }
 		}
 
 		/// <summary>
@@ -185,17 +184,7 @@ namespace MimeKit {
 		/// The length of the stream.
 		/// </value>
 		public override long Length {
-			get {
-				CheckDisposed ();
-
-				if (EndBoundary != -1)
-					return EndBoundary - StartBoundary;
-
-				if (eos)
-					return position;
-
-				return BaseStream.Length - StartBoundary;
-			}
+			get { throw new NotSupportedException ("Cannot get the length of the stream"); }
 		}
 
 		/// <summary>
@@ -206,12 +195,7 @@ namespace MimeKit {
 		/// </value>
 		public override long Position {
 			get { return position; }
-			set {
-				CheckDisposed ();
-				CheckCanSeek ();
-
-				Seek (value, SeekOrigin.Begin);
-			}
+			set { throw new NotSupportedException ("The stream does not support seeking"); }
 		}
 
 		/// <summary>
@@ -220,9 +204,10 @@ namespace MimeKit {
 		/// <value>
 		/// The read timeout.
 		/// </value>
-		public override int ReadTimeout {
-			get { return BaseStream.ReadTimeout; }
-			set { BaseStream.ReadTimeout = value; }
+		public override int ReadTimeout
+		{
+			get { return Source.ReadTimeout; }
+			set { Source.ReadTimeout = value; }
 		}
 
 		/// <summary>
@@ -231,12 +216,13 @@ namespace MimeKit {
 		/// <value>
 		/// The write timeout.
 		/// </value>
-		public override int WriteTimeout {
-			get { return BaseStream.WriteTimeout; }
-			set { BaseStream.WriteTimeout = value; }
+		public override int WriteTimeout
+		{
+			get { return Source.WriteTimeout; }
+			set { Source.WriteTimeout = value; }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
@@ -325,23 +311,34 @@ namespace MimeKit {
 
 			ValidateArguments (buffer, offset, count);
 
-			// if we are at the end of the stream, we cannot read anymore data
-			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary) {
-				eos = true;
-				return 0;
+			lastOp = IOOperation.Read;
+			if (readbuf == null)
+				readbuf = new byte[ReadBufferSize];
+
+			int nread;
+
+			if (filteredLength == 0) {
+				if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
+					return nread;
+				
+				// filter the data we've just read...
+				filteredLength = nread;
+				filteredIndex = 0;
+				filtered = readbuf;
+
+				foreach (var filter in filters)
+					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 			}
 
-			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
-				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+			// copy our filtered data into our caller's buffer
+			nread = Math.Min (filteredLength, count);
 
-			int n = EndBoundary != -1 ? (int) Math.Min (EndBoundary - (StartBoundary + position), count) : count;
-			int nread = BaseStream.Read (buffer, offset, n);
-
-			if (nread > 0)
+			if (nread > 0) {
+				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
+				filteredLength -= nread;
+				filteredIndex += nread;
 				position += nread;
-			else if (nread == 0)
-				eos = true;
+			}
 
 			return nread;
 		}
@@ -365,21 +362,18 @@ namespace MimeKit {
 
 			ValidateArguments (buffer, offset, count);
 
-			// if we are at the end of the stream, we cannot write anymore data
-			if (EndBoundary != -1 && StartBoundary + position + count > EndBoundary) {
-				eos = StartBoundary + position >= EndBoundary;
-				throw new IOException ();
-			}
+			lastOp = IOOperation.Write;
+			flushed = false;
 
-			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
-				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+			filteredIndex = offset;
+			filteredLength = count;
+			filtered = buffer;
 
-			BaseStream.Write (buffer, offset, count);
+			foreach (var filter in filters)
+				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+
+			Source.Write (filtered, filteredIndex, filteredLength);
 			position += count;
-
-			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary)
-				eos = true;
 		}
 
 		/// <summary>
@@ -393,57 +387,7 @@ namespace MimeKit {
 		/// </param>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
-			CheckDisposed ();
-			CheckCanSeek ();
-
-			long real;
-
-			switch (origin) {
-			case SeekOrigin.Begin:
-				real = StartBoundary + offset;
-				break;
-			case SeekOrigin.Current:
-				real = position + offset;
-				break;
-			case SeekOrigin.End:
-				if (offset >= 0 || (EndBoundary == -1 && !eos)) {
-					// We don't know if the underlying stream can seek past the end or not...
-					if ((real = BaseStream.Seek (offset, origin)) == -1)
-						return -1;
-				} else if (EndBoundary == -1) {
-					// seeking backwards from eos (which happens to be our current position)
-					real = position + offset;
-				} else {
-					// seeking backwards from a known position
-					real = EndBoundary + offset;
-				}
-				
-				break;
-			default:
-				throw new ArgumentException ("Invalid SeekOrigin specified", "origin");
-			}
-			
-			// sanity check the resultant offset
-			if (real < StartBoundary)
-				throw new IOException ("Cannot seek to a position before the beginning of the stream");
-			
-			// short-cut if we are seeking to our current position
-			if (real == StartBoundary + position)
-				return position;
-			
-			if (EndBoundary != -1 && real > EndBoundary)
-				throw new IOException ("Cannot seek beyond the end of the stream");
-			
-			if ((real = BaseStream.Seek (real, SeekOrigin.Begin)) == -1)
-				return -1;
-			
-			// reset eos if appropriate
-			if ((EndBoundary != -1 && real < EndBoundary) || (eos && real < StartBoundary + position))
-				eos = false;
-			
-			position = real - StartBoundary;
-
-			return position;
+			throw new NotSupportedException ("The stream does not support seeking");
 		}
 
 		/// <summary>
@@ -454,7 +398,27 @@ namespace MimeKit {
 			CheckDisposed ();
 			CheckCanWrite ();
 
-			BaseStream.Flush ();
+			if (lastOp == IOOperation.Read)
+				return;
+
+			if (!flushed) {
+				filtered = new byte[0];
+				filteredIndex = 0;
+				filteredLength = 0;
+
+				foreach (var filter in filters)
+					filtered = filter.Flush (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+
+				flushed = true;
+			}
+
+			if (filteredLength > 0) {
+				Source.Write (filtered, filteredIndex, filteredLength);
+				filteredIndex = 0;
+				filteredLength = 0;
+			}
+
+			Source.Flush ();
 		}
 
 		/// <summary>
@@ -467,27 +431,24 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			if (EndBoundary == -1 || StartBoundary + value > EndBoundary) {
-				long end = BaseStream.Length;
-
-				if (StartBoundary + value > end)
-					BaseStream.SetLength (StartBoundary + value);
-				
-				EndBoundary = StartBoundary + value;
-			} else {
-				EndBoundary = StartBoundary + value;
-			}
+			throw new NotSupportedException ("Cannot set a length on the stream");
 		}
 
 		protected override void Dispose (bool disposing)
 		{
-			if (disposing && !LeaveOpen)
-				BaseStream.Dispose ();
+			if (disposing) {
+				if (filters != null) {
+					filters.Clear ();
+					filters = null;
+				}
+
+				readbuf = null;
+			}
 
 			base.Dispose (disposing);
 			disposed = true;
 		}
-		
+
 		#endregion
 	}
 }

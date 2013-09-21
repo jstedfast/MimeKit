@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class HexEncoder : IMimeEncoder
 	{
 		static readonly byte[] hex_alphabet = new byte[16] {
@@ -35,7 +35,7 @@ namespace MimeKit {
 		};
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.HexEncoder"/> class.
 		/// </summary>
 		public HexEncoder ()
 		{

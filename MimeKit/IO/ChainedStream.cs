@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace MimeKit {
+namespace MimeKit.IO {
 	public class ChainedStream : Stream
 	{
 		readonly List<Stream> streams = new List<Stream> ();
@@ -37,6 +37,9 @@ namespace MimeKit {
 		int current;
 		bool eos;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
+		/// </summary>
 		public ChainedStream ()
 		{
 		}

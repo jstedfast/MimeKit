@@ -30,6 +30,8 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
+using MimeKit.Cryptography;
+
 namespace MimeKit {
 	public abstract class MimeEntity
 	{

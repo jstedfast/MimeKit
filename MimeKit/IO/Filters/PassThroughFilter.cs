@@ -26,11 +26,11 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.IO.Filters {
 	public class PassThroughFilter : IMimeFilter
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.PassThroughFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.PassThroughFilter"/> class.
 		/// </summary>
 		public PassThroughFilter ()
 		{

@@ -1,5 +1,5 @@
 //
-// TrailingWhitespaceFilter.cs
+// DecoderFilter.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,77 +26,63 @@
 
 using System;
 
-namespace MimeKit {
-	public class TrailingWhitespaceFilter : MimeFilterBase
-	{
-		PackedByteArray lwsp = new PackedByteArray ();
+using MimeKit.Encodings;
 
+namespace MimeKit.IO.Filters {
+	public class DecoderFilter : MimeFilterBase
+	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TrailingWhitespaceFilter"/> class.
+		/// Gets the decoder used by this filter.
 		/// </summary>
-		public TrailingWhitespaceFilter ()
-		{
+		/// <value>
+		/// The decoder.
+		/// </value>
+		public IMimeDecoder Decoder {
+			get; private set;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
+		/// <summary>
+		/// Gets the encoding.
+		/// </summary>
+		/// <value>
+		/// The encoding.
+		/// </value>
+		public ContentEncoding Encoding {
+			get { return Decoder.Encoding; }
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.DecoderFilter"/> class.
+		/// </summary>
+		/// <param name='decoder'>
+		/// A specific decoder for the filter to use.
+		/// </param>
+		public DecoderFilter (IMimeDecoder decoder)
 		{
-			byte* inend = inbuf + length;
-			byte* outptr = outbuf;
-			byte* inptr = inbuf;
-			int count = 0;
+			Decoder = decoder;
+		}
 
-			while (inptr < inend) {
-				if ((*inptr).IsBlank ()) {
-					lwsp.Add (*inptr);
-				} else if (*inptr == (byte) '\r') {
-					*outptr++ = *inptr;
-					lwsp.Clear ();
-					count++;
-				} else if (*inptr == (byte) '\n') {
-					*outptr++ = *inptr;
-					lwsp.Clear ();
-					count++;
-				} else {
-					if (lwsp.Count > 0) {
-						lwsp.CopyTo (output, count);
-						outptr += lwsp.Count;
-						count += lwsp.Count;
-						lwsp.Clear ();
-					}
-
-					*outptr++ = *inptr;
-					count++;
-				}
-
-				inptr++;
+		/// <summary>
+		/// Create a filter that will decode the specified encoding.
+		/// </summary>
+		/// <param name='encoding'>
+		/// The encoding to create a filter for.
+		/// </param>
+		public static IMimeFilter Create (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.Base64: return new DecoderFilter (new Base64Decoder ());
+			case ContentEncoding.QuotedPrintable: return new DecoderFilter (new QuotedPrintableDecoder ());
+			case ContentEncoding.UUEncode: return new DecoderFilter (new UUDecoder ());
+			default: return new PassThroughFilter ();
 			}
-
-			return count;
 		}
 
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			if (length == 0) {
-				if (flush)
-					lwsp.Clear ();
+			EnsureOutputSize (Decoder.EstimateOutputLength (length), false);
 
-				outputIndex = startIndex;
-				outputLength = length;
-
-				return input;
-			}
-
-			EnsureOutputSize (length + lwsp.Count, false);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
-				}
-			}
-
-			if (flush)
-				lwsp.Clear ();
-
+			outputLength = Decoder.Decode (input, startIndex, length, output);
 			outputIndex = 0;
 
 			return output;
@@ -107,7 +93,7 @@ namespace MimeKit {
 		/// </summary>
 		public override void Reset ()
 		{
-			lwsp.Clear ();
+			Decoder.Reset ();
 			base.Reset ();
 		}
 	}

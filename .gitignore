@@ -1,2 +1,5 @@
-MimeKit/bin/
-MimeKit/obj/
+MimeKit.userprefs
+MimeKit.suo
+test-results
+obj
+bin

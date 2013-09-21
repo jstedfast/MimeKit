@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class Base64Decoder : IMimeDecoder
 	{
 		static readonly byte[] base64_rank = new byte[256] {
@@ -53,7 +53,7 @@ namespace MimeKit {
 		byte npad;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Base64Decoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Decoder"/> class.
 		/// </summary>
 		public Base64Decoder ()
 		{

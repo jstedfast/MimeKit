@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.IO.Filters {
 	public interface IMimeFilter
 	{
 		/// <summary>

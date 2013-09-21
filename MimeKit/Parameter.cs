@@ -27,6 +27,8 @@
 using System;
 using System.Text;
 
+using MimeKit.Encodings;
+
 namespace MimeKit {
 	public sealed class Parameter
 	{

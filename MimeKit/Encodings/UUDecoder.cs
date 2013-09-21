@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class UUDecoder : IMimeDecoder
 	{
 		static readonly byte[] uudecode_rank = new byte[256] {
@@ -67,7 +67,7 @@ namespace MimeKit {
 		uint saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.UUDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
 		/// </summary>
 		/// <param name="payloadOnly">
 		/// If <c>true</c>, decoding begins immediately rather than after finding a begin-line.
@@ -79,7 +79,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.UUDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
 		/// </summary>
 		public UUDecoder () : this (false)
 		{

@@ -1,5 +1,5 @@
 //
-// ApplicationPkcs7Signature.cs
+// Dos2UnixFilter.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,31 +25,64 @@
 //
 
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
 
-namespace MimeKit {
-	public class ApplicationPkcs7Signature : MimePart
+namespace MimeKit.IO.Filters {
+	public class Dos2UnixFilter : MimeFilterBase
 	{
-		internal ApplicationPkcs7Signature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		byte pc;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.Dos2UnixFilter"/> class.
+		/// </summary>
+		public Dos2UnixFilter ()
 		{
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.ApplicationPkcs7Signature"/>
-		/// class with a Content-Type of application/pkcs7-signature.
-		/// </summary>
-		/// <param name="content">The content stream.</param>
-		public ApplicationPkcs7Signature (Stream content) : base ("application", "pkcs7-signature")
+		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
 		{
-			ContentDisposition = new ContentDisposition ("attachment");
-			ContentTransferEncoding = ContentEncoding.Base64;
-			ContentDisposition.FileName = "smime.p7s";
-			ContentType.Name = "smime.p7s";
+			byte* inend = inbuf + length;
+			byte* outptr = outbuf;
+			byte* inptr = inbuf;
 
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
+			while (inptr < inend) {
+				if (*inptr == (byte) '\n') {
+					*outptr++ = *inptr;
+				} else {
+					if (pc == (byte) '\r')
+						*outptr++ = pc;
+
+					if (*inptr != (byte) '\r')
+						*outptr++ = *inptr;
+				}
+
+				pc = *inptr++;
+			}
+
+			return (int) (outptr - outbuf);
+		}
+
+		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
+		{
+			if (pc == (byte) '\r')
+				EnsureOutputSize (length + 1, false);
+			else
+				EnsureOutputSize (length, false);
+
+			outputIndex = 0;
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					outputLength = Filter (inptr + startIndex, length, outptr);
+				}
+			}
+
+			return output;
+		}
+
+		public override void Reset ()
+		{
+			pc = 0;
+			base.Reset ();
 		}
 	}
 }

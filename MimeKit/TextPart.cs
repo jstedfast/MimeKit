@@ -29,6 +29,9 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
+using MimeKit.IO;
+using MimeKit.IO.Filters;
+
 namespace MimeKit {
 	public class TextPart : MimePart
 	{

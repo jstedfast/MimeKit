@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.IO.Filters {
     public abstract class MimeFilterBase : IMimeFilter
     {
 		protected byte[] output = null;

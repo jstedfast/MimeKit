@@ -26,11 +26,11 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class PassThroughEncoder : IMimeEncoder
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.PassThroughEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughEncoder"/> class.
 		/// </summary>
 		/// <param name='encoding'>
 		/// Encoding.

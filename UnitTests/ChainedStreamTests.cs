@@ -29,7 +29,7 @@ using System.IO;
 
 using NUnit.Framework;
 
-using MimeKit;
+using MimeKit.IO;
 
 namespace UnitTests {
 	[TestFixture]

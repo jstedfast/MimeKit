@@ -26,7 +26,9 @@
 
 using System;
 
-namespace MimeKit {
+using MimeKit.Encodings;
+
+namespace MimeKit.IO.Filters {
 	public class EncoderFilter : MimeFilterBase
 	{
 		/// <summary>
@@ -50,7 +52,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.EncoderFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.EncoderFilter"/> class.
 		/// </summary>
 		/// <param name='encoder'>
 		/// A specific encoder for the filter to use.

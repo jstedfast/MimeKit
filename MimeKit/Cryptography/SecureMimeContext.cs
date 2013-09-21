@@ -32,7 +32,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
-namespace MimeKit {
+namespace MimeKit.Cryptography {
 	public class SecureMimeContext : CryptographyContext
 	{
 		/// <summary>

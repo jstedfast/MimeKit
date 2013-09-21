@@ -27,7 +27,7 @@
 using System;
 using System.Text;
 
-namespace MimeKit {
+namespace MimeKit.IO.Filters {
 	public class CharsetFilter : MimeFilterBase
 	{
 		readonly char[] chars = new char[1024];
@@ -35,7 +35,7 @@ namespace MimeKit {
 		readonly Encoder encoder;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.CharsetFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
 		/// </summary>
 		/// <param name='sourceEncodingName'>
 		/// Source encoding name.
@@ -49,7 +49,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.CharsetFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
 		/// </summary>
 		/// <param name='sourceCodePage'>
 		/// Source code page.
@@ -63,7 +63,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.CharsetFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
 		/// </summary>
 		/// <param name='sourceEncoding'>
 		/// Source encoding.

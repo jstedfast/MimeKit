@@ -27,11 +27,12 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
 
-namespace MimeKit {
+using MimeKit.IO;
+using MimeKit.IO.Filters;
+
+namespace MimeKit.Cryptography {
 	public class MultipartSigned : Multipart
 	{
 		internal MultipartSigned (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)

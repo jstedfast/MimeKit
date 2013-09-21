@@ -30,6 +30,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
+using MimeKit.IO;
+using MimeKit.IO.Filters;
+using MimeKit.Encodings;
+
 namespace MimeKit {
 	public class MimePart : MimeEntity
 	{

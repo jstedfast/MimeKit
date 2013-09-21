@@ -27,6 +27,9 @@
 using System;
 using System.IO;
 
+using MimeKit.IO;
+using MimeKit.IO.Filters;
+
 namespace MimeKit {
 	public class ContentObject : IContentObject
 	{

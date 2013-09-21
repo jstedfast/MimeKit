@@ -27,14 +27,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace MimeKit {
+namespace MimeKit.IO.Filters {
 	public class ArmoredFromFilter : MimeFilterBase
 	{
 		const string From = "From ";
 		bool midline;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.ArmoredFromFilter"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.ArmoredFromFilter"/> class.
 		/// </summary>
 		public ArmoredFromFilter ()
 		{

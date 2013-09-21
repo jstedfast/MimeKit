@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class Base64Encoder : IMimeEncoder
 	{
 		static readonly byte[] base64_alphabet = new byte[64] {
@@ -47,7 +47,7 @@ namespace MimeKit {
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Base64Encoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
 		/// </summary>
 		/// <param name='rfc2047'>
 		/// <c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.
@@ -59,7 +59,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Base64Encoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
 		/// </summary>
 		public Base64Encoder () : this (false)
 		{

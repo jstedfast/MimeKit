@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public interface IMimeDecoder : ICloneable
 	{
 		/// <summary>

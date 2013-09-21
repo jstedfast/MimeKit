@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class QuotedPrintableDecoder : IMimeDecoder
 	{
 		enum QpDecoderState : byte {
@@ -36,11 +36,11 @@ namespace MimeKit {
 		}
 
 		QpDecoderState state;
-		bool rfc2047;
+		readonly bool rfc2047;
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
 		/// </summary>
 		/// <param name='rfc2047'>
 		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
@@ -52,7 +52,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QuotedPrintableDecoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
 		/// </summary>
 		public QuotedPrintableDecoder () : this (false)
 		{

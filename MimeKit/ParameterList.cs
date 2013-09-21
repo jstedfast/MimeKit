@@ -29,6 +29,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+using MimeKit.Encodings;
+
 namespace MimeKit {
 	public sealed class ParameterList : IList<Parameter>
 	{

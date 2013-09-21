@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public enum QEncodeMode {
 		Phrase,
 		Text
@@ -39,10 +39,10 @@ namespace MimeKit {
 			0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, // '8' -> 'F'
 		};
 
-		CharType mask;
+		readonly CharType mask;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.QEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QEncoder"/> class.
 		/// </summary>
 		public QEncoder (QEncodeMode mode)
 		{

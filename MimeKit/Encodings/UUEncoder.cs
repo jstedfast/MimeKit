@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Encodings {
 	public class UUEncoder : IMimeEncoder
 	{
 		const int MaxInputPerLine = 45;
@@ -38,7 +38,7 @@ namespace MimeKit {
 		byte uulen;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.UUEncoder"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUEncoder"/> class.
 		/// </summary>
 		public UUEncoder ()
 		{

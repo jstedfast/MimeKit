@@ -1,5 +1,5 @@
 //
-// Unix2DosFilter.cs
+// ApplicationPkcs7Signature.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,58 +25,31 @@
 //
 
 using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
 
-namespace MimeKit {
-	public class Unix2DosFilter : MimeFilterBase
+namespace MimeKit.Cryptography {
+	public class ApplicationPkcs7Signature : MimePart
 	{
-		byte pc;
-
-		public Unix2DosFilter ()
+		internal ApplicationPkcs7Signature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/>
+		/// class with a Content-Type of application/pkcs7-signature.
+		/// </summary>
+		/// <param name="content">The content stream.</param>
+		public ApplicationPkcs7Signature (Stream content) : base ("application", "pkcs7-signature")
 		{
-			byte* inend = inbuf + length;
-			byte* outptr = outbuf;
-			byte* inptr = inbuf;
+			ContentDisposition = new ContentDisposition ("attachment");
+			ContentTransferEncoding = ContentEncoding.Base64;
+			ContentDisposition.FileName = "smime.p7s";
+			ContentType.Name = "smime.p7s";
 
-			while (inptr < inend) {
-				if (*inptr == (byte) '\r') {
-					*outptr++ = *inptr;
-				} else if (*inptr == (byte) '\n') {
-					if (pc != (byte) '\r')
-						*outptr++ = (byte) '\r';
-					*outptr++ = *inptr;
-				} else {
-					*outptr++ = *inptr;
-				}
-
-				pc = *inptr++;
-			}
-
-			return (int) (outptr - outbuf);
-		}
-
-		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
-		{
-			EnsureOutputSize (length * 2, false);
-
-			outputIndex = 0;
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
-				}
-			}
-
-			return output;
-		}
-
-		public override void Reset ()
-		{
-			pc = 0;
-			base.Reset ();
+			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }

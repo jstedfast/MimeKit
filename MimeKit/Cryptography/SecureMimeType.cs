@@ -1,5 +1,5 @@
 //
-// Dos2UnixFilter.cs
+// SecureMimeType.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,60 +26,10 @@
 
 using System;
 
-namespace MimeKit {
-	public class Dos2UnixFilter : MimeFilterBase
-	{
-		byte pc;
-
-		public Dos2UnixFilter ()
-		{
-		}
-
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
-		{
-			byte* inend = inbuf + length;
-			byte* outptr = outbuf;
-			byte* inptr = inbuf;
-
-			while (inptr < inend) {
-				if (*inptr == (byte) '\n') {
-					*outptr++ = *inptr;
-				} else {
-					if (pc == (byte) '\r')
-						*outptr++ = pc;
-
-					if (*inptr != (byte) '\r')
-						*outptr++ = *inptr;
-				}
-
-				pc = *inptr++;
-			}
-
-			return (int) (outptr - outbuf);
-		}
-
-		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
-		{
-			if (pc == (byte) '\r')
-				EnsureOutputSize (length + 1, false);
-			else
-				EnsureOutputSize (length, false);
-
-			outputIndex = 0;
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
-				}
-			}
-
-			return output;
-		}
-
-		public override void Reset ()
-		{
-			pc = 0;
-			base.Reset ();
-		}
+namespace MimeKit.Cryptography {
+	public enum SecureMimeType {
+		EnvelopedData,
+		SignedData,
+		CertsOnly
 	}
 }

@@ -30,6 +30,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+using MimeKit.Encodings;
+
 namespace MimeKit {
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
