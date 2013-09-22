@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MultipartSigned"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
 		/// </summary>
 		public MultipartSigned () : base ("signed")
 		{
@@ -71,9 +71,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MultipartSigned"/> instance.</returns>
+		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance.</returns>
 		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
@@ -133,7 +133,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
 		/// </summary>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
@@ -201,25 +201,26 @@ namespace MimeKit.Cryptography {
 		public SignerInfoCollection Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
+			if (string.IsNullOrEmpty (protocol))
+				throw new FormatException ();
+
+			protocol = protocol.Trim ().ToLowerInvariant ();
+
+			if (Count < 2)
+				throw new FormatException ();
+
+			var signature = this[1] as MimePart;
+			if (signature == null || signature.ContentObject == null)
+				throw new FormatException ();
+
+			var ctype = signature.ContentType;
+			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
+			if (value.ToLowerInvariant () != protocol)
+				throw new FormatException ();
 
 			// FIXME: use CryptographyContext.Create() once we have a good general-purpose API.
 			// This will allow us to support PGP/MIME as well.
 			using (var ctx = new SecureMimeContext ()) {
-				if (Count < 2)
-					throw new FormatException ();
-
-				var signature = this[1] as MimePart;
-				if (signature == null)
-					throw new FormatException ();
-
-				var ctype = signature.ContentType;
-				var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
-				if (value.ToLowerInvariant () != protocol.ToLowerInvariant ())
-					throw new FormatException ();
-
-				if (signature.ContentObject == null)
-					throw new FormatException ();
-
 				byte[] cleartext, signatureData;
 
 				using (var memory = new MemoryStream ()) {

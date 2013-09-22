@@ -1,5 +1,5 @@
 //
-// ApplicationPkcs7Signature.cs
+// ApplicationPgpEncrypted.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -23,31 +23,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
-	public class ApplicationPkcs7Signature : MimePart
+	public class ApplicationPgpEncrypted : MimePart
 	{
-		internal ApplicationPkcs7Signature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		internal ApplicationPgpEncrypted (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/>
-		/// class with a Content-Type of application/pkcs7-signature.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
+		/// class with a Content-Type of application/pgp-encrypted and content matching "Version: 1\n".
 		/// </summary>
-		/// <param name="content">The content stream.</param>
-		public ApplicationPkcs7Signature (Stream content) : base ("application", "pkcs7-signature")
+		public ApplicationPgpEncrypted () : base ("application", "pgp-encrypted")
 		{
 			ContentDisposition = new ContentDisposition ("attachment");
-			ContentTransferEncoding = ContentEncoding.Base64;
+			ContentTransferEncoding = ContentEncoding.SevenBit;
 			ContentDisposition.FileName = "smime.p7s";
 			ContentType.Name = "smime.p7s";
+
+			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"));
 
 			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }
+

@@ -98,7 +98,7 @@ namespace MimeKit.Cryptography {
 					filtered.Flush ();
 				}
 
-				return ctx.Encrypt (signer, recipients, memory.ToArray ());
+				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
 			}
 		}
 	}

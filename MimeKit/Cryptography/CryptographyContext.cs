@@ -61,15 +61,23 @@ namespace MimeKit.Cryptography {
 		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
 
 		/// <summary>
-		/// Encrypt the specified content for the specified recipients, optionally
-		/// signing the content if the signer provided is not null.
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content);
+
+		/// <summary>
+		/// Signs and encrypts the specified content for the specified recipients.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
-		public abstract MimePart Encrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
+		public abstract MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
 
 		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
 

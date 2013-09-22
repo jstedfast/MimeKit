@@ -264,8 +264,8 @@ namespace MimeKit {
 			}
 
 			if (icase.Compare (type.MediaType, "multipart") == 0) {
-				//if (icase.Compare (type.MediaSubtype, "encrypted") == 0)
-				//	return new MultipartEncrypted (options, type, headers, toplevel);
+				if (icase.Compare (type.MediaSubtype, "encrypted") == 0)
+					return new MultipartEncrypted (options, type, headers, toplevel);
 
 				if (icase.Compare (type.MediaSubtype, "signed") == 0)
 					return new MultipartSigned (options, type, headers, toplevel);
@@ -285,6 +285,12 @@ namespace MimeKit {
 
 				if (type.MediaSubtype.ToLowerInvariant () == "pkcs7-mime")
 					return new ApplicationPkcs7Mime (options, type, headers, toplevel);
+
+				if (type.MediaSubtype.ToLowerInvariant () == "x-pgp-encrypted")
+					return new ApplicationPgpEncrypted (options, type, headers, toplevel);
+
+				if (type.MediaSubtype.ToLowerInvariant () == "pgp-encrypted")
+					return new ApplicationPgpEncrypted (options, type, headers, toplevel);
 			}
 
 			if (type.Matches ("text", "*"))
