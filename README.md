@@ -34,6 +34,8 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2632](http://www.ietf.org/rfc/rfc2632.txt): S/MIME Version 3 Certificate Handling
 * [2633](http://www.ietf.org/rfc/rfc2633.txt): S/MIME Version 3 Message Specification
 * [2634](http://www.ietf.org/rfc/rfc2634.txt): Enhanced Security Services for S/MIME 
+* [3850](http://www.ietf.org/rfc/rfc3850.txt): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)
+* [3851](http://www.ietf.org/rfc/rfc3851.txt): S/MIME Version 3.1 Message Specification (Obsoletes rfc2633)
 
 #### Cryptography related RFCs (needed by S/MIME)
 
