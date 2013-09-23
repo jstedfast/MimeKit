@@ -1115,7 +1115,7 @@ namespace MimeKit {
 					if (!ParseUtils.TryParseInt32 (value, ref index, value.Length, out length))
 						continue;
 
-					long endOffset = mboxMarkerOffset + mboxMarkerLength + length;
+					long endOffset = GetOffset (inputIndex) + length;
 
 					bounds[0].ContentEnd = endOffset;
 					break;
