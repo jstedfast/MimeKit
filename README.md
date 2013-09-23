@@ -17,8 +17,16 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2183](http://www.ietf.org/rfc/rfc2183.txt): Communicating Presentation Information in Internet Messages: The Content-Disposition Header Field
 * [2184](http://www.ietf.org/rfc/rfc2184.txt): MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations
 * [2231](http://www.ietf.org/rfc/rfc2231.txt): MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations (Obsoletes rfc2184)
+* [2311](http://www.ietf.org/rfc/rfc2311.txt): S/MIME Version 2 Message Specification
+* [2312](http://www.ietf.org/rfc/rfc2312.txt): S/MIME Version 2 Certificate Handling
+* [2630](http://www.ietf.org/rfc/rfc2630.txt): Cryptographic Message Syntax
+* [2632](http://www.ietf.org/rfc/rfc2632.txt): S/MIME Version 3 Certificate Handling
+* [2633](http://www.ietf.org/rfc/rfc2633.txt): S/MIME Version 3 Message Specification
+* [2634](http://www.ietf.org/rfc/rfc2634.txt): Enhanced Security Services for S/MIME
 * [2822](http://www.ietf.org/rfc/rfc2822.txt): Internet Message Format (Obsoletes rfc0822)
 * [3156](http://www.ietf.org/rfc/rfc3156.txt): MIME Security with OpenPGP (Updates rfc2015)
+* [3850](http://www.ietf.org/rfc/rfc3850.txt): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)
+* [3851](http://www.ietf.org/rfc/rfc3851.txt): S/MIME Version 3.1 Message Specification (Obsoletes rfc2633)
 * [5322](http://www.ietf.org/rfc/rfc5322.txt): Internet Message Format (Obsoletes rfc2822) 
 
 #### Other RFCs of interest:
@@ -26,16 +34,8 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [1872](http://www.ietf.org/rfc/rfc1872.txt): The MIME Multipart/Related Content-type
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
 * [2111](http://www.ietf.org/rfc/rfc2111.txt): Content-ID and Message-ID Uniform Resource Locators
-* [2311](http://www.ietf.org/rfc/rfc2311.txt): S/MIME Version 2 Message Specification
-* [2312](http://www.ietf.org/rfc/rfc2312.txt): S/MIME Version 2 Certificate Handling
 * [2387](http://www.ietf.org/rfc/rfc2387.txt): The Multipart/Related Content-Type.
 * [2424](http://www.ietf.org/rfc/rfc2424.txt): Content Duration MIME Header Definition
-* [2630](http://www.ietf.org/rfc/rfc2630.txt): Cryptographic Message Syntax
-* [2632](http://www.ietf.org/rfc/rfc2632.txt): S/MIME Version 3 Certificate Handling
-* [2633](http://www.ietf.org/rfc/rfc2633.txt): S/MIME Version 3 Message Specification
-* [2634](http://www.ietf.org/rfc/rfc2634.txt): Enhanced Security Services for S/MIME 
-* [3850](http://www.ietf.org/rfc/rfc3850.txt): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)
-* [3851](http://www.ietf.org/rfc/rfc3851.txt): S/MIME Version 3.1 Message Specification (Obsoletes rfc2633)
 
 #### Cryptography related RFCs (needed by S/MIME)
 
