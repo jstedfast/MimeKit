@@ -88,6 +88,9 @@ namespace MimeKit {
 			Headers.Changed += HeadersChanged;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
+		/// </summary>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
 			Headers["From"] = string.Empty;
@@ -96,34 +99,66 @@ namespace MimeKit {
 			Subject = string.Empty;
 		}
 
+		/// <summary>
+		/// Gets the list of headers.
+		/// </summary>
+		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the Sender header.
+		/// </summary>
+		/// <value>The list of addresses in the Sender header.</value>
 		public InternetAddressList Sender {
 			get { return addresses["Sender"]; }
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the From header.
+		/// </summary>
+		/// <value>The list of addresses in the From header.</value>
 		public InternetAddressList From {
 			get { return addresses["From"]; }
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the Reply-To header.
+		/// </summary>
+		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
 			get { return addresses["Reply-To"]; }
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the To header.
+		/// </summary>
+		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
 			get { return addresses["To"]; }
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the Cc header.
+		/// </summary>
+		/// <value>The list of addresses in the Cc header.</value>
 		public InternetAddressList Cc {
 			get { return addresses["Cc"]; }
 		}
 
+		/// <summary>
+		/// Gets the list of addresses in the Bcc header.
+		/// </summary>
+		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
 			get { return addresses["Bcc"]; }
 		}
 
+		/// <summary>
+		/// Gets or sets the subject of the message.
+		/// </summary>
+		/// <value>The subject of the message.</value>
 		public string Subject {
 			get { return Headers["Subject"]; }
 			set {
@@ -136,6 +171,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the date of the message.
+		/// </summary>
+		/// <value>The date of the message.</value>
 		public DateTimeOffset Date {
 			get { return date; }
 			set {
@@ -150,16 +189,28 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the list of references to other messages.
+		/// </summary>
+		/// <value>The references.</value>
 		public string[] References {
 			get { return references.ToArray (); }
 			// FIXME: implement a setter
 		}
 
+		/// <summary>
+		/// Gets or sets the message id that this message is in reply to.
+		/// </summary>
+		/// <value>The message id that this message is in reply to.</value>
 		public string[] InReplyTo {
 			get { return inreplyto.ToArray (); }
 			// FIXME: implement a setter
 		}
 
+		/// <summary>
+		/// Gets or sets the message identifier.
+		/// </summary>
+		/// <value>The message identifier.</value>
 		public string MessageId {
 			get { return messageId; }
 			set {
@@ -184,6 +235,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the MIME version.
+		/// </summary>
+		/// <value>The MIME version.</value>
 		public Version MimeVersion {
 			get { return version; }
 			set {
@@ -201,10 +256,18 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the body of the message.
+		/// </summary>
+		/// <value>The body of the message.</value>
 		public MimeEntity Body {
 			get; set;
 		}
 
+		/// <summary>
+		/// Writes the message to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
 		public void WriteTo (Stream stream)
 		{
 			if (stream == null)

@@ -122,18 +122,38 @@ namespace MimeKit {
 		Stream stream;
 		long offset;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
+		/// </summary>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
 		public MimeParser (Stream stream, MimeFormat format) : this (ParserOptions.Default, stream, format)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
+		/// </summary>
+		/// <param name="stream">The stream to parse.</param>
 		public MimeParser (Stream stream) : this (ParserOptions.Default, stream, MimeFormat.Default)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
+		/// </summary>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
 		public MimeParser (ParserOptions options, Stream stream) : this (options, stream, MimeFormat.Default)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
+		/// </summary>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
 		public MimeParser (ParserOptions options, Stream stream, MimeFormat format)
 		{
 			bounds = new List<Boundary> ();
@@ -159,14 +179,28 @@ namespace MimeKit {
 			get { return GetOffset (-1); }
 		}
 
+		/// <summary>
+		/// Gets the most recent mbox marker offset.
+		/// </summary>
+		/// <value>The mbox marker offset.</value>
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
 		}
 
+		/// <summary>
+		/// Gets the most recent mbox marker.
+		/// </summary>
+		/// <value>The mbox marker.</value>
 		public string MboxMarker {
 			get { return Encoding.ASCII.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
 		}
 
+		/// <summary>
+		/// Sets the stream to parse.
+		/// </summary>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format)
 		{
 			if (options == null)
@@ -200,16 +234,30 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Sets the stream to parse.
+		/// </summary>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
 		public void SetStream (ParserOptions options, Stream stream)
 		{
 			SetStream (options, stream, MimeFormat.Default);
 		}
 
+		/// <summary>
+		/// Sets the stream to parse.
+		/// </summary>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
 		public void SetStream (Stream stream, MimeFormat format)
 		{
 			SetStream (ParserOptions.Default, stream, format);
 		}
 
+		/// <summary>
+		/// Sets the stream to parse.
+		/// </summary>
+		/// <param name="stream">The stream to parse.</param>
 		public void SetStream (Stream stream)
 		{
 			SetStream (ParserOptions.Default, stream, MimeFormat.Default);
@@ -1026,6 +1074,10 @@ namespace MimeKit {
 			return entity;
 		}
 
+		/// <summary>
+		/// Parses an entity from the stream.
+		/// </summary>
+		/// <returns>The parsed entity.</returns>
 		public MimeEntity ParseEntity ()
 		{
 			unsafe {
@@ -1096,6 +1148,10 @@ namespace MimeKit {
 			return message;
 		}
 
+		/// <summary>
+		/// Parses a message from the stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
 		public MimeMessage ParseMessage ()
 		{
 			unsafe {

@@ -69,10 +69,18 @@ namespace MimeKit {
 			SerializeContentType ();
 		}
 
+		/// <summary>
+		/// Gets the list of headers.
+		/// </summary>
+		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets the content disposition.
+		/// </summary>
+		/// <value>The content disposition.</value>
 		public ContentDisposition ContentDisposition {
 			get { return disposition; }
 			set {
@@ -99,10 +107,18 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets the type of the content.
+		/// </summary>
+		/// <value>The type of the content.</value>
 		public ContentType ContentType {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets the content identifier.
+		/// </summary>
+		/// <value>The content identifier.</value>
 		public string ContentId {
 			get { return contentId; }
 			set {
@@ -131,6 +147,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Writes the entity instance to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
 		public virtual void WriteTo (Stream stream)
 		{
 			Headers.WriteTo (stream);
@@ -138,6 +158,10 @@ namespace MimeKit {
 			stream.WriteByte ((byte) '\n');
 		}
 
+		/// <summary>
+		/// Removes the header.
+		/// </summary>
+		/// <param name="name">The name of the header.</param>
 		protected void RemoveHeader (string name)
 		{
 			Headers.Changed -= HeadersChanged;
@@ -145,6 +169,11 @@ namespace MimeKit {
 			Headers.Changed += HeadersChanged;
 		}
 
+		/// <summary>
+		/// Sets the header.
+		/// </summary>
+		/// <param name="name">The name of the header.</param>
+		/// <param name="value">The value of the header.</param>
 		protected void SetHeader (string name, string value)
 		{
 			Headers.Changed -= HeadersChanged;
@@ -152,6 +181,11 @@ namespace MimeKit {
 			Headers.Changed += HeadersChanged;
 		}
 
+		/// <summary>
+		/// Sets the header using the raw value.
+		/// </summary>
+		/// <param name="name">The name of the header.</param>
+		/// <param name="rawValue">The raw value of the header.</param>
 		protected void SetHeader (string name, byte[] rawValue)
 		{
 			Header header = new Header (Headers.Options, name, rawValue);
@@ -195,6 +229,12 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Called when the headers change in some way.
+		/// </summary>
+		/// <param name="action">The type of change.</param>
+		/// <param name="id">The <see cref="MimeKit.HeaderId"/> for the header, if known.</param>
+		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
 		{
 			switch (action) {

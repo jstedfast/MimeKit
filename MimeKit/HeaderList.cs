@@ -274,8 +274,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified header.
 		/// </summary>
-		/// <returns><value>true</value> if the specified header was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><c>true</c> if the specified header was removed;
+		/// otherwise <c>false</c>.</returns>
 		/// <param name="header">The header.</param>
 		public bool Remove (Header header)
 		{

@@ -35,20 +35,28 @@ using MimeKit.Encodings;
 namespace MimeKit {
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
+		readonly List<MimeEntity> children;
 		string preamble, epilogue;
-		List<MimeEntity> children;
 
-		public Multipart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		internal Multipart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
 			children = new List<MimeEntity> ();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// </summary>
+		/// <param name="subtype">The multipart media sub-type.</param>
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
 			ContentType.Parameters["boundary"] = GenerateBoundary ();
 			children = new List<MimeEntity> ();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class
+		/// with a default Content-Type of multipart/mixed.
+		/// </summary>
 		public Multipart () : this ("mixed")
 		{
 		}
@@ -67,8 +75,12 @@ namespace MimeKit {
 			return "=-" + Encoding.ASCII.GetString (b64buf, 0, length);
 		}
 
+		/// <summary>
+		/// Gets or sets the boundary.
+		/// </summary>
+		/// <value>The boundary.</value>
 		public string Boundary {
-			get { return ContentType.Parameters["boundary"]; }
+			get { return ContentType.Boundary; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
@@ -76,7 +88,7 @@ namespace MimeKit {
 				if (Boundary == value)
 					return;
 
-				ContentType.Parameters["boundary"] = value;
+				ContentType.Boundary = value.Trim ();
 			}
 		}
 
@@ -84,6 +96,10 @@ namespace MimeKit {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the preamble.
+		/// </summary>
+		/// <value>The preamble.</value>
 		public string Preamble {
 			get {
 				if (preamble == null && RawPreamble != null)
@@ -110,6 +126,10 @@ namespace MimeKit {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the epilogue.
+		/// </summary>
+		/// <value>The epilogue.</value>
 		public string Epilogue {
 			get {
 				if (epilogue == null && RawEpilogue != null)
@@ -132,6 +152,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Writes the <see cref="MimeKit.Multipart"/> to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
 		public override void WriteTo (Stream stream)
 		{
 			if (Boundary == null)
@@ -163,14 +187,26 @@ namespace MimeKit {
 
 		#region ICollection implementation
 
+		/// <summary>
+		/// Gets the number of child parts.
+		/// </summary>
+		/// <value>The number of child parts.</value>
 		public int Count {
 			get { return children.Count; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
 
+		/// <summary>
+		/// Adds the specified part.
+		/// </summary>
+		/// <param name="part">The part to add.</param>
 		public void Add (MimeEntity part)
 		{
 			if (part == null)
@@ -180,12 +216,19 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Removes all of the children.
+		/// </summary>
 		public void Clear ()
 		{
 			children.Clear ();
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Checks if the <see cref="MimeKit.Multipart"/> contains the specified part.
+		/// </summary>
+		/// <param name="part">The part to check for.</param>
 		public bool Contains (MimeEntity part)
 		{
 			if (part == null)
@@ -194,11 +237,21 @@ namespace MimeKit {
 			return children.Contains (part);
 		}
 
+		/// <summary>
+		/// Copies all of the entities in the <see cref="MimeKit.Multipart"/> to the specified array.
+		/// </summary>
+		/// <param name="array">The array to copy the headers to.</param>
+		/// <param name="arrayIndex">The index into the array.</param>
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
 			children.CopyTo (array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Remove the specified part.
+		/// </summary>
+		/// <returns><c>true</c> if the part was removed; otherwise <c>false</c>.</returns>
+		/// <param name="part">The part to remove.</param>
 		public bool Remove (MimeEntity part)
 		{
 			if (part == null)
@@ -216,6 +269,11 @@ namespace MimeKit {
 
 		#region IList implementation
 
+		/// <summary>
+		/// Gets the index of the specified part.
+		/// </summary>
+		/// <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
+		/// <param name="part">The part.</param>
 		public int IndexOf (MimeEntity part)
 		{
 			if (part == null)
@@ -224,6 +282,11 @@ namespace MimeKit {
 			return children.IndexOf (part);
 		}
 
+		/// <summary>
+		/// Insert the part atthe specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
+		/// <param name="part">The part.</param>
 		public void Insert (int index, MimeEntity part)
 		{
 			if (index < 0 || index > children.Count)
@@ -236,12 +299,20 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Removes the part at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public void RemoveAt (int index)
 		{
 			children.RemoveAt (index);
 			OnChanged ();
 		}
 
+		/// <summary>
+		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// </summary>
+		/// <param name="index">The index.</param>
 		public MimeEntity this[int index] {
 			get { return children[index]; }
 			set { children[index] = value; }
@@ -251,6 +322,10 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets the enumerator for the children of the <see cref="MimeKit.Multipart"/>.
+		/// </summary>
+		/// <returns>The enumerator.</returns>
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
 			return children.GetEnumerator ();
