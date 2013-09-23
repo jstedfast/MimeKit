@@ -39,8 +39,8 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 
 * [2268](http://www.ietf.org/rfc/rfc2268.txt): A Description of the RC2(r) Encryption Algorithm
 * [2313](http://www.ietf.org/rfc/rfc2313.txt): PKCS #1: RSA Encryption
-* [2313](http://www.ietf.org/rfc/rfc2313.txt): PKCS #10: Certification Request Syntax
-* [2313](http://www.ietf.org/rfc/rfc2313.txt): PKCS #7: Cryptographic Message Syntax
+* [2314](http://www.ietf.org/rfc/rfc2314.txt): PKCS #10: Certification Request Syntax
+* [2315](http://www.ietf.org/rfc/rfc2315.txt): PKCS #7: Cryptographic Message Syntax
 * [2631](http://www.ietf.org/rfc/rfc2631.txt): Diffie-Hellman Key Agreement Method 
 
 
