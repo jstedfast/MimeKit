@@ -41,7 +41,8 @@ namespace MimeKit {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
 		ContentEncoding encoding;
-		string content_md5;
+		string md5sum;
+		int? duration;
 
 		internal MimePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
 		{
@@ -55,19 +56,35 @@ namespace MimeKit {
 		{
 		}
 
-		public string ContentMd5 {
-			get { return content_md5; }
+		public int? ContentDuration {
+			get { return duration; }
 			set {
-				if (content_md5 == value)
+				if (duration == value)
+					return;
+
+				if (value.HasValue && value.Value < 0)
+					throw new ArgumentOutOfRangeException ("value");
+
+				if (value.HasValue)
+					SetHeader ("Content-Duration", value.ToString ());
+				else
+					RemoveHeader ("Content-Duration");
+			}
+		}
+
+		public string ContentMd5 {
+			get { return md5sum; }
+			set {
+				if (md5sum == value)
 					return;
 
 				if (value != null)
-					content_md5 = value.Trim ();
+					md5sum = value.Trim ();
 				else
-					content_md5 = null;
+					md5sum = null;
 
 				if (value != null)
-					SetHeader ("Content-Md5", content_md5);
+					SetHeader ("Content-Md5", md5sum);
 				else
 					RemoveHeader ("Content-Md5");
 			}
@@ -141,10 +158,10 @@ namespace MimeKit {
 
 		public bool VerifyContentMd5 ()
 		{
-			if (string.IsNullOrWhiteSpace (content_md5) || ContentObject == null)
+			if (string.IsNullOrWhiteSpace (md5sum) || ContentObject == null)
 				return false;
 
-			return content_md5 == ComputeContentMd5 ();
+			return md5sum == ComputeContentMd5 ();
 		}
 
 		public override void WriteTo (Stream stream)
@@ -180,6 +197,7 @@ namespace MimeKit {
 		protected override void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
 		{
 			string text;
+			int value;
 
 			base.OnHeadersChanged (action, id, header);
 
@@ -197,8 +215,13 @@ namespace MimeKit {
 						}
 					}
 					break;
+				case HeaderId.ContentDuration:
+					if (int.TryParse (header.Value, out value))
+						duration = value;
+					else
+						duration = null;
 				case HeaderId.ContentMd5:
-					content_md5 = header.Value.Trim ();
+					md5sum = header.Value.Trim ();
 					break;
 				}
 				break;
@@ -207,14 +230,18 @@ namespace MimeKit {
 				case HeaderId.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
 					break;
+				case HeaderId.ContentDuration:
+					duration = null;
+					break;
 				case HeaderId.ContentMd5:
-					content_md5 = null;
+					md5sum = null;
 					break;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
 				encoding = ContentEncoding.Default;
-				content_md5 = null;
+				duration = null;
+				md5sum = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();

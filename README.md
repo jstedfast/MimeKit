@@ -19,6 +19,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2231](http://www.ietf.org/rfc/rfc2231.txt): MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations (Obsoletes rfc2184)
 * [2311](http://www.ietf.org/rfc/rfc2311.txt): S/MIME Version 2 Message Specification
 * [2312](http://www.ietf.org/rfc/rfc2312.txt): S/MIME Version 2 Certificate Handling
+* [2424](http://www.ietf.org/rfc/rfc2424.txt): Content Duration MIME Header Definition
 * [2630](http://www.ietf.org/rfc/rfc2630.txt): Cryptographic Message Syntax
 * [2632](http://www.ietf.org/rfc/rfc2632.txt): S/MIME Version 3 Certificate Handling
 * [2633](http://www.ietf.org/rfc/rfc2633.txt): S/MIME Version 3 Message Specification
@@ -35,7 +36,6 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
 * [2111](http://www.ietf.org/rfc/rfc2111.txt): Content-ID and Message-ID Uniform Resource Locators
 * [2387](http://www.ietf.org/rfc/rfc2387.txt): The Multipart/Related Content-Type.
-* [2424](http://www.ietf.org/rfc/rfc2424.txt): Content Duration MIME Header Definition
 
 #### Cryptography related RFCs (needed by S/MIME)
 
