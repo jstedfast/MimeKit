@@ -503,7 +503,6 @@ namespace MimeKit {
 		{
 			bool scanningFieldName = true;
 			bool checkFolded = false;
-			bool needInput = false;
 			bool midline = false;
 			bool valid = true;
 			int left = 0;
@@ -521,10 +520,9 @@ namespace MimeKit {
 					return -1;
 				}
 
-				needInput = false;
-
 				byte* inptr = inbuf + inputIndex;
 				byte* inend = inbuf + inputEnd;
+				bool needInput = false;
 
 				*inend = (byte) '\n';
 
@@ -885,11 +883,6 @@ namespace MimeKit {
 
 			memory.Seek (0, SeekOrigin.Begin);
 
-			// FIXME: memory.ToArray() duplicates the buffer which hurts performance...
-			// Maybe the ContentObject should take a stream instead or perhaps we should
-			// use memory.GetBuffer() which returns the internal buffer, and then do
-			// Array.Resize (ref data, stream.Length) to resize it to the correct size.
-			// (The internal buffer is likely to be larger than what is actually needed.)
 			part.ContentObject = new ContentObject (memory, part.ContentTransferEncoding);
 
 			return found;
