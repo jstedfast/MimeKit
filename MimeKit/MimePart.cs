@@ -48,14 +48,28 @@ namespace MimeKit {
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified media type and subtype.
+		/// </summary>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
 		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the default Content-Type of application/octet-stream.
+		/// </summary>
 		public MimePart () : base ("application", "octet-stream")
 		{
 		}
 
+		/// <summary>
+		/// Gets or sets the duration of the content if available.
+		/// </summary>
+		/// <value>The duration of the content.</value>
 		public int? ContentDuration {
 			get { return duration; }
 			set {
@@ -72,6 +86,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the md5sum of the content.
+		/// </summary>
+		/// <value>The md5sum of the content.</value>
 		public string ContentMd5 {
 			get { return md5sum; }
 			set {
@@ -90,6 +108,10 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the content transfer encoding.
+		/// </summary>
+		/// <value>The content transfer encoding.</value>
 		public ContentEncoding ContentTransferEncoding {
 			get { return encoding; }
 			set {
@@ -107,27 +129,39 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets the name of the file.
+		/// </summary>
+		/// <value>The name of the file.</value>
 		public string FileName {
 			get {
 				string filename = null;
 
 				if (ContentDisposition != null)
-					filename = ContentDisposition.Parameters["filename"];
+					filename = ContentDisposition.FileName;
 
-				if (string.IsNullOrWhiteSpace (filename))
-					filename = ContentType.Parameters["name"];
+				if (filename == null)
+					filename = ContentType.Name;
 
-				if (string.IsNullOrWhiteSpace (filename))
+				if (filename == null)
 					return null;
 
 				return filename.Trim ();
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the content of the mime part.
+		/// </summary>
+		/// <value>The content of the mime part.</value>
 		public ContentObject ContentObject {
 			get; set;
 		}
 
+		/// <summary>
+		/// Computes the md5sum of the content.
+		/// </summary>
+		/// <returns>The md5sum of the content.</returns>
 		public string ComputeContentMd5 ()
 		{
 			if (ContentObject == null)
@@ -156,6 +190,10 @@ namespace MimeKit {
 			return Encoding.ASCII.GetString (digest, 0, n);
 		}
 
+		/// <summary>
+		/// Verifies the Content-Md5 value against an independently computed md5sum.
+		/// </summary>
+		/// <returns><c>true</c>, if content md5sum was verified, <c>false</c> otherwise.</returns>
 		public bool VerifyContentMd5 ()
 		{
 			if (string.IsNullOrWhiteSpace (md5sum) || ContentObject == null)
@@ -164,6 +202,10 @@ namespace MimeKit {
 			return md5sum == ComputeContentMd5 ();
 		}
 
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MimePart"/> to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
 		public override void WriteTo (Stream stream)
 		{
 			base.WriteTo (stream);
