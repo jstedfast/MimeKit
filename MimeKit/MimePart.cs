@@ -190,7 +190,7 @@ namespace MimeKit {
 				case HeaderId.ContentTransferEncoding:
 					text = header.Value.Trim ().ToLowerInvariant ();
 					encoding = ContentEncoding.Default;
-					for (int i = 0; i < ContentTransferEncodings.Length; i++) {
+					for (int i = 1; i < ContentTransferEncodings.Length; i++) {
 						if (ContentTransferEncodings[i] == text) {
 							encoding = (ContentEncoding) i;
 							break;

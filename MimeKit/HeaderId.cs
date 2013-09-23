@@ -155,7 +155,7 @@ namespace MimeKit {
 				dash = false;
 			}
 
-			if (!Enum.TryParse<HeaderId> (name, out id))
+			if (!Enum.TryParse<HeaderId> (canonical.ToString (), out id))
 				return HeaderId.Unknown;
 
 			return id;
