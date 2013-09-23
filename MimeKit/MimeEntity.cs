@@ -35,7 +35,6 @@ using MimeKit.Cryptography;
 namespace MimeKit {
 	public abstract class MimeEntity
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		protected bool IsInitializing { get; private set; }
 		ContentDisposition disposition;
 		string contentId;
@@ -254,49 +253,49 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		internal static MimeEntity Create (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel)
+		internal static MimeEntity Create (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel)
 		{
-			if (icase.Compare (type.MediaType, "message") == 0) {
-				if (icase.Compare (type.MediaSubtype, "partial") == 0)
-					return new MessagePartial (options, type, headers, toplevel);
+			var subtype = ctype.MediaSubtype.ToLowerInvariant ();
+			var type = ctype.MediaType.ToLowerInvariant ();
 
-				return new MessagePart (options, type, headers, toplevel);
+			if (type == "message") {
+				if (subtype == "partial")
+					return new MessagePartial (options, ctype, headers, toplevel);
+
+				return new MessagePart (options, ctype, headers, toplevel);
 			}
 
-			if (icase.Compare (type.MediaType, "multipart") == 0) {
-				if (icase.Compare (type.MediaSubtype, "encrypted") == 0)
-					return new MultipartEncrypted (options, type, headers, toplevel);
+			if (type == "multipart") {
+				if (subtype == "encrypted")
+					return new MultipartEncrypted (options, ctype, headers, toplevel);
 
-				if (icase.Compare (type.MediaSubtype, "signed") == 0)
-					return new MultipartSigned (options, type, headers, toplevel);
+				if (subtype == "signed")
+					return new MultipartSigned (options, ctype, headers, toplevel);
 
-				return new Multipart (options, type, headers, toplevel);
+				return new Multipart (options, ctype, headers, toplevel);
 			}
 
-			if (type.Matches ("application", "*")) {
-				if (type.MediaSubtype.ToLowerInvariant () == "x-pkcs7-signature")
-					return new ApplicationPkcs7Signature (options, type, headers, toplevel);
-
-				if (type.MediaSubtype.ToLowerInvariant () == "pkcs7-signature")
-					return new ApplicationPkcs7Signature (options, type, headers, toplevel);
-
-				if (type.MediaSubtype.ToLowerInvariant () == "x-pkcs7-mime")
-					return new ApplicationPkcs7Mime (options, type, headers, toplevel);
-
-				if (type.MediaSubtype.ToLowerInvariant () == "pkcs7-mime")
-					return new ApplicationPkcs7Mime (options, type, headers, toplevel);
-
-				if (type.MediaSubtype.ToLowerInvariant () == "x-pgp-encrypted")
-					return new ApplicationPgpEncrypted (options, type, headers, toplevel);
-
-				if (type.MediaSubtype.ToLowerInvariant () == "pgp-encrypted")
-					return new ApplicationPgpEncrypted (options, type, headers, toplevel);
+			if (type == "application") {
+				switch (subtype) {
+				case "x-pkcs7-signature":
+				case "pkcs7-signature":
+					return new ApplicationPkcs7Signature (options, ctype, headers, toplevel);
+				case "x-pgp-encrypted":
+				case "pgp-encrypted":
+					return new ApplicationPgpEncrypted (options, ctype, headers, toplevel);
+				case "x-pgp-signature":
+				case "pgp-signature":
+					return new ApplicationPgpSignature (options, ctype, headers, toplevel);
+				case "x-pkcs7-mime":
+				case "pkcs7-mime":
+					return new ApplicationPkcs7Mime (options, ctype, headers, toplevel);
+				}
 			}
 
-			if (type.Matches ("text", "*"))
-				return new TextPart (options, type, headers, toplevel);
+			if (type == "text")
+				return new TextPart (options, ctype, headers, toplevel);
 
-			return new MimePart (options, type, headers, toplevel);
+			return new MimePart (options, ctype, headers, toplevel);
 		}
 	}
 }

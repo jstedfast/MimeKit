@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
+    <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
@@ -132,6 +133,7 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="Cryptography\" />
+    <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
   </ItemGroup>
 </Project>
