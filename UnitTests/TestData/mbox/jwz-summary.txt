@@ -30,7 +30,7 @@ Content-Type: text/plain
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: "Ned Freed" <ned@innosoft.com>, ysato@etl.go.jp
+To: "Ned Freed" <ned@innosoft.com>, "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 Subject: MIME & int'l mail
 Date: Fri, 12 Jun 1992 13:29:05 -0400
 Content-Type: multipart/alternative
@@ -56,7 +56,7 @@ Content-Type: multipart/mixed
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: ysato@etl.go.jp
+To: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 Subject: Re: MIME example in VIN
 Date: Sat, 06 Jun 1992 10:42:04 -0400
 Content-Type: multipart/alternative
@@ -73,7 +73,7 @@ Content-Type: multipart/alternative
       Content-Type: text/richtext
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: [95:taka@fxis.fujix] MIME and Header encoding RFC.
 Date: Sat, 13 Jun 1992 11:23:08 +0000
@@ -107,7 +107,7 @@ Content-Type: multipart/mixed
       Content-Type: audio/basic
 
 From - 
-From: bob@cs.su.oz.au
+From: "Bob Kummerfeld" <bob@cs.su.oz.au>
 To: nsb@thumper.bellcore.com
 Subject: couldn't resist this
 Date: Thu, 26 Dec 1991 20:45:00 +0000
@@ -140,7 +140,7 @@ Content-Type: multipart/alternative
       Content-Type: text/richtext
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: transparent.el
 Date: Tue, 16 Jun 1992 17:34:08 +0000
@@ -148,20 +148,20 @@ Content-Type: text/plain
 
 From - 
 From: "Nathaniel Borenstein" <nsb@thumper.bellcore.com>
-To: caseau@france.bellcore.com
+To: "Yves J Caseau" <caseau@france.bellcore.com>
 Subject: Please check this out
 Date: Fri, 29 Nov 1991 07:13:35 -0500
 Content-Type: text/plain
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: ysato@etl.go.jp
+To: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 Subject: Re: MIME & int'l mail
 Date: Tue, 16 Jun 1992 09:46:49 -0400
 Content-Type: text/plain
 
 From - 
-From: atotic@netscape.com
+From: "Aleksandar Totic" <atotic@netscape.com>
 To: atotic@mcom.com, jwz@mcom.com
 Subject: AppleDouble example
 Date: Mon, 26 Jun 1995 16:53:52 -0800
@@ -172,7 +172,7 @@ Content-Type: multipart/mixed
       Content-Type: application/octet-stream
 
 From - 
-From: atotic@netscape.com
+From: "Aleksandar Totic" <atotic@netscape.com>
 To: atotic@mcom.com, jwz@mcom.com
 Subject: AppleDouble example
 Date: Mon, 26 Jun 1995 16:53:52 -0800
@@ -198,7 +198,7 @@ Content-Type: multipart/mixed
    Content-Type: application/postscript
 
 From - 
-From: MAILER-DAEMON@netscape.com
+From: "Mail Delivery Subsystem" <MAILER-DAEMON@netscape.com>
 Subject: Returned mail: Host unknown (Name server: maine.link.net: host not found)
 Date: Wed, 26 Apr 1995 17:08:35 -0700
 Content-Type: multipart/mixed
@@ -217,25 +217,25 @@ Content-Type: multipart/mixed
       Content-Type: text/plain
 
 From - 
-From: ross@iclc.net
+From: "Charles Halle" <ross@iclc.net>
 Subject: I  DID  IT - I'm a New Entrepreneur  -
 Date: Tue, 25 Apr 1995 20:51:43 +0000
 Content-Type: Application/octet-stream
 
 From skyojedi@phoenix.net Mon May  8 15:46:48 1995
-From: skyojedi@phoenix.net
+From: "Skywalker of the Jedi" <skyojedi@phoenix.net>
 Subject: M2 Screenshots from GO! - 4 Attachments [1/5]
 Date: Fri, 05 May 1995 04:11:15 +0000
 Content-Type: message/partial
 
 From skyojedi@phoenix.net Mon May  8 15:46:29 1995
-From: skyojedi@phoenix.net
+From: "Skywalker of the Jedi" <skyojedi@phoenix.net>
 Subject: M2 Screenshots from GO! - 3dom21.jpg [1/2]
 Date: Fri, 05 May 1995 03:57:42 +0000
 Content-Type: message/partial
 
 From - 
-From: bob@cs.su.oz.au
+From: "Bob Kummerfeld" <bob@cs.su.oz.au>
 To: nsb@thumper.bellcore.com
 Subject: another Hebrew test
 Date: Sat, 18 Jan 1992 17:19:00 +0000
@@ -244,14 +244,14 @@ Content-Type: multipart/mixed
    Content-Type: text/plain
 
 From - 
-From: dag%gorgon.UUCP@cs.wisc.edu
+From: "Daniel A. Glasser" <dag%gorgon.UUCP@cs.wisc.edu>
 To: nsb@thumper.bellcore.com
 Subject: makeitso.gif
 Date: Sun, 07 Jun 1992 14:02:00 -0500
 Content-Type: image/gif
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: How to see Japanese characters (Re: malformed message)
 Date: Tue, 09 Jun 1992 03:45:24 +0000
@@ -281,7 +281,7 @@ Content-Type: message/rfc822
                   Content-Type: text/html
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@sleepy.bellcore.com
 Subject: A Multi-media test
 Date: Wed, 15 May 1991 15:20:25 -0400
@@ -322,7 +322,7 @@ Content-Type: multipart/mixed
    Content-Type: image/gif
 
 From - 
-From: ohm@aksi.net
+From: "Ohm" <ohm@aksi.net>
 Subject: nylon feet by request - ind_111.jpg [1/1]
 Date: Tue, 25 Apr 1995 23:25:47 +0000
 Content-Type: Image/JPEG
@@ -427,7 +427,7 @@ Content-Type: multipart/mixed
          Content-Type: text/plain
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@sleepy.bellcore.com
 Subject: meta-mail
 Date: Fri, 07 Jun 1991 09:09:05 -0400
@@ -437,14 +437,14 @@ Content-Type: multipart/mixed
    Content-Type: text/plain
 
 From - 
-From: raman@cs.cornell.edu
+From: "T. V. Raman" <raman@cs.cornell.edu>
 To: nsb@thumper.bellcore.com
 Subject: Thanks! (part 1 of several)
 Date: Wed, 28 Oct 1992 11:46:54 -0500
 Content-Type: message/partial
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: MIME example in VIN
 Date: Sat, 06 Jun 1992 06:21:22 +0000
@@ -458,7 +458,7 @@ Content-Type: multipart/mixed
    Content-Type: text/richtext
 
 From - 
-From: bst1@cornell.edu
+From: "B Sudesh Tiwari" <bst1@cornell.edu>
 Subject: Car for Sale, 1994 626 LX (NY) - 626lx.jpg [1/1]
 Date: Tue, 25 Apr 1995 15:09:57 +0000
 Content-Type: multipart/mixed
@@ -466,7 +466,7 @@ Content-Type: multipart/mixed
    Content-Type: Image/JPEG
 
 From - 
-From: support@halsoft.com
+From: "Hal Software Systems" <support@halsoft.com>
 Subject: Welcome to Ishmail
 Date: Sun, 30 Apr 1995 03:00:19 -0700
 Content-Type: multipart/mixed
@@ -501,7 +501,7 @@ Content-Type: MULTIPART/MIXED
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: rsw@cs.brown.edu
+To: "Bob Weiner" <rsw@cs.brown.edu>
 Subject: How MIME looks in AMS (MIME format)
 Date: Thu, 09 Jan 1992 13:30:05 -0500
 Content-Type: multipart/alternative
@@ -550,14 +550,14 @@ Content-Type: multipart/mixed
    Content-Type: text/plain
 
 From - 
-From: raman@cs.cornell.edu
+From: "T. V. Raman" <raman@cs.cornell.edu>
 To: nsb@thumper.bellcore.com
 Subject: Thanks! (part 2 of 2)
 Date: Wed, 28 Oct 1992 11:47:04 -0500
 Content-Type: message/partial
 
 From - 
-From: Info-Mac-Request@sumex-aim.stanford.edu
+From: "The Info-Mac Moderators" <Info-Mac-Request@sumex-aim.stanford.edu>
 Subject: Info-Mac Digest V13 #50
 Date: Wed, 26 Apr 1995 16:07:02 +0000
 Content-Type: multipart/mixed
@@ -719,13 +719,13 @@ Content-Type: multipart/mixed
          Content-Type: text/plain
 
 From - 
-From: lassehp@imv.aau.dk
+From: "Lasse Hillerøe Petersen" <lassehp@imv.aau.dk>
 Subject: SOLVED: MIME linewrap => A/UX Sendmail 8.6.9 discarding after CRLF.CRLF
 Date: Sun, 07 May 1995 15:21:33 +0200
 Content-Type: text/plain
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@sleepy.bellcore.com
 Subject: problem with MAILCAPS environment variable
 Date: Mon, 20 May 1991 15:23:07 -0400
@@ -792,7 +792,7 @@ Content-Type: multipart/mixed
    Content-Type: image/gif
 
 From - Wed Aug 16 17:17:29 1995
-From: moore@cs.utk.edu
+From: "Keith Moore" <moore@cs.utk.edu>
 Subject: Re: MIME Content-MD5 header
 Date: Mon, 14 Aug 1995 06:39:48 +0000
 Content-Type: multipart/mixed
@@ -854,7 +854,7 @@ Content-Type: TEXT/PLAIN
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: steindle@uts340.univ.trieste.it
+To: "Steindler Alberto" <steindle@uts340.univ.trieste.it>
 Subject: Re: MIME, how do you pronounce it?
 Date: Mon, 08 Mar 1993 12:42:53 -0500
 Content-Type: multipart/alternative
@@ -879,7 +879,7 @@ Content-Type: multipart/mixed
    Content-Type: text/richtext
 
 From Cat@Pic.net Mon May  1 19:09:31 1995
-From: Cat@Pic.net
+From: "Sorrow" <Cat@Pic.net>
 Subject: Jessica... - jesica.bmp [1/1]
 Date: Sat, 29 Apr 1995 22:08:36 +0000
 Content-Type: text/plain
@@ -1043,7 +1043,7 @@ Content-Type: multipart/mixed
             Content-Type: image/tiff
 
 From - Thu Feb  8 18:49:08 1996
-From: izzy@scr.atm.com
+From: "Dr. Mark K. Joseph" <izzy@scr.atm.com>
 To: jwz@netscape.com
 Subject: Example of CID linking in a multipart/related MIME message
 Date: Thu, 08 Feb 1996 17:33:10 -0800
@@ -1069,7 +1069,7 @@ Content-Type: multipart/mixed
    Content-Type: text/richtext
 
 From - Wed Jun  5 03:37:45 1996
-From: markm@voicenet.com
+From: "Mark M." <markm@voicenet.com>
 Subject: Re: Layman's explanation for limits on escrowed encryption ...
 Date: Mon, 27 May 1996 18:19:51 -0700
 Content-Type: multipart/signed
@@ -1107,7 +1107,7 @@ Content-Type: multipart/alternative
       Content-Type: text/richtext
 
 From - 
-From: dag@persoft.com
+From: "Daniel A. Glasser" <dag@persoft.com>
 To: nsb@thumper.bellcore.com
 Subject: First impressions of metamail release 2
 Date: Tue, 17 Mar 1992 13:27:00 -0600
@@ -1147,7 +1147,7 @@ Content-Type: multipart/alternative
 
 From - 
 From: "Nathaniel Borenstein" <nsb>
-To: jbw@bigbird.bu.edu
+To: "Joe Wells" <jbw@bigbird.bu.edu>
 Subject: Re: Could you translate (םולש ןב ילטפנ) for me?
 Date: Thu, 22 Oct 1992 09:15:31 -0400
 Content-Type: multipart/alternative
@@ -1211,7 +1211,7 @@ Date: Wed, 15 Jan 1992 16:24:40 -0500
 Content-Type: text/plain
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: multi-bytes richtext
 Date: Thu, 18 Jun 1992 20:03:47 +0000
@@ -1365,7 +1365,7 @@ Date: Sun, 23 Mar 1997 23:11:56 -0800
 Content-Type: application/x-pkcs7-mime
 
 From - Tue Apr 15 10:42:13 1997
-From: danw@ayce.com
+From: "Dan Werbel" <danw@ayce.com>
 To: "Jamie Zawinski" <jwz@netscape.com>
 Subject: Re: Obtaining other people's certificates
 Date: Tue, 15 Apr 1997 08:05:56 -0400
@@ -1417,8 +1417,8 @@ Date: Tue, 28 May 1996 12:24:23 +0000
 Content-Type: Application/x-pkcs7-mime
 
 From - Mon Jun 10 11:45:25 1996
-From: jgildred@opensoft.com
-To: smime-dev@RSA.COM
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
 Subject: Signed Confirmation
 Date: Mon, 10 Jun 1996 14:37:52 -0500
 Content-Type: multipart/signed
@@ -1463,8 +1463,8 @@ Content-Type: multipart/mixed
    Content-Type: application/octet-stream
 
 From - Sat Nov  2 21:56:58 1996
-From: jgildred@opensoft.com
-To: smime-dev@RSA.COM
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
 Subject: Signed SHA1 with VeriSign certification
 Date: Tue, 29 Oct 1996 15:12:00 -0500
 Content-Type: multipart/signed
@@ -1479,13 +1479,13 @@ Date: Mon, 29 Jul 1996 02:13:08 -0700
 Content-Type: multipart/report
 
 From tro@partech.com Fri Apr 28 18:16:52 1995
-From: tro@partech.com
+From: "Tom Olin" <tro@partech.com>
 Subject: Jumbo Bug Report
 Date: Fri, 28 Apr 1995 15:14:17 -0700
 Content-Type: text/plain
 
 From tro@partech.com Fri Apr 28 18:16:52 1995
-From: tro@partech.com
+From: "Tom Olin" <tro@partech.com>
 Subject: Jumbo Bug Report
 Date: Fri, 28 Apr 1995 15:14:17 -0700
 Content-Type: application/octet-stream
@@ -1506,7 +1506,7 @@ Content-Type: MULTIPART/mixed
    Content-Type: AUDIO/basic
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@thumper.bellcore.com
 Subject: A picture
 Date: Fri, 01 Nov 1991 10:50:01 -0500
@@ -1548,7 +1548,7 @@ Date: Thu, 13 Jun 1996 23:25:49 -0700
 Content-Type: text/plain
 
 From - Fri Sep 27 12:03:19 1996
-From: izzy@nugget.scr.atm.com
+From: "Dr. Mark K. Joseph" <izzy@nugget.scr.atm.com>
 To: lewisg@Exchange.Microsoft.com
 Subject: RE: problem with relative urls and applets
 Date: Fri, 27 Sep 1996 09:36:54 -0700
@@ -1557,7 +1557,7 @@ Content-Type: multipart/mixed
    Content-Type: application/vcard
 
 From - 
-From: bob@cs.su.oz.au
+From: "Bob Kummerfeld" <bob@cs.su.oz.au>
 To: nsb@thumper.bellcore.com
 Subject: RFC-XXXX
 Date: Sun, 08 Dec 1991 09:11:00 +0000
@@ -1586,7 +1586,7 @@ Content-Type: multipart/alternative
       Content-Type: text/richtext
 
 From - 
-From: ysato@etl.go.jp
+From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: MIME & int'l mail
 Date: Sat, 13 Jun 1992 08:53:19 +0000
@@ -1603,7 +1603,7 @@ Date: Mon, 16 Sep 1996 19:48:37 -0700
 Content-Type: text/plain
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@sleepy.bellcore.com
 Subject: A cheap digitizer test
 Date: Fri, 24 May 1991 10:40:25 -0400
@@ -1613,7 +1613,7 @@ Content-Type: multipart/mixed
    Content-Type: text/plain
 
 From - 
-From: sau@sleepy.bellcore.com
+From: "Stephen A Uhler" <sau@sleepy.bellcore.com>
 To: nsb@thumper.bellcore.com
 Subject: Re:  your multipart stuff
 Date: Thu, 24 Oct 1991 11:44:49 -0400

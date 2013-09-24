@@ -32,7 +32,7 @@ using System.Collections.Generic;
 namespace MimeKit {
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
 	{
-		List<InternetAddress> list = new List<InternetAddress> ();
+		readonly List<InternetAddress> list = new List<InternetAddress> ();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddressList"/> class.

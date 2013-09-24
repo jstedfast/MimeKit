@@ -193,6 +193,7 @@ namespace MimeKit {
 		{
 			StringBuilder token = new StringBuilder ();
 			int startIndex = index;
+			int comment;
 
 			dotatom = null;
 
@@ -209,11 +210,14 @@ namespace MimeKit {
 					index++;
 				}
 
+				comment = index;
 				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (index >= endIndex || text[index] != (byte) '.')
+				if (index >= endIndex || text[index] != (byte) '.') {
+					index = comment;
 					break;
+				}
 
 				token.Append ('.');
 				index++;

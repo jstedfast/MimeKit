@@ -240,6 +240,9 @@ namespace MimeKit {
 			if (!TryParseAddrspec (text, ref index, endIndex, (byte) '>', throwOnError, out addrspec))
 				return false;
 
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
 			if (index >= endIndex || text[index] != (byte) '>') {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
@@ -327,7 +330,7 @@ namespace MimeKit {
 			if (index >= endIndex || text[index] == (byte) ',' || text[index] == ';') {
 				// we've completely gobbled up an addr-spec w/o a domain
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
-				string addrspec;
+				string name, addrspec;
 
 				// rewind back to the beginning of the local-part
 				index = startIndex;
@@ -335,7 +338,26 @@ namespace MimeKit {
 				if (!TryParseAddrspec (text, ref index, endIndex, sentinel, throwOnError, out addrspec))
 					return false;
 
-				address = new MailboxAddress (string.Empty, addrspec);
+				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+				if (index < endIndex && text[index] == '(') {
+					int comment = index;
+
+					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Incomplete comment token at offset {0}", comment), comment, index);
+
+						return false;
+					}
+
+					comment++;
+
+					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
+				} else {
+					name = string.Empty;
+				}
+
+				address = new MailboxAddress (name, addrspec);
 
 				return true;
 			}
@@ -372,7 +394,7 @@ namespace MimeKit {
 
 			if (text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
-				string addrspec;
+				string name, addrspec;
 
 				// rewind back to the beginning of the local-part
 				index = startIndex;
@@ -380,7 +402,26 @@ namespace MimeKit {
 				if (!TryParseAddrspec (text, ref index, endIndex, (byte) ',', throwOnError, out addrspec))
 					return false;
 
-				address = new MailboxAddress (string.Empty, addrspec);
+				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+				if (index < endIndex && text[index] == '(') {
+					int comment = index;
+
+					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Incomplete comment token at offset {0}", comment), comment, index);
+
+						return false;
+					}
+
+					comment++;
+
+					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
+				} else {
+					name = string.Empty;
+				}
+
+				address = new MailboxAddress (name, addrspec);
 
 				return true;
 			}
