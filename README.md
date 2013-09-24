@@ -103,3 +103,21 @@ Before opening a new issue, please search for existing issues to avoid submittin
 ## Documentation
 
 You're looking at it.
+
+## Showing Your Appreciation
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<table>
+<tr><td><input type="hidden" name="on0" value="Show Your Appreciation">Show Your Appreciation</td></tr><tr><td><select name="os0">
+	<option value="Keep up the great work!">Keep up the great work! $5.00 USD</option>
+	<option value="MimeKit saved my marriage!">MimeKit saved my marriage! $25.00 USD</option>
+	<option value="MimeKit is core to our business!">MimeKit is core to our business! $250.00 USD</option>
+</select> </td></tr>
+</table>
+<input type="hidden" name="currency_code" value="USD">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
