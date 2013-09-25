@@ -67,7 +67,7 @@ namespace UnitTests {
 						entity.WriteTo (memory);
 
 						var text = Encoding.ASCII.GetString (memory.ToArray ());
-						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n"), "Headers are not properly terminated.");
+						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
 					}
 				}
 			}
