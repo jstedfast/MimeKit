@@ -116,7 +116,7 @@ namespace UnitTests {
 			string actual = builder.ToString ();
 
 			// WORKAROUND: Mono's iso-2022-jp decoder seems broken?
-			string iso2022jp = Rfc2047.DecodePhrase (Encoding.ASCII.GetBytes ("=?ISO-2022-JP?B?GyRAOjRGI0stGyhK?="));
+			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
 			if (iso2022jp != "佐藤豊")
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
