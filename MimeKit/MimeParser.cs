@@ -794,12 +794,17 @@ namespace MimeKit {
 		{
 			int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
+			int contentIndex = inputIndex;
 			bool midline = false;
 			int length, nleft;
 
 			do {
+				if (contentIndex < inputIndex)
+					content.Write (input, contentIndex, inputIndex - contentIndex);
+
 				nleft = inputEnd - inputIndex;
 				if (ReadAhead (inbuf, atleast, 2) <= 0) {
+					contentIndex = inputIndex;
 					found = BoundaryType.Eos;
 					break;
 				}
@@ -809,6 +814,7 @@ namespace MimeKit {
 				int startIndex = inputIndex;
 
 				length = inputEnd - inputIndex;
+				contentIndex = inputIndex;
 
 				if (midline && length == nleft)
 					found = BoundaryType.Eos;
@@ -856,12 +862,14 @@ namespace MimeKit {
 							break;
 					}
 
-					content.Write (input, startIndex, length);
 					startIndex += length;
 				}
 
 				inputIndex = startIndex;
 			} while (found == BoundaryType.None);
+
+			if (contentIndex < inputIndex)
+				content.Write (input, contentIndex, inputIndex - contentIndex);
 
 			if (found != BoundaryType.Eos) {
 				// the last \r\n belongs to the boundary
