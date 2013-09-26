@@ -36,14 +36,6 @@ namespace MimeKit {
 		static int maxLineLength = 72;
 
 		/// <summary>
-		/// Determines whether the decoders will work around common broken encodings.
-		/// </summary>
-		/// <value><c>true</c> if the work-arounds are enabled; otherwise, <c>false</c>.</value>
-		public static bool EnableWorkarounds {
-			get; set;
-		}
-
-		/// <summary>
 		/// Gets or sets the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
