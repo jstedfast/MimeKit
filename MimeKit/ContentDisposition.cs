@@ -27,6 +27,8 @@
 using System;
 using System.Text;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	public sealed class ContentDisposition
 	{
