@@ -97,13 +97,13 @@ namespace MimeKit {
 			Rfc2184
 		}
 
-		static EncodeMethod GetEncodeMethod (string name, string value, out string quoted)
+		static EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
 		{
 			var method = EncodeMethod.None;
 
 			quoted = null;
 
-			if (name.Length + 1 + value.Length >= Rfc2047.MaxLineLength)
+			if (name.Length + 1 + value.Length >= options.MaxLineLength)
 				return EncodeMethod.Rfc2184;
 
 			for (int i = 0; i < value.Length; i++) {
@@ -117,7 +117,7 @@ namespace MimeKit {
 			if (method == EncodeMethod.Quote) {
 				quoted = Rfc2047.Quote (value);
 
-				if (name.Length + 1 + quoted.Length >= Rfc2047.MaxLineLength)
+				if (name.Length + 1 + quoted.Length >= options.MaxLineLength)
 					return EncodeMethod.Rfc2184;
 			}
 
@@ -264,16 +264,16 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		internal void Encode (StringBuilder builder, ref int lineLength, Encoding encoding)
+		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding encoding)
 		{
 			string quoted;
 
-			var method = GetEncodeMethod (Name, Value, out quoted);
+			var method = GetEncodeMethod (options, Name, Value, out quoted);
 			if (method == EncodeMethod.None)
 				quoted = Value;
 
 			if (method != EncodeMethod.Rfc2184) {
-				if (lineLength + 2 + Name.Length + 1 + quoted.Length >= Rfc2047.MaxLineLength) {
+				if (lineLength + 2 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
 					builder.Append (";\n\t");
 					lineLength = 1;
 				} else {
@@ -288,7 +288,7 @@ namespace MimeKit {
 				return;
 			}
 
-			int maxLength = Rfc2047.MaxLineLength - (Name.Length + 6);
+			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var bestEncoding = GetBestEncoding (Value, encoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var bytes = new byte[Math.Max (maxLength, 6)];
@@ -306,7 +306,7 @@ namespace MimeKit {
 				length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
-					if (lineLength + 2 + length >= Rfc2047.MaxLineLength) {
+					if (lineLength + 2 + length >= options.MaxLineLength) {
 						builder.Append (";\n\t");
 						lineLength = 1;
 					} else {

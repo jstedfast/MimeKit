@@ -208,7 +208,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal string Encode (Encoding charset)
+		internal string Encode (FormatOptions options, Encoding charset)
 		{
 			int lineLength = "Content-Type: ".Length;
 			var value = new StringBuilder (" ");
@@ -217,7 +217,7 @@ namespace MimeKit {
 			value.Append ('/');
 			value.Append (MediaSubtype);
 
-			Parameters.Encode (value, ref lineLength, charset);
+			Parameters.Encode (options, value, ref lineLength, charset);
 			value.Append ('\n');
 
 			return value.ToString ();
@@ -243,7 +243,7 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = value.Length;
 
-				Parameters.Encode (value, ref lineLength, charset);
+				Parameters.Encode (FormatOptions.Default, value, ref lineLength, charset);
 			} else {
 				value.Append (Parameters.ToString ());
 			}

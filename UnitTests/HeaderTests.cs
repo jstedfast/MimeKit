@@ -73,7 +73,7 @@ namespace UnitTests {
 
 			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
 
-			Assert.IsTrue (GetMaxLineLength (raw) < Rfc2047.MaxLineLength, "The RawValue is not folded properly.");
+			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The RawValue is not folded properly.");
 
 			var unfolded = Header.Unfold (raw);
 			Assert.AreEqual (header.Value, unfolded, "Unfolded header does not match the original header value.");

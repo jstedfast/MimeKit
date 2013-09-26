@@ -44,7 +44,7 @@ namespace MimeKit.Utils {
 			return text;
 		}
 
-		public static StringBuilder AppendFolded (this StringBuilder text, string value, ref int lineLength)
+		public static StringBuilder AppendFolded (this StringBuilder text, FormatOptions options, string value, ref int lineLength)
 		{
 			int wordIndex = 0;
 			int lwspIndex;
@@ -74,7 +74,7 @@ namespace MimeKit.Utils {
 				}
 
 				int length = lwspIndex - wordIndex;
-				if (lineLength > 1 && (lineLength + length) > Rfc2047.MaxLineLength) {
+				if (lineLength > 1 && (lineLength + length) > options.MaxLineLength) {
 					text.LineWrap ();
 					lineLength = 1;
 				}

@@ -83,7 +83,7 @@ namespace MimeKit {
 			}
 		}
 
-		internal abstract void Encode (StringBuilder builder, ref int lineLength);
+		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);
 
 		/// <summary>
 		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string, optionally encoding it for transport.

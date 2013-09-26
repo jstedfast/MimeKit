@@ -266,10 +266,10 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (StringBuilder builder, ref int lineLength)
+		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			foreach (var addr in list)
-				addr.Encode (builder, ref lineLength);
+				addr.Encode (options, builder, ref lineLength);
 		}
 
 		/// <summary>
@@ -284,7 +284,7 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (builder, ref lineLength);
+				Encode (FormatOptions.Default, builder, ref lineLength);
 
 				return builder.ToString ();
 			}

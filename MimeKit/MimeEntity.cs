@@ -198,7 +198,7 @@ namespace MimeKit {
 
 		void SerializeContentDisposition ()
 		{
-			var text = disposition.Encode (Encoding.UTF8);
+			var text = disposition.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.ASCII.GetBytes (text);
 
 			SetHeader ("Content-Disposition", raw);
@@ -206,7 +206,7 @@ namespace MimeKit {
 
 		void SerializeContentType ()
 		{
-			var text = ContentType.Encode (Encoding.UTF8);
+			var text = ContentType.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.ASCII.GetBytes (text);
 
 			SetHeader ("Content-Type", raw);

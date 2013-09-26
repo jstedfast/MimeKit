@@ -111,7 +111,7 @@ namespace MimeKit {
 			}
 		}
 
-		internal override void Encode (StringBuilder builder, ref int lineLength)
+		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
 				throw new ArgumentNullException ("builder");
@@ -124,13 +124,13 @@ namespace MimeKit {
 				route += ":";
 
 			if (!string.IsNullOrEmpty (Name)) {
-				var encoded = Rfc2047.EncodePhrase (Encoding, Name);
+				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
 				var str = Encoding.ASCII.GetString (encoded);
 
-				if (lineLength + str.Length > Rfc2047.MaxLineLength) {
-					if (str.Length > Rfc2047.MaxLineLength) {
+				if (lineLength + str.Length > options.MaxLineLength) {
+					if (str.Length > options.MaxLineLength) {
 						// we need to break up the name...
-						builder.AppendFolded (str, ref lineLength);
+						builder.AppendFolded (options, str, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
@@ -148,7 +148,7 @@ namespace MimeKit {
 					builder.Append (str);
 				}
 
-				if ((lineLength + route.Length + Address.Length + 3) > Rfc2047.MaxLineLength) {
+				if ((lineLength + route.Length + Address.Length + 3) > options.MaxLineLength) {
 					builder.Append ("\n\t<");
 					lineLength = 2;
 				} else {
@@ -163,7 +163,7 @@ namespace MimeKit {
 				builder.Append (Address);
 				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
-				if ((lineLength + route.Length + Address.Length + 2) > Rfc2047.MaxLineLength) {
+				if ((lineLength + route.Length + Address.Length + 2) > options.MaxLineLength) {
 					builder.Append ("\n\t<");
 					lineLength = 2;
 				} else {
@@ -178,7 +178,7 @@ namespace MimeKit {
 				builder.Append (Address);
 				builder.Append ('>');
 			} else {
-				if ((lineLength + Address.Length) > Rfc2047.MaxLineLength) {
+				if ((lineLength + Address.Length) > options.MaxLineLength) {
 					builder.LineWrap ();
 					lineLength = 1;
 				}
@@ -199,7 +199,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 				int lineLength = 0;
 
-				Encode (builder, ref lineLength);
+				Encode (FormatOptions.Default, builder, ref lineLength);
 
 				return builder.ToString ();
 			}

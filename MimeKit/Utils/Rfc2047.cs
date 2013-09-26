@@ -33,22 +33,6 @@ using MimeKit.Encodings;
 namespace MimeKit.Utils {
 	public static class Rfc2047
 	{
-		static int maxLineLength = 72;
-
-		/// <summary>
-		/// Gets or sets the maximum line length used by the encoders. The encoders
-		/// use this value to determine where to place line breaks.
-		/// </summary>
-		/// <value>The maximum line length.</value>
-		public static int MaxLineLength {
-			get { return maxLineLength; }
-			set { maxLineLength = value; }
-		}
-
-		static int MaxPreEncodedLength {
-			get { return MaxLineLength / 2; }
-		}
-
 		class Token {
 			public ContentEncoding Encoding;
 			public string CharsetName;
@@ -682,7 +666,7 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (IList<Token> tokens, string field, byte[] input, bool structured)
+		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input, bool structured)
 		{
 			StringBuilder output = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
@@ -717,7 +701,7 @@ namespace MimeKit.Utils {
 				} else if (token.Encoding != ContentEncoding.Default) {
 					string charset = token.CharsetCulture;
 
-					if (lineLength + token.Length + charset.Length + 7 > MaxLineLength) {
+					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
 						if (tab != 0) {
 							// tabs are the perfect breaking opportunity...
 							output.Insert (tab, '\n');
@@ -745,7 +729,7 @@ namespace MimeKit.Utils {
 					lineLength += token.Length + charset.Length + 7;
 					lwsp = 0;
 					tab = 0;
-				} else if (lineLength + token.Length > MaxLineLength) {
+				} else if (lineLength + token.Length > options.MaxLineLength) {
 					if (tab != 0) {
 						// tabs are the perfect breaking opportunity...
 						output.Insert (tab, '\n');
@@ -760,10 +744,10 @@ namespace MimeKit.Utils {
 						lineLength = 1;
 					}
 
-					if (token.Length >= MaxLineLength) {
+					if (token.Length >= options.MaxLineLength) {
 						// the token is longer than the allowable line length,
 						// so we'll have to break it apart...
-						int half = token.StartIndex + (MaxLineLength - lineLength);
+						int half = token.StartIndex + (options.MaxLineLength - lineLength);
 
 						for (int n = token.StartIndex; n < half; n++)
 							output.Append ((char) input[n]);
@@ -799,24 +783,24 @@ namespace MimeKit.Utils {
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
 
-		internal static byte[] FoldStructuredHeader (ParserOptions options, string field, byte[] text)
+		internal static byte[] FoldStructuredHeader (FormatOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, 0, text.Length);
+					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
 
-					return FoldTokens (tokens, field, text, true);
+					return FoldTokens (options, tokens, field, text, true);
 				}
 			}
 		}
 
-		internal static byte[] FoldUnstructuredHeader (ParserOptions options, string field, byte[] text)
+		internal static byte[] FoldUnstructuredHeader (FormatOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, 0, text.Length);
+					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
 
-					return FoldTokens (tokens, field, text, false);
+					return FoldTokens (options, tokens, field, text, false);
 				}
 			}
 		}
@@ -938,7 +922,7 @@ namespace MimeKit.Utils {
 			return ((byte) c).IsCtrl ();
 		}
 
-		static IList<Word> GetRfc822Words (Encoding charset, string text, bool phrase)
+		static IList<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, bool phrase)
 		{
 			int encoding = 0, count = 0, start = 0;
 			var encoder = charset.GetEncoder ();
@@ -991,7 +975,7 @@ namespace MimeKit.Utils {
 						encoding = 2;
 					}
 
-					if (count >= MaxPreEncodedLength) {
+					if (count >= options.MaxPreEncodedLength) {
 						// Note: if the word is longer than what we can fit on
 						// one line, then we need to encode it.
 						if (type == WordType.Atom)
@@ -1017,7 +1001,7 @@ namespace MimeKit.Utils {
 			return words;
 		}
 
-		static bool ShouldMergeWords (IList<Word> words, Word word, int i)
+		static bool ShouldMergeWords (FormatOptions options, IList<Word> words, Word word, int i)
 		{
 			Word next = words[i];
 
@@ -1029,12 +1013,12 @@ namespace MimeKit.Utils {
 				if (next.Type == WordType.EncodedWord)
 					return false;
 
-				return length < MaxLineLength - 8;
+				return length < options.MaxLineLength - 8;
 			case WordType.QuotedString:
 				if (next.Type == WordType.EncodedWord)
 					return false;
 
-				return length < MaxLineLength - 8;
+				return length < options.MaxLineLength - 8;
 			case WordType.EncodedWord:
 				if (next.Type == WordType.Atom) {
 					// whether we merge or not is dependent upon:
@@ -1062,13 +1046,13 @@ namespace MimeKit.Utils {
 				if (next.Type == WordType.QuotedString)
 					return false;
 
-				return length < MaxPreEncodedLength;
+				return length < options.MaxPreEncodedLength;
 			default:
 				return false;
 			}
 		}
 
-		static IList<Word> Merge (IList<Word> words)
+		static IList<Word> Merge (FormatOptions options, IList<Word> words)
 		{
 			if (words.Count < 2)
 				return words;
@@ -1090,9 +1074,9 @@ namespace MimeKit.Utils {
 					length = word.ByteCount + lwspCount + next.ByteCount;
 
 					if (word.Type == WordType.EncodedWord) {
-						merge = length < MaxPreEncodedLength;
+						merge = length < options.MaxPreEncodedLength;
 					} else {
-						merge = length < MaxLineLength - 8;
+						merge = length < options.MaxLineLength - 8;
 					}
 
 					if (merge) {
@@ -1116,7 +1100,7 @@ namespace MimeKit.Utils {
 			for (int i = 1; i < words.Count; i++) {
 				next = words[i];
 
-				if (ShouldMergeWords (words, word, i)) {
+				if (ShouldMergeWords (options, words, word, i)) {
 					// the resulting word is the max of the 2 types
 					lwspCount = next.StartIndex - (word.StartIndex + word.Length);
 
@@ -1133,10 +1117,10 @@ namespace MimeKit.Utils {
 			return merged;
 		}
 
-		static byte[] Encode (Encoding charset, string text, bool phrase)
+		static byte[] Encode (FormatOptions options, Encoding charset, string text, bool phrase)
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
-			var words = Merge (GetRfc822Words (charset, text, phrase));
+			var words = Merge (options, GetRfc822Words (options, charset, text, phrase));
 			var latin1 = Encoding.GetEncoding (28591);
 			var str = new StringBuilder ();
 			int start, length;
@@ -1200,17 +1184,55 @@ namespace MimeKit.Utils {
 		/// to the rules of RFC 2047.
 		/// </summary>
 		/// <returns>The encoded phrase.</returns>
+		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
-		public static byte[] EncodePhrase (Encoding charset, string phrase)
+		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
 			if (phrase == null)
 				throw new ArgumentNullException ("phrase");
 
-			return Encode (charset, phrase, true);
+			return Encode (options, charset, phrase, true);
+		}
+
+		/// <summary>
+		/// Encodes the phrase using the specified charset encoding according
+		/// to the rules of RFC 2047.
+		/// </summary>
+		/// <returns>The encoded phrase.</returns>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="phrase">The phrase to encode.</param>
+		public static byte[] EncodePhrase (Encoding charset, string phrase)
+		{
+			return EncodePhrase (FormatOptions.Default, charset, phrase);
+		}
+
+		/// <summary>
+		/// Encodes the unstructured text using the specified charset encoding
+		/// according to the rules of RFC 2047.
+		/// </summary>
+		/// <returns>The encoded text.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
+		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			return Encode (options, charset, text, false);
 		}
 
 		/// <summary>
@@ -1222,24 +1244,18 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to encode.</param>
 		public static byte[] EncodeText (Encoding charset, string text)
 		{
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			return Encode (charset, text, false);
+			return EncodeText (FormatOptions.Default, charset, text);
 		}
 
 		/// <summary>
 		/// Quotes the specified text, enclosing it in double-quotes and escaping
 		/// any backslashes and double-quotes within.
 		/// </summary>
-		/// <param name="value">The text to quote.</param>
+		/// <param name="text">The text to quote.</param>
 		public static string Quote (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException ("text");
 
 			var sb = new StringBuilder ();
 

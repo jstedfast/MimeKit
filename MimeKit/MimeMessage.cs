@@ -298,7 +298,7 @@ namespace MimeKit {
 			var builder = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
-			list.Encode (builder, ref lineLength);
+			list.Encode (FormatOptions.Default, builder, ref lineLength);
 			builder.Append ('\n');
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());

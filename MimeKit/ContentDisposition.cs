@@ -208,13 +208,13 @@ namespace MimeKit {
 			}
 		}
 
-		internal string Encode (Encoding charset)
+		internal string Encode (FormatOptions options, Encoding charset)
 		{
 			int lineLength = "Content-Disposition: ".Length;
 			var value = new StringBuilder (" ");
 
 			value.Append (disposition);
-			Parameters.Encode (value, ref lineLength, charset);
+			Parameters.Encode (options, value, ref lineLength, charset);
 			value.Append ('\n');
 
 			return value.ToString ();
@@ -238,7 +238,7 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = value.Length;
 
-				Parameters.Encode (value, ref lineLength, charset);
+				Parameters.Encode (FormatOptions.Default, value, ref lineLength, charset);
 			} else {
 				value.Append (Parameters.ToString ());
 			}

@@ -141,14 +141,14 @@ namespace MimeKit {
 
 			textValue = Unfold (value.Trim ());
 
-			var encoded = Rfc2047.EncodeText (charset, textValue);
+			var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
 
-			RawValue = Rfc2047.FoldUnstructuredHeader (Options, Field, encoded);
+			RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
 			Offset = null;
 			OnChanged ();
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		void OnChanged ()
 		{
