@@ -27,7 +27,7 @@
 using System;
 using System.Text;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	static class StringBuilderExtensions
 	{
 		public static StringBuilder LineWrap (this StringBuilder text)

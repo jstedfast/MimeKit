@@ -26,6 +26,8 @@
 
 using System;
 
+using MimeKit.Utils;
+
 namespace MimeKit.IO.Filters {
 	public class TrailingWhitespaceFilter : MimeFilterBase
 	{

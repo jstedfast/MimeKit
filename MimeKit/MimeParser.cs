@@ -30,6 +30,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	enum BoundaryType
 	{

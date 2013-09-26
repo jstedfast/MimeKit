@@ -29,6 +29,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -307,7 +308,7 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingSimpleMailboxWithLatin1Name ()
 		{
-			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
 			var mailbox = new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
@@ -360,7 +361,7 @@ namespace UnitTests {
 		[Test]
 		public void TestDecodedMailboxHasCorrectCharsetEncoding ()
 		{
-			var latin1 = CharsetUtils.GetEncoding ("iso-8859-1");
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
 			var mailbox = new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);

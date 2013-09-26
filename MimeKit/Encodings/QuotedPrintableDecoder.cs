@@ -26,6 +26,8 @@
 
 using System;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	public class QuotedPrintableDecoder : IMimeDecoder
 	{

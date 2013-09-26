@@ -29,6 +29,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	public sealed class DomainList : IList<string>
 	{

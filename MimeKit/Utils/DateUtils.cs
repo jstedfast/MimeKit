@@ -28,7 +28,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	[Flags]
 	enum DateTokenFlags : byte
 	{

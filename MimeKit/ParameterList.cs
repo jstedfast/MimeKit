@@ -30,6 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using MimeKit.Encodings;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	public sealed class ParameterList : IList<Parameter>

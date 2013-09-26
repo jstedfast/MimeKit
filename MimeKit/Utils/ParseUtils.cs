@@ -27,7 +27,7 @@
 using System;
 using System.Text;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	static class ParseUtils
 	{
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)

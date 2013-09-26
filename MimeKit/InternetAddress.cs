@@ -28,6 +28,8 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	public abstract class InternetAddress
 	{

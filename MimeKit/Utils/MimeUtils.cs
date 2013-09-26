@@ -30,7 +30,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		static int MessageIdCounter = 0;

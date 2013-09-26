@@ -28,8 +28,8 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace MimeKit {
-	public static class CharsetUtils
+namespace MimeKit.Utils {
+	static class CharsetUtils
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 		static readonly Dictionary<string, int> aliases;

@@ -26,7 +26,7 @@
 
 using System;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	[Flags]
 	enum CharType : ushort {
 		None                  = 0,

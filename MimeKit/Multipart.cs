@@ -31,6 +31,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using MimeKit.Encodings;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>

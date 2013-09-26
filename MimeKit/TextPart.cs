@@ -31,6 +31,7 @@ using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	public class TextPart : MimePart

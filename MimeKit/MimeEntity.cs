@@ -31,6 +31,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using MimeKit.Cryptography;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	public abstract class MimeEntity

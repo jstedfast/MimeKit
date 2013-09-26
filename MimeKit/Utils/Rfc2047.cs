@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 using MimeKit.Encodings;
 
-namespace MimeKit {
+namespace MimeKit.Utils {
 	public static class Rfc2047
 	{
 		static int maxLineLength = 72;
