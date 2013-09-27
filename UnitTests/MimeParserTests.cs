@@ -36,6 +36,15 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeParserTests
 	{
+		static FormatOptions UnixFormatOptions;
+
+		[SetUp]
+		public void Setup ()
+		{
+			UnixFormatOptions = FormatOptions.Default.Clone ();
+			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
+		}
+
 		[Test]
 		public void TestSimpleMbox ()
 		{
@@ -65,7 +74,7 @@ namespace UnitTests {
 					Assert.IsInstanceOfType (typeof (TextPart), entity);
 
 					using (var memory = new MemoryStream ()) {
-						entity.WriteTo (memory);
+						entity.WriteTo (UnixFormatOptions, memory);
 
 						var text = Encoding.ASCII.GetString (memory.ToArray ());
 						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
