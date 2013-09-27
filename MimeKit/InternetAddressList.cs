@@ -276,15 +276,16 @@ namespace MimeKit {
 		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string, optionally encoding it for transport.
 		/// </summary>
 		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddressList"/> will be encoded.</param>
-		public string ToString (bool encode)
+		public string ToString (FormatOptions options, bool encode)
 		{
 			var builder = new StringBuilder ();
 
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (FormatOptions.Default, builder, ref lineLength);
+				Encode (options, builder, ref lineLength);
 
 				return builder.ToString ();
 			}
@@ -300,12 +301,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string, optionally encoding it for transport.
+		/// </summary>
+		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddressList"/> will be encoded.</param>
+		public string ToString (bool encode)
+		{
+			return ToString (FormatOptions.Default, encode);
+		}
+
+		/// <summary>
 		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string suitable for display.
 		/// </summary>
 		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (false);
+			return ToString (FormatOptions.Default, false);
 		}
 
 		public event EventHandler Changed;
