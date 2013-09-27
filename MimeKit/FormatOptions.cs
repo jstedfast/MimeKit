@@ -26,9 +26,20 @@
 
 using System;
 
+using MimeKit.IO.Filters;
+
 namespace MimeKit {
+	public enum NewLineFormat {
+		Unix,
+		Dos,
+	}
+
 	public sealed class FormatOptions
 	{
+		static readonly byte[][] NewLineFormats = new byte[][] {
+			new byte[] { 0x0A }, new byte[] { 0x0D, 0x0A }
+		};
+
 		/// <summary>
 		/// The default formatting options.
 		/// </summary>
@@ -47,10 +58,46 @@ namespace MimeKit {
 			get { return MaxLineLength / 2; }
 		}
 
+		/// <summary>
+		/// Gets or sets the new-line format.
+		/// </summary>
+		/// <value>The new-line format.</value>
+		public NewLineFormat NewLineFormat {
+			get; set;
+		}
+
+		internal IMimeFilter CreateNewLineFilter ()
+		{
+			switch (NewLineFormat) {
+			case NewLineFormat.Unix:
+				return new Dos2UnixFilter ();
+			default:
+				return new Unix2DosFilter ();
+			}
+		}
+
+		internal string NewLine {
+			get {
+				if (NewLineFormat == NewLineFormat.Unix)
+					return "\n";
+
+				return "\r\n";
+			}
+		}
+
+		internal byte[] NewLineBytes {
+			get { return NewLineFormats[(int) NewLineFormat]; }
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
 			Default.MaxLineLength = 72;
+
+			if (Environment.NewLine.Length == 1)
+				Default.NewLineFormat = NewLineFormat.Unix;
+			else
+				Default.NewLineFormat = NewLineFormat.Dos;
 		}
 
 		/// <summary>
@@ -60,6 +107,7 @@ namespace MimeKit {
 		{
 			var options = new FormatOptions ();
 			options.MaxLineLength = MaxLineLength;
+			options.NewLineFormat = NewLineFormat;
 			return options;
 		}
 	}

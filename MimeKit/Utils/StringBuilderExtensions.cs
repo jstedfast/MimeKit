@@ -30,15 +30,16 @@ using System.Text;
 namespace MimeKit.Utils {
 	static class StringBuilderExtensions
 	{
-		public static StringBuilder LineWrap (this StringBuilder text)
+		public static StringBuilder LineWrap (this StringBuilder text, FormatOptions options)
 		{
 			if (text.Length == 0)
 				return text;
 
 			if (char.IsWhiteSpace (text[text.Length - 1])) {
-				text.Insert (text.Length - 1, '\n');
+				text.Insert (text.Length - 1, options.NewLine);
 			} else {
-				text.Append ("\n\t");
+				text.Append (options.NewLine);
+				text.Append ('\t');
 			}
 
 			return text;
@@ -75,7 +76,7 @@ namespace MimeKit.Utils {
 
 				int length = lwspIndex - wordIndex;
 				if (lineLength > 1 && (lineLength + length) > options.MaxLineLength) {
-					text.LineWrap ();
+					text.LineWrap (options);
 					lineLength = 1;
 				}
 

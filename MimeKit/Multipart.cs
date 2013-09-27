@@ -156,33 +156,34 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.Multipart"/> to the specified stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
-		public override void WriteTo (Stream stream)
+		public override void WriteTo (FormatOptions options, Stream stream)
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (stream);
+			base.WriteTo (options, stream);
 
 			if (RawPreamble != null) {
 				stream.Write (RawPreamble, 0, RawPreamble.Length);
-				stream.WriteByte ((byte) '\n');
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
 			foreach (var part in children) {
 				stream.Write (boundary, 0, boundary.Length - 2);
-				stream.WriteByte ((byte) '\n');
-				part.WriteTo (stream);
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				part.WriteTo (options, stream);
 			}
 
 			stream.Write (boundary, 0, boundary.Length);
-			stream.WriteByte ((byte) '\n');
+			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 			if (RawEpilogue != null) {
 				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
-				stream.WriteByte ((byte) '\n');
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 		}
 

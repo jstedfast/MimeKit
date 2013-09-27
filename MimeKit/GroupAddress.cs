@@ -101,7 +101,7 @@ namespace MimeKit {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
 						if (lineLength > 1) {
-							builder.LineWrap ();
+							builder.LineWrap (options);
 							lineLength = 1;
 						}
 

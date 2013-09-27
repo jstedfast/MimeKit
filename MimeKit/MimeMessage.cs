@@ -269,9 +269,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
-		public void WriteTo (Stream stream)
+		public void WriteTo (FormatOptions options, Stream stream)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
@@ -291,6 +295,15 @@ namespace MimeKit {
 			} else {
 				Body.WriteTo (stream);
 			}
+		}
+
+		/// <summary>
+		/// Writes the message to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
+		public void WriteTo (Stream stream)
+		{
+			WriteTo (FormatOptions.Default, stream);
 		}
 
 		void SerializeAddressList (string field, InternetAddressList list)

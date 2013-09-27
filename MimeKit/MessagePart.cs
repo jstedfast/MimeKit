@@ -61,13 +61,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MessagePart"/> to the stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		public override void WriteTo (Stream stream)
+		public override void WriteTo (FormatOptions options, Stream stream)
 		{
-			base.WriteTo (stream);
+			base.WriteTo (options, stream);
 
 			if (Message != null)
-				Message.WriteTo (stream);
+				Message.WriteTo (options, stream);
 		}
 	}
 }

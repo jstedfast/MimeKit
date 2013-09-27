@@ -151,12 +151,22 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the entity instance to the specified stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
-		public virtual void WriteTo (Stream stream)
+		public virtual void WriteTo (FormatOptions options, Stream stream)
 		{
-			Headers.WriteTo (stream);
+			Headers.WriteTo (options, stream);
 
-			stream.WriteByte ((byte) '\n');
+			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+		}
+
+		/// <summary>
+		/// Writes the entity instance to the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
+		public void WriteTo (Stream stream)
+		{
+			WriteTo (FormatOptions.Default, stream);
 		}
 
 		/// <summary>

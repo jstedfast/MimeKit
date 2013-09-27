@@ -30,6 +30,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+using MimeKit.IO;
+
 namespace MimeKit {
 	public sealed class HeaderList : IList<Header>
 	{
@@ -185,19 +187,38 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to a stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		public void WriteTo (Stream stream)
+		public void WriteTo (FormatOptions options, Stream stream)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			foreach (var header in headers) {
-				var name = Encoding.ASCII.GetBytes (header.Field);
+			using (var filtered = new FilteredStream (stream)) {
+				filtered.Add (options.CreateNewLineFilter ());
 
-				stream.Write (name, 0, name.Length);
-				stream.WriteByte ((byte) ':');
-				stream.Write (header.RawValue, 0, header.RawValue.Length);
+				foreach (var header in headers) {
+					var name = Encoding.ASCII.GetBytes (header.Field);
+
+					filtered.Write (name, 0, name.Length);
+					filtered.WriteByte ((byte) ':');
+					filtered.Write (header.RawValue, 0, header.RawValue.Length);
+				}
+
+				filtered.Flush ();
 			}
+		}
+
+		/// <summary>
+		/// Writes the <see cref="MimeKit.HeaderList"/> to a stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		public void WriteTo (Stream stream)
+		{
+			WriteTo (FormatOptions.Default, stream);
 		}
 
 		#region ICollection implementation

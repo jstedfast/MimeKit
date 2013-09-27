@@ -205,34 +205,42 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified stream.
 		/// </summary>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
-		public override void WriteTo (Stream stream)
+		public override void WriteTo (FormatOptions options, Stream stream)
 		{
-			base.WriteTo (stream);
+			base.WriteTo (options, stream);
 
 			if (ContentObject == null)
 				return;
 
 			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
-					var begin = string.Format ("begin 0644 {0}\n", FileName ?? "unknown");
+					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 					stream.Write (buffer, 0, buffer.Length);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (EncoderFilter.Create (encoding));
+					filtered.Add (options.CreateNewLineFilter ());
 					ContentObject.DecodeTo (filtered);
 					filtered.Flush ();
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
-					var buffer = Encoding.ASCII.GetBytes ("end\n");
+					var buffer = Encoding.ASCII.GetBytes ("end");
 					stream.Write (buffer, 0, buffer.Length);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 			} else {
-				ContentObject.WriteTo (stream);
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+					ContentObject.WriteTo (filtered);
+					filtered.Flush ();
+				}
 			}
 		}
 
