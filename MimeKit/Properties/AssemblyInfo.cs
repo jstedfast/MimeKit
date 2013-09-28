@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MimeKit")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("MIME and S/MIME creation and parser library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MimeKit")]
-[assembly: AssemblyCopyright("Copyright © 2012")]
+[assembly: AssemblyCopyright("Copyright © 2013 Jeffrey Stedfast")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
