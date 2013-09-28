@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
-    <metadata minClientVersion="2.0">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
         <id>MimeKit</id>
-        <version>0.5.0</version>
+        <version>0.5.0.0</version>
         <title>MimeKit: (S/)MIME creation and parser library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -20,12 +20,20 @@ In addition to having a far superior parser implementation, MimeKit's object tre
         <summary>An Open Source library for creating and parsing MIME and S/MIME messages.</summary>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
-        <tags>MIME S/MIME mbox email parser</tags>
+        <tags>MIME S/MIME mbox email parser Xamarin Android iOS</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
         </frameworkAssemblies>
     </metadata>
-    <files />
+    <files>
+        <file src="MimeKit\bin\Release\MimeKit.Android.dll" target="lib\MonoAndroid\MimeKit.Android.dll" />
+        <file src="MimeKit\bin\Release\MimeKit.iOS.dll" target="lib\MonoTouch\MimeKit.iOS.dll" />
+        <file src="MimeKit\bin\Release\MimeKit.dll" target="lib\net40\MimeKit.dll" />
+    </files>
 </package>
