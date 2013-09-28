@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.IO {
+	/// <summary>
+	/// A stream which filters data as it is read or written.
+	/// </summary>
 	public class FilteredStream : Stream
 	{
 		const int ReadBufferSize = 4096;
@@ -56,6 +59,9 @@ namespace MimeKit.IO {
 		/// <param name='source'>
 		/// The underlying stream to filter from or filter to.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="source"/> is <c>null</c>.
+		/// </exception>
 		public FilteredStream (Stream source)
 		{
 			if (source == null)
@@ -81,6 +87,9 @@ namespace MimeKit.IO {
 		/// <param name='filter'>
 		/// Filter.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="filter"/> is <c>null</c>.
+		/// </exception>
 		public void Add (IMimeFilter filter)
 		{
 			if (filter == null)
@@ -95,6 +104,9 @@ namespace MimeKit.IO {
 		/// <param name='filter'>
 		/// Filter.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="filter"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (IMimeFilter filter)
 		{
 			if (filter == null)
@@ -109,6 +121,9 @@ namespace MimeKit.IO {
 		/// <param name='filter'>
 		/// Filter.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="filter"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (IMimeFilter filter)
 		{
 			if (filter == null)
@@ -183,6 +198,9 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The length of the stream.
 		/// </value>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support setting the length.
+		/// </exception>
 		public override long Length {
 			get { throw new NotSupportedException ("Cannot get the length of the stream"); }
 		}
@@ -193,6 +211,9 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The position of the stream.
 		/// </value>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		public override long Position {
 			get { return position; }
 			set { throw new NotSupportedException ("The stream does not support seeking"); }
@@ -235,64 +256,6 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Begins an asynchronous read.
-		/// </summary>
-		/// <returns>
-		/// The async result.
-		/// </returns>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The buffer offset to start reading into.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
-		/// <param name='callback'>
-		/// An async callback.
-		/// </param>
-		/// <param name='state'>
-		/// Custom state to pass to the async callback.
-		/// </param>
-		public override IAsyncResult BeginRead (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			CheckDisposed ();
-			CheckCanRead ();
-
-			return base.BeginRead (buffer, offset, count, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous write.
-		/// </summary>
-		/// <returns>
-		/// The async result.
-		/// </returns>
-		/// <param name='buffer'>
-		/// The buffer containing data to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The beginning offset of the buffer to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
-		/// <param name='callback'>
-		/// The async callback.
-		/// </param>
-		/// <param name='state'>
-		/// Custom state to pass to the async callback.
-		/// </param>
-		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			CheckDisposed ();
-			CheckCanWrite ();
-
-			return base.BeginWrite (buffer, offset, count, callback, state);
-		}
-
-		/// <summary>
 		/// Reads data into the specified buffer.
 		/// </summary>
 		/// <param name='buffer'>
@@ -304,6 +267,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to read.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -355,6 +324,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to write.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -385,6 +360,9 @@ namespace MimeKit.IO {
 		/// <param name='origin'>
 		/// The origin from which to seek.
 		/// </param>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
 			throw new NotSupportedException ("The stream does not support seeking");
@@ -393,6 +371,12 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Flushes any internal output buffers.
 		/// </summary>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Flush ()
 		{
 			CheckDisposed ();
@@ -427,6 +411,12 @@ namespace MimeKit.IO {
 		/// <param name='value'>
 		/// The new length.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support setting the length.
+		/// </exception>
 		public override void SetLength (long value)
 		{
 			CheckDisposed ();

@@ -28,6 +28,9 @@ using System;
 using System.IO;
 
 namespace MimeKit.IO {
+	/// <summary>
+	/// A bounded stream, confined to reading and writing data to a limited subset of the overall source stream.
+	/// </summary>
 	public class BoundStream : Stream
 	{
 		long position;
@@ -51,6 +54,15 @@ namespace MimeKit.IO {
 		/// <see cref="MimeKit.IO.BoundStream"/> is disposed;
 		/// otherwise, <c>false</c>.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="baseStream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startBoundary"/> is less than zero.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="endBoundary"/> is greater than or equal to zero
+		/// -and- is less than <paramref name="startBoundary"/>.</para>
+		/// </exception>
 		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
 		{
 			if (baseStream == null)
@@ -184,6 +196,9 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The length of the stream.
 		/// </value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
 		public override long Length {
 			get {
 				CheckDisposed ();
@@ -204,6 +219,12 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The position of the stream.
 		/// </value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		public override long Position {
 			get { return position; }
 			set {
@@ -249,64 +270,6 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Begins an asynchronous read.
-		/// </summary>
-		/// <returns>
-		/// The async result.
-		/// </returns>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The buffer offset to start reading into.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
-		/// <param name='callback'>
-		/// An async callback.
-		/// </param>
-		/// <param name='state'>
-		/// Custom state to pass to the async callback.
-		/// </param>
-		public override IAsyncResult BeginRead (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			CheckDisposed ();
-			CheckCanRead ();
-
-			return base.BeginRead (buffer, offset, count, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous write.
-		/// </summary>
-		/// <returns>
-		/// The async result.
-		/// </returns>
-		/// <param name='buffer'>
-		/// The buffer containing data to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The beginning offset of the buffer to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
-		/// <param name='callback'>
-		/// The async callback.
-		/// </param>
-		/// <param name='state'>
-		/// Custom state to pass to the async callback.
-		/// </param>
-		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-		{
-			CheckDisposed ();
-			CheckCanWrite ();
-
-			return base.BeginWrite (buffer, offset, count, callback, state);
-		}
-
-		/// <summary>
 		/// Reads data into the specified buffer.
 		/// </summary>
 		/// <param name='buffer'>
@@ -318,6 +281,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to read.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -358,6 +327,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to write.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -391,6 +366,18 @@ namespace MimeKit.IO {
 		/// <param name='origin'>
 		/// The origin from which to seek.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
 			CheckDisposed ();
@@ -420,7 +407,7 @@ namespace MimeKit.IO {
 				
 				break;
 			default:
-				throw new ArgumentException ("Invalid SeekOrigin specified", "origin");
+				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
 			}
 			
 			// sanity check the resultant offset
@@ -449,6 +436,12 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Flushes any internal output buffers.
 		/// </summary>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Flush ()
 		{
 			CheckDisposed ();
@@ -463,6 +456,15 @@ namespace MimeKit.IO {
 		/// <param name='value'>
 		/// The new length.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support setting the length.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public override void SetLength (long value)
 		{
 			CheckDisposed ();

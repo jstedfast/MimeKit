@@ -29,6 +29,9 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace MimeKit.IO {
+	/// <summary>
+	/// A chained stream.
+	/// </summary>
 	public class ChainedStream : Stream
 	{
 		readonly List<Stream> streams = new List<Stream> ();
@@ -48,6 +51,9 @@ namespace MimeKit.IO {
 		/// Add the specified stream to the chained stream.
 		/// </summary>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void Add (Stream stream)
 		{
 			if (stream == null)
@@ -148,6 +154,9 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The length of the stream.
 		/// </value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
 		public override long Length {
 			get {
 				long length = 0;
@@ -167,6 +176,12 @@ namespace MimeKit.IO {
 		/// <value>
 		/// The position of the stream.
 		/// </value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		public override long Position {
 			get { return position; }
 			set {
@@ -201,6 +216,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to read.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -240,6 +261,12 @@ namespace MimeKit.IO {
 		/// <param name='count'>
 		/// The number of bytes to write.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
@@ -282,6 +309,18 @@ namespace MimeKit.IO {
 		/// <param name='origin'>
 		/// The origin from which to seek.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
 			CheckDisposed ();
@@ -302,7 +341,7 @@ namespace MimeKit.IO {
 				real = length + offset;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("origin");
+				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
 			}
 
 			// sanity check the resultant offset
@@ -359,6 +398,12 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Flushes any internal output buffers.
 		/// </summary>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
 		public override void Flush ()
 		{
 			CheckDisposed ();
@@ -374,6 +419,12 @@ namespace MimeKit.IO {
 		/// <param name='value'>
 		/// The new length.
 		/// </param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support setting the length.
+		/// </exception>
 		public override void SetLength (long value)
 		{
 			CheckDisposed ();
