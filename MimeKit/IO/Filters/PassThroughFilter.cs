@@ -27,6 +27,9 @@
 using System;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// A filter that simply passes data through without any processing.
+	/// </summary>
 	public class PassThroughFilter : IMimeFilter
 	{
 		/// <summary>

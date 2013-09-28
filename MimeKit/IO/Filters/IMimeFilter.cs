@@ -27,6 +27,9 @@
 using System;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// An interface for incrementally filtering data.
+	/// </summary>
 	public interface IMimeFilter
 	{
 		/// <summary>

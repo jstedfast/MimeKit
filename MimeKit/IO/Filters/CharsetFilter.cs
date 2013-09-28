@@ -28,6 +28,10 @@ using System;
 using System.Text;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// A charset filter for incrementally converting text streams from
+	/// one charset encoding to another.
+	/// </summary>
 	public class CharsetFilter : MimeFilterBase
 	{
 		readonly char[] chars = new char[1024];
@@ -43,6 +47,16 @@ namespace MimeKit.IO.Filters {
 		/// <param name='targetEncodingName'>
 		/// Target encoding name.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="sourceEncodingName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="targetEncodingName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <para>The <paramref name="sourceEncodingName"/> is not supported by the system.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="targetEncodingName"/> is not supported by the system.</para>
+		/// </exception>
 		public CharsetFilter (string sourceEncodingName, string targetEncodingName)
 			: this (Encoding.GetEncoding (sourceEncodingName), Encoding.GetEncoding (targetEncodingName))
 		{
@@ -57,6 +71,16 @@ namespace MimeKit.IO.Filters {
 		/// <param name='targetCodePage'>
 		/// Target code page.
 		/// </param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="sourceCodePage"/> is less than zero or greater than 65535.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="targetCodePage"/> is less than zero or greater than 65535.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <para>The <paramref name="sourceCodePage"/> is not supported by the system.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="targetCodePage"/> is not supported by the system.</para>
+		/// </exception>
 		public CharsetFilter (int sourceCodePage, int targetCodePage)
 			: this (Encoding.GetEncoding (sourceCodePage), Encoding.GetEncoding (targetCodePage))
 		{
@@ -71,6 +95,11 @@ namespace MimeKit.IO.Filters {
 		/// <param name='targetEncoding'>
 		/// Target encoding.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="sourceEncoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="targetEncoding"/> is <c>null</c>.</para>
+		/// </exception>
 		public CharsetFilter (Encoding sourceEncoding, Encoding targetEncoding)
 		{
 			if (sourceEncoding == null)
@@ -106,6 +135,16 @@ namespace MimeKit.IO.Filters {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Filter the specified input.
+		/// </summary>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
+		/// <param name="outputIndex">The output index.</param>
+		/// <param name="outputLength">The output length.</param>
+		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			bool decodeCompleted = false;
@@ -153,7 +192,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Reset this instance.
+		/// Resets the filter.
 		/// </summary>
 		public override void Reset ()
 		{

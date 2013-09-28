@@ -27,16 +27,29 @@
 using System;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// A base implementation for MIME filters.
+	/// </summary>
     public abstract class MimeFilterBase : IMimeFilter
     {
 		protected byte[] output = null;
 		byte[] preload = null;
 		byte[] inbuf = null;
 		int preloadLength;
-		
+
+		/// <summary>
+		/// Filter the specified input.
+		/// </summary>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
+		/// <param name="outputIndex">The output index.</param>
+		/// <param name="outputLength">The output length.</param>
+		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);
 
-		protected static int GetIdealBufferSize (int need)
+		static int GetIdealBufferSize (int need)
 		{
 			return (need + 63) & ~63;
 		}
@@ -98,6 +111,13 @@ namespace MimeKit.IO.Filters {
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
 		public byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
 			ValidateArguments (input, startIndex, length);
@@ -125,6 +145,13 @@ namespace MimeKit.IO.Filters {
 		/// <param name='outputLength'>
 		/// The length of the output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
 		public byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
 			ValidateArguments (input, startIndex, length);
@@ -141,7 +168,13 @@ namespace MimeKit.IO.Filters {
 		{
 			preloadLength = 0;
 		}
-		
+
+		/// <summary>
+		/// Saves the remaining input for the next round of processing.
+		/// </summary>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer to save.</param>
+		/// <param name="length">The length of the buffer to save, starting at <paramref name="startIndex"/>.</param>
 		protected void SaveRemainingInput (byte[] input, int startIndex, int length)
 		{
 			if (length == 0)
@@ -154,6 +187,11 @@ namespace MimeKit.IO.Filters {
 			preloadLength = length;
 		}
 
+		/// <summary>
+		/// Ensures that the output buffer is greater than or equal to the specified size.
+		/// </summary>
+		/// <param name="size">The minimum size needed.</param>
+		/// <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
 		protected void EnsureOutputSize (int size, bool keep)
 		{
 			if (size == 0)

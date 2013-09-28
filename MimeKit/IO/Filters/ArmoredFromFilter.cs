@@ -28,6 +28,17 @@ using System;
 using System.Collections.Generic;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// A filter that armors lines beginning with "From " by encoding the 'F' with the
+	/// Quoted-Printable encoding.
+	/// </summary>
+	/// <remarks>
+	/// <para>From-armoring is a workaround to prevent receiving clients (or servers)
+	/// that uses the mbox file format for local storage from munging the line
+	/// by prepending a ">", as is typical with the mbox format.</para>
+	/// <para>This armoring technique ensures that the receving client will still
+	/// be able to verify S/MIME signatures.</para>
+	/// </remarks>
 	public class ArmoredFromFilter : MimeFilterBase
 	{
 		const string From = "From ";
@@ -50,6 +61,16 @@ namespace MimeKit.IO.Filters {
 			return true;
 		}
 
+		/// <summary>
+		/// Filter the specified input.
+		/// </summary>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
+		/// <param name="outputIndex">The output index.</param>
+		/// <param name="outputLength">The output length.</param>
+		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			List<int> fromOffsets = new List<int> ();
@@ -124,6 +145,9 @@ namespace MimeKit.IO.Filters {
 			return input;
 		}
 
+		/// <summary>
+		/// Resets the filter.
+		/// </summary>
 		public override void Reset ()
 		{
 			midline = false;

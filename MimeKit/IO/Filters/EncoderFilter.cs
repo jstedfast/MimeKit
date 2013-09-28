@@ -29,6 +29,9 @@ using System;
 using MimeKit.Encodings;
 
 namespace MimeKit.IO.Filters {
+	/// <summary>
+	/// A filter for encoding MIME content.
+	/// </summary>
 	public class EncoderFilter : MimeFilterBase
 	{
 		/// <summary>
@@ -78,6 +81,16 @@ namespace MimeKit.IO.Filters {
 			}
 		}
 
+		/// <summary>
+		/// Filter the specified input.
+		/// </summary>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
+		/// <param name="outputIndex">The output index.</param>
+		/// <param name="outputLength">The output length.</param>
+		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			EnsureOutputSize (Encoder.EstimateOutputLength (length), false);
