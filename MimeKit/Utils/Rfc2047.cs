@@ -540,6 +540,15 @@ namespace MimeKit.Utils {
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count)
 		{
 			if (options == null)
@@ -574,6 +583,13 @@ namespace MimeKit.Utils {
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="phrase"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static string DecodePhrase (byte[] phrase, int startIndex, int count)
 		{
 			return DecodePhrase (ParserOptions.Default, phrase, startIndex, count);
@@ -585,6 +601,11 @@ namespace MimeKit.Utils {
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="phrase">The phrase to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase)
 		{
 			return DecodePhrase (options, phrase, 0, phrase.Length);
@@ -595,6 +616,9 @@ namespace MimeKit.Utils {
 		/// </summary>
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="phrase">The phrase to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="phrase"/> is <c>null</c>.
+		/// </exception>
 		public static string DecodePhrase (byte[] phrase)
 		{
 			return DecodePhrase (phrase, 0, phrase.Length);
@@ -609,6 +633,15 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text, int startIndex, int count)
 		{
 			if (options == null)
@@ -643,6 +676,13 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static string DecodeText (byte[] text, int startIndex, int count)
 		{
 			return DecodeText (ParserOptions.Default, text, startIndex, count);
@@ -654,6 +694,11 @@ namespace MimeKit.Utils {
 		/// <returns>The decoded text.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text)
 		{
 			return DecodeText (options, text, 0, text.Length);
@@ -664,6 +709,9 @@ namespace MimeKit.Utils {
 		/// </summary>
 		/// <returns>The decoded text.</returns>
 		/// <param name="text">The text to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
 		public static string DecodeText (byte[] text)
 		{
 			return DecodeText (text, 0, text.Length);
@@ -1190,6 +1238,13 @@ namespace MimeKit.Utils {
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
 		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase)
 		{
 			if (options == null)
@@ -1211,6 +1266,11 @@ namespace MimeKit.Utils {
 		/// <returns>The encoded phrase.</returns>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
 		public static byte[] EncodePhrase (Encoding charset, string phrase)
 		{
 			return EncodePhrase (FormatOptions.Default, charset, phrase);
@@ -1224,6 +1284,13 @@ namespace MimeKit.Utils {
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
 		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text)
 		{
 			if (options == null)
@@ -1245,78 +1312,14 @@ namespace MimeKit.Utils {
 		/// <returns>The encoded text.</returns>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
 		public static byte[] EncodeText (Encoding charset, string text)
 		{
 			return EncodeText (FormatOptions.Default, charset, text);
-		}
-
-		/// <summary>
-		/// Quotes the specified text, enclosing it in double-quotes and escaping
-		/// any backslashes and double-quotes within.
-		/// </summary>
-		/// <param name="text">The text to quote.</param>
-		public static string Quote (string text)
-		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var sb = new StringBuilder ();
-
-			sb.Append ("\"");
-			for (int i = 0; i < text.Length; i++) {
-				if (text[i] == '\\' || text[i] == '"')
-					sb.Append ('\\');
-				sb.Append (text[i]);
-			}
-			sb.Append ("\"");
-
-			return sb.ToString ();
-		}
-
-		/// <summary>
-		/// Unquotes the specified text, removing any escaped backslashes and
-		/// double-quotes within.
-		/// </summary>
-		/// <param name="text">The text to unquote.</param>
-		public static string Unquote (string text)
-		{
-			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '\\', '"' });
-
-			if (index == -1)
-				return text;
-
-			StringBuilder builder = new StringBuilder ();
-			bool escaped = false;
-			bool quoted = false;
-
-			for (int i = 0; i < text.Length; i++) {
-				switch (text[i]) {
-				case '\r':
-				case '\n':
-					break;
-				case '\t':
-					builder.Append (' ');
-					break;
-				case '\\':
-					if (escaped)
-						builder.Append ('\\');
-					escaped = !escaped;
-					break;
-				case '"':
-					if (escaped) {
-						builder.Append ('"');
-						escaped = false;
-					} else {
-						quoted = !quoted;
-					}
-					break;
-				default:
-					builder.Append (text[i]);
-					break;
-				}
-			}
-
-			return builder.ToString ();
 		}
 	}
 }

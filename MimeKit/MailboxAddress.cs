@@ -209,7 +209,7 @@ namespace MimeKit {
 				route += ":";
 
 			if (!string.IsNullOrEmpty (Name))
-				return Rfc2047.Quote (Name) + " <" + route + Address + ">";
+				return MimeUtils.Quote (Name) + " <" + route + Address + ">";
 
 			if (!string.IsNullOrEmpty (route))
 				return "<" + route + Address + ">";

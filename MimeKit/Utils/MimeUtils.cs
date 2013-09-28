@@ -208,5 +208,83 @@ namespace MimeKit.Utils {
 
 			return TryParseVersion (buffer, 0, buffer.Length, out version);
 		}
+
+		/// <summary>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </summary>
+		/// <param name="text">The text to quote.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static string Quote (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var sb = new StringBuilder ();
+
+			sb.Append ("\"");
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == '\\' || text[i] == '"')
+					sb.Append ('\\');
+				sb.Append (text[i]);
+			}
+			sb.Append ("\"");
+
+			return sb.ToString ();
+		}
+
+		/// <summary>
+		/// Unquotes the specified text, removing any escaped backslashes and
+		/// double-quotes within.
+		/// </summary>
+		/// <param name="text">The text to unquote.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static string Unquote (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '\\', '"' });
+
+			if (index == -1)
+				return text;
+
+			StringBuilder builder = new StringBuilder ();
+			bool escaped = false;
+			bool quoted = false;
+
+			for (int i = 0; i < text.Length; i++) {
+				switch (text[i]) {
+				case '\r':
+				case '\n':
+					break;
+				case '\t':
+					builder.Append (' ');
+					break;
+				case '\\':
+					if (escaped)
+						builder.Append ('\\');
+					escaped = !escaped;
+					break;
+				case '"':
+					if (escaped) {
+						builder.Append ('"');
+						escaped = false;
+					} else {
+						quoted = !quoted;
+					}
+					break;
+				default:
+					builder.Append (text[i]);
+					break;
+				}
+			}
+
+			return builder.ToString ();
+		}
 	}
 }

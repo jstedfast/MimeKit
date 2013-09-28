@@ -115,7 +115,7 @@ namespace MimeKit {
 			}
 
 			if (method == EncodeMethod.Quote) {
-				quoted = Rfc2047.Quote (value);
+				quoted = MimeUtils.Quote (value);
 
 				if (name.Length + 1 + quoted.Length >= options.MaxLineLength)
 					return EncodeMethod.Rfc2184;
@@ -189,7 +189,7 @@ namespace MimeKit {
 			if (length < maxLength) {
 				switch (GetEncodeMethod (chars, index, length)) {
 				case EncodeMethod.Quote:
-					value = Rfc2047.Quote (new string (chars, index, length));
+					value = MimeUtils.Quote (new string (chars, index, length));
 					index += length;
 					return false;
 				case EncodeMethod.None:
@@ -220,7 +220,7 @@ namespace MimeKit {
 					var method = GetEncodeMethod (bytes, count);
 
 					if (method == EncodeMethod.Quote) {
-						value = Rfc2047.Quote (Encoding.ASCII.GetString (bytes, 0, count));
+						value = MimeUtils.Quote (Encoding.ASCII.GetString (bytes, 0, count));
 						index += length;
 						return false;
 					}
@@ -349,7 +349,7 @@ namespace MimeKit {
 		/// <see cref="MimeKit.Parameter"/>.</returns>
 		public override string ToString ()
 		{
-			return Name + "=" + Rfc2047.Quote (Value);
+			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
 		public event EventHandler Changed;

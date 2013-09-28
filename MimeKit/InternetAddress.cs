@@ -376,7 +376,7 @@ namespace MimeKit {
 					codepage = 65001;
 				}
 
-				return TryParseGroup (options, text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
+				return TryParseGroup (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
@@ -391,7 +391,7 @@ namespace MimeKit {
 					codepage = 65001;
 				}
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, Rfc2047.Unquote (name), codepage, throwOnError, out address);
+				return TryParseMailbox (text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '@') {
