@@ -31,6 +31,9 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace MimeKit.Utils {
+	/// <summary>
+	/// MIME utility methods.
+	/// </summary>
 	public static class MimeUtils
 	{
 		static int MessageIdCounter = 0;
@@ -40,6 +43,9 @@ namespace MimeKit.Utils {
 		/// </summary>
 		/// <returns>The message identifier.</returns>
 		/// <param name="domain">A domain to use.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
 		public static string GenerateMessageId (string domain)
 		{
 			if (domain == null)
@@ -66,6 +72,13 @@ namespace MimeKit.Utils {
 		/// <param name="buffer">The raw byte buffer to parse.</param>
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
 			int endIndex = startIndex + length;
@@ -102,6 +115,9 @@ namespace MimeKit.Utils {
 		/// </summary>
 		/// <returns>The references.</returns>
 		/// <param name="text">The text to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (string text)
 		{
 			if (text == null)
@@ -120,6 +136,13 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <param name="version">The parsed version.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static bool TryParseVersion (byte[] buffer, int startIndex, int length, out Version version)
 		{
 			if (buffer == null)
@@ -173,6 +196,9 @@ namespace MimeKit.Utils {
 		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
 		public static bool TryParseVersion (string text, out Version version)
 		{
 			if (text == null)

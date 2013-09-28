@@ -490,23 +490,38 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDateTime (byte[] text, int startIndex, int length, out DateTimeOffset date)
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="date">The parsed date.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParseDateTime (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex > text.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > text.Length)
+			if (length < 0 || startIndex + length > buffer.Length)
 				throw new ArgumentOutOfRangeException ("length");
 
-			var tokens = new List<DateToken> (TokenizeDate (text, startIndex, length));
+			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
 
-			if (TryParseStandardDateFormat (tokens, text, out date))
+			if (TryParseStandardDateFormat (tokens, buffer, out date))
 				return true;
 
-			if (TryParseUnknownDateFormat (tokens, text, out date))
+			if (TryParseUnknownDateFormat (tokens, buffer, out date))
 				return true;
 
 			date = new DateTimeOffset ();
@@ -514,6 +529,101 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="date">The parsed date.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is not within the range of the byte array.
+		/// </exception>
+		public static bool TryParseDateTime (byte[] buffer, int startIndex, out DateTimeOffset date)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int length = buffer.Length - startIndex;
+			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
+
+			if (TryParseStandardDateFormat (tokens, buffer, out date))
+				return true;
+
+			if (TryParseUnknownDateFormat (tokens, buffer, out date))
+				return true;
+
+			date = new DateTimeOffset ();
+
+			return false;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="date">The parsed date.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParseDateTime (byte[] buffer, out DateTimeOffset date)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));
+
+			if (TryParseStandardDateFormat (tokens, buffer, out date))
+				return true;
+
+			if (TryParseUnknownDateFormat (tokens, buffer, out date))
+				return true;
+
+			date = new DateTimeOffset ();
+
+			return false;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// </summary>
+		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The input text.</param>
+		/// <param name="date">The parsed date.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParseDateTime (string text, out DateTimeOffset date)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));
+
+			if (TryParseStandardDateFormat (tokens, buffer, out date))
+				return true;
+
+			if (TryParseUnknownDateFormat (tokens, buffer, out date))
+				return true;
+
+			date = new DateTimeOffset ();
+
+			return false;
+		}
+
+		/// <summary>
+		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc0822 date string.
+		/// </summary>
+		/// <returns>The formatted string.</returns>
+		/// <param name="date">The date.</param>
 		public static string ToString (DateTimeOffset date)
 		{
 			return string.Format ("{0} {1}{2}", date.ToString ("ddd, dd MMM yyyy HH:mm:ss"),

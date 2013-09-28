@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using MimeKit.Encodings;
 
 namespace MimeKit.Utils {
+	/// <summary>
+	/// Utility methods for encoding and decoding rfc2047 encoded-word tokens.
+	/// </summary>
 	public static class Rfc2047
 	{
 		class Token {
