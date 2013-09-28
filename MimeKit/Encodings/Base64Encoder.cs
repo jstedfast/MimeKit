@@ -137,7 +137,7 @@ namespace MimeKit.Encodings {
 
 			if (length + saved > 2) {
 				byte* inend = inptr + length - 2;
-				int c1 = 0, c2 = 0, c3 = 0;
+				int c1, c2, c3;
 
 				if (saved < 1)
 					c1 = *inptr++;
