@@ -8,7 +8,7 @@
     <ProjectGuid>{4C1288AD-12C8-4BF7-AED7-6C4DC539C856}</ProjectGuid>
     <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>MimeKit.iOS</RootNamespace>
+    <RootNamespace>MimeKit</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>MimeKit.iOS</AssemblyName>
   </PropertyGroup>
