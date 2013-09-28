@@ -383,7 +383,6 @@ namespace MimeKit.IO {
 
 		protected override void Dispose (bool disposing)
 		{
-			// FIXME: should we dispose our streams?
 			base.Dispose (disposing);
 			disposed = true;
 		}

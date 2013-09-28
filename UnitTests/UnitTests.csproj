@@ -42,6 +42,7 @@
     <Compile Include="HeaderTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
     <Compile Include="MessagePartialTests.cs" />
+    <Compile Include="AssortedTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -113,9 +113,9 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					// FIXME: fold the preamble?
-					RawPreamble = Encoding.ASCII.GetBytes (value);
-					preamble = value;
+					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					RawPreamble = Encoding.ASCII.GetBytes (folded);
+					preamble = folded;
 				} else {
 					RawPreamble = null;
 					preamble = null;
@@ -143,14 +143,63 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					// FIXME: fold the epilogue?
-					RawEpilogue = Encoding.ASCII.GetBytes (value);
-					epilogue = value;
+					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					RawEpilogue = Encoding.ASCII.GetBytes (folded);
+					epilogue = folded;
 				} else {
 					RawEpilogue = null;
 					epilogue = null;
 				}
 			}
+		}
+
+		static string FoldPreambleOrEpilogue (FormatOptions options, string text)
+		{
+			var builder = new StringBuilder ();
+			int startIndex, wordIndex;
+			int lineLength = 0;
+			int index = 0;
+
+			while (index < text.Length) {
+				startIndex = index;
+
+				while (index < text.Length) {
+					if (!char.IsWhiteSpace (text[index]))
+						break;
+
+					if (text[index] == '\n') {
+						builder.Append (options.NewLine);
+						startIndex = index + 1;
+						lineLength = 0;
+					}
+
+					index++;
+				}
+
+				wordIndex = index;
+
+				while (index < text.Length && !char.IsWhiteSpace (text[index]))
+					index++;
+
+				int length = index - startIndex;
+
+				if (lineLength > 0 && lineLength + length >= options.MaxLineLength) {
+					builder.Append (options.NewLine);
+					length = index - wordIndex;
+					startIndex = wordIndex;
+					lineLength = 0;
+				}
+
+				if (length > 0) {
+					builder.Append (text, startIndex, length);
+					lineLength += length;
+				}
+			}
+
+			if (lineLength > 0)
+				builder.Append (options.NewLine);
+
+			return builder.ToString ();
 		}
 
 		/// <summary>
