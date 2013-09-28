@@ -244,6 +244,12 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Called when the headers change in some way.
+		/// </summary>
+		/// <param name="action">The type of change.</param>
+		/// <param name="id">Identifier.</param>
+		/// <param name="header">Header.</param>
 		protected override void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
 		{
 			string text;

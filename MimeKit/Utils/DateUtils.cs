@@ -346,7 +346,9 @@ namespace MimeKit.Utils {
 		{
 			int day, month, year, tzone;
 			int hour, minute, second;
+			#pragma warning disable 0219
 			bool haveWeekday = false;
+			#pragma warning restore 0219
 			DayOfWeek weekday;
 			int n = 0;
 

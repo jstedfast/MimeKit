@@ -434,6 +434,10 @@ namespace MimeKit.IO {
 			throw new NotSupportedException ("Cannot set a length on the stream");
 		}
 
+		/// <summary>
+		/// Dispose the specified disposing.
+		/// </summary>
+		/// <param name="disposing">If set to <c>true</c> disposing.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4C1288AD-12C8-4BF7-AED7-6C4DC539C856}</ProjectGuid>
+    <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MimeKit.iOS</RootNamespace>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <AssemblyName>MimeKit.iOS</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentation>true</GenerateDocumentation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="monotouch" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Encodings\Base64Decoder.cs" />
+    <Compile Include="Encodings\Base64Encoder.cs" />
+    <Compile Include="Encodings\HexDecoder.cs" />
+    <Compile Include="Encodings\HexEncoder.cs" />
+    <Compile Include="Encodings\IMimeDecoder.cs" />
+    <Compile Include="Encodings\IMimeEncoder.cs" />
+    <Compile Include="Encodings\PassThroughDecoder.cs" />
+    <Compile Include="Encodings\PassThroughEncoder.cs" />
+    <Compile Include="Encodings\QEncoder.cs" />
+    <Compile Include="Encodings\QuotedPrintableDecoder.cs" />
+    <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
+    <Compile Include="Encodings\UUDecoder.cs" />
+    <Compile Include="Encodings\UUEncoder.cs" />
+    <Compile Include="IO\BoundStream.cs" />
+    <Compile Include="IO\ChainedStream.cs" />
+    <Compile Include="IO\FilteredStream.cs" />
+    <Compile Include="IO\Filters\ArmoredFromFilter.cs" />
+    <Compile Include="IO\Filters\CharsetFilter.cs" />
+    <Compile Include="IO\Filters\DecoderFilter.cs" />
+    <Compile Include="IO\Filters\Dos2UnixFilter.cs" />
+    <Compile Include="IO\Filters\EncoderFilter.cs" />
+    <Compile Include="IO\Filters\IMimeFilter.cs" />
+    <Compile Include="IO\Filters\MimeFilterBase.cs" />
+    <Compile Include="IO\Filters\PassThroughFilter.cs" />
+    <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
+    <Compile Include="IO\Filters\Unix2DosFilter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ByteExtensions.cs" />
+    <Compile Include="Utils\CharsetUtils.cs" />
+    <Compile Include="Utils\DateUtils.cs" />
+    <Compile Include="Utils\MimeUtils.cs" />
+    <Compile Include="Utils\PackedByteArray.cs" />
+    <Compile Include="Utils\ParseUtils.cs" />
+    <Compile Include="Utils\Rfc2047.cs" />
+    <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="ContentDisposition.cs" />
+    <Compile Include="ContentEncoding.cs" />
+    <Compile Include="ContentObject.cs" />
+    <Compile Include="ContentType.cs" />
+    <Compile Include="DomainList.cs" />
+    <Compile Include="FormatOptions.cs" />
+    <Compile Include="GroupAddress.cs" />
+    <Compile Include="Header.cs" />
+    <Compile Include="HeaderId.cs" />
+    <Compile Include="HeaderList.cs" />
+    <Compile Include="HeaderListChangedEventArgs.cs" />
+    <Compile Include="IContentObject.cs" />
+    <Compile Include="InternetAddress.cs" />
+    <Compile Include="InternetAddressList.cs" />
+    <Compile Include="MailboxAddress.cs" />
+    <Compile Include="MessagePart.cs" />
+    <Compile Include="MessagePartial.cs" />
+    <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimeFormat.cs" />
+    <Compile Include="MimeMessage.cs" />
+    <Compile Include="MimeParser.cs" />
+    <Compile Include="MimePart.cs" />
+    <Compile Include="Multipart.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterList.cs" />
+    <Compile Include="ParseException.cs" />
+    <Compile Include="ParserOptions.cs" />
+    <Compile Include="TextPart.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="IO\Filters\" />
+    <Folder Include="IO\" />
+  </ItemGroup>
+</Project>

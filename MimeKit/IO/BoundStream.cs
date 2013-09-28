@@ -48,7 +48,7 @@ namespace MimeKit.IO {
 		/// </param>
 		/// <param name='leaveOpen'>
 		/// <c>true</c> to leave the baseStream open after the
-		/// <see cref="MimeKit.BoundStream"/> is disposed;
+		/// <see cref="MimeKit.IO.BoundStream"/> is disposed;
 		/// otherwise, <c>false</c>.
 		/// </param>
 		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
@@ -102,11 +102,11 @@ namespace MimeKit.IO {
 
 		/// <summary>
 		/// Checks whether or not the underlying stream will remain open after
-		/// the <see cref="MimeKit.BoundStream"/> is disposed.
+		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
 		/// </summary>
 		/// <value>
 		/// <c>true</c> if the underlying stream should remain open after the
-		/// <see cref="MimeKit.BoundStream"/> is disposed; otherwise, <c>false</c>.
+		/// <see cref="MimeKit.IO.BoundStream"/> is disposed; otherwise, <c>false</c>.
 		/// </value>
 		bool LeaveOpen {
 			get; set;
@@ -479,6 +479,10 @@ namespace MimeKit.IO {
 			}
 		}
 
+		/// <summary>
+		/// Dispose the specified disposing.
+		/// </summary>
+		/// <param name="disposing">If set to <c>true</c> disposing.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !LeaveOpen)

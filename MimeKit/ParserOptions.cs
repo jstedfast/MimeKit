@@ -53,7 +53,8 @@ namespace MimeKit {
 		/// Gets or sets the charset encoding to use as a fallback for 8bit headers.
 		/// </summary>
 		/// <remarks>
-		/// <see cref="MimeKit.Rfc2047.DecodeText"/> and <see cref="MimeKit.Rfc2047.DecodePhrase"/>
+		/// <see cref="MimeKit.Utils.Rfc2047.DecodeText(ParserOptions, byte[])"/> and
+		/// <see cref="MimeKit.Utils.Rfc2047.DecodePhrase(ParserOptions, byte[])"/>
 		/// use this charset encoding as a fallback when decoding 8bit text into unicode. The first
 		/// charset encoding attempted is UTF-8, followed by this charset encoding, before finally
 		/// falling back to iso-8859-1.
