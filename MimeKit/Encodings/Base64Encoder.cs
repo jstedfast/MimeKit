@@ -27,6 +27,14 @@
 using System;
 
 namespace MimeKit.Encodings {
+	/// <summary>
+	/// Incrementally encodes content using the base64 encoding.
+	/// </summary>
+	/// <remarks>
+	/// Base64 is an encoding often used in MIME to encode binary content such
+	/// as images and other types of multi-media to ensure that the data remains
+	/// intact when sent via 7bit transports such as SMTP.
+	/// </remarks>
 	public class Base64Encoder : IMimeEncoder
 	{
 		static readonly byte[] base64_alphabet = new byte[64] {
@@ -52,7 +60,7 @@ namespace MimeKit.Encodings {
 		/// <param name='rfc2047'>
 		/// <c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.
 		/// </param>
-		public Base64Encoder (bool rfc2047)
+		internal Base64Encoder (bool rfc2047)
 		{
 			this.rfc2047 = rfc2047;
 			Reset ();
@@ -207,6 +215,20 @@ namespace MimeKit.Encodings {
 		/// <param name='output'>
 		/// The output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is not large enough to contain the encoded content.
+		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.
+		/// </exception>
 		public int Encode (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);
@@ -264,6 +286,20 @@ namespace MimeKit.Encodings {
 		/// <param name='output'>
 		/// The output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is not large enough to contain the encoded content.
+		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.
+		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);

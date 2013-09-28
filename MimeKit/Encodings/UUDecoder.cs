@@ -27,6 +27,16 @@
 using System;
 
 namespace MimeKit.Encodings {
+	/// <summary>
+	/// Incrementally decodes content encoded with the Unix-to-Unix encoding.
+	/// </summary>
+	/// <remarks>
+	/// <para>The UUEncoding is an encoding that predates MIME and was used to encode
+	/// binary content such as images and other types of multi-media to ensure
+	/// that the data remained intact when sent via 7bit transports such as SMTP.</para>
+	/// <para>These days, the UUEncoding has largely been deprecated in favour of
+	/// the base64 encoding, however, some older mail clients still use it.</para>
+	/// </remarks>
 	public class UUDecoder : IMimeDecoder
 	{
 		static readonly byte[] uudecode_rank = new byte[256] {
@@ -361,6 +371,20 @@ namespace MimeKit.Encodings {
 		/// <param name='output'>
 		/// The output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is not large enough to contain the decoded content.
+		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.
+		/// </exception>
 		public int Decode (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);

@@ -27,6 +27,16 @@
 using System;
 
 namespace MimeKit.Encodings {
+	/// <summary>
+	/// Incrementally encodes content using the Unix-to-Unix encoding.
+	/// </summary>
+	/// <remarks>
+	/// <para>The UUEncoding is an encoding that predates MIME and was used to encode
+	/// binary content such as images and other types of multi-media to ensure
+	/// that the data remained intact when sent via 7bit transports such as SMTP.</para>
+	/// <para>These days, the UUEncoding has largely been deprecated in favour of
+	/// the base64 encoding, however, some older mail clients still use it.</para>
+	/// </remarks>
 	public class UUEncoder : IMimeEncoder
 	{
 		const int MaxInputPerLine = 45;

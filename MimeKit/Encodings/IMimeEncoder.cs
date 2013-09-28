@@ -27,6 +27,9 @@
 using System;
 
 namespace MimeKit.Encodings {
+	/// <summary>
+	/// An interface for incrementally encoding content.
+	/// </summary>
 	public interface IMimeEncoder : ICloneable
 	{
 		/// <summary>
@@ -66,6 +69,20 @@ namespace MimeKit.Encodings {
 		/// <param name='output'>
 		/// The output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is not large enough to contain the encoded content.
+		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.
+		/// </exception>
 		int Encode (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>
@@ -86,6 +103,20 @@ namespace MimeKit.Encodings {
 		/// <param name='output'>
 		/// The output buffer.
 		/// </param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is not large enough to contain the encoded content.
+		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.
+		/// </exception>
 		int Flush (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>

@@ -243,14 +243,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Attempts to parse a DomainList from the text buffer starting at the
-		/// specified index. The index will only be updated if a DomainList was
+		/// Attempts to parse a <see cref="DomainList"/> from the text buffer starting at the
+		/// specified index. The index will only be updated if a <see cref="DomainList"/> was
 		/// successfully parsed.
 		/// </summary>
-		/// <returns><c>true</c> if a DomainList was successfully parsed;
+		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
 		/// <c>false</c> otherwise.</returns>
 		/// <param name="text">The text buffer to parse.</param>
 		/// <param name="index">The index to start parsing.</param>
+		/// <param name="endIndex">An index of the end of the input.</param>
+		/// <param name="throwOnError">A flag indicating whether or not an
+		/// exception should be thrown on error.</param>
 		/// <param name="route">The parsed DomainList.</param>
 		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out DomainList route)
 		{
