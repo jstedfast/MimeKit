@@ -37,6 +37,9 @@ using MimeKit.Cryptography;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// An abstract MIME entity.
+	/// </summary>
 	public abstract class MimeEntity
 	{
 		protected bool IsInitializing { get; private set; }
@@ -62,6 +65,16 @@ namespace MimeKit {
 			IsInitializing = false;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
+		/// </summary>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// </exception>
 		protected MimeEntity (string mediaType, string mediaSubtype)
 		{
 			ContentType = new ContentType (mediaType, mediaSubtype);
@@ -156,6 +169,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public virtual void WriteTo (FormatOptions options, Stream stream)
 		{
 			Headers.WriteTo (options, stream);
@@ -167,6 +185,9 @@ namespace MimeKit {
 		/// Writes the entity instance to the specified stream.
 		/// </summary>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
@@ -301,6 +322,9 @@ namespace MimeKit {
 
 		internal event EventHandler Changed;
 
+		/// <summary>
+		/// Raises the changed event.
+		/// </summary>
 		protected void OnChanged ()
 		{
 			if (Changed != null)

@@ -29,6 +29,12 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace MimeKit {
+	/// <summary>
+	/// A MIME part containing a <see cref="MimeKit.MimeMessage"/> as its content.
+	/// </summary>
+	/// <remarks>
+	/// Represents MIME parts such as those with a Content-Type of message/rfc822 or message/news.
+	/// </remarks>
 	public class MessagePart : MimeEntity
 	{
 		internal MessagePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -39,6 +45,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
 		/// <param name="subtype">The message subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="subtype"/> is <c>null</c>.
+		/// </exception>
 		public MessagePart (string subtype) : base ("message", subtype)
 		{
 		}
@@ -63,6 +72,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public override void WriteTo (FormatOptions options, Stream stream)
 		{
 			base.WriteTo (options, stream);

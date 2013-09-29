@@ -34,6 +34,12 @@ using MimeKit.IO.Filters;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A MIME part containing a partial message as its content.
+	/// </summary>
+	/// <remarks>
+	/// Represents a MIME part with a Content-Type of message/partial.
+	/// </remarks>
 	public class MessagePartial : MimePart
 	{
 		internal MessagePartial (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -46,16 +52,24 @@ namespace MimeKit {
 		/// <param name="id">The id value shared among the partial message parts.</param>
 		/// <param name="number">The part number for this partial message part.</param>
 		/// <param name="total">The total number of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="id"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="number"/> is negative.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="total"/> is less than <paramref name="number"/>.</para>
+		/// </exception>
 		public MessagePartial (string id, int number, int total) : base ("message", "partial")
 		{
 			if (id == null)
 				throw new ArgumentNullException ("id");
 
 			if (number < 0)
-				throw new ArgumentException ("number");
+				throw new ArgumentOutOfRangeException ("number");
 
 			if (total < number)
-				throw new ArgumentException ("total");
+				throw new ArgumentOutOfRangeException ("total");
 
 			ContentType.Parameters.Add (new Parameter ("id", id));
 			ContentType.Parameters.Add (new Parameter ("number", number.ToString ()));
@@ -119,6 +133,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="message">The message.</param>
 		/// <param name="maxSize">The maximum size for each message body.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="message"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxSize"/> is less than <c>1</c>.
+		/// </exception>
 		public static IEnumerable<MimeMessage> Split (MimeMessage message, int maxSize)
 		{
 			if (message == null)
@@ -190,8 +210,19 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="partials">The list of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// </exception>
 		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (partials == null)
+				throw new ArgumentNullException ("partials");
+
 			var parts = partials.ToList ();
 
 			if (parts.Count == 0)
@@ -233,6 +264,9 @@ namespace MimeKit {
 		/// Join the specified message/partial parts into the complete message.
 		/// </summary>
 		/// <param name="partials">The list of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="partials"/>is <c>null</c>.
+		/// </exception>
 		public static MimeMessage Join (IEnumerable<MessagePartial> partials)
 		{
 			return Join (ParserOptions.Default, partials);
