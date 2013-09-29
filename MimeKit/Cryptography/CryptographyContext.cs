@@ -137,9 +137,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="MimeKit.Cryptography.CryptographyContext"/>. The
-		/// <see cref="Dispose"/> method leaves the <see cref="MimeKit.Cryptography.CryptographyContext"/> in an unusable state. After
-		/// calling <see cref="Dispose"/>, you must release all references to the <see cref="MimeKit.Cryptography.CryptographyContext"/> so
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.CryptographyContext"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.CryptographyContext"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.CryptographyContext"/> so
 		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.CryptographyContext"/> was occupying.</remarks>
 		public void Dispose ()
 		{

@@ -27,10 +27,28 @@
 using System;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The type of S/MIME data that an application/pkcs7-mime part contains.
+	/// </summary>
 	public enum SecureMimeType {
+		/// <summary>
+		/// S/MIME compressed data.
+		/// </summary>
 		CompressedData,
+
+		/// <summary>
+		/// S/MIME enveloped data.
+		/// </summary>
 		EnvelopedData,
+
+		/// <summary>
+		/// S/MIME signed data.
+		/// </summary>
 		SignedData,
+
+		/// <summary>
+		/// S/MIME certificate data.
+		/// </summary>
 		CertsOnly
 	}
 }
