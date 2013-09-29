@@ -30,6 +30,9 @@ using System.Text;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A class representing a Content-Type header value.
+	/// </summary>
 	public sealed class ContentType
 	{
 		ParameterList parameters;
@@ -262,7 +265,7 @@ namespace MimeKit {
 			return ToString (Encoding.UTF8, false);
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		void OnParametersChanged (object sender, EventArgs e)
 		{
@@ -372,6 +375,15 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentType type)
 		{
 			if (options == null)
@@ -399,6 +411,13 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentType type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out type);
@@ -412,6 +431,14 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentType type)
 		{
 			if (options == null)
@@ -435,6 +462,12 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, out ContentType type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out type);
@@ -447,6 +480,11 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentType type)
 		{
 			if (options == null)
@@ -466,6 +504,9 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, out ContentType type)
 		{
 			return TryParse (ParserOptions.Default, buffer, out type);
@@ -477,6 +518,9 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
 		public static bool TryParse (string text, out ContentType type)
 		{
 			if (text == null)
@@ -496,6 +540,18 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
 		/// <param name="length">The length of the buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
 			if (options == null)
@@ -525,6 +581,16 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
 		/// <param name="length">The length of the buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (byte[] buffer, int startIndex, int length)
 		{
 			return Parse (ParserOptions.Default, buffer, startIndex, length);
@@ -537,6 +603,17 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
 			if (options == null)
@@ -562,6 +639,15 @@ namespace MimeKit {
 		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The start index of the buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (byte[] buffer, int startIndex)
 		{
 			return Parse (ParserOptions.Default, buffer, startIndex);
@@ -573,6 +659,14 @@ namespace MimeKit {
 		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer)
 		{
 			if (options == null)
@@ -594,6 +688,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="buffer"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (byte[] buffer)
 		{
 			return Parse (ParserOptions.Default, buffer);
@@ -604,6 +704,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
 		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="text"/> could not be parsed.
+		/// </exception>
 		public static ContentType Parse (string text)
 		{
 			if (text == null)
