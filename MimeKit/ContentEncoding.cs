@@ -25,13 +25,76 @@
 //
 
 namespace MimeKit {
+	/// <summary>
+	/// An enumeration of all supported content transfer encodings.
+	/// <seealso cref="MimeKit.MimePart.ContentTransferEncoding"/>.
+	/// </summary>
 	public enum ContentEncoding {
+		/// <summary>
+		/// The default encoding (aka no encoding at all).
+		/// </summary>
 		Default,
+
+		/// <summary>
+		/// The 7bit content transfer encoding.
+		/// </summary>
+		/// <remarks>
+		/// This encoding should be restricted to textual content
+		/// in the US-ASCII range.
+		/// </remarks>
 		SevenBit,
+
+		/// <summary>
+		/// The 8bit content transfer encoding.
+		/// </summary>
+		/// <remarks>
+		/// This encoding should be restricted to textual content
+		/// outside of the US-ASCII range but may not be supported
+		/// by all transport services such as older SMTP servers
+		/// that do not support the 8BITMIME extension.
+		/// </remarks>
 		EightBit,
+
+		/// <summary>
+		/// The binary content transfer encoding.
+		/// </summary>
+		/// <remarks>
+		/// This encoding is simply unencoded binary data. Typically not
+		/// supported by standard message transport services such as SMTP.
+		/// </remarks>
 		Binary,
+
+		/// <summary>
+		/// The base64 content transfer encoding.
+		/// <seealso cref="MimeKit.Encodings.Base64Encoder"/>.
+		/// </summary>
+		/// <remarks>
+		/// This encoding is typically used for encoding binary data
+		/// or textual content in a largely 8bit charset encoding and
+		/// is supported by all message transport services.
+		/// </remarks>
 		Base64,
+
+		/// <summary>
+		/// The quoted printable content transfer encoding.
+		/// <seealso cref="MimeKit.Encodings.QuotedPrintableEncoder"/>.
+		/// </summary>
+		/// <remarks>
+		/// This encoding is used for textual content that is in a charset
+		/// that has a minority of characters outside of the US-ASCII range
+		/// (such as ISO-8859-1 and other single-byte charset encodings) and
+		/// is supported by all message transport services.
+		/// </remarks>
 		QuotedPrintable,
+
+		/// <summary>
+		/// The uuencode content transfer encoding.
+		/// <seealso cref="MimeKit.Encodings.UUEncoder"/>.
+		/// </summary>
+		/// <remarks>
+		/// This is an obsolete encoding meant for encoding binary
+		/// data and has largely been superceeded by <see cref="Base64"/>.
+		/// </remarks>
 		UUEncode
 	}
 }

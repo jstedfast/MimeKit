@@ -25,10 +25,24 @@
 //
 
 namespace MimeKit {
+	/// <summary>
+	/// The format of the MIME stream.
+	/// </summary>
 	public enum MimeFormat {
+		/// <summary>
+		/// The stream contains a single MIME entity or message.
+		/// </summary>
 		Entity,
+
+		/// <summary>
+		/// The stream is in the Unix mbox format and may contain
+		/// more than a single message.
+		/// </summary>
 		Mbox,
 
+		/// <summary>
+		/// The default stream format.
+		/// </summary>
 		Default = Entity,
 	}
 }

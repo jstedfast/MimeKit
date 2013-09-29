@@ -27,10 +27,28 @@
 using System;
 
 namespace MimeKit {
+	/// <summary>
+	/// Header list changed action.
+	/// </summary>
 	public enum HeaderListChangedAction {
+		/// <summary>
+		/// A header was added.
+		/// </summary>
 		Added,
+
+		/// <summary>
+		/// A header was changed.
+		/// </summary>
 		Changed,
+
+		/// <summary>
+		/// A header was removed.
+		/// </summary>
 		Removed,
+
+		/// <summary>
+		/// The header list was cleared.
+		/// </summary>
 		Cleared
 	}
 
