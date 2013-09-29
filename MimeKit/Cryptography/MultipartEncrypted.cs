@@ -32,6 +32,12 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A multipart MIME part with a ContentType of multipart/encrypted containing an encrypted MIME part.
+	/// </summary>
+	/// <remarks>
+	/// This mime-type is common when dealing with PGP/MIME but is not used for S/MIME.
+	/// </remarks>
 	public class MultipartEncrypted : Multipart
 	{
 		internal MultipartEncrypted (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -53,6 +59,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer to use to sign the entity.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
 		public static MultipartEncrypted Create (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
@@ -89,6 +102,11 @@ namespace MimeKit.Cryptography {
 		/// the encrypted version of the specified entity.</returns>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
 		public static MultipartEncrypted Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
@@ -122,6 +140,15 @@ namespace MimeKit.Cryptography {
 		/// Decrypt this instance.
 		/// </summary>
 		/// <returns>The decrypted entity.</returns>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
+		/// decrypting could not be found.
+		/// </exception>
 		public MimeEntity Decrypt ()
 		{
 			var protocol = ContentType.Parameters["protocol"];

@@ -33,6 +33,9 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A Secure MIME (S/MIME) cryptography context.
+	/// </summary>
 	public class SecureMimeContext : CryptographyContext
 	{
 		/// <summary>
@@ -71,8 +74,14 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
 		/// </summary>
 		/// <param name="store">The certificate store.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="store"/> is <c>null</c>.
+		/// </exception>
 		public SecureMimeContext (X509Store store)
 		{
+			if (store == null)
+				throw new ArgumentNullException ("store");
+
 			CertificateStore = store;
 		}
 
@@ -85,6 +94,12 @@ namespace MimeKit.Cryptography {
 			CertificateStore.Open (OpenFlags.ReadWrite);
 		}
 
+		/// <summary>
+		/// Gets the certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The certificate.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="flags">Key usage flags.</param>
 		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags)
 		{
 			var certificates = CertificateStore.Certificates.Find (X509FindType.FindByKeyUsage, flags, true);
@@ -97,6 +112,11 @@ namespace MimeKit.Cryptography {
 			throw new ArgumentException ("A valid certificate could not be found.", "mailbox");
 		}
 
+		/// <summary>
+		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The cms signer.</returns>
+		/// <param name="mailbox">The mailbox.</param>
 		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox)
 		{
 			var signer = new CmsSigner (GetCertificate (mailbox, X509KeyUsageFlags.DigitalSignature));
@@ -104,11 +124,21 @@ namespace MimeKit.Cryptography {
 			return signer;
 		}
 
+		/// <summary>
+		/// Gets the cms recipient for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The cms recipient.</returns>
+		/// <param name="mailbox">The mailbox.</param>
 		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			return new CmsRecipient (GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment));
 		}
 
+		/// <summary>
+		/// Gets the cms recipients for the specified <see cref="MimeKit.MailboxAddress"/>es.
+		/// </summary>
+		/// <returns>The cms recipients.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
 		protected virtual CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
 			var recipients = new CmsRecipientCollection ();
@@ -127,6 +157,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
 		/// <param name="digestAlgo">The digest algorithm used.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo)
 		{
 			if (signer == null)
@@ -146,6 +181,11 @@ namespace MimeKit.Cryptography {
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public ApplicationPkcs7Signature Sign (CmsSigner signer, byte[] content)
 		{
 			if (signer == null)
@@ -168,6 +208,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The detached signature data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
 		public SignerInfoCollection Verify (byte[] content, byte[] signatureData)
 		{
 			if (content == null)
@@ -191,6 +236,9 @@ namespace MimeKit.Cryptography {
 		/// <returns>A signer info collection.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="content">The original content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signedData"/> is <c>null</c>.
+		/// </exception>
 		public SignerInfoCollection Verify (byte[] signedData, out byte[] content)
 		{
 			if (signedData == null)
@@ -212,6 +260,11 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, byte[] content)
 		{
 			if (recipients == null)
@@ -235,6 +288,11 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
 			if (recipients == null)
@@ -252,6 +310,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, byte[] content)
 		{
 			if (signer == null)
@@ -283,6 +348,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
 			if (signer == null)
@@ -304,6 +376,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="signers">The signers.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
 		public MimeEntity Decrypt (byte[] encryptedData, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
 		{
 			if (encryptedData == null)
@@ -336,6 +411,9 @@ namespace MimeKit.Cryptography {
 		/// Imports the keys.
 		/// </summary>
 		/// <param name="keyData">The key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyData"/> is <c>null</c>.
+		/// </exception>
 		public override void ImportKeys (byte[] keyData)
 		{
 			var certificate = new X509Certificate2 (keyData);
@@ -344,14 +422,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the keys.
+		/// Exports the keys for the specified mailboxes.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
-		/// <param name="keys">The keys.</param>
-		public override MimePart ExportKeys (IEnumerable<MailboxAddress> keys)
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
-			return ExportKeys (keys.Select (mailbox => GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment)));
+			if (mailboxes == null)
+				throw new ArgumentNullException ("mailboxes");
+
+			return ExportKeys (mailboxes.Select (mailbox => GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment)));
 		}
 
 		/// <summary>
@@ -360,18 +447,30 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="certificates">The certificates.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificates"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
 		public ApplicationPkcs7Mime ExportKeys (IEnumerable<X509Certificate2> certificates)
 		{
+			if (certificates == null)
+				throw new ArgumentNullException ("certificates");
+
 			throw new NotImplementedException ();
 		}
 
 		/// <summary>
-		/// Exports the keys.
+		/// Exports the key.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="certificate">The certificate.</param>
-		public ApplicationPkcs7Mime ExportKeys (X509Certificate2 certificate)
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public ApplicationPkcs7Mime ExportKey (X509Certificate2 certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
@@ -379,6 +478,10 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, new MemoryStream (certificate.RawData));
 		}
 
+		/// <summary>
+		/// Dispose the specified disposing.
+		/// </summary>
+		/// <param name="disposing">If set to <c>true</c> disposing.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && CertificateStore != null) {

@@ -29,6 +29,9 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A MIME part with a Content-Type of application/pgp-signature.
+	/// </summary>
 	public class ApplicationPgpSignature : MimePart
 	{
 		internal ApplicationPgpSignature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -39,13 +42,20 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>
 		/// class with a Content-Type of application/pgp-signature.
 		/// </summary>
-		/// <param name="content">The content stream.</param>
-		public ApplicationPgpSignature (Stream content) : base ("application", "pgp-signature")
+		/// <param name="stream">The content stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="stream"/> does not support reading.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> does not support seeking.</para>
+		/// </exception>
+		public ApplicationPgpSignature (Stream stream) : base ("application", "pgp-signature")
 		{
+			ContentObject = new ContentObject (stream, ContentEncoding.Default);
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.SevenBit;
-
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }

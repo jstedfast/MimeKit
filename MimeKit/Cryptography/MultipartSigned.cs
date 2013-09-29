@@ -33,6 +33,9 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A signed multipart, as sued by both S/MIME and PGP/MIME protocols.
+	/// </summary>
 	public class MultipartSigned : Multipart
 	{
 		internal MultipartSigned (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -77,6 +80,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
 		{
 			if (signer == null)
@@ -137,6 +147,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
 		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
 		{
 			if (signer == null)
@@ -198,6 +213,15 @@ namespace MimeKit.Cryptography {
 		/// Verify the multipart/signed content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
+		/// verifying could not be found.
+		/// </exception>
 		public SignerInfoCollection Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
@@ -218,19 +242,15 @@ namespace MimeKit.Cryptography {
 			if (value.ToLowerInvariant () != protocol)
 				throw new FormatException ();
 
-			// FIXME: use CryptographyContext.Create() once we have a good general-purpose API.
-			// This will allow us to support PGP/MIME as well.
-			using (var ctx = new SecureMimeContext ()) {
+			using (var ctx = CryptographyContext.Create (protocol)) {
 				byte[] cleartext, signatureData;
 
 				using (var memory = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (memory)) {
-						// Note: see rfc2015 or rfc3156, section 5.1
-						filtered.Add (new Unix2DosFilter ());
+					// Note: see rfc2015 or rfc3156, section 5.1
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
 
-						this[0].WriteTo (filtered);
-						filtered.Flush ();
-					}
+					this[0].WriteTo (options, memory);
 
 					cleartext = memory.ToArray ();
 				}
@@ -240,7 +260,12 @@ namespace MimeKit.Cryptography {
 					signatureData = memory.ToArray ();
 				}
 
-				return ctx.Verify (cleartext, signatureData);
+				var smime = ctx as SecureMimeContext;
+
+				if (smime != null)
+					return smime.Verify (cleartext, signatureData);
+
+				throw new NotSupportedException ();
 			}
 		}
 	}

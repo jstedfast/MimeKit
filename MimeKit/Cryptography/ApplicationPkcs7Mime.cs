@@ -33,6 +33,9 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
+	/// </summary>
 	public class ApplicationPkcs7Mime : MimePart
 	{
 		internal ApplicationPkcs7Mime (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -43,16 +46,27 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.
 		/// </summary>
 		/// <param name="type">The S/MIME type.</param>
-		/// <param name="content">The content stream.</param>
-		public ApplicationPkcs7Mime (SecureMimeType type, Stream content) : base ("application", "pkcs7-mime")
+		/// <param name="stream">The content stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="stream"/> does not support reading.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> does not support seeking.</para>
+		/// </exception>
+		public ApplicationPkcs7Mime (SecureMimeType type, Stream stream) : base ("application", "pkcs7-mime")
 		{
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
+			ContentObject = new ContentObject (stream, ContentEncoding.Default);
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.Base64;
 
 			switch (type) {
+			case SecureMimeType.CompressedData:
+				ContentType.Parameters["smime-type"] = "compressed-data";
+				ContentDisposition.FileName = "smime.p7z";
+				ContentType.Name = "smime.p7z";
+				break;
 			case SecureMimeType.EnvelopedData:
 				ContentType.Parameters["smime-type"] = "enveloped-data";
 				ContentDisposition.FileName = "smime.p7m";
@@ -68,21 +82,23 @@ namespace MimeKit.Cryptography {
 				ContentDisposition.FileName = "smime.p7c";
 				ContentType.Name = "smime.p7c";
 				break;
-			default:
-				throw new ArgumentOutOfRangeException ("type");
 			}
-
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 
 		/// <summary>
-		/// Encrypt (and optionally sign) the specified entity.
+		/// Encrypt the specified entity.
 		/// </summary>
 		/// <param name="ctx">The context.</param>
-		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
-		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -91,12 +107,44 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new Unix2DosFilter ());
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
 
-					entity.WriteTo (filtered);
-					filtered.Flush ();
-				}
+				entity.WriteTo (options, memory);
+
+				return ctx.Encrypt (recipients, memory.ToArray ());
+			}
+		}
+
+		/// <summary>
+		/// Sign and Encrypt the specified entity.
+		/// </summary>
+		/// <param name="ctx">The context.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
 
 				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
 			}

@@ -28,6 +28,9 @@ using System;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An abstract cryptography context.
+	/// </summary>
 	public abstract class CryptographyContext : IDisposable
 	{
 		/// <summary>
@@ -56,6 +59,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
 		/// <param name="digestAlgo">The digest algorithm used.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public abstract MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo);
 
 		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
@@ -67,6 +75,11 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content);
 
 		/// <summary>
@@ -77,6 +90,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
 		public abstract MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
 
 		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
@@ -85,15 +105,31 @@ namespace MimeKit.Cryptography {
 		/// Imports the keys.
 		/// </summary>
 		/// <param name="keyData">The key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
 		public abstract void ImportKeys (byte[] keyData);
 
 		/// <summary>
-		/// Exports the keys.
+		/// Exports the keys for the specified mailboxes.
 		/// </summary>
-		/// <returns>The keys.</returns>
-		/// <param name="keys">Keys.</param>
-		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> keys);
+		/// <returns>The mailboxes.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes);
 
+		/// <summary>
+		/// Dispose the specified disposing.
+		/// </summary>
+		/// <param name="disposing">If set to <c>true</c> disposing.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 		}
@@ -114,8 +150,18 @@ namespace MimeKit.Cryptography {
 		/// Creates a new <see cref="MimeKit.Cryptography.CryptographyContext"/> for the specified protocol.
 		/// </summary>
 		/// <param name="protocol">The protocol.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="protocol"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// There are no supported <see cref="CryptographyContext"/>s that support 
+		/// the specified <paramref name="protocol"/>.
+		/// </exception>
 		public static CryptographyContext Create (string protocol)
 		{
+			if (protocol == null)
+				throw new ArgumentNullException ("protocol");
+
 			switch (protocol.ToLowerInvariant ()) {
 			case "application/x-pkcs7-signature":
 			case "application/pkcs7-signature":

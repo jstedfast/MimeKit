@@ -29,6 +29,9 @@ using System.IO;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An S/MIME part with a Content-Type of application/pkcs7-signature.
+	/// </summary>
 	public class ApplicationPkcs7Signature : MimePart
 	{
 		internal ApplicationPkcs7Signature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -39,15 +42,22 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/>
 		/// class with a Content-Type of application/pkcs7-signature.
 		/// </summary>
-		/// <param name="content">The content stream.</param>
-		public ApplicationPkcs7Signature (Stream content) : base ("application", "pkcs7-signature")
+		/// <param name="stream">The content stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="stream"/> does not support reading.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> does not support seeking.</para>
+		/// </exception>
+		public ApplicationPkcs7Signature (Stream stream) : base ("application", "pkcs7-signature")
 		{
+			ContentObject = new ContentObject (stream, ContentEncoding.Default);
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.Base64;
 			ContentDisposition.FileName = "smime.p7s";
 			ContentType.Name = "smime.p7s";
-
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }

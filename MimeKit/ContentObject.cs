@@ -44,6 +44,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="stream"/> does not support reading.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> does not support seeking.</para>
+		/// </exception>
 		/// <remarks>
 		/// When creating new <see cref="MimeKit.MimePart"/>s, the <paramref name="encoding"/>
 		/// should typically be <see cref="MimeKit.ContentEncoding.Default"/> unless the
@@ -53,6 +58,9 @@ namespace MimeKit {
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
+
+			if (!stream.CanRead || !stream.CanSeek)
+				throw new ArgumentException ("stream");
 
 			Encoding = encoding;
 			Stream = stream;

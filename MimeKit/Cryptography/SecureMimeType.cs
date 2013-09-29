@@ -28,6 +28,7 @@ using System;
 
 namespace MimeKit.Cryptography {
 	public enum SecureMimeType {
+		CompressedData,
 		EnvelopedData,
 		SignedData,
 		CertsOnly

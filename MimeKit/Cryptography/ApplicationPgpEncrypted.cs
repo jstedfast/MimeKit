@@ -29,6 +29,9 @@ using System.Text;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A MIME part with a Content-Type of application/pgp-encrypted.
+	/// </summary>
 	public class ApplicationPgpEncrypted : MimePart
 	{
 		internal ApplicationPgpEncrypted (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
