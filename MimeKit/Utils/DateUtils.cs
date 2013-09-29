@@ -323,7 +323,9 @@ namespace MimeKit.Utils {
 			int start;
 
 			while (index < endIndex) {
-				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, false))
+					break;
+
 				if (index >= endIndex)
 					break;
 
@@ -399,6 +401,7 @@ namespace MimeKit.Utils {
 		{
 			int? day = null, month = null, year = null, tzone = null;
 			int hour = 0, minute = 0, second = 0;
+			bool numericMonth = false;
 			bool haveWeekday = false;
 			bool haveTime = false;
 			DayOfWeek weekday;
@@ -414,8 +417,13 @@ namespace MimeKit.Utils {
 					}
 				}
 
-				if (month == null && tokens[i].IsMonth) {
-					if (month == null && TryGetMonth (tokens[i], text, out value)) {
+				if ((month == null || numericMonth) && tokens[i].IsMonth) {
+					if (TryGetMonth (tokens[i], text, out value)) {
+						if (numericMonth) {
+							numericMonth = false;
+							day = month;
+						}
+
 						month = value;
 						continue;
 					}
@@ -453,6 +461,7 @@ namespace MimeKit.Utils {
 					ParseUtils.TryParseInt32 (text, ref index, endIndex, out value);
 
 					if (month == null && value > 0 && value <= 12) {
+						numericMonth = true;
 						month = value;
 						continue;
 					}

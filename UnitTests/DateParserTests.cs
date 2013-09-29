@@ -36,27 +36,29 @@ namespace UnitTests {
 	public class DateParserTests
 	{
 		static readonly string[] dates = new string[] {
+			"8 Dec 1991 09:11 (Sunday)",
+			"26 Dec 1991 20:45 (Thursday)",
+			"Tue, 9 Jun 92 03:45:24 JST",
 			"Mon, 17 Jan 1994 11:14:55 -0500",
 			"Mon, 17 Jan 01 11:14:55 -0500",
 			"Tue, 30 Mar 2004 13:01:38 +0000",
 			"Sat Mar 24 21:23:03 EDT 2007",
 			"Sat, 24 Mar 2007 21:23:03 EDT",
 			"Sat, 24 Mar 2007 21:23:03 GMT",
-			"17-6-2008 17:10:08",
-			"26 Dec 1991 20:45 (Thursday)",
-			"Tue, 9 Jun 92 03:45:24 JST"
+			"17-6-2008 17:10:08"
 		};
 
 		static readonly string[] expected = new string[] {
+			"Sun, 08 Dec 1991 09:11:00 +0000",
+			"Thu, 26 Dec 1991 20:45:00 +0000",
+			"Tue, 09 Jun 1992 03:45:24 +0000",
 			"Mon, 17 Jan 1994 11:14:55 -0500",
 			"Wed, 17 Jan 2001 11:14:55 -0500",
 			"Tue, 30 Mar 2004 13:01:38 +0000",
 			"Sat, 24 Mar 2007 21:23:03 -0400",
 			"Sat, 24 Mar 2007 21:23:03 -0400",
 			"Sat, 24 Mar 2007 21:23:03 +0000",
-			"Tue, 17 Jun 2008 17:10:08 +0000",
-			"Thu, 26 Dec 1991 20:45:00 +0000",
-			"Tue, 09 Jun 1992 03:45:24 +0000"
+			"Tue, 17 Jun 2008 17:10:08 +0000"
 		};
 
 		[Test]
