@@ -122,6 +122,21 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestRfc2047EncodedParameter ()
+		{
+			ContentType type;
+			string text;
+
+			text = "application/x-stuff;\n    title=\"some chinese characters =?utf-8?q?=E4=B8=AD=E6=96=87?= and stuff\"\n";
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
+			Assert.AreEqual (type.Parameters["title"], "some chinese characters 中文 and stuff", "title values do not match: {0}", text);
+		}
+
+		[Test]
 		public void TestBreakingOfLongParamValues ()
 		{
 			string encoded, expected;
