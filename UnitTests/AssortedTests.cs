@@ -25,10 +25,12 @@
 //
 
 using System;
+using System.Linq;
 
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -71,6 +73,22 @@ namespace UnitTests {
 			multipart.Preamble = multiline;
 
 			Assert.AreEqual (expected, multipart.Preamble);
+		}
+
+		[Test]
+		public void TestParsingObsoleteInReplyToSyntax ()
+		{
+			var obsolete = "Joe Sixpack's message sent on Mon, 17 Jan 1994 11:14:55 -0500 <some.message.id.1@some.domain>";
+			var msgid = MimeUtils.EnumerateReferences (obsolete).FirstOrDefault ();
+
+			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
+			Assert.AreEqual ("<some.message.id.1@some.domain>", msgid, "The parsed msgid does not match");
+
+			obsolete = "<some.message.id.2@some.domain> as sent on Mon, 17 Jan 1994 11:14:55 -0500";
+			msgid = MimeUtils.EnumerateReferences (obsolete).FirstOrDefault ();
+
+			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
+			Assert.AreEqual ("<some.message.id.2@some.domain>", msgid, "The parsed msgid does not match");
 		}
 	}
 }

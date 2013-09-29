@@ -101,10 +101,14 @@ namespace MimeKit.Utils {
 				if (index >= endIndex)
 					break;
 
-				if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, startIndex + length, "", 65001, false, out addr))
-					break;
+				if (buffer[index] == '<') {
+					if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
+						break;
 
-				yield return "<" + ((MailboxAddress) addr).Address + ">";
+					yield return "<" + ((MailboxAddress) addr).Address + ">";
+				} else if (!ParseUtils.Skip8bitWord (buffer, ref index, endIndex, false)) {
+					index++;
+				}
 			} while (index < endIndex);
 
 			yield break;
