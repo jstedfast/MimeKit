@@ -65,8 +65,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the specified address if found; otherwise <c>-1</c>.</returns>
 		/// <param name="address">The address to get the index of.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (InternetAddress address)
 		{
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
 			return list.IndexOf (address);
 		}
 
@@ -191,8 +197,14 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the requested address exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="address">The address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (InternetAddress address)
 		{
+			if (address == null)
+				throw new ArgumentNullException ("address");
+
 			return list.Contains (address);
 		}
 

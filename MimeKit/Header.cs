@@ -30,6 +30,9 @@ using System.Text;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A class representing a Message or MIME header.
+	/// </summary>
 	public sealed class Header
 	{
 		internal readonly ParserOptions Options;
@@ -42,6 +45,16 @@ namespace MimeKit {
 		/// header value.</param>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
 		public Header (Encoding charset, string field, string value)
 		{
 			if (charset == null)
@@ -72,6 +85,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
 		public Header (string field, string value) : this (Encoding.UTF8, field, value)
 		{
 		}
@@ -114,6 +135,9 @@ namespace MimeKit {
 		/// Gets or sets the header value.
 		/// </summary>
 		/// <value>The header value.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string Value {
 			get {
 				if (textValue == null)
@@ -131,6 +155,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="charset">A charset encoding.</param>
 		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
 		public void SetValue (Encoding charset, string value)
 		{
 			if (charset == null)
@@ -156,11 +185,19 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.
+		/// </summary>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.</returns>
 		public override string ToString ()
 		{
 			return Field + ":" + Value;
 		}
 
+		/// <summary>
+		/// Unfold the specified header text.
+		/// </summary>
+		/// <param name="text">The header text.</param>
 		public static unsafe string Unfold (string text)
 		{
 			int startIndex;
@@ -267,6 +304,15 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
 		{
 			if (options == null)
@@ -296,6 +342,13 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out Header header)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
@@ -309,6 +362,14 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
 		{
 			int length = buffer.Length - startIndex;
@@ -323,6 +384,12 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
 		{
 			int length = buffer.Length - startIndex;
@@ -337,6 +404,11 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
 		{
 			return TryParse (options, buffer, 0, buffer.Length, out header);
@@ -348,6 +420,9 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
 		public static bool TryParse (byte[] buffer, out Header header)
 		{
 			return TryParse (ParserOptions.Default, buffer, 0, buffer.Length, out header);
@@ -360,6 +435,11 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out Header header)
 		{
 			if (options == null)
@@ -383,6 +463,9 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
 		public static bool TryParse (string text, out Header header)
 		{
 			return TryParse (ParserOptions.Default, text, out header);

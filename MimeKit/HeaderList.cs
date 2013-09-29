@@ -33,14 +33,17 @@ using System.Collections.Generic;
 using MimeKit.IO;
 
 namespace MimeKit {
+	/// <summary>
+	/// A list of <see cref="MimeKit.Header"/>s.
+	/// </summary>
 	public sealed class HeaderList : IList<Header>
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		// this table references the first header of each field
 		internal readonly ParserOptions Options;
-		Dictionary<string, Header> table;
-		List<Header> headers;
+		readonly Dictionary<string, Header> table;
+		readonly List<Header> headers;
 
 		internal HeaderList (ParserOptions options)
 		{
@@ -61,6 +64,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
 		public void Add (string field, string value)
 		{
 			Add (new Header (field, value));
@@ -72,6 +83,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="field"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (string field)
 		{
 			if (field == null)
@@ -85,6 +99,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="field"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (string field)
 		{
 			if (field == null)
@@ -104,6 +121,17 @@ namespace MimeKit {
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void Insert (int index, string field, string value)
 		{
 			if (index < 0 || index > Count)
@@ -118,6 +146,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the frst occurance of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="field"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (string field)
 		{
 			if (field == null)
@@ -134,6 +165,9 @@ namespace MimeKit {
 		/// Removes all of the headers matching the specified field name.
 		/// </summary>
 		/// <param name="field">The name of the header field.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="field"/> is <c>null</c>.
+		/// </exception>
 		public void RemoveAll (string field)
 		{
 			if (field == null)
@@ -157,6 +191,11 @@ namespace MimeKit {
 		/// with the specified field name.
 		/// </summary>
 		/// <param name="field">The name of the header field.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
 		public string this [string field] {
 			get {
 				if (field == null)
@@ -189,6 +228,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public void WriteTo (FormatOptions options, Stream stream)
 		{
 			if (options == null)
@@ -216,6 +260,9 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.HeaderList"/> to a stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
@@ -243,6 +290,9 @@ namespace MimeKit {
 		/// Adds the specified header.
 		/// </summary>
 		/// <param name="header">The header to add.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
 		public void Add (Header header)
 		{
 			if (header == null)
@@ -277,8 +327,14 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the specified header is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="header">The header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (Header header)
 		{
+			if (header == null)
+				throw new ArgumentNullException ("header");
+
 			return headers.Contains (header);
 		}
 
@@ -287,6 +343,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="array"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="arrayIndex"/> is out of range.
+		/// </exception>
 		public void CopyTo (Header[] array, int arrayIndex)
 		{
 			headers.CopyTo (array, arrayIndex);
@@ -298,8 +360,14 @@ namespace MimeKit {
 		/// <returns><c>true</c> if the specified header was removed;
 		/// otherwise <c>false</c>.</returns>
 		/// <param name="header">The header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (Header header)
 		{
+			if (header == null)
+				throw new ArgumentNullException ("header");
+
 			int index = headers.IndexOf (header);
 
 			if (index == -1)
@@ -332,6 +400,9 @@ namespace MimeKit {
 		/// If no headers with the specified header's field name exist, it is simply added.
 		/// </summary>
 		/// <param name="header">The header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
 		public void Replace (Header header)
 		{
 			int i;
@@ -372,8 +443,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="header">The header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (Header header)
 		{
+			if (header == null)
+				throw new ArgumentNullException ("header");
+
 			return headers.IndexOf (header);
 		}
 
@@ -382,6 +459,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="header">The header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void Insert (int index, Header header)
 		{
 			if (index < 0 || index > Count)
@@ -411,6 +494,9 @@ namespace MimeKit {
 		/// Removes the header at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > Count)
@@ -441,6 +527,12 @@ namespace MimeKit {
 		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public Header this [int index] {
 			get {
 				return headers[index];
@@ -448,6 +540,9 @@ namespace MimeKit {
 			set {
 				if (index < 0 || index > Count)
 					throw new ArgumentOutOfRangeException ("index");
+
+				if (value == null)
+					throw new ArgumentNullException ("value");
 
 				var header = headers[index];
 
