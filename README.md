@@ -5,7 +5,11 @@
 MimeKit is a C# library which may be used for the creation and parsing of messages using the Multipurpose Internet Mail Extension (MIME), as defined by the following RFCs:
 
 * [0822](http://www.ietf.org/rfc/rfc0822.txt): Standard for the Format of Arpa Internet Text Messages
-* [1521](http://www.ietf.org/rfc/rfc1521.txt): MIME (Multipurpose Internet Mail Extensions) Part One: Mechanisms for Specifying and Describing the Format of Internet Message Bodies
+* [1341](http://www.ietf.org/rfc/rfc1341.txt): MIME (Multipurpose Internet Mail Extensions): Mechanisms for Specifying and Describing the Format of Internet Message Bodies
+* [1342](http://www.ietf.org/rfc/rfc1342.txt): Representation of Non-ASCII Text in Internet Message Headers
+* [1521](http://www.ietf.org/rfc/rfc1521.txt): MIME (Multipurpose Internet Mail Extensions) Part One: Mechanisms for Specifying and Describing the Format of Internet Message Bodies (Obsoletes rfc1341)
+* [1522](http://www.ietf.org/rfc/rfc1522.txt): MIME (Multipurpose Internet Mail Extensions) Part Two: Message Header Extensions for Non-ASCII Text (Obsoletes rfc1342)
+* [1544](http://www.ietf.org/rfc/rfc1544.txt): The Content-MD5 Header Field
 * [1847](http://www.ietf.org/rfc/rfc1847.txt): Security Multiparts for MIME: Multipart/Signed and Multipart/Encrypted
 * [1864](http://www.ietf.org/rfc/rfc1864.txt): The Content-MD5 Header Field (Obsoletes rfc1544)
 * [2015](http://www.ietf.org/rfc/rfc2015.txt): MIME Security with Pretty Good Privacy (PGP)
@@ -32,6 +36,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 
 #### Other RFCs of interest:
 
+* [1523](http://www.ietf.org/rfc/rfc1523.txt): The text/enriched MIME Content-type
 * [1872](http://www.ietf.org/rfc/rfc1872.txt): The MIME Multipart/Related Content-type
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
 * [2110](http://www.ietf.org/rfc/rfc2110.txt): MIME E-mail Encapsulation of Aggregate Documents, such as HTML (MHTML)
