@@ -29,11 +29,24 @@ using System;
 using MimeKit.IO.Filters;
 
 namespace MimeKit {
+	/// <summary>
+	/// A New-Line format.
+	/// </summary>
 	public enum NewLineFormat {
+		/// <summary>
+		/// The Unix New-Line format (<c>"\n"</c>)
+		/// </summary>
 		Unix,
+
+		/// <summary>
+		/// The DOS New-Line format (<c>"\r\n"</c>).
+		/// </summary>
 		Dos,
 	}
 
+	/// <summary>
+	/// Format options for serializing various MimeKit objects.
+	/// </summary>
 	public sealed class FormatOptions
 	{
 		static readonly byte[][] NewLineFormats = new byte[][] {

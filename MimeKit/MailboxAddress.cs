@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A mailbox address, as specified by rfc0822.
+	/// </summary>
 	public sealed class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
 	{
 		string address;
@@ -42,6 +45,13 @@ namespace MimeKit {
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
 		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
 			if (address == null)
@@ -58,6 +68,11 @@ namespace MimeKit {
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
 		public MailboxAddress (string name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
 		{
 		}
@@ -68,6 +83,11 @@ namespace MimeKit {
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
 		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
 		{
 			Route = new DomainList ();
@@ -81,6 +101,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
 		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
 		{
 		}
@@ -97,6 +120,9 @@ namespace MimeKit {
 		/// Gets or sets the mailbox address.
 		/// </summary>
 		/// <value>The mailbox address.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string Address {
 			get { return address; }
 			set {

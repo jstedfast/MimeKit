@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// An address group, as specified by rfc0822.
+	/// </summary>
 	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
 		/// <summary>
@@ -39,6 +42,9 @@ namespace MimeKit {
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoding"/> is <c>null</c>.
+		/// </exception>
 		public GroupAddress (Encoding encoding, string name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
 		{
 			Members = new InternetAddressList (addresses);
@@ -59,6 +65,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoding"/> is <c>null</c>.
+		/// </exception>
 		public GroupAddress (Encoding encoding, string name) : base (encoding, name)
 		{
 			Members = new InternetAddressList ();

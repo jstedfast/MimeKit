@@ -31,6 +31,9 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 
 namespace MimeKit {
+	/// <summary>
+	/// Encapsulates a content stream used by <see cref="MimeKit.MimePart"/>.
+	/// </summary>
 	public class ContentObject : IContentObject
 	{
 		/// <summary>
@@ -38,6 +41,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="stream">The content stream.</param>
 		/// <param name="encoding">The stream encoding.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <remarks>
+		/// When creating new <see cref="MimeKit.MimePart"/>s, the <paramref name="encoding"/>
+		/// should typically be <see cref="MimeKit.ContentEncoding.Default"/> unless the
+		/// <paramref name="stream"/> has already been encoded.
+		/// </remarks>
 		public ContentObject (Stream stream, ContentEncoding encoding)
 		{
 			if (stream == null)
@@ -69,8 +80,14 @@ namespace MimeKit {
 		/// Writes the raw content stream to to another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void WriteTo (Stream stream)
 		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
 			byte[] buf = new byte[4096];
 			int nread;
 
@@ -90,8 +107,14 @@ namespace MimeKit {
 		/// Decodes the content stream into another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void DecodeTo (Stream stream)
 		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (Encoding));
 				WriteTo (filtered);

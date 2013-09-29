@@ -32,6 +32,9 @@ using System.Collections.Generic;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A domain list.
+	/// </summary>
 	public sealed class DomainList : IList<string>
 	{
 		readonly List<string> domains;
@@ -70,6 +73,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="index">The index to insert the domain.</param>
 		/// <param name="domain">The domain to insert.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void Insert (int index, string domain)
 		{
 			if (domain == null)
@@ -83,6 +92,9 @@ namespace MimeKit {
 		/// Removes the domain at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void RemoveAt (int index)
 		{
 			domains.RemoveAt (index);
@@ -93,6 +105,12 @@ namespace MimeKit {
 		/// Gets or sets the <see cref="MimeKit.DomainList"/> at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public string this [int index] {
 			get { return domains[index]; }
 			set {
@@ -115,6 +133,9 @@ namespace MimeKit {
 		/// Add the specified domain.
 		/// </summary>
 		/// <param name="domain">The domain.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
 		public void Add (string domain)
 		{
 			if (domain == null)
@@ -149,6 +170,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="array">The array to copy the domains to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="array"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="arrayIndex"/> is out of range.
+		/// </exception>
 		public void CopyTo (string[] array, int arrayIndex)
 		{
 			domains.CopyTo (array, arrayIndex);
@@ -160,6 +187,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the specified domain was removed;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="domain">The domain.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (string domain)
 		{
 			if (domains.Remove (domain)) {
@@ -234,7 +264,7 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		void OnChanged ()
 		{

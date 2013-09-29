@@ -41,6 +41,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox or group.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoding"/> is <c>null</c>.
+		/// </exception>
 		protected InternetAddress (Encoding encoding, string name)
 		{
 			if (encoding == null)
@@ -101,8 +104,11 @@ namespace MimeKit {
 			return ToString (false);
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
+		/// <summary>
+		/// Raises the internal changed event used by <see cref="MimeKit.MimeMessage"/> to keep headers in sync.
+		/// </summary>
 		protected virtual void OnChanged ()
 		{
 			if (Changed != null)
