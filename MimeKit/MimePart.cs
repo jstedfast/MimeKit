@@ -35,6 +35,9 @@ using MimeKit.IO.Filters;
 using MimeKit.Encodings;
 
 namespace MimeKit {
+	/// <summary>
+	/// A basic leaf-node MIME part that contains content such as the message body or an attachment.
+	/// </summary>
 	public class MimePart : MimeEntity
 	{
 		static readonly string[] ContentTransferEncodings = new string[] {
@@ -54,6 +57,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// </exception>
 		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
 		}
@@ -70,6 +78,9 @@ namespace MimeKit {
 		/// Gets or sets the duration of the content if available.
 		/// </summary>
 		/// <value>The duration of the content.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
 		public int? ContentDuration {
 			get { return duration; }
 			set {
@@ -162,6 +173,9 @@ namespace MimeKit {
 		/// Computes the md5sum of the content.
 		/// </summary>
 		/// <returns>The md5sum of the content.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="ContentObject"/> is <c>null</c>.
+		/// </exception>
 		public string ComputeContentMd5 ()
 		{
 			if (ContentObject == null)
@@ -207,6 +221,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public override void WriteTo (FormatOptions options, Stream stream)
 		{
 			base.WriteTo (options, stream);

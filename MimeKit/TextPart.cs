@@ -34,6 +34,9 @@ using MimeKit.IO.Filters;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A Textual MIME part.
+	/// </summary>
 	public class TextPart : MimePart
 	{
 		internal TextPart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
@@ -45,6 +48,9 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <param name="subtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="subtype"/> is <c>null</c>.
+		/// </exception>
 		public TextPart (string subtype) : base ("text", subtype)
 		{
 		}
@@ -93,6 +99,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The decoded text.</returns>
 		/// <param name="charset">The charset encoding to use.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="charset"/> is <c>null</c>.
+		/// </exception>
 		public string GetText (Encoding charset)
 		{
 			if (charset == null)
@@ -115,6 +124,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
 		public void SetText (Encoding charset, string text)
 		{
 			if (charset == null)

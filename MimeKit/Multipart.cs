@@ -34,6 +34,9 @@ using MimeKit.Encodings;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A Multipart MIME part which may contain a collection of MIME parts.
+	/// </summary>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
 		readonly List<MimeEntity> children;
@@ -48,6 +51,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
 		/// <param name="subtype">The multipart media sub-type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="subtype"/> is <c>null</c>.
+		/// </exception>
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
 			ContentType.Parameters["boundary"] = GenerateBoundary ();
@@ -80,6 +86,9 @@ namespace MimeKit {
 		/// Gets or sets the boundary.
 		/// </summary>
 		/// <value>The boundary.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string Boundary {
 			get { return ContentType.Boundary; }
 			set {
@@ -207,6 +216,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public override void WriteTo (FormatOptions options, Stream stream)
 		{
 			if (Boundary == null)
@@ -258,6 +272,9 @@ namespace MimeKit {
 		/// Adds the specified part.
 		/// </summary>
 		/// <param name="part">The part to add.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="part"/> is <c>null</c>.
+		/// </exception>
 		public void Add (MimeEntity part)
 		{
 			if (part == null)
@@ -280,6 +297,9 @@ namespace MimeKit {
 		/// Checks if the <see cref="MimeKit.Multipart"/> contains the specified part.
 		/// </summary>
 		/// <param name="part">The part to check for.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="part"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (MimeEntity part)
 		{
 			if (part == null)
@@ -293,6 +313,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="array"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="arrayIndex"/> is out of range.
+		/// </exception>
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
 			children.CopyTo (array, arrayIndex);
@@ -303,6 +329,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns><c>true</c> if the part was removed; otherwise <c>false</c>.</returns>
 		/// <param name="part">The part to remove.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="part"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (MimeEntity part)
 		{
 			if (part == null)
@@ -325,6 +354,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
 		/// <param name="part">The part.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="part"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (MimeEntity part)
 		{
 			if (part == null)
@@ -338,6 +370,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="index">The index.</param>
 		/// <param name="part">The part.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="part"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void Insert (int index, MimeEntity part)
 		{
 			if (index < 0 || index > children.Count)
@@ -354,6 +392,9 @@ namespace MimeKit {
 		/// Removes the part at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void RemoveAt (int index)
 		{
 			children.RemoveAt (index);
@@ -364,9 +405,20 @@ namespace MimeKit {
 		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public MimeEntity this[int index] {
 			get { return children[index]; }
-			set { children[index] = value; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				children[index] = value;
+			}
 		}
 
 		#endregion

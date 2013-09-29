@@ -33,6 +33,9 @@ using System.Collections.Generic;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A MIME message.
+	/// </summary>
 	public sealed class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
@@ -161,6 +164,9 @@ namespace MimeKit {
 		/// Gets or sets the subject of the message.
 		/// </summary>
 		/// <value>The subject of the message.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string Subject {
 			get { return Headers["Subject"]; }
 			set {
@@ -213,6 +219,9 @@ namespace MimeKit {
 		/// Gets or sets the message identifier.
 		/// </summary>
 		/// <value>The message identifier.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string MessageId {
 			get { return messageId; }
 			set {
@@ -238,9 +247,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the MIME version.
+		/// Gets or sets the MIME-Version.
 		/// </summary>
 		/// <value>The MIME version.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public Version MimeVersion {
 			get { return version; }
 			set {
@@ -271,6 +283,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public void WriteTo (FormatOptions options, Stream stream)
 		{
 			if (options == null)
@@ -301,6 +318,9 @@ namespace MimeKit {
 		/// Writes the message to the specified stream.
 		/// </summary>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
