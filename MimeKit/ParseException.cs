@@ -27,6 +27,9 @@
 using System;
 
 namespace MimeKit {
+	/// <summary>
+	/// A Parse exception as thrown by the various Parse methods in MimeKit.
+	/// </summary>
 	public class ParseException : Exception
 	{
 		internal ParseException (string message, int tokenIndex, int errorIndex) : base (message)
@@ -35,10 +38,18 @@ namespace MimeKit {
 			ErrorIndex = errorIndex;
 		}
 
+		/// <summary>
+		/// Gets the byte index of the token that was malformed.
+		/// </summary>
+		/// <value>The byte index of the token.</value>
 		public int TokenIndex {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the index of the byte that caused the error.
+		/// </summary>
+		/// <value>The index of the byte that caused error.</value>
 		public int ErrorIndex {
 			get; private set;
 		}

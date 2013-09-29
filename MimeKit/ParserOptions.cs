@@ -28,6 +28,9 @@ using System;
 using System.Text;
 
 namespace MimeKit {
+	/// <summary>
+	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
+	/// </summary>
 	public sealed class ParserOptions
 	{
 		/// <summary>
@@ -47,6 +50,10 @@ namespace MimeKit {
 		/// </summary>
 		/// <value><c>true</c> if the Content-Length value should be respected;
 		/// otherwise, <c>false</c>.</value>
+		/// <remarks>
+		/// For more information about why this may be useful, you can find more information
+		/// at http://www.jwz.org/doc/content-length.html
+		/// </remarks>
 		public bool RespectContentLength { get; set; }
 
 		/// <summary>

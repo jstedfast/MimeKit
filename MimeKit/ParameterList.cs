@@ -33,6 +33,9 @@ using MimeKit.Encodings;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A list of parameters, as found in the Content-Type and Content-Disposition headers.
+	/// </summary>
 	public sealed class ParameterList : IList<Parameter>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
@@ -54,6 +57,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="name"/> contains illegal characters.
+		/// </exception>
 		public void Add (string name, string value)
 		{
 			Add (new Parameter (name, value));
@@ -65,6 +76,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the requested parameter exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (string name)
 		{
 			if (name == null)
@@ -78,6 +92,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="name">The parameter name.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (string name)
 		{
 			if (name == null)
@@ -97,6 +114,17 @@ namespace MimeKit {
 		/// <param name="index">The index to insert the parameter.</param>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="name"/> contains illegal characters.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
 		public void Insert (int index, string name, string value)
 		{
 			if (index < 0 || index > Count)
@@ -111,6 +139,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the frst occurance of the specified
 		/// parameter was removed; otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (string name)
 		{
 			if (name == null)
@@ -128,6 +159,14 @@ namespace MimeKit {
 		/// with the specified name.
 		/// </summary>
 		/// <param name="name">The parameter name.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="name"/> contains illegal characters.
+		/// </exception>
 		public string this [string name] {
 			get {
 				if (name == null)
@@ -165,6 +204,10 @@ namespace MimeKit {
 			get { return parameters.Count; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -173,6 +216,13 @@ namespace MimeKit {
 		/// Adds the specified parameter.
 		/// </summary>
 		/// <param name="param">The parameter to add.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="param"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A parameter with the same name as <paramref name="param"/>
+		/// already exists.
+		/// </exception>
 		public void Add (Parameter param)
 		{
 			if (param == null)
@@ -208,8 +258,14 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the specified parameter is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="param"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (Parameter param)
 		{
+			if (param == null)
+				throw new ArgumentNullException ("param");
+
 			return parameters.Contains (param);
 		}
 
@@ -229,6 +285,9 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the specified parameter was removed;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="param"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (Parameter param)
 		{
 			if (param == null)
@@ -254,8 +313,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="param">The parameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="param"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (Parameter param)
 		{
+			if (param == null)
+				throw new ArgumentNullException ("param");
+
 			return parameters.IndexOf (param);
 		}
 
@@ -264,6 +329,16 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="index">The index to insert the parameter.</param>
 		/// <param name="param">The parameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="param"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="index"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A parameter with the same name as <paramref name="param"/>
+		/// already exists.
+		/// </exception>
 		public void Insert (int index, Parameter param)
 		{
 			if (index < 0 || index > Count)
@@ -286,6 +361,9 @@ namespace MimeKit {
 		/// Removes the parameter at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="index"/> is out of range.
+		/// </exception>
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > Count)
@@ -304,6 +382,16 @@ namespace MimeKit {
 		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="index"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A parameter with the same name as <paramref name="value"/>
+		/// already exists.
+		/// </exception>
 		public Parameter this [int index] {
 			get {
 				return parameters[index];

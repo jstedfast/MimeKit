@@ -92,7 +92,11 @@ namespace MimeKit {
 		Eos
 	}
 
-	public class MimeParser
+	/// <summary>
+	/// A MIME parser which can be used to parse <see cref="MimeKit.MimeMessage"/>s and
+	/// <see cref="MimeKit.MimeEntity"/>s from arbitrary streams.
+	/// </summary>
+	public sealed class MimeParser
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
@@ -129,6 +133,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public MimeParser (Stream stream, MimeFormat format) : this (ParserOptions.Default, stream, format)
 		{
 		}
@@ -137,6 +144,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
 		/// <param name="stream">The stream to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public MimeParser (Stream stream) : this (ParserOptions.Default, stream, MimeFormat.Default)
 		{
 		}
@@ -146,6 +156,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream) : this (options, stream, MimeFormat.Default)
 		{
 		}
@@ -156,6 +171,11 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream, MimeFormat format)
 		{
 			bounds = new List<Boundary> ();
@@ -203,6 +223,11 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format)
 		{
 			if (options == null)
@@ -241,6 +266,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
 		public void SetStream (ParserOptions options, Stream stream)
 		{
 			SetStream (options, stream, MimeFormat.Default);
@@ -251,6 +281,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void SetStream (Stream stream, MimeFormat format)
 		{
 			SetStream (ParserOptions.Default, stream, format);
@@ -260,6 +293,9 @@ namespace MimeKit {
 		/// Sets the stream to parse.
 		/// </summary>
 		/// <param name="stream">The stream to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		public void SetStream (Stream stream)
 		{
 			SetStream (ParserOptions.Default, stream, MimeFormat.Default);

@@ -31,6 +31,9 @@ using MimeKit.Encodings;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// A header parameter as found in the Content-Type and Content-Disposition headers.
+	/// </summary>
 	public sealed class Parameter
 	{
 		string text;
@@ -40,6 +43,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="name"/> contains illegal characters.
+		/// </exception>
 		public Parameter (string name, string value)
 		{
 			if (name == null)
@@ -77,6 +88,9 @@ namespace MimeKit {
 		/// Gets or sets the parameter value.
 		/// </summary>
 		/// <value>The parameter value.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public string Value {
 			get { return text; }
 			set {
