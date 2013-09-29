@@ -34,7 +34,7 @@ namespace MimeKit {
 	/// <summary>
 	/// Encapsulates a content stream used by <see cref="MimeKit.MimePart"/>.
 	/// </summary>
-	public class ContentObject : IContentObject
+	public sealed class ContentObject : IContentObject
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.

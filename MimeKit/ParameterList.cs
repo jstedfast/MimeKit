@@ -384,7 +384,7 @@ namespace MimeKit {
 			return values.ToString ();
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		void OnParamChanged (object sender, EventArgs args)
 		{

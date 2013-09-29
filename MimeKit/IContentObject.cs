@@ -28,12 +28,39 @@ using System;
 using System.IO;
 
 namespace MimeKit {
+	/// <summary>
+	/// An interface for content stream encapsulation as used by <see cref="MimeKit.MimePart"/>.
+	/// </summary>
 	public interface IContentObject
 	{
+		/// <summary>
+		/// Gets the content encoding.
+		/// </summary>
+		/// <value>The encoding.</value>
 		ContentEncoding Encoding { get; }
+
+		/// <summary>
+		/// Gets the content stream.
+		/// </summary>
+		/// <value>The stream.</value>
 		Stream Stream { get; }
 
+		/// <summary>
+		/// Decodes the content stream into another stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		void DecodeTo (Stream stream);
+
+		/// <summary>
+		/// Writes the raw content stream to to another stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
 		void WriteTo (Stream stream);
 	}
 }

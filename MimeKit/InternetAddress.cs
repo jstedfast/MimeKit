@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using MimeKit.Utils;
 
 namespace MimeKit {
+	/// <summary>
+	/// An internet address, as specified by rfc0822.
+	/// </summary>
 	public abstract class InternetAddress
 	{
 		Encoding encoding;

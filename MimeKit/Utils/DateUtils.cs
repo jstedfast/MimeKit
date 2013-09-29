@@ -85,6 +85,9 @@ namespace MimeKit.Utils {
 		}
 	}
 
+	/// <summary>
+	/// Utility methods to parse and format rfc0822 date strings.
+	/// </summary>
 	public static class DateUtils
 	{
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";

@@ -352,7 +352,7 @@ namespace MimeKit {
 			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
-		public event EventHandler Changed;
+		internal event EventHandler Changed;
 
 		void OnChanged ()
 		{
