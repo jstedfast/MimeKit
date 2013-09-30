@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace MimeKit.Utils {
 	[Flags]
@@ -638,7 +639,7 @@ namespace MimeKit.Utils {
 		/// <param name="date">The date.</param>
 		public static string ToString (DateTimeOffset date)
 		{
-			return string.Format ("{0} {1}{2}", date.ToString ("ddd, dd MMM yyyy HH:mm:ss"),
+			return string.Format ("{0} {1}{2}", date.ToString ("ddd, dd MMM yyyy HH:mm:ss", DateTimeFormatInfo.InvariantInfo),
 			                      date.Offset.CompareTo (TimeSpan.Zero) < 0 ? "-" : "+",
 			                      date.Offset.ToString ("hhmm"));
 		}
