@@ -861,22 +861,27 @@ namespace MimeKit {
 				*inend = (byte) '\n';
 
 				while (inptr < inend) {
-					uint* dword = (uint*) inptr;
+					// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
+					byte* aligned = inptr + (inputIndex % 4);
 					byte* start = inptr;
 					uint mask;
 
-					//while (*inptr != (byte) '\n')
-					//	inptr++;
-
-					// -funroll-loops, bitches.
-					do {
-						mask = *dword++ ^ 0x0A0A0A0A;
-						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-					} while (mask == 0);
-
-					inptr = (byte*) (dword - 1);
-					while (*inptr != (byte) '\n')
+					while (inptr < aligned && *inptr != (byte) '\n')
 						inptr++;
+
+					if (inptr == aligned) {
+						// -funroll-loops, bitches.
+						uint* dword = (uint*) inptr;
+
+						do {
+							mask = *dword++ ^ 0x0A0A0A0A;
+							mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+						} while (mask == 0);
+
+						inptr = (byte*) (dword - 1);
+						while (*inptr != (byte) '\n')
+							inptr++;
+					}
 
 					length = (int) (inptr - start);
 
