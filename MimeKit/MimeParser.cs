@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
+using MimeKit.IO;
 
 namespace MimeKit {
 	enum BoundaryType
@@ -924,7 +925,7 @@ namespace MimeKit {
 
 		unsafe BoundaryType ScanMimePartContent (byte* inbuf, MimePart part)
 		{
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 			var found = ScanContent (inbuf, memory);
 
 			memory.Seek (0, SeekOrigin.Begin);

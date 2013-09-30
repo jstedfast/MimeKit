@@ -68,6 +68,7 @@
     <Compile Include="IO\BoundStream.cs" />
     <Compile Include="IO\ChainedStream.cs" />
     <Compile Include="IO\FilteredStream.cs" />
+    <Compile Include="IO\MemoryBlockStream.cs" />
     <Compile Include="IO\Filters\ArmoredFromFilter.cs" />
     <Compile Include="IO\Filters\CharsetFilter.cs" />
     <Compile Include="IO\Filters\DecoderFilter.cs" />

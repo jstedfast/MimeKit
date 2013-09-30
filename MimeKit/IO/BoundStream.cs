@@ -227,12 +227,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override long Position {
 			get { return position; }
-			set {
-				CheckDisposed ();
-				CheckCanSeek ();
-
-				Seek (value, SeekOrigin.Begin);
-			}
+			set { Seek (value, SeekOrigin.Begin); }
 		}
 
 		/// <summary>

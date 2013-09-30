@@ -1,9 +1,9 @@
 //
-// ChainedStream.cs
+// MemoryBlockStream.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,39 +28,52 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace MimeKit.IO {
+namespace MimeKit.IO
+{
 	/// <summary>
-	/// A chained stream.
+	/// An efficient memory stream implementation that sacrifices the ability to
+	/// get access to the internal byte buffer in order to drastically improve
+	/// performance.
 	/// </summary>
-	public class ChainedStream : Stream
+	public class MemoryBlockStream : Stream
 	{
-		readonly List<Stream> streams = new List<Stream> ();
-		long position;
+		const long MaxCapacity = int.MaxValue * BlockSize;
+		const long BlockSize = 2048;
+
+		readonly List<byte[]> blocks = new List<byte[]> ();
+		long position, length;
 		bool disposed;
-		int current;
-		bool eos;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.MemoryBlockStream"/> class.
 		/// </summary>
-		public ChainedStream ()
+		public MemoryBlockStream ()
 		{
+			blocks.Add (new byte[BlockSize]);
 		}
 
 		/// <summary>
-		/// Add the specified stream to the chained stream.
+		/// Copies the memory stream into a byte array.
 		/// </summary>
-		/// <param name="stream">The stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		public void Add (Stream stream)
+		/// <returns>The array.</returns>
+		public byte[] ToArray ()
 		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
+			var array = new byte[length];
+			int need = (int) length;
+			int arrayIndex = 0;
+			int nread = 0;
+			int block = 0;
 
-			streams.Add (stream);
-			eos = false;
+			while (nread < length) {
+				int n = Math.Min ((int) BlockSize, need);
+				Buffer.BlockCopy (blocks[block], 0, array, arrayIndex, n);
+				arrayIndex += n;
+				nread += n;
+				need -= n;
+				block++;
+			}
+
+			return array;
 		}
 
 		void CheckDisposed ()
@@ -69,23 +82,7 @@ namespace MimeKit.IO {
 				throw new ObjectDisposedException ("stream");
 		}
 
-		void CheckCanSeek ()
-		{
-			if (!CanSeek)
-				throw new NotSupportedException ("The stream does not support seeking");
-		}
-
-		void CheckCanRead ()
-		{
-			if (!CanRead)
-				throw new NotSupportedException ("The stream does not support reading");
-		}
-
-		void CheckCanWrite ()
-		{
-			if (!CanWrite)
-				throw new NotSupportedException ("The stream does not support writing");
-		}
+		#region implemented abstract members of Stream
 
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
@@ -94,14 +91,7 @@ namespace MimeKit.IO {
 		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanRead {
-			get {
-				foreach (var stream in streams) {
-					if (!stream.CanRead)
-						return false;
-				}
-
-				return streams.Count > 0;
-			}
+			get { return true; }
 		}
 
 		/// <summary>
@@ -111,14 +101,7 @@ namespace MimeKit.IO {
 		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanWrite {
-			get {
-				foreach (var stream in streams) {
-					if (!stream.CanWrite)
-						return false;
-				}
-
-				return streams.Count > 0;
-			}
+			get { return true; }
 		}
 
 		/// <summary>
@@ -128,24 +111,7 @@ namespace MimeKit.IO {
 		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
 		/// </value>
 		public override bool CanSeek {
-			get {
-				foreach (var stream in streams) {
-					if (!stream.CanSeek)
-						return false;
-				}
-
-				return streams.Count > 0;
-			}
-		}
-
-		/// <summary>
-		/// Checks whether or not I/O operations can timeout.
-		/// </summary>
-		/// <value>
-		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-		/// </value>
-		public override bool CanTimeout {
-			get { return false; }
+			get { return true; }
 		}
 
 		/// <summary>
@@ -159,12 +125,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override long Length {
 			get {
-				long length = 0;
-
 				CheckDisposed ();
-
-				foreach (var stream in streams)
-					length += stream.Length;
 
 				return length;
 			}
@@ -214,32 +175,28 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The stream does not support reading.
-		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
-			CheckCanRead ();
 
 			ValidateArguments (buffer, offset, count);
 
-			if (count == 0 || eos)
+			if (position == MaxCapacity)
 				return 0;
 
-			int n, nread = 0;
+			int startIndex = (int) (position % BlockSize);
+			int block = (int) (position / BlockSize);
+			int nread = 0;
 
-			while (current < streams.Count && nread < count) {
-				if ((n = streams[current].Read (buffer, offset + nread, count - nread)) > 0)
-					nread += n;
-				else
-					current++;
+			while (nread < count && block < blocks.Count) {
+				int n = Math.Min ((int) BlockSize - startIndex, count - nread);
+				Buffer.BlockCopy (blocks[block], startIndex, buffer, offset + nread, n);
+				startIndex = 0;
+				nread += n;
+				block++;
 			}
 
-			if (nread > 0)
-				position += nread;
-			else if (nread == 0)
-				eos = true;
+			position += nread;
 
 			return nread;
 		}
@@ -265,34 +222,33 @@ namespace MimeKit.IO {
 		public override void Write (byte[] buffer, int offset, int count)
 		{
 			CheckDisposed ();
-			CheckCanWrite ();
 
 			ValidateArguments (buffer, offset, count);
 
-			if (current >= streams.Count)
-				current = streams.Count - 1;
+			if (position + count >= MaxCapacity)
+				throw new IOException (string.Format ("Cannot exceed {0} bytes", MaxCapacity));
 
+			int startIndex = (int) (position % BlockSize);
+			long capacity = blocks.Count * BlockSize;
+			int block = (int) (position / BlockSize);
 			int nwritten = 0;
 
-			while (current < streams.Count && nwritten < count) {
-				int n = count - nwritten;
-
-				if (current + 1 < streams.Count) {
-					long left = streams[current].Length - streams[current].Position;
-
-					if (left < n)
-						n = (int) left;
-				}
-
-				streams[current].Write (buffer, offset + nwritten, n);
-				position += n;
-				nwritten += n;
-
-				if (nwritten < count) {
-					streams[current].Flush ();
-					current++;
-				}
+			while (capacity < position + count) {
+				blocks.Add (new byte[BlockSize]);
+				capacity += BlockSize;
 			}
+
+			while (nwritten < count) {
+				int n = Math.Min ((int) BlockSize - startIndex, count - nwritten);
+				Buffer.BlockCopy (buffer, offset + nwritten, blocks[block], startIndex, n);
+				startIndex = 0;
+				nwritten += n;
+				block++;
+			}
+
+			position += nwritten;
+
+			length = Math.Max (length, position);
 		}
 
 		/// <summary>
@@ -307,9 +263,6 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The stream does not support seeking.
-		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
 		/// </exception>
@@ -318,11 +271,9 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override long Seek (long offset, SeekOrigin origin)
 		{
-			CheckDisposed ();
-			CheckCanSeek ();
-
-			long length = -1;
 			long real;
+
+			CheckDisposed ();
 
 			switch (origin) {
 			case SeekOrigin.Begin:
@@ -332,7 +283,6 @@ namespace MimeKit.IO {
 				real = position + offset;
 				break;
 			case SeekOrigin.End:
-				length = Length;
 				real = length + offset;
 				break;
 			default:
@@ -343,49 +293,17 @@ namespace MimeKit.IO {
 			if (real < 0)
 				throw new IOException ("Cannot seek to a position before the beginning of the stream");
 
+			if (real > MaxCapacity)
+				throw new IOException (string.Format ("Cannot exceed {0} bytes", MaxCapacity));
+
 			// short-cut if we are seeking to our current position
 			if (real == position)
 				return position;
 
-			if (real > (length < 0 ? Length : length))
+			if (real > length)
 				throw new IOException ("Cannot seek beyond the end of the stream");
 
-			if (real > position) {
-				while (current < streams.Count && position < real) {
-					long left = streams[current].Length - streams[current].Position;
-					long n = Math.Min (left, real - position);
-
-					streams[current].Seek (n, SeekOrigin.Current);
-					position += n;
-
-					if (position < real)
-						current++;
-				}
-			} else {
-				int max = Math.Min (streams.Count - 1, current);
-				int cur = 0;
-
-				position = 0;
-				while (cur <= max && position < real) {
-					length = streams[cur].Length;
-
-					if (real < position + length) {
-						// this is the stream which encompasses our seek offset
-						streams[cur].Seek (real - position, SeekOrigin.Begin);
-						position = real;
-						break;
-					}
-
-					position += length;
-					cur++;
-				}
-
-				current = cur++;
-
-				// reset any streams between our new current stream and our old current stream
-				while (cur <= max)
-					streams[cur++].Seek (0, SeekOrigin.Begin);
-			}
+			position = real;
 
 			return position;
 		}
@@ -402,10 +320,8 @@ namespace MimeKit.IO {
 		public override void Flush ()
 		{
 			CheckDisposed ();
-			CheckCanWrite ();
 
-			if (current < streams.Count)
-				streams[current].Flush ();
+			// nothing to do...
 		}
 
 		/// <summary>
@@ -414,23 +330,32 @@ namespace MimeKit.IO {
 		/// <param name='value'>
 		/// The new length.
 		/// </param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is out of range.
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The stream does not support setting the length.
 		/// </exception>
 		public override void SetLength (long value)
 		{
 			CheckDisposed ();
 
-			throw new NotSupportedException ("Cannot set a length on the stream");
+			if (value < 0 || value > MaxCapacity)
+				throw new ArgumentOutOfRangeException ("value");
+
+			long capacity = blocks.Count * BlockSize;
+
+			while (capacity < value) {
+				blocks.Add (new byte[BlockSize]);
+				capacity += BlockSize;
+			}
+
+			position = Math.Min (position, length);
+			length = value;
 		}
 
-		/// <summary>
-		/// Dispose the specified disposing.
-		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		#endregion
+
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);
@@ -438,4 +363,3 @@ namespace MimeKit.IO {
 		}
 	}
 }
-
