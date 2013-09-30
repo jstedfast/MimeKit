@@ -192,7 +192,7 @@ namespace MimeKit {
 				date = value;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = DateUtils.ToString (date);
+				Headers["Date"] = DateUtils.FormatDate (date);
 				Headers.Changed += HeadersChanged;
 			}
 		}

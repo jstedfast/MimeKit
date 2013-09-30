@@ -117,7 +117,7 @@ namespace UnitTests {
 					if (message.To.Count > 0)
 						builder.AppendFormat ("To: {0}\n", message.To);
 					builder.AppendFormat ("Subject: {0}\n", message.Subject);
-					builder.AppendFormat ("Date: {0}\n", DateUtils.ToString (message.Date));
+					builder.AppendFormat ("Date: {0}\n", DateUtils.FormatDate (message.Date));
 					DumpMimeTree (builder, message.Body, 0);
 					builder.Append ("\n");
 				}

@@ -129,7 +129,7 @@ namespace MimeKit {
 			}
 			set {
 				if (value.HasValue)
-					Parameters["creation-date"] = DateUtils.ToString (value.Value);
+					Parameters["creation-date"] = DateUtils.FormatDate (value.Value);
 				else
 					Parameters.Remove ("creation-date");
 			}
@@ -155,7 +155,7 @@ namespace MimeKit {
 			}
 			set {
 				if (value.HasValue)
-					Parameters["modification-date"] = DateUtils.ToString (value.Value);
+					Parameters["modification-date"] = DateUtils.FormatDate (value.Value);
 				else
 					Parameters.Remove ("modification-date");
 			}
@@ -181,7 +181,7 @@ namespace MimeKit {
 			}
 			set {
 				if (value.HasValue)
-					Parameters["read-date"] = DateUtils.ToString (value.Value);
+					Parameters["read-date"] = DateUtils.FormatDate (value.Value);
 				else
 					Parameters.Remove ("read-date");
 			}
