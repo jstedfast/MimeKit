@@ -115,6 +115,16 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
+		/// Checks whether or not reading and writing to the stream can timeout.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.
+		/// </value>
+		public override bool CanTimeout {
+			get { return false; }
+		}
+
+		/// <summary>
 		/// Gets the length of the stream.
 		/// </summary>
 		/// <value>
@@ -345,12 +355,27 @@ namespace MimeKit.IO
 
 			long capacity = blocks.Count * BlockSize;
 
-			while (capacity < value) {
-				blocks.Add (new byte[BlockSize]);
-				capacity += BlockSize;
+			if (value > capacity) {
+				do {
+					blocks.Add (new byte[BlockSize]);
+					capacity += BlockSize;
+				} while (capacity < value);
+			} else if (value < length) {
+				// shed any blocks that are no longer needed
+				while (capacity - value > BlockSize) {
+					blocks.RemoveAt (blocks.Count - 1);
+					capacity -= BlockSize;
+				}
+
+				// reset the range of bytes bwteen the new length and the old length to 0
+				int count = (int) (Math.Min (length, capacity) - value);
+				int startIndex = (int) (position % BlockSize);
+				int block = (int) (position / BlockSize);
+
+				Array.Clear (blocks[block], startIndex, count);
 			}
 
-			position = Math.Min (position, length);
+			position = Math.Min (position, value);
 			length = value;
 		}
 
