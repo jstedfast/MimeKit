@@ -356,6 +356,10 @@ namespace MimeKit.IO
 
 		#endregion
 
+		/// <summary>
+		/// Dispose the specified disposing.
+		/// </summary>
+		/// <param name="disposing">If set to <c>true</c> disposing.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);
