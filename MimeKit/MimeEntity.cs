@@ -38,10 +38,17 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
+	/// A delegate for instantiating custom <see cref="MimeKit.MimeEntity"/> subclasses.
+	/// <seealso cref="MimeKit.MimeEntity.RegisterCustomMimeEntity"/>
+	/// </summary>
+	public delegate MimeEntity MimeEntityConstructor (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel);
+
+	/// <summary>
 	/// An abstract MIME entity.
 	/// </summary>
 	public abstract class MimeEntity
 	{
+		static readonly Dictionary<string, MimeEntityConstructor> CustomMimeTypes = new Dictionary<string, MimeEntityConstructor> ();
 		protected bool IsInitializing { get; private set; }
 		ContentDisposition disposition;
 		string contentId;
@@ -331,10 +338,51 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
+		/// <summary>
+		/// Registers the custom MIME entity. Once registered, all <see cref="MimeKit.MimeParser"/> instances
+		/// will instantiate your custom <see cref="MimeKit.MimeEntity"/> when the specified mime-type is
+		/// encountered using the delegate provided.
+		/// </summary>
+		/// <param name="mimeType">The MIME type.</param>
+		/// <param name="ctor">The delegate to instantiate your custom <see cref="MimeEntity"/>.</param>
+		/// <remarks>
+		/// Your custom <see cref="MimeKit.MimeEntity"/> class should not subclass
+		/// <see cref="MimeKit.MimeEntity"/> directly, but rather it should subclass
+		/// <see cref="MimeKit.Multipart"/>, <see cref="MimeKit.MimePart"/>,
+		/// <see cref="MimeKit.MessagePart"/>, or one of their derivatives.
+		/// </remarks>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mimeType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="ctor"/> is <c>null</c>.</para>
+		/// </exception>
+		public static void RegisterCustomMimeEntity (string mimeType, MimeEntityConstructor ctor)
+		{
+			if (mimeType == null)
+				throw new ArgumentNullException ("mimeType");
+
+			if (ctor == null)
+				throw new ArgumentNullException ("ctor");
+
+			mimeType = mimeType.ToLowerInvariant ();
+
+			lock (CustomMimeTypes) {
+				CustomMimeTypes[mimeType] = ctor;
+			}
+		}
+
 		internal static MimeEntity Create (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel)
 		{
 			var subtype = ctype.MediaSubtype.ToLowerInvariant ();
 			var type = ctype.MediaType.ToLowerInvariant ();
+
+			var mimeType = string.Format ("{0}/{1}", type, subtype);
+			lock (CustomMimeTypes) {
+				MimeEntityConstructor ctor;
+
+				if (CustomMimeTypes.TryGetValue (mimeType, out ctor))
+					return ctor (options, ctype, headers, toplevel);
+			}
 
 			if (type == "message") {
 				if (subtype == "partial")
