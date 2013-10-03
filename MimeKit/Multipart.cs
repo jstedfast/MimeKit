@@ -51,6 +51,35 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
 		/// <param name="subtype">The multipart media sub-type.</param>
+		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="subtype"/> is <c>null</c>.<para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		public Multipart (string subtype, params object[] args) : this (subtype)
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			foreach (object obj in args) {
+				if (obj == null || base.TryInit (obj))
+					continue;
+
+				MimeEntity e = obj as MimeEntity;
+				if (e != null) {
+					Add(e);
+					continue;
+				}
+
+				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+			}
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// </summary>
+		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
 		/// </exception>
