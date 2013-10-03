@@ -95,6 +95,69 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
+		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
+		/// </summary>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="args"/> is <c>null</c>.
+		/// </exception>
+		public MimeMessage (params object[] args) : this (ParserOptions.Default.Clone ())
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			MimeEntity entity = null;
+			foreach (object obj in args) {
+				if (obj == null)
+					continue;
+
+				// Just add the headers and let the events (already setup) keep the
+				// addresses in sync.
+
+				Header header = obj as Header;
+				if (header != null) {
+					if (!header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+						Headers.Add (header);
+					continue;
+				}
+
+				IEnumerable<Header> headers = obj as IEnumerable<Header>;
+				if (headers != null) {
+					foreach (Header h in headers) {
+						if (!h.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+							Headers.Add (h);
+					}
+					continue;						
+				}
+
+				MimeEntity e = obj as MimeEntity;
+				if (e != null) {
+					if (entity != null)
+						throw new ArgumentException("Message body should not be specified more than once.");
+					entity = e;
+					continue;
+				}
+
+				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+			}
+
+			if (entity != null)
+				Body = entity;
+
+			// Do exactly as in the parameterless constructor but avoid setting a default
+			// value if an header already provided one.
+
+			if (!Headers.Contains("From"))
+				Headers["From"] = string.Empty;
+			if (!Headers.Contains("To"))
+				Headers["To"] = string.Empty;
+			if (date == default(DateTimeOffset))
+				Date = DateTimeOffset.Now;
+			if (!Headers.Contains("Subject"))
+				Subject = string.Empty;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
 		/// </summary>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
