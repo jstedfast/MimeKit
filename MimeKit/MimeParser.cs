@@ -1133,9 +1133,9 @@ namespace MimeKit {
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
 				switch (Step (inbuf)) {
-					case MimeParserState.Error:
+				case MimeParserState.Error:
 					throw new Exception ("Failed to find mbox From marker.");
-					case MimeParserState.Eos:
+				case MimeParserState.Eos:
 					throw new Exception ("End of stream.");
 				}
 			}
