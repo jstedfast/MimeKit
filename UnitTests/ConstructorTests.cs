@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
@@ -48,7 +49,7 @@ namespace UnitTests {
 				new TextPart ("plain", "Just a short message to say hello!")
 			);
 
-			Assert.AreEqual (1, msg.From.Count, 1, "Wrong count in From");
+			Assert.AreEqual (1, msg.From.Count, "Wrong count in From");
 			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msg.From[0].ToString(), "Wrong value in From[0]");
 			Assert.AreEqual (1, msg.To.Count, "Wrong count in To");
 			Assert.AreEqual ("jeff@xamarin.com", msg.To[0].ToString(), "Wrong value in To[0]");
@@ -56,6 +57,25 @@ namespace UnitTests {
 			Assert.AreEqual ("fog@dndg.it", msg.Cc[0].ToString(), "Wrong value in Cc[0]");
 			Assert.AreEqual ("gg@dndg.it", msg.Cc[1].ToString(), "Wrong value in Cc[1]");
 			Assert.AreEqual ("Hello", msg.Subject, "Wrong value in Subject");		
+		}
+
+		[Test]
+		public void TestGenerateMultipleMessagesWithLinq ()
+		{
+			string[] destinations = new string[] { "jeff@xamarin.com", "gg@dndg.it" };
+
+			IList<MimeMessage> msgs = destinations.Select(x => new MimeMessage(
+				new Header ("From", "Federico Di Gregorio <fog@dndg.it>"),
+				new Header ("To", x),
+				new Header ("Subject", "Hello"),
+				new TextPart ("plain", "Just a short message to say hello!")
+			)).ToList();
+
+			Assert.AreEqual (2, msgs.Count, "Message count is wrong");
+			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msgs[0].From[0].ToString(), "Wrong value in From[0], message 1");
+			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msgs[1].From[0].ToString(), "Wrong value in From[0], message 2");
+			Assert.AreEqual ("jeff@xamarin.com", msgs[0].To[0].ToString(), "Wrong value in To[0], message 1");
+			Assert.AreEqual ("gg@dndg.it", msgs[1].To[0].ToString(), "Wrong value in To[0], message 2");
 		}
 	}
 }
