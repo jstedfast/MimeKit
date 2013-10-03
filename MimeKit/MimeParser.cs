@@ -929,7 +929,7 @@ namespace MimeKit {
 			return found;
 		}
 
-		unsafe BoundaryType ScanMimePartContent (byte* inbuf, MimePart part)
+		unsafe BoundaryType ConstructMimePart (MimePart part, byte* inbuf)
 		{
 			var memory = new MemoryBlockStream ();
 			var found = ScanContent (inbuf, memory);
@@ -941,7 +941,7 @@ namespace MimeKit {
 			return found;
 		}
 
-		unsafe BoundaryType ScanMessagePart (byte* inbuf, MessagePart part)
+		unsafe BoundaryType ConstructMessagePart (MessagePart part, byte* inbuf)
 		{
 			BoundaryType found;
 
@@ -981,31 +981,22 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers);
 			var type = GetContentType (null);
 
-			if (type.Matches ("multipart", "*")) {
-				message.Body = ConstructMultipart (inbuf, type, true, out found);
-			} else {
-				message.Body = ConstructEntity (inbuf, type, true, out found);
-			}
+			var entity = MimeEntity.Create (options, type, headers, true);
+			message.Body = entity;
+
+			if (entity is Multipart)
+				found = ConstructMultipart ((Multipart) entity, inbuf);
+			else if (entity is MessagePart)
+				found = ConstructMessagePart ((MessagePart) entity, inbuf);
+			else
+				found = ConstructMimePart ((MimePart) entity, inbuf);
 
 			part.Message = message;
 
 			return found;
 		}
 
-		unsafe MimeEntity ConstructEntity (byte* inbuf, ContentType type, bool toplevel, out BoundaryType found)
-		{
-			var entity = MimeEntity.Create (options, type, headers, toplevel);
-
-			if (entity is MessagePart) {
-				found = ScanMessagePart (inbuf, (MessagePart) entity);
-			} else {
-				found = ScanMimePartContent (inbuf, (MimePart) entity);
-			}
-
-			return entity;
-		}
-
-		unsafe BoundaryType ScanMultipartPreambleOrEpilogue (byte* inbuf, Multipart multipart, bool preamble)
+		unsafe BoundaryType MultipartScanPreambleOrEpilogue (Multipart multipart, byte* inbuf, bool preamble)
 		{
 			using (var memory = new MemoryStream ()) {
 				var found = ScanContent (inbuf, memory);
@@ -1019,10 +1010,9 @@ namespace MimeKit {
 			}
 		}
 
-		unsafe BoundaryType ScanMultipartSubparts (byte* inbuf, Multipart multipart)
+		unsafe BoundaryType MultipartScanSubparts (Multipart multipart, byte* inbuf)
 		{
 			BoundaryType found;
-			MimeEntity entity;
 
 			do {
 				// skip over the boundary marker
@@ -1038,11 +1028,14 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
+				var entity = MimeEntity.Create (options, type, headers, false);
 
-				if (type.Matches ("multipart", "*"))
-					entity = ConstructMultipart (inbuf, type, false, out found);
+				if (entity is Multipart)
+					found = ConstructMultipart ((Multipart) entity, inbuf);
+				else if (entity is MessagePart)
+					found = ConstructMessagePart ((MessagePart) entity, inbuf);
 				else
-					entity = ConstructEntity (inbuf, type, false, out found);
+					found = ConstructMimePart ((MimePart) entity, inbuf);
 
 				multipart.Add (entity);
 			} while (found == BoundaryType.Boundary && FoundImmediateBoundary (inbuf, false));
@@ -1063,36 +1056,34 @@ namespace MimeKit {
 			bounds.RemoveAt (0);
 		}
 
-		unsafe Multipart ConstructMultipart (byte* inbuf, ContentType type, bool toplevel, out BoundaryType found)
+		unsafe BoundaryType ConstructMultipart (Multipart multipart, byte* inbuf)
 		{
-			var multipart = (Multipart) MimeEntity.Create (options, type, headers, toplevel);
+			var boundary = multipart.Boundary;
 
-			var boundary = type.Parameters["boundary"];
 			if (boundary == null) {
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 
 				// Note: this will scan all content into the preamble...
-				found = ScanMultipartPreambleOrEpilogue (inbuf, multipart, true);
-				return multipart;
+				return MultipartScanPreambleOrEpilogue (multipart, inbuf, true);
 			}
 
 			PushBoundary (boundary);
 
-			found = ScanMultipartPreambleOrEpilogue (inbuf, multipart, true);
+			var found = MultipartScanPreambleOrEpilogue (multipart, inbuf, true);
 			if (found == BoundaryType.Boundary)
-				found = ScanMultipartSubparts (inbuf, multipart);
+				found = MultipartScanSubparts (multipart, inbuf);
 
 			if (found == BoundaryType.EndBoundary && FoundImmediateBoundary (inbuf, true)) {
 				// consume the end boundary and read the epilogue (if there is one)
 				SkipLine (inbuf);
 				PopBoundary ();
-				found = ScanMultipartPreambleOrEpilogue (inbuf, multipart, false);
+				found = MultipartScanPreambleOrEpilogue (multipart, inbuf, false);
 			} else {
 				// We either found the end of the stream or we found a parent's boundary
 				PopBoundary ();
 			}
 
-			return multipart;
+			return found;
 		}
 
 		unsafe MimeEntity ParseEntity (byte* inbuf)
@@ -1105,12 +1096,14 @@ namespace MimeKit {
 
 			var type = GetContentType (null);
 			BoundaryType found;
-			MimeEntity entity;
 
-			if (type.Matches ("multipart", "*"))
-				entity = ConstructMultipart (inbuf, type, true, out found);
+			var entity = MimeEntity.Create (options, type, headers, true);
+			if (entity is Multipart)
+				found = ConstructMultipart ((Multipart) entity, inbuf);
+			else if (entity is MessagePart)
+				found = ConstructMessagePart ((MessagePart) entity, inbuf);
 			else
-				entity = ConstructEntity (inbuf, type, true, out found);
+				found = ConstructMimePart ((MimePart) entity, inbuf);
 
 			if (found != BoundaryType.Eos)
 				state = MimeParserState.Complete;
@@ -1140,9 +1133,9 @@ namespace MimeKit {
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
 				switch (Step (inbuf)) {
-					case MimeParserState.Error:
+				case MimeParserState.Error:
 					throw new Exception ("Failed to find mbox From marker.");
-					case MimeParserState.Eos:
+				case MimeParserState.Eos:
 					throw new Exception ("End of stream.");
 				}
 			}
@@ -1176,11 +1169,15 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
+			var entity = MimeEntity.Create (options, type, headers, true);
+			message.Body = entity;
 
-			if (type.Matches ("multipart", "*"))
-				message.Body = ConstructMultipart (inbuf, type, true, out found);
+			if (entity is Multipart)
+				found = ConstructMultipart ((Multipart) entity, inbuf);
+			else if (entity is MessagePart)
+				found = ConstructMessagePart ((MessagePart) entity, inbuf);
 			else
-				message.Body = ConstructEntity (inbuf, type, true, out found);
+				found = ConstructMimePart ((MimePart) entity, inbuf);
 
 			if (found != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
