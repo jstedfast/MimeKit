@@ -28,11 +28,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Text;
+using System.Security.Cryptography;
 
 using NUnit.Framework;
 
 using MimeKit;
-using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -76,6 +77,58 @@ namespace UnitTests {
 			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msgs[1].From[0].ToString(), "Wrong value in From[0], message 2");
 			Assert.AreEqual ("jeff@xamarin.com", msgs[0].To[0].ToString(), "Wrong value in To[0], message 1");
 			Assert.AreEqual ("gg@dndg.it", msgs[1].To[0].ToString(), "Wrong value in To[0], message 2");
+		}
+
+		[Test]
+		public void TestMultipartAlternative ()
+		{
+			var msg = new Multipart ("alternative",
+				new TextPart ("plain", "Just a short message to say hello!"),
+				new TextPart ("html", "<html><head></head><body><strong>Just a short message to say hello!</strong></body></html>")
+			);
+
+			Assert.AreEqual (2, msg.Count, "Parts count is wrong");
+			Assert.AreEqual ("plain", msg[0].ContentType.MediaSubtype, "Parts[0] has wrong media subtype");
+			Assert.AreEqual ("html", msg[1].ContentType.MediaSubtype, "Parts[1] has wrong media subtype");
+			Assert.AreEqual ("Just a short message to say hello!", ((TextPart)msg[0]).Text, "Parts[0] containes wrong text");
+			Assert.AreEqual ("<html><head></head><body><strong>Just a short message to say hello!</strong></body></html>", 
+				((TextPart)msg[1]).Text, "Parts[1] containes wrong text");
+		}
+
+		[Test]
+		public void TestMimePartContentObject ()
+		{
+			byte[] data = Encoding.ASCII.GetBytes ("abcd");
+
+			// Checksum will be wrong if content is encoded in any way.
+			string checksum;
+			using (var md5 = MD5.Create ())
+				checksum = Convert.ToBase64String (md5.ComputeHash (data));
+
+			var msg = new MimePart ("application", "octet-stream",
+				new ContentObject (new MemoryStream (data), ContentEncoding.Binary)
+			);
+
+			Assert.AreEqual (checksum, msg.ComputeContentMd5 (), "Content MD5 is wrong");
+			Assert.AreEqual (ContentEncoding.Binary, msg.ContentObject.Encoding, "ContentEncoding is wrong");
+		}
+
+		[Test]
+		public void TestMimePartStream ()
+		{
+			byte[] data = Encoding.ASCII.GetBytes ("abcd");
+
+
+			var msg = new MimePart ("application", "octet-stream",
+				new MemoryStream (data)
+			);
+
+			var buffer = new MemoryStream ();
+			msg.ContentObject.WriteTo (buffer);
+			buffer.Seek (0, SeekOrigin.Begin);
+
+			Assert.AreEqual (ContentEncoding.Base64, msg.ContentObject.Encoding, "ContentEncoding is wrong");
+			Assert.AreEqual (data, buffer.ToArray (), "ContentEncoding is wrong");
 		}
 	}
 }
