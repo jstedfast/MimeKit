@@ -57,6 +57,55 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <param name="args">An array of initialization parameters: headers and part content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		public MimePart (string mediaType, string mediaSubtype, params object[] args) : this (mediaType, mediaSubtype)
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			IContentObject content = null;
+
+			foreach (object obj in args) {
+				if (obj == null || base.TryInit (obj))
+					continue;
+
+				IContentObject co = obj as IContentObject;
+				if (co != null) {
+					if (content != null)
+						throw new ArgumentException ("ContentObject should not be specified more than once.");
+					content = co;
+					continue;
+				}
+
+				Stream s = obj as Stream;
+				if (s != null) {
+					if (content != null)
+						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
+					// Use default as specified by ContentObject ctor when building a new MimePart.
+					content = new ContentObject (s, ContentEncoding.Default);
+					continue;
+				}
+
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
+			}
+
+			if (content != null)
+				ContentObject = content;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified media type and subtype.
+		/// </summary>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -165,7 +214,7 @@ namespace MimeKit {
 		/// Gets or sets the content of the mime part.
 		/// </summary>
 		/// <value>The content of the mime part.</value>
-		public ContentObject ContentObject {
+		public IContentObject ContentObject {
 			get; set;
 		}
 

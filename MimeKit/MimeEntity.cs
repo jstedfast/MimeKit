@@ -94,6 +94,30 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Try to use given object to initialize itself.
+		/// </summary>
+		/// <param name="obj">The object.</param>
+		/// <returns><c>true</c> if the object was recognized and used; <c>false</c> otherwise.</returns>
+		protected bool TryInit (object obj)
+		{
+			// The base MimeEntity class only knows about Headers.
+			Header header = obj as Header;
+			if (header != null) {
+				Headers.Add (header);
+				return true;
+			}
+
+			IEnumerable<Header> headers = obj as IEnumerable<Header>;
+			if (headers != null) {
+				foreach (Header h in headers)
+					Headers.Add (h);
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
 		/// <value>The list of headers.</value>

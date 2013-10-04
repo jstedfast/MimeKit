@@ -45,6 +45,42 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
 		/// <param name="subtype">The message subtype.</param>
+		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		public MessagePart (string subtype, params object[] args) : this (subtype)
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			MimeMessage message = null;
+
+			foreach (object obj in args) {
+				if (obj == null || base.TryInit (obj))
+					continue;
+
+				MimeMessage m = obj as MimeMessage;
+				if (m != null) {
+					if (message != null)
+						throw new ArgumentException ("MimeMessage should not be specified more than once.");
+					message = m;
+					continue;
+				}
+
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
+			}
+
+			if (message != null)
+				Message = message;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
+		/// </summary>
+		/// <param name="subtype">The message subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
 		/// </exception>

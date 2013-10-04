@@ -48,6 +48,55 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <param name="subtype">The media subtype.</param>
+		/// <param name="args">An array of initialization parameters: headers, message encoding and text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		public TextPart (string subtype, params object[] args) : this (subtype)
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			// Default to UTF8 if not given.
+			Encoding encoding = null;
+
+			// Used only in case some text is provided.
+			StringBuilder sb = null;
+
+			foreach (object obj in args) {
+				if (obj == null || base.TryInit (obj))
+					continue;
+
+				Encoding e = obj as Encoding;
+				if (e != null) {
+					if (encoding != null)
+						throw new ArgumentException ("Encoding should not be specified more than once.");
+					encoding = e;
+					continue;
+				}
+
+				string text = obj as string;
+				if (text != null) {
+					if (sb == null)
+						sb = new StringBuilder ();
+					sb.Append (text);
+					continue;
+				}
+
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
+			}
+
+			if (sb != null)
+				SetText (encoding ?? Encoding.UTF8, sb.ToString ());
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// class with the specified text subtype.
+		/// </summary>
+		/// <param name="subtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
 		/// </exception>
