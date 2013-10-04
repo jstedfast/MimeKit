@@ -88,10 +88,8 @@ namespace MimeKit {
 				if (s != null) {
 					if (content != null)
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
-					// We use a sensible default that behaves well with old SMTP servers
-					// and binary data. If better control over the encoding is needed the
-					// cliente should just use an IContentObject.
-					content = new ContentObject (s, ContentEncoding.Base64);
+					// Use default as specified by ContentObject ctor when building a new MimePart.
+					content = new ContentObject (s, ContentEncoding.Default);
 					continue;
 				}
 

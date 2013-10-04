@@ -124,10 +124,10 @@ namespace UnitTests {
 			);
 
 			var buffer = new MemoryStream ();
-			msg.ContentObject.WriteTo (buffer);
+			msg.ContentObject.DecodeTo (buffer);
 			buffer.Seek (0, SeekOrigin.Begin);
 
-			Assert.AreEqual (ContentEncoding.Base64, msg.ContentObject.Encoding, "ContentEncoding is wrong");
+			Assert.AreEqual (ContentEncoding.Default, msg.ContentObject.Encoding, "ContentEncoding is wrong");
 			Assert.AreEqual (data, buffer.ToArray (), "ContentEncoding is wrong");
 		}
 	}
