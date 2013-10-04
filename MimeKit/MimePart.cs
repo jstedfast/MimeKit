@@ -57,6 +57,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <param name="args">An array of initialization parameters: headers and part content.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -69,12 +70,36 @@ namespace MimeKit {
 			if (args == null)
 				throw new ArgumentNullException ("args");
 
+			IContentObject content = null;
+
 			foreach (object obj in args) {
 				if (obj == null || base.TryInit (obj))
 					continue;
 
-				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+				IContentObject co = obj as IContentObject;
+				if (co != null) {
+					if (content != null)
+						throw new ArgumentException ("ContentObject should not be specified more than once.");
+					content = co;
+					continue;
+				}
+
+				Stream s = obj as Stream;
+				if (s != null) {
+					if (content != null)
+						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
+					// We use a sensible default that behaves well with old SMTP servers
+					// and binary data. If better control over the encoding is needed the
+					// cliente should just use an IContentObject.
+					content = new ContentObject (s, ContentEncoding.Base64);
+					continue;
+				}
+
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
+
+			if (content != null)
+				ContentObject = content;
 		}
 
 		/// <summary>
@@ -191,7 +216,7 @@ namespace MimeKit {
 		/// Gets or sets the content of the mime part.
 		/// </summary>
 		/// <value>The content of the mime part.</value>
-		public ContentObject ContentObject {
+		public IContentObject ContentObject {
 			get; set;
 		}
 
