@@ -72,7 +72,7 @@ namespace MimeKit {
 				Encoding e = obj as Encoding;
 				if (e != null) {
 					if (encoding != null)
-						throw new ArgumentException("Encoding should not be specified more than once.");
+						throw new ArgumentException ("Encoding should not be specified more than once.");
 					encoding = e;
 					continue;
 				}
@@ -85,7 +85,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
 			if (sb != null)

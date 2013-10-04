@@ -72,7 +72,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 		}
 

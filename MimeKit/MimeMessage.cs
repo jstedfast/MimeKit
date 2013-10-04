@@ -132,12 +132,12 @@ namespace MimeKit {
 				MimeEntity e = obj as MimeEntity;
 				if (e != null) {
 					if (entity != null)
-						throw new ArgumentException("Message body should not be specified more than once.");
+						throw new ArgumentException ("Message body should not be specified more than once.");
 					entity = e;
 					continue;
 				}
 
-				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
 			if (entity != null)

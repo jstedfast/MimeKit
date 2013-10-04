@@ -65,12 +65,12 @@ namespace MimeKit {
 				MimeMessage m = obj as MimeMessage;
 				if (m != null) {
 					if (message != null)
-						throw new ArgumentException("MimeMessage should not be specified more than once.");
+						throw new ArgumentException ("MimeMessage should not be specified more than once.");
 					message = m;
 					continue;
 				}
 
-				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
 			if (message != null)
