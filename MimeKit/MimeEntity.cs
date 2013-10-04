@@ -400,12 +400,14 @@ namespace MimeKit {
 			var subtype = ctype.MediaSubtype.ToLowerInvariant ();
 			var type = ctype.MediaType.ToLowerInvariant ();
 
-			var mimeType = string.Format ("{0}/{1}", type, subtype);
-			lock (CustomMimeTypes) {
-				MimeEntityConstructor ctor;
+			if (CustomMimeTypes.Count > 0) {
+				var mimeType = string.Format ("{0}/{1}", type, subtype);
+				lock (CustomMimeTypes) {
+					MimeEntityConstructor ctor;
 
-				if (CustomMimeTypes.TryGetValue (mimeType, out ctor))
-					return ctor (options, ctype, headers, toplevel);
+					if (CustomMimeTypes.TryGetValue (mimeType, out ctor))
+						return ctor (options, ctype, headers, toplevel);
+				}
 			}
 
 			if (type == "message") {
