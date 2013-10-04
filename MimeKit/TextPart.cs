@@ -50,7 +50,7 @@ namespace MimeKit {
 		/// <param name="subtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers, message encoding and text.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="subtype"/> is <c>null</c>.<para>
+		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
 		/// </exception>

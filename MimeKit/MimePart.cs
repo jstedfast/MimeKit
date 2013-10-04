@@ -61,6 +61,32 @@ namespace MimeKit {
 		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		public MimePart (string mediaType, string mediaSubtype, params object[] args) : this (mediaType, mediaSubtype)
+		{
+			if (args == null)
+				throw new ArgumentNullException ("args");
+
+			foreach (object obj in args) {
+				if (obj == null || base.TryInit (obj))
+					continue;
+
+				throw new ArgumentException("Unknown initialization parameter: " + obj.GetType());
+			}
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified media type and subtype.
+		/// </summary>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
 		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
