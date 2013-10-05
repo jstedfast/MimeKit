@@ -43,7 +43,7 @@ namespace UnitTests {
 		[TestFixtureSetUp]
 		public void Setup ()
 		{
-			var bytes = new byte[10 * 1024];
+			var bytes = new byte[9 * 1024];
 			int position = 0;
 
 			random = new Random ();
