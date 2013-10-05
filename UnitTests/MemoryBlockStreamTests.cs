@@ -77,14 +77,13 @@ namespace UnitTests {
 		public void TestReading ()
 		{
 			do {
-				int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
-				int nread = blocks.Read (buf, 0, n);
-				int mread = master.Read (mbuf, 0, n);
+				int nread = blocks.Read (buf, 0, buf.Length);
+				int mread = master.Read (mbuf, 0, mbuf.Length);
 
 				Assert.AreEqual (mread, nread, "Did not read the expected number of bytes from the memory block stream");
 				Assert.AreEqual (master.Position, blocks.Position, "The memory block stream's position did not match");
 
-				for (int i = 0; i < n; i++)
+				for (int i = 0; i < mread; i++)
 					Assert.AreEqual (mbuf[i], buf[i], "The bytes read do not match");
 			} while (master.Position < master.Length);
 		}
