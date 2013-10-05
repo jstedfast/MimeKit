@@ -371,7 +371,7 @@ namespace MimeKit {
 			Headers.WriteTo (stream);
 
 			if (Body == null) {
-				stream.WriteByte ((byte) '\n');
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			} else {
 				Body.WriteTo (stream);
 			}
