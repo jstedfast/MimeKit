@@ -37,7 +37,7 @@ using System.Runtime.InteropServices;
 // about updating it. The AssemblyFileVersion is the official release version while
 // the AssemblyInformationalVersion is just used as a display version.
 //
-// Based on my current understanding, AsemblyVersion is essentially the "API Version"
+// Based on my current understanding, AssemblyVersion is essentially the "API Version"
 // and so should only be updated when the API changes. The other 2 Version attributes
 // represent the "Release Version".
 //
@@ -48,6 +48,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("0.7")]
-[assembly: AssemblyFileVersion ("0.7.0.0")]
-[assembly: AssemblyVersion ("0.7.0.0")]
+[assembly: AssemblyInformationalVersion ("0.8")]
+[assembly: AssemblyFileVersion ("0.8.0.0")]
+[assembly: AssemblyVersion ("0.8.0.0")]
