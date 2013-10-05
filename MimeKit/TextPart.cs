@@ -126,26 +126,25 @@ namespace MimeKit {
 		public string Text {
 			get {
 				var charset = ContentType.Parameters["charset"];
-				byte[] content;
 
 				using (var memory = new MemoryStream ()) {
 					ContentObject.DecodeTo (memory);
-					content = memory.ToArray ();
-				}
 
-				Encoding encoding = null;
+					var content = memory.GetBuffer ();
+					Encoding encoding = null;
 
-				if (charset != null) {
-					try {
-						encoding = CharsetUtils.GetEncoding (charset);
-					} catch (NotSupportedException) {
+					if (charset != null) {
+						try {
+							encoding = CharsetUtils.GetEncoding (charset);
+						} catch (NotSupportedException) {
+						}
 					}
+
+					if (encoding == null)
+						encoding = Encoding.GetEncoding (28591); // iso-8859-1
+
+					return encoding.GetString (content, 0, (int) memory.Length);
 				}
-
-				if (encoding == null)
-					encoding = Encoding.GetEncoding (28591); // iso-8859-1
-
-				return encoding.GetString (content);
 			}
 		}
 
