@@ -100,12 +100,18 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.MimeEntity"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
+		/// </exception>
 		public MimeMessage (params object[] args) : this (ParserOptions.Default.Clone ())
 		{
 			if (args == null)
 				throw new ArgumentNullException ("args");
 
-			MimeEntity entity = null;
+			MimeEntity body = null;
+
 			foreach (object obj in args) {
 				if (obj == null)
 					continue;
@@ -113,35 +119,38 @@ namespace MimeKit {
 				// Just add the headers and let the events (already setup) keep the
 				// addresses in sync.
 
-				Header header = obj as Header;
+				var header = obj as Header;
 				if (header != null) {
 					if (!header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 						Headers.Add (header);
+
 					continue;
 				}
 
-				IEnumerable<Header> headers = obj as IEnumerable<Header>;
+				var headers = obj as IEnumerable<Header>;
 				if (headers != null) {
-					foreach (Header h in headers) {
+					foreach (var h in headers) {
 						if (!h.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 							Headers.Add (h);
 					}
+
 					continue;						
 				}
 
-				MimeEntity e = obj as MimeEntity;
-				if (e != null) {
-					if (entity != null)
+				var entity = obj as MimeEntity;
+				if (entity != null) {
+					if (body != null)
 						throw new ArgumentException ("Message body should not be specified more than once.");
-					entity = e;
+
+					body = entity;
 					continue;
 				}
 
 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
-			if (entity != null)
-				Body = entity;
+			if (body != null)
+				Body = body;
 
 			// Do exactly as in the parameterless constructor but avoid setting a default
 			// value if an header already provided one.

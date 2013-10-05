@@ -49,7 +49,6 @@ namespace MimeKit {
 	public abstract class MimeEntity
 	{
 		static readonly Dictionary<string, MimeEntityConstructor> CustomMimeTypes = new Dictionary<string, MimeEntityConstructor> ();
-		protected bool IsInitializing { get; private set; }
 		ContentDisposition disposition;
 		string contentId;
 
@@ -115,6 +114,14 @@ namespace MimeKit {
 			}
 
 			return false;
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this instance is initializing.
+		/// </summary>
+		/// <value><c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
+		protected bool IsInitializing {
+			get; private set;
 		}
 
 		/// <summary>
