@@ -194,12 +194,13 @@ namespace MimeKit.IO
 			if (position == MaxCapacity)
 				return 0;
 
+			int max = Math.Min ((int) (length - position), count);
 			int startIndex = (int) (position % BlockSize);
 			int block = (int) (position / BlockSize);
 			int nread = 0;
 
-			while (nread < count && block < blocks.Count) {
-				int n = Math.Min ((int) BlockSize - startIndex, count - nread);
+			while (nread < max && block < blocks.Count) {
+				int n = Math.Min ((int) BlockSize - startIndex, max - nread);
 				Buffer.BlockCopy (blocks[block], startIndex, buffer, offset + nread, n);
 				startIndex = 0;
 				nread += n;
@@ -367,10 +368,10 @@ namespace MimeKit.IO
 					capacity -= BlockSize;
 				}
 
-				// reset the range of bytes bwteen the new length and the old length to 0
+				// reset the range of bytes between the new length and the old length to 0
 				int count = (int) (Math.Min (length, capacity) - value);
-				int startIndex = (int) (position % BlockSize);
-				int block = (int) (position / BlockSize);
+				int startIndex = (int) (value % BlockSize);
+				int block = (int) (value / BlockSize);
 
 				Array.Clear (blocks[block], startIndex, count);
 			}
