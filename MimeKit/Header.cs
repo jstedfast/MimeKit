@@ -173,7 +173,6 @@ namespace MimeKit {
 			var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
 
 			RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
-			Offset = null;
 			OnChanged ();
 		}
 

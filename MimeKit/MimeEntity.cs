@@ -214,7 +214,10 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void WriteTo (FormatOptions options, Stream stream)
 		{
-			Headers.WriteTo (options, stream);
+			if (options.WriteHeaders)
+				Headers.WriteTo (options, stream);
+			else
+				options.WriteHeaders = true;
 
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 		}

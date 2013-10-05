@@ -31,6 +31,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
+using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
@@ -377,12 +378,27 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
-			Headers.WriteTo (stream);
-
 			if (Body == null) {
+				Headers.WriteTo (stream);
+
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			} else {
-				Body.WriteTo (stream);
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					foreach (var header in MergeHeaders ()) {
+						var name = Encoding.ASCII.GetBytes (header.Field);
+
+						filtered.Write (name, 0, name.Length);
+						filtered.WriteByte ((byte) ':');
+						filtered.Write (header.RawValue, 0, header.RawValue.Length);
+					}
+
+					filtered.Flush ();
+				}
+
+				options.WriteHeaders = false;
+				Body.WriteTo (options, stream);
 			}
 		}
 
@@ -396,6 +412,34 @@ namespace MimeKit {
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
+		}
+
+		IEnumerable<Header> MergeHeaders ()
+		{
+			int mesgIndex = 0, bodyIndex = 0;
+			var bodyHeader = Body.Headers[0];
+			var mesgHeader = Headers[0];
+
+			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
+				if (!bodyHeader.Offset.HasValue)
+					break;
+
+				if (mesgHeader.Offset.HasValue && mesgHeader.Offset < bodyHeader.Offset) {
+					yield return mesgHeader;
+
+					mesgHeader = Headers[++mesgIndex];
+				} else {
+					yield return bodyHeader;
+
+					bodyHeader = Headers[++bodyIndex];
+				}
+			}
+
+			while (mesgIndex < Headers.Count)
+				yield return Headers[mesgIndex++];
+
+			while (bodyIndex < Body.Headers.Count)
+				yield return Body.Headers[bodyIndex++];
 		}
 
 		void SerializeAddressList (string field, InternetAddressList list)

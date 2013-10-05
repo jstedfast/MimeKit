@@ -102,10 +102,15 @@ namespace MimeKit {
 			get { return NewLineFormats[(int) NewLineFormat]; }
 		}
 
+		internal bool WriteHeaders {
+			get; set;
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
 			Default.MaxLineLength = 72;
+			Default.WriteHeaders = true;
 
 			if (Environment.NewLine.Length == 1)
 				Default.NewLineFormat = NewLineFormat.Unix;
@@ -121,6 +126,7 @@ namespace MimeKit {
 			var options = new FormatOptions ();
 			options.MaxLineLength = MaxLineLength;
 			options.NewLineFormat = NewLineFormat;
+			options.WriteHeaders = true;
 			return options;
 		}
 	}
