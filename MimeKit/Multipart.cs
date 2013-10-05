@@ -51,11 +51,14 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
 		/// <param name="subtype">The multipart media sub-type.</param>
-		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
+		/// <param name="args">An array of initialization parameters: headers and MIME entities.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="args"/> contains one or more arguments of an unknown type.
 		/// </exception>
 		public Multipart (string subtype, params object[] args) : this (subtype)
 		{
@@ -63,12 +66,12 @@ namespace MimeKit {
 				throw new ArgumentNullException ("args");
 
 			foreach (object obj in args) {
-				if (obj == null || base.TryInit (obj))
+				if (obj == null || TryInit (obj))
 					continue;
 
-				MimeEntity e = obj as MimeEntity;
-				if (e != null) {
-					Add(e);
+				var entity = obj as MimeEntity;
+				if (entity != null) {
+					Add (entity);
 					continue;
 				}
 

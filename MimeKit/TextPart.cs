@@ -48,11 +48,16 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <param name="subtype">The media subtype.</param>
-		/// <param name="args">An array of initialization parameters: headers, message encoding and text.</param>
+		/// <param name="args">An array of initialization parameters: headers, charset encoding and text.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="args"/> contains more than one <see cref="System.Text.Encoding"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
 		/// </exception>
 		public TextPart (string subtype, params object[] args) : this (subtype)
 		{
@@ -63,33 +68,35 @@ namespace MimeKit {
 			Encoding encoding = null;
 
 			// Used only in case some text is provided.
-			StringBuilder sb = null;
+			StringBuilder builder = null;
 
 			foreach (object obj in args) {
-				if (obj == null || base.TryInit (obj))
+				if (obj == null || TryInit (obj))
 					continue;
 
-				Encoding e = obj as Encoding;
-				if (e != null) {
+				var enc = obj as Encoding;
+				if (enc != null) {
 					if (encoding != null)
 						throw new ArgumentException ("Encoding should not be specified more than once.");
-					encoding = e;
+
+					encoding = enc;
 					continue;
 				}
 
-				string text = obj as string;
+				var text = obj as string;
 				if (text != null) {
-					if (sb == null)
-						sb = new StringBuilder ();
-					sb.Append (text);
+					if (builder == null)
+						builder = new StringBuilder ();
+
+					builder.Append (text);
 					continue;
 				}
 
 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
-			if (sb != null)
-				SetText (encoding ?? Encoding.UTF8, sb.ToString ());
+			if (builder != null)
+				SetText (encoding ?? Encoding.UTF8, builder.ToString ());
 		}
 
 		/// <summary>

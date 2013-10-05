@@ -51,6 +51,11 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.MimeMessage"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
+		/// </exception>
 		public MessagePart (string subtype, params object[] args) : this (subtype)
 		{
 			if (args == null)
@@ -59,14 +64,15 @@ namespace MimeKit {
 			MimeMessage message = null;
 
 			foreach (object obj in args) {
-				if (obj == null || base.TryInit (obj))
+				if (obj == null || TryInit (obj))
 					continue;
 
-				MimeMessage m = obj as MimeMessage;
-				if (m != null) {
+				var mesg = obj as MimeMessage;
+				if (mesg != null) {
 					if (message != null)
 						throw new ArgumentException ("MimeMessage should not be specified more than once.");
-					message = m;
+
+					message = mesg;
 					continue;
 				}
 

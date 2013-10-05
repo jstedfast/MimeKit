@@ -65,6 +65,12 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.IContentObject"/> or
+		/// <see cref="System.IO.Stream"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
+		/// </exception>
 		public MimePart (string mediaType, string mediaSubtype, params object[] args) : this (mediaType, mediaSubtype)
 		{
 			if (args == null)
@@ -73,13 +79,14 @@ namespace MimeKit {
 			IContentObject content = null;
 
 			foreach (object obj in args) {
-				if (obj == null || base.TryInit (obj))
+				if (obj == null || TryInit (obj))
 					continue;
 
 				IContentObject co = obj as IContentObject;
 				if (co != null) {
 					if (content != null)
 						throw new ArgumentException ("ContentObject should not be specified more than once.");
+
 					content = co;
 					continue;
 				}
@@ -88,6 +95,7 @@ namespace MimeKit {
 				if (s != null) {
 					if (content != null)
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
+
 					// Use default as specified by ContentObject ctor when building a new MimePart.
 					content = new ContentObject (s, ContentEncoding.Default);
 					continue;

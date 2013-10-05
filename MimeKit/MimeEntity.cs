@@ -100,13 +100,13 @@ namespace MimeKit {
 		protected bool TryInit (object obj)
 		{
 			// The base MimeEntity class only knows about Headers.
-			Header header = obj as Header;
+			var header = obj as Header;
 			if (header != null) {
 				Headers.Add (header);
 				return true;
 			}
 
-			IEnumerable<Header> headers = obj as IEnumerable<Header>;
+			var headers = obj as IEnumerable<Header>;
 			if (headers != null) {
 				foreach (Header h in headers)
 					Headers.Add (h);
