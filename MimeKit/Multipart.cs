@@ -260,7 +260,7 @@ namespace MimeKit {
 
 			base.WriteTo (options, stream);
 
-			if (RawPreamble != null) {
+			if (RawPreamble != null && RawPreamble.Length > 0) {
 				stream.Write (RawPreamble, 0, RawPreamble.Length);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
@@ -271,12 +271,13 @@ namespace MimeKit {
 				stream.Write (boundary, 0, boundary.Length - 2);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				part.WriteTo (options, stream);
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
 			stream.Write (boundary, 0, boundary.Length);
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
-			if (RawEpilogue != null) {
+			if (RawEpilogue != null && RawEpilogue.Length > 0) {
 				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
