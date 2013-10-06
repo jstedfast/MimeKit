@@ -104,8 +104,6 @@ Just for fun....  -- Nathaniel<nl>
 ";
 			string result;
 
-			var blah = Encoding.UTF8.GetString (Encoding.UTF8.GetBytes (rawMessageText));
-
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
 				var message = parser.ParseMessage ();
