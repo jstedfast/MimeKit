@@ -1097,7 +1097,9 @@ namespace MimeKit {
 			var type = GetContentType (null);
 			BoundaryType found;
 
-			var entity = MimeEntity.Create (options, type, headers, true);
+			// Note: we pass 'false' as the 'toplevel' argument here because
+			// we want the entity to consume all of the headers.
+			var entity = MimeEntity.Create (options, type, headers, false);
 			if (entity is Multipart)
 				found = ConstructMultipart ((Multipart) entity, inbuf);
 			else if (entity is MessagePart)
