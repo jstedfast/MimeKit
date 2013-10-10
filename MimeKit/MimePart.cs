@@ -148,7 +148,7 @@ namespace MimeKit {
 					throw new ArgumentOutOfRangeException ("value");
 
 				if (value.HasValue)
-					SetHeader ("Content-Duration", value.ToString ());
+					SetHeader ("Content-Duration", value.Value.ToString ());
 				else
 					RemoveHeader ("Content-Duration");
 			}

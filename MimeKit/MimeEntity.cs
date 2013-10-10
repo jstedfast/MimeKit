@@ -318,7 +318,11 @@ namespace MimeKit {
 			case HeaderListChangedAction.Changed:
 				switch (id) {
 				case HeaderId.ContentDisposition:
-					ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition);
+					if (disposition != null)
+						disposition.Changed -= ContentDispositionChanged;
+
+					if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
+						disposition.Changed += ContentDispositionChanged;
 					break;
 				case HeaderId.ContentId:
 					contentId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
