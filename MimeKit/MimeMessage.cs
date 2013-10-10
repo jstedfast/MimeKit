@@ -550,9 +550,11 @@ namespace MimeKit {
 			if (type == HeaderId.Unknown)
 				return;
 
-			if (type == HeaderId.References)
+			if (type == HeaderId.References) {
+				references.Changed -= ReferencesChanged;
 				references.Clear ();
-			else if (type == HeaderId.InReplyTo)
+				references.Changed += ReferencesChanged;
+			} else if (type == HeaderId.InReplyTo)
 				inreplyto = null;
 
 			foreach (var header in Headers) {
@@ -565,8 +567,10 @@ namespace MimeKit {
 						return;
 					break;
 				case HeaderId.References:
+					references.Changed -= ReferencesChanged;
 					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
 						references.Add (msgid);
+					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
 					inreplyto = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
@@ -601,8 +605,10 @@ namespace MimeKit {
 					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
 					break;
 				case HeaderId.References:
+					references.Changed -= ReferencesChanged;
 					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
 						references.Add (msgid);
+					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
 					inreplyto = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
@@ -631,7 +637,10 @@ namespace MimeKit {
 					kvp.Value.Changed += InternetAddressListChanged;
 				}
 
+				references.Changed -= ReferencesChanged;
 				references.Clear ();
+				references.Changed += ReferencesChanged;
+
 				inreplyto = null;
 				messageId = null;
 				version = null;
