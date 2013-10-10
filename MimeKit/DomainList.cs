@@ -63,8 +63,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <returns>The index of the requested domain; otherwise <value>-1</value>.</returns>
 		/// <param name="domain">The domain.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
 		public int IndexOf (string domain)
 		{
+			if (domain == null)
+				throw new ArgumentNullException ("domain");
+
 			return domains.IndexOf (domain);
 		}
 
@@ -160,8 +166,14 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the specified domain is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="domain">The domain.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domain"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (string domain)
 		{
+			if (domain == null)
+				throw new ArgumentNullException ("domain");
+
 			return domains.Contains (domain);
 		}
 
@@ -192,6 +204,9 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (string domain)
 		{
+			if (domain == null)
+				throw new ArgumentNullException ("domain");
+
 			if (domains.Remove (domain)) {
 				OnChanged ();
 				return true;

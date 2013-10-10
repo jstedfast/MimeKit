@@ -45,9 +45,10 @@ namespace MimeKit {
 		};
 
 		readonly Dictionary<string, InternetAddressList> addresses;
-		IList<string> inreplyto, references;
+		readonly MessageIdList references;
 		DateTimeOffset date;
 		string messageId;
+		string inreplyto;
 		Version version;
 
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
@@ -62,8 +63,9 @@ namespace MimeKit {
 				addresses.Add (name, list);
 			}
 
-			references = new List<string> ();
-			inreplyto = new List<string> ();
+			references = new MessageIdList ();
+			references.Changed += ReferencesChanged;
+			inreplyto = null;
 
 			Headers.Changed += HeadersChanged;
 
@@ -88,8 +90,9 @@ namespace MimeKit {
 				addresses.Add (name, list);
 			}
 
-			references = new List<string> ();
-			inreplyto = new List<string> ();
+			references = new MessageIdList ();
+			references.Changed += ReferencesChanged;
+			inreplyto = null;
 
 			Headers.Changed += HeadersChanged;
 		}
@@ -156,13 +159,13 @@ namespace MimeKit {
 			// Do exactly as in the parameterless constructor but avoid setting a default
 			// value if an header already provided one.
 
-			if (!Headers.Contains("From"))
+			if (!Headers.Contains ("From"))
 				Headers["From"] = string.Empty;
-			if (!Headers.Contains("To"))
+			if (!Headers.Contains ("To"))
 				Headers["To"] = string.Empty;
-			if (date == default(DateTimeOffset))
+			if (date == default (DateTimeOffset))
 				Date = DateTimeOffset.Now;
-			if (!Headers.Contains("Subject"))
+			if (!Headers.Contains ("Subject"))
 				Subject = string.Empty;
 		}
 
@@ -274,18 +277,18 @@ namespace MimeKit {
 		/// Gets or sets the list of references to other messages.
 		/// </summary>
 		/// <value>The references.</value>
-		public string[] References {
-			get { return references.ToArray (); }
-			// FIXME: implement a setter
+		public MessageIdList References {
+			get { return references; }
 		}
 
 		/// <summary>
-		/// Gets or sets the message id that this message is in reply to.
+		/// Gets or sets the message-id that this message is in reply to.
 		/// </summary>
 		/// <value>The message id that this message is in reply to.</value>
-		public string[] InReplyTo {
-			get { return inreplyto.ToArray (); }
-			// FIXME: implement a setter
+		public string InReplyTo {
+			get { return inreplyto; }
+			set {
+			}
 		}
 
 		/// <summary>
@@ -469,6 +472,41 @@ namespace MimeKit {
 			}
 		}
 
+		void ReferencesChanged (object sender, EventArgs e)
+		{
+			if (references.Count > 0) {
+				int lineLength = "References".Length + 1;
+				var options = FormatOptions.Default;
+				var builder = new StringBuilder ();
+
+				for (int i = 0; i < references.Count; i++) {
+					if (lineLength + references[i].Length >= options.MaxLineLength) {
+						builder.Append (options.NewLine);
+						builder.Append ('\t');
+						lineLength = 1;
+					} else {
+						builder.Append (' ');
+						lineLength++;
+					}
+
+					lineLength += references[i].Length;
+					builder.Append (references[i]);
+				}
+
+				builder.Append (options.NewLine);
+
+				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
+
+				Headers.Changed -= HeadersChanged;
+				Headers.Replace (new Header (Headers.Options, "References", raw));
+				Headers.Changed += HeadersChanged;
+			} else {
+				Headers.Changed -= HeadersChanged;
+				Headers.RemoveAll ("References");
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
 		void AddAddresses (Header header, InternetAddressList list)
 		{
 			int length = header.RawValue.Length;
@@ -515,7 +553,7 @@ namespace MimeKit {
 			if (type == HeaderId.References)
 				references.Clear ();
 			else if (type == HeaderId.InReplyTo)
-				inreplyto.Clear ();
+				inreplyto = null;
 
 			foreach (var header in Headers) {
 				if (icase.Compare (header.Field, field) != 0)
@@ -531,8 +569,7 @@ namespace MimeKit {
 						references.Add (msgid);
 					break;
 				case HeaderId.InReplyTo:
-					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
-						inreplyto.Add (msgid);
+					inreplyto = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.MessageId:
 					messageId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
@@ -568,8 +605,7 @@ namespace MimeKit {
 						references.Add (msgid);
 					break;
 				case HeaderId.InReplyTo:
-					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
-						inreplyto.Add (msgid);
+					inreplyto = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.MessageId:
 					messageId = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
@@ -596,7 +632,7 @@ namespace MimeKit {
 				}
 
 				references.Clear ();
-				inreplyto.Clear ();
+				inreplyto = null;
 				messageId = null;
 				version = null;
 				break;
