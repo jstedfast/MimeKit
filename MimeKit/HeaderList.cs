@@ -420,6 +420,9 @@ namespace MimeKit {
 				if (headers[i] == first)
 					break;
 
+				if (icase.Compare (headers[i].Field, header.Field) != 0)
+					continue;
+
 				headers[i].Changed -= HeaderChanged;
 				headers.RemoveAt (i);
 			}
