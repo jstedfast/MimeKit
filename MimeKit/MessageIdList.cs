@@ -50,10 +50,10 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the index of the requested messageId, if it exists.
+		/// Gets the index of the requested Message-Id, if it exists.
 		/// </summary>
-		/// <returns>The index of the requested messageId; otherwise <value>-1</value>.</returns>
-		/// <param name="messageId">The message-id.</param>
+		/// <returns>The index of the requested Message-Id; otherwise <value>-1</value>.</returns>
+		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
@@ -66,10 +66,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Insert the messageId at the specified index.
+		/// Insert the Message-Id at the specified index.
 		/// </summary>
-		/// <param name="index">The index to insert the messageId.</param>
-		/// <param name="messageId">The message-id to insert.</param>
+		/// <param name="index">The index to insert the Message-Id.</param>
+		/// <param name="messageId">The Message-Id to insert.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
@@ -86,7 +86,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the messageId at the specified index.
+		/// Removes the Message-Id at the specified index.
 		/// </summary>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -127,9 +127,9 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Add the specified messageId.
+		/// Add the specified Message-Id.
 		/// </summary>
-		/// <param name="messageId">The message-id.</param>
+		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
@@ -143,7 +143,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the messageId list.
+		/// Clears the Message-Id list.
 		/// </summary>
 		public void Clear ()
 		{
@@ -152,11 +152,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="MessageIdList"/> contains the specified messageId.
+		/// Checks if the <see cref="MessageIdList"/> contains the specified Message-Id.
 		/// </summary>
-		/// <returns><value>true</value> if the specified messageId is contained;
+		/// <returns><value>true</value> if the specified Message-Id is contained;
 		/// otherwise <value>false</value>.</returns>
-		/// <param name="messageId">The message-id.</param>
+		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
@@ -169,9 +169,9 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the messageIds in the <see cref="MimeKit.MessageIdList"/> to the specified array.
+		/// Copies all of the Message-Ids in the <see cref="MimeKit.MessageIdList"/> to the specified array.
 		/// </summary>
-		/// <param name="array">The array to copy the messageIds to.</param>
+		/// <param name="array">The array to copy the Message-Ids to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="array"/> is <c>null</c>.
@@ -185,11 +185,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified messageId.
+		/// Removes the specified Message-Id.
 		/// </summary>
-		/// <returns><value>true</value> if the specified messageId was removed;
+		/// <returns><value>true</value> if the specified Message-Id was removed;
 		/// otherwise <value>false</value>.</returns>
-		/// <param name="messageId">The message-id.</param>
+		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
@@ -207,9 +207,9 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of headers in the <see cref="MimeKit.MessageIdList"/>.
+		/// Gets the number of Message-Ids in the <see cref="MimeKit.MessageIdList"/>.
 		/// </summary>
-		/// <value>The number of headers.</value>
+		/// <value>The number of Message-Ids.</value>
 		public int Count {
 			get { return references.Count; }
 		}
@@ -227,7 +227,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of messageIds.
+		/// Gets an enumerator for the list of Message-Ids.
 		/// </summary>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<string> GetEnumerator ()

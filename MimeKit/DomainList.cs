@@ -216,9 +216,9 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of headers in the <see cref="MimeKit.DomainList"/>.
+		/// Gets the number of domains in the <see cref="MimeKit.DomainList"/>.
 		/// </summary>
-		/// <value>The number of headers.</value>
+		/// <value>The number of domains.</value>
 		public int Count {
 			get { return domains.Count; }
 		}
