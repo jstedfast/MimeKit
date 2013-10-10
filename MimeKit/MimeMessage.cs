@@ -288,6 +288,28 @@ namespace MimeKit {
 		public string InReplyTo {
 			get { return inreplyto; }
 			set {
+				if (inreplyto == value)
+					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll ("In-Reply-To");
+					Headers.Changed += HeadersChanged;
+					return;
+				}
+
+				var buffer = Encoding.ASCII.GetBytes (value);
+				InternetAddress addr;
+				int index = 0;
+
+				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+					throw new ArgumentException ("Invalid Message-Id format.");
+
+				inreplyto = "<" + ((MailboxAddress) addr).Address + ">";
+
+				Headers.Changed -= HeadersChanged;
+				Headers["In-Reply-To"] = inreplyto;
+				Headers.Changed += HeadersChanged;
 			}
 		}
 
