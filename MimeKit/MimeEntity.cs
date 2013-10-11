@@ -142,11 +142,6 @@ namespace MimeKit {
 				if (disposition == value)
 					return;
 
-				if (IsInitializing) {
-					disposition = value;
-					return;
-				}
-
 				if (disposition != null) {
 					disposition.Changed -= ContentDispositionChanged;
 					RemoveHeader ("Content-Disposition");
