@@ -39,7 +39,7 @@ using MimeKit.Utils;
 namespace MimeKit {
 	/// <summary>
 	/// A delegate for instantiating custom <see cref="MimeKit.MimeEntity"/> subclasses.
-	/// <seealso cref="MimeKit.MimeEntity.RegisterCustomMimeEntity"/>
+	/// <seealso cref="MimeKit.MimeEntity.Register"/>
 	/// </summary>
 	public delegate MimeEntity MimeEntityConstructor (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel);
 
@@ -394,7 +394,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="ctor"/> is <c>null</c>.</para>
 		/// </exception>
-		public static void RegisterCustomMimeEntity (string mimeType, MimeEntityConstructor ctor)
+		public static void Register (string mimeType, MimeEntityConstructor ctor)
 		{
 			if (mimeType == null)
 				throw new ArgumentNullException ("mimeType");
