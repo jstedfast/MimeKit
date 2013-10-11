@@ -29,10 +29,18 @@ using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
+	/// A delegate for instantiating custom <see cref="MimeKit.Cryptography.CryptographyContext"/> subclasses.
+	/// <seealso cref="MimeKit.Cryptography.CryptographyContext.Register"/>
+	/// </summary>
+	public delegate CryptographyContext CryptographyContextConstructor ();
+
+	/// <summary>
 	/// An abstract cryptography context.
 	/// </summary>
 	public abstract class CryptographyContext : IDisposable
 	{
+		static readonly Dictionary<string, CryptographyContextConstructor> CustomContexts = new Dictionary<string, CryptographyContextConstructor> ();
+
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
@@ -162,7 +170,16 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			switch (protocol.ToLowerInvariant ()) {
+			protocol = protocol.ToLowerInvariant ();
+
+			lock (CustomContexts) {
+				CryptographyContextConstructor ctor;
+
+				if (CustomContexts.TryGetValue (protocol, out ctor))
+					return ctor ();
+			}
+
+			switch (protocol) {
 			case "application/x-pkcs7-signature":
 			case "application/pkcs7-signature":
 			case "application/x-pkcs7-mime":
@@ -172,6 +189,31 @@ namespace MimeKit.Cryptography {
 				return new SecureMimeContext ();
 			default:
 				throw new NotSupportedException ();
+			}
+		}
+
+		/// <summary>
+		/// Registers the custom cryptography context.
+		/// </summary>
+		/// <param name="protocol">The cryptography protocol.</param>
+		/// <param name="ctor">The delegate to instantiate your custom <see cref="CryptographyContext"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="protocol"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="ctor"/> is <c>null</c>.</para>
+		/// </exception>
+		public static void Register (string protocol, CryptographyContextConstructor ctor)
+		{
+			if (protocol == null)
+				throw new ArgumentNullException ("protocol");
+
+			if (ctor == null)
+				throw new ArgumentNullException ("ctor");
+
+			protocol = protocol.ToLowerInvariant ();
+
+			lock (CustomContexts) {
+				CustomContexts[protocol] = ctor;
 			}
 		}
 	}
