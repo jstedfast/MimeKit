@@ -35,6 +35,16 @@ namespace MimeKit {
 	/// </summary>
 	public sealed class ContentDisposition
 	{
+		/// <summary>
+		/// The attachment disposition.
+		/// </summary>
+		public const string Attachment = "attachment";
+
+		/// <summary>
+		/// The inline disposition.
+		/// </summary>
+		public const string Inline = "inline";
+
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		ParameterList parameters;
 		string disposition;
@@ -43,6 +53,12 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <param name="disposition">The disposition.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="disposition"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="disposition"/> is not <c>"attachment"</c> or <c>"inline"</c>.
+		/// </exception>
 		public ContentDisposition (string disposition)
 		{
 			Parameters = new ParameterList ();
@@ -60,6 +76,12 @@ namespace MimeKit {
 		/// Gets or sets the disposition.
 		/// </summary>
 		/// <value>The disposition.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is not <c>"attachment"</c> or <c>"inline"</c>.
+		/// </exception>
 		public string Disposition {
 			get { return disposition; }
 			set {

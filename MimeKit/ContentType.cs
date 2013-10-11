@@ -43,6 +43,16 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="mediaType">Media type.</param>
 		/// <param name="mediaSubtype">Media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="mediaType"/> is empty or contains invalid characters.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is empty or contains invalid characters.</para>
+		/// </exception>
 		public ContentType (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
@@ -81,6 +91,12 @@ namespace MimeKit {
 		/// Gets or sets the type of the media.
 		/// </summary>
 		/// <value>The type of the media.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or contains invalid characters.
+		/// </exception>
 		public string MediaType {
 			get { return type; }
 			set {
@@ -108,6 +124,12 @@ namespace MimeKit {
 		/// Gets or sets the media subtype.
 		/// </summary>
 		/// <value>The media subtype.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or contains invalid characters.
+		/// </exception>
 		public string MediaSubtype {
 			get { return subtype; }
 			set {
@@ -196,6 +218,11 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// </exception>
 		public bool Matches (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
@@ -221,7 +248,7 @@ namespace MimeKit {
 			value.Append (MediaSubtype);
 
 			Parameters.Encode (options, value, ref lineLength, charset);
-			value.Append ('\n');
+			value.Append (options.NewLine);
 
 			return value.ToString ();
 		}
@@ -233,6 +260,9 @@ namespace MimeKit {
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
 		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="charset"/> is <c>null</c>.
+		/// </exception>
 		public string ToString (Encoding charset, bool encode)
 		{
 			if (charset == null)

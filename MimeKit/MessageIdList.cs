@@ -65,6 +65,18 @@ namespace MimeKit {
 			return references.IndexOf (messageId);
 		}
 
+		static string ValidateMessageId (string value)
+		{
+			var buffer = Encoding.ASCII.GetBytes (value);
+			InternetAddress addr;
+			int index = 0;
+
+			if (!InternetAddress.TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				throw new FormatException ("Invalid Message-Id format.");
+
+			return "<" + ((MailboxAddress) addr).Address + ">";
+		}
+
 		/// <summary>
 		/// Insert the Message-Id at the specified index.
 		/// </summary>
@@ -76,12 +88,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="messageId"/> is improperly formatted.
+		/// </exception>
 		public void Insert (int index, string messageId)
 		{
 			if (messageId == null)
 				throw new ArgumentNullException ("messageId");
 
-			references.Insert (index, messageId);
+			references.Insert (index, ValidateMessageId (messageId));
 			OnChanged ();
 		}
 
@@ -108,6 +123,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
 		public string this [int index] {
 			get { return references[index]; }
 			set {
@@ -117,7 +135,7 @@ namespace MimeKit {
 				if (references[index] == value)
 					return;
 
-				references[index] = value;
+				references[index] = ValidateMessageId (value);
 				OnChanged ();
 			}
 		}
@@ -133,12 +151,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="messageId"/> is improperly formatted.
+		/// </exception>
 		public void Add (string messageId)
 		{
 			if (messageId == null)
 				throw new ArgumentNullException ("messageId");
 
-			references.Add (messageId);
+			references.Add (ValidateMessageId (messageId));
 			OnChanged ();
 		}
 

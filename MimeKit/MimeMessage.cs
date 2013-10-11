@@ -285,6 +285,9 @@ namespace MimeKit {
 		/// Gets or sets the message-id that this message is in reply to.
 		/// </summary>
 		/// <value>The message id that this message is in reply to.</value>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
 		public string InReplyTo {
 			get { return inreplyto; }
 			set {
@@ -303,7 +306,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
-					throw new ArgumentException ("Invalid Message-Id format.");
+					throw new FormatException ("Invalid Message-Id format.");
 
 				inreplyto = "<" + ((MailboxAddress) addr).Address + ">";
 
@@ -320,6 +323,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
 		public string MessageId {
 			get { return messageId; }
 			set {
@@ -334,7 +340,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
-					throw new ArgumentException ("Invalid Message-Id format.");
+					throw new FormatException ("Invalid Message-Id format.");
 
 				messageId = "<" + ((MailboxAddress) addr).Address + ">";
 
@@ -473,7 +479,7 @@ namespace MimeKit {
 			int lineLength = field.Length + 2;
 
 			list.Encode (FormatOptions.Default, builder, ref lineLength);
-			builder.Append ('\n');
+			builder.Append (FormatOptions.Default.NewLine);
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
