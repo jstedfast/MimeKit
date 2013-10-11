@@ -60,6 +60,9 @@ namespace MimeKit {
 		/// Gets or sets the character encoding to use when encoding the name of the address.
 		/// </summary>
 		/// <value>The character encoding.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
 		public Encoding Encoding {
 			get { return encoding; }
 			set {

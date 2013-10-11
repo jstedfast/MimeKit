@@ -195,9 +195,6 @@ namespace MimeKit {
 
 				contentId = "<" + ((MailboxAddress) addr).Address + ">";
 
-				if (IsInitializing)
-					return;
-
 				SetHeader ("Content-Id", contentId);
 			}
 		}
