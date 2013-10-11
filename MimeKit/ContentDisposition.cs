@@ -240,7 +240,7 @@ namespace MimeKit {
 
 			value.Append (disposition);
 			Parameters.Encode (options, value, ref lineLength, charset);
-			value.Append ('\n');
+			value.Append (options.NewLine);
 
 			return value.ToString ();
 		}

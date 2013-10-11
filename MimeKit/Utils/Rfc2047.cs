@@ -755,15 +755,16 @@ namespace MimeKit.Utils {
 					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
 						if (tab != 0) {
 							// tabs are the perfect breaking opportunity...
-							output.Insert (tab, '\n');
+							output.Insert (tab, options.NewLine);
 							lineLength = (lwsp - tab) + 1;
 						} else if (lwsp != 0) {
 							// break just before the last lwsp character
-							output.Insert (lwsp, '\n');
+							output.Insert (lwsp, options.NewLine);
 							lineLength = 1;
 						} else if (lineLength > 1) {
 							// force a line break...
-							output.Append (structured ? "\n\t" : "\n ");
+							output.Append (options.NewLine);
+							output.Append (structured ? '\t' : ' ');
 							lineLength = 1;
 						}
 					}
@@ -783,15 +784,16 @@ namespace MimeKit.Utils {
 				} else if (lineLength + token.Length > options.MaxLineLength) {
 					if (tab != 0) {
 						// tabs are the perfect breaking opportunity...
-						output.Insert (tab, '\n');
+						output.Insert (tab, options.NewLine);
 						lineLength = (lwsp - tab) + 1;
 					} else if (lwsp != 0) {
 						// break just before the last lwsp character
-						output.Insert (lwsp, '\n');
+						output.Insert (lwsp, options.NewLine);
 						lineLength = 1;
 					} else if (lineLength > 1) {
 						// force a line break...
-						output.Append (structured ? "\n\t" : "\n ");
+						output.Append (options.NewLine);
+						output.Append (structured ? '\t' : ' ');
 						lineLength = 1;
 					}
 
@@ -803,7 +805,8 @@ namespace MimeKit.Utils {
 						for (int n = token.StartIndex; n < half; n++)
 							output.Append ((char) input[n]);
 
-						output.Append ("\n\t");
+						output.Append (options.NewLine);
+						output.Append ('\t');
 
 						for (int n = half; n < token.StartIndex + token.Length; n++)
 							output.Append ((char) input[n]);
@@ -829,7 +832,7 @@ namespace MimeKit.Utils {
 			}
 
 			if (output[output.Length - 1] != '\n')
-				output.Append ('\n');
+				output.Append (options.NewLine);
 
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
