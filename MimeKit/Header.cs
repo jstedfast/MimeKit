@@ -190,7 +190,7 @@ namespace MimeKit {
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.</returns>
 		public override string ToString ()
 		{
-			return Field + ":" + Value;
+			return Field + ": " + Value;
 		}
 
 		/// <summary>
