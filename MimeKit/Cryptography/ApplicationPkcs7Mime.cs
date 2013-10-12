@@ -26,11 +26,7 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
-
-using MimeKit.IO;
-using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -38,7 +34,11 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class ApplicationPkcs7Mime : MimePart
 	{
-		internal ApplicationPkcs7Mime (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public ApplicationPkcs7Mime (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

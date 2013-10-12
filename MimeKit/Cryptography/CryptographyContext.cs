@@ -25,21 +25,16 @@
 //
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
-	/// <summary>
-	/// A delegate for instantiating custom <see cref="MimeKit.Cryptography.CryptographyContext"/> subclasses.
-	/// <seealso cref="MimeKit.Cryptography.CryptographyContext.Register"/>
-	/// </summary>
-	public delegate CryptographyContext CryptographyContextConstructor ();
-
 	/// <summary>
 	/// An abstract cryptography context.
 	/// </summary>
 	public abstract class CryptographyContext : IDisposable
 	{
-		static readonly Dictionary<string, CryptographyContextConstructor> CustomContexts = new Dictionary<string, CryptographyContextConstructor> ();
+		static readonly Dictionary<string, ConstructorInfo> CustomContexts = new Dictionary<string, ConstructorInfo> ();
 
 		/// <summary>
 		/// Gets the signature protocol.
@@ -173,10 +168,10 @@ namespace MimeKit.Cryptography {
 			protocol = protocol.ToLowerInvariant ();
 
 			lock (CustomContexts) {
-				CryptographyContextConstructor ctor;
+				ConstructorInfo ctor;
 
 				if (CustomContexts.TryGetValue (protocol, out ctor))
-					return ctor ();
+					return (CryptographyContext) ctor.Invoke (new object[0]);
 			}
 
 			switch (protocol) {
@@ -196,21 +191,33 @@ namespace MimeKit.Cryptography {
 		/// Registers the custom cryptography context.
 		/// </summary>
 		/// <param name="protocol">The cryptography protocol.</param>
-		/// <param name="ctor">The delegate to instantiate your custom <see cref="CryptographyContext"/>.</param>
+		/// <param name="type">A custom subclass of <see cref="CryptographyContext"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="protocol"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="ctor"/> is <c>null</c>.</para>
+		/// <para><paramref name="type"/> is <c>null</c>.</para>
 		/// </exception>
-		public static void Register (string protocol, CryptographyContextConstructor ctor)
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="type"/> is not a subclass of <see cref="CryptographyContext"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="type"/> does not have a parameterless constructor.</para>
+		/// </exception>
+		public static void Register (string protocol, Type type)
 		{
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			if (ctor == null)
-				throw new ArgumentNullException ("ctor");
+			if (type == null)
+				throw new ArgumentNullException ("type");
 
 			protocol = protocol.ToLowerInvariant ();
+
+			if (!type.IsSubclassOf (typeof (CryptographyContext)))
+				throw new ArgumentException ("The specified type must be a subclass of CryptographyContext.", "type");
+
+			var ctor = type.GetConstructor (new Type[0]);
+			if (ctor == null)
+				throw new ArgumentException ("The specified type must have a parameterless constructor.", "type");
 
 			lock (CustomContexts) {
 				CustomContexts[protocol] = ctor;

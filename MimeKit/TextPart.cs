@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -39,7 +38,11 @@ namespace MimeKit {
 	/// </summary>
 	public class TextPart : MimePart
 	{
-		internal TextPart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public TextPart (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

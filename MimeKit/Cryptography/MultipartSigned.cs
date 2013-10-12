@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 
 using MimeKit.IO;
@@ -38,7 +37,11 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class MultipartSigned : Multipart
 	{
-		internal MultipartSigned (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public MultipartSigned (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

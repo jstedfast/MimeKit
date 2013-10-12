@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 
 using MimeKit.IO;
@@ -47,7 +46,11 @@ namespace MimeKit {
 		string md5sum;
 		int? duration;
 
-		internal MimePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public MimePart (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

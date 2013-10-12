@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -34,7 +33,11 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class ApplicationPkcs7Signature : MimePart
 	{
-		internal ApplicationPkcs7Signature (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public ApplicationPkcs7Signature (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

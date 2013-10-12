@@ -42,9 +42,12 @@ namespace MimeKit {
 		readonly List<MimeEntity> children;
 		string preamble, epilogue;
 
-		internal Multipart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public Multipart (MimeEntityConstructorInfo entity) : base (entity)
 		{
-			children = new List<MimeEntity> ();
 		}
 
 		/// <summary>

@@ -42,7 +42,11 @@ namespace MimeKit {
 	/// </remarks>
 	public class MessagePartial : MimePart
 	{
-		internal MessagePartial (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePartial"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public MessagePartial (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

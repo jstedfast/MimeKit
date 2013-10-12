@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 namespace MimeKit {
 	/// <summary>
@@ -37,7 +36,11 @@ namespace MimeKit {
 	/// </remarks>
 	public class MessagePart : MimeEntity
 	{
-		internal MessagePart (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public MessagePart (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 

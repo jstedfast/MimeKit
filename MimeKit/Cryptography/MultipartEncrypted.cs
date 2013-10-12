@@ -40,7 +40,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class MultipartEncrypted : Multipart
 	{
-		internal MultipartEncrypted (ParserOptions options, ContentType type, IEnumerable<Header> headers, bool toplevel) : base (options, type, headers, toplevel)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartEncrypted"/> class.
+		/// </summary>
+		/// <param name="entity">Information used by the constructor.</param>
+		public MultipartEncrypted (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 
