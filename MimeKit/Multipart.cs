@@ -48,6 +48,7 @@ namespace MimeKit {
 		/// <param name="entity">Information used by the constructor.</param>
 		public Multipart (MimeEntityConstructorInfo entity) : base (entity)
 		{
+			children = new List<MimeEntity> ();
 		}
 
 		/// <summary>
