@@ -1,5 +1,5 @@
 ﻿//
-// Substream.cs
+// BoundStream.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //

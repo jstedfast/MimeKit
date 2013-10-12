@@ -132,5 +132,39 @@ namespace UnitTests {
 
 			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
 		}
+
+		[Test]
+		public void TestJwzPersistentMbox ()
+		{
+			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt");
+			var builder = new StringBuilder ();
+
+			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
+
+				while (!parser.IsEndOfStream) {
+					var message = parser.ParseMessage ();
+
+					builder.AppendFormat ("{0}\n", parser.MboxMarker);
+					if (message.From.Count > 0)
+						builder.AppendFormat ("From: {0}\n", message.From);
+					if (message.To.Count > 0)
+						builder.AppendFormat ("To: {0}\n", message.To);
+					builder.AppendFormat ("Subject: {0}\n", message.Subject);
+					builder.AppendFormat ("Date: {0}\n", DateUtils.FormatDate (message.Date));
+					DumpMimeTree (builder, message.Body, 0);
+					builder.Append ("\n");
+				}
+			}
+
+			string actual = builder.ToString ();
+
+			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
+			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
+			if (iso2022jp != "佐藤豊")
+				actual = actual.Replace (iso2022jp, "佐藤豊");
+
+			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+		}
 	}
 }

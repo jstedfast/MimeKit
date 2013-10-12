@@ -28,7 +28,7 @@ namespace MimeKit {
 	/// <summary>
 	/// The format of the MIME stream.
 	/// </summary>
-	public enum MimeFormat {
+	public enum MimeFormat : byte {
 		/// <summary>
 		/// The stream contains a single MIME entity or message.
 		/// </summary>
