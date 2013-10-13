@@ -234,7 +234,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the sigital signatures of the specified signedData and extract the original content.
+		/// Verify the digital signatures of the specified signedData and extract the original content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
 		/// <param name="signedData">The signed data.</param>
@@ -429,7 +429,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the keys for the specified mailboxes.
+		/// Exports the certificates for the specified mailboxes.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
@@ -455,7 +455,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the keys.
+		/// Exports the specified certificates.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>

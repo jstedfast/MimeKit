@@ -65,11 +65,13 @@ namespace UnitTests {
 			store.AddRange (certs);
 		}
 
-		[TestFixtureTearDown]
-		public void TearDown ()
-		{
-			store.Close ();
-		}
+		// Note: if I uncomment this, it seems to get run after running TestSecureMimeEncryption()
+		// (which passes) but before TestSecureMimeSigning() is run, thus causing it to fail.
+//		[TestFixtureTearDown]
+//		public void TearDown ()
+//		{
+//			store.Close ();
+//		}
 
 		[Test]
 		public void TestSecureMimeSigning ()
