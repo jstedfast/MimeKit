@@ -106,9 +106,10 @@ namespace MimeKit.Cryptography {
 
 			foreach (var certificate in certificates) {
 				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address) {
-					if (!exporting)
+					if (!exporting || !certificate.HasPrivateKey)
 						return certificate;
 
+					// Note: this is to get rid of the private key
 					return new X509Certificate2 (certificate.RawData);
 				}
 			}
