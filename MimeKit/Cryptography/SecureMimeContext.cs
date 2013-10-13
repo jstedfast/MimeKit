@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="flags">Key usage flags.</param>
 		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags)
 		{
-			var certificates = CertificateStore.Certificates.Find (X509FindType.FindByKeyUsage, flags, true);
+			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
 
 			foreach (var certificate in certificates) {
 				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
@@ -207,7 +207,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the specified content and signatureData.
+		/// Verify the digital signatures of the specified content using the detached signatureData.
 		/// </summary>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The detached signature data.</param>
@@ -228,13 +228,13 @@ namespace MimeKit.Cryptography {
 			var signed = new SignedCms (contentInfo, true);
 
 			signed.Decode (signatureData);
-			signed.CheckSignature (false);
+			signed.CheckSignature (true);
 
 			return signed.SignerInfos;
 		}
 
 		/// <summary>
-		/// Verify the specified signedData and extract the original content.
+		/// Verify the sigital signatures of the specified signedData and extract the original content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
 		/// <param name="signedData">The signed data.</param>
@@ -249,7 +249,7 @@ namespace MimeKit.Cryptography {
 
 			var signed = new SignedCms ();
 			signed.Decode (signedData);
-			signed.CheckSignature (false);
+			signed.CheckSignature (true);
 
 			content = signed.ContentInfo.Content;
 
