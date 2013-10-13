@@ -99,13 +99,18 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="flags">Key usage flags.</param>
-		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags)
+		/// <param name="exporting"><c>true</c> if the certificate will be exported; otherwise <c>false</c>.</param>
+		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags, bool exporting)
 		{
 			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
 
 			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
-					return certificate;
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address) {
+					if (!exporting)
+						return certificate;
+
+					return new X509Certificate2 (certificate.RawData);
+				}
 			}
 
 			if (flags == X509KeyUsageFlags.DigitalSignature)
@@ -121,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox.</param>
 		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox)
 		{
-			var signer = new CmsSigner (GetCertificate (mailbox, X509KeyUsageFlags.DigitalSignature));
+			var signer = new CmsSigner (GetCertificate (mailbox, X509KeyUsageFlags.DigitalSignature, false));
 			signer.IncludeOption = X509IncludeOption.EndCertOnly;
 			return signer;
 		}
@@ -133,7 +138,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox.</param>
 		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			return new CmsRecipient (GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment));
+			return new CmsRecipient (GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment, false));
 		}
 
 		/// <summary>
@@ -443,7 +448,7 @@ namespace MimeKit.Cryptography {
 
 			var certificates = new X509Certificate2Collection ();
 			foreach (var mailbox in mailboxes) {
-				var cert = GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment);
+				var cert = GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment, true);
 				certificates.Add (cert);
 			}
 
