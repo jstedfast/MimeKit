@@ -91,7 +91,8 @@ namespace UnitTests {
 			Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
 			foreach (var signer in signers) {
 				try {
-					signer.CheckSignature (false);
+					// don't validate the signer against a CA since we're using a self-signed certificate
+					signer.CheckSignature (true);
 				} catch (Exception) {
 					Assert.Fail ("Checking the signature of {0} failed.", signer);
 				}
