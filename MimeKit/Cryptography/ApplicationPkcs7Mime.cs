@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 
 namespace MimeKit.Cryptography {
@@ -103,6 +104,9 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
@@ -113,6 +117,43 @@ namespace MimeKit.Cryptography {
 				entity.WriteTo (options, memory);
 
 				return ctx.Encrypt (recipients, memory.ToArray ());
+			}
+		}
+
+		/// <summary>
+		/// Encrypt the specified entity.
+		/// </summary>
+		/// <param name="ctx">The context.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
+
+				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory.ToArray ());
 			}
 		}
 
@@ -147,6 +188,40 @@ namespace MimeKit.Cryptography {
 				entity.WriteTo (options, memory);
 
 				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
+			}
+		}
+
+		/// <summary>
+		/// Sign and Encrypt the specified entity.
+		/// </summary>
+		/// <param name="ctx">The context.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
+
+				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
 			}
 		}
 	}
