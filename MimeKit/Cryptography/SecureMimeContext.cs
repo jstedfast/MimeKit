@@ -389,7 +389,7 @@ namespace MimeKit.Cryptography {
 
 			var enveloped = new EnvelopedCms ();
 			enveloped.Decode (encryptedData);
-			enveloped.Decrypt ();
+			enveloped.Decrypt (CertificateStore.Certificates);
 
 			recipients = enveloped.RecipientInfos;
 
