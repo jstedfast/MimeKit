@@ -105,16 +105,16 @@ namespace MimeKit.Cryptography {
 		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
 
 		/// <summary>
-		/// Imports the keys.
+		/// Imports keys (or certificates).
 		/// </summary>
-		/// <param name="keyData">The key data.</param>
+		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyData"/> is <c>null</c>.
+		/// <paramref name="rawData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract void ImportKeys (byte[] keyData);
+		public abstract void ImportKeys (byte[] rawData);
 
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
@@ -123,6 +123,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Exporting keys is not supported by this cryptography context.

@@ -149,6 +149,9 @@ namespace MimeKit {
 					return encoding.GetString (content, 0, (int) memory.Length);
 				}
 			}
+			set {
+				SetText (Encoding.UTF8, value);
+			}
 		}
 
 		/// <summary>

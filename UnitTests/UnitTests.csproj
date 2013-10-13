@@ -33,6 +33,7 @@
     <Reference Include="nunit.framework">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentTypeTests.cs" />
@@ -46,6 +47,7 @@
     <Compile Include="MemoryBlockStreamTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
+    <Compile Include="SecureMimeTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -109,6 +109,9 @@ namespace MimeKit.Cryptography {
 					return certificate;
 			}
 
+			if (flags == X509KeyUsageFlags.DigitalSignature)
+				throw new ArgumentException ("A valid signing certificate could not be found.", "mailbox");
+
 			throw new ArgumentException ("A valid certificate could not be found.", "mailbox");
 		}
 
@@ -408,17 +411,21 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports the keys.
+		/// Imports keys (or certificates).
 		/// </summary>
-		/// <param name="keyData">The key data.</param>
+		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyData"/> is <c>null</c>.
+		/// <paramref name="rawData"/> is <c>null</c>.
 		/// </exception>
-		public override void ImportKeys (byte[] keyData)
+		public override void ImportKeys (byte[] rawData)
 		{
-			var certificate = new X509Certificate2 (keyData);
+			if (rawData == null)
+				throw new ArgumentNullException ("rawData");
 
-			CertificateStore.Add (certificate);
+			var certs = new X509Certificate2Collection ();
+			certs.Import (rawData);
+
+			CertificateStore.AddRange (certs);
 		}
 
 		/// <summary>
@@ -430,15 +437,21 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Exporting keys is not supported by this cryptography context.
-		/// </exception>
 		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			return ExportKeys (mailboxes.Select (mailbox => GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment)));
+			var certificates = new X509Certificate2Collection ();
+			foreach (var mailbox in mailboxes) {
+				var cert = GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment);
+				certificates.Add (cert);
+			}
+
+			if (certificates.Count == 0)
+				throw new ArgumentException ();
+
+			return ExportKeys (certificates);
 		}
 
 		/// <summary>
@@ -453,12 +466,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Exporting keys is not supported by this cryptography context.
 		/// </exception>
-		public ApplicationPkcs7Mime ExportKeys (IEnumerable<X509Certificate2> certificates)
+		public ApplicationPkcs7Mime ExportKeys (X509Certificate2Collection certificates)
 		{
 			if (certificates == null)
 				throw new ArgumentNullException ("certificates");
 
-			throw new NotImplementedException ();
+			var rawData = certificates.Export (X509ContentType.Pkcs12);
+			var content = new MemoryStream (rawData);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, content);
 		}
 
 		/// <summary>
@@ -475,7 +491,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, new MemoryStream (certificate.RawData));
+			return ExportKeys (new X509Certificate2Collection (certificate));
 		}
 
 		/// <summary>
