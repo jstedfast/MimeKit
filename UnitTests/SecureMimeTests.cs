@@ -1,5 +1,5 @@
 //
-// SMimeTests.cs
+// SecureMimeTests.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
@@ -97,6 +98,25 @@ namespace UnitTests {
 					Assert.Fail ("Checking the signature of {0} failed.", signer);
 				}
 			}
+		}
+
+		[Test]
+		public void TestSecureMimeEncryption ()
+		{
+			var recipients = new List<MailboxAddress> ();
+			var ctx = new SecureMimeContext (store);
+
+			// encrypt to ourselves...
+			recipients.Add (new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com"));
+
+			var cleartext = new TextPart ("plain");
+			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
+
+			var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, cleartext);
+			var decrypted = encrypted.Decrypt (ctx);
+
+			Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+			Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 		}
 	}
 }
