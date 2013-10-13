@@ -448,21 +448,22 @@ namespace MimeKit {
 		IEnumerable<Header> MergeHeaders ()
 		{
 			int mesgIndex = 0, bodyIndex = 0;
-			var bodyHeader = Body.Headers[0];
-			var mesgHeader = Headers[0];
 
 			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
+				var bodyHeader = Body.Headers[bodyIndex];
+				var mesgHeader = Headers[mesgIndex];
+
 				if (!bodyHeader.Offset.HasValue)
 					break;
 
 				if (mesgHeader.Offset.HasValue && mesgHeader.Offset < bodyHeader.Offset) {
 					yield return mesgHeader;
 
-					mesgHeader = Headers[++mesgIndex];
+					mesgIndex++;
 				} else {
 					yield return bodyHeader;
 
-					bodyHeader = Headers[++bodyIndex];
+					bodyIndex++;
 				}
 			}
 
