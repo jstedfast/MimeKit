@@ -451,10 +451,10 @@ namespace MimeKit {
 
 			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
 				var bodyHeader = Body.Headers[bodyIndex];
-				var mesgHeader = Headers[mesgIndex];
-
 				if (!bodyHeader.Offset.HasValue)
 					break;
+
+				var mesgHeader = Headers[mesgIndex];
 
 				if (mesgHeader.Offset.HasValue && mesgHeader.Offset < bodyHeader.Offset) {
 					yield return mesgHeader;

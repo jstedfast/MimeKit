@@ -154,6 +154,11 @@ namespace UnitTests {
 					builder.AppendFormat ("Date: {0}\n", DateUtils.FormatDate (message.Date));
 					DumpMimeTree (builder, message.Body, 0);
 					builder.Append ("\n");
+
+					// Force the various MimePart objects to write their content streams.
+					// The idea is that by forcing the MimeParts to seek in their content,
+					// we will test to make sure that parser correctly deals with it.
+					message.WriteTo (Stream.Null);
 				}
 			}
 
