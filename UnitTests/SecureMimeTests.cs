@@ -41,8 +41,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class SecureMimeTests
 	{
-		MailboxAddress signerMailbox;
-		X509Store store;
+		SecureMimeContext smime;
 
 		[TestFixtureSetUp]
 		public void Setup ()
@@ -51,41 +50,39 @@ namespace UnitTests {
 			X509Certificate2Collection certs;
 			string path;
 
-			store = new X509Store ("MimeKitUnitTests", StoreLocation.CurrentUser);
+			var store = new X509Store ("MimeKitUnitTests", StoreLocation.CurrentUser);
 			store.Open (OpenFlags.ReadWrite);
 
 			path = Path.Combine (dataDir, "certificate-authority.cert");
 			store.Add (new X509Certificate2 (path));
 
-			signerMailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-
 			path = Path.Combine (dataDir, "smime.p12");
 			certs = new X509Certificate2Collection ();
 			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet);
 			store.AddRange (certs);
+
+			smime = new SecureMimeContext (store);
 		}
 
-		// Note: if I uncomment this, it seems to get run after running TestSecureMimeEncryption()
-		// (which passes) but before TestSecureMimeSigning() is run, thus causing it to fail.
-//		[TestFixtureTearDown]
-//		public void TearDown ()
-//		{
-//			store.Close ();
-//		}
+		[TestFixtureTearDown]
+		public void TearDown ()
+		{
+			smime.Dispose ();
+		}
 
 		[Test]
 		public void TestSecureMimeSigning ()
 		{
-			var ctx = new SecureMimeContext (store);
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up signing...";
 
-			var multipart = MultipartSigned.Create (ctx, signerMailbox, cleartext);
+			var multipart = MultipartSigned.Create (smime, self, cleartext);
 			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
 			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
+			Assert.AreEqual (smime.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
 
 			Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
 			Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
@@ -105,20 +102,92 @@ namespace UnitTests {
 		[Test]
 		public void TestSecureMimeEncryption ()
 		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			var recipients = new List<MailboxAddress> ();
-			var ctx = new SecureMimeContext (store);
 
 			// encrypt to ourselves...
-			recipients.Add (new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com"));
+			recipients.Add (self);
 
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
-			var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, cleartext);
-			var decrypted = encrypted.Decrypt (ctx);
+			var encrypted = ApplicationPkcs7Mime.Encrypt (smime, recipients, cleartext);
+
+			Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+
+			var decrypted = encrypted.Decrypt (smime);
 
 			Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
 			Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+		}
+
+		[Test]
+		public void TestSecureMimeSignAndEncrypt ()
+		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var recipients = new List<MailboxAddress> ();
+			SignerInfoCollection signers;
+
+			// encrypt to ourselves...
+			recipients.Add (self);
+
+			var cleartext = new TextPart ("plain");
+			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
+
+			var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (smime, self, recipients, cleartext);
+
+			Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+
+			var decrypted = encrypted.Decrypt (smime, out signers);
+
+			Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+			Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+
+			Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
+			foreach (var signer in signers) {
+				try {
+					// don't validate the signer against a CA since we're using a self-signed certificate
+					signer.CheckSignature (true);
+				} catch (Exception) {
+					Assert.Fail ("Checking the signature of {0} failed.", signer);
+				}
+			}
+		}
+
+		[Test]
+		public void TestSecureMimeImportExport ()
+		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var mailboxes = new List<MailboxAddress> ();
+
+			// we're going to export our public certificate so that we can email it to someone
+			// so that they can then encrypt their emails to us.
+			mailboxes.Add (self);
+
+			var certsonly = smime.ExportKeys (mailboxes);
+
+			Assert.IsInstanceOfType (typeof (ApplicationPkcs7Mime), "The exported mime part is not of the expected type.");
+
+			var pkcs7mime = (ApplicationPkcs7Mime) certsonly;
+
+			Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
+
+			var store = new X509Store ("ImportTest", StoreLocation.CurrentUser);
+			store.Open (OpenFlags.ReadWrite);
+
+			using (var import = new SecureMimeContext (store)) {
+				try {
+					pkcs7mime.Import (import);
+				} catch {
+					Assert.Fail ("Failed to import certificates.");
+				}
+
+				Assert.AreEqual (1, import.CertificateStore.Certificates.Count, "Unexpected number of imported certificates.");
+
+				foreach (var cert in import.CertificateStore.Certificates) {
+					Assert.IsFalse (cert.HasPrivateKey, "One or more of the certificates included the private key.");
+				}
+			}
 		}
 	}
 }
