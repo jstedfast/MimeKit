@@ -87,6 +87,88 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="recipients">The list of recipients that can decrypt this application/pkcs7-mime part.</param>
+		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		public MimeEntity Decrypt (SecureMimeContext ctx, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.WriteTo (memory);
+
+				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			}
+		}
+
+		/// <summary>
+		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		public MimeEntity Decrypt (SecureMimeContext ctx, out SignerInfoCollection signers)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			using (var memory = new MemoryStream ()) {
+				RecipientInfoCollection recipients;
+
+				ContentObject.WriteTo (memory);
+
+				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			}
+		}
+
+		/// <summary>
+		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		public MimeEntity Decrypt (SecureMimeContext ctx)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			using (var memory = new MemoryStream ()) {
+				RecipientInfoCollection recipients;
+				SignerInfoCollection signers;
+
+				ContentObject.WriteTo (memory);
+
+				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			}
+		}
+
+		/// <summary>
+		/// Decrypt the content.
+		/// </summary>
+		public MimeEntity Decrypt ()
+		{
+			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
+
+			using (var memory = new MemoryStream ()) {
+				RecipientInfoCollection recipients;
+				SignerInfoCollection signers;
+
+				ContentObject.WriteTo (memory);
+
+				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			}
+		}
+
+		/// <summary>
 		/// Encrypt the specified entity.
 		/// </summary>
 		/// <param name="ctx">The context.</param>
