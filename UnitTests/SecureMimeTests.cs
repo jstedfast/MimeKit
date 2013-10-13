@@ -41,10 +41,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class SecureMimeTests
 	{
-		SecureMimeContext smime;
-
-		[TestFixtureSetUp]
-		public void Setup ()
+		static SecureMimeContext CreateContext ()
 		{
 			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 			X509Certificate2Collection certs;
@@ -61,13 +58,7 @@ namespace UnitTests {
 			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet);
 			store.AddRange (certs);
 
-			smime = new SecureMimeContext (store);
-		}
-
-		[TestFixtureTearDown]
-		public void TearDown ()
-		{
-			smime.Dispose ();
+			return new SecureMimeContext (store);
 		}
 
 		[Test]
@@ -78,23 +69,25 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up signing...";
 
-			var multipart = MultipartSigned.Create (smime, self, cleartext);
-			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+			using (var ctx = CreateContext ()) {
+				var multipart = MultipartSigned.Create (ctx, self, cleartext);
+				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.AreEqual (smime.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
 
-			Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
+				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
 
-			var signers = multipart.Verify ();
-			Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
-			foreach (var signer in signers) {
-				try {
-					// don't validate the signer against a CA since we're using a self-signed certificate
-					signer.CheckSignature (true);
-				} catch (Exception) {
-					Assert.Fail ("Checking the signature of {0} failed.", signer);
+				var signers = multipart.Verify ();
+				Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
+				foreach (var signer in signers) {
+					try {
+						// don't validate the signer against a CA since we're using a self-signed certificate
+						signer.CheckSignature (true);
+					} catch (Exception) {
+						Assert.Fail ("Checking the signature of {0} failed.", signer);
+					}
 				}
 			}
 		}
@@ -111,14 +104,16 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
-			var encrypted = ApplicationPkcs7Mime.Encrypt (smime, recipients, cleartext);
+			using (var ctx = CreateContext ()) {
+				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, cleartext);
 
-			Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
-			var decrypted = encrypted.Decrypt (smime);
+				var decrypted = encrypted.Decrypt (ctx);
 
-			Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
-			Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+			}
 		}
 
 		[Test]
@@ -126,7 +121,6 @@ namespace UnitTests {
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			var recipients = new List<MailboxAddress> ();
-			SignerInfoCollection signers;
 
 			// encrypt to ourselves...
 			recipients.Add (self);
@@ -134,22 +128,25 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
-			var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (smime, self, recipients, cleartext);
+			using (var ctx = CreateContext ()) {
+				var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, recipients, cleartext);
 
-			Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
-			var decrypted = encrypted.Decrypt (smime, out signers);
+				SignerInfoCollection signers;
+				var decrypted = encrypted.Decrypt (ctx, out signers);
 
-			Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
-			Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 
-			Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
-			foreach (var signer in signers) {
-				try {
-					// don't validate the signer against a CA since we're using a self-signed certificate
-					signer.CheckSignature (true);
-				} catch (Exception) {
-					Assert.Fail ("Checking the signature of {0} failed.", signer);
+				Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
+				foreach (var signer in signers) {
+					try {
+						// don't validate the signer against a CA since we're using a self-signed certificate
+						signer.CheckSignature (true);
+					} catch (Exception) {
+						Assert.Fail ("Checking the signature of {0} failed.", signer);
+					}
 				}
 			}
 		}
@@ -164,28 +161,30 @@ namespace UnitTests {
 			// so that they can then encrypt their emails to us.
 			mailboxes.Add (self);
 
-			var certsonly = smime.ExportKeys (mailboxes);
+			using (var ctx = CreateContext ()) {
+				var certsonly = ctx.ExportKeys (mailboxes);
 
-			Assert.IsInstanceOfType (typeof (ApplicationPkcs7Mime), "The exported mime part is not of the expected type.");
+				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Mime), certsonly, "The exported mime part is not of the expected type.");
 
-			var pkcs7mime = (ApplicationPkcs7Mime) certsonly;
+				var pkcs7mime = (ApplicationPkcs7Mime) certsonly;
 
-			Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
+				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
 
-			var store = new X509Store ("ImportTest", StoreLocation.CurrentUser);
-			store.Open (OpenFlags.ReadWrite);
+				var store = new X509Store ("ImportTest", StoreLocation.CurrentUser);
+				store.Open (OpenFlags.ReadWrite);
 
-			using (var import = new SecureMimeContext (store)) {
-				try {
-					pkcs7mime.Import (import);
-				} catch {
-					Assert.Fail ("Failed to import certificates.");
-				}
+				using (var imported = new SecureMimeContext (store)) {
+					try {
+						pkcs7mime.Import (imported);
+					} catch {
+						Assert.Fail ("Failed to import certificates.");
+					}
 
-				Assert.AreEqual (1, import.CertificateStore.Certificates.Count, "Unexpected number of imported certificates.");
+					Assert.AreEqual (1, imported.CertificateStore.Certificates.Count, "Unexpected number of imported certificates.");
 
-				foreach (var cert in import.CertificateStore.Certificates) {
-					Assert.IsFalse (cert.HasPrivateKey, "One or more of the certificates included the private key.");
+					foreach (var cert in imported.CertificateStore.Certificates) {
+						Assert.IsFalse (cert.HasPrivateKey, "One or more of the certificates included the private key.");
+					}
 				}
 			}
 		}
