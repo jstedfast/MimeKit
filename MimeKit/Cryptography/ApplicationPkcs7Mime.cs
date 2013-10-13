@@ -51,6 +51,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="type"/> is not a valid value.
+		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="stream"/> does not support reading.</para>
 		/// <para>-or-</para>
@@ -83,22 +86,48 @@ namespace MimeKit.Cryptography {
 				ContentDisposition.FileName = "smime.p7c";
 				ContentType.Name = "smime.p7c";
 				break;
+			default:
+				throw new ArgumentOutOfRangeException ("type");
+			}
+		}
+
+		public SecureMimeType SecureMimeType {
+			get {
+				var type = ContentType.Parameters["smime-type"];
+
+				if (type == null)
+					return SecureMimeType.Unknown;
+
+				switch (type.ToLowerInvariant ()) {
+				case "compressed-data": return SecureMimeType.CompressedData;
+				case "enveloped-data": return SecureMimeType.EnvelopedData;
+				case "signed-data": return SecureMimeType.SignedData;
+				case "certs-only": return SecureMimeType.CertsOnly;
+				default: return SecureMimeType.Unknown;
+				}
 			}
 		}
 
 		/// <summary>
 		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
 		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
 		/// <param name="recipients">The list of recipients that can decrypt this application/pkcs7-mime part.</param>
 		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			if (SecureMimeType != SecureMimeType.EnvelopedData)
+				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
 				ContentObject.WriteTo (memory);
@@ -110,15 +139,22 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
 		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
 		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx, out SignerInfoCollection signers)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			if (SecureMimeType != SecureMimeType.EnvelopedData)
+				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
 				RecipientInfoCollection recipients;
@@ -132,14 +168,21 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
 		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			if (SecureMimeType != SecureMimeType.EnvelopedData)
+				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
 				RecipientInfoCollection recipients;
@@ -154,8 +197,15 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Decrypt the content.
 		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
 		public MimeEntity Decrypt ()
 		{
+			if (SecureMimeType != SecureMimeType.EnvelopedData)
+				throw new InvalidOperationException ();
+
 			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
 
 			using (var memory = new MemoryStream ()) {
@@ -165,6 +215,25 @@ namespace MimeKit.Cryptography {
 				ContentObject.WriteTo (memory);
 
 				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			}
+		}
+
+		/// <summary>
+		/// Import the certificates contained in the content.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context.</param>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
+		public void Import (SecureMimeContext ctx)
+		{
+			if (SecureMimeType != SecureMimeType.CertsOnly)
+				throw new InvalidOperationException ();
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.WriteTo (memory);
+
+				ctx.ImportKeys (memory.ToArray ());
 			}
 		}
 

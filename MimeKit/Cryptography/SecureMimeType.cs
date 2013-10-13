@@ -49,6 +49,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// S/MIME certificate data.
 		/// </summary>
-		CertsOnly
+		CertsOnly,
+
+		/// <summary>
+		/// The S/MIME data type is unknown.
+		/// </summary>
+		Unknown
 	}
 }
