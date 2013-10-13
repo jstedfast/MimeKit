@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.IO;
 using System.Text;
 using NUnit.Framework;
 
@@ -77,6 +76,54 @@ namespace UnitTests {
 
 			var unfolded = Header.Unfold (raw);
 			Assert.AreEqual (header.Value, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestReplacingHeaders ()
+		{
+			const string ReplacedContentType = "text/plain; charset=iso-8859-1; name=body.txt";
+			const string ReplacedContentDisposition = "inline; filename=body.txt";
+			const string ReplacedContentId = "<content.id.2@localhost>";
+			var headers = new HeaderList ();
+
+			headers.Add ("Content-Type", "text/plain");
+			headers.Add ("Content-Disposition", "attachment");
+			headers.Add ("Content-Id", "<content-id.1@localhost>");
+
+			headers.Replace ("Content-Disposition", ReplacedContentDisposition);
+			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after replacing Content-Disposition.");
+			Assert.AreEqual (ReplacedContentDisposition, headers["Content-Disposition"], "Content-Disposition has unexpected value after replacing it.");
+			Assert.AreEqual (1, headers.IndexOf ("Content-Disposition"), "Replaced Content-Disposition not in the expected position.");
+
+			headers.Replace ("Content-Type", ReplacedContentType);
+			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after replacing Content-Type.");
+			Assert.AreEqual (ReplacedContentType, headers["Content-Type"], "Content-Type has unexpected value after replacing it.");
+			Assert.AreEqual (0, headers.IndexOf ("Content-Type"), "Replaced Content-Type not in the expected position.");
+
+			headers.Replace ("Content-Id", ReplacedContentId);
+			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after replacing Content-Id.");
+			Assert.AreEqual (ReplacedContentId, headers["Content-Id"], "Content-Id has unexpected value after replacing it.");
+			Assert.AreEqual (2, headers.IndexOf ("Content-Id"), "Replaced Content-Id not in the expected position.");
+		}
+
+		[Test]
+		public void TestReplacingMultipleHeaders ()
+		{
+			const string CombinedRecpients = "first@localhost, second@localhost, third@localhost";
+			var headers = new HeaderList ();
+
+			headers.Add ("From", "sender@localhost");
+			headers.Add ("To", "first@localhost");
+			headers.Add ("To", "second@localhost");
+			headers.Add ("To", "third@localhost");
+			headers.Add ("Cc", "carbon.copy@localhost");
+
+			headers.Replace ("To", CombinedRecpients);
+			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after replacing To header.");
+			Assert.AreEqual (CombinedRecpients, headers["To"], "To header has unexpected value after being replaced.");
+			Assert.AreEqual (1, headers.IndexOf ("To"), "Replaced To header not in the expected position.");
+			Assert.AreEqual (0, headers.IndexOf ("From"), "From header not in the expected position.");
+			Assert.AreEqual (2, headers.IndexOf ("Cc"), "Cc header not in the expected position.");
 		}
 	}
 }

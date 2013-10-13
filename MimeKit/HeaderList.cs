@@ -187,6 +187,32 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// 
+		/// If no headers with the specified field name exist, it is simply added.
+		/// </summary>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
+		public void Replace (string field, string value)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Replace (new Header (field, value));
+		}
+
+		/// <summary>
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
@@ -393,6 +419,8 @@ namespace MimeKit {
 
 			return true;
 		}
+
+
 
 		/// <summary>
 		/// Replaces all headers with identical field names with the single specified header.
