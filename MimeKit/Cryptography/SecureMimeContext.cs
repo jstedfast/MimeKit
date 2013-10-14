@@ -70,6 +70,29 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// </summary>
+		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <param name="protocol">The protocol.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="protocol"/> is <c>null</c>.
+		/// </exception>
+		public override bool Supports (string protocol)
+		{
+			if (protocol == null)
+				throw new ArgumentNullException ("protocol");
+
+			var type = protocol.ToLowerInvariant ().Split (new char[] { '/' });
+			if (type.Length != 2 || type[0] != "application")
+				return false;
+
+			if (type[1].StartsWith ("x-", StringComparison.Ordinal))
+				type[1] = type[1].Substring (2);
+
+			return type[1] == "pkcs7-signature" || type[1] == "pkcs7-mime" || type[1] == "pkcs7-keys";
+		}
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
 		/// </summary>
 		/// <param name="store">The certificate store.</param>

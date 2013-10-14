@@ -217,6 +217,58 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
 		/// <exception cref="System.FormatException">
+		/// The multipart is malformed in some way.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="ctx"/> does not support verifying the signature part.
+		/// </exception>
+		public SignerInfoCollection Verify (CryptographyContext ctx)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Count < 2)
+				throw new FormatException ("The multipart/signed part did not contain the expected children.");
+
+			var signature = this[1] as MimePart;
+			if (signature == null || signature.ContentObject == null)
+				throw new FormatException ("The signature part could not be found.");
+
+			var ctype = signature.ContentType;
+			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
+			if (!ctx.Supports (value))
+				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
+
+			byte[] cleartext, signatureData;
+
+			using (var memory = new MemoryStream ()) {
+				// Note: see rfc2015 or rfc3156, section 5.1
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				this[0].WriteTo (options, memory);
+
+				cleartext = memory.ToArray ();
+			}
+
+			using (var memory = new MemoryStream ()) {
+				signature.ContentObject.DecodeTo (memory);
+				signatureData = memory.ToArray ();
+			}
+
+			var smime = ctx as SecureMimeContext;
+
+			if (smime == null)
+				throw new NotSupportedException ();
+
+			return smime.Verify (cleartext, signatureData);
+		}
+
+		/// <summary>
+		/// Verify the multipart/signed content.
+		/// </summary>
+		/// <returns>A signer info collection.</returns>
+		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
 		/// <para>The multipart is malformed in some way.</para>
@@ -233,42 +285,8 @@ namespace MimeKit.Cryptography {
 
 			protocol = protocol.Trim ().ToLowerInvariant ();
 
-			if (Count < 2)
-				throw new FormatException ();
-
-			var signature = this[1] as MimePart;
-			if (signature == null || signature.ContentObject == null)
-				throw new FormatException ();
-
-			var ctype = signature.ContentType;
-			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
-			if (value.ToLowerInvariant () != protocol)
-				throw new FormatException ();
-
 			using (var ctx = CryptographyContext.Create (protocol)) {
-				byte[] cleartext, signatureData;
-
-				using (var memory = new MemoryStream ()) {
-					// Note: see rfc2015 or rfc3156, section 5.1
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					this[0].WriteTo (options, memory);
-
-					cleartext = memory.ToArray ();
-				}
-
-				using (var memory = new MemoryStream ()) {
-					signature.ContentObject.DecodeTo (memory);
-					signatureData = memory.ToArray ();
-				}
-
-				var smime = ctx as SecureMimeContext;
-
-				if (smime != null)
-					return smime.Verify (cleartext, signatureData);
-
-				throw new NotSupportedException ();
+				return Verify (ctx);
 			}
 		}
 	}

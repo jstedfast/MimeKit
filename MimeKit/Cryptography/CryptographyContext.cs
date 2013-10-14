@@ -55,6 +55,16 @@ namespace MimeKit.Cryptography {
 		public abstract string KeyExchangeProtocol { get; }
 
 		/// <summary>
+		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// </summary>
+		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <param name="protocol">The protocol.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="protocol"/> is <c>null</c>.
+		/// </exception>
+		public abstract bool Supports (string protocol);
+
+		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance

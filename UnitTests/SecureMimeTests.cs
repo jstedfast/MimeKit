@@ -79,7 +79,7 @@ namespace UnitTests {
 				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
 				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
 
-				var signers = multipart.Verify ();
+				var signers = multipart.Verify (ctx);
 				Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
 				foreach (var signer in signers) {
 					try {
