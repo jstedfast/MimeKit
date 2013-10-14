@@ -200,7 +200,7 @@ namespace MimeKit.Cryptography {
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing.
+		/// An error occurred while signing.
 		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo)
 		{
@@ -227,7 +227,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing.
+		/// An error occurred while signing.
 		/// </exception>
 		public ApplicationPkcs7Signature Sign (CmsSigner signer, byte[] content)
 		{
@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while verifying the signature.
+		/// An error occurred while verifying the signature.
 		/// </exception>
 		public SignerInfoCollection Verify (byte[] content, byte[] signatureData)
 		{
@@ -286,7 +286,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while verifying the signature.
+		/// An error occurred while verifying the signature.
 		/// </exception>
 		public SignerInfoCollection Verify (byte[] signedData, out byte[] content)
 		{
@@ -315,7 +315,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while encrypting.
+		/// An error occurred while encrypting.
 		/// </exception>
 		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, byte[] content)
 		{
@@ -352,7 +352,7 @@ namespace MimeKit.Cryptography {
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while encrypting.
+		/// An error occurred while encrypting.
 		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
@@ -379,7 +379,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing or encrypting.
+		/// An error occurred while signing or encrypting.
 		/// </exception>
 		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, byte[] content)
 		{
@@ -425,7 +425,7 @@ namespace MimeKit.Cryptography {
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing or encrypting.
+		/// An error occurred while signing or encrypting.
 		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
@@ -452,7 +452,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while decrypting.
+		/// An error occurred while decrypting.
 		/// </exception>
 		public MimeEntity Decrypt (byte[] encryptedData, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
 		{
@@ -490,7 +490,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="rawData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while importing.
+		/// An error occurred while importing.
 		/// </exception>
 		public override void ImportKeys (byte[] rawData)
 		{
@@ -516,7 +516,7 @@ namespace MimeKit.Cryptography {
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while exporting.
+		/// An error occurred while exporting.
 		/// </exception>
 		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
@@ -548,7 +548,7 @@ namespace MimeKit.Cryptography {
 		/// Exporting keys is not supported by this cryptography context.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while exporting.
+		/// An error occurred while exporting.
 		/// </exception>
 		public ApplicationPkcs7Mime ExportKeys (X509Certificate2Collection certificates)
 		{
@@ -571,7 +571,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while exporting.
+		/// An error occurred while exporting.
 		/// </exception>
 		public ApplicationPkcs7Mime ExportKey (X509Certificate2 certificate)
 		{

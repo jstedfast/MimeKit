@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while decrypting.
+		/// An error occurred while decrypting.
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
 		{
@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while decrypting.
+		/// An error occurred while decrypting.
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx, out SignerInfoCollection signers)
 		{
@@ -187,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while decrypting.
+		/// An error occurred while decrypting.
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
@@ -215,7 +215,7 @@ namespace MimeKit.Cryptography {
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while decrypting.
+		/// An error occurred while decrypting.
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
@@ -242,7 +242,7 @@ namespace MimeKit.Cryptography {
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while importing.
+		/// An error occurred while importing.
 		/// </exception>
 		public void Import (SecureMimeContext ctx)
 		{
@@ -270,7 +270,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is<c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while encrypting.
+		/// An error occurred while encrypting.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity)
 		{
@@ -313,7 +313,7 @@ namespace MimeKit.Cryptography {
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while encrypting.
+		/// An error occurred while encrypting.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
@@ -353,7 +353,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is<c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing or encrypting.
+		/// An error occurred while signing or encrypting.
 		/// </exception>
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
 		{
@@ -395,7 +395,7 @@ namespace MimeKit.Cryptography {
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occured while signing or encrypting.
+		/// An error occurred while signing or encrypting.
 		/// </exception>
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
