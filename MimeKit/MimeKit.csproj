@@ -47,6 +47,7 @@
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
+    <Compile Include="Cryptography\CertificateNotFoundException.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />

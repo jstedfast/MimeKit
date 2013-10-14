@@ -91,6 +91,10 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Gets the value of the "smime-type" parameter.
+		/// </summary>
+		/// <value>The value of the "smime-type" parameter.</value>
 		public SecureMimeType SecureMimeType {
 			get {
 				var type = ContentType.Parameters["smime-type"];
@@ -287,6 +291,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
@@ -357,6 +364,11 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{

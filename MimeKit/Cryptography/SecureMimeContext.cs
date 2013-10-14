@@ -123,6 +123,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="flags">Key usage flags.</param>
 		/// <param name="exporting"><c>true</c> if the certificate will be exported; otherwise <c>false</c>.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
 		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags, bool exporting)
 		{
 			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
@@ -138,9 +141,9 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (flags == X509KeyUsageFlags.DigitalSignature)
-				throw new ArgumentException ("A valid signing certificate could not be found.", "mailbox");
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			throw new ArgumentException ("A valid certificate could not be found.", "mailbox");
+			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}
 
 		/// <summary>
@@ -192,6 +195,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo)
 		{
@@ -324,6 +330,12 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
 			if (recipients == null)
@@ -385,6 +397,11 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
@@ -464,6 +481,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
 		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{

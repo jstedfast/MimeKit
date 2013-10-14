@@ -77,6 +77,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
 		public abstract MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo);
 
 		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
@@ -92,6 +95,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content);
 
@@ -109,6 +115,11 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		public abstract MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
 

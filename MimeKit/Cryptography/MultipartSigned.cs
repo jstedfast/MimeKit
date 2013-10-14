@@ -90,6 +90,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
 		{
 			if (signer == null)
@@ -216,6 +219,10 @@ namespace MimeKit.Cryptography {
 		/// Verify the multipart/signed content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
+		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The multipart is malformed in some way.
 		/// </exception>
