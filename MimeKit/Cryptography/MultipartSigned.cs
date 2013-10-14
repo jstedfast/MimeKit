@@ -93,6 +93,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occured while signing.
+		/// </exception>
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
 		{
 			if (signer == null)
@@ -157,6 +160,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occured while signing.
 		/// </exception>
 		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
 		{
@@ -229,6 +235,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occured while verifying.
+		/// </exception>
 		public SignerInfoCollection Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
@@ -290,6 +299,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// verifying could not be found.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occured while verifying.
 		/// </exception>
 		public SignerInfoCollection Verify ()
 		{
