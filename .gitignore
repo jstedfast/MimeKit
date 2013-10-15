@@ -1,6 +1,7 @@
 *~
 *.userprefs
 *.suo
+.DS_Store
 test-results
 obj
 bin
