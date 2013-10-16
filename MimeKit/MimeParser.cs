@@ -1157,7 +1157,7 @@ namespace MimeKit {
 			BoundaryType found;
 
 			if (bounds.Count > 0) {
-				int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
+				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (inbuf, atleast, 0) <= 0)
 					return BoundaryType.Eos;
