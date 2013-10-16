@@ -1028,7 +1028,7 @@ namespace MimeKit {
 
 		unsafe BoundaryType ScanContent (byte* inbuf, Stream content)
 		{
-			int atleast = Math.Min (ReadAheadSize, GetMaxBoundaryLength ());
+			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
 			int contentIndex = inputIndex;
 			bool midline = false;
