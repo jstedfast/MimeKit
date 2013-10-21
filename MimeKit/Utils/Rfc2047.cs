@@ -947,21 +947,26 @@ namespace MimeKit.Utils {
 		class Word {
 			public WordType Type;
 			public int StartIndex;
-			public int Length;
+			public int CharCount;
 			public int Encoding;
 			public int ByteCount;
 			public int EncodeCount;
 			public int QuotedPairs;
 
-			public Word (WordType type, int encoding, int start, int end, int count, int encoded, int quoted)
+			public Word ()
 			{
-				Encoding = encoding;
-				StartIndex = start;
-				Length = end - start;
-				EncodeCount = encoded;
-				QuotedPairs = quoted;
-				ByteCount = count;
-				Type = type;
+				Type = WordType.Atom;
+			}
+
+			public void CopyTo (Word word)
+			{
+				word.EncodeCount = EncodeCount;
+				word.QuotedPairs = QuotedPairs;
+				word.StartIndex = StartIndex;
+				word.CharCount = CharCount;
+				word.ByteCount = ByteCount;
+				word.Encoding = Encoding;
+				word.Type = Type;
 			}
 		}
 
@@ -998,22 +1003,29 @@ namespace MimeKit.Utils {
 			return EstimateEncodedWordLength (charset.HeaderName, byteCount, encodeCount);
 		}
 
-		static bool ExceedsMaxLineLength (FormatOptions options, WordType type, Encoding charset, int encoding, int count, int encoded, int quoted)
+		static bool ExceedsMaxLineLength (FormatOptions options, Encoding charset, Word word)
 		{
 			int length;
 
-			switch (type) {
+			switch (word.Type) {
 			case WordType.EncodedWord:
-				if (encoding == 1)
-					length = EstimateEncodedWordLength ("iso-8859-1", count, encoded);
-				else
-					length = EstimateEncodedWordLength (charset, count, encoded);
+				switch (word.Encoding) {
+				case 1:
+					length = EstimateEncodedWordLength ("iso-8859-1", word.ByteCount, word.EncodeCount);
+					break;
+				case 0:
+					length = EstimateEncodedWordLength ("us-ascii", word.ByteCount, word.EncodeCount);
+					break;
+				default:
+					length = EstimateEncodedWordLength (charset, word.ByteCount, word.EncodeCount);
+					break;
+				}
 				break;
 			case WordType.QuotedString:
-				length = count + quoted + 2;
+				length = word.ByteCount + word.QuotedPairs + 2;
 				break;
 			default:
-				length = count;
+				length = word.ByteCount;
 				break;
 			}
 
@@ -1022,94 +1034,108 @@ namespace MimeKit.Utils {
 
 		static IList<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, bool phrase)
 		{
-			int encoding = 0, count = 0, start = 0;
 			var encoder = charset.GetEncoder ();
 			var words = new List<Word> ();
-			var type = WordType.Atom;
 			var chars = new char[2];
-			int encoded = 0;
-			int quoted = 0;
-			int n, i = 0;
-			Word word;
+			var saved = new Word ();
+			var word = new Word ();
+			int nchars, n, i = 0;
 			char c;
 
 			while (i < text.Length) {
 				c = text[i++];
 
 				if (c < 256 && IsBlank (c)) {
-					if (count > 0) {
-						word = new Word (type, encoding, start, i - 1, count, encoded, quoted);
+					if (word.ByteCount > 0) {
 						words.Add (word);
-						count = 0;
+						word = new Word ();
 					}
 
-					type = WordType.Atom;
-					encoding = 0;
-					encoded = 0;
-					quoted = 0;
-					start = i;
+					word.StartIndex = i;
 				} else {
+					// save state in case adding this character exceeds the max line length
+					word.CopyTo (saved);
+
 					if (c < 127) {
 						if (IsCtrl (c)) {
-							type = WordType.EncodedWord;
-							encoding = Math.Max (encoding, 1);
-							encoded = 1;
+							word.Encoding = Math.Max (word.Encoding, 1);
+							word.Type = WordType.EncodedWord;
+							word.EncodeCount++;
 						} else if (phrase && !IsAtom (c)) {
 							// phrases can have quoted strings
-							if (type == WordType.Atom)
-								type = WordType.QuotedString;
+							if (word.Type == WordType.Atom)
+								word.Type = WordType.QuotedString;
 						}
 
 						if (c == '"' || c == '\\')
-							quoted++;
+							word.QuotedPairs++;
 
-						count++;
+						word.ByteCount++;
+						word.CharCount++;
+						nchars = 1;
 					} else if (c < 256) {
-						type = WordType.EncodedWord;
-						encoding = Math.Max (encoding, 1);
-						encoded++;
-						count++;
+						// iso-8859-1
+						word.Encoding = Math.Max (word.Encoding, 1);
+						word.Type = WordType.EncodedWord;
+						word.EncodeCount++;
+						word.ByteCount++;
+						word.CharCount++;
+						nchars = 1;
 					} else {
 						if (char.IsSurrogatePair (text, i - 1)) {
 							chars[1] = text[i++];
-							n = 2;
+							nchars = 2;
 						} else {
-							n = 1;
+							nchars = 1;
 						}
 
 						chars[0] = c;
-						n = encoder.GetByteCount (chars, 0, n, true);
-						type = WordType.EncodedWord;
-						encoding = 2;
-						encoded += n;
-						count += n;
+
+						try {
+							n = encoder.GetByteCount (chars, 0, nchars, true);
+						} catch {
+							n = 3;
+						}
+
+						word.Type = WordType.EncodedWord;
+						word.CharCount += nchars;
+						word.EncodeCount += n;
+						word.ByteCount += n;
+						word.Encoding = 2;
 					}
 
-					// FIXME: technically, if we exceed the max line length, we need to back up 1 character
-					if (ExceedsMaxLineLength (options, type, charset, encoding, count, encoded, quoted)) {
+					if (ExceedsMaxLineLength (options, charset, word)) {
+						// restore our previous state
+						saved.CopyTo (word);
+						i -= nchars;
+
 						// Note: if the word is longer than what we can fit on
 						// one line, then we need to encode it.
-						if (type == WordType.Atom)
-							type = WordType.EncodedWord;
+						if (word.Type == WordType.Atom) {
+							word.Type = WordType.EncodedWord;
 
-						word = new Word (type, encoding, start, i, count, encoded, quoted);
+							// in order to fit this long atom under MaxLineLength, we need to
+							// account for the added length of =?us-ascii?q?...?=
+							n = "us-ascii".Length + 7;
+							word.CharCount -= n;
+							word.ByteCount -= n;
+							i -= n;
+						}
+
 						words.Add (word);
 
-						// Note: we don't reset 'type' as it needs to be preserved
-						// when breaking long words.
-						encoding = 0;
-						encoded = 0;
-						quoted = 0;
-						count = 0;
-						start = i;
+						saved.Type = word.Type;
+						word = new Word ();
+
+						// Note: the word-type needs to be preserved when breaking long words.
+						word.Type = saved.Type;
+						word.StartIndex = i;
 					}
 				}
 			}
 
-			if (count > 0) {
-				word = new Word (type, encoding, start, text.Length, count, encoded, quoted);
+			if (word.ByteCount > 0)
 				words.Add (word);
-			}
 
 			return words;
 		}
@@ -1118,7 +1144,7 @@ namespace MimeKit.Utils {
 		{
 			Word next = words[i];
 
-			int lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+			int lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 			int length = word.ByteCount + lwspCount + next.ByteCount;
 			int encoded = word.EncodeCount + next.EncodeCount;
 			int quoted = word.QuotedPairs + next.QuotedPairs;
@@ -1161,10 +1187,17 @@ namespace MimeKit.Utils {
 				if (next.Type == WordType.QuotedString)
 					return false;
 
-				if (Math.Max (word.Encoding, next.Encoding) == 1)
+				switch (Math.Max (word.Encoding, next.Encoding)) {
+				case 1:
 					length = EstimateEncodedWordLength ("iso-8859-1", length, encoded);
-				else
+					break;
+				case 0:
+					length = EstimateEncodedWordLength ("us-ascii", length, encoded);
+					break;
+				default:
 					length = EstimateEncodedWordLength (charset, length, encoded);
+					break;
+				}
 
 				return length + 1 < options.MaxLineLength;
 			default:
@@ -1189,23 +1222,30 @@ namespace MimeKit.Utils {
 				next = words[i];
 
 				if (word.Type != WordType.Atom && word.Type == next.Type) {
-					lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+					lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 					byteCount = word.ByteCount + lwspCount + next.ByteCount;
 					encoding = Math.Max (word.Encoding, next.Encoding);
 					encoded = word.EncodeCount + next.EncodeCount;
 					quoted = word.QuotedPairs + next.QuotedPairs;
 
 					if (word.Type == WordType.EncodedWord) {
-						if (encoding == 1)
+						switch (encoding) {
+						case 1:
 							length = EstimateEncodedWordLength ("iso-8859-1", byteCount, encoded);
-						else
+							break;
+						case 0:
+							length = EstimateEncodedWordLength ("us-ascii", byteCount, encoded);
+							break;
+						default:
 							length = EstimateEncodedWordLength (charset, byteCount, encoded);
+							break;
+						}
 					} else {
 						length = byteCount + quoted + 2;
 					}
 
 					if (length + 1 < options.MaxLineLength) {
-						word.Length = (next.StartIndex + next.Length) - word.StartIndex;
+						word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
 						word.ByteCount = byteCount;
 						word.EncodeCount = encoded;
 						word.QuotedPairs = quoted;
@@ -1230,12 +1270,12 @@ namespace MimeKit.Utils {
 
 				if (ShouldMergeWords (options, charset, words, word, i)) {
 					// the resulting word is the max of the 2 types
-					lwspCount = next.StartIndex - (word.StartIndex + word.Length);
+					lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 
 					word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
-					word.Encoding = Math.Max (word.Encoding, next.Encoding);
-					word.Length = (next.StartIndex + next.Length) - word.StartIndex;
+					word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
 					word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
+					word.Encoding = Math.Max (word.Encoding, next.Encoding);
 					word.EncodeCount = word.EncodeCount + next.EncodeCount;
 					word.QuotedPairs = word.QuotedPairs + next.QuotedPairs;
 				} else {
@@ -1260,29 +1300,29 @@ namespace MimeKit.Utils {
 			foreach (var word in words) {
 				// append the correct number of spaces between words...
 				if (prev != null && !(prev.Type == WordType.EncodedWord && word.Type == WordType.EncodedWord)) {
-					start = prev.StartIndex + prev.Length;
+					start = prev.StartIndex + prev.CharCount;
 					length = word.StartIndex - start;
 					str.Append (text, start, length);
 				}
 
 				switch (word.Type) {
 				case WordType.Atom:
-					str.Append (text, word.StartIndex, word.Length);
+					str.Append (text, word.StartIndex, word.CharCount);
 					break;
 				case WordType.QuotedString:
-					AppendQuoted (str, text, word.StartIndex, word.Length);
+					AppendQuoted (str, text, word.StartIndex, word.CharCount);
 					break;
 				case WordType.EncodedWord:
 					if (prev != null && prev.Type == WordType.EncodedWord) {
 						// include the whitespace between these 2 words in the
 						// resulting rfc2047 encoded-word.
-						start = prev.StartIndex + prev.Length;
-						length = (word.StartIndex + word.Length) - start;
+						start = prev.StartIndex + prev.CharCount;
+						length = (word.StartIndex + word.CharCount) - start;
 
 						str.Append (' ');
 					} else {
 						start = word.StartIndex;
-						length = word.Length;
+						length = word.CharCount;
 					}
 
 					switch (word.Encoding) {
