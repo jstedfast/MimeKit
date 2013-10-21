@@ -67,10 +67,6 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		internal int MaxPreEncodedLength {
-			get { return MaxLineLength / 2; }
-		}
-
 		/// <summary>
 		/// Gets or sets the new-line format.
 		/// </summary>
