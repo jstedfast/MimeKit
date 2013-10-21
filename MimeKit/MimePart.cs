@@ -327,19 +327,18 @@ namespace MimeKit {
 		/// Called when the headers change in some way.
 		/// </summary>
 		/// <param name="action">The type of change.</param>
-		/// <param name="id">Identifier.</param>
-		/// <param name="header">Header.</param>
-		protected override void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
+		/// <param name="header">The header being added, changed or removed.</param>
+		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
 			string text;
 			int value;
 
-			base.OnHeadersChanged (action, id, header);
+			base.OnHeadersChanged (action, header);
 
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
 					text = header.Value.Trim ().ToLowerInvariant ();
 					encoding = ContentEncoding.Default;
@@ -362,7 +361,7 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Removed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
 					break;

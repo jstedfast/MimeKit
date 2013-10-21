@@ -43,6 +43,54 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="charset">The charset that should be used to encode the
 		/// header value.</param>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public Header (Encoding charset, HeaderId id, string value)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (id == HeaderId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Options = ParserOptions.Default.Clone ();
+			Field = id.ToHeaderName ();
+			Id = id;
+
+			SetValue (charset, value);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public Header (HeaderId id, string value) : this (Encoding.UTF8, id, value)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <param name="charset">The charset that should be used to encode the
+		/// header value.</param>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -75,6 +123,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("value");
 
 			Options = ParserOptions.Default.Clone ();
+			Id = field.ToHeaderId ();
 			Field = field;
 
 			SetValue (charset, value);
@@ -100,6 +149,7 @@ namespace MimeKit {
 		// Note: this ctor is only used by the parser
 		internal Header (ParserOptions options, string field, byte[] value)
 		{
+			Id = field.ToHeaderId ();
 			Options = options;
 			RawValue = value;
 			Field = field;
@@ -120,6 +170,14 @@ namespace MimeKit {
 		/// </summary>
 		/// <value>The name of the header field.</value>
 		public string Field {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the header identifier.
+		/// </summary>
+		/// <value>The header identifier.</value>
+		public HeaderId Id {
 			get; private set;
 		}
 

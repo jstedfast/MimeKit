@@ -307,14 +307,13 @@ namespace MimeKit {
 		/// Called when the headers change in some way.
 		/// </summary>
 		/// <param name="action">The type of change.</param>
-		/// <param name="id">The <see cref="MimeKit.HeaderId"/> for the header, if known.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
-		protected virtual void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
+		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentDisposition:
 					if (disposition != null)
 						disposition.Changed -= ContentDispositionChanged;
@@ -328,7 +327,7 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Removed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentDisposition:
 					if (disposition != null)
 						disposition.Changed -= ContentDispositionChanged;
@@ -354,12 +353,7 @@ namespace MimeKit {
 
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			HeaderId id = HeaderId.Unknown;
-
-			if (e.Action != HeaderListChangedAction.Cleared)
-				id = e.Header.Field.ToHeaderId ();
-
-			OnHeadersChanged (e.Action, id, e.Header);
+			OnHeadersChanged (e.Action, e.Header);
 			OnChanged ();
 		}
 

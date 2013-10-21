@@ -574,23 +574,24 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadHeader (HeaderId type, string field)
+		void ReloadHeader (HeaderId id, string field)
 		{
-			if (type == HeaderId.Unknown)
+			if (id == HeaderId.Unknown)
 				return;
 
-			if (type == HeaderId.References) {
+			if (id == HeaderId.References) {
 				references.Changed -= ReferencesChanged;
 				references.Clear ();
 				references.Changed += ReferencesChanged;
-			} else if (type == HeaderId.InReplyTo)
+			} else if (id == HeaderId.InReplyTo) {
 				inreplyto = null;
+			}
 
 			foreach (var header in Headers) {
-				if (icase.Compare (header.Field, field) != 0)
+				if (header.Id != id)
 					continue;
 
-				switch (type) {
+				switch (id) {
 				case HeaderId.MimeVersion:
 					if (MimeUtils.TryParseVersion (header.RawValue, 0, header.RawValue.Length, out version))
 						return;
@@ -619,7 +620,6 @@ namespace MimeKit {
 
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			var type = e.Header.Field.ToHeaderId ();
 			InternetAddressList list;
 
 			switch (e.Action) {
@@ -629,7 +629,7 @@ namespace MimeKit {
 					break;
 				}
 
-				switch (type) {
+				switch (e.Header.Id) {
 				case HeaderId.MimeVersion:
 					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
 					break;
@@ -657,7 +657,7 @@ namespace MimeKit {
 					break;
 				}
 
-				ReloadHeader (type, e.Header.Field);
+				ReloadHeader (e.Header.Id, e.Header.Field);
 				break;
 			case HeaderListChangedAction.Cleared:
 				foreach (var kvp in addresses) {
