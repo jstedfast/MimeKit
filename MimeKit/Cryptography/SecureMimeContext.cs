@@ -271,7 +271,6 @@ namespace MimeKit.Cryptography {
 			var signed = new SignedCms (contentInfo, true);
 
 			signed.Decode (signatureData);
-			signed.CheckSignature (true);
 
 			return signed.SignerInfos;
 		}
@@ -295,7 +294,6 @@ namespace MimeKit.Cryptography {
 
 			var signed = new SignedCms ();
 			signed.Decode (signedData);
-			signed.CheckSignature (true);
 
 			content = signed.ContentInfo.Content;
 
