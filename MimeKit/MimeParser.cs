@@ -1026,7 +1026,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe BoundaryType ScanContent (byte* inbuf, Stream content)
+		unsafe BoundaryType ScanContent (byte* inbuf, Stream content, bool trimNewLine)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
@@ -1113,7 +1113,7 @@ namespace MimeKit {
 			if (contentIndex < inputIndex)
 				content.Write (input, contentIndex, inputIndex - contentIndex);
 
-			if (found != BoundaryType.Eos) {
+			if (found != BoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (content.Length > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -1136,14 +1136,14 @@ namespace MimeKit {
 				long end;
 
 				using (var measured = new MeasuringStream ()) {
-					found = ScanContent (inbuf, measured);
+					found = ScanContent (inbuf, measured, true);
 					end = begin + measured.Length;
 				}
 
 				content = new BoundStream (stream, begin, end, true);
 			} else {
 				content = new MemoryBlockStream ();
-				found = ScanContent (inbuf, content);
+				found = ScanContent (inbuf, content, true);
 				content.Seek (0, SeekOrigin.Begin);
 			}
 
@@ -1207,16 +1207,20 @@ namespace MimeKit {
 			return found;
 		}
 
-		unsafe BoundaryType MultipartScanPreambleOrEpilogue (Multipart multipart, byte* inbuf, bool preamble)
+		unsafe BoundaryType MultipartScanPreamble (Multipart multipart, byte* inbuf)
 		{
 			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (inbuf, memory);
+				var found = ScanContent (inbuf, memory, false);
+				multipart.RawPreamble = memory.ToArray ();
+				return found;
+			}
+		}
 
-				if (preamble)
-					multipart.RawPreamble = memory.ToArray ();
-				else
-					multipart.RawEpilogue = memory.ToArray ();
-
+		unsafe BoundaryType MultipartScanEpilogue (Multipart multipart, byte* inbuf)
+		{
+			using (var memory = new MemoryStream ()) {
+				var found = ScanContent (inbuf, memory, true);
+				multipart.RawEpilogue = memory.ToArray ();
 				return found;
 			}
 		}
@@ -1275,12 +1279,12 @@ namespace MimeKit {
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 
 				// Note: this will scan all content into the preamble...
-				return MultipartScanPreambleOrEpilogue (multipart, inbuf, true);
+				return MultipartScanPreamble (multipart, inbuf);
 			}
 
 			PushBoundary (boundary);
 
-			var found = MultipartScanPreambleOrEpilogue (multipart, inbuf, true);
+			var found = MultipartScanPreamble (multipart, inbuf);
 			if (found == BoundaryType.Boundary)
 				found = MultipartScanSubparts (multipart, inbuf);
 
@@ -1288,7 +1292,7 @@ namespace MimeKit {
 				// consume the end boundary and read the epilogue (if there is one)
 				SkipLine (inbuf);
 				PopBoundary ();
-				found = MultipartScanPreambleOrEpilogue (multipart, inbuf, false);
+				found = MultipartScanEpilogue (multipart, inbuf);
 			} else {
 				// We either found the end of the stream or we found a parent's boundary
 				PopBoundary ();
