@@ -85,8 +85,8 @@ namespace UnitTests {
 					try {
 						// don't validate the signer against a CA since we're using a self-signed certificate
 						signer.CheckSignature (true);
-					} catch (Exception) {
-						Assert.Fail ("Checking the signature of {0} failed.", signer);
+					} catch (Exception ex) {
+						Assert.Fail ("Checking the signature of {0} failed: {1}", signer.Certificate.GetNameInfo (X509NameType.EmailName, false), ex.Message);
 					}
 				}
 			}
@@ -144,8 +144,8 @@ namespace UnitTests {
 					try {
 						// don't validate the signer against a CA since we're using a self-signed certificate
 						signer.CheckSignature (true);
-					} catch (Exception) {
-						Assert.Fail ("Checking the signature of {0} failed.", signer);
+					} catch (Exception ex) {
+						Assert.Fail ("Checking the signature of {0} failed: {1}", signer.Certificate.GetNameInfo (X509NameType.EmailName, false), ex.Message);
 					}
 				}
 			}

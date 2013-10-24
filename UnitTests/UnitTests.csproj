@@ -61,6 +61,8 @@
   <ItemGroup>
     <Folder Include="TestData\" />
     <Folder Include="TestData\mbox\" />
+    <Folder Include="TestData\messages\" />
+    <Folder Include="TestData\smime\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\mbox\simple.mbox.txt" />
@@ -68,5 +70,14 @@
     <None Include="TestData\partial\message-partial.2.msg.txt" />
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
+    <None Include="TestData\messages\multipart-digest.txt" />
+    <None Include="TestData\messages\rfc2060.txt" />
+    <None Include="TestData\smime\certificate-authority.cert" />
+    <None Include="TestData\smime\certificate-authority.key" />
+    <None Include="TestData\smime\gencerts.sh" />
+    <None Include="TestData\smime\smime.cert" />
+    <None Include="TestData\smime\smime.csr" />
+    <None Include="TestData\smime\smime.key" />
+    <None Include="TestData\smime\smime.p12" />
   </ItemGroup>
 </Project>
