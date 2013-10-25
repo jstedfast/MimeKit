@@ -928,11 +928,11 @@ namespace MimeKit {
 		{
 			ContentType type;
 
-			foreach (var header in headers) {
-				if (icase.Compare (header.Field, "Content-Type") != 0)
+			for (int i = 0; i < headers.Count; i++) {
+				if (icase.Compare (headers[i].Field, "Content-Type") != 0)
 					continue;
 
-				if (!ContentType.TryParse (options, header.RawValue, out type))
+				if (!ContentType.TryParse (options, headers[i].RawValue, out type))
 					return new ContentType ("application", "octet-stream");
 
 				return type;
@@ -993,7 +993,9 @@ namespace MimeKit {
 				return BoundaryType.None;
 
 			long curOffset = GetOffset (startIndex);
-			foreach (var boundary in bounds) {
+			for (int i = 0; i < bounds.Count; i++) {
+				var boundary = bounds[i];
+
 				if (curOffset >= boundary.ContentEnd && IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
 					return BoundaryType.EndBoundary;
 
@@ -1368,11 +1370,11 @@ namespace MimeKit {
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
 				bounds[0].ContentEnd = -1;
 
-				foreach (var header in headers) {
-					if (icase.Compare (header.Field, "Content-Length") != 0)
+				for (int i = 0; i < headers.Count; i++) {
+					if (icase.Compare (headers[i].Field, "Content-Length") != 0)
 						continue;
 
-					var value = header.RawValue;
+					var value = headers[i].RawValue;
 					int length, index = 0;
 
 					if (!ParseUtils.TryParseInt32 (value, ref index, value.Length, out length))
