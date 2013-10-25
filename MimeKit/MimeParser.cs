@@ -615,7 +615,7 @@ namespace MimeKit {
 #endif
 		}
 
-		unsafe int StepMboxMarker (byte* inbuf)
+		unsafe void StepMboxMarker (byte* inbuf)
 		{
 			bool complete = false;
 			bool needInput;
@@ -628,7 +628,7 @@ namespace MimeKit {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
-					return -1;
+					return;
 				}
 
 				needInput = false;
@@ -680,8 +680,6 @@ namespace MimeKit {
 			} while (!complete);
 
 			state = MimeParserState.MessageHeaders;
-
-			return 0;
 		}
 
 		void AppendRawHeaderData (int startIndex, int length)
@@ -735,7 +733,7 @@ namespace MimeKit {
 			return *text == (byte) '\n';
 		}
 
-		unsafe int StepHeaders (byte* inbuf)
+		unsafe void StepHeaders (byte* inbuf)
 		{
 			bool scanningFieldName = true;
 			bool checkFolded = false;
@@ -750,10 +748,10 @@ namespace MimeKit {
 
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
-					// failed to find a From line; EOF reached
+					// failed to find the end of the headers; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
-					return -1;
+					return;
 				}
 
 				byte* inptr = inbuf + inputIndex;
@@ -811,7 +809,7 @@ namespace MimeKit {
 								inputIndex = (int) (start - inbuf);
 								state = MimeParserState.Complete;
 								headerIndex = 0;
-								return 0;
+								return;
 							}
 
 							if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
@@ -820,7 +818,7 @@ namespace MimeKit {
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
 									headerIndex = 0;
-									return -1;
+									return;
 								}
 							}
 						}
@@ -858,7 +856,7 @@ namespace MimeKit {
 						state = MimeParserState.Content;
 						ParseAndAppendHeader ();
 						headerIndex = 0;
-						return 0;
+						return;
 					}
 
 					length = (inptr + 1) - start;
@@ -1185,7 +1183,9 @@ namespace MimeKit {
 			// parse the headers...
 			state = MimeParserState.Headers;
 			if (Step (inbuf) == MimeParserState.Error) {
-				// Note: currently this can't happen because StepHeaders() never returns error
+				// Note: this either means that StepHeaders() found the end of the stream
+				// or an invalid header field name at the start of the message headers,
+				// which likely means that this is not a valid MIME stream?
 				return BoundaryType.Eos;
 			}
 
