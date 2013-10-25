@@ -30,7 +30,7 @@ namespace MimeKit.Encodings {
 	/// <summary>
 	/// An interface for incrementally encoding content.
 	/// </summary>
-	public interface IMimeEncoder : ICloneable
+	public interface IMimeEncoder
 	{
 		/// <summary>
 		/// Gets the encoding.
@@ -39,6 +39,11 @@ namespace MimeKit.Encodings {
 		/// The encoding.
 		/// </value>
 		ContentEncoding Encoding { get; }
+
+		/// <summary>
+		/// Clone the <see cref="IMimeEncoder"/> with its current state.
+		/// </summary>
+		IMimeEncoder Clone ();
 
 		/// <summary>
 		/// Estimates the length of the output.

@@ -49,7 +49,7 @@ namespace MimeKit.Encodings {
 		const int MaxLineLength = (QuartetsPerLine * 4) + 1;
 
 		int quartets;
-		bool rfc2047;
+		readonly bool rfc2047;
 		byte saved1;
 		byte saved2;
 		byte saved;
@@ -74,11 +74,18 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the encoder.
+		/// Clone the <see cref="Base64Encoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeEncoder Clone ()
 		{
-			return MemberwiseClone ();
+			var encoder = new Base64Encoder (rfc2047);
+
+			encoder.quartets = quartets;
+			encoder.saved1 = saved1;
+			encoder.saved2 = saved2;
+			encoder.saved = saved;
+
+			return encoder;
 		}
 
 		/// <summary>

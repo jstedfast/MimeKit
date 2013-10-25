@@ -32,7 +32,7 @@ namespace MimeKit.Encodings {
 	/// <summary>
 	/// Q-Encoding mode.
 	/// </summary>
-	public enum QEncodeMode {
+	public enum QEncodeMode : byte {
 		/// <summary>
 		/// A mode for encoding phrases, as defined by rfc0822.
 		/// </summary>
@@ -72,11 +72,11 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the encoder.
+		/// Clone the <see cref="QEncoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeEncoder Clone ()
 		{
-			return MemberwiseClone ();
+			return new QEncoder (mask == CharType.IsEncodedPhraseSafe ? QEncodeMode.Phrase : QEncodeMode.Text);
 		}
 
 		/// <summary>

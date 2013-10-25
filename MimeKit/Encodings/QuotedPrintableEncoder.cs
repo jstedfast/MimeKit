@@ -60,11 +60,16 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the encoder.
+		/// Clone the <see cref="QuotedPrintableEncoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeEncoder Clone ()
 		{
-			return MemberwiseClone ();
+			var encoder = new QuotedPrintableEncoder ();
+
+			encoder.currentLineLength = currentLineLength;
+			encoder.saved = saved;
+
+			return encoder;
 		}
 
 		/// <summary>

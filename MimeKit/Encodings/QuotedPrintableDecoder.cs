@@ -69,11 +69,16 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="QuotedPrintableDecoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			var decoder = new QuotedPrintableDecoder (rfc2047);
+
+			decoder.state = state;
+			decoder.saved = saved;
+
+			return decoder;
 		}
 
 		/// <summary>

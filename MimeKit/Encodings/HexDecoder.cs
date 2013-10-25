@@ -55,11 +55,16 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="HexDecoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			var decoder = new HexDecoder ();
+
+			decoder.state = state;
+			decoder.saved = saved;
+
+			return decoder;
 		}
 
 		/// <summary>

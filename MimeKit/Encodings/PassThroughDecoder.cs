@@ -47,11 +47,11 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="PassThroughDecoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			return new PassThroughDecoder (Encoding);
 		}
 
 		/// <summary>

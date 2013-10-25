@@ -42,7 +42,7 @@ namespace MimeKit.Encodings {
 		const int MaxInputPerLine = 45;
 		const int MaxOutputPerLine = ((MaxInputPerLine / 3) * 4) + 2;
 
-		byte[] uubuf = new byte[60];
+		readonly byte[] uubuf = new byte[60];
 		uint saved;
 		byte nsaved;
 		byte uulen;
@@ -56,13 +56,17 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the encoder.
+		/// Clone the <see cref="UUEncoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeEncoder Clone ()
 		{
-			var encoder = (UUEncoder) MemberwiseClone ();
-			encoder.uubuf = new byte[uubuf.Length];
+			var encoder = new UUEncoder ();
+
 			Array.Copy (uubuf, encoder.uubuf, uubuf.Length);
+			encoder.nsaved = nsaved;
+			encoder.saved = saved;
+			encoder.uulen = uulen;
+
 			return encoder;
 		}
 

@@ -69,11 +69,17 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="Base64Decoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			var decoder = new Base64Decoder ();
+
+			decoder.saved = saved;
+			decoder.bytes = bytes;
+			decoder.npad = npad;
+
+			return decoder;
 		}
 
 		/// <summary>
