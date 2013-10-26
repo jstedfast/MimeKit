@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.10.1.0</version>
+        <version>0.11.0.0</version>
         <title>MimeKit: (S/)MIME creation and parser library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -18,10 +18,10 @@ MimeKit's parser also uses a real tokenizer when parsing the headers rather than
 
 In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.</description>
         <summary>An Open Source library for creating and parsing MIME and S/MIME messages.</summary>
-        <releaseNotes>* Finished implementing S/MIME support and improved the API.
-* Improved MimeEntity.Register() and CryptographyContext.Register() to use reflection instead of requiring awkward delegates.
-* Added support for keeping MIME part content on disk rather than loading it into memory.
-* Fixed a bug in writing MimeMessages to a stream.</releaseNotes>
+        <releaseNotes>* Improved header folding logic.
+* Added new methods to allow developers to use the HeaderId enum instead of field strings in HeaderList.
+* Fixed S/MIME signature verification for messages signed with Microsoft Outlook.
+* Improved API for cloning MIME encoders and decoders.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
         <tags>MIME S/MIME mbox email parser Xamarin Android iOS</tags>
