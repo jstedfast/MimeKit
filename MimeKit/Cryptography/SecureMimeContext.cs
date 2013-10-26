@@ -207,6 +207,9 @@ namespace MimeKit.Cryptography {
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
 			var cmsSigner = GetCmsSigner (signer);
 
 			digestAlgo = cmsSigner.DigestAlgorithm.FriendlyName;
@@ -243,7 +246,7 @@ namespace MimeKit.Cryptography {
 			signed.ComputeSignature (signer, false);
 			var data = signed.Encode ();
 
-			return new ApplicationPkcs7Signature (new MemoryStream (data));
+			return new ApplicationPkcs7Signature (new MemoryStream (data, false));
 		}
 
 		/// <summary>
@@ -328,7 +331,7 @@ namespace MimeKit.Cryptography {
 			enveloped.Encrypt (recipients);
 			var data = enveloped.Encode ();
 
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data));
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
 
 		/// <summary>
@@ -398,7 +401,7 @@ namespace MimeKit.Cryptography {
 			enveloped.Encrypt (recipients);
 			var data = enveloped.Encode ();
 
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data));
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
 
 		/// <summary>
@@ -474,7 +477,7 @@ namespace MimeKit.Cryptography {
 				signers = null;
 			}
 
-			using (var memory = new MemoryStream (content)) {
+			using (var memory = new MemoryStream (content, false)) {
 				var parser = new MimeParser (memory, MimeFormat.Entity);
 				return parser.ParseEntity ();
 			}
@@ -554,7 +557,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("certificates");
 
 			var rawData = certificates.Export (X509ContentType.Pkcs12);
-			var content = new MemoryStream (rawData);
+			var content = new MemoryStream (rawData, false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, content);
 		}

@@ -49,10 +49,8 @@ namespace MimeKit.Cryptography {
 		{
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.SevenBit;
-			ContentDisposition.FileName = "smime.p7s";
-			ContentType.Name = "smime.p7s";
 
-			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"));
+			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"), false);
 
 			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
