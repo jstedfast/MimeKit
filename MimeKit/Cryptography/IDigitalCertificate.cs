@@ -27,7 +27,7 @@
 using System;
 
 namespace MimeKit.Cryptography {
-	public interface IDigitalSigner
+	public interface IDigitalCertificate
 	{
 		PublicKeyAlgorithm PublicKeyAlgorithm { get; }
 		DigestAlgorithm DigestAlgorithm { get; }
@@ -37,12 +37,8 @@ namespace MimeKit.Cryptography {
 
 		TrustLevel TrustLevel { get; }
 
-		string IssuerSerial { get; }
-		string IssuerName { get; }
-
 		string Fingerprint { get; }
-		string Name { get; }
 		string Email { get; }
-		string KeyId { get; }
+		string Name { get; }
 	}
 }

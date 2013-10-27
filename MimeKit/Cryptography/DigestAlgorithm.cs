@@ -96,6 +96,9 @@ namespace MimeKit.Cryptography {
 	{
 		public static string ToFriendlyName (this DigestAlgorithm digestAlgo)
 		{
+			if (digestAlgo == DigestAlgorithm.Haval5160)
+				return "haval-5-160";
+
 			return digestAlgo.ToString ().ToLowerInvariant ();
 		}
 
@@ -111,8 +114,8 @@ namespace MimeKit.Cryptography {
 			case "sha384": return DigestAlgorithm.Sha384;
 			case "sha512": return DigestAlgorithm.Sha512;
 			case "tiger192": return DigestAlgorithm.Tiger192;
-			case "haval5160": return DigestAlgorithm.Haval5160;
 			case "ripemd160": return DigestAlgorithm.RipeMD160;
+			case "haval-5-160": return DigestAlgorithm.Haval5160;
 			default: return DigestAlgorithm.None;
 			}
 		}

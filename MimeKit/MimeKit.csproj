@@ -49,10 +49,17 @@
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DigestAlgorithm.cs" />
+    <Compile Include="Cryptography\DigitalSignature.cs" />
+    <Compile Include="Cryptography\DigitalSignatureError.cs" />
+    <Compile Include="Cryptography\DigitalSignatureStatus.cs" />
+    <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
+    <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\TrustLevel.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />
@@ -120,13 +127,6 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
-    <Compile Include="Cryptography\DigitalSignature.cs" />
-    <Compile Include="Cryptography\DigitalSignatureStatus.cs" />
-    <Compile Include="Cryptography\DigitalSignatureError.cs" />
-    <Compile Include="Cryptography\DigestAlgorithm.cs" />
-    <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
-    <Compile Include="Cryptography\IDigitalSigner.cs" />
-    <Compile Include="Cryptography\TrustLevel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

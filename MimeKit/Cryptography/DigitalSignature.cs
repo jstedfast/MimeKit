@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="errors">Any errors that occurred while verifying the digital signature.</param>
 		/// <param name="created">The date the digital signature was created.</param>
 		/// <param name="expires">The date the digital signature expires.</param>
-		public DigitalSignature (IDigitalSigner signer, DigitalSignatureStatus status, DigitalSignatureError errors, DateTime created, DateTime expires)
+		public DigitalSignature (IDigitalCertificate signer, DigitalSignatureStatus status, DigitalSignatureError errors, DateTime created, DateTime expires)
 		{
 			ExpirationDate = expires;
 			CreationDate = created;
@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		/// Gets information about the signer.
 		/// </summary>
 		/// <value>The signer.</value>
-		public IDigitalSigner Signer {
+		public IDigitalCertificate Signer {
 			get; private set;
 		}
 

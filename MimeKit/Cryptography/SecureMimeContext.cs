@@ -275,8 +275,18 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Signature (new MemoryStream (data, false));
 		}
 
-		class SecureMimeDigitalSigner : IDigitalSigner
+		class SecureMimeDigitalCertificate : IDigitalCertificate
 		{
+			public SecureMimeDigitalCertificate (X509Certificate2 certificate)
+			{
+				Certificate = certificate;
+				TrustLevel = TrustLevel.Undefined;
+			}
+
+			public X509Certificate2 Certificate {
+				get; private set;
+			}
+
 			public PublicKeyAlgorithm PublicKeyAlgorithm {
 				get; internal set;
 			}
@@ -285,39 +295,27 @@ namespace MimeKit.Cryptography {
 				get; internal set;
 			}
 
-			public DateTime CreationDate {
-				get; internal set;
-			}
-
-			public DateTime ExpirationDate {
-				get; internal set;
-			}
-
-			public TrustLevel TrustLevel {
-				get; internal set;
-			}
-
-			public string IssuerSerial {
-				get; internal set;
-			}
-
-			public string IssuerName {
-				get; internal set;
-			}
-
-			public string Fingerprint {
-				get; internal set;
-			}
-
 			public string Name {
-				get; internal set;
+				get { return Certificate.GetNameInfo (X509NameType.SimpleName, false); }
 			}
 
 			public string Email {
-				get; internal set;
+				get { return Certificate.GetNameInfo (X509NameType.EmailName, false); }
 			}
 
-			public string KeyId {
+			public string Fingerprint {
+				get { return Certificate.Thumbprint; }
+			}
+
+			public DateTime CreationDate {
+				get { return Certificate.NotBefore; }
+			}
+
+			public DateTime ExpirationDate {
+				get { return Certificate.NotAfter; }
+			}
+
+			public TrustLevel TrustLevel {
 				get; internal set;
 			}
 		}
@@ -327,38 +325,25 @@ namespace MimeKit.Cryptography {
 			var signatures = new List<DigitalSignature> ();
 
 			foreach (var signerInfo in signerInfos) {
-				var signer = new SecureMimeDigitalSigner ();
+				var certificate = new SecureMimeDigitalCertificate (signerInfo.Certificate);
 				var status = DigitalSignatureStatus.Good;
 				var errors = DigitalSignatureError.None;
 
-				signer.DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
+				certificate.DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
 
-				if (signerInfo.Certificate != null) {
-					signer.Name = signerInfo.Certificate.GetNameInfo (X509NameType.SimpleName, false);
-					signer.Email = signerInfo.Certificate.GetNameInfo (X509NameType.EmailName, false);
-					signer.Fingerprint = signerInfo.Certificate.Thumbprint;
-					signer.KeyId = signerInfo.Certificate.Thumbprint;
+				if (certificate.ExpirationDate < DateTime.Now) {
+					errors |= DigitalSignatureError.ExpiredKey;
+					status = DigitalSignatureStatus.Bad;
+				}
 
-					signer.IssuerSerial = signerInfo.Certificate.SerialNumber;
-					signer.IssuerName = signerInfo.Certificate.IssuerName.Name;
-					signer.ExpirationDate = signerInfo.Certificate.NotAfter;
-					signer.CreationDate = signerInfo.Certificate.NotBefore;
+				var chain = new X509Chain ();
+				chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
+				chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+				chain.ChainPolicy.VerificationTime = DateTime.Now;
 
-					if (signer.ExpirationDate < DateTime.Now) {
-						errors |= DigitalSignatureError.ExpiredKey;
-						status = DigitalSignatureStatus.Bad;
-					}
-
-					var chain = new X509Chain ();
-					chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
-					chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-					chain.ChainPolicy.VerificationTime = DateTime.Now;
-
-					if (!chain.Build (signerInfo.Certificate))
-						errors |= DigitalSignatureError.RevokedKey;
-				} else {
-					errors = DigitalSignatureError.NoPublicKey;
-					status = DigitalSignatureStatus.Error;
+				if (!chain.Build (signerInfo.Certificate)) {
+					errors |= DigitalSignatureError.RevokedKey;
+					status = DigitalSignatureStatus.Bad;
 				}
 
 				try {
@@ -368,7 +353,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				// FIXME: how do I get the creation/expiration timestamps?
-				signatures.Add (new DigitalSignature (signer, status, errors, DateTime.MinValue, DateTime.MaxValue));
+				signatures.Add (new DigitalSignature (certificate, status, errors, DateTime.MinValue, DateTime.MaxValue));
 			}
 
 			return signatures;
