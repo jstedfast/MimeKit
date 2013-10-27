@@ -290,8 +290,8 @@ namespace MimeKit.Cryptography {
 				chain.ChainPolicy.UrlRetrievalTimeout = OnlineCertificateRetrievalTimeout;
 				chain.ChainPolicy.RevocationMode = AllowOnlineCertificateRetrieval ? X509RevocationMode.Online : X509RevocationMode.Offline;
 				chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-				if (AllowSelfSignedCertificates)
-					chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+				//if (AllowSelfSignedCertificates)
+				//	chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
 				chain.ChainPolicy.VerificationTime = DateTime.Now;
 
 				if (!chain.Build (signerInfo.Certificate)) {

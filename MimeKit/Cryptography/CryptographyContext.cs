@@ -55,13 +55,6 @@ namespace MimeKit.Cryptography {
 		public abstract string KeyExchangeProtocol { get; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allow
-		/// self-signed certificates.
-		/// </summary>
-		/// <value><c>true</c> if self-signed certificates should be allowed; otherwise, <c>false</c>.</value>
-		public bool AllowSelfSignedCertificates { get; set; }
-
-		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
 		/// certificate retrieval.
 		/// </summary>

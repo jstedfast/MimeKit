@@ -59,7 +59,7 @@ namespace UnitTests {
 			store.AddRange (certs);
 
 			return new SecureMimeContext (store) {
-				AllowSelfSignedCertificates = true,
+				//AllowSelfSignedCertificates = true,
 				AllowOnlineCertificateRetrieval = true,
 				OnlineCertificateRetrievalTimeout = new TimeSpan (0, 0, 30)
 			};

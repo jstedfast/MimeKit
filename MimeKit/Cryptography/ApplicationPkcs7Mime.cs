@@ -29,6 +29,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 
+// FIXME: Implement a Verify() method for parts tagged with signed-data?
+// FIXME: Implement a Decompress() method for parts tagged with compressed-data?
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
@@ -113,7 +116,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
@@ -146,7 +149,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="ctx">The context.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -185,31 +188,22 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
-				throw new InvalidOperationException ();
-
-			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
-
-			using (var memory = new MemoryStream ()) {
-				IList<IDigitalSignature> signatures;
-
-				ContentObject.WriteTo (memory);
-
-				return ctx.Decrypt (memory.ToArray (), out signatures);
+			using (var ctx = CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Decrypt (ctx);
 			}
 		}
 
 		/// <summary>
 		/// Import the certificates contained in the content.
 		/// </summary>
-		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="ctx">The context.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while importing.
 		/// </exception>
-		public void Import (SecureMimeContext ctx)
+		public void Import (CryptographyContext ctx)
 		{
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
@@ -218,6 +212,32 @@ namespace MimeKit.Cryptography {
 				ContentObject.WriteTo (memory);
 
 				ctx.ImportKeys (memory.ToArray ());
+			}
+		}
+
+		static void PrepareEntityForEncrypting (MimeEntity entity)
+		{
+			if (entity is Multipart) {
+				// Note: we do not want to modify multipart/signed parts
+				if (entity is MultipartSigned)
+					return;
+
+				var multipart = (Multipart) entity;
+
+				foreach (var subpart in multipart)
+					PrepareEntityForEncrypting (subpart);
+			} else if (entity is MessagePart) {
+				var mpart = (MessagePart) entity;
+
+				if (mpart.Message != null && mpart.Message.Body != null)
+					PrepareEntityForEncrypting (mpart.Message.Body);
+			} else {
+				var part = (MimePart) entity;
+
+				if (part.ContentTransferEncoding == ContentEncoding.Binary)
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
+					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
 			}
 		}
 
@@ -252,6 +272,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
+				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 
 				return ctx.Encrypt (recipients, memory.ToArray ());
@@ -295,6 +316,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
+				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 
 				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory.ToArray ());
@@ -338,6 +360,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
+				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 
 				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
@@ -387,6 +410,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
+				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 
 				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory.ToArray ());

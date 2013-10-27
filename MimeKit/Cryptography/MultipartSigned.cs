@@ -72,7 +72,9 @@ namespace MimeKit.Cryptography {
 			} else {
 				var part = (MimePart) entity;
 
-				if (part.ContentTransferEncoding != ContentEncoding.Base64)
+				if (part.ContentTransferEncoding == ContentEncoding.Binary)
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
 					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
 			}
 		}
