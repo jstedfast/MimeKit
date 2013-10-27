@@ -70,8 +70,8 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
-		/// <param name="digestAlgo">The digest algorithm used.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -80,9 +80,20 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public abstract MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo);
+		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content);
 
-		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
+		/// <summary>
+		/// Verify the specified content and signatureData.
+		/// </summary>
+		/// <returns>A list of digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The signature data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		public abstract IList<DigitalSignature> Verify (byte[] content, byte[] signatureData);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -107,6 +118,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -121,9 +133,18 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		public abstract MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
+		public abstract MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content);
 
-		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
+		/// <summary>
+		/// Decrypt the specified encryptedData.
+		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		public abstract MimeEntity Decrypt (byte[] encryptedData, out IList<DigitalSignature> signatures);
 
 		/// <summary>
 		/// Imports keys (or certificates).

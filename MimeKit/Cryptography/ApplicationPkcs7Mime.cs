@@ -117,8 +117,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
-		/// <param name="recipients">The list of recipients that can decrypt this application/pkcs7-mime part.</param>
-		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
+		/// <param name="signatures">The list of digital signatures for this application/pkcs7-mime part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -128,7 +127,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
+		public MimeEntity Decrypt (CryptographyContext ctx, out IList<DigitalSignature> signatures)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -139,44 +138,12 @@ namespace MimeKit.Cryptography {
 			using (var memory = new MemoryStream ()) {
 				ContentObject.WriteTo (memory);
 
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+				return ctx.Decrypt (memory.ToArray (), out signatures);
 			}
 		}
 
 		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
-		/// </summary>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
-		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
-		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx, out SignerInfoCollection signers)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
-
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
-				throw new InvalidOperationException ();
-
-			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-
-				ContentObject.WriteTo (memory);
-
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
-			}
-		}
-
-		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context.</param>
@@ -189,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx)
+		public MimeEntity Decrypt (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -198,12 +165,11 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-				SignerInfoCollection signers;
+				IList<DigitalSignature> signatures;
 
 				ContentObject.WriteTo (memory);
 
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+				return ctx.Decrypt (memory.ToArray (), out signatures);
 			}
 		}
 
@@ -225,12 +191,11 @@ namespace MimeKit.Cryptography {
 			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
 
 			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-				SignerInfoCollection signers;
+				IList<DigitalSignature> signatures;
 
 				ContentObject.WriteTo (memory);
 
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+				return ctx.Decrypt (memory.ToArray (), out signatures);
 			}
 		}
 
@@ -315,7 +280,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while encrypting.
 		/// </exception>
-		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static ApplicationPkcs7Mime Encrypt (CryptographyContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -360,6 +325,12 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
@@ -378,6 +349,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="ctx">The context.</param>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -397,10 +369,16 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing or encrypting.
 		/// </exception>
-		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static ApplicationPkcs7Mime SignAndEncrypt (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
 
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
@@ -411,7 +389,7 @@ namespace MimeKit.Cryptography {
 
 				entity.WriteTo (options, memory);
 
-				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
+				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory.ToArray ());
 			}
 		}
 	}

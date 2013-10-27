@@ -61,6 +61,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="signer">The signer to use to sign the entity.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -70,18 +71,16 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
-		public static MultipartEncrypted Create (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static MultipartEncrypted Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
 				byte[] cleartext;
 
 				using (var memory = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (memory)) {
-						filtered.Add (new Unix2DosFilter ());
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
 
-						entity.WriteTo (filtered);
-						filtered.Flush ();
-					}
+					entity.WriteTo (options, memory);
 
 					cleartext = memory.ToArray ();
 				}
@@ -93,7 +92,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, recipients, cleartext));
+				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, cleartext));
 
 				return encrypted;
 			}
@@ -144,6 +143,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt this instance.
 		/// </summary>
 		/// <returns>The decrypted entity.</returns>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
@@ -153,7 +153,7 @@ namespace MimeKit.Cryptography {
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// decrypting could not be found.
 		/// </exception>
-		public MimeEntity Decrypt ()
+		public MimeEntity Decrypt (out IList<DigitalSignature> signatures)
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -180,18 +180,16 @@ namespace MimeKit.Cryptography {
 			if (!encrypted.ContentType.Matches ("application", "octet-stream"))
 				throw new FormatException ();
 
-			throw new NotSupportedException ();
+			using (var ctx = CryptographyContext.Create (protocol)) {
+				byte[] encryptedData;
 
-//			using (var ctx = CryptographyContext.Create (protocol)) {
-//				byte[] encryptedData;
-//
-//				using (var memory = new MemoryStream ()) {
-//					encrypted.ContentObject.DecodeTo (memory);
-//					encryptedData = memory.ToArray ();
-//				}
-//
-//				return ctx.Decrypt (encryptedData, ...);
-//			}
+				using (var memory = new MemoryStream ()) {
+					encrypted.ContentObject.DecodeTo (memory);
+					encryptedData = memory.ToArray ();
+				}
+
+				return ctx.Decrypt (encryptedData, out signatures);
+			}
 		}
 	}
 }

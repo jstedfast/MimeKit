@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 
 using MimeKit.IO;
@@ -82,6 +83,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance.</returns>
 		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
@@ -96,7 +98,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing.
 		/// </exception>
-		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
+		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -108,7 +110,6 @@ namespace MimeKit.Cryptography {
 
 			MimeEntity parsed;
 			byte[] cleartext;
-			string micalg;
 
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -135,8 +136,12 @@ namespace MimeKit.Cryptography {
 			}
 
 			// sign the cleartext content
-			var signature = ctx.Sign (signer, cleartext, out micalg);
+			var signature = ctx.Sign (signer, digestAlgo, cleartext);
+			var micalg = digestAlgo.ToFriendlyName ();
 			var signed = new MultipartSigned ();
+
+			if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
+				micalg = "pgp-" + micalg;
 
 			// set the protocol and micalg Content-Type parameters
 			signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
@@ -238,7 +243,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying.
 		/// </exception>
-		public SignerInfoCollection Verify (CryptographyContext ctx)
+		public IList<DigitalSignature> Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -279,12 +284,7 @@ namespace MimeKit.Cryptography {
 				signatureData = memory.ToArray ();
 			}
 
-			var smime = ctx as SecureMimeContext;
-
-			if (smime == null)
-				throw new NotSupportedException ();
-
-			return smime.Verify (cleartext, signatureData);
+			return ctx.Verify (cleartext, signatureData);
 		}
 
 		/// <summary>
@@ -303,7 +303,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying.
 		/// </exception>
-		public SignerInfoCollection Verify ()
+		public IList<DigitalSignature> Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

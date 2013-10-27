@@ -117,16 +117,15 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the encryption certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
 		/// <returns>The certificate.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="flags">Key usage flags.</param>
 		/// <param name="exporting"><c>true</c> if the certificate will be exported; otherwise <c>false</c>.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected virtual X509Certificate2 GetCertificate (MailboxAddress mailbox, X509KeyUsageFlags flags, bool exporting)
+		protected virtual X509Certificate2 GetEncryptionCertificate (MailboxAddress mailbox, bool exporting)
 		{
 			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
 
@@ -140,10 +139,29 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			if (flags == X509KeyUsageFlags.DigitalSignature)
-				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		/// <summary>
+		/// Gets the certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The certificate.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected virtual X509Certificate2 GetSigningCertificate (MailboxAddress mailbox)
+		{
+			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
+
+			foreach (var certificate in certificates) {
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address) {
+
+					return certificate;
+				}
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
 		/// <summary>
@@ -151,9 +169,14 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The cms signer.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox)
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var signer = new CmsSigner (GetCertificate (mailbox, X509KeyUsageFlags.DigitalSignature, false));
+			var signer = new CmsSigner (GetSigningCertificate (mailbox));
+			signer.DigestAlgorithm.FriendlyName = digestAlgo.ToString ().ToUpperInvariant ();
 			signer.IncludeOption = X509IncludeOption.EndCertOnly;
 			return signer;
 		}
@@ -163,9 +186,12 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The cms recipient.</returns>
 		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
 		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			return new CmsRecipient (GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment, false));
+			return new CmsRecipient (GetEncryptionCertificate (mailbox, false));
 		}
 
 		/// <summary>
@@ -189,8 +215,8 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
-		/// <param name="digestAlgo">The digest algorithm used.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -202,7 +228,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo)
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -210,9 +236,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var cmsSigner = GetCmsSigner (signer);
+			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
-			digestAlgo = cmsSigner.DigestAlgorithm.FriendlyName;
+			//digestAlgo = cmsSigner.DigestAlgorithm.FriendlyName;
 
 			return Sign (cmsSigner, content);
 		}
@@ -249,9 +275,109 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Signature (new MemoryStream (data, false));
 		}
 
+		class SecureMimeDigitalSigner : IDigitalSigner
+		{
+			public PublicKeyAlgorithm PublicKeyAlgorithm {
+				get; internal set;
+			}
+
+			public DigestAlgorithm DigestAlgorithm {
+				get; internal set;
+			}
+
+			public DateTime CreationDate {
+				get; internal set;
+			}
+
+			public DateTime ExpirationDate {
+				get; internal set;
+			}
+
+			public TrustLevel TrustLevel {
+				get; internal set;
+			}
+
+			public string IssuerSerial {
+				get; internal set;
+			}
+
+			public string IssuerName {
+				get; internal set;
+			}
+
+			public string Fingerprint {
+				get; internal set;
+			}
+
+			public string Name {
+				get; internal set;
+			}
+
+			public string Email {
+				get; internal set;
+			}
+
+			public string KeyId {
+				get; internal set;
+			}
+		}
+
+		IList<DigitalSignature> GetDigitalSignatures (SignerInfoCollection signerInfos)
+		{
+			var signatures = new List<DigitalSignature> ();
+
+			foreach (var signerInfo in signerInfos) {
+				var signer = new SecureMimeDigitalSigner ();
+				var status = DigitalSignatureStatus.Good;
+				var errors = DigitalSignatureError.None;
+
+				signer.DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
+
+				if (signerInfo.Certificate != null) {
+					signer.Name = signerInfo.Certificate.GetNameInfo (X509NameType.SimpleName, false);
+					signer.Email = signerInfo.Certificate.GetNameInfo (X509NameType.EmailName, false);
+					signer.Fingerprint = signerInfo.Certificate.Thumbprint;
+					signer.KeyId = signerInfo.Certificate.Thumbprint;
+
+					signer.IssuerSerial = signerInfo.Certificate.SerialNumber;
+					signer.IssuerName = signerInfo.Certificate.IssuerName.Name;
+					signer.ExpirationDate = signerInfo.Certificate.NotAfter;
+					signer.CreationDate = signerInfo.Certificate.NotBefore;
+
+					if (signer.ExpirationDate < DateTime.Now) {
+						errors |= DigitalSignatureError.ExpiredKey;
+						status = DigitalSignatureStatus.Bad;
+					}
+
+					var chain = new X509Chain ();
+					chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
+					chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+					chain.ChainPolicy.VerificationTime = DateTime.Now;
+
+					if (!chain.Build (signerInfo.Certificate))
+						errors |= DigitalSignatureError.RevokedKey;
+				} else {
+					errors = DigitalSignatureError.NoPublicKey;
+					status = DigitalSignatureStatus.Error;
+				}
+
+				try {
+					signerInfo.CheckSignature (true);
+				} catch (CryptographicException) {
+					status = DigitalSignatureStatus.Bad;
+				}
+
+				// FIXME: how do I get the creation/expiration timestamps?
+				signatures.Add (new DigitalSignature (signer, status, errors, DateTime.MinValue, DateTime.MaxValue));
+			}
+
+			return signatures;
+		}
+
 		/// <summary>
 		/// Verify the digital signatures of the specified content using the detached signatureData.
 		/// </summary>
+		/// <returns>A list of the digital signatures.</returns>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The detached signature data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -262,7 +388,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public SignerInfoCollection Verify (byte[] content, byte[] signatureData)
+		public override IList<DigitalSignature> Verify (byte[] content, byte[] signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -275,13 +401,13 @@ namespace MimeKit.Cryptography {
 
 			signed.Decode (signatureData);
 
-			return signed.SignerInfos;
+			return GetDigitalSignatures (signed.SignerInfos);
 		}
 
 		/// <summary>
 		/// Verify the digital signatures of the specified signedData and extract the original content.
 		/// </summary>
-		/// <returns>A signer info collection.</returns>
+		/// <returns>A list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="content">The original content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -290,7 +416,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public SignerInfoCollection Verify (byte[] signedData, out byte[] content)
+		public IList<DigitalSignature> Verify (byte[] signedData, out byte[] content)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
@@ -300,7 +426,7 @@ namespace MimeKit.Cryptography {
 
 			content = signed.ContentInfo.Content;
 
-			return signed.SignerInfos;
+			return GetDigitalSignatures (signed.SignerInfos);
 		}
 
 		/// <summary>
@@ -411,6 +537,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -428,7 +555,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing or encrypting.
 		/// </exception>
-		public override MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content)
+		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -439,7 +566,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			return SignAndEncrypt (GetCmsSigner (signer), GetCmsRecipients (recipients), content);
+			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetCmsRecipients (recipients), content);
 		}
 
 		/// <summary>
@@ -447,15 +574,14 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="signers">The signers.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public MimeEntity Decrypt (byte[] encryptedData, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
+		public override MimeEntity Decrypt (byte[] encryptedData, out IList<DigitalSignature> signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -464,17 +590,15 @@ namespace MimeKit.Cryptography {
 			enveloped.Decode (encryptedData);
 			enveloped.Decrypt (CertificateStore.Certificates);
 
-			recipients = enveloped.RecipientInfos;
-
 			// now that we've decrypted the data, let's see if it is signed...
 			var signedData = enveloped.Encode ();
 			byte[] content;
 
 			try {
-				signers = Verify (signedData, out content);
+				signatures = Verify (signedData, out content);
 			} catch (CryptographicException) {
 				content = signedData;
-				signers = null;
+				signatures = null;
 			}
 
 			using (var memory = new MemoryStream (content, false)) {
@@ -526,7 +650,7 @@ namespace MimeKit.Cryptography {
 
 			var certificates = new X509Certificate2Collection ();
 			foreach (var mailbox in mailboxes) {
-				var cert = GetCertificate (mailbox, X509KeyUsageFlags.DataEncipherment, true);
+				var cert = GetEncryptionCertificate (mailbox, true);
 				certificates.Add (cert);
 			}
 

@@ -70,7 +70,7 @@ namespace UnitTests {
 			cleartext.Text = "This is some cleartext that we'll end up signing...";
 
 			using (var ctx = CreateContext ()) {
-				var multipart = MultipartSigned.Create (ctx, self, cleartext);
+				var multipart = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha1, cleartext);
 				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
 				var protocol = multipart.ContentType.Parameters["protocol"];
@@ -79,15 +79,11 @@ namespace UnitTests {
 				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
 				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
 
-				var signers = multipart.Verify (ctx);
-				Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
-				foreach (var signer in signers) {
-					try {
-						// don't validate the signer against a CA since we're using a self-signed certificate
-						signer.CheckSignature (true);
-					} catch (Exception ex) {
-						Assert.Fail ("Checking the signature of {0} failed: {1}", signer.Certificate.GetNameInfo (X509NameType.EmailName, false), ex.Message);
-					}
+				var signatures = multipart.Verify (ctx);
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
+						"Checking the signature of {0} failed.", signature.Signer.Name);
 				}
 			}
 		}
@@ -129,24 +125,20 @@ namespace UnitTests {
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
 			using (var ctx = CreateContext ()) {
-				var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, recipients, cleartext);
+				var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
-				SignerInfoCollection signers;
-				var decrypted = encrypted.Decrypt (ctx, out signers);
+				IList<DigitalSignature> signatures;
+				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
 				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 
-				Assert.AreEqual (1, signers.Count, "The signer info collection contains an unexpected number of signers.");
-				foreach (var signer in signers) {
-					try {
-						// don't validate the signer against a CA since we're using a self-signed certificate
-						signer.CheckSignature (true);
-					} catch (Exception ex) {
-						Assert.Fail ("Checking the signature of {0} failed: {1}", signer.Certificate.GetNameInfo (X509NameType.EmailName, false), ex.Message);
-					}
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
+						"Checking the signature of {0} failed.", signature.Signer.Name);
 				}
 			}
 		}
