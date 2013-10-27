@@ -127,7 +127,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public MimeEntity Decrypt (CryptographyContext ctx, out IList<DigitalSignature> signatures)
+		public MimeEntity Decrypt (CryptographyContext ctx, out IList<IDigitalSignature> signatures)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -165,7 +165,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				IList<DigitalSignature> signatures;
+				IList<IDigitalSignature> signatures;
 
 				ContentObject.WriteTo (memory);
 
@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
 
 			using (var memory = new MemoryStream ()) {
-				IList<DigitalSignature> signatures;
+				IList<IDigitalSignature> signatures;
 
 				ContentObject.WriteTo (memory);
 

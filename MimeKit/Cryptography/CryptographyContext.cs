@@ -55,6 +55,26 @@ namespace MimeKit.Cryptography {
 		public abstract string KeyExchangeProtocol { get; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allow
+		/// self-signed certificates.
+		/// </summary>
+		/// <value><c>true</c> if self-signed certificates should be allowed; otherwise, <c>false</c>.</value>
+		public bool AllowSelfSignedCertificates { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
+		/// certificate retrieval.
+		/// </summary>
+		/// <value><c>true</c> if online certificate retrieval should be allowed; otherwise, <c>false</c>.</value>
+		public bool AllowOnlineCertificateRetrieval { get; set; }
+
+		/// <summary>
+		/// Gets or sets the online certificate retrieval timeout.
+		/// </summary>
+		/// <value>The online certificate retrieval timeout.</value>
+		public TimeSpan OnlineCertificateRetrievalTimeout { get; set; }
+
+		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
@@ -93,7 +113,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		public abstract IList<DigitalSignature> Verify (byte[] content, byte[] signatureData);
+		public abstract IList<IDigitalSignature> Verify (byte[] content, byte[] signatureData);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -144,7 +164,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		public abstract MimeEntity Decrypt (byte[] encryptedData, out IList<DigitalSignature> signatures);
+		public abstract MimeEntity Decrypt (byte[] encryptedData, out IList<IDigitalSignature> signatures);
 
 		/// <summary>
 		/// Imports keys (or certificates).

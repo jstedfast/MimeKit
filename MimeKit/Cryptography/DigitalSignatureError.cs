@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// The signature expired.
 		/// </summary>
-		ExpiredSignature = (1 << 0),
+		SignatureExpired = (1 << 0),
 
 		/// <summary>
 		/// No public key.
@@ -48,14 +48,14 @@ namespace MimeKit.Cryptography {
 		NoPublicKey = (1 << 1),
 
 		/// <summary>
-		/// The key used for the digital signature has expired.
+		/// The certificate or key used for the digital signature has expired.
 		/// </summary>
-		ExpiredKey = (1 << 2),
+		CertificateExpired = (1 << 2),
 
 		/// <summary>
-		/// The key used for the digital signature has been revoked.
+		/// The certificate or key used for the digital signature has been revoked.
 		/// </summary>
-		RevokedKey = (1 << 3),
+		CertificateRevoked = (1 << 3),
 
 		/// <summary>
 		/// The algorithm used in the digital signature is unsupported.

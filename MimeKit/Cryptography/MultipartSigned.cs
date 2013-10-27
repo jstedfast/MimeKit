@@ -243,7 +243,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying.
 		/// </exception>
-		public IList<DigitalSignature> Verify (CryptographyContext ctx)
+		public IList<IDigitalSignature> Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -303,7 +303,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying.
 		/// </exception>
-		public IList<DigitalSignature> Verify ()
+		public IList<IDigitalSignature> Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

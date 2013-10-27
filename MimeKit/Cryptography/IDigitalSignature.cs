@@ -30,63 +30,36 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A digital signature.
 	/// </summary>
-	public class DigitalSignature
+	public interface IDigitalSignature
 	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DigitalSignature"/> class.
-		/// </summary>
-		/// <param name="signer">The signer info.</param>
-		/// <param name="status">The status of the digital signature.</param>
-		/// <param name="errors">Any errors that occurred while verifying the digital signature.</param>
-		/// <param name="created">The date the digital signature was created.</param>
-		/// <param name="expires">The date the digital signature expires.</param>
-		public DigitalSignature (IDigitalCertificate signer, DigitalSignatureStatus status, DigitalSignatureError errors, DateTime created, DateTime expires)
-		{
-			ExpirationDate = expires;
-			CreationDate = created;
-			Signer = signer;
-			Status = status;
-			Errors = errors;
-		}
-
 		/// <summary>
 		/// Gets information about the signer.
 		/// </summary>
 		/// <value>The signer.</value>
-		public IDigitalCertificate Signer {
-			get; private set;
-		}
+		IDigitalCertificate SignerCertificate { get; }
 
 		/// <summary>
 		/// Gets the status of the digital signature.
 		/// </summary>
 		/// <value>The status.</value>
-		public DigitalSignatureStatus Status {
-			get; private set;
-		}
+		DigitalSignatureStatus Status { get; }
 
 		/// <summary>
 		/// Gets a bit field of any errors that occurred while verifying the digital signature.
 		/// </summary>
 		/// <value>The errors.</value>
-		public DigitalSignatureError Errors {
-			get; private set;
-		}
+		DigitalSignatureError Errors { get; }
 
 		/// <summary>
 		/// Gets the creation date of the digital signature.
 		/// </summary>
 		/// <value>The creation date.</value>
-		public DateTime CreationDate {
-			get; private set;
-		}
+		DateTime CreationDate { get; }
 
 		/// <summary>
 		/// Gets the expiration date of the digital signature.
 		/// </summary>
 		/// <value>The expiration date.</value>
-		public DateTime ExpirationDate {
-			get; private set;
-		}
+		DateTime ExpirationDate { get; }
 	}
 }

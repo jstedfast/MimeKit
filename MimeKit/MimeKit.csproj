@@ -50,7 +50,6 @@
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
-    <Compile Include="Cryptography\DigitalSignature.cs" />
     <Compile Include="Cryptography\DigitalSignatureError.cs" />
     <Compile Include="Cryptography\DigitalSignatureStatus.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
@@ -127,6 +126,7 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="Cryptography\IDigitalSignature.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

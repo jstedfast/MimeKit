@@ -153,7 +153,7 @@ namespace MimeKit.Cryptography {
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// decrypting could not be found.
 		/// </exception>
-		public MimeEntity Decrypt (out IList<DigitalSignature> signatures)
+		public MimeEntity Decrypt (out IList<IDigitalSignature> signatures)
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

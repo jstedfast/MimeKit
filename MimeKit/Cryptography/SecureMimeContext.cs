@@ -238,8 +238,6 @@ namespace MimeKit.Cryptography {
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
-			//digestAlgo = cmsSigner.DigestAlgorithm.FriendlyName;
-
 			return Sign (cmsSigner, content);
 		}
 
@@ -275,85 +273,48 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Signature (new MemoryStream (data, false));
 		}
 
-		class SecureMimeDigitalCertificate : IDigitalCertificate
+		IList<IDigitalSignature> GetDigitalSignatures (SignerInfoCollection signerInfos)
 		{
-			public SecureMimeDigitalCertificate (X509Certificate2 certificate)
-			{
-				Certificate = certificate;
-				TrustLevel = TrustLevel.Undefined;
-			}
-
-			public X509Certificate2 Certificate {
-				get; private set;
-			}
-
-			public PublicKeyAlgorithm PublicKeyAlgorithm {
-				get; internal set;
-			}
-
-			public DigestAlgorithm DigestAlgorithm {
-				get; internal set;
-			}
-
-			public string Name {
-				get { return Certificate.GetNameInfo (X509NameType.SimpleName, false); }
-			}
-
-			public string Email {
-				get { return Certificate.GetNameInfo (X509NameType.EmailName, false); }
-			}
-
-			public string Fingerprint {
-				get { return Certificate.Thumbprint; }
-			}
-
-			public DateTime CreationDate {
-				get { return Certificate.NotBefore; }
-			}
-
-			public DateTime ExpirationDate {
-				get { return Certificate.NotAfter; }
-			}
-
-			public TrustLevel TrustLevel {
-				get; internal set;
-			}
-		}
-
-		IList<DigitalSignature> GetDigitalSignatures (SignerInfoCollection signerInfos)
-		{
-			var signatures = new List<DigitalSignature> ();
+			var signatures = new List<IDigitalSignature> ();
 
 			foreach (var signerInfo in signerInfos) {
-				var certificate = new SecureMimeDigitalCertificate (signerInfo.Certificate);
-				var status = DigitalSignatureStatus.Good;
-				var errors = DigitalSignatureError.None;
-
-				certificate.DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
+				var signature = new SecureMimeDigitalSignature (signerInfo);
+				var certificate = (SecureMimeDigitalCertificate) signature.SignerCertificate;
 
 				if (certificate.ExpirationDate < DateTime.Now) {
-					errors |= DigitalSignatureError.ExpiredKey;
-					status = DigitalSignatureStatus.Bad;
+					signature.Errors |= DigitalSignatureError.CertificateExpired;
+					signature.Status = DigitalSignatureStatus.Error;
 				}
 
 				var chain = new X509Chain ();
-				chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
+				chain.ChainPolicy.UrlRetrievalTimeout = OnlineCertificateRetrievalTimeout;
+				chain.ChainPolicy.RevocationMode = AllowOnlineCertificateRetrieval ? X509RevocationMode.Online : X509RevocationMode.Offline;
 				chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+				if (AllowSelfSignedCertificates)
+					chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
 				chain.ChainPolicy.VerificationTime = DateTime.Now;
 
 				if (!chain.Build (signerInfo.Certificate)) {
-					errors |= DigitalSignatureError.RevokedKey;
-					status = DigitalSignatureStatus.Bad;
+					for (int i = 0; i < chain.ChainStatus.Length; i++) {
+						if (chain.ChainStatus[i].Status.HasFlag (X509ChainStatusFlags.Revoked)) {
+							signature.Errors |= DigitalSignatureError.CertificateRevoked;
+							signature.Status = DigitalSignatureStatus.Error;
+						}
+
+						certificate.ChainStatus |= chain.ChainStatus[i].Status;
+					}
 				}
 
-				try {
-					signerInfo.CheckSignature (true);
-				} catch (CryptographicException) {
-					status = DigitalSignatureStatus.Bad;
+				if (signature.Status != DigitalSignatureStatus.Error) {
+					try {
+						signerInfo.CheckSignature (true);
+					} catch (CryptographicException) {
+						signature.Status = DigitalSignatureStatus.Bad;
+					}
 				}
 
 				// FIXME: how do I get the creation/expiration timestamps?
-				signatures.Add (new DigitalSignature (certificate, status, errors, DateTime.MinValue, DateTime.MaxValue));
+				signatures.Add (signature);
 			}
 
 			return signatures;
@@ -373,7 +334,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public override IList<DigitalSignature> Verify (byte[] content, byte[] signatureData)
+		public override IList<IDigitalSignature> Verify (byte[] content, byte[] signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -401,7 +362,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public IList<DigitalSignature> Verify (byte[] signedData, out byte[] content)
+		public IList<IDigitalSignature> Verify (byte[] signedData, out byte[] content)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
@@ -566,7 +527,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public override MimeEntity Decrypt (byte[] encryptedData, out IList<DigitalSignature> signatures)
+		public override MimeEntity Decrypt (byte[] encryptedData, out IList<IDigitalSignature> signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -704,5 +665,150 @@ namespace MimeKit.Cryptography {
 
 			base.Dispose (disposing);
 		}
+	}
+
+	/// <summary>
+	/// An S/MIME digital certificate.
+	/// </summary>
+	public class SecureMimeDigitalCertificate : IDigitalCertificate
+	{
+		internal SecureMimeDigitalCertificate (SignerInfo signerInfo)
+		{
+			DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
+			Certificate = signerInfo.Certificate;
+			TrustLevel = TrustLevel.Undefined;
+		}
+
+		SecureMimeDigitalCertificate ()
+		{
+		}
+
+		/// <summary>
+		/// Gets the <see cref="System.Security.Cryptography.X509Certificates.X509Certificate2" />.
+		/// </summary>
+		/// <value>The certificate.</value>
+		public X509Certificate2 Certificate {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the chain status.
+		/// </summary>
+		/// <value>The chain status.</value>
+		public X509ChainStatusFlags ChainStatus {
+			get; internal set;
+		}
+
+		#region IDigitalCertificate implementation
+
+		/// <summary>
+		/// Gets the public key algorithm.
+		/// </summary>
+		/// <value>The public key algorithm.</value>
+		public PublicKeyAlgorithm PublicKeyAlgorithm {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the digest algorithm.
+		/// </summary>
+		/// <value>The digest algorithm.</value>
+		public DigestAlgorithm DigestAlgorithm {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>The name.</value>
+		public string Name {
+			get { return Certificate.GetNameInfo (X509NameType.SimpleName, false); }
+		}
+
+		/// <summary>
+		/// Gets the email address.
+		/// </summary>
+		/// <value>The email address.</value>
+		public string Email {
+			get { return Certificate.GetNameInfo (X509NameType.EmailName, false); }
+		}
+
+		/// <summary>
+		/// Gets the fingerprint.
+		/// </summary>
+		/// <value>The fingerprint.</value>
+		public string Fingerprint {
+			get { return Certificate.Thumbprint; }
+		}
+
+		/// <summary>
+		/// Gets the creation date.
+		/// </summary>
+		/// <value>The creation date.</value>
+		public DateTime CreationDate {
+			get { return Certificate.NotBefore; }
+		}
+
+		/// <summary>
+		/// Gets the expiration date.
+		/// </summary>
+		/// <value>The expiration date.</value>
+		public DateTime ExpirationDate {
+			get { return Certificate.NotAfter; }
+		}
+
+		/// <summary>
+		/// Gets the trust level.
+		/// </summary>
+		/// <value>The trust level.</value>
+		public TrustLevel TrustLevel {
+			get; internal set;
+		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// An S/MIME digital signature.
+	/// </summary>
+	public class SecureMimeDigitalSignature : IDigitalSignature
+	{
+		internal SecureMimeDigitalSignature (SignerInfo signerInfo)
+		{
+			SignerCertificate = new SecureMimeDigitalCertificate (signerInfo);
+			SignerInfo = signerInfo;
+		}
+
+		SecureMimeDigitalSignature ()
+		{
+		}
+
+		public SignerInfo SignerInfo {
+			get; private set;
+		}
+
+		#region IDigitalSignature implementation
+
+		public IDigitalCertificate SignerCertificate {
+			get; private set;
+		}
+
+		public DigitalSignatureStatus Status {
+			get; internal set;
+		}
+
+		public DigitalSignatureError Errors {
+			get; internal set;
+		}
+
+		public DateTime CreationDate {
+			get; internal set;
+		}
+
+		public DateTime ExpirationDate {
+			get; internal set;
+		}
+
+		#endregion
 	}
 }

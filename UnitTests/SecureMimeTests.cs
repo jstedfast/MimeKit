@@ -58,7 +58,11 @@ namespace UnitTests {
 			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet);
 			store.AddRange (certs);
 
-			return new SecureMimeContext (store);
+			return new SecureMimeContext (store) {
+				AllowSelfSignedCertificates = true,
+				AllowOnlineCertificateRetrieval = true,
+				OnlineCertificateRetrievalTimeout = new TimeSpan (0, 0, 30)
+			};
 		}
 
 		[Test]
@@ -82,11 +86,75 @@ namespace UnitTests {
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
+					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+
 					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-						"Checking the signature of {0} failed.", signature.Signer.Name);
+					                 "Checking the signature of {0} failed: {1} ({2})",
+					                 certificate.Name, signature.Errors, certificate.ChainStatus);
 				}
 			}
 		}
+
+//		[Test]
+//		public void TestRawOutlookData ()
+//		{
+//			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "bojan-cleartext.txt"));
+//			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "smime.p7s"));
+//
+//			using (var ctx = CreateContext ()) {
+//				var signatures = ctx.Verify (cleartext, signatureData);
+//				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
+//				foreach (var signature in signatures) {
+//					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+//
+//					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
+//					                 "Checking the signature of {0} failed: {1} ({2})",
+//					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+//				}
+//			}
+//		}
+//
+//		[Test]
+//		public void TestSecureMimeVerifyOutlook ()
+//		{
+//			MimeMessage message;
+//
+//			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "bojan-smime.txt"))) {
+//				var parser = new MimeParser (file, MimeFormat.Default);
+//				message = parser.ParseMessage ();
+//			}
+//
+//			using (var ctx = CreateContext ()) {
+//				var multipart = (MultipartSigned) message.Body;
+//
+//				var protocol = multipart.ContentType.Parameters["protocol"];
+//				Assert.IsTrue (ctx.Supports (protocol), "The multipart/signed protocol is not supported.");
+//
+//				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
+//
+//				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
+//					var options = FormatOptions.Default.Clone ();
+//					options.NewLineFormat = NewLineFormat.Dos;
+//
+//					multipart[0].WriteTo (options, file);
+//					file.Flush ();
+//				}
+//
+//				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
+//					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
+//				}
+//
+//				var signatures = multipart.Verify (ctx);
+//				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
+//				foreach (var signature in signatures) {
+//					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+//
+//					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
+//					                 "Checking the signature of {0} failed: {1} ({2})",
+//					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+//				}
+//			}
+//		}
 
 		[Test]
 		public void TestSecureMimeEncryption ()
@@ -129,7 +197,7 @@ namespace UnitTests {
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
-				IList<DigitalSignature> signatures;
+				IList<IDigitalSignature> signatures;
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
 				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
@@ -137,8 +205,11 @@ namespace UnitTests {
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
+					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+
 					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-						"Checking the signature of {0} failed.", signature.Signer.Name);
+					                 "Checking the signature of {0} failed: {1} ({2})",
+					                 certificate.Name, signature.Errors, certificate.ChainStatus);
 				}
 			}
 		}
