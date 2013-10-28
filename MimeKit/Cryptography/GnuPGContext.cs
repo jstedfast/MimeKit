@@ -1,5 +1,5 @@
 //
-// CertificateNotFoundException.cs
+// GnuPGContext.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,39 +25,34 @@
 //
 
 using System;
+using System.IO;
 
 namespace MimeKit.Cryptography {
-	/// <summary>
-	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
-	/// </summary>
-	public class CertificateNotFoundException : Exception
+	public class GnuPGContext : OpenPgpContext
 	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
-		/// </summary>
-		/// <param name="mailbox">The mailbox that could not be resolved to a valid certificate.</param>
-		/// <param name="message">A message explaining the error.</param>
-		public CertificateNotFoundException (MailboxAddress mailbox, string message) : base (message)
+		static readonly string PublicKeyRing;
+		static readonly string SecretKeyRing;
+
+		static GnuPGContext ()
 		{
-			KeyId = mailbox.Address;
+			string gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
+
+			if (gnupg == null) {
+				if (Path.DirectorySeparatorChar == '\\') {
+					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
+					gnupg = Path.Combine (appData, "Roaming", "gnupg");
+				} else {
+					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+					gnupg = Path.Combine (home, ".gnupg");
+				}
+			}
+
+			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
+			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
-		/// </summary>
-		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
-		/// <param name="message">A message explaining the error.</param>
-		public CertificateNotFoundException (string keyid, string message) : base (message)
+		public GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
-			KeyId = keyid;
-		}
-
-		/// <summary>
-		/// Gets the key id that could not be found.
-		/// </summary>
-		/// <value>The key id.</value>
-		public string KeyId {
-			get; private set;
 		}
 	}
 }

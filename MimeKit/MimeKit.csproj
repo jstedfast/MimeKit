@@ -52,10 +52,12 @@
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureError.cs" />
     <Compile Include="Cryptography\DigitalSignatureStatus.cs" />
+    <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
+    <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
@@ -151,5 +153,11 @@
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
     <Folder Include="Utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
+      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
+      <Name>BouncyCastle</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

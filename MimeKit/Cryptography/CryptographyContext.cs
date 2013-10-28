@@ -90,6 +90,12 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
@@ -140,6 +146,12 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
@@ -240,6 +252,13 @@ namespace MimeKit.Cryptography {
 			case "application/x-pkcs7-keys":
 			case "application/pkcs7-keys":
 				return new SecureMimeContext ();
+			case "application/x-pgp-signature":
+			case "application/pgp-signature":
+			case "application/x-pgp-encrypted":
+			case "application/pgp-encrypted":
+			case "application/x-pgp-keys":
+			case "application/pgp-keys":
+				return new GnuPGContext ();
 			default:
 				throw new NotSupportedException ();
 			}
