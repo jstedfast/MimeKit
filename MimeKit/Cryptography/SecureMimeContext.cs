@@ -686,7 +686,6 @@ namespace MimeKit.Cryptography {
 	{
 		internal SecureMimeDigitalCertificate (SignerInfo signerInfo)
 		{
-			DigestAlgorithm = signerInfo.DigestAlgorithm.FriendlyName.ToDigestAlgorithm ();
 			Certificate = signerInfo.Certificate;
 			TrustLevel = TrustLevel.Undefined;
 		}
@@ -718,14 +717,6 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
-			get; private set;
-		}
-
-		/// <summary>
-		/// Gets the digest algorithm.
-		/// </summary>
-		/// <value>The digest algorithm.</value>
-		public DigestAlgorithm DigestAlgorithm {
 			get; private set;
 		}
 
@@ -803,6 +794,14 @@ namespace MimeKit.Cryptography {
 
 		public IDigitalCertificate SignerCertificate {
 			get; private set;
+		}
+
+		public PublicKeyAlgorithm PublicKeyAlgorithm {
+			get; internal set;
+		}
+
+		public DigestAlgorithm DigestAlgorithm {
+			get; internal set;
 		}
 
 		public DigitalSignatureStatus Status {

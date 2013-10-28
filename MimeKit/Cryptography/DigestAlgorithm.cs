@@ -52,6 +52,11 @@ namespace MimeKit.Cryptography {
 		RipeMD160   = 3,
 
 		/// <summary>
+		/// The double-SHA digest algorithm.
+		/// </summary>
+		DoubleSha   = 4,
+
+		/// <summary>
 		/// The MD2 digest algorithm.
 		/// </summary>
 		MD2         = 5,

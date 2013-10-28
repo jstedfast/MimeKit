@@ -272,12 +272,24 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (keyId.ToString ("X"), "A valid secret signing key could not be found.");
 		}
 
-		static HashAlgorithmTag GetHashAlgorithm (DigestAlgorithm digestAlgo)
+		/// <summary>
+		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the specified <see cref="DigestAlgorithm"/>. 
+		/// </summary>
+		/// <returns>The hash algorithm.</returns>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="digestAlgo"/> does not have an equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> value.
+		/// </exception>
+		public static HashAlgorithmTag GetHashAlgorithm (DigestAlgorithm digestAlgo)
 		{
 			switch (digestAlgo) {
 			case DigestAlgorithm.MD5:       return HashAlgorithmTag.MD5;
 			case DigestAlgorithm.Sha1:      return HashAlgorithmTag.Sha1;
 			case DigestAlgorithm.RipeMD160: return HashAlgorithmTag.RipeMD160;
+			case DigestAlgorithm.DoubleSha: return HashAlgorithmTag.DoubleSha;
 			case DigestAlgorithm.MD2:       return HashAlgorithmTag.MD2;
 			case DigestAlgorithm.Tiger192:  return HashAlgorithmTag.Tiger192;
 			case DigestAlgorithm.Haval5160: return HashAlgorithmTag.Haval5pass160;
@@ -285,10 +297,8 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.Sha384:    return HashAlgorithmTag.Sha384;
 			case DigestAlgorithm.Sha512:    return HashAlgorithmTag.Sha512;
 			case DigestAlgorithm.Sha224:    return HashAlgorithmTag.Sha224;
-			case DigestAlgorithm.MD4:
-				throw new NotSupportedException ("The MD4 digest algorithm is not supported.");
-			default:
-				throw new ArgumentOutOfRangeException ("digestAlgo");
+			case DigestAlgorithm.MD4: throw new NotSupportedException ("The MD4 digest algorithm is not supported.");
+			default: throw new ArgumentOutOfRangeException ("digestAlgo");
 			}
 		}
 
@@ -378,6 +388,100 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the equivalent <see cref="DigestAlgorithm"/> for the specified <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>. 
+		/// </summary>
+		/// <returns>The digest algorithm.</returns>
+		/// <param name="hashAlgorithm">The hash algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="hashAlgorithm"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="hashAlgorithm"/> does not have an equivalent <see cref="DigestAlgorithm"/> value.
+		/// </exception>
+		public static DigestAlgorithm GetDigestAlgorithm (HashAlgorithmTag hashAlgorithm)
+		{
+			switch (hashAlgorithm) {
+			case HashAlgorithmTag.MD5:           return DigestAlgorithm.MD5;
+			case HashAlgorithmTag.Sha1:          return DigestAlgorithm.Sha1;
+			case HashAlgorithmTag.RipeMD160:     return DigestAlgorithm.RipeMD160;
+			case HashAlgorithmTag.DoubleSha:     return DigestAlgorithm.DoubleSha;
+			case HashAlgorithmTag.MD2:           return DigestAlgorithm.MD2;
+			case HashAlgorithmTag.Tiger192:      return DigestAlgorithm.Tiger192;
+			case HashAlgorithmTag.Haval5pass160: return DigestAlgorithm.Haval5160;
+			case HashAlgorithmTag.Sha256:        return DigestAlgorithm.Sha256;
+			case HashAlgorithmTag.Sha384:        return DigestAlgorithm.Sha384;
+			case HashAlgorithmTag.Sha512:        return DigestAlgorithm.Sha512;
+			case HashAlgorithmTag.Sha224:        return DigestAlgorithm.Sha224;
+			default: throw new ArgumentOutOfRangeException ("hashAlgorithm");
+			}
+		}
+
+		/// <summary>
+		/// Gets the equivalent <see cref="PublicKeyAlgorithm"/> for the specified <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>. 
+		/// </summary>
+		/// <returns>The public-key algorithm.</returns>
+		/// <param name="algorithm">The public-key algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="algorithm"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="algorithm"/> does not have an equivalent <see cref="PublicKeyAlgorithm"/> value.
+		/// </exception>
+		public static PublicKeyAlgorithm GetPublicKeyAlgorithm (PublicKeyAlgorithmTag algorithm)
+		{
+			switch (algorithm) {
+			case PublicKeyAlgorithmTag.RsaGeneral:     return PublicKeyAlgorithm.RsaGeneral;
+			case PublicKeyAlgorithmTag.RsaEncrypt:     return PublicKeyAlgorithm.RsaEncrypt;
+			case PublicKeyAlgorithmTag.RsaSign:        return PublicKeyAlgorithm.RsaSign;
+			case PublicKeyAlgorithmTag.ElGamalEncrypt: return PublicKeyAlgorithm.ElGamalEncrypt;
+			case PublicKeyAlgorithmTag.Dsa:            return PublicKeyAlgorithm.Dsa;
+			case PublicKeyAlgorithmTag.EC:             return PublicKeyAlgorithm.EllipticCurve;
+			case PublicKeyAlgorithmTag.ECDsa:          return PublicKeyAlgorithm.EllipticCurveDsa;
+			case PublicKeyAlgorithmTag.ElGamalGeneral: return PublicKeyAlgorithm.ElGamalGeneral;
+			case PublicKeyAlgorithmTag.DiffieHellman:  return PublicKeyAlgorithm.DiffieHellman;
+			default: throw new ArgumentOutOfRangeException ("algorithm");
+			}
+		}
+
+		IList<IDigitalSignature> GetDigitalSignatures (PgpSignatureList signatureList, byte[] content, int length)
+		{
+			var signatures = new List<IDigitalSignature> ();
+
+			for (int i = 0; i < signatureList.Count; i++) {
+				var pubkey = PublicKeyRingBundle.GetPublicKey (signatureList[i].KeyId);
+				var signature = new OpenPgpDigitalSignature (pubkey) {
+					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
+					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
+					CreationDate = signatureList[i].CreationTime,
+
+					// FIXME: how can we get the real expiration date for the signature?
+					ExpirationDate = DateTime.MaxValue
+				};
+
+				if (pubkey != null) {
+					signatureList[i].InitVerify (pubkey);
+					signatureList[i].Update (content, 0, length);
+					if (signatureList[i].Verify ())
+						signature.Status = DigitalSignatureStatus.Good;
+					else
+						signature.Status = DigitalSignatureStatus.Bad;
+
+					if (!signatureList[i].VerifyCertification (pubkey)) {
+						// FIXME: how can we tell what went wrong?
+						signature.Errors = DigitalSignatureError.CertificateRevoked;
+					}
+				} else {
+					signature.Errors = DigitalSignatureError.NoPublicKey;
+					signature.Status = DigitalSignatureStatus.Error;
+				}
+
+				signatures.Add (signature);
+			}
+
+			return signatures;
+		}
+
+		/// <summary>
 		/// Verify the specified content and signatureData.
 		/// </summary>
 		/// <returns>A list of digital signatures.</returns>
@@ -399,29 +503,18 @@ namespace MimeKit.Cryptography {
 			using (var decoder = PgpUtilities.GetDecoderStream (new MemoryStream (signatureData, false))) {
 				var factory = new PgpObjectFactory (decoder);
 				var data = factory.NextPgpObject ();
-				PgpSignatureList signatures;
+				PgpSignatureList signatureList;
 
 				var compressed = data as PgpCompressedData;
 				if (compressed != null) {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
-					signatures = (PgpSignatureList) factory.NextPgpObject ();
+					signatureList = (PgpSignatureList) factory.NextPgpObject ();
 				} else {
-					if ((signatures = data as PgpSignatureList) == null)
+					if ((signatureList = data as PgpSignatureList) == null)
 						throw new Exception ("Unexpected pgp object");
 				}
 
-				// FIXME: wrap each signature in a custom IDigitalSignature object
-//				bool valid = true;
-//				for (int i = 0; i < signatures.Count; i++) {
-//					var pubkey = PublicKeyRingBundle.GetPublicKey (signatures[i].KeyId);
-//					signatures[i].InitVerify (pubkey);
-//
-//					signatures[i].Update (content, 0, content.Length);
-//					valid = valid && signatures[i].Verify ();
-//				}
-//
-//				return valid;
-				return null;
+				return GetDigitalSignatures (signatureList, content, content.Length);
 			}
 		}
 
@@ -480,6 +573,7 @@ namespace MimeKit.Cryptography {
 				foreach (var recipient in recipients)
 					encrypter.AddMethod (recipient);
 
+				// FIXME: 0 is the wrong value...
 				using (var encrypted = encrypter.Open (armored, 0)) {
 					var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
@@ -603,6 +697,7 @@ namespace MimeKit.Cryptography {
 				foreach (var recipient in recipients)
 					encrypter.AddMethod (recipient);
 
+				// FIXME: 0 is the wrong value...
 				using (var encrypted = encrypter.Open (armored, 0)) {
 					var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
@@ -664,8 +759,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("encryptedData");
 
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
-			signatures = null;
-
 			using (var decoder = PgpUtilities.GetDecoderStream (new MemoryStream (encryptedData, false))) {
 				var factory = new PgpObjectFactory (decoder);
 				var obj = factory.NextPgpObject ();
@@ -675,17 +768,15 @@ namespace MimeKit.Cryptography {
 					// probably a PgpMarker...
 					obj = factory.NextPgpObject ();
 
-					if ((list = obj as PgpEncryptedDataList) == null)
+					list = obj as PgpEncryptedDataList;
+					if (list == null)
 						throw new Exception ("Unexpected pgp object");
 				}
 
 				PgpPublicKeyEncryptedData encrypted = null;
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
-					encrypted = data as PgpPublicKeyEncryptedData;
-					if (encrypted == null)
-						continue;
-
-					break;
+					if ((encrypted = data as PgpPublicKeyEncryptedData) != null)
+						break;
 				}
 
 				if (encrypted == null)
@@ -724,13 +815,22 @@ namespace MimeKit.Cryptography {
 					obj = factory.NextPgpObject ();
 				}
 
+				memory.Position = 0;
+
+				// FIXME: validate the OnePass signatures... and do what with them?
 //				if (onepassList != null) {
 //					for (int i = 0; i < onepassList.Count; i++) {
 //						var onepass = onepassList[i];
 //					}
 //				}
 
-				memory.Position = 0;
+				if (signatureList != null) {
+					var content = memory.GetBuffer ();
+
+					signatures = GetDigitalSignatures (signatureList, content, (int) memory.Length);
+				} else {
+					signatures = null;
+				}
 
 				var parser = new MimeParser (memory, MimeFormat.Entity);
 

@@ -1,9 +1,9 @@
 //
-// DigitalSignature.cs
+// OpenPgpDigitalSignature.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,52 +26,81 @@
 
 using System;
 
+using Org.BouncyCastle.Bcpg.OpenPgp;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A digital signature.
+	/// An OpenPGP digital signature.
 	/// </summary>
-	public interface IDigitalSignature
+	public class OpenPgpDigitalSignature : IDigitalSignature
 	{
+		internal OpenPgpDigitalSignature (PgpPublicKey pubkey)
+		{
+			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
+		}
+
+		OpenPgpDigitalSignature ()
+		{
+		}
+
+		#region IDigitalSignature implementation
+
 		/// <summary>
 		/// Gets certificate used by the signer.
 		/// </summary>
 		/// <value>The signer's certificate.</value>
-		IDigitalCertificate SignerCertificate { get; }
+		public IDigitalCertificate SignerCertificate {
+			get; private set;
+		}
 
 		/// <summary>
 		/// Gets the public key algorithm used for the signature.
 		/// </summary>
 		/// <value>The public key algorithm.</value>
-		PublicKeyAlgorithm PublicKeyAlgorithm { get; }
+		public PublicKeyAlgorithm PublicKeyAlgorithm {
+			get; internal set;
+		}
 
 		/// <summary>
 		/// Gets the digest algorithm used for the signature.
 		/// </summary>
 		/// <value>The digest algorithm.</value>
-		DigestAlgorithm DigestAlgorithm { get; }
+		public DigestAlgorithm DigestAlgorithm {
+			get; internal set;
+		}
 
 		/// <summary>
 		/// Gets the status of the digital signature.
 		/// </summary>
 		/// <value>The status.</value>
-		DigitalSignatureStatus Status { get; }
+		public DigitalSignatureStatus Status {
+			get; internal set;
+		}
 
 		/// <summary>
 		/// Gets a bit field of any errors that occurred while verifying the digital signature.
 		/// </summary>
 		/// <value>The errors.</value>
-		DigitalSignatureError Errors { get; }
+		public DigitalSignatureError Errors {
+			get; internal set;
+		}
 
 		/// <summary>
 		/// Gets the creation date of the digital signature.
 		/// </summary>
 		/// <value>The creation date.</value>
-		DateTime CreationDate { get; }
+		public DateTime CreationDate {
+			get; internal set;
+		}
 
 		/// <summary>
 		/// Gets the expiration date of the digital signature.
 		/// </summary>
 		/// <value>The expiration date.</value>
-		DateTime ExpirationDate { get; }
+		public DateTime ExpirationDate {
+			get; internal set;
+		}
+
+		#endregion
 	}
 }
