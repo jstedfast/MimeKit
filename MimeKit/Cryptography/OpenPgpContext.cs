@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
@@ -870,7 +871,27 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void ImportKeys (byte[] rawData)
 		{
-			throw new NotImplementedException ();
+			if (rawData == null)
+				throw new ArgumentNullException ("rawData");
+
+			using (var memory = new MemoryStream (rawData, false)) {
+				using (var armored = new ArmoredInputStream (memory)) {
+					var imported = new PgpPublicKeyRingBundle (armored);
+					if (imported.Count == 0)
+						return;
+
+					var keyrings = new List<PgpPublicKeyRing> ();
+
+					foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle)
+						keyrings.Add (keyring);
+
+					foreach (PgpPublicKeyRing keyring in imported)
+						keyrings.Add (keyring);
+
+					PublicKeyRingBundle = new PgpPublicKeyRingBundle (keyrings);
+					SavePublicKeyRing ();
+				}
+			}
 		}
 
 		/// <summary>
@@ -884,12 +905,61 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Exporting keys is not supported by this cryptography context.
-		/// </exception>
 		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
-			throw new NotImplementedException ();
+			if (mailboxes == null)
+				throw new ArgumentNullException ("mailboxes");
+
+			return ExportKeys (GetEncryptionKeys (mailboxes));
+		}
+
+		/// <summary>
+		/// Exports the specified certificates.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
+		/// the exported keys.</returns>
+		/// <param name="keys">The keys.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keys"/> is <c>null</c>.
+		/// </exception>
+		public MimePart ExportKeys (IEnumerable<PgpPublicKey> keys)
+		{
+			if (keys == null)
+				throw new ArgumentNullException ("keys");
+
+			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return ExportKeys (bundle);
+		}
+
+		/// <summary>
+		/// Exports the specified certificates.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
+		/// the exported keys.</returns>
+		/// <param name="keys">The keys.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keys"/> is <c>null</c>.
+		/// </exception>
+		public MimePart ExportKeys (PgpPublicKeyRingBundle keys)
+		{
+			if (keys == null)
+				throw new ArgumentNullException ("keys");
+
+			var content = new MemoryStream ();
+
+			using (var armored = new ArmoredOutputStream (content)) {
+				keys.Encode (armored);
+				armored.Flush ();
+			}
+
+			content.Position = 0;
+
+			return new MimePart ("application", "pgp-keys") {
+				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentObject = new ContentObject (content, ContentEncoding.Default)
+			};
 		}
 	}
 }

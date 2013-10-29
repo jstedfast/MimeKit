@@ -34,31 +34,36 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// No trust level specified.
 		/// </summary>
-		None,
+		None        = 0,
 
 		/// <summary>
-		/// Never trust this certificate or key.
+		/// The trust has expired.
 		/// </summary>
-		Never,
+		Expired     = 1,
 
 		/// <summary>
 		/// An unspecified trust.
 		/// </summary>
-		Undefined,
+		Undefined   = 2,
+
+		/// <summary>
+		/// Never trust this certificate or key.
+		/// </summary>
+		Never       = 3,
 
 		/// <summary>
 		/// Marginally trust this certificate or key.
 		/// </summary>
-		Marginal,
+		Marginal    = 4,
 
 		/// <summary>
 		/// Fully trust this certificate or key.
 		/// </summary>
-		Fully,
+		Fully       = 5,
 
 		/// <summary>
 		/// The ultimate level of trust for a certificate or key.
 		/// </summary>
-		Ultimate
+		Ultimate    = 6
 	}
 }

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc.
+// Copyright (c) 2013 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,13 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < data.Length; i++)
 				builder.Append (data[i].ToString ("X"));
+
+			var trust = pubkey.GetTrustData ();
+			if (trust != null) {
+				TrustLevel = (TrustLevel) (trust[0] & 15);
+			} else {
+				TrustLevel = TrustLevel.None;
+			}
 
 			Fingerprint = builder.ToString ();
 			PublicKey = pubkey;
@@ -108,9 +115,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The trust level.</value>
 		public TrustLevel TrustLevel {
-			get {
-				throw new NotImplementedException ();
-			}
+			get; private set;
 		}
 
 		/// <summary>
