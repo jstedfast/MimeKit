@@ -186,7 +186,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
 		/// </summary>
-		/// <returns>The mailboxes.</returns>
+		/// <<returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
