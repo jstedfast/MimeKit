@@ -322,7 +322,7 @@ namespace MimeKit.Cryptography {
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content)
 		{
@@ -351,8 +351,8 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
 		/// </exception>
 		public ApplicationPgpSignature Sign (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, byte[] content)
 		{
@@ -453,9 +453,6 @@ namespace MimeKit.Cryptography {
 					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
 					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
 					CreationDate = signatureList[i].CreationTime,
-
-					// FIXME: how can we get the real expiration date for the signature?
-					ExpirationDate = DateTime.MaxValue
 				};
 
 				if (pubkey != null) {
@@ -465,11 +462,6 @@ namespace MimeKit.Cryptography {
 						signature.Status = DigitalSignatureStatus.Good;
 					else
 						signature.Status = DigitalSignatureStatus.Bad;
-
-					if (!signatureList[i].VerifyCertification (pubkey)) {
-						// FIXME: how can we tell what went wrong?
-						signature.Errors = DigitalSignatureError.CertificateRevoked;
-					}
 				} else {
 					signature.Errors = DigitalSignatureError.NoPublicKey;
 					signature.Status = DigitalSignatureStatus.Error;
@@ -530,8 +522,13 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
-		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
@@ -557,7 +554,12 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		public MimePart Encrypt (IList<PgpPublicKey> recipients, byte[] content)
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, byte[] content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -569,9 +571,18 @@ namespace MimeKit.Cryptography {
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+				int count = 0;
 
-				foreach (var recipient in recipients)
+				foreach (var recipient in recipients) {
+					if (!recipient.IsEncryptionKey)
+						throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+
 					encrypter.AddMethod (recipient);
+					count++;
+				}
+
+				if (count == 0)
+					throw new ArgumentException ("No recipients specified.", "recipients");
 
 				// FIXME: 0 is the wrong value...
 				using (var encrypted = encrypter.Open (armored, 0)) {
@@ -596,11 +607,10 @@ namespace MimeKit.Cryptography {
 
 			memory.Position = 0;
 
-			var mimepart = new MimePart ("application", "octet-stream");
-			mimepart.ContentObject = new ContentObject (memory, ContentEncoding.Default);
-			mimepart.ContentDisposition = new ContentDisposition ("attachment");
-
-			return mimepart;
+			return new MimePart ("application", "octet-stream") {
+				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentObject = new ContentObject (memory, ContentEncoding.Default),
+			};
 		}
 
 		/// <summary>
@@ -622,13 +632,18 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="digestAlgo"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
-		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
+		/// <para>A signing key could not be found for <paramref name="signer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
+		/// <para>A public key could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content)
 		{
@@ -664,11 +679,13 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para>The signing key cannot be used for signing.</para>
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
 		/// <para>-or-</para>
 		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IList<PgpPublicKey> recipients, byte[] content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IEnumerable<PgpPublicKey> recipients, byte[] content)
 		{
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
 
@@ -681,11 +698,6 @@ namespace MimeKit.Cryptography {
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
 
-			foreach (var recipient in recipients) {
-				if (!recipient.IsEncryptionKey)
-					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
-			}
-
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
@@ -693,9 +705,18 @@ namespace MimeKit.Cryptography {
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+				int count = 0;
 
-				foreach (var recipient in recipients)
+				foreach (var recipient in recipients) {
+					if (!recipient.IsEncryptionKey)
+						throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+
 					encrypter.AddMethod (recipient);
+					count++;
+				}
+
+				if (count == 0)
+					throw new ArgumentException ("No recipients specified.", "recipients");
 
 				// FIXME: 0 is the wrong value...
 				using (var encrypted = encrypter.Open (armored, 0)) {
@@ -737,11 +758,10 @@ namespace MimeKit.Cryptography {
 
 			memory.Position = 0;
 
-			var mimepart = new MimePart ("application", "octet-stream");
-			mimepart.ContentObject = new ContentObject (memory, ContentEncoding.Default);
-			mimepart.ContentDisposition = new ContentDisposition ("attachment");
-
-			return mimepart;
+			return new MimePart ("application", "octet-stream") {
+				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentObject = new ContentObject (memory, ContentEncoding.Default)
+			};
 		}
 
 		/// <summary>
@@ -865,9 +885,6 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="rawData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
 		public override void ImportKeys (byte[] rawData)
 		{
 			if (rawData == null)
@@ -881,10 +898,10 @@ namespace MimeKit.Cryptography {
 
 					var keyrings = new List<PgpPublicKeyRing> ();
 
-					foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle)
+					foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ())
 						keyrings.Add (keyring);
 
-					foreach (PgpPublicKeyRing keyring in imported)
+					foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ())
 						keyrings.Add (keyring);
 
 					PublicKeyRingBundle = new PgpPublicKeyRingBundle (keyrings);

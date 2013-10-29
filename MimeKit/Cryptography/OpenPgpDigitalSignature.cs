@@ -98,7 +98,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
-			get; internal set;
+			get { return DateTime.MaxValue; }
 		}
 
 		#endregion
