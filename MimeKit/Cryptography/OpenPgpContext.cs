@@ -31,7 +31,6 @@ using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Utilities.IO;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -131,7 +130,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading one of the keyring files.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Bcgp.OpenPgp.PgpException">
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred while parsing one of the keyring files.
 		/// </exception>
 		protected OpenPgpContext (string pubring, string secring)
