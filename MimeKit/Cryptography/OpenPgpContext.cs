@@ -859,9 +859,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Saves the public key ring.
+		/// Saves the public key-ring bundle.
 		/// </summary>
-		protected void SavePublicKeyRing ()
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the public key-ring bundle.
+		/// </exception>
+		protected void SavePublicKeyRingBundle ()
 		{
 			var filename = Path.GetFileName (PublicKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (PublicKeyRingPath);
@@ -885,6 +888,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="rawData"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// <para>An error occurred while parsing the raw key-ring data</para>
+		/// <para>-or-</para>
+		/// <para>An error occured while saving the public key-ring bundle.</para>
+		/// </exception>
 		public override void ImportKeys (byte[] rawData)
 		{
 			if (rawData == null)
@@ -905,7 +913,7 @@ namespace MimeKit.Cryptography {
 					}
 
 					if (added > 0)
-						SavePublicKeyRing ();
+						SavePublicKeyRingBundle ();
 				}
 			}
 		}
