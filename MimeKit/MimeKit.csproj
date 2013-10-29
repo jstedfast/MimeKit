@@ -62,6 +62,8 @@
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
+    <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
+    <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\TrustLevel.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
