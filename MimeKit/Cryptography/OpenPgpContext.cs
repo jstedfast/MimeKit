@@ -896,16 +896,16 @@ namespace MimeKit.Cryptography {
 					if (imported.Count == 0)
 						return;
 
-					var keyrings = new List<PgpPublicKeyRing> ();
+					int added = 0;
+					foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ()) {
+						if (!PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId)) {
+							PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
+							added++;
+						}
+					}
 
-					foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ())
-						keyrings.Add (keyring);
-
-					foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ())
-						keyrings.Add (keyring);
-
-					PublicKeyRingBundle = new PgpPublicKeyRingBundle (keyrings);
-					SavePublicKeyRing ();
+					if (added > 0)
+						SavePublicKeyRing ();
 				}
 			}
 		}
