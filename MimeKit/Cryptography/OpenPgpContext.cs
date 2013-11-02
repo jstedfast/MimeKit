@@ -504,7 +504,7 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				var pubkey = PublicKeyRingBundle.GetPublicKey (signatureList[i].KeyId);
-				var signature = new OpenPgpDigitalSignature (pubkey) {
+				var signature = new OpenPgpDigitalSignature (pubkey, signatureList[i]) {
 					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
 					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
 					CreationDate = signatureList[i].CreationTime,
@@ -513,13 +513,6 @@ namespace MimeKit.Cryptography {
 				if (pubkey != null) {
 					signatureList[i].InitVerify (pubkey);
 					signatureList[i].Update (content, 0, length);
-					if (signatureList[i].Verify ())
-						signature.Status = DigitalSignatureStatus.Good;
-					else
-						signature.Status = DigitalSignatureStatus.Bad;
-				} else {
-					signature.Errors = DigitalSignatureError.NoPublicKey;
-					signature.Status = DigitalSignatureStatus.Error;
 				}
 
 				signatures.Add (signature);

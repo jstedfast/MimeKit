@@ -34,13 +34,21 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class OpenPgpDigitalSignature : IDigitalSignature
 	{
-		internal OpenPgpDigitalSignature (PgpPublicKey pubkey)
+		DigitalSignatureVerifyException vex;
+		bool? valid;
+
+		internal OpenPgpDigitalSignature (PgpPublicKey pubkey, PgpSignature signature)
 		{
 			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
+			Signature = signature;
 		}
 
 		OpenPgpDigitalSignature ()
 		{
+		}
+
+		PgpSignature Signature {
+			get; set;
 		}
 
 		#region IDigitalSignature implementation
@@ -70,27 +78,42 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the status of the digital signature.
-		/// </summary>
-		/// <value>The status.</value>
-		public DigitalSignatureStatus Status {
-			get; internal set;
-		}
-
-		/// <summary>
-		/// Gets a bit field of any errors that occurred while verifying the digital signature.
-		/// </summary>
-		/// <value>The errors.</value>
-		public DigitalSignatureError Errors {
-			get; internal set;
-		}
-
-		/// <summary>
 		/// Gets the creation date of the digital signature.
 		/// </summary>
 		/// <value>The creation date.</value>
 		public DateTime CreationDate {
 			get; internal set;
+		}
+
+		/// <summary>
+		/// Verify the digital signature.
+		/// </summary>
+		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.
+		/// <exception cref="DigitalSignatureVerifyException">
+		/// An error verifying the signature has occurred.
+		/// </exception>
+		public bool Verify ()
+		{
+			if (valid.HasValue)
+				return valid.Value;
+
+			if (vex != null)
+				throw vex;
+
+			if (SignerCertificate == null) {
+				var message = string.Format ("Failed to verify digital signature: no public key found for {0}", Signature.KeyId);
+				vex = new DigitalSignatureVerifyException (message);
+				throw vex;
+			}
+
+			try {
+				valid = Signature.Verify ();
+				return valid.Value;
+			} catch (Exception ex) {
+				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
+				vex = new DigitalSignatureVerifyException (message, ex);
+				throw vex;
+			}
 		}
 
 		#endregion

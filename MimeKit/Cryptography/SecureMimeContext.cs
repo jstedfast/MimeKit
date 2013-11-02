@@ -336,18 +336,10 @@ namespace MimeKit.Cryptography {
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var cert = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
-				var certificate = new SecureMimeDigitalCertificate (cert);
+				if (cert != null) {
+					var certificate = new SecureMimeDigitalCertificate (cert);
 
-				signature.SignerCertificate = certificate;
-
-				// Verify that the signature is good vs bad
-				if (!signerInfo.Verify (cert)) {
-					signature.Status = DigitalSignatureStatus.Bad;
-				}
-
-				if (DateTime.Now > certificate.ExpirationDate) {
-					signature.Errors |= DigitalSignatureError.CertificateExpired;
-					signature.Status = DigitalSignatureStatus.Error;
+					signature.SignerCertificate = certificate;
 				}
 
 				// FIXME: verify the certificate chain with what we have in our local store

@@ -86,11 +86,13 @@ namespace UnitTests {
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
-					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+					try {
+						bool valid = signature.Verify ();
 
-					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-					                 "Checking the signature of {0} failed: {1} ({2})",
-					                 certificate.Name, signature.Errors, ""/*certificate.ChainStatus*/);
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
 				}
 			}
 		}
@@ -105,11 +107,13 @@ namespace UnitTests {
 //				var signatures = ctx.Verify (cleartext, signatureData);
 //				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
 //				foreach (var signature in signatures) {
-//					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+//					try {
+//						bool valid = signature.Verify ();
 //
-//					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-//					                 "Checking the signature of {0} failed: {1} ({2})",
-//					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+//					} catch (DigitalSignatureVerifyException ex) {
+//						Assert.Fail ("Failed to verify signature: {0}", ex);
+//					}
 //				}
 //			}
 //		}
@@ -147,11 +151,13 @@ namespace UnitTests {
 //				var signatures = multipart.Verify (ctx);
 //				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
 //				foreach (var signature in signatures) {
-//					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+//					try {
+//						bool valid = signature.Verify ();
 //
-//					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-//					                 "Checking the signature of {0} failed: {1} ({2})",
-//					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+//					} catch (DigitalSignatureVerifyException ex) {
+//						Assert.Fail ("Failed to verify signature: {0}", ex);
+//					}
 //				}
 //			}
 //		}
@@ -205,11 +211,13 @@ namespace UnitTests {
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
-					var certificate = signature.SignerCertificate as SecureMimeDigitalCertificate;
+					try {
+						bool valid = signature.Verify ();
 
-					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
-					                 "Checking the signature of {0} failed: {1} ({2})",
-					                 certificate.Name, signature.Errors, ""/*certificate.ChainStatus*/);
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
 				}
 			}
 		}

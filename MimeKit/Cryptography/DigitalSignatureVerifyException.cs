@@ -1,5 +1,5 @@
 //
-// DigitalSignature.cs
+// DigitalSignatureVerifyException.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -28,41 +28,16 @@ using System;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A digital signature.
+	/// An exception that is thrown when an error occurrs in <see cref="IDigitalSignature.Verify"/>.
 	/// </summary>
-	public interface IDigitalSignature
+	public class DigitalSignatureVerifyException : Exception
 	{
-		/// <summary>
-		/// Gets certificate used by the signer.
-		/// </summary>
-		/// <value>The signer's certificate.</value>
-		IDigitalCertificate SignerCertificate { get; }
+		internal DigitalSignatureVerifyException (string message, Exception innerException) : base (message, innerException)
+		{
+		}
 
-		/// <summary>
-		/// Gets the public key algorithm used for the signature.
-		/// </summary>
-		/// <value>The public key algorithm.</value>
-		PublicKeyAlgorithm PublicKeyAlgorithm { get; }
-
-		/// <summary>
-		/// Gets the digest algorithm used for the signature.
-		/// </summary>
-		/// <value>The digest algorithm.</value>
-		DigestAlgorithm DigestAlgorithm { get; }
-
-		/// <summary>
-		/// Gets the creation date of the digital signature.
-		/// </summary>
-		/// <value>The creation date.</value>
-		DateTime CreationDate { get; }
-
-		/// <summary>
-		/// Verify the digital signature.
-		/// </summary>
-		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.
-		/// <exception cref="DigitalSignatureVerifyException">
-		/// An error verifying the signature has occurred.
-		/// </exception>
-		bool Verify ();
+		internal DigitalSignatureVerifyException (string message) : base (message)
+		{
+		}
 	}
 }
