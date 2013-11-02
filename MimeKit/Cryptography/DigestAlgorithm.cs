@@ -96,33 +96,4 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		MD4         = 301
 	}
-
-	static class DigestAlgorithmExtension
-	{
-		public static string ToFriendlyName (this DigestAlgorithm digestAlgo)
-		{
-			if (digestAlgo == DigestAlgorithm.Haval5160)
-				return "haval-5-160";
-
-			return digestAlgo.ToString ().ToLowerInvariant ();
-		}
-
-		public static DigestAlgorithm ToDigestAlgorithm (this string digestName)
-		{
-			switch (digestName.ToLowerInvariant ()) {
-			case "md2": return DigestAlgorithm.MD2;
-			case "md4": return DigestAlgorithm.MD4;
-			case "md5": return DigestAlgorithm.MD5;
-			case "sha1": return DigestAlgorithm.Sha1;
-			case "sha224": return DigestAlgorithm.Sha224;
-			case "sha256": return DigestAlgorithm.Sha256;
-			case "sha384": return DigestAlgorithm.Sha384;
-			case "sha512": return DigestAlgorithm.Sha512;
-			case "tiger192": return DigestAlgorithm.Tiger192;
-			case "ripemd160": return DigestAlgorithm.RipeMD160;
-			case "haval-5-160": return DigestAlgorithm.Haval5160;
-			default: return DigestAlgorithm.None;
-			}
-		}
-	}
 }

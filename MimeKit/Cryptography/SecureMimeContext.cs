@@ -26,25 +26,27 @@
 
 using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
+
+using Org.BouncyCastle;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Cms;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
 	/// </summary>
-	public class SecureMimeContext : CryptographyContext
+	public abstract class SecureMimeContext : CryptographyContext
 	{
-		/// <summary>
-		/// Gets the certificate store.
-		/// </summary>
-		/// <value>The certificate store.</value>
-		public X509Store CertificateStore {
-			get; protected set;
-		}
-
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
@@ -93,105 +95,92 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
+		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
-		/// <param name="store">The certificate store.</param>
+		/// <returns>The micalg value.</returns>
+		/// <param name="micalg">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="micalg"/> is out of range.
+		/// </exception>
+		public override string GetMicAlgName (DigestAlgorithm micalg)
+		{
+			switch (micalg) {
+			case DigestAlgorithm.MD5:        return "md5";
+			case DigestAlgorithm.Sha1:       return "sha1";
+			case DigestAlgorithm.RipeMD160:  return "ripemd160";
+			case DigestAlgorithm.MD2:        return "md2";
+			case DigestAlgorithm.Tiger192:   return "tiger192";
+			case DigestAlgorithm.Haval5160:  return "haval-5-160";
+			case DigestAlgorithm.Sha256:     return "sha256";
+			case DigestAlgorithm.Sha384:     return "sha384";
+			case DigestAlgorithm.Sha512:     return "sha512";
+			case DigestAlgorithm.Sha224:     return "sha224";
+			case DigestAlgorithm.MD4:        return "md4";
+			default: throw new ArgumentOutOfRangeException ("micalg");
+			}
+		}
+
+		/// <summary>
+		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// </summary>
+		/// <returns>The digest algorithm.</returns>
+		/// <param name="micalg">The micalg parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="store"/> is <c>null</c>.
+		/// <paramref name="micalg"/> is <c>null</c>.
 		/// </exception>
-		public SecureMimeContext (X509Store store)
+		public override DigestAlgorithm GetDigestAlgorithm (string micalg)
 		{
-			if (store == null)
-				throw new ArgumentNullException ("store");
+			if (micalg == null)
+				throw new ArgumentNullException ("micalg");
 
-			CertificateStore = store;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
-		/// </summary>
-		public SecureMimeContext ()
-		{
-			CertificateStore = new X509Store (StoreLocation.CurrentUser);
-			CertificateStore.Open (OpenFlags.ReadWrite);
-		}
-
-		/// <summary>
-		/// Gets the encryption certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
-		/// </summary>
-		/// <returns>The certificate.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="exporting"><c>true</c> if the certificate will be exported; otherwise <c>false</c>.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected virtual X509Certificate2 GetEncryptionCertificate (MailboxAddress mailbox, bool exporting)
-		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
-
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address) {
-					if (!exporting || !certificate.HasPrivateKey)
-						return certificate;
-
-					// Note: this is to get rid of the private key
-					return new X509Certificate2 (certificate.RawData);
-				}
+			switch (micalg.ToLowerInvariant ()) {
+			case "md5":         return DigestAlgorithm.MD5;
+			case "sha1":        return DigestAlgorithm.Sha1;
+			case "ripemd160":   return DigestAlgorithm.RipeMD160;
+			case "md2":         return DigestAlgorithm.MD2;
+			case "tiger192":    return DigestAlgorithm.Tiger192;
+			case "haval-5-160": return DigestAlgorithm.Haval5160;
+			case "sha256":      return DigestAlgorithm.Sha256;
+			case "sha384":      return DigestAlgorithm.Sha384;
+			case "sha512":      return DigestAlgorithm.Sha512;
+			case "sha224":      return DigestAlgorithm.Sha224;
+			case "md4":         return DigestAlgorithm.MD4;
+			default:            return DigestAlgorithm.None;
 			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}
 
 		/// <summary>
-		/// Gets the certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
-		/// <returns>The certificate.</returns>
+		/// <returns>The X509 certificate.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected virtual X509Certificate2 GetSigningCertificate (MailboxAddress mailbox)
-		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
-
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address) {
-
-					return certificate;
-				}
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-		}
+		protected abstract X509Certificate GetCertificate (MailboxAddress mailbox);
 
 		/// <summary>
-		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
 		/// </summary>
-		/// <returns>The cms signer.</returns>
+		/// <returns>A <see cref="CmsSigner"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="digestAlgo">The preferred digest algorithm.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected virtual CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
-		{
-			var signer = new CmsSigner (GetSigningCertificate (mailbox));
-			signer.DigestAlgorithm.FriendlyName = digestAlgo.ToString ().ToUpperInvariant ();
-			signer.IncludeOption = X509IncludeOption.EndCertOnly;
-			return signer;
-		}
+		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
 
 		/// <summary>
-		/// Gets the cms recipient for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
-		/// <returns>The cms recipient.</returns>
+		/// <returns>A <see cref="CmsRecipient"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			return new CmsRecipient (GetEncryptionCertificate (mailbox, false));
+			return new CmsRecipient (GetCertificate (mailbox));
 		}
 
 		/// <summary>
@@ -199,7 +188,10 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The cms recipients.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
-		protected virtual CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		protected CmsRecipientCollection GetRecipientCertificates (IEnumerable<MailboxAddress> mailboxes)
 		{
 			var recipients = new CmsRecipientCollection ();
 
@@ -207,6 +199,29 @@ namespace MimeKit.Cryptography {
 				recipients.Add (GetCmsRecipient (mailbox));
 
 			return recipients;
+		}
+
+		protected abstract AsymmetricKeyParameter GetPrivateKey (RecipientID recipient);
+
+		protected static string GetOid (DigestAlgorithm digestAlgo)
+		{
+			switch (digestAlgo) {
+			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;
+			case DigestAlgorithm.Sha1:       return PkcsObjectIdentifiers.IdHmacWithSha1.Id;
+			case DigestAlgorithm.MD2:        return PkcsObjectIdentifiers.MD2.Id;
+			case DigestAlgorithm.Sha256:     return PkcsObjectIdentifiers.IdHmacWithSha256.Id;
+			case DigestAlgorithm.Sha384:     return PkcsObjectIdentifiers.IdHmacWithSha384.Id;
+			case DigestAlgorithm.Sha512:     return PkcsObjectIdentifiers.IdHmacWithSha512.Id;
+			case DigestAlgorithm.Sha224:     return PkcsObjectIdentifiers.IdHmacWithSha224.Id;
+			case DigestAlgorithm.MD4:        return PkcsObjectIdentifiers.MD4.Id;
+			case DigestAlgorithm.RipeMD160:
+			case DigestAlgorithm.DoubleSha:
+			case DigestAlgorithm.Tiger192:
+			case DigestAlgorithm.Haval5160:
+				throw new NotSupportedException ();
+			default:
+				throw new ArgumentOutOfRangeException ();
+			}
 		}
 
 		/// <summary>
@@ -267,57 +282,82 @@ namespace MimeKit.Cryptography {
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
+			if (signer.Certificate == null)
+				throw new ArgumentException ("No signer certificate specified.", "signer");
+
+			if (signer.PrivateKey == null)
+				throw new ArgumentException ("No private key specified.", "signer");
+
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var contentInfo = new ContentInfo (content);
-			var signed = new SignedCms (contentInfo, true);
+			var generator = new CmsSignedDataStreamGenerator ();
+			generator.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
+				signer.SignedAttributes, signer.UnsignedAttributes);
 
-			signed.ComputeSignature (signer, false);
-			var data = signed.Encode ();
+			var memory = new MemoryStream ();
 
-			return new ApplicationPkcs7Signature (new MemoryStream (data, false));
+			using (var stream = generator.Open (memory)) {
+				stream.Write (content, 0, content.Length);
+			}
+
+			memory.Position = 0;
+
+			return new ApplicationPkcs7Signature (memory);
 		}
 
-		IList<IDigitalSignature> GetDigitalSignatures (SignerInfoCollection signerInfos)
+		X509Certificate GetCertificate (IX509Store store, IX509Selector selector)
+		{
+			var matches = store.GetMatches (selector);
+
+			foreach (X509Certificate certificate in matches) {
+				return certificate;
+			}
+
+			return null;
+		}
+
+		IList<IDigitalSignature> GetDigitalSignatures (SignerInformationStore store, IX509Store certificates)
 		{
 			var signatures = new List<IDigitalSignature> ();
 
-			foreach (var signerInfo in signerInfos) {
+			foreach (SignerInformation signerInfo in store.GetSigners ()) {
+				var cert = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
-				var certificate = (SecureMimeDigitalCertificate) signature.SignerCertificate;
+				var certificate = new SecureMimeDigitalCertificate (cert);
 
-				if (certificate.ExpirationDate < DateTime.Now) {
+				signature.SignerCertificate = certificate;
+
+				// Verify that the signature is good vs bad
+				if (!signerInfo.Verify (cert)) {
+					signature.Status = DigitalSignatureStatus.Bad;
+				}
+
+				if (DateTime.Now > certificate.ExpirationDate) {
 					signature.Errors |= DigitalSignatureError.CertificateExpired;
 					signature.Status = DigitalSignatureStatus.Error;
 				}
 
-				var chain = new X509Chain ();
-				chain.ChainPolicy.UrlRetrievalTimeout = OnlineCertificateRetrievalTimeout;
-				chain.ChainPolicy.RevocationMode = AllowOnlineCertificateRetrieval ? X509RevocationMode.Online : X509RevocationMode.Offline;
-				chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-				//if (AllowSelfSignedCertificates)
-				//	chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-				chain.ChainPolicy.VerificationTime = DateTime.Now;
+				// FIXME: verify the certificate chain with what we have in our local store
 
-				if (!chain.Build (signerInfo.Certificate)) {
-					for (int i = 0; i < chain.ChainStatus.Length; i++) {
-						if (chain.ChainStatus[i].Status.HasFlag (X509ChainStatusFlags.Revoked)) {
-							signature.Errors |= DigitalSignatureError.CertificateRevoked;
-							signature.Status = DigitalSignatureStatus.Error;
-						}
-
-						certificate.ChainStatus |= chain.ChainStatus[i].Status;
-					}
-				}
-
-				if (signature.Status != DigitalSignatureStatus.Error) {
-					try {
-						signerInfo.CheckSignature (true);
-					} catch (CryptographicException) {
-						signature.Status = DigitalSignatureStatus.Bad;
-					}
-				}
+//				var chain = new X509Chain ();
+//				chain.ChainPolicy.UrlRetrievalTimeout = OnlineCertificateRetrievalTimeout;
+//				chain.ChainPolicy.RevocationMode = AllowOnlineCertificateRetrieval ? X509RevocationMode.Online : X509RevocationMode.Offline;
+//				chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
+//				//if (AllowSelfSignedCertificates)
+//				//	chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+//				chain.ChainPolicy.VerificationTime = DateTime.Now;
+//
+//				if (!chain.Build (signerInfo.Certificate)) {
+//					for (int i = 0; i < chain.ChainStatus.Length; i++) {
+//						if (chain.ChainStatus[i].Status.HasFlag (X509ChainStatusFlags.Revoked)) {
+//							signature.Errors |= DigitalSignatureError.CertificateRevoked;
+//							signature.Status = DigitalSignatureStatus.Error;
+//						}
+//
+//						certificate.ChainStatus |= chain.ChainStatus[i].Status;
+//					}
+//				}
 
 				// FIXME: how do I get the creation/expiration timestamps?
 				signatures.Add (signature);
@@ -348,12 +388,12 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException ("signatureData");
 
-			var contentInfo = new ContentInfo (content);
-			var signed = new SignedCms (contentInfo, true);
+			var contentStream = new MemoryStream (content, false);
+			var signed = new CmsSignedDataParser (new CmsTypedStream (contentStream), signatureData);
+			var certificates = signed.GetCertificates ("Collection");
+			var signers = signed.GetSignerInfos ();
 
-			signed.Decode (signatureData);
-
-			return GetDigitalSignatures (signed.SignerInfos);
+			return GetDigitalSignatures (signers, certificates);
 		}
 
 		/// <summary>
@@ -373,12 +413,17 @@ namespace MimeKit.Cryptography {
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
-			var signed = new SignedCms ();
-			signed.Decode (signedData);
+			var signed = new CmsSignedDataParser (signedData);
+			var certificates = signed.GetCertificates ("Collection");
+			var signers = signed.GetSignerInfos ();
 
-			content = signed.ContentInfo.Content;
+			var signedContent = signed.GetSignedContent ();
+			using (var memory = new MemoryStream ()) {
+				signedContent.ContentStream.CopyTo (memory, 4096);
+				content = memory.ToArray ();
+			}
 
-			return GetDigitalSignatures (signed.SignerInfos);
+			return GetDigitalSignatures (signers, certificates);
 		}
 
 		/// <summary>
@@ -404,10 +449,20 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var contentInfo = new ContentInfo (content);
-			var enveloped = new EnvelopedCms (contentInfo);
-			enveloped.Encrypt (recipients);
-			var data = enveloped.Encode ();
+			var generator = new CmsEnvelopedDataGenerator ();
+			int count = 0;
+
+			foreach (var recipient in recipients) {
+				generator.AddKeyTransRecipient (recipient.Certificate);
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			// FIXME: how to decide which algorithm to use?
+			var envelope = generator.Generate (new CmsProcessableByteArray (content), CmsEnvelopedGenerator.DesEde3Cbc);
+			var data = envelope.GetEncoded ();
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
@@ -441,7 +496,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			return Encrypt (GetCmsRecipients (recipients), content);
+			return Encrypt (GetRecipientCertificates (recipients), content);
 		}
 
 		/// <summary>
@@ -471,13 +526,24 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var contentInfo = new ContentInfo (content);
-			var signed = new SignedCms (contentInfo, false);
-			signed.ComputeSignature (signer, false);
-			contentInfo = new ContentInfo (signed.Encode ());
-			var enveloped = new EnvelopedCms (contentInfo);
-			enveloped.Encrypt (recipients);
-			var data = enveloped.Encode ();
+			var generator = new CmsSignedDataGenerator ();
+			generator.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
+				signer.SignedAttributes, signer.UnsignedAttributes);
+			var signedData = generator.Generate (new CmsProcessableByteArray (content), true);
+
+			var cms = new CmsEnvelopedDataGenerator ();
+			int count = 0;
+
+			foreach (var recipient in recipients) {
+				cms.AddKeyTransRecipient (recipient.Certificate);
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			var envelopedData = cms.Generate (signedData.SignedContent, CmsEnvelopedGenerator.DesEde3Cbc);
+			var data = envelopedData.GetEncoded ();
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
@@ -524,7 +590,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetCmsRecipients (recipients), content);
+			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetRecipientCertificates (recipients), content);
 		}
 
 		/// <summary>
@@ -544,46 +610,58 @@ namespace MimeKit.Cryptography {
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			var enveloped = new EnvelopedCms ();
-			enveloped.Decode (encryptedData);
-			enveloped.Decrypt (CertificateStore.Certificates);
+			var enveloped = new CmsEnvelopedDataParser (encryptedData);
+			var recipients = enveloped.GetRecipientInfos ();
+			var algorithm = enveloped.EncryptionAlgorithmID;
 
-			// now that we've decrypted the data, let's see if it is signed...
-			var signedData = enveloped.Encode ();
-			byte[] content;
+			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
+				var key = GetPrivateKey (recipient.RecipientID);
+				if (key == null)
+					continue;
 
-			try {
-				signatures = Verify (signedData, out content);
-			} catch (CryptographicException) {
-				content = signedData;
-				signatures = null;
+				var content = recipient.GetContent (key);
+
+				try {
+					var signed = new CmsSignedDataParser (content);
+					var certificates = signed.GetCertificates ("Collection");
+					var signers = signed.GetSignerInfos ();
+
+					var signedContent = signed.GetSignedContent ();
+					using (var memory = new MemoryStream ()) {
+						signedContent.ContentStream.CopyTo (memory, 4096);
+						content = memory.ToArray ();
+					}
+
+					signatures = GetDigitalSignatures (signers, certificates);
+				} catch {
+					signatures = null;
+				}
+
+				using (var memory = new MemoryStream (content, false)) {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					return parser.ParseEntity ();
+				}
 			}
 
-			using (var memory = new MemoryStream (content, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
-				return parser.ParseEntity ();
-			}
+			throw new CmsException ("Can't decrypt.");
 		}
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports the pkcs12-encoded certificate and key data.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="rawData">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while importing.
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportKeys (byte[] rawData)
+		public virtual void ImportPkcs12 (byte[] rawData, string password)
 		{
-			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
-
-			var certs = new X509Certificate2Collection ();
-			certs.Import (rawData);
-
-			CertificateStore.AddRange (certs);
+			throw new NotSupportedException ();
 		}
 
 		/// <summary>
@@ -606,76 +684,17 @@ namespace MimeKit.Cryptography {
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			var certificates = new X509Certificate2Collection ();
+			var certificates = new List<X509Certificate> ();
 			foreach (var mailbox in mailboxes) {
-				var cert = GetEncryptionCertificate (mailbox, true);
+				var cert = GetCertificate (mailbox);
 				certificates.Add (cert);
 			}
 
 			if (certificates.Count == 0)
-				throw new ArgumentException ();
+				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
-			return ExportKeys (certificates);
-		}
-
-		/// <summary>
-		/// Exports the specified certificates.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
-		/// the exported keys.</returns>
-		/// <param name="certificates">The certificates.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificates"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Exporting keys is not supported by this cryptography context.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while exporting.
-		/// </exception>
-		public ApplicationPkcs7Mime ExportKeys (X509Certificate2Collection certificates)
-		{
-			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
-
-			var rawData = certificates.Export (X509ContentType.Pkcs12);
-			var content = new MemoryStream (rawData, false);
-
-			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, content);
-		}
-
-		/// <summary>
-		/// Exports the key.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
-		/// the exported keys.</returns>
-		/// <param name="certificate">The certificate.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while exporting.
-		/// </exception>
-		public ApplicationPkcs7Mime ExportKey (X509Certificate2 certificate)
-		{
-			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
-
-			return ExportKeys (new X509Certificate2Collection (certificate));
-		}
-
-		/// <summary>
-		/// Dispose the specified disposing.
-		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && CertificateStore != null) {
-				CertificateStore.Close ();
-				CertificateStore = null;
-			}
-
-			base.Dispose (disposing);
+			// FIXME:
+			return null;
 		}
 	}
 }

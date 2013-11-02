@@ -25,8 +25,14 @@
 //
 
 using System;
-using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.X509;
+using System.Security.Cryptography;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -34,9 +40,34 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class SecureMimeDigitalCertificate : IDigitalCertificate
 	{
-		internal SecureMimeDigitalCertificate (SignerInfo signerInfo)
+		internal SecureMimeDigitalCertificate (X509Certificate certificate)
 		{
-			Certificate = signerInfo.Certificate;
+			Certificate = certificate;
+
+			var pubkey = certificate.GetPublicKey ();
+			if (pubkey is DsaKeyParameters)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
+			else if (pubkey is RsaKeyParameters)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
+			else if (pubkey is ElGamalKeyParameters)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.ElGamalGeneral;
+			else if (pubkey is ECKeyParameters)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurve;
+			else if (pubkey is DHKeyParameters)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
+
+			var encoded = certificate.GetEncoded ();
+			var fingerprint = new StringBuilder ();
+			var sha1 = new Sha1Digest ();
+			var data = new byte[20];
+
+			sha1.BlockUpdate (encoded, 0, encoded.Length);
+			sha1.DoFinal (data, 0);
+
+			for (int i = 0; i < data.Length; i++)
+				fingerprint.Append (data[i].ToString ("X2"));
+
+			Fingerprint = fingerprint.ToString ();
 		}
 
 		SecureMimeDigitalCertificate ()
@@ -44,20 +75,20 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="System.Security.Cryptography.X509Certificates.X509Certificate2" />.
+		/// Gets the <see cref="Org.BouncyCastle.X509.X509Certificate" />.
 		/// </summary>
 		/// <value>The certificate.</value>
-		public X509Certificate2 Certificate {
+		public X509Certificate Certificate {
 			get; private set;
 		}
 
-		/// <summary>
-		/// Gets the chain status.
-		/// </summary>
-		/// <value>The chain status.</value>
-		public X509ChainStatusFlags ChainStatus {
-			get; internal set;
-		}
+//		/// <summary>
+//		/// Gets the chain status.
+//		/// </summary>
+//		/// <value>The chain status.</value>
+//		public X509ChainStatusFlags ChainStatus {
+//			get; internal set;
+//		}
 
 		#region IDigitalCertificate implementation
 
@@ -98,7 +129,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The fingerprint.</value>
 		public string Fingerprint {
-			get { return Certificate.Thumbprint; }
+			get; private set;
 		}
 
 		/// <summary>
@@ -106,7 +137,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The email address.</value>
 		public string Email {
-			get { return Certificate.GetNameInfo (X509NameType.EmailName, false); }
+			get { return Certificate.GetSubjectEmail (); }
 		}
 
 		/// <summary>
@@ -114,7 +145,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The name of the owner.</value>
 		public string Name {
-			get { return Certificate.GetNameInfo (X509NameType.SimpleName, false); }
+			get { return Certificate.GetSubjectName (); }
 		}
 
 		#endregion

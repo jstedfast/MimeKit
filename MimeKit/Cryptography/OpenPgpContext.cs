@@ -118,6 +118,61 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// </summary>
+		/// <returns>The micalg value.</returns>
+		/// <param name="micalg">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="micalg"/> is out of range.
+		/// </exception>
+		public override string GetMicAlgName (DigestAlgorithm micalg)
+		{
+			switch (micalg) {
+			case DigestAlgorithm.MD5:        return "pgp-md5";
+			case DigestAlgorithm.Sha1:       return "pgp-sha1";
+			case DigestAlgorithm.RipeMD160:  return "pgp-ripemd160";
+			case DigestAlgorithm.MD2:        return "pgp-md2";
+			case DigestAlgorithm.Tiger192:   return "pgp-tiger192";
+			case DigestAlgorithm.Haval5160:  return "pgp-haval-5-160";
+			case DigestAlgorithm.Sha256:     return "pgp-sha256";
+			case DigestAlgorithm.Sha384:     return "pgp-sha384";
+			case DigestAlgorithm.Sha512:     return "pgp-sha512";
+			case DigestAlgorithm.Sha224:     return "pgp-sha224";
+			case DigestAlgorithm.MD4:        return "pgp-md4";
+			default: throw new ArgumentOutOfRangeException ("micalg");
+			}
+		}
+
+		/// <summary>
+		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// </summary>
+		/// <returns>The digest algorithm.</returns>
+		/// <param name="micalg">The micalg parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="micalg"/> is <c>null</c>.
+		/// </exception>
+		public override DigestAlgorithm GetDigestAlgorithm (string micalg)
+		{
+			if (micalg == null)
+				throw new ArgumentNullException ("micalg");
+
+			switch (micalg.ToLowerInvariant ()) {
+			case "pgp-md5":         return DigestAlgorithm.MD5;
+			case "pgp-sha1":        return DigestAlgorithm.Sha1;
+			case "pgp-ripemd160":   return DigestAlgorithm.RipeMD160;
+			case "pgp-md2":         return DigestAlgorithm.MD2;
+			case "pgp-tiger192":    return DigestAlgorithm.Tiger192;
+			case "pgp-haval-5-160": return DigestAlgorithm.Haval5160;
+			case "pgp-sha256":      return DigestAlgorithm.Sha256;
+			case "pgp-sha384":      return DigestAlgorithm.Sha384;
+			case "pgp-sha512":      return DigestAlgorithm.Sha512;
+			case "pgp-sha224":      return DigestAlgorithm.Sha224;
+			case "pgp-md4":         return DigestAlgorithm.MD4;
+			default:                return DigestAlgorithm.None;
+			}
+		}
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
 		/// </summary>
 		/// <param name="pubring">The public keyring file path.</param>

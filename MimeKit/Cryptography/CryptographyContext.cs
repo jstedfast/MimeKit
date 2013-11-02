@@ -78,6 +78,26 @@ namespace MimeKit.Cryptography {
 		public abstract bool Supports (string protocol);
 
 		/// <summary>
+		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// </summary>
+		/// <returns>The micalg value.</returns>
+		/// <param name="micalg">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="micalg"/> is out of range.
+		/// </exception>
+		public abstract string GetMicAlgName (DigestAlgorithm micalg);
+
+		/// <summary>
+		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// </summary>
+		/// <returns>The digest algorithm.</returns>
+		/// <param name="micalg">The micalg parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="micalg"/> is <c>null</c>.
+		/// </exception>
+		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
+
+		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
@@ -251,7 +271,7 @@ namespace MimeKit.Cryptography {
 			case "application/pkcs7-mime":
 			case "application/x-pkcs7-keys":
 			case "application/pkcs7-keys":
-				return new SecureMimeContext ();
+				return new WindowsSecureMimeContext ();
 			case "application/x-pgp-signature":
 			case "application/pgp-signature":
 			case "application/x-pgp-encrypted":

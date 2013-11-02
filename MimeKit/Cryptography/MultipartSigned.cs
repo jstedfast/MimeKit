@@ -139,7 +139,7 @@ namespace MimeKit.Cryptography {
 
 			// sign the cleartext content
 			var signature = ctx.Sign (signer, digestAlgo, cleartext);
-			var micalg = digestAlgo.ToFriendlyName ();
+			var micalg = ctx.GetMicAlgName (digestAlgo);
 			var signed = new MultipartSigned ();
 
 			if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
@@ -181,7 +181,7 @@ namespace MimeKit.Cryptography {
 
 			PrepareEntityForSigning (entity);
 
-			using (var ctx = new SecureMimeContext ()) {
+			using (var ctx = new WindowsSecureMimeContext ()) {
 				MimeEntity parsed;
 				byte[] cleartext;
 
@@ -210,7 +210,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				// sign the cleartext content
-				var micalg = signer.DigestAlgorithm.FriendlyName;
+				var micalg = ctx.GetMicAlgName (signer.DigestAlgorithm);
 				var signature = ctx.Sign (signer, cleartext);
 				var signed = new MultipartSigned ();
 

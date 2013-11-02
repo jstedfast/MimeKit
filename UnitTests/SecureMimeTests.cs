@@ -58,7 +58,7 @@ namespace UnitTests {
 			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet);
 			store.AddRange (certs);
 
-			return new SecureMimeContext (store) {
+			return new WindowsSecureMimeContext (store) {
 				//AllowSelfSignedCertificates = true,
 				AllowOnlineCertificateRetrieval = true,
 				OnlineCertificateRetrievalTimeout = new TimeSpan (0, 0, 30)
@@ -90,7 +90,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
 					                 "Checking the signature of {0} failed: {1} ({2})",
-					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+					                 certificate.Name, signature.Errors, ""/*certificate.ChainStatus*/);
 				}
 			}
 		}
@@ -209,7 +209,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (DigitalSignatureStatus.Good, signature.Status,
 					                 "Checking the signature of {0} failed: {1} ({2})",
-					                 certificate.Name, signature.Errors, certificate.ChainStatus);
+					                 certificate.Name, signature.Errors, ""/*certificate.ChainStatus*/);
 				}
 			}
 		}
@@ -236,7 +236,7 @@ namespace UnitTests {
 				var store = new X509Store ("ImportTest", StoreLocation.CurrentUser);
 				store.Open (OpenFlags.ReadWrite);
 
-				using (var imported = new SecureMimeContext (store)) {
+				using (var imported = new WindowsSecureMimeContext (store)) {
 					try {
 						pkcs7mime.Import (imported);
 					} catch {

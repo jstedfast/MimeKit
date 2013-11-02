@@ -48,6 +48,9 @@
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
+    <Compile Include="Cryptography\CmsRecipient.cs" />
+    <Compile Include="Cryptography\CmsRecipientCollection.cs" />
+    <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureError.cs" />
@@ -55,6 +58,7 @@
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
+    <Compile Include="Cryptography\MacSecureMimeContext.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
@@ -65,7 +69,10 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TrustLevel.cs" />
+    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
+    <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />
@@ -94,6 +101,26 @@
     <Compile Include="IO\Filters\PassThroughFilter.cs" />
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
+    <Compile Include="MacInterop\CFArray.cs" />
+    <Compile Include="MacInterop\CFData.cs" />
+    <Compile Include="MacInterop\CFDictionary.cs" />
+    <Compile Include="MacInterop\CFObject.cs" />
+    <Compile Include="MacInterop\CFRange.cs" />
+    <Compile Include="MacInterop\CFString.cs" />
+    <Compile Include="MacInterop\CssmDbAttributeFormat.cs" />
+    <Compile Include="MacInterop\CssmKeyUse.cs" />
+    <Compile Include="MacInterop\CssmTPAppleCertStatus.cs" />
+    <Compile Include="MacInterop\Dlfcn.cs" />
+    <Compile Include="MacInterop\OSStatus.cs" />
+    <Compile Include="MacInterop\SecCertificate.cs" />
+    <Compile Include="MacInterop\SecExternalFormat.cs" />
+    <Compile Include="MacInterop\SecItemAttr.cs" />
+    <Compile Include="MacInterop\SecItemClass.cs" />
+    <Compile Include="MacInterop\SecItemExportFlags.cs" />
+    <Compile Include="MacInterop\SecKeyAttribute.cs" />
+    <Compile Include="MacInterop\SecKeychain.cs" />
+    <Compile Include="MacInterop\SecKeychainAttribute.cs" />
+    <Compile Include="MacInterop\SecKeychainAttributeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
@@ -157,6 +184,7 @@
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
     <Folder Include="Utils\" />
+    <Folder Include="MacInterop\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">

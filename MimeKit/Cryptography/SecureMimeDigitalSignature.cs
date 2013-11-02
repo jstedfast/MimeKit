@@ -25,7 +25,8 @@
 //
 
 using System;
-using System.Security.Cryptography.Pkcs;
+
+using Org.BouncyCastle.Cms;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -33,9 +34,8 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public class SecureMimeDigitalSignature : IDigitalSignature
 	{
-		internal SecureMimeDigitalSignature (SignerInfo signerInfo)
+		internal SecureMimeDigitalSignature (SignerInformation signerInfo)
 		{
-			SignerCertificate = new SecureMimeDigitalCertificate (signerInfo);
 			SignerInfo = signerInfo;
 		}
 
@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		public SignerInfo SignerInfo {
+		public SignerInformation SignerInfo {
 			get; private set;
 		}
 
@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The signer's certificate.</value>
 		public IDigitalCertificate SignerCertificate {
-			get; private set;
+			get; internal set;
 		}
 
 		/// <summary>
