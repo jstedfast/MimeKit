@@ -40,6 +40,7 @@ using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
+using System.Diagnostics;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -618,7 +619,8 @@ namespace MimeKit.Cryptography {
 					}
 
 					signatures = GetDigitalSignatures (signers, certificates);
-				} catch {
+				} catch (Exception ex) {
+					Console.WriteLine ("Failed to verify signed data: {0}", ex);
 					signatures = null;
 				}
 

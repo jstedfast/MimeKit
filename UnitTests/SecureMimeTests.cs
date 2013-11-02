@@ -41,6 +41,10 @@ namespace UnitTests {
 	[TestFixture]
 	public class SecureMimeTests
 	{
+		static readonly string[] CertificateAuthorities = new string[] {
+			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+		};
+
 		static SecureMimeContext CreateContext ()
 		{
 			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
@@ -50,8 +54,10 @@ namespace UnitTests {
 			var store = new X509Store ("MimeKitUnitTests", StoreLocation.CurrentUser);
 			store.Open (OpenFlags.ReadWrite);
 
-			path = Path.Combine (dataDir, "certificate-authority.cert");
-			store.Add (new X509Certificate2 (path));
+			foreach (var filename in CertificateAuthorities) {
+				path = Path.Combine (dataDir, filename);
+				store.Add (new X509Certificate2 (path));
+			}
 
 			path = Path.Combine (dataDir, "smime.p12");
 			certs = new X509Certificate2Collection ();
@@ -118,49 +124,49 @@ namespace UnitTests {
 //			}
 //		}
 //
-//		[Test]
-//		public void TestSecureMimeVerifyOutlook ()
-//		{
-//			MimeMessage message;
-//
-//			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "bojan-smime.txt"))) {
-//				var parser = new MimeParser (file, MimeFormat.Default);
-//				message = parser.ParseMessage ();
-//			}
-//
-//			using (var ctx = CreateContext ()) {
-//				var multipart = (MultipartSigned) message.Body;
-//
-//				var protocol = multipart.ContentType.Parameters["protocol"];
-//				Assert.IsTrue (ctx.Supports (protocol), "The multipart/signed protocol is not supported.");
-//
-//				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
-//
-//				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
-//					var options = FormatOptions.Default.Clone ();
-//					options.NewLineFormat = NewLineFormat.Dos;
-//
-//					multipart[0].WriteTo (options, file);
-//					file.Flush ();
-//				}
-//
-//				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
-//					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
-//				}
-//
-//				var signatures = multipart.Verify (ctx);
-//				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
-//				foreach (var signature in signatures) {
-//					try {
-//						bool valid = signature.Verify ();
-//
-//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-//					} catch (DigitalSignatureVerifyException ex) {
-//						Assert.Fail ("Failed to verify signature: {0}", ex);
-//					}
-//				}
-//			}
-//		}
+		[Test]
+		public void TestSecureMimeVerifyThunderbird ()
+		{
+			MimeMessage message;
+
+			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed.txt"))) {
+				var parser = new MimeParser (file, MimeFormat.Default);
+				message = parser.ParseMessage ();
+			}
+
+			using (var ctx = CreateContext ()) {
+				var multipart = (MultipartSigned) message.Body;
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.IsTrue (ctx.Supports (protocol), "The multipart/signed protocol is not supported.");
+
+				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
+
+				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					multipart[0].WriteTo (options, file);
+					file.Flush ();
+				}
+
+				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
+					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
+				}
+
+				var signatures = multipart.Verify (ctx);
+				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
 
 		[Test]
 		public void TestSecureMimeEncryption ()
@@ -198,11 +204,15 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
+			ApplicationPkcs7Mime encrypted;
+
 			using (var ctx = CreateContext ()) {
-				var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
+				encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+			}
 
+			using (var ctx = CreateContext ()) {
 				IList<IDigitalSignature> signatures;
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
