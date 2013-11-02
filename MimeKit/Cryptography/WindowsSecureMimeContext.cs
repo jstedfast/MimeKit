@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
@@ -121,9 +123,61 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
+		static string ToHexString (byte[] array)
+		{
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < array.Length; i++)
+				builder.Append (array[i].ToString ("X2"));
+
+			return builder.ToString ();
+		}
+
+		/// <summary>
+		/// Gets the private key.
+		/// </summary>
+		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <param name="recipient">The recipient.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (RecipientID recipient)
 		{
+			X509FindType type;
+			object token;
 
+			if (recipient.SubjectKeyIdentifier != null) {
+				type = X509FindType.FindBySubjectKeyIdentifier;
+				token = ToHexString (recipient.SubjectKeyIdentifier);
+			} else if (recipient.Subject != null) {
+				type = X509FindType.FindBySubjectDistinguishedName;
+				token = recipient.SubjectAsString;
+			} else if (recipient.Issuer != null) {
+				type = X509FindType.FindByIssuerDistinguishedName;
+				token = recipient.IssuerAsString;
+			} else if (recipient.SerialNumber != null) {
+				type = X509FindType.FindBySerialNumber;
+				token = recipient.SerialNumber.ToString ();
+			} else {
+				Debug.WriteLine ("Attempting to lookup recipient based on unexpected parameters.");
+				return null;
+			}
+
+			var matches = CertificateStore.Certificates.Find (type, token, false);
+			AsymmetricKeyParameter key = null;
+			DateTime now = DateTime.Now;
+
+			foreach (var certificate in matches) {
+				if (!certificate.HasPrivateKey)
+					continue;
+
+				var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+				key = pair.Private;
+
+				if (now > certificate.NotAfter || now < certificate.NotBefore)
+					continue;
+
+				return key;
+			}
+
+			return key;
 		}
 
 		/// <summary>
@@ -169,7 +223,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("password");
 
 			var certs = new X509Certificate2Collection ();
-			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet);
+			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
 
 			CertificateStore.AddRange (certs);
 		}

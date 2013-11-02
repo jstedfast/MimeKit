@@ -55,7 +55,7 @@ namespace UnitTests {
 
 			path = Path.Combine (dataDir, "smime.p12");
 			certs = new X509Certificate2Collection ();
-			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet);
+			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
 			store.AddRange (certs);
 
 			return new WindowsSecureMimeContext (store) {

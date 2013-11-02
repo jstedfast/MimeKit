@@ -201,18 +201,23 @@ namespace MimeKit.Cryptography {
 			return recipients;
 		}
 
+		/// <summary>
+		/// Gets the private key.
+		/// </summary>
+		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <param name="recipient">The recipient.</param>
 		protected abstract AsymmetricKeyParameter GetPrivateKey (RecipientID recipient);
 
 		protected static string GetOid (DigestAlgorithm digestAlgo)
 		{
 			switch (digestAlgo) {
 			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;
-			case DigestAlgorithm.Sha1:       return PkcsObjectIdentifiers.IdHmacWithSha1.Id;
+			case DigestAlgorithm.Sha1:       return PkcsObjectIdentifiers.Sha1WithRsaEncryption.Id;
 			case DigestAlgorithm.MD2:        return PkcsObjectIdentifiers.MD2.Id;
-			case DigestAlgorithm.Sha256:     return PkcsObjectIdentifiers.IdHmacWithSha256.Id;
-			case DigestAlgorithm.Sha384:     return PkcsObjectIdentifiers.IdHmacWithSha384.Id;
-			case DigestAlgorithm.Sha512:     return PkcsObjectIdentifiers.IdHmacWithSha512.Id;
-			case DigestAlgorithm.Sha224:     return PkcsObjectIdentifiers.IdHmacWithSha224.Id;
+			case DigestAlgorithm.Sha256:     return PkcsObjectIdentifiers.Sha256WithRsaEncryption.Id;
+			case DigestAlgorithm.Sha384:     return PkcsObjectIdentifiers.Sha384WithRsaEncryption.Id;
+			case DigestAlgorithm.Sha512:     return PkcsObjectIdentifiers.Sha512WithRsaEncryption.Id;
+			case DigestAlgorithm.Sha224:     return PkcsObjectIdentifiers.Sha224WithRsaEncryption.Id;
 			case DigestAlgorithm.MD4:        return PkcsObjectIdentifiers.MD4.Id;
 			case DigestAlgorithm.RipeMD160:
 			case DigestAlgorithm.DoubleSha:

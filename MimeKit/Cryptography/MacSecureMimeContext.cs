@@ -108,7 +108,7 @@ namespace MimeKit.Cryptography {
 						for (int i = 0; i < chain.Length; i++)
 							keychain.Add (chain[i].Certificate);
 
-
+						// FIXME: add the private key to the keychain
 					} else if (pkcs12.IsCertificateEntry (alias)) {
 						var entry = pkcs12.GetCertificate (alias);
 						keychain.Add (entry.Certificate);
