@@ -77,6 +77,11 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
+		protected override X509Certificate GetCertificate (SignerID signer)
+		{
+			throw new NotImplementedException ();
+		}
+
 		protected override AsymmetricKeyParameter GetPrivateKey (RecipientID recipient)
 		{
 			throw new NotImplementedException ();

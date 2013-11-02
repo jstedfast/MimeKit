@@ -133,6 +133,44 @@ namespace MimeKit.Cryptography {
 			return builder.ToString ();
 		}
 
+		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (SignerID signer)
+		{
+			X509FindType type;
+			object token;
+
+			if (signer.SubjectKeyIdentifier != null) {
+				type = X509FindType.FindBySubjectKeyIdentifier;
+				token = ToHexString (signer.SubjectKeyIdentifier);
+			} else if (signer.Subject != null) {
+				type = X509FindType.FindBySubjectDistinguishedName;
+				token = signer.SubjectAsString;
+			} else if (signer.Issuer != null) {
+				type = X509FindType.FindByIssuerDistinguishedName;
+				token = signer.IssuerAsString;
+			} else if (signer.SerialNumber != null) {
+				type = X509FindType.FindBySerialNumber;
+				token = signer.SerialNumber.ToString ();
+			} else {
+				Debug.WriteLine ("Attempting to lookup certificate based on unexpected parameters.");
+				return null;
+			}
+
+			var matches = CertificateStore.Certificates.Find (type, token, false);
+			Org.BouncyCastle.X509.X509Certificate cert = null;
+			DateTime now = DateTime.Now;
+
+			foreach (var certificate in matches) {
+				cert = DotNetUtilities.FromX509Certificate (certificate);
+
+				if (now > certificate.NotAfter || now < certificate.NotBefore)
+					continue;
+
+				return cert;
+			}
+
+			return cert;
+		}
+
 		/// <summary>
 		/// Gets the private key.
 		/// </summary>
@@ -156,7 +194,7 @@ namespace MimeKit.Cryptography {
 				type = X509FindType.FindBySerialNumber;
 				token = recipient.SerialNumber.ToString ();
 			} else {
-				Debug.WriteLine ("Attempting to lookup recipient based on unexpected parameters.");
+				Debug.WriteLine ("Attempting to lookup private key based on unexpected parameters.");
 				return null;
 			}
 

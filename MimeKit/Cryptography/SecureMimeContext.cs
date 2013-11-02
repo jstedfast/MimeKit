@@ -202,6 +202,16 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the X509 certificate based on the search criteria in the specified signer.
+		/// </summary>
+		/// <returns>The X509 certificate.</returns>
+		/// <param name="signer">The search criteria for the signer certificate.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="signer"/> could not be found.
+		/// </exception>
+		protected abstract X509Certificate GetCertificate (SignerID signer);
+
+		/// <summary>
 		/// Gets the private key.
 		/// </summary>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
@@ -311,15 +321,15 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Signature (memory);
 		}
 
-		X509Certificate GetCertificate (IX509Store store, IX509Selector selector)
+		X509Certificate GetCertificate (IX509Store store, SignerID signer)
 		{
-			var matches = store.GetMatches (selector);
+			var matches = store.GetMatches (signer);
 
 			foreach (X509Certificate certificate in matches) {
 				return certificate;
 			}
 
-			return null;
+			return GetCertificate (signer);
 		}
 
 		IList<IDigitalSignature> GetDigitalSignatures (SignerInformationStore store, IX509Store certificates)
