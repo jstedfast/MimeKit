@@ -150,58 +150,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
-		/// </summary>
-		/// <returns>The X509 certificate.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected abstract X509Certificate GetCertificate (MailboxAddress mailbox);
-
-		/// <summary>
-		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
-		/// </summary>
-		/// <returns>A <see cref="CmsSigner"/>.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="digestAlgo">The preferred digest algorithm.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
-
-		/// <summary>
-		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
-		/// </summary>
-		/// <returns>A <see cref="CmsRecipient"/>.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected virtual CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
-		{
-			return new CmsRecipient (GetCertificate (mailbox));
-		}
-
-		/// <summary>
-		/// Gets the cms recipients for the specified <see cref="MimeKit.MailboxAddress"/>es.
-		/// </summary>
-		/// <returns>The cms recipients.</returns>
-		/// <param name="mailboxes">The mailboxes.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
-		/// </exception>
-		protected CmsRecipientCollection GetRecipientCertificates (IEnumerable<MailboxAddress> mailboxes)
-		{
-			var recipients = new CmsRecipientCollection ();
-
-			foreach (var mailbox in mailboxes)
-				recipients.Add (GetCmsRecipient (mailbox));
-
-			return recipients;
-		}
-
-		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
@@ -214,6 +162,45 @@ namespace MimeKit.Cryptography {
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
+
+		/// <summary>
+		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
+		/// </summary>
+		/// <returns>A <see cref="CmsRecipient"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected abstract CmsRecipient GetCmsRecipient (MailboxAddress mailbox);
+
+		/// <summary>
+		/// Gets the <see cref="CmsRecipient"/>s for the specified <see cref="MimeKit.MailboxAddress"/>es.
+		/// </summary>
+		/// <returns>The <see cref="CmsRecipient"/>s.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		protected CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
+		{
+			var recipients = new CmsRecipientCollection ();
+
+			foreach (var mailbox in mailboxes)
+				recipients.Add (GetCmsRecipient (mailbox));
+
+			return recipients;
+		}
+
+		/// <summary>
+		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
+		/// </summary>
+		/// <returns>A <see cref="CmsSigner"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
 
 		protected static string GetOid (DigestAlgorithm digestAlgo)
 		{
@@ -511,7 +498,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			return Encrypt (GetRecipientCertificates (recipients), content);
+			return Encrypt (GetCmsRecipients (recipients), content);
 		}
 
 		/// <summary>
@@ -588,7 +575,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetRecipientCertificates (recipients), content);
+			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetCmsRecipients (recipients), content);
 		}
 
 		/// <summary>
@@ -684,8 +671,8 @@ namespace MimeKit.Cryptography {
 
 			var certificates = new List<X509Certificate> ();
 			foreach (var mailbox in mailboxes) {
-				var cert = GetCertificate (mailbox);
-				certificates.Add (cert);
+				var recipient = GetCmsRecipient (mailbox);
+				certificates.Add (recipient.Certificate);
 			}
 
 			if (certificates.Count == 0)

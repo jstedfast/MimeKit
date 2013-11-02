@@ -74,57 +74,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
-		/// </summary>
-		/// <returns>The certificate.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (MailboxAddress mailbox)
-		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
-
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
-					return DotNetUtilities.FromX509Certificate (certificate);
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
-		}
-
-		/// <summary>
-		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
-		/// </summary>
-		/// <returns>The cms signer.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="digestAlgo">The preferred digest algorithm.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
-		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
-
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-					continue;
-
-				if (!certificate.HasPrivateKey)
-					continue;
-
-				var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
-				var signer = new CmsSigner (cert, pair.Private);
-				signer.DigestAlgorithm = digestAlgo;
-
-				return signer;
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-		}
-
-		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
@@ -161,6 +110,61 @@ namespace MimeKit.Cryptography {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The certificate.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
+		{
+			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
+
+			foreach (var certificate in certificates) {
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+					continue;
+
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
+
+				return new CmsRecipient (cert);
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		/// <summary>
+		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// </summary>
+		/// <returns>The cms signer.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		{
+			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
+
+			foreach (var certificate in certificates) {
+				if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+					continue;
+
+				if (!certificate.HasPrivateKey)
+					continue;
+
+				var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
+				var signer = new CmsSigner (cert, pair.Private);
+				signer.DigestAlgorithm = digestAlgo;
+
+				return signer;
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
 		/// <summary>

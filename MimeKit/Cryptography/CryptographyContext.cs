@@ -220,9 +220,11 @@ namespace MimeKit.Cryptography {
 		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes);
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <param name="disposing">If <c>true</c>, this method is being called by
+		/// <see cref="MimeKit.Cryptography.CryptographyContext.Dispose"/>;
+		/// otherwise it is being called by the finalizer.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 		}

@@ -56,28 +56,6 @@ namespace MimeKit.Cryptography {
 			keychain = SecKeychain.Default;
 		}
 
-		protected override X509Certificate GetCertificate (MailboxAddress mailbox)
-		{
-			foreach (var certificate in keychain.GetAllCertificates (CssmKeyUse.Encrypt)) {
-				if (certificate.GetSubjectEmail () == mailbox.Address)
-					return certificate;
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
-		}
-
-		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
-		{
-			foreach (var signer in keychain.GetAllCmsSigners ()) {
-				if (signer.Certificate.GetSubjectEmail () == mailbox.Address) {
-					signer.DigestAlgorithm = digestAlgo;
-					return signer;
-				}
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-		}
-
 		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
@@ -108,14 +86,76 @@ namespace MimeKit.Cryptography {
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
+		/// </summary>
+		/// <returns>A <see cref="CmsRecipient"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
+		{
+			foreach (var certificate in keychain.GetAllCertificates (CssmKeyUse.Encrypt)) {
+				if (certificate.GetSubjectEmail () == mailbox.Address)
+					return new CmsRecipient (certificate);
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		/// <summary>
+		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
+		/// </summary>
+		/// <returns>A <see cref="CmsSigner"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		{
+			foreach (var signer in keychain.GetAllCmsSigners ()) {
+				if (signer.Certificate.GetSubjectEmail () == mailbox.Address) {
+					signer.DigestAlgorithm = digestAlgo;
+					return signer;
+				}
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+		}
+
+		/// <summary>
+		/// Imports keys (or certificates).
+		/// </summary>
+		/// <param name="rawData">The raw key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="rawData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
 		public override void ImportKeys (byte[] rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
 
-
+			// FIXME: implement this
 		}
 
+		/// <summary>
+		/// Imports the pkcs12-encoded certificate and key data.
+		/// </summary>
+		/// <param name="rawData">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
 		public override void ImportPkcs12 (byte[] rawData, string password)
 		{
 			if (rawData == null)
@@ -143,6 +183,12 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeKit.Cryptography.MacSecureMimeContext"/> object.
+		/// </summary>
+		/// <param name="disposing">If <c>true</c>, this method is being called by
+		/// <see cref="MimeKit.Cryptography.CryptographyContext.Dispose"/>;
+		/// otherwise it is being called by the finalizer.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && keychain != SecKeychain.Default) {
