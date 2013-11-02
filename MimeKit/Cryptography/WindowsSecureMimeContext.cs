@@ -149,6 +149,9 @@ namespace MimeKit.Cryptography {
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
 			foreach (var certificate in CertificateStore.Certificates) {
+				if (!certificate.HasPrivateKey)
+					continue;
+
 				var cert = DotNetUtilities.FromX509Certificate (certificate);
 
 				if (selector.Match (cert)) {

@@ -334,13 +334,11 @@ namespace MimeKit.Cryptography {
 			var signatures = new List<IDigitalSignature> ();
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
-				var cert = GetCertificate (certificates, signerInfo.SignerID);
+				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
-				if (cert != null) {
-					var certificate = new SecureMimeDigitalCertificate (cert);
 
-					signature.SignerCertificate = certificate;
-				}
+				if (certificate != null)
+					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
 
 				// FIXME: verify the certificate chain with what we have in our local store
 
@@ -363,7 +361,7 @@ namespace MimeKit.Cryptography {
 //					}
 //				}
 
-				// FIXME: how do I get the creation/expiration timestamps?
+				// FIXME: how do I get the creation timestamps?
 				signatures.Add (signature);
 			}
 
@@ -617,10 +615,10 @@ namespace MimeKit.Cryptography {
 			var enveloped = new CmsEnvelopedDataParser (encryptedData);
 			var recipients = enveloped.GetRecipientInfos ();
 			var algorithm = enveloped.EncryptionAlgorithmID;
+			AsymmetricKeyParameter key;
 
 			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-				var key = GetPrivateKey (recipient.RecipientID);
-				if (key == null)
+				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
 					continue;
 
 				var content = recipient.GetContent (key);
