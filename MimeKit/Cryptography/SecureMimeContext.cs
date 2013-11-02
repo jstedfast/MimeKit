@@ -236,6 +236,56 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		Stream Sign (CmsSigner signer, byte[] content, bool encapsulate)
+		{
+			var cms = new CmsSignedDataStreamGenerator ();
+
+			cms.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
+				signer.SignedAttributes, signer.UnsignedAttributes);
+
+			var memory = new MemoryStream ();
+
+			using (var stream = cms.Open (memory, encapsulate)) {
+				stream.Write (content, 0, content.Length);
+			}
+
+			memory.Position = 0;
+
+			return memory;
+		}
+
+		/// <summary>
+		/// Sign the content using the specified signer.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred while signing.
+		/// </exception>
+		public ApplicationPkcs7Signature Sign (CmsSigner signer, byte[] content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (signer.Certificate == null)
+				throw new ArgumentException ("No signer certificate specified.", "signer");
+
+			if (signer.PrivateKey == null)
+				throw new ArgumentException ("No private key specified.", "signer");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			return new ApplicationPkcs7Signature (Sign (signer, content, false));
+		}
+
 		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
@@ -272,50 +322,6 @@ namespace MimeKit.Cryptography {
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
 			return Sign (cmsSigner, content);
-		}
-
-		/// <summary>
-		/// Sign the content using the specified signer.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
-		/// </exception>
-		public ApplicationPkcs7Signature Sign (CmsSigner signer, byte[] content)
-		{
-			if (signer == null)
-				throw new ArgumentNullException ("signer");
-
-			if (signer.Certificate == null)
-				throw new ArgumentException ("No signer certificate specified.", "signer");
-
-			if (signer.PrivateKey == null)
-				throw new ArgumentException ("No private key specified.", "signer");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			var generator = new CmsSignedDataStreamGenerator ();
-			generator.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
-				signer.SignedAttributes, signer.UnsignedAttributes);
-
-			var memory = new MemoryStream ();
-
-			using (var stream = generator.Open (memory)) {
-				stream.Write (content, 0, content.Length);
-			}
-
-			memory.Position = 0;
-
-			return new ApplicationPkcs7Signature (memory);
 		}
 
 		X509Certificate GetCertificate (IX509Store store, SignerID signer)
@@ -428,6 +434,26 @@ namespace MimeKit.Cryptography {
 			return GetDigitalSignatures (signers, certificates);
 		}
 
+		Stream Encrypt (CmsRecipientCollection recipients, Stream content)
+		{
+			var cms = new CmsEnvelopedDataGenerator ();
+			int count = 0;
+
+			foreach (var recipient in recipients) {
+				cms.AddKeyTransRecipient (recipient.Certificate);
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			// FIXME: how to decide which algorithm to use?
+			var input = new CmsProcessableInputStream (content);
+			var envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
+
+			return new MemoryStream (envelopedData.GetEncoded (), false);
+		}
+
 		/// <summary>
 		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
@@ -451,22 +477,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var generator = new CmsEnvelopedDataGenerator ();
-			int count = 0;
-
-			foreach (var recipient in recipients) {
-				generator.AddKeyTransRecipient (recipient.Certificate);
-				count++;
+			using (var memory = new MemoryStream (content, false)) {
+				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Encrypt (recipients, memory));
 			}
-
-			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
-
-			// FIXME: how to decide which algorithm to use?
-			var envelope = generator.Generate (new CmsProcessableByteArray (content), CmsEnvelopedGenerator.DesEde3Cbc);
-			var data = envelope.GetEncoded ();
-
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
 
 		/// <summary>
@@ -528,26 +541,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var generator = new CmsSignedDataGenerator ();
-			generator.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
-				signer.SignedAttributes, signer.UnsignedAttributes);
-			var signedData = generator.Generate (new CmsProcessableByteArray (content), true);
-
-			var cms = new CmsEnvelopedDataGenerator ();
-			int count = 0;
-
-			foreach (var recipient in recipients) {
-				cms.AddKeyTransRecipient (recipient.Certificate);
-				count++;
+			using (var signed = Sign (signer, content, true)) {
+				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Encrypt (recipients, signed));
 			}
-
-			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
-
-			var envelopedData = cms.Generate (signedData.SignedContent, CmsEnvelopedGenerator.DesEde3Cbc);
-			var data = envelopedData.GetEncoded ();
-
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, new MemoryStream (data, false));
 		}
 
 		/// <summary>
