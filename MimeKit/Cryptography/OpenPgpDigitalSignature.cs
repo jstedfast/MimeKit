@@ -93,14 +93,6 @@ namespace MimeKit.Cryptography {
 			get; internal set;
 		}
 
-		/// <summary>
-		/// Gets the expiration date of the digital signature.
-		/// </summary>
-		/// <value>The expiration date.</value>
-		public DateTime ExpirationDate {
-			get { return DateTime.MaxValue; }
-		}
-
 		#endregion
 	}
 }

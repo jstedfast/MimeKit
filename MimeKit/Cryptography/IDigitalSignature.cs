@@ -67,11 +67,5 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The creation date.</value>
 		DateTime CreationDate { get; }
-
-		/// <summary>
-		/// Gets the expiration date of the digital signature.
-		/// </summary>
-		/// <value>The expiration date.</value>
-		DateTime ExpirationDate { get; }
 	}
 }
