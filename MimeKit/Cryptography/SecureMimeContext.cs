@@ -663,25 +663,34 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while exporting.
-		/// </exception>
 		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			var certificates = new List<X509Certificate> ();
+			var cms = new CmsSignedDataStreamGenerator ();
+			int count = 0;
+
 			foreach (var mailbox in mailboxes) {
-				var recipient = GetCmsRecipient (mailbox);
-				certificates.Add (recipient.Certificate);
+				var signer = GetCmsSigner (mailbox, DigestAlgorithm.Sha1);
+				cms.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
+					signer.SignedAttributes, signer.UnsignedAttributes);
+				count++;
 			}
 
-			if (certificates.Count == 0)
+			if (count == 0)
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
-			// FIXME:
-			return null;
+			var memory = new MemoryStream ();
+
+			using (var stream = cms.Open (memory, false)) {
+				stream.Write (new byte[0], 0, 0);
+				stream.Flush ();
+			}
+
+			memory.Position = 0;
+
+			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
 		}
 	}
 }

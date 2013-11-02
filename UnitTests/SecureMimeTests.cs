@@ -26,16 +26,13 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
 
 using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Cryptography;
+using Org.BouncyCastle.X509;
 
 namespace UnitTests {
 	[TestFixture]
@@ -48,27 +45,20 @@ namespace UnitTests {
 		static SecureMimeContext CreateContext ()
 		{
 			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
-			X509Certificate2Collection certs;
+			var parser = new X509CertificateParser ();
+			var ctx = new DummySecureMimeContext ();
 			string path;
-
-			var store = new X509Store ("MimeKitUnitTests", StoreLocation.CurrentUser);
-			store.Open (OpenFlags.ReadWrite);
 
 			foreach (var filename in CertificateAuthorities) {
 				path = Path.Combine (dataDir, filename);
-				store.Add (new X509Certificate2 (path));
+				var certificate = parser.ReadCertificate (File.ReadAllBytes (path));
+				ctx.certificates.Add (certificate);
 			}
 
 			path = Path.Combine (dataDir, "smime.p12");
-			certs = new X509Certificate2Collection ();
-			certs.Import (path, "no.secret", X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
-			store.AddRange (certs);
+			ctx.ImportPkcs12 (File.ReadAllBytes (path), "no.secret");
 
-			return new WindowsSecureMimeContext (store) {
-				//AllowSelfSignedCertificates = true,
-				AllowOnlineCertificateRetrieval = true,
-				OnlineCertificateRetrievalTimeout = new TimeSpan (0, 0, 30)
-			};
+			return ctx;
 		}
 
 		[Test]
@@ -103,28 +93,28 @@ namespace UnitTests {
 			}
 		}
 
-//		[Test]
-//		public void TestRawOutlookData ()
-//		{
-//			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "bojan-cleartext.txt"));
-//			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "smime.p7s"));
-//
-//			using (var ctx = CreateContext ()) {
-//				var signatures = ctx.Verify (cleartext, signatureData);
-//				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
-//				foreach (var signature in signatures) {
-//					try {
-//						bool valid = signature.Verify ();
-//
-//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-//					} catch (DigitalSignatureVerifyException ex) {
-//						Assert.Fail ("Failed to verify signature: {0}", ex);
-//					}
-//				}
-//			}
-//		}
-//
-		[Test]
+		//[Test]
+		public void TestRawThunderbirdData ()
+		{
+			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"));
+			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"));
+
+			using (var ctx = CreateContext ()) {
+				var signatures = ctx.Verify (cleartext, signatureData);
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
+
+		//[Test]
 		public void TestSecureMimeVerifyThunderbird ()
 		{
 			MimeMessage message;
@@ -147,6 +137,7 @@ namespace UnitTests {
 					options.NewLineFormat = NewLineFormat.Dos;
 
 					multipart[0].WriteTo (options, file);
+					file.Write (new byte[] { 0x0A, 0x10 }, 0, 2);
 					file.Flush ();
 				}
 
@@ -251,21 +242,15 @@ namespace UnitTests {
 
 				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
 
-				var store = new X509Store ("ImportTest", StoreLocation.CurrentUser);
-				store.Open (OpenFlags.ReadWrite);
-
-				using (var imported = new WindowsSecureMimeContext (store)) {
+				using (var imported = new DummySecureMimeContext ()) {
 					try {
 						pkcs7mime.Import (imported);
 					} catch {
 						Assert.Fail ("Failed to import certificates.");
 					}
 
-					Assert.AreEqual (1, imported.CertificateStore.Certificates.Count, "Unexpected number of imported certificates.");
-
-					foreach (var cert in imported.CertificateStore.Certificates) {
-						Assert.IsFalse (cert.HasPrivateKey, "One or more of the certificates included the private key.");
-					}
+					Assert.AreEqual (1, imported.certificates.Count, "Unexpected number of imported certificates.");
+					Assert.IsFalse (imported.keys.Count > 0, "One or more of the certificates included the private key.");
 				}
 			}
 		}

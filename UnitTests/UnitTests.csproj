@@ -50,12 +50,17 @@
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
+    <Compile Include="DummySecureMimeContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
       <Project>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</Project>
       <Name>MimeKit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
+      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
+      <Name>BouncyCastle</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
