@@ -36,6 +36,7 @@ using System.Security.Cryptography.X509Certificates;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
 	public class WindowsSecureMimeContext : SecureMimeContext
@@ -123,99 +124,40 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
-		static string ToHexString (byte[] array)
+		/// <summary>
+		/// Gets the X.509 certificate based on the selector.
+		/// </summary>
+		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
+		/// <param name="selector">The search criteria for the certificate.</param>
+		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (IX509Selector selector)
 		{
-			var builder = new StringBuilder ();
+			foreach (var certificate in CertificateStore.Certificates) {
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
 
-			for (int i = 0; i < array.Length; i++)
-				builder.Append (array[i].ToString ("X2"));
-
-			return builder.ToString ();
-		}
-
-		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (SignerID signer)
-		{
-			X509FindType type;
-			object token;
-
-			if (signer.SubjectKeyIdentifier != null) {
-				type = X509FindType.FindBySubjectKeyIdentifier;
-				token = ToHexString (signer.SubjectKeyIdentifier);
-			} else if (signer.Subject != null) {
-				type = X509FindType.FindBySubjectDistinguishedName;
-				token = signer.SubjectAsString;
-			} else if (signer.Issuer != null) {
-				type = X509FindType.FindByIssuerDistinguishedName;
-				token = signer.IssuerAsString;
-			} else if (signer.SerialNumber != null) {
-				type = X509FindType.FindBySerialNumber;
-				token = signer.SerialNumber.ToString ();
-			} else {
-				Debug.WriteLine ("Attempting to lookup certificate based on unexpected parameters.");
-				return null;
+				if (selector.Match (cert))
+					return cert;
 			}
 
-			var matches = CertificateStore.Certificates.Find (type, token, false);
-			Org.BouncyCastle.X509.X509Certificate cert = null;
-			DateTime now = DateTime.Now;
-
-			foreach (var certificate in matches) {
-				cert = DotNetUtilities.FromX509Certificate (certificate);
-
-				if (now > certificate.NotAfter || now < certificate.NotBefore)
-					continue;
-
-				return cert;
-			}
-
-			return cert;
+			return null;
 		}
 
 		/// <summary>
-		/// Gets the private key.
+		/// Gets the private key based on the provided selector.
 		/// </summary>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
-		/// <param name="recipient">The recipient.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (RecipientID recipient)
+		/// <param name="selector">The search criteria for the private key.</param>
+		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
-			X509FindType type;
-			object token;
+			foreach (var certificate in CertificateStore.Certificates) {
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
 
-			if (recipient.SubjectKeyIdentifier != null) {
-				type = X509FindType.FindBySubjectKeyIdentifier;
-				token = ToHexString (recipient.SubjectKeyIdentifier);
-			} else if (recipient.Subject != null) {
-				type = X509FindType.FindBySubjectDistinguishedName;
-				token = recipient.SubjectAsString;
-			} else if (recipient.Issuer != null) {
-				type = X509FindType.FindByIssuerDistinguishedName;
-				token = recipient.IssuerAsString;
-			} else if (recipient.SerialNumber != null) {
-				type = X509FindType.FindBySerialNumber;
-				token = recipient.SerialNumber.ToString ();
-			} else {
-				Debug.WriteLine ("Attempting to lookup private key based on unexpected parameters.");
-				return null;
+				if (selector.Match (cert)) {
+					var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+					return pair.Private;
+				}
 			}
 
-			var matches = CertificateStore.Certificates.Find (type, token, false);
-			AsymmetricKeyParameter key = null;
-			DateTime now = DateTime.Now;
-
-			foreach (var certificate in matches) {
-				if (!certificate.HasPrivateKey)
-					continue;
-
-				var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-				key = pair.Private;
-
-				if (now > certificate.NotAfter || now < certificate.NotBefore)
-					continue;
-
-				return key;
-			}
-
-			return key;
+			return null;
 		}
 
 		/// <summary>

@@ -202,21 +202,18 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X509 certificate based on the search criteria in the specified signer.
+		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
-		/// <returns>The X509 certificate.</returns>
-		/// <param name="signer">The search criteria for the signer certificate.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="signer"/> could not be found.
-		/// </exception>
-		protected abstract X509Certificate GetCertificate (SignerID signer);
+		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
+		/// <param name="selector">The search criteria for the certificate.</param>
+		protected abstract X509Certificate GetCertificate (IX509Selector selector);
 
 		/// <summary>
-		/// Gets the private key.
+		/// Gets the private key based on the provided selector.
 		/// </summary>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
-		/// <param name="recipient">The recipient.</param>
-		protected abstract AsymmetricKeyParameter GetPrivateKey (RecipientID recipient);
+		/// <param name="selector">The search criteria for the private key.</param>
+		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
 
 		protected static string GetOid (DigestAlgorithm digestAlgo)
 		{

@@ -33,6 +33,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
 
 using MimeKit.MacInterop;
+using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
 	public class MacSecureMimeContext : SecureMimeContext
@@ -77,14 +78,34 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
-		protected override X509Certificate GetCertificate (SignerID signer)
+		/// <summary>
+		/// Gets the X.509 certificate based on the selector.
+		/// </summary>
+		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
+		/// <param name="selector">The search criteria for the certificate.</param>
+		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
-			throw new NotImplementedException ();
+			foreach (var certificate in keychain.GetAllCertificates ((CssmKeyUse) 0)) {
+				if (selector.Match (certificate))
+					return certificate;
+			}
+
+			return null;
 		}
 
-		protected override AsymmetricKeyParameter GetPrivateKey (RecipientID recipient)
+		/// <summary>
+		/// Gets the private key based on the provided selector.
+		/// </summary>
+		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <param name="selector">The search criteria for the private key.</param>
+		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
-			throw new NotImplementedException ();
+			foreach (var signer in keychain.GetAllCmsSigners ()) {
+				if (selector.Match (signer.Certificate))
+					return signer.PrivateKey;
+			}
+
+			return null;
 		}
 
 		public override void ImportKeys (byte[] rawData)

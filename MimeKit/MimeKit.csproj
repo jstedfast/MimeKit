@@ -29,7 +29,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentation>true</GenerateDocumentation>
     <DocumentationFile>bin\Release\lib\net40\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
