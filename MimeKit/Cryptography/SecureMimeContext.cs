@@ -323,9 +323,11 @@ namespace MimeKit.Cryptography {
 			return GetCertificate (signer);
 		}
 
-		IList<IDigitalSignature> GetDigitalSignatures (SignerInformationStore store, IX509Store certificates)
+		IList<IDigitalSignature> GetDigitalSignatures (CmsSignedDataParser parser)
 		{
+			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
+			var store = parser.GetSignerInfos ();
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
@@ -384,12 +386,13 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException ("signatureData");
 
-			var contentStream = new MemoryStream (content, false);
-			var signed = new CmsSignedDataParser (new CmsTypedStream (contentStream), signatureData);
-			var certificates = signed.GetCertificates ("Collection");
-			var signers = signed.GetSignerInfos ();
+			using (var memory = new MemoryStream (content, false)) {
+				var parser = new CmsSignedDataParser (new CmsTypedStream (memory), signatureData);
 
-			return GetDigitalSignatures (signers, certificates);
+				parser.GetSignedContent ().Drain ();
+
+				return GetDigitalSignatures (parser);
+			}
 		}
 
 		/// <summary>
@@ -409,17 +412,15 @@ namespace MimeKit.Cryptography {
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
-			var signed = new CmsSignedDataParser (signedData);
-			var certificates = signed.GetCertificates ("Collection");
-			var signers = signed.GetSignerInfos ();
+			var parser = new CmsSignedDataParser (signedData);
+			var signed = parser.GetSignedContent ();
 
-			var signedContent = signed.GetSignedContent ();
 			using (var memory = new MemoryStream ()) {
-				signedContent.ContentStream.CopyTo (memory, 4096);
+				signed.ContentStream.CopyTo (memory, 4096);
 				content = memory.ToArray ();
 			}
 
-			return GetDigitalSignatures (signers, certificates);
+			return GetDigitalSignatures (parser);
 		}
 
 		Stream Encrypt (CmsRecipientCollection recipients, Stream content)
@@ -608,17 +609,15 @@ namespace MimeKit.Cryptography {
 				var content = recipient.GetContent (key);
 
 				try {
-					var signed = new CmsSignedDataParser (content);
-					var certificates = signed.GetCertificates ("Collection");
-					var signers = signed.GetSignerInfos ();
+					var parser = new CmsSignedDataParser (content);
+					var signed = parser.GetSignedContent ();
 
-					var signedContent = signed.GetSignedContent ();
 					using (var memory = new MemoryStream ()) {
-						signedContent.ContentStream.CopyTo (memory, 4096);
+						signed.ContentStream.CopyTo (memory, 4096);
 						content = memory.ToArray ();
 					}
 
-					signatures = GetDigitalSignatures (signers, certificates);
+					signatures = GetDigitalSignatures (parser);
 				} catch (Exception ex) {
 					Console.WriteLine ("Failed to verify signed data: {0}", ex);
 					signatures = null;
