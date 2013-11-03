@@ -379,7 +379,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content)
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -409,7 +409,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
 		/// </exception>
-		public ApplicationPgpSignature Sign (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, byte[] content)
+		public ApplicationPgpSignature Sign (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -426,8 +426,14 @@ namespace MimeKit.Cryptography {
 				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 				using (var compressed = compresser.Open (armored)) {
 					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
+					var buf = new byte[4096];
+					int nread;
+
 					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
-					signatureGenerator.Update (content, 0, content.Length);
+
+					while ((nread = content.Read (buf, 0, buf.Length)) > 0)
+						signatureGenerator.Update (buf, 0, nread);
+
 					var signature = signatureGenerator.Generate ();
 
 					signature.Encode (compressed);
@@ -498,9 +504,11 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		IList<IDigitalSignature> GetDigitalSignatures (PgpSignatureList signatureList, byte[] content, int length)
+		IList<IDigitalSignature> GetDigitalSignatures (PgpSignatureList signatureList, Stream content)
 		{
 			var signatures = new List<IDigitalSignature> ();
+			var buf = new byte[4096];
+			int nread;
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				var pubkey = PublicKeyRingBundle.GetPublicKey (signatureList[i].KeyId);
@@ -510,12 +518,19 @@ namespace MimeKit.Cryptography {
 					CreationDate = signatureList[i].CreationTime,
 				};
 
-				if (pubkey != null) {
+				if (pubkey != null)
 					signatureList[i].InitVerify (pubkey);
-					signatureList[i].Update (content, 0, length);
-				}
 
 				signatures.Add (signature);
+			}
+
+			while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+				for (int i = 0; i < signatures.Count; i++) {
+					if (signatures[i].SignerCertificate != null) {
+						var pgp = (OpenPgpDigitalSignature) signatures[i];
+						pgp.Signature.Update (buf, 0, nread);
+					}
+				}
 			}
 
 			return signatures;
@@ -532,7 +547,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		public override IList<IDigitalSignature> Verify (byte[] content, byte[] signatureData)
+		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -540,7 +555,7 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException ("signatureData");
 
-			using (var decoder = PgpUtilities.GetDecoderStream (new MemoryStream (signatureData, false))) {
+			using (var decoder = PgpUtilities.GetDecoderStream (signatureData)) {
 				var factory = new PgpObjectFactory (decoder);
 				var data = factory.NextPgpObject ();
 				PgpSignatureList signatureList;
@@ -554,7 +569,7 @@ namespace MimeKit.Cryptography {
 						throw new Exception ("Unexpected pgp object");
 				}
 
-				return GetDigitalSignatures (signatureList, content, content.Length);
+				return GetDigitalSignatures (signatureList, content);
 			}
 		}
 
@@ -578,7 +593,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -607,7 +622,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
-		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, byte[] content)
+		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -640,7 +655,7 @@ namespace MimeKit.Cryptography {
 						var literalGenerator = new PgpLiteralDataGenerator ();
 
 						using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-							literal.Write (content, 0, content.Length);
+							content.CopyTo (literal, 4096);
 							literal.Flush ();
 						}
 
@@ -693,7 +708,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A public key could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content)
+		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -733,7 +748,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IEnumerable<PgpPublicKey> recipients, byte[] content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
 
@@ -787,8 +802,14 @@ namespace MimeKit.Cryptography {
 
 						var literalGenerator = new PgpLiteralDataGenerator ();
 						using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-							signatureGenerator.Update (content, 0, content.Length);
-							literal.Write (content, 0, content.Length);
+							var buf = new byte[4096];
+							int nread;
+
+							while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+								signatureGenerator.Update (buf, 0, nread);
+								literal.Write (buf, 0, buf.Length);
+							}
+
 							literal.Flush ();
 						}
 
@@ -821,13 +842,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		public override MimeEntity Decrypt (byte[] encryptedData, out IList<IDigitalSignature> signatures)
+		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
-			using (var decoder = PgpUtilities.GetDecoderStream (new MemoryStream (encryptedData, false))) {
+			using (var decoder = PgpUtilities.GetDecoderStream (encryptedData)) {
 				var factory = new PgpObjectFactory (decoder);
 				var obj = factory.NextPgpObject ();
 				var list = obj as PgpEncryptedDataList;
@@ -872,11 +893,7 @@ namespace MimeKit.Cryptography {
 						var literal = (PgpLiteralData) obj;
 
 						using (var stream = literal.GetDataStream ()) {
-							var buf = new byte[4096];
-							int nread;
-
-							while ((nread = stream.Read (buf, 0, buf.Length)) > 0)
-								memory.Write (buf, 0, nread);
+							stream.CopyTo (memory, 4096);
 						}
 					}
 
@@ -893,9 +910,8 @@ namespace MimeKit.Cryptography {
 //				}
 
 				if (signatureList != null) {
-					var content = memory.GetBuffer ();
-
-					signatures = GetDigitalSignatures (signatureList, content, (int) memory.Length);
+					signatures = GetDigitalSignatures (signatureList, memory);
+					memory.Position = 0;
 				} else {
 					signatures = null;
 				}
@@ -941,28 +957,26 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>An error occured while saving the public key-ring bundle.</para>
 		/// </exception>
-		public override void ImportKeys (byte[] rawData)
+		public override void ImportKeys (Stream rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
 
-			using (var memory = new MemoryStream (rawData, false)) {
-				using (var armored = new ArmoredInputStream (memory)) {
-					var imported = new PgpPublicKeyRingBundle (armored);
-					if (imported.Count == 0)
-						return;
+			using (var armored = new ArmoredInputStream (rawData)) {
+				var imported = new PgpPublicKeyRingBundle (armored);
+				if (imported.Count == 0)
+					return;
 
-					int added = 0;
-					foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ()) {
-						if (!PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId)) {
-							PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
-							added++;
-						}
+				int added = 0;
+				foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ()) {
+					if (!PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId)) {
+						PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
+						added++;
 					}
-
-					if (added > 0)
-						SavePublicKeyRingBundle ();
 				}
+
+				if (added > 0)
+					SavePublicKeyRingBundle ();
 			}
 		}
 

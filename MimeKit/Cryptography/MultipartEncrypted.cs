@@ -100,28 +100,25 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
-				byte[] cleartext;
-
 				using (var memory = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
 
 					PrepareEntityForEncrypting (entity);
 					entity.WriteTo (options, memory);
+					memory.Position = 0;
 
-					cleartext = memory.ToArray ();
+					var encrypted = new MultipartEncrypted ();
+					encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+					// add the protocol version part
+					encrypted.Add (new ApplicationPgpEncrypted ());
+
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+
+					return encrypted;
 				}
-
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, cleartext));
-
-				return encrypted;
 			}
 		}
 
@@ -140,8 +137,6 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
-				byte[] cleartext;
-
 				using (var memory = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (memory)) {
 						filtered.Add (new Unix2DosFilter ());
@@ -151,19 +146,19 @@ namespace MimeKit.Cryptography {
 						filtered.Flush ();
 					}
 
-					cleartext = memory.ToArray ();
+					memory.Position = 0;
+
+					var encrypted = new MultipartEncrypted ();
+					encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+					// add the protocol version part
+					encrypted.Add (new ApplicationPgpEncrypted ());
+
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.Encrypt (recipients, memory));
+
+					return encrypted;
 				}
-
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (recipients, cleartext));
-
-				return encrypted;
 			}
 		}
 
@@ -209,14 +204,12 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ();
 
 			using (var ctx = CryptographyContext.Create (protocol)) {
-				byte[] encryptedData;
-
 				using (var memory = new MemoryStream ()) {
 					encrypted.ContentObject.DecodeTo (memory);
-					encryptedData = memory.ToArray ();
-				}
+					memory.Position = 0;
 
-				return ctx.Decrypt (encryptedData, out signatures);
+					return ctx.Decrypt (memory, out signatures);
+				}
 			}
 		}
 	}

@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -119,7 +120,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content);
+		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content);
 
 		/// <summary>
 		/// Verify the specified content and signatureData.
@@ -132,7 +133,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		public abstract IList<IDigitalSignature> Verify (byte[] content, byte[] signatureData);
+		public abstract IList<IDigitalSignature> Verify (Stream content, Stream signatureData);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -149,7 +150,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content);
+		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
 		/// Signs and encrypts the specified content for the specified recipients.
@@ -178,7 +179,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		public abstract MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content);
+		public abstract MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
 		/// Decrypt the specified encryptedData.
@@ -189,7 +190,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		public abstract MimeEntity Decrypt (byte[] encryptedData, out IList<IDigitalSignature> signatures);
+		public abstract MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures);
 
 		/// <summary>
 		/// Imports keys (or certificates).
@@ -201,7 +202,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract void ImportKeys (byte[] rawData);
+		public abstract void ImportKeys (Stream rawData);
 
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.

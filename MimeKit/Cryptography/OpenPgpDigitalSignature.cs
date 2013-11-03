@@ -47,8 +47,8 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		PgpSignature Signature {
-			get; set;
+		internal PgpSignature Signature {
+			get; private set;
 		}
 
 		#region IDigitalSignature implementation

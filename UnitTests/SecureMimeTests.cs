@@ -56,7 +56,10 @@ namespace UnitTests {
 			}
 
 			path = Path.Combine (dataDir, "smime.p12");
-			ctx.ImportPkcs12 (File.ReadAllBytes (path), "no.secret");
+
+			using (var file = File.OpenRead (path)) {
+				ctx.ImportPkcs12 (file, "no.secret");
+			}
 
 			return ctx;
 		}

@@ -38,6 +38,8 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.X509.Store;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	public class WindowsSecureMimeContext : SecureMimeContext
 	{
@@ -177,15 +179,28 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while importing.
 		/// </exception>
-		public override void ImportKeys (byte[] rawData)
+		public override void ImportKeys (Stream rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
 
-			var certs = new X509Certificate2Collection ();
-			certs.Import (rawData);
+			byte[] content;
 
-			CertificateStore.AddRange (certs);
+			if (rawData is MemoryBlockStream) {
+				content = ((MemoryBlockStream) rawData).ToArray ();
+			} else if (rawData is MemoryStream) {
+				content = ((MemoryStream) rawData).ToArray ();
+			} else {
+				using (var memory = new MemoryStream  ()) {
+					rawData.CopyTo (memory, 4096);
+					content = memory.ToArray ();
+				}
+			}
+
+			var contentInfo = new ContentInfo (content);
+			var signed = new SignedCms (contentInfo, false);
+
+			CertificateStore.AddRange (signed.Certificates);
 		}
 
 		/// <summary>
@@ -201,7 +216,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (byte[] rawData, string password)
+		public override void ImportPkcs12 (Stream rawData, string password)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
@@ -209,10 +224,15 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			var certs = new X509Certificate2Collection ();
-			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
+			using (var memory = new MemoryStream ()) {
+				rawData.CopyTo (memory, 4096);
+				var buf = memory.ToArray ();
 
-			CertificateStore.AddRange (certs);
+				var certs = new X509Certificate2Collection ();
+				certs.Import (buf, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
+
+				CertificateStore.AddRange (certs);
+			}
 		}
 
 		/// <summary>
@@ -238,6 +258,7 @@ namespace MimeKit.Cryptography {
 			if (certificates.Count == 0)
 				throw new ArgumentException ("No certificates specified.", "certificates");
 
+			// FIXME: I'm pretty sure this is the wrong way to generate a certs-only pkcs7-mime part
 			var rawData = certificates.Export (X509ContentType.Pkcs12);
 			var content = new MemoryStream (rawData, false);
 

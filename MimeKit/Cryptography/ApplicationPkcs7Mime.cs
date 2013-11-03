@@ -140,8 +140,9 @@ namespace MimeKit.Cryptography {
 
 			using (var memory = new MemoryStream ()) {
 				ContentObject.WriteTo (memory);
+				memory.Position = 0;
 
-				return ctx.Decrypt (memory.ToArray (), out signatures);
+				return ctx.Decrypt (memory, out signatures);
 			}
 		}
 
@@ -171,8 +172,9 @@ namespace MimeKit.Cryptography {
 				IList<IDigitalSignature> signatures;
 
 				ContentObject.WriteTo (memory);
+				memory.Position = 0;
 
-				return ctx.Decrypt (memory.ToArray (), out signatures);
+				return ctx.Decrypt (memory, out signatures);
 			}
 		}
 
@@ -210,8 +212,9 @@ namespace MimeKit.Cryptography {
 
 			using (var memory = new MemoryStream ()) {
 				ContentObject.WriteTo (memory);
+				memory.Position = 0;
 
-				ctx.ImportKeys (memory.ToArray ());
+				ctx.ImportKeys (memory);
 			}
 		}
 
@@ -274,8 +277,9 @@ namespace MimeKit.Cryptography {
 
 				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return ctx.Encrypt (recipients, memory.ToArray ());
+				return ctx.Encrypt (recipients, memory);
 			}
 		}
 
@@ -318,8 +322,9 @@ namespace MimeKit.Cryptography {
 
 				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory.ToArray ());
+				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory);
 			}
 		}
 
@@ -362,8 +367,9 @@ namespace MimeKit.Cryptography {
 
 				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
+				return ctx.SignAndEncrypt (signer, recipients, memory);
 			}
 		}
 
@@ -412,8 +418,9 @@ namespace MimeKit.Cryptography {
 
 				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory.ToArray ());
+				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory);
 			}
 		}
 	}

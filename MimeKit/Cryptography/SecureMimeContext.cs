@@ -224,7 +224,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		Stream Sign (CmsSigner signer, byte[] content, bool encapsulate)
+		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
 		{
 			var cms = new CmsSignedDataStreamGenerator ();
 
@@ -234,7 +234,7 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryStream ();
 
 			using (var stream = cms.Open (memory, encapsulate)) {
-				stream.Write (content, 0, content.Length);
+				content.CopyTo (stream, 4096);
 			}
 
 			memory.Position = 0;
@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing.
 		/// </exception>
-		public ApplicationPkcs7Signature Sign (CmsSigner signer, byte[] content)
+		public ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -299,7 +299,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, byte[] content)
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -378,7 +378,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public override IList<IDigitalSignature> Verify (byte[] content, byte[] signatureData)
+		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -386,13 +386,11 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException ("signatureData");
 
-			using (var memory = new MemoryStream (content, false)) {
-				var parser = new CmsSignedDataParser (new CmsTypedStream (memory), signatureData);
+			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
 
-				parser.GetSignedContent ().Drain ();
+			parser.GetSignedContent ().Drain ();
 
-				return GetDigitalSignatures (parser);
-			}
+			return GetDigitalSignatures (parser);
 		}
 
 		/// <summary>
@@ -407,7 +405,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while verifying the signature.
 		/// </exception>
-		public IList<IDigitalSignature> Verify (byte[] signedData, out byte[] content)
+		public IList<IDigitalSignature> Verify (Stream signedData, out Stream content)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
@@ -415,15 +413,14 @@ namespace MimeKit.Cryptography {
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
 
-			using (var memory = new MemoryStream ()) {
-				signed.ContentStream.CopyTo (memory, 4096);
-				content = memory.ToArray ();
-			}
+			content = new MemoryStream ();
+			signed.ContentStream.CopyTo (content, 4096);
+			content.Position = 0;
 
 			return GetDigitalSignatures (parser);
 		}
 
-		Stream Encrypt (CmsRecipientCollection recipients, Stream content)
+		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
 			var cms = new CmsEnvelopedDataGenerator ();
 			int count = 0;
@@ -458,7 +455,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while encrypting.
 		/// </exception>
-		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, byte[] content)
+		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -466,9 +463,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			using (var memory = new MemoryStream (content, false)) {
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Encrypt (recipients, memory));
-			}
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, content));
 		}
 
 		/// <summary>
@@ -492,7 +487,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while encrypting.
 		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content)
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -519,7 +514,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing or encrypting.
 		/// </exception>
-		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, byte[] content)
+		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -531,7 +526,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			using (var signed = Sign (signer, content, true)) {
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Encrypt (recipients, signed));
+				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, signed));
 			}
 		}
 
@@ -566,7 +561,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while signing or encrypting.
 		/// </exception>
-		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, byte[] content)
+		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -592,7 +587,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while decrypting.
 		/// </exception>
-		public override MimeEntity Decrypt (byte[] encryptedData, out IList<IDigitalSignature> signatures)
+		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -645,7 +640,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public virtual void ImportPkcs12 (byte[] rawData, string password)
+		public virtual void ImportPkcs12 (Stream rawData, string password)
 		{
 			throw new NotSupportedException ();
 		}

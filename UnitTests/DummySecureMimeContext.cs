@@ -140,24 +140,28 @@ namespace UnitTests {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (byte[] rawData, string password)
+		public override void ImportPkcs12 (Stream rawData, string password)
 		{
-			using (var memory = new MemoryStream (rawData, false)) {
-				var pkcs12 = new Pkcs12Store (memory, password.ToCharArray ());
+			if (rawData == null)
+				throw new ArgumentNullException ("rawData");
 
-				foreach (string alias in pkcs12.Aliases) {
-					if (pkcs12.IsKeyEntry (alias)) {
-						var chain = pkcs12.GetCertificateChain (alias);
-						var entry = pkcs12.GetKey (alias);
+			if (password == null)
+				throw new ArgumentNullException ("password");
 
-						for (int i = 0; i < chain.Length; i++)
-							certificates.Add (chain[i].Certificate);
+			var pkcs12 = new Pkcs12Store (rawData, password.ToCharArray ());
 
-						keys.Add (chain[0].Certificate, entry.Key);
-					} else if (pkcs12.IsCertificateEntry (alias)) {
-						var entry = pkcs12.GetCertificate (alias);
-						certificates.Add (entry.Certificate);
-					}
+			foreach (string alias in pkcs12.Aliases) {
+				if (pkcs12.IsKeyEntry (alias)) {
+					var chain = pkcs12.GetCertificateChain (alias);
+					var entry = pkcs12.GetKey (alias);
+
+					for (int i = 0; i < chain.Length; i++)
+						certificates.Add (chain[i].Certificate);
+
+					keys.Add (chain[0].Certificate, entry.Key);
+				} else if (pkcs12.IsCertificateEntry (alias)) {
+					var entry = pkcs12.GetCertificate (alias);
+					certificates.Add (entry.Certificate);
 				}
 			}
 		}
@@ -166,7 +170,7 @@ namespace UnitTests {
 
 		#region implemented abstract members of CryptographyContext
 
-		public override void ImportKeys (byte[] rawData)
+		public override void ImportKeys (Stream rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");

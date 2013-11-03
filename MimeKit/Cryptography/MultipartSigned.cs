@@ -110,9 +110,6 @@ namespace MimeKit.Cryptography {
 
 			PrepareEntityForSigning (entity);
 
-			MimeEntity parsed;
-			byte[] cleartext;
-
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					// Note: see rfc3156, section 3 - second note
@@ -132,30 +129,29 @@ namespace MimeKit.Cryptography {
 
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
-				parsed = parser.ParseEntity ();
+				var parsed = parser.ParseEntity ();
+				memory.Position = 0;
 
-				cleartext = memory.ToArray ();
+				// sign the cleartext content
+				var signature = ctx.Sign (signer, digestAlgo, memory);
+				var micalg = ctx.GetMicAlgName (digestAlgo);
+				var signed = new MultipartSigned ();
+
+				if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
+					micalg = "pgp-" + micalg;
+
+				// set the protocol and micalg Content-Type parameters
+				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+				signed.ContentType.Parameters["micalg"] = micalg;
+
+				// add the modified/parsed entity as our first part
+				signed.Add (parsed);
+
+				// add the detached signature as the second part
+				signed.Add (signature);
+
+				return signed;
 			}
-
-			// sign the cleartext content
-			var signature = ctx.Sign (signer, digestAlgo, cleartext);
-			var micalg = ctx.GetMicAlgName (digestAlgo);
-			var signed = new MultipartSigned ();
-
-			if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
-				micalg = "pgp-" + micalg;
-
-			// set the protocol and micalg Content-Type parameters
-			signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
-			signed.ContentType.Parameters["micalg"] = micalg;
-
-			// add the modified/parsed entity as our first part
-			signed.Add (parsed);
-
-			// add the detached signature as the second part
-			signed.Add (signature);
-
-			return signed;
 		}
 
 		/// <summary>
@@ -182,9 +178,6 @@ namespace MimeKit.Cryptography {
 			PrepareEntityForSigning (entity);
 
 			using (var ctx = new WindowsSecureMimeContext ()) {
-				MimeEntity parsed;
-				byte[] cleartext;
-
 				using (var memory = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (memory)) {
 						// Note: see rfc3156, section 3 - second note
@@ -204,27 +197,26 @@ namespace MimeKit.Cryptography {
 
 					// Note: we need to parse the modified entity structure to preserve any modifications
 					var parser = new MimeParser (memory, MimeFormat.Entity);
-					parsed = parser.ParseEntity ();
+					var parsed = parser.ParseEntity ();
+					memory.Position = 0;
 
-					cleartext = memory.ToArray ();
+					// sign the cleartext content
+					var micalg = ctx.GetMicAlgName (signer.DigestAlgorithm);
+					var signature = ctx.Sign (signer, memory);
+					var signed = new MultipartSigned ();
+
+					// set the protocol and micalg Content-Type parameters
+					signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+					signed.ContentType.Parameters["micalg"] = micalg;
+
+					// add the modified/parsed entity as our first part
+					signed.Add (parsed);
+
+					// add the detached signature as the second part
+					signed.Add (signature);
+
+					return signed;
 				}
-
-				// sign the cleartext content
-				var micalg = ctx.GetMicAlgName (signer.DigestAlgorithm);
-				var signature = ctx.Sign (signer, cleartext);
-				var signed = new MultipartSigned ();
-
-				// set the protocol and micalg Content-Type parameters
-				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
-				signed.ContentType.Parameters["micalg"] = micalg;
-
-				// add the modified/parsed entity as our first part
-				signed.Add (parsed);
-
-				// add the detached signature as the second part
-				signed.Add (signature);
-
-				return signed;
 			}
 		}
 
@@ -269,24 +261,21 @@ namespace MimeKit.Cryptography {
 			if (!ctx.Supports (value))
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
-			byte[] cleartext, signatureData;
+			using (var signatureData = new MemoryStream ()) {
+				signature.ContentObject.DecodeTo (signatureData);
+				signatureData.Position = 0;
 
-			using (var memory = new MemoryStream ()) {
-				// Note: see rfc2015 or rfc3156, section 5.1
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
+				using (var cleartext = new MemoryStream ()) {
+					// Note: see rfc2015 or rfc3156, section 5.1
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
 
-				this[0].WriteTo (options, memory);
+					this[0].WriteTo (options, cleartext);
+					cleartext.Position = 0;
 
-				cleartext = memory.ToArray ();
+					return ctx.Verify (cleartext, signatureData);
+				}
 			}
-
-			using (var memory = new MemoryStream ()) {
-				signature.ContentObject.DecodeTo (memory);
-				signatureData = memory.ToArray ();
-			}
-
-			return ctx.Verify (cleartext, signatureData);
 		}
 
 		/// <summary>

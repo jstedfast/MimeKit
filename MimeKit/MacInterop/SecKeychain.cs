@@ -283,7 +283,7 @@ namespace MimeKit.MacInterop {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The keychain has been disposed.
 		/// </exception>
-		public IList<X509Certificate> GetAllCertificates (CssmKeyUse keyUsage)
+		public IList<X509Certificate> GetCertificates (CssmKeyUse keyUsage)
 		{
 			if (disposed)
 				throw new ObjectDisposedException ("SecKeychain");

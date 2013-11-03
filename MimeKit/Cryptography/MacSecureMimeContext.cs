@@ -63,7 +63,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
-			foreach (var certificate in keychain.GetAllCertificates ((CssmKeyUse) 0)) {
+			foreach (var certificate in keychain.GetCertificates ((CssmKeyUse) 0)) {
 				if (selector.Match (certificate))
 					return certificate;
 			}
@@ -96,7 +96,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			foreach (var certificate in keychain.GetAllCertificates (CssmKeyUse.Encrypt)) {
+			foreach (var certificate in keychain.GetCertificates (CssmKeyUse.Encrypt)) {
 				if (certificate.GetSubjectEmail () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
@@ -135,7 +135,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportKeys (byte[] rawData)
+		public override void ImportKeys (Stream rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (byte[] rawData, string password)
+		public override void ImportPkcs12 (Stream rawData, string password)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
@@ -164,21 +164,19 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			using (var memory = new MemoryStream (rawData, false)) {
-				var pkcs12 = new Pkcs12Store (memory, password.ToCharArray ());
-				foreach (string alias in pkcs12.Aliases) {
-					if (pkcs12.IsKeyEntry (alias)) {
-						var chain = pkcs12.GetCertificateChain (alias);
-						var entry = pkcs12.GetKey (alias);
+			var pkcs12 = new Pkcs12Store (rawData, password.ToCharArray ());
+			foreach (string alias in pkcs12.Aliases) {
+				if (pkcs12.IsKeyEntry (alias)) {
+					var chain = pkcs12.GetCertificateChain (alias);
+					var entry = pkcs12.GetKey (alias);
 
-						for (int i = 0; i < chain.Length; i++)
-							keychain.Add (chain[i].Certificate);
+					for (int i = 0; i < chain.Length; i++)
+						keychain.Add (chain[i].Certificate);
 
-						// FIXME: add the private key to the keychain
-					} else if (pkcs12.IsCertificateEntry (alias)) {
-						var entry = pkcs12.GetCertificate (alias);
-						keychain.Add (entry.Certificate);
-					}
+					keychain.Add (entry.Key);
+				} else if (pkcs12.IsCertificateEntry (alias)) {
+					var entry = pkcs12.GetCertificate (alias);
+					keychain.Add (entry.Certificate);
 				}
 			}
 		}
