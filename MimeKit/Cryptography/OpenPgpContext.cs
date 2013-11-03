@@ -274,7 +274,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{
-			foreach (PgpSecretKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
 					if (!key.IsSigningKey)
 						continue;
@@ -555,8 +555,8 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException ("signatureData");
 
-			using (var decoder = PgpUtilities.GetDecoderStream (signatureData)) {
-				var factory = new PgpObjectFactory (decoder);
+			using (var armored = new ArmoredInputStream (signatureData)) {
+				var factory = new PgpObjectFactory (armored);
 				var data = factory.NextPgpObject ();
 				PgpSignatureList signatureList;
 

@@ -82,7 +82,7 @@ namespace UnitTests {
 				Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
 
 				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
+				Assert.IsInstanceOfType (typeof (ApplicationPgpSignature), multipart[1], "The second child is not a detached signature.");
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
