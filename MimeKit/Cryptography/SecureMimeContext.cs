@@ -679,18 +679,11 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
-			var cms = new CmsSignedDataStreamGenerator ();
-			cms.AddDigests (CmsSignedGenerator.DigestSha1);
+			var cms = new CmsSignedDataGenerator ();
 			cms.AddCertificates (certificates);
 
-			var memory = new MemoryStream ();
-
-			using (var stream = cms.Open (memory, false)) {
-				stream.Write (new byte[0], 0, 0);
-				stream.Flush ();
-			}
-
-			memory.Position = 0;
+			var signedData = cms.Generate (new CmsProcessableByteArray (new byte[0]), false);
+			var memory = new MemoryStream (signedData.GetEncoded (), false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
 		}
