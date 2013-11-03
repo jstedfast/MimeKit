@@ -93,28 +93,28 @@ namespace UnitTests {
 			}
 		}
 
-		//[Test]
-		public void TestRawThunderbirdData ()
-		{
-			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"));
-			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"));
+//		[Test]
+//		public void TestRawThunderbirdData ()
+//		{
+//			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"));
+//			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"));
+//
+//			using (var ctx = CreateContext ()) {
+//				var signatures = ctx.Verify (cleartext, signatureData);
+//				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+//				foreach (var signature in signatures) {
+//					try {
+//						bool valid = signature.Verify ();
+//
+//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+//					} catch (DigitalSignatureVerifyException ex) {
+//						Assert.Fail ("Failed to verify signature: {0}", ex);
+//					}
+//				}
+//			}
+//		}
 
-			using (var ctx = CreateContext ()) {
-				var signatures = ctx.Verify (cleartext, signatureData);
-				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
-					}
-				}
-			}
-		}
-
-		//[Test]
+		[Test]
 		public void TestSecureMimeVerifyThunderbird ()
 		{
 			MimeMessage message;
@@ -132,18 +132,17 @@ namespace UnitTests {
 
 				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
 
-				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					multipart[0].WriteTo (options, file);
-					file.Write (new byte[] { 0x0A, 0x10 }, 0, 2);
-					file.Flush ();
-				}
-
-				using (var file = File.OpenWrite (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
-					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
-				}
+//				using (var file = File.Create (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
+//					var options = FormatOptions.Default.Clone ();
+//					options.NewLineFormat = NewLineFormat.Dos;
+//
+//					multipart[0].WriteTo (options, file);
+//					file.Flush ();
+//				}
+//
+//				using (var file = File.Create (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
+//					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
+//				}
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
