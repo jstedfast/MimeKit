@@ -680,6 +680,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
 			var cms = new CmsSignedDataStreamGenerator ();
+			cms.AddDigests (CmsSignedGenerator.DigestSha1);
 			cms.AddCertificates (certificates);
 
 			var memory = new MemoryStream ();

@@ -171,11 +171,11 @@ namespace UnitTests {
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
 
-			var signed = new CmsSignedDataParser (rawData);
-			var certs = signed.GetCertificates ("Collection");
-			var signers = signed.GetSignerInfos ();
+			var parser = new CmsSignedDataParser (rawData);
+			var certs = parser.GetCertificates ("Collection");
+			var store = parser.GetSignerInfos ();
 
-			foreach (SignerInformation signerInfo in signers.GetSigners ()) {
+			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var matches = certs.GetMatches (signerInfo.SignerID);
 
 				foreach (X509Certificate certificate in matches) {
