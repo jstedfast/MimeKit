@@ -96,27 +96,6 @@ namespace UnitTests {
 			}
 		}
 
-//		[Test]
-//		public void TestRawThunderbirdData ()
-//		{
-//			var cleartext = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"));
-//			var signatureData = File.ReadAllBytes (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"));
-//
-//			using (var ctx = CreateContext ()) {
-//				var signatures = ctx.Verify (cleartext, signatureData);
-//				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-//				foreach (var signature in signatures) {
-//					try {
-//						bool valid = signature.Verify ();
-//
-//						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-//					} catch (DigitalSignatureVerifyException ex) {
-//						Assert.Fail ("Failed to verify signature: {0}", ex);
-//					}
-//				}
-//			}
-//		}
-
 		[Test]
 		public void TestSecureMimeVerifyThunderbird ()
 		{
@@ -134,18 +113,6 @@ namespace UnitTests {
 				Assert.IsTrue (ctx.Supports (protocol), "The multipart/signed protocol is not supported.");
 
 				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), multipart[1], "The second child is not a detached signature.");
-
-//				using (var file = File.Create (Path.Combine ("..", "..", "TestData", "smime", "parsed-content.txt"))) {
-//					var options = FormatOptions.Default.Clone ();
-//					options.NewLineFormat = NewLineFormat.Dos;
-//
-//					multipart[0].WriteTo (options, file);
-//					file.Flush ();
-//				}
-//
-//				using (var file = File.Create (Path.Combine ("..", "..", "TestData", "smime", "signature-data.p7s"))) {
-//					((MimePart) multipart[1]).ContentObject.DecodeTo (file);
-//				}
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
@@ -186,6 +153,51 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSecureMimeDecryptThunderbird ()
+		{
+			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
+			MimeMessage message;
+
+			if (!File.Exists (p12))
+				return;
+
+			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-encrypted.txt"))) {
+				var parser = new MimeParser (file, MimeFormat.Default);
+				message = parser.ParseMessage ();
+			}
+
+			using (var ctx = CreateContext ()) {
+				var encrypted = (ApplicationPkcs7Mime) message.Body;
+				IList<IDigitalSignature> signatures = null;
+				MimeEntity decrypted = null;
+
+				using (var file = File.OpenRead (p12)) {
+					ctx.ImportPkcs12 (file, "no.secret");
+				}
+
+				var type = encrypted.ContentType.Parameters["smime-type"];
+				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
+
+				try {
+					decrypted = encrypted.Decrypt (ctx, out signatures);
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+				}
+
+				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
+
+				// The decrypted part should be a multipart/mixed with a text/plain part and an image attachment,
+				// very much like the thunderbird-signed.txt message.
+				Assert.IsInstanceOfType (typeof (Multipart), decrypted, "Expected the decrypted part to be a Multipart.");
+				var multipart = (Multipart) decrypted;
+
+				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "Expected the first part of the decrypted multipart to be a TextPart.");
+				Assert.IsInstanceOfType (typeof (MimePart), multipart[1], "Expected the second part of the decrypted multipart to be a MimePart.");
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeSignAndEncrypt ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -222,6 +234,52 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 				}
+			}
+		}
+
+		[Test]
+		public void TestSecureMimeDecryptVerifyThunderbird ()
+		{
+			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
+			MimeMessage message;
+
+			if (!File.Exists (p12))
+				return;
+
+			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
+				var parser = new MimeParser (file, MimeFormat.Default);
+				message = parser.ParseMessage ();
+			}
+
+			using (var ctx = CreateContext ()) {
+				var encrypted = (ApplicationPkcs7Mime) message.Body;
+				IList<IDigitalSignature> signatures = null;
+				MimeEntity decrypted = null;
+
+				using (var file = File.OpenRead (p12)) {
+					ctx.ImportPkcs12 (file, "no.secret");
+				}
+
+				var type = encrypted.ContentType.Parameters["smime-type"];
+				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
+
+				try {
+					decrypted = encrypted.Decrypt (ctx, out signatures);
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+				}
+
+				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
+
+				// The decrypted part should be a multipart/mixed with a text/plain part and 2 image attachments,
+				// very much like the thunderbird-signed.txt message.
+				Assert.IsInstanceOfType (typeof (Multipart), decrypted, "Expected the decrypted part to be a Multipart.");
+				var multipart = (Multipart) decrypted;
+
+				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "Expected the first part of the decrypted multipart to be a TextPart.");
+				Assert.IsInstanceOfType (typeof (MimePart), multipart[1], "Expected the second part of the decrypted multipart to be a MimePart.");
+				Assert.IsInstanceOfType (typeof (MimePart), multipart[2], "Expected the third part of the decrypted multipart to be a MimePart.");
 			}
 		}
 
