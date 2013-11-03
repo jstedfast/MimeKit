@@ -605,6 +605,47 @@ namespace MimeKit.Cryptography {
 			return Encrypt (GetEncryptionKeys (recipients), content);
 		}
 
+		Stream Compress (Stream content)
+		{
+			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
+			var memory = new MemoryStream ();
+
+			using (var compressed = compresser.Open (memory)) {
+				var literalGenerator = new PgpLiteralDataGenerator ();
+
+				using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
+					content.CopyTo (literal, 4096);
+					literal.Flush ();
+				}
+
+				compressed.Flush ();
+			}
+
+			memory.Position = 0;
+
+			return memory;
+		}
+
+		Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
+		{
+			var memory = new MemoryStream ();
+
+			using (var armored = new ArmoredOutputStream (memory)) {
+				using (var compressed = Compress (content)) {
+					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
+						compressed.CopyTo (encrypted, 4096);
+						encrypted.Flush ();
+					}
+				}
+
+				armored.Flush ();
+			}
+
+			memory.Position = 0;
+
+			return memory;
+		}
+
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
@@ -630,49 +671,25 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var memory = new MemoryStream ();
+			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+			int count = 0;
 
-			using (var armored = new ArmoredOutputStream (memory)) {
-				var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
-				int count = 0;
+			foreach (var recipient in recipients) {
+				if (!recipient.IsEncryptionKey)
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
 
-				foreach (var recipient in recipients) {
-					if (!recipient.IsEncryptionKey)
-						throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
-
-					encrypter.AddMethod (recipient);
-					count++;
-				}
-
-				if (count == 0)
-					throw new ArgumentException ("No recipients specified.", "recipients");
-
-				// FIXME: 0 is the wrong value...
-				using (var encrypted = encrypter.Open (armored, 0)) {
-					var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
-
-					using (var compressed = compresser.Open (encrypted)) {
-						var literalGenerator = new PgpLiteralDataGenerator ();
-
-						using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-							content.CopyTo (literal, 4096);
-							literal.Flush ();
-						}
-
-						compressed.Flush ();
-					}
-
-					encrypted.Flush ();
-				}
-
-				armored.Flush ();
+				encrypter.AddMethod (recipient);
+				count++;
 			}
 
-			memory.Position = 0;
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			var encrypted = Encrypt (encrypter, content);
 
 			return new MimePart ("application", "octet-stream") {
 				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (memory, ContentEncoding.Default),
+				ContentObject = new ContentObject (encrypted, ContentEncoding.Default),
 			};
 		}
 
@@ -764,73 +781,59 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var memory = new MemoryStream ();
+			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+			int count = 0;
 
-			using (var armored = new ArmoredOutputStream (memory)) {
-				var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
-				int count = 0;
+			foreach (var recipient in recipients) {
+				if (!recipient.IsEncryptionKey)
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
 
-				foreach (var recipient in recipients) {
-					if (!recipient.IsEncryptionKey)
-						throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
-
-					encrypter.AddMethod (recipient);
-					count++;
-				}
-
-				if (count == 0)
-					throw new ArgumentException ("No recipients specified.", "recipients");
-
-				// FIXME: 0 is the wrong value...
-				using (var encrypted = encrypter.Open (armored, 0)) {
-					var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
-
-					using (var compressed = compresser.Open (encrypted)) {
-						var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
-						signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
-						var subpacket = new PgpSignatureSubpacketGenerator ();
-
-						foreach (string userId in signer.PublicKey.GetUserIds ()) {
-							subpacket.SetSignerUserId (false, userId);
-							break;
-						}
-
-						signatureGenerator.SetHashedSubpackets (subpacket.Generate ());
-
-						var onepass = signatureGenerator.GenerateOnePassVersion (false);
-						onepass.Encode (compressed);
-
-						var literalGenerator = new PgpLiteralDataGenerator ();
-						using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-							var buf = new byte[4096];
-							int nread;
-
-							while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-								signatureGenerator.Update (buf, 0, nread);
-								literal.Write (buf, 0, buf.Length);
-							}
-
-							literal.Flush ();
-						}
-
-						var signature = signatureGenerator.Generate ();
-						signature.Encode (compressed);
-
-						compressed.Flush ();
-					}
-
-					encrypted.Flush ();
-				}
-
-				armored.Flush ();
+				encrypter.AddMethod (recipient);
+				count++;
 			}
 
-			memory.Position = 0;
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
 
-			return new MimePart ("application", "octet-stream") {
-				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (memory, ContentEncoding.Default)
-			};
+			using (var signed = new MemoryStream ()) {
+				var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
+				signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
+				var subpacket = new PgpSignatureSubpacketGenerator ();
+
+				foreach (string userId in signer.PublicKey.GetUserIds ()) {
+					subpacket.SetSignerUserId (false, userId);
+					break;
+				}
+
+				signatureGenerator.SetHashedSubpackets (subpacket.Generate ());
+
+				var onepass = signatureGenerator.GenerateOnePassVersion (false);
+				onepass.Encode (signed);
+
+				var literalGenerator = new PgpLiteralDataGenerator ();
+				using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
+					var buf = new byte[4096];
+					int nread;
+
+					while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+						signatureGenerator.Update (buf, 0, nread);
+						literal.Write (buf, 0, buf.Length);
+					}
+
+					literal.Flush ();
+				}
+
+				var signature = signatureGenerator.Generate ();
+				signature.Encode (signed);
+				signed.Position = 0;
+
+				var encrypted = Encrypt (encrypter, signed);
+
+				return new MimePart ("application", "octet-stream") {
+					ContentDisposition = new ContentDisposition ("attachment"),
+					ContentObject = new ContentObject (encrypted, ContentEncoding.Default)
+				};
+			}
 		}
 
 		/// <summary>
@@ -848,8 +851,8 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("encryptedData");
 
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
-			using (var decoder = PgpUtilities.GetDecoderStream (encryptedData)) {
-				var factory = new PgpObjectFactory (decoder);
+			using (var armored = new ArmoredInputStream (encryptedData)) {
+				var factory = new PgpObjectFactory (armored);
 				var obj = factory.NextPgpObject ();
 				var list = obj as PgpEncryptedDataList;
 
