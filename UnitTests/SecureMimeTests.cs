@@ -245,8 +245,8 @@ namespace UnitTests {
 				using (var imported = new DummySecureMimeContext ()) {
 					try {
 						pkcs7mime.Import (imported);
-					} catch {
-						Assert.Fail ("Failed to import certificates.");
+					} catch (Exception ex) {
+						Assert.Fail ("Failed to import certificates: {0}", ex);
 					}
 
 					Assert.AreEqual (1, imported.certificates.Count, "Unexpected number of imported certificates.");

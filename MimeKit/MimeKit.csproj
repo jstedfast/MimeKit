@@ -54,6 +54,7 @@
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureError.cs" />
     <Compile Include="Cryptography\DigitalSignatureStatus.cs" />
+    <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Cryptography\TrustLevel.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
+    <Compile Include="Cryptography\X509CertificateStore.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />
@@ -159,7 +161,6 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
-    <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

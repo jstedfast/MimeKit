@@ -668,18 +668,20 @@ namespace MimeKit.Cryptography {
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			var cms = new CmsSignedDataStreamGenerator ();
+			var certificates = new X509CertificateStore ();
 			int count = 0;
 
 			foreach (var mailbox in mailboxes) {
-				var signer = GetCmsSigner (mailbox, DigestAlgorithm.Sha1);
-				cms.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
-					signer.SignedAttributes, signer.UnsignedAttributes);
+				var recipient = GetCmsRecipient (mailbox);
+				certificates.Add (recipient.Certificate);
 				count++;
 			}
 
 			if (count == 0)
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
+
+			var cms = new CmsSignedDataStreamGenerator ();
+			cms.AddCertificates (certificates);
 
 			var memory = new MemoryStream ();
 
