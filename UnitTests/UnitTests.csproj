@@ -51,6 +51,7 @@
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
+    <Compile Include="PgpMimeTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -68,6 +69,7 @@
     <Folder Include="TestData\mbox\" />
     <Folder Include="TestData\messages\" />
     <Folder Include="TestData\smime\" />
+    <Folder Include="TestData\openpgp\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\mbox\simple.mbox.txt" />
@@ -87,5 +89,7 @@
     <None Include="TestData\smime\thunderbird-signed.txt" />
     <None Include="TestData\smime\certificate-authority.crt" />
     <None Include="TestData\smime\smime.crt" />
+    <None Include="TestData\openpgp\mimekit.gpg.pub" />
+    <None Include="TestData\openpgp\mimekit.gpg.sec" />
   </ItemGroup>
 </Project>

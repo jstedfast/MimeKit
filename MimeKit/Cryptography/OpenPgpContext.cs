@@ -305,7 +305,7 @@ namespace MimeKit.Cryptography {
 		protected virtual PgpPrivateKey GetPrivateKey (PgpSecretKey key)
 		{
 			// FIXME: we need a way to query for a passphrase...
-			return key.ExtractPrivateKey ("passphrase".ToCharArray ());
+			return key.ExtractPrivateKey ("no.secret".ToCharArray ());
 		}
 
 		/// <summary>
@@ -916,6 +916,8 @@ namespace MimeKit.Cryptography {
 					signatures = null;
 				}
 
+				var debug = memory.ToArray ();
+
 				var parser = new MimeParser (memory, MimeFormat.Entity);
 
 				return parser.ParseEntity ();
@@ -940,9 +942,40 @@ namespace MimeKit.Cryptography {
 
 			using (var file = File.OpenWrite (tmp)) {
 				PublicKeyRingBundle.Encode (file);
+				file.Flush ();
 			}
 
-			File.Replace (tmp, PublicKeyRingPath, bak);
+			if (File.Exists (PublicKeyRingPath))
+				File.Replace (tmp, PublicKeyRingPath, bak);
+			else
+				File.Move (tmp, PublicKeyRingPath);
+		}
+
+		/// <summary>
+		/// Saves the secret key-ring bundle.
+		/// </summary>
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the secret key-ring bundle.
+		/// </exception>
+		protected void SaveSecretKeyRingBundle ()
+		{
+			var filename = Path.GetFileName (SecretKeyRingPath) + "~";
+			var dirname = Path.GetDirectoryName (SecretKeyRingPath);
+			var tmp = Path.Combine (dirname, "." + filename);
+			var bak = Path.Combine (dirname, filename);
+
+			if (!Directory.Exists (dirname))
+				Directory.CreateDirectory (dirname);
+
+			using (var file = File.OpenWrite (tmp)) {
+				SecretKeyRingBundle.Encode (file);
+				file.Flush ();
+			}
+
+			if (File.Exists (SecretKeyRingPath))
+				File.Replace (tmp, SecretKeyRingPath, bak);
+			else
+				File.Move (tmp, SecretKeyRingPath);
 		}
 
 		/// <summary>
@@ -967,16 +1000,53 @@ namespace MimeKit.Cryptography {
 				if (imported.Count == 0)
 					return;
 
-				int added = 0;
-				foreach (PgpPublicKeyRing keyring in imported.GetKeyRings ()) {
-					if (!PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId)) {
-						PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
-						added++;
+				int publicKeysAdded = 0;
+
+				foreach (PgpPublicKeyRing pubring in imported.GetKeyRings ()) {
+					if (!PublicKeyRingBundle.Contains (pubring.GetPublicKey ().KeyId)) {
+						PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, pubring);
+						publicKeysAdded++;
 					}
 				}
 
-				if (added > 0)
+				if (publicKeysAdded > 0)
 					SavePublicKeyRingBundle ();
+			}
+		}
+
+		/// <summary>
+		/// Imports secret keys.
+		/// </summary>
+		/// <param name="rawData">The raw key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="rawData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// <para>An error occurred while parsing the raw key-ring data</para>
+		/// <para>-or-</para>
+		/// <para>An error occured while saving the public key-ring bundle.</para>
+		/// </exception>
+		public virtual void ImportSecretKeys (Stream rawData)
+		{
+			if (rawData == null)
+				throw new ArgumentNullException ("rawData");
+
+			using (var armored = new ArmoredInputStream (rawData)) {
+				var imported = new PgpSecretKeyRingBundle (armored);
+				if (imported.Count == 0)
+					return;
+
+				int secretKeysAdded = 0;
+
+				foreach (PgpSecretKeyRing secring in imported.GetKeyRings ()) {
+					if (!SecretKeyRingBundle.Contains (secring.GetSecretKey ().KeyId)) {
+						SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, secring);
+						secretKeysAdded++;
+					}
+				}
+
+				if (secretKeysAdded > 0)
+					SaveSecretKeyRingBundle ();
 			}
 		}
 

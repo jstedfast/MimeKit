@@ -86,6 +86,60 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
+		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="signer">The signer to use to sign the entity.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients for the encrypted entity.</param>
+		/// <param name="entity">The entity to sign and encrypt.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		public static MultipartEncrypted Create (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				PrepareEntityForEncrypting (entity);
+				entity.WriteTo (options, memory);
+				memory.Position = 0;
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
+
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+
+				return encrypted;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
+		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="signer">The signer to use to sign the entity.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
@@ -99,6 +153,15 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
 				using (var memory = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -127,6 +190,56 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
+		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="recipients">The recipients for the encrypted entity.</param>
+		/// <param name="entity">The entity to sign and encrypt.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		public static MultipartEncrypted Create (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					PrepareEntityForEncrypting (entity);
+					entity.WriteTo (filtered);
+					filtered.Flush ();
+				}
+
+				memory.Position = 0;
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
+
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.Encrypt (recipients, memory));
+
+				return encrypted;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
+		/// the encrypted version of the specified entity.</returns>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -136,6 +249,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
 			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
 				using (var memory = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (memory)) {
@@ -160,6 +279,80 @@ namespace MimeKit.Cryptography {
 					return encrypted;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decrypt this instance.
+		/// </summary>
+		/// <returns>The decrypted entity.</returns>
+		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		public MimeEntity Decrypt (OpenPgpContext ctx, out IList<IDigitalSignature> signatures)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			var protocol = ContentType.Parameters["protocol"];
+			if (string.IsNullOrEmpty (protocol))
+				throw new FormatException ();
+
+			protocol = protocol.Trim ().ToLowerInvariant ();
+			if (!ctx.Supports (protocol))
+				throw new FormatException ();
+
+			if (Count < 2)
+				throw new FormatException ();
+
+			var version = this[0] as MimePart;
+			if (version == null)
+				throw new FormatException ();
+
+			var ctype = version.ContentType;
+			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
+			if (value.ToLowerInvariant () != protocol)
+				throw new FormatException ();
+
+			var encrypted = this[1] as MimePart;
+			if (encrypted == null || encrypted.ContentObject == null)
+				throw new FormatException ();
+
+			if (!encrypted.ContentType.Matches ("application", "octet-stream"))
+				throw new FormatException ();
+
+			using (var memory = new MemoryStream ()) {
+				encrypted.ContentObject.DecodeTo (memory);
+				memory.Position = 0;
+
+				return ctx.Decrypt (memory, out signatures);
+			}
+		}
+
+		/// <summary>
+		/// Decrypt this instance.
+		/// </summary>
+		/// <returns>The decrypted entity.</returns>
+		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		public MimeEntity Decrypt (OpenPgpContext ctx)
+		{
+			IList<IDigitalSignature> signatures;
+
+			return Decrypt (ctx, out signatures);
 		}
 
 		/// <summary>
@@ -211,6 +404,26 @@ namespace MimeKit.Cryptography {
 					return ctx.Decrypt (memory, out signatures);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decrypt this instance.
+		/// </summary>
+		/// <returns>The decrypted entity.</returns>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
+		/// decrypting could not be found.
+		/// </exception>
+		public MimeEntity Decrypt ()
+		{
+			IList<IDigitalSignature> signatures;
+
+			return Decrypt (out signatures);
 		}
 	}
 }
