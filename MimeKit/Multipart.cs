@@ -247,6 +247,16 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
+		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes)
+		{
+			var filter = options.CreateNewLineFilter ();
+			int index, length;
+
+			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
+
+			stream.Write (output, index, length);
+		}
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.Multipart"/> to the specified stream.
 		/// </summary>
@@ -265,7 +275,7 @@ namespace MimeKit {
 			base.WriteTo (options, stream);
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
-				stream.Write (RawPreamble, 0, RawPreamble.Length);
+				WriteBytes (options, stream, RawPreamble);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
@@ -280,7 +290,7 @@ namespace MimeKit {
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
-				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
+				WriteBytes (options, stream, RawEpilogue);
 		}
 
 		#region ICollection implementation

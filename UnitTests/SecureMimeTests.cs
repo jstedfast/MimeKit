@@ -148,7 +148,7 @@ namespace UnitTests {
 //				}
 
 				var signatures = multipart.Verify (ctx);
-				Assert.AreEqual (1, signatures.Count, "Verify returned an eunexpected number of signatures.");
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
 					try {
 						bool valid = signature.Verify ();
