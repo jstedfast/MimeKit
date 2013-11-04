@@ -35,7 +35,9 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	public abstract class CryptographyContext : IDisposable
 	{
-		static readonly Dictionary<string, ConstructorInfo> CustomContexts = new Dictionary<string, ConstructorInfo> ();
+		static ConstructorInfo SecureMimeContextConstructor;
+		static ConstructorInfo OpenPgpContextConstructor;
+		static readonly object mutex = new object ();
 
 		/// <summary>
 		/// Gets the signature protocol.
@@ -260,67 +262,65 @@ namespace MimeKit.Cryptography {
 
 			protocol = protocol.ToLowerInvariant ();
 
-			lock (CustomContexts) {
-				ConstructorInfo ctor;
-
-				if (CustomContexts.TryGetValue (protocol, out ctor))
-					return (CryptographyContext) ctor.Invoke (new object[0]);
-			}
-
-			switch (protocol) {
-			case "application/x-pkcs7-signature":
-			case "application/pkcs7-signature":
-			case "application/x-pkcs7-mime":
-			case "application/pkcs7-mime":
-			case "application/x-pkcs7-keys":
-			case "application/pkcs7-keys":
-				return new WindowsSecureMimeContext ();
-			case "application/x-pgp-signature":
-			case "application/pgp-signature":
-			case "application/x-pgp-encrypted":
-			case "application/pgp-encrypted":
-			case "application/x-pgp-keys":
-			case "application/pgp-keys":
-				//return new GnuPGContext ();
-			default:
-				throw new NotSupportedException ();
+			lock (mutex) {
+				switch (protocol) {
+				case "application/x-pkcs7-signature":
+				case "application/pkcs7-signature":
+				case "application/x-pkcs7-mime":
+				case "application/pkcs7-mime":
+				case "application/x-pkcs7-keys":
+				case "application/pkcs7-keys":
+					if (SecureMimeContextConstructor != null)
+						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
+					throw new NotSupportedException ();
+				case "application/x-pgp-signature":
+				case "application/pgp-signature":
+				case "application/x-pgp-encrypted":
+				case "application/pgp-encrypted":
+				case "application/x-pgp-keys":
+				case "application/pgp-keys":
+					if (OpenPgpContextConstructor != null)
+						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
+					throw new NotSupportedException ();
+				default:
+					throw new NotSupportedException ();
+				}
 			}
 		}
 
 		/// <summary>
-		/// Registers the custom cryptography context.
+		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
 		/// </summary>
-		/// <param name="protocol">The cryptography protocol.</param>
-		/// <param name="type">A custom subclass of <see cref="CryptographyContext"/>.</param>
+		/// <param name="type">A custom subclass of <see cref="SecureMimeContext"/> or
+		/// <see cref="OpenPgpContext"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="protocol"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="type"/> is <c>null</c>.</para>
+		/// <paramref name="type"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="type"/> is not a subclass of <see cref="CryptographyContext"/>.</para>
+		/// <para><paramref name="type"/> is not a subclass of
+		/// <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="type"/> does not have a parameterless constructor.</para>
 		/// </exception>
-		public static void Register (string protocol, Type type)
+		public static void Register (Type type)
 		{
-			if (protocol == null)
-				throw new ArgumentNullException ("protocol");
-
 			if (type == null)
 				throw new ArgumentNullException ("type");
-
-			protocol = protocol.ToLowerInvariant ();
-
-			if (!type.IsSubclassOf (typeof (CryptographyContext)))
-				throw new ArgumentException ("The specified type must be a subclass of CryptographyContext.", "type");
 
 			var ctor = type.GetConstructor (new Type[0]);
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", "type");
 
-			lock (CustomContexts) {
-				CustomContexts[protocol] = ctor;
+			if (type.IsSubclassOf (typeof (SecureMimeContext))) {
+				lock (mutex) {
+					SecureMimeContextConstructor = ctor;
+				}
+			} else if (type.IsSubclassOf (typeof (OpenPgpContext))) {
+				lock (mutex) {
+					OpenPgpContextConstructor = ctor;
+				}
+			} else {
+				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", "type");
 			}
 		}
 	}
