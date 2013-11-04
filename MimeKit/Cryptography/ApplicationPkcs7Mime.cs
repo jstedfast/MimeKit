@@ -139,7 +139,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				ContentObject.WriteTo (memory);
+				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
 				return ctx.Decrypt (memory, out signatures);
@@ -168,14 +168,9 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.EnvelopedData)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
-				IList<IDigitalSignature> signatures;
+			IList<IDigitalSignature> signatures;
 
-				ContentObject.WriteTo (memory);
-				memory.Position = 0;
-
-				return ctx.Decrypt (memory, out signatures);
-			}
+			return Decrypt (ctx, out signatures);
 		}
 
 		/// <summary>
