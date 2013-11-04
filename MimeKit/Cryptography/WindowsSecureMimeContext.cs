@@ -220,7 +220,7 @@ namespace MimeKit.Cryptography {
 		public override void ImportPkcs12 (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("rawData");
+				throw new ArgumentNullException ("stream");
 
 			if (password == null)
 				throw new ArgumentNullException ("password");
@@ -242,56 +242,6 @@ namespace MimeKit.Cryptography {
 			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
 
 			CertificateStore.AddRange (certs);
-		}
-
-		/// <summary>
-		/// Exports the specified certificates.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
-		/// the exported keys.</returns>
-		/// <param name="certificates">The certificates.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificates"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Exporting keys is not supported by this cryptography context.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while exporting.
-		/// </exception>
-		public ApplicationPkcs7Mime ExportKeys (X509Certificate2Collection certificates)
-		{
-			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
-
-			if (certificates.Count == 0)
-				throw new ArgumentException ("No certificates specified.", "certificates");
-
-			// FIXME: I'm pretty sure this is the wrong way to generate a certs-only pkcs7-mime part
-			var rawData = certificates.Export (X509ContentType.Pkcs12);
-			var content = new MemoryStream (rawData, false);
-
-			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, content);
-		}
-
-		/// <summary>
-		/// Exports the key.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
-		/// the exported keys.</returns>
-		/// <param name="certificate">The certificate.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while exporting.
-		/// </exception>
-		public ApplicationPkcs7Mime ExportKey (X509Certificate2 certificate)
-		{
-			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
-
-			return ExportKeys (new X509Certificate2Collection (certificate));
 		}
 
 		/// <summary>
