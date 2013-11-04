@@ -100,6 +100,12 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public static MultipartEncrypted Create (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
@@ -150,6 +156,15 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public static MultipartEncrypted Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
@@ -247,6 +262,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// </exception>
 		public static MultipartEncrypted Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
@@ -295,6 +313,15 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public MimeEntity Decrypt (OpenPgpContext ctx, out IList<IDigitalSignature> signatures)
 		{
 			if (ctx == null)
@@ -306,7 +333,7 @@ namespace MimeKit.Cryptography {
 
 			protocol = protocol.Trim ().ToLowerInvariant ();
 			if (!ctx.Supports (protocol))
-				throw new FormatException ();
+				throw new NotSupportedException ();
 
 			if (Count < 2)
 				throw new FormatException ();
@@ -348,6 +375,15 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public MimeEntity Decrypt (OpenPgpContext ctx)
 		{
 			IList<IDigitalSignature> signatures;
@@ -368,6 +404,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// decrypting could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public MimeEntity Decrypt (out IList<IDigitalSignature> signatures)
 		{
@@ -418,6 +460,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// decrypting could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
