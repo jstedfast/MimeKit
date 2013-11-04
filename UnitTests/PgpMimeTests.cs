@@ -113,8 +113,8 @@ namespace UnitTests {
 			using (var ctx = new GnuPGContext ()) {
 				var encrypted = MultipartEncrypted.Create (ctx, recipients, cleartext);
 
-				using (var file = File.OpenWrite ("pgp-encrypted.txt"))
-					encrypted.WriteTo (file);
+				//using (var file = File.Create ("pgp-encrypted.asc"))
+				//	encrypted.WriteTo (file);
 
 				var decrypted = encrypted.Decrypt (ctx);
 
@@ -137,6 +137,9 @@ namespace UnitTests {
 
 			using (var ctx = new GnuPGContext ()) {
 				var encrypted = MultipartEncrypted.Create (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
+
+				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
+				//	encrypted.WriteTo (file);
 
 				IList<IDigitalSignature> signatures;
 				var decrypted = encrypted.Decrypt (ctx, out signatures);

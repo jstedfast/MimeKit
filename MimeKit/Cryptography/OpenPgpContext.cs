@@ -795,43 +795,60 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No recipients specified.", "recipients");
 
-			using (var signed = new MemoryStream ()) {
-				var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
-				signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
-				var subpacket = new PgpSignatureSubpacketGenerator ();
+			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
-				foreach (string userId in signer.PublicKey.GetUserIds ()) {
-					subpacket.SetSignerUserId (false, userId);
-					break;
-				}
+			using (var compressed = new MemoryStream ()) {
+				using (var signed = compresser.Open (compressed)) {
+					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
+					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
+					var subpacket = new PgpSignatureSubpacketGenerator ();
 
-				signatureGenerator.SetHashedSubpackets (subpacket.Generate ());
-
-				var onepass = signatureGenerator.GenerateOnePassVersion (false);
-				onepass.Encode (signed);
-
-				var literalGenerator = new PgpLiteralDataGenerator ();
-				using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
-					var buf = new byte[4096];
-					int nread;
-
-					while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-						signatureGenerator.Update (buf, 0, nread);
-						literal.Write (buf, 0, buf.Length);
+					foreach (string userId in signer.PublicKey.GetUserIds ()) {
+						subpacket.SetSignerUserId (false, userId);
+						break;
 					}
 
-					literal.Flush ();
+					signatureGenerator.SetHashedSubpackets (subpacket.Generate ());
+
+					var onepass = signatureGenerator.GenerateOnePassVersion (false);
+					onepass.Encode (signed);
+
+					var literalGenerator = new PgpLiteralDataGenerator ();
+					using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
+						byte[] buf = new byte[4096];
+						int nread;
+
+						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+							signatureGenerator.Update (buf, 0, nread);
+							literal.Write (buf, 0, nread);
+						}
+
+						literal.Flush ();
+					}
+
+					var signature = signatureGenerator.Generate ();
+					signature.Encode (signed);
+
+					signed.Flush ();
 				}
 
-				var signature = signatureGenerator.Generate ();
-				signature.Encode (signed);
-				signed.Position = 0;
+				compressed.Position = 0;
 
-				var encrypted = Encrypt (encrypter, signed);
+				var memory = new MemoryStream ();
+				using (var armored = new ArmoredOutputStream (memory)) {
+					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
+						compressed.CopyTo (encrypted, 4096);
+						encrypted.Flush ();
+					}
+
+					armored.Flush ();
+				}
+
+				memory.Position = 0;
 
 				return new MimePart ("application", "octet-stream") {
 					ContentDisposition = new ContentDisposition ("attachment"),
-					ContentObject = new ContentObject (encrypted, ContentEncoding.Default)
+					ContentObject = new ContentObject (memory, ContentEncoding.Default)
 				};
 			}
 		}
@@ -918,8 +935,6 @@ namespace MimeKit.Cryptography {
 				} else {
 					signatures = null;
 				}
-
-				var debug = memory.ToArray ();
 
 				var parser = new MimeParser (memory, MimeFormat.Entity);
 
