@@ -137,9 +137,6 @@ namespace MimeKit.Cryptography {
 				var micalg = ctx.GetMicAlgorithmName (digestAlgo);
 				var signed = new MultipartSigned ();
 
-				if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
-					micalg = "pgp-" + micalg;
-
 				// set the protocol and micalg Content-Type parameters
 				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
 				signed.ContentType.Parameters["micalg"] = micalg;
