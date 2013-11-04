@@ -63,6 +63,7 @@ Global
 		$0.TextStylePolicy = $4
 		$4.FileWidth = 120
 		$4.TabsToSpaces = False
+		$4.EolMarker = Unix
 		$4.inheritsSet = VisualStudio
 		$4.inheritsScope = text/plain
 		$4.scope = text/plain
