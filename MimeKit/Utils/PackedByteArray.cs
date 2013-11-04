@@ -71,6 +71,8 @@ namespace MimeKit.Utils {
 			} else {
 				buffer[cursor] += (1 << 8);
 			}
+
+			length++;
 		}
 		
 		public void Clear ()
