@@ -219,10 +219,22 @@ namespace UnitTests {
 
 			using (var ctx = CreateContext ()) {
 				IList<IDigitalSignature> signatures;
+
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
-				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
+
+				// The decrypted part should be a multipart/signed
+				Assert.IsInstanceOfType (typeof (MultipartSigned), decrypted, "Expected the decrypted part to be a multipart/signed.");
+				var signed = (MultipartSigned) decrypted;
+
+				Assert.IsInstanceOfType (typeof (TextPart), signed[0], "Expected the first part of the multipart/signed to be a multipart.");
+				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
+
+				var extracted = (TextPart) signed[0];
+				Assert.AreEqual (cleartext.Text, extracted.Text, "The decrypted text part's text does not match the original.");
+
+				signatures = signed.Verify (ctx);
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
@@ -272,14 +284,33 @@ namespace UnitTests {
 
 				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
 
-				// The decrypted part should be a multipart/mixed with a text/plain part and 2 image attachments,
+				// The decrypted part should be a multipart/signed
+				Assert.IsInstanceOfType (typeof (MultipartSigned), decrypted, "Expected the decrypted part to be a multipart/signed.");
+				var signed = (MultipartSigned) decrypted;
+
+				// The first part of the multipart/signed should be a multipart/mixed with a text/plain part and 2 image attachments,
 				// very much like the thunderbird-signed.txt message.
-				Assert.IsInstanceOfType (typeof (Multipart), decrypted, "Expected the decrypted part to be a Multipart.");
-				var multipart = (Multipart) decrypted;
+				Assert.IsInstanceOfType (typeof (Multipart), signed[0], "Expected the first part of the multipart/signed to be a multipart.");
+				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Signature), signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
+
+				var multipart = (Multipart) signed[0];
 
 				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "Expected the first part of the decrypted multipart to be a TextPart.");
 				Assert.IsInstanceOfType (typeof (MimePart), multipart[1], "Expected the second part of the decrypted multipart to be a MimePart.");
 				Assert.IsInstanceOfType (typeof (MimePart), multipart[2], "Expected the third part of the decrypted multipart to be a MimePart.");
+
+				signatures = signed.Verify (ctx);
+
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
 			}
 		}
 

@@ -119,7 +119,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <param name="signatures">The list of digital signatures for this application/pkcs7-mime part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
@@ -127,11 +127,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
-		/// </exception>
-		public MimeEntity Decrypt (CryptographyContext ctx, out IList<IDigitalSignature> signatures)
+		public MimeEntity Decrypt (SecureMimeContext ctx, out IList<IDigitalSignature> signatures)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -150,18 +148,16 @@ namespace MimeKit.Cryptography {
 		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
-		/// </exception>
-		public MimeEntity Decrypt (CryptographyContext ctx)
+		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -180,12 +176,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
-		/// </exception>
 		public MimeEntity Decrypt ()
 		{
-			using (var ctx = CryptographyContext.Create ("application/pkcs7-mime")) {
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Decrypt (ctx);
 			}
 		}
@@ -193,15 +187,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Import the certificates contained in the content.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header does not support decryption.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while importing.
-		/// </exception>
-		public void Import (CryptographyContext ctx)
+		public void Import (SecureMimeContext ctx)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
 
@@ -242,7 +234,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for encrypting.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -252,11 +244,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is<c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
-		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -281,7 +271,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for encrypting.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -297,11 +287,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
-		/// </exception>
-		public static ApplicationPkcs7Mime Encrypt (CryptographyContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -326,7 +314,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Sign and Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
@@ -339,11 +327,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is<c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
-		/// </exception>
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -356,22 +342,13 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				PrepareEntityForEncrypting (entity);
-				entity.WriteTo (options, memory);
-				memory.Position = 0;
-
-				return ctx.SignAndEncrypt (signer, recipients, memory);
-			}
+			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, entity));
 		}
 
 		/// <summary>
 		/// Sign and Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
@@ -390,11 +367,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
-		/// </exception>
-		public static ApplicationPkcs7Mime SignAndEncrypt (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
@@ -407,16 +382,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				PrepareEntityForEncrypting (entity);
-				entity.WriteTo (options, memory);
-				memory.Position = 0;
-
-				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory);
-			}
+			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, digestAlgo, entity));
 		}
 	}
 }

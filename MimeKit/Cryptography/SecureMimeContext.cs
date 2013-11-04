@@ -254,11 +254,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
-		/// </exception>
 		public ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -296,11 +294,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
-		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -375,11 +371,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying the signature.
-		/// </exception>
 		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
@@ -402,11 +396,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying the signature.
-		/// </exception>
 		public IList<IDigitalSignature> Verify (Stream signedData, out Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
@@ -452,11 +444,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
-		/// </exception>
 		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
 
@@ -484,11 +474,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
-		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
 
@@ -511,11 +499,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
-		/// </exception>
 		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -558,11 +544,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
-		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -584,11 +568,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
-		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
@@ -659,6 +641,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
