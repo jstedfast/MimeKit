@@ -126,19 +126,20 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports certificates (as from a certs-only application/pkcs-mime part)
+		/// from the specified stream.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="stream">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportKeys (Stream rawData)
+		public override void Import (Stream stream)
 		{
-			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
 
 			// FIXME: implement this
 		}
@@ -146,25 +147,25 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports the pkcs12-encoded certificate and key data.
 		/// </summary>
-		/// <param name="rawData">The raw certificate data.</param>
-		/// <param name="password">The password to unlock the data.</param>
+		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (Stream rawData, string password)
+		public override void ImportPkcs12 (Stream stream, string password)
 		{
-			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
 
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			var pkcs12 = new Pkcs12Store (rawData, password.ToCharArray ());
+			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 			foreach (string alias in pkcs12.Aliases) {
 				if (pkcs12.IsKeyEntry (alias)) {
 					var chain = pkcs12.GetCertificateChain (alias);

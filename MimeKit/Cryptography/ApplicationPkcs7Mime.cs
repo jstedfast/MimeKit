@@ -214,7 +214,7 @@ namespace MimeKit.Cryptography {
 				ContentObject.WriteTo (memory);
 				memory.Position = 0;
 
-				ctx.ImportKeys (memory);
+				ctx.Import (memory);
 			}
 		}
 

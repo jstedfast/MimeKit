@@ -43,12 +43,12 @@ namespace UnitTests {
 			Environment.SetEnvironmentVariable ("GNUPGHOME", Path.GetFullPath ("."));
 			var dataDir = Path.Combine ("..", "..", "TestData", "openpgp");
 
-			using (var ctx = new GnuPGContext ()) {
+			using (var ctx = new DummyOpenPgpContext ()) {
 				using (var seckeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.sec")))
 					ctx.ImportSecretKeys (seckeys);
 
 				using (var pubkeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.pub")))
-					ctx.ImportKeys (pubkeys);
+					ctx.Import (pubkeys);
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up signing...";
 
-			using (var ctx = new GnuPGContext ()) {
+			using (var ctx = new DummyOpenPgpContext ()) {
 				var multipart = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha1, cleartext);
 				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
@@ -110,7 +110,7 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
-			using (var ctx = new GnuPGContext ()) {
+			using (var ctx = new DummyOpenPgpContext ()) {
 				var encrypted = MultipartEncrypted.Create (ctx, recipients, cleartext);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
@@ -135,7 +135,7 @@ namespace UnitTests {
 			var cleartext = new TextPart ("plain");
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
-			using (var ctx = new GnuPGContext ()) {
+			using (var ctx = new DummyOpenPgpContext ()) {
 				var encrypted = MultipartEncrypted.Create (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
 
 				//using (var file = File.Create ("pgp-signed-encrypted.asc"))

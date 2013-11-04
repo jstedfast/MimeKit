@@ -86,7 +86,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public abstract string GetMicAlgName (DigestAlgorithm micalg);
+		public abstract string GetMicAlgorithmName (DigestAlgorithm micalg);
 
 		/// <summary>
 		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
@@ -193,16 +193,16 @@ namespace MimeKit.Cryptography {
 		public abstract MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures);
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports the public certificates or keys from the specified stream.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="stream">The raw certificate or key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract void ImportKeys (Stream rawData);
+		public abstract void Import (Stream stream);
 
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
@@ -218,7 +218,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Exporting keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes);
+		public abstract MimePart Export (IEnumerable<MailboxAddress> mailboxes);
 
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
@@ -281,7 +281,7 @@ namespace MimeKit.Cryptography {
 			case "application/pgp-encrypted":
 			case "application/x-pgp-keys":
 			case "application/pgp-keys":
-				return new GnuPGContext ();
+				//return new GnuPGContext ();
 			default:
 				throw new NotSupportedException ();
 			}

@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
@@ -34,7 +35,7 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An OpenPGP cryptography context which can be used for PGP/MIME.
+	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
 	/// </summary>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
@@ -125,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public override string GetMicAlgName (DigestAlgorithm micalg)
+		public override string GetMicAlgorithmName (DigestAlgorithm micalg)
 		{
 			switch (micalg) {
 			case DigestAlgorithm.MD5:        return "pgp-md5";
@@ -298,14 +299,51 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the password for key.
+		/// </summary>
+		/// <returns>The password for key.</returns>
+		/// <param name="key">The key.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password request.
+		/// </exception>
+		protected abstract string GetPasswordForKey (PgpSecretKey key);
+
+		/// <summary>
 		/// Gets the private key from the specified secret key.
 		/// </summary>
 		/// <returns>The private key.</returns>
 		/// <param name="key">The secret key.</param>
-		protected virtual PgpPrivateKey GetPrivateKey (PgpSecretKey key)
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="key"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		protected PgpPrivateKey GetPrivateKey (PgpSecretKey key)
 		{
-			// FIXME: we need a way to query for a passphrase...
-			return key.ExtractPrivateKey ("no.secret".ToCharArray ());
+			int attempts = 0;
+			string password;
+
+			if (key == null)
+				throw new ArgumentNullException ("key");
+
+			do {
+				if ((password = GetPasswordForKey (key)) == null)
+					throw new OperationCanceledException ();
+
+				try {
+					return key.ExtractPrivateKey (password.ToCharArray ());
+				} catch (Exception ex) {
+					Debug.WriteLine ("Failed to extract secret key: {0}", ex);
+				}
+
+				attempts++;
+			} while (attempts < 3);
+
+			throw new UnauthorizedAccessException ();
 		}
 
 		/// <summary>
@@ -313,7 +351,16 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The private key.</returns>
 		/// <param name="keyId">The key identifier.</param>
-		protected virtual PgpPrivateKey GetPrivateKey (long keyId)
+		/// <exception cref="CertificateNotFoundException">
+		/// The specified secret key could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		protected PgpPrivateKey GetPrivateKey (long keyId)
 		{
 			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
@@ -328,7 +375,8 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the specified <see cref="DigestAlgorithm"/>. 
+		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the 
+		/// specified <see cref="DigestAlgorithm"/>. 
 		/// </summary>
 		/// <returns>The hash algorithm.</returns>
 		/// <param name="digestAlgo">The digest algorithm.</param>
@@ -336,7 +384,8 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="digestAlgo"/> is out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <paramref name="digestAlgo"/> does not have an equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> value.
+		/// <paramref name="digestAlgo"/> does not have an equivalent
+		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> value.
 		/// </exception>
 		public static HashAlgorithmTag GetHashAlgorithm (DigestAlgorithm digestAlgo)
 		{
@@ -379,6 +428,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
@@ -408,6 +463,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public ApplicationPgpSignature Sign (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, Stream content)
 		{
@@ -449,7 +510,8 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the equivalent <see cref="DigestAlgorithm"/> for the specified <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>. 
+		/// Gets the equivalent <see cref="DigestAlgorithm"/> for the specified
+		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>. 
 		/// </summary>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="hashAlgorithm">The hash algorithm.</param>
@@ -478,7 +540,8 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the equivalent <see cref="PublicKeyAlgorithm"/> for the specified <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>. 
+		/// Gets the equivalent <see cref="PublicKeyAlgorithm"/> for the specified
+		/// <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>. 
 		/// </summary>
 		/// <returns>The public-key algorithm.</returns>
 		/// <param name="algorithm">The public-key algorithm.</param>
@@ -725,6 +788,12 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A public key could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
@@ -764,6 +833,12 @@ namespace MimeKit.Cryptography {
 		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
@@ -854,13 +929,22 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt the specified encryptedData.
+		/// Decrypt an encrypted stream.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// The secret key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
@@ -997,23 +1081,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports public pgp keys from the specified stream.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="stream">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// <para>An error occurred while parsing the raw key-ring data</para>
 		/// <para>-or-</para>
 		/// <para>An error occured while saving the public key-ring bundle.</para>
 		/// </exception>
-		public override void ImportKeys (Stream rawData)
+		public override void Import (Stream stream)
 		{
-			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
 
-			using (var armored = new ArmoredInputStream (rawData)) {
+			using (var armored = new ArmoredInputStream (stream)) {
 				var imported = new PgpPublicKeyRingBundle (armored);
 				if (imported.Count == 0)
 					return;
@@ -1033,7 +1117,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports secret keys.
+		/// Imports secret pgp keys from the specified stream.
 		/// </summary>
 		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1069,9 +1153,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the keys for the specified mailboxes.
+		/// Exports the public keys for the specified mailboxes.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
@@ -1079,23 +1163,23 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
 		/// </exception>
-		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			return ExportKeys (GetEncryptionKeys (mailboxes));
+			return Export (GetEncryptionKeys (mailboxes));
 		}
 
 		/// <summary>
-		/// Exports the specified certificates.
+		/// Exports the specified public keys.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The keys.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
 		/// </exception>
-		public MimePart ExportKeys (IEnumerable<PgpPublicKey> keys)
+		public MimePart Export (IEnumerable<PgpPublicKey> keys)
 		{
 			if (keys == null)
 				throw new ArgumentNullException ("keys");
@@ -1103,18 +1187,18 @@ namespace MimeKit.Cryptography {
 			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
 			var bundle = new PgpPublicKeyRingBundle (keyrings);
 
-			return ExportKeys (bundle);
+			return Export (bundle);
 		}
 
 		/// <summary>
-		/// Exports the specified certificates.
+		/// Exports the specified public keys.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The keys.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
 		/// </exception>
-		public MimePart ExportKeys (PgpPublicKeyRingBundle keys)
+		public MimePart Export (PgpPublicKeyRingBundle keys)
 		{
 			if (keys == null)
 				throw new ArgumentNullException ("keys");

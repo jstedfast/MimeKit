@@ -103,7 +103,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public override string GetMicAlgName (DigestAlgorithm micalg)
+		public override string GetMicAlgorithmName (DigestAlgorithm micalg)
 		{
 			switch (micalg) {
 			case DigestAlgorithm.MD5:        return "md5";
@@ -630,17 +630,17 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports the pkcs12-encoded certificate and key data.
 		/// </summary>
-		/// <param name="rawData">The raw certificate data.</param>
-		/// <param name="password">The password to unlock the data.</param>
+		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public virtual void ImportPkcs12 (Stream rawData, string password)
+		public virtual void ImportPkcs12 (Stream stream, string password)
 		{
 			throw new NotSupportedException ();
 		}
@@ -657,7 +657,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		public override MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes)
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");

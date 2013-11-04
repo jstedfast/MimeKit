@@ -294,7 +294,7 @@ namespace UnitTests {
 			mailboxes.Add (self);
 
 			using (var ctx = CreateContext ()) {
-				var certsonly = ctx.ExportKeys (mailboxes);
+				var certsonly = ctx.Export (mailboxes);
 
 				Assert.IsInstanceOfType (typeof (ApplicationPkcs7Mime), certsonly, "The exported mime part is not of the expected type.");
 

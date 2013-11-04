@@ -52,6 +52,7 @@
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="PgpMimeTests.cs" />
+    <Compile Include="DummyOpenPgpContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

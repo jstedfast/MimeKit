@@ -170,34 +170,35 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports certificates (as from a certs-only application/pkcs-mime part)
+		/// from the specified stream.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="stream">The raw certificate data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred while importing.
 		/// </exception>
-		public override void ImportKeys (Stream rawData)
+		public override void Import (Stream stream)
 		{
-			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
 
-			byte[] content;
+			byte[] rawData;
 
-			if (rawData is MemoryBlockStream) {
-				content = ((MemoryBlockStream) rawData).ToArray ();
-			} else if (rawData is MemoryStream) {
-				content = ((MemoryStream) rawData).ToArray ();
+			if (stream is MemoryBlockStream) {
+				rawData = ((MemoryBlockStream) stream).ToArray ();
+			} else if (stream is MemoryStream) {
+				rawData = ((MemoryStream) stream).ToArray ();
 			} else {
 				using (var memory = new MemoryStream  ()) {
-					rawData.CopyTo (memory, 4096);
-					content = memory.ToArray ();
+					stream.CopyTo (memory, 4096);
+					rawData = memory.ToArray ();
 				}
 			}
 
-			var contentInfo = new ContentInfo (content);
+			var contentInfo = new ContentInfo (rawData);
 			var signed = new SignedCms (contentInfo, false);
 
 			CertificateStore.AddRange (signed.Certificates);
@@ -206,33 +207,41 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports the pkcs12-encoded certificate and key data.
 		/// </summary>
-		/// <param name="rawData">The raw certificate data.</param>
-		/// <param name="password">The password to unlock the data.</param>
+		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (Stream rawData, string password)
+		public override void ImportPkcs12 (Stream stream, string password)
 		{
-			if (rawData == null)
+			if (stream == null)
 				throw new ArgumentNullException ("rawData");
 
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			using (var memory = new MemoryStream ()) {
-				rawData.CopyTo (memory, 4096);
-				var buf = memory.ToArray ();
+			byte[] rawData;
 
-				var certs = new X509Certificate2Collection ();
-				certs.Import (buf, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
-
-				CertificateStore.AddRange (certs);
+			if (stream is MemoryBlockStream) {
+				rawData = ((MemoryBlockStream) stream).ToArray ();
+			} else if (stream is MemoryStream) {
+				rawData = ((MemoryStream) stream).ToArray ();
+			} else {
+				using (var memory = new MemoryStream ()) {
+					stream.CopyTo (memory, 4096);
+					rawData = memory.ToArray ();
+				}
 			}
+
+			var certs = new X509Certificate2Collection ();
+			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
+
+			CertificateStore.AddRange (certs);
 		}
 
 		/// <summary>

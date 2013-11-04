@@ -134,7 +134,7 @@ namespace MimeKit.Cryptography {
 
 				// sign the cleartext content
 				var signature = ctx.Sign (signer, digestAlgo, memory);
-				var micalg = ctx.GetMicAlgName (digestAlgo);
+				var micalg = ctx.GetMicAlgorithmName (digestAlgo);
 				var signed = new MultipartSigned ();
 
 				if (ctx.SignatureProtocol.StartsWith ("application/pgp-", StringComparison.Ordinal))
@@ -201,7 +201,7 @@ namespace MimeKit.Cryptography {
 					memory.Position = 0;
 
 					// sign the cleartext content
-					var micalg = ctx.GetMicAlgName (signer.DigestAlgorithm);
+					var micalg = ctx.GetMicAlgorithmName (signer.DigestAlgorithm);
 					var signature = ctx.Sign (signer, memory);
 					var signed = new MultipartSigned ();
 

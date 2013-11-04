@@ -1,5 +1,5 @@
 //
-// GnuPGContext.cs
+// DummyOpenPgpContext.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,34 +25,22 @@
 //
 
 using System;
-using System.IO;
 
-namespace MimeKit.Cryptography {
-	public abstract class GnuPGContext : OpenPgpContext
+using Org.BouncyCastle.Bcpg.OpenPgp;
+
+using MimeKit;
+using MimeKit.Cryptography;
+
+namespace UnitTests {
+	public class DummyOpenPgpContext : GnuPGContext
 	{
-		static readonly string PublicKeyRing;
-		static readonly string SecretKeyRing;
-
-		static GnuPGContext ()
+		public DummyOpenPgpContext ()
 		{
-			string gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
-
-			if (gnupg == null) {
-				if (Path.DirectorySeparatorChar == '\\') {
-					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
-					gnupg = Path.Combine (appData, "Roaming", "gnupg");
-				} else {
-					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
-					gnupg = Path.Combine (home, ".gnupg");
-				}
-			}
-
-			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
-			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
 		}
 
-		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
+		protected override string GetPasswordForKey (PgpSecretKey key)
 		{
+			return "no.secret";
 		}
 	}
 }
