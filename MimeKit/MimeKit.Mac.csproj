@@ -74,7 +74,6 @@
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TrustLevel.cs" />
-    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Cryptography\X509CertificateStore.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
