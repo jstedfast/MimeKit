@@ -8,7 +8,7 @@
     <ProjectGuid>{D8F8376B-D81D-4465-8942-CC5242EDB207}</ProjectGuid>
     <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>MimeKit.Mac</RootNamespace>
+    <RootNamespace>MimeKit</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <AssemblyName>MimeKit.Mac</AssemblyName>
   </PropertyGroup>
