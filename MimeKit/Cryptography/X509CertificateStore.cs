@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 
@@ -60,6 +61,21 @@ namespace MimeKit.Cryptography {
 		/// <value>The certificates.</value>
 		public ReadOnlyCollection<X509Certificate> Certificates {
 			get { return new ReadOnlyCollection<X509Certificate> (certs); }
+		}
+
+		/// <summary>
+		/// Gets the private key for the specified certificate.
+		/// </summary>
+		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public AsymmetricKeyParameter GetPrivateKey (X509Certificate certificate)
+		{
+			AsymmetricKeyParameter key;
+
+			if (!keys.TryGetValue (certificate, out key))
+				return null;
+
+			return key;
 		}
 
 		/// <summary>
@@ -131,9 +147,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import any certificates in the specified stream.
+		/// Import the certificate(s) from the specified stream.
 		/// </summary>
-		/// <param name="stream">Stream.</param>
+		/// <param name="stream">The stream to import.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -154,7 +170,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import any certificates in the specified file.
+		/// Import the certificate(s) from the specified file.
 		/// </summary>
 		/// <param name="fileName">The name of the file to import.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -176,7 +192,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import any certificates in the specified byte array.
+		/// Import the certificate(s) from the specified byte array.
 		/// </summary>
 		/// <param name="rawData">The raw certificate data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -189,6 +205,93 @@ namespace MimeKit.Cryptography {
 
 			using (var stream = new MemoryStream (rawData, false))
 				Import (stream);
+		}
+
+		/// <summary>
+		/// Import certificates and private keys from the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream to import.</param>
+		/// <param name="password">The password to unlock the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the stream.
+		/// </exception>
+		public void Import (Stream stream, string password)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			if (password == null)
+				throw new ArgumentNullException ("password");
+
+			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+
+			foreach (string alias in pkcs12.Aliases) {
+				if (pkcs12.IsKeyEntry (alias)) {
+					var chain = pkcs12.GetCertificateChain (alias);
+					var entry = pkcs12.GetKey (alias);
+
+					for (int i = 0; i < chain.Length; i++) {
+						if (unique.Add (chain[i].Certificate))
+							certs.Add (chain[i].Certificate);
+					}
+
+					keys.Add (chain[0].Certificate, entry.Key);
+				} else if (pkcs12.IsCertificateEntry (alias)) {
+					var entry = pkcs12.GetCertificate (alias);
+
+					if (unique.Add (entry.Certificate))
+						certs.Add (entry.Certificate);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Import certificates and private keys from the specified file.
+		/// </summary>
+		/// <param name="fileName">The name of the file to import.</param>
+		/// <param name="password">The password to unlock the file.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
+		public void Import (string fileName, string password)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName))
+				Import (stream, password);
+		}
+
+		/// <summary>
+		/// Import certificates and private keys from the specified byte array.
+		/// </summary>
+		/// <param name="rawData">The raw certificate data.</param>
+		/// <param name="password">The password to unlock the raw data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		public void Import (byte[] rawData, string password)
+		{
+			if (rawData == null)
+				throw new ArgumentNullException ("rawData");
+
+			using (var stream = new MemoryStream (rawData, false))
+				Import (stream, password);
 		}
 
 		#region IX509Store implementation

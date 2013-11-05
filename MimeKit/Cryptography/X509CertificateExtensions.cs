@@ -25,14 +25,13 @@
 //
 
 using System;
-using System.Linq;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
-	public static class X509CertificateExtensions
+	static class X509CertificateExtensions
 	{
 		public static string GetIssuerNameInfo (this X509Certificate cert, DerObjectIdentifier identifier)
 		{
