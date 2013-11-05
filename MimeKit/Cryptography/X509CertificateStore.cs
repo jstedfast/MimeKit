@@ -304,14 +304,14 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match criteria.</param>
 		public ICollection GetMatches (IX509Selector selector)
 		{
-			var list = new List<X509Certificate> ();
+			var matches = new List<X509Certificate> ();
 
 			foreach (var certificate in certs) {
 				if (selector == null || selector.Match (certificate))
-					list.Add (certificate);
+					matches.Add (certificate);
 			}
 
-			return list;
+			return matches;
 		}
 
 		#endregion

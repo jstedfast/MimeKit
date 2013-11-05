@@ -31,7 +31,7 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
-	static class X509CertificateExtensions
+	public static class X509CertificateExtensions
 	{
 		public static string GetIssuerNameInfo (this X509Certificate cert, DerObjectIdentifier identifier)
 		{

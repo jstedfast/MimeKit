@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Android", "MimeKit\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.iOS", "MimeKit\MimeKit.iOS.csproj", "{4C1288AD-12C8-4BF7-AED7-6C4DC539C856}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Mac", "MimeKit\MimeKit.Mac.csproj", "{D8F8376B-D81D-4465-8942-CC5242EDB207}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyCastle", "..\bc-csharp\crypto\BouncyCastle.csproj", "{4C235092-820C-4DEB-9074-D356FB797D8B}"
 EndProject
 Global
@@ -37,6 +39,10 @@ Global
 		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8F8376B-D81D-4465-8942-CC5242EDB207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8F8376B-D81D-4465-8942-CC5242EDB207}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8F8376B-D81D-4465-8942-CC5242EDB207}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8F8376B-D81D-4465-8942-CC5242EDB207}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MimeKit\MimeKit.csproj

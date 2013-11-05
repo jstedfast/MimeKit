@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography.Pkcs;
 
 // FIXME: Implement a Verify() method for parts tagged with signed-data?
 // FIXME: Implement a Decompress() method for parts tagged with compressed-data?

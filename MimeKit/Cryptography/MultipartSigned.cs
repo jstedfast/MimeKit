@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography.Pkcs;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;

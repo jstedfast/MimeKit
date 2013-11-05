@@ -27,13 +27,12 @@
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Store;
 
 using MimeKit.MacInterop;
-using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
 	public class MacSecureMimeContext : SecureMimeContext
