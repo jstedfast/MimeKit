@@ -162,7 +162,6 @@
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
     <Folder Include="Utils\" />
-    <Folder Include="MacInterop\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
