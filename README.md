@@ -122,7 +122,7 @@ Note: The Release build will generate the xml API documentation, but the Debug b
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
 
-    git clone git://github.com/<your-account>/MimeKit.git
+    git clone git@github.com/<your-account>/MimeKit.git
 
 Once you've got some changes that you'd like to submit upstream to the official MimeKit repository,
 simply send me a Pull Request and I will try to review your changes in a timely manner.
