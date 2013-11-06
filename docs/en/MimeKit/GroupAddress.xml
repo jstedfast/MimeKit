@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public sealed class GroupAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.GroupAddress&gt;" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit GroupAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.GroupAddress&gt;" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public abstract class MimeFilterBase : MimeKit.IO.Filters.IMimeFilter" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeFilterBase extends System.Object implements class MimeKit.IO.Filters.IMimeFilter" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public sealed class MimeMessage" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeMessage extends System.Object" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

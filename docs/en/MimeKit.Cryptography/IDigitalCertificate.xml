@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public interface IDigitalCertificate" />
   <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract IDigitalCertificate" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Interfaces />

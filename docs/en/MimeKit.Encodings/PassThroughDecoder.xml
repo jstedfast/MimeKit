@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public class PassThroughDecoder : MimeKit.Encodings.IMimeDecoder" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit PassThroughDecoder extends System.Object implements class MimeKit.Encodings.IMimeDecoder" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

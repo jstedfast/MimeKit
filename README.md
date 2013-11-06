@@ -135,4 +135,4 @@ Before opening a new issue, please search for existing issues to avoid submittin
 
 ## Documentation
 
-API documentation is build as part of the build process for Release builds.
+API documentation can be found in the docs/ directory.
