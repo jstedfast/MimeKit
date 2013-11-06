@@ -1,0 +1,50 @@
+<Type Name="ApplicationPgpSignature" FullName="MimeKit.Cryptography.ApplicationPgpSignature">
+  <TypeSignature Language="C#" Value="public class ApplicationPgpSignature : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPgpSignature extends MimeKit.MimePart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.MimePart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ApplicationPgpSignature (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ApplicationPgpSignature (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

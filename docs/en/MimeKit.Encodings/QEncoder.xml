@@ -1,0 +1,159 @@
+<Type Name="QEncoder" FullName="MimeKit.Encodings.QEncoder">
+  <TypeSignature Language="C#" Value="public class QEncoder : MimeKit.Encodings.IMimeEncoder" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit QEncoder extends System.Object implements class MimeKit.Encodings.IMimeEncoder" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>MimeKit.Encodings.IMimeEncoder</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public QEncoder (MimeKit.Encodings.QEncodeMode mode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Encodings.QEncodeMode mode) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="mode" Type="MimeKit.Encodings.QEncodeMode" />
+      </Parameters>
+      <Docs>
+        <param name="mode">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public MimeKit.Encodings.IMimeEncoder Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Encodings.IMimeEncoder Clone() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Encodings.IMimeEncoder</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encode">
+      <MemberSignature Language="C#" Value="public int Encode (byte[] input, int startIndex, int length, byte[] output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Encode(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="output" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="input">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="length">To be added.</param>
+        <param name="output">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding Encoding { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EstimateOutputLength">
+      <MemberSignature Language="C#" Value="public int EstimateOutputLength (int inputLength);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 EstimateOutputLength(int32 inputLength) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="inputLength" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="inputLength">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Flush">
+      <MemberSignature Language="C#" Value="public int Flush (byte[] input, int startIndex, int length, byte[] output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Flush(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="output" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="input">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="length">To be added.</param>
+        <param name="output">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reset">
+      <MemberSignature Language="C#" Value="public void Reset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

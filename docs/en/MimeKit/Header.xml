@@ -1,0 +1,428 @@
+<Type Name="Header" FullName="MimeKit.Header">
+  <TypeSignature Language="C#" Value="public sealed class Header" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit Header extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (MimeKit.HeaderId id, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.HeaderId id, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="id" Type="MimeKit.HeaderId" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="id">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (string field, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string field, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="field" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="field">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding charset, MimeKit.HeaderId id, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, valuetype MimeKit.HeaderId id, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="id" Type="MimeKit.HeaderId" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">To be added.</param>
+        <param name="id">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding charset, string field, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, string field, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="field" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">To be added.</param>
+        <param name="field">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Field">
+      <MemberSignature Language="C#" Value="public string Field { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Field" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public MimeKit.HeaderId Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.HeaderId Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Offset">
+      <MemberSignature Language="C#" Value="public Nullable&lt;long&gt; Offset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int64&gt; Offset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Nullable&lt;System.Int64&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RawValue">
+      <MemberSignature Language="C#" Value="public byte[] RawValue { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] RawValue" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetValue">
+      <MemberSignature Language="C#" Value="public void SetValue (System.Text.Encoding charset, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetValue(class System.Text.Encoding charset, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ToString">
+      <MemberSignature Language="C#" Value="public override string ToString ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (string text, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="text">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="buffer">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, string text, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="text">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="buffer">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, int length, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="length">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, int length, out MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="buffer">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="length">To be added.</param>
+        <param name="header">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Unfold">
+      <MemberSignature Language="C#" Value="public static string Unfold (string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Unfold(string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="text">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Value">
+      <MemberSignature Language="C#" Value="public string Value { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Value" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

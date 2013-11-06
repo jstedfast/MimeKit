@@ -1,0 +1,444 @@
+<Type Name="MimeParser" FullName="MimeKit.MimeParser">
+  <TypeSignature Language="C#" Value="public sealed class MimeParser" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CurrentStreamOffset">
+      <MemberSignature Language="C#" Value="public long CurrentStreamOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 CurrentStreamOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsEndOfStream">
+      <MemberSignature Language="C#" Value="public bool IsEndOfStream { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsEndOfStream" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MboxMarker">
+      <MemberSignature Language="C#" Value="public string MboxMarker { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string MboxMarker" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MboxMarkerOffset">
+      <MemberSignature Language="C#" Value="public long MboxMarkerOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 MboxMarkerOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseEntity">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity ParseEntity ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity ParseEntity() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseMessage">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeMessage ParseMessage ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="stream">To be added.</param>
+        <param name="format">To be added.</param>
+        <param name="persistent">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

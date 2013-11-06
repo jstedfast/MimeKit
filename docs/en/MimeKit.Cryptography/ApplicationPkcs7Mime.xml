@@ -1,0 +1,248 @@
+<Type Name="ApplicationPkcs7Mime" FullName="MimeKit.Cryptography.ApplicationPkcs7Mime">
+  <TypeSignature Language="C#" Value="public class ApplicationPkcs7Mime : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPkcs7Mime extends MimeKit.MimePart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.MimePart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ApplicationPkcs7Mime (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ApplicationPkcs7Mime (MimeKit.Cryptography.SecureMimeType type, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Cryptography.SecureMimeType type, class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="type" Type="MimeKit.Cryptography.SecureMimeType" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="type">To be added.</param>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decrypt">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Decrypt ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decrypt">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Decrypt (MimeKit.Cryptography.SecureMimeContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.SecureMimeContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decrypt">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Decrypt (MimeKit.Cryptography.SecureMimeContext ctx, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <param name="signatures">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt (MimeKit.Cryptography.SecureMimeContext ctx, MimeKit.Cryptography.CmsRecipientCollection recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="recipients" Type="MimeKit.Cryptography.CmsRecipientCollection" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt (MimeKit.Cryptography.SecureMimeContext ctx, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public void Import (MimeKit.Cryptography.SecureMimeContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class MimeKit.Cryptography.SecureMimeContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SecureMimeType">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SecureMimeType SecureMimeType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeType SecureMimeType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt (MimeKit.Cryptography.SecureMimeContext ctx, MimeKit.Cryptography.CmsSigner signer, MimeKit.Cryptography.CmsRecipientCollection recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.Cryptography.CmsSigner signer, class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="signer" Type="MimeKit.Cryptography.CmsSigner" />
+        <Parameter Name="recipients" Type="MimeKit.Cryptography.CmsRecipientCollection" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <param name="signer">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt (MimeKit.Cryptography.SecureMimeContext ctx, MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">To be added.</param>
+        <param name="signer">To be added.</param>
+        <param name="digestAlgo">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="entity">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

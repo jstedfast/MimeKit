@@ -1,0 +1,294 @@
+<Type Name="Rfc2047" FullName="MimeKit.Utils.Rfc2047">
+  <TypeSignature Language="C#" Value="public static class Rfc2047" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit Rfc2047 extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="DecodePhrase">
+      <MemberSignature Language="C#" Value="public static string DecodePhrase (byte[] phrase);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(unsigned int8[] phrase) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="phrase" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="phrase">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodePhrase">
+      <MemberSignature Language="C#" Value="public static string DecodePhrase (MimeKit.ParserOptions options, byte[] phrase);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(class MimeKit.ParserOptions options, unsigned int8[] phrase) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="phrase" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="phrase">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodePhrase">
+      <MemberSignature Language="C#" Value="public static string DecodePhrase (byte[] phrase, int startIndex, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(unsigned int8[] phrase, int32 startIndex, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="phrase" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="phrase">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="count">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodePhrase">
+      <MemberSignature Language="C#" Value="public static string DecodePhrase (MimeKit.ParserOptions options, byte[] phrase, int startIndex, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(class MimeKit.ParserOptions options, unsigned int8[] phrase, int32 startIndex, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="phrase" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="phrase">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="count">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodeText">
+      <MemberSignature Language="C#" Value="public static string DecodeText (byte[] text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(unsigned int8[] text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="text">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodeText">
+      <MemberSignature Language="C#" Value="public static string DecodeText (MimeKit.ParserOptions options, byte[] text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(class MimeKit.ParserOptions options, unsigned int8[] text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="text">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodeText">
+      <MemberSignature Language="C#" Value="public static string DecodeText (byte[] text, int startIndex, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(unsigned int8[] text, int32 startIndex, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="text">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="count">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DecodeText">
+      <MemberSignature Language="C#" Value="public static string DecodeText (MimeKit.ParserOptions options, byte[] text, int startIndex, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(class MimeKit.ParserOptions options, unsigned int8[] text, int32 startIndex, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="text">To be added.</param>
+        <param name="startIndex">To be added.</param>
+        <param name="count">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncodePhrase">
+      <MemberSignature Language="C#" Value="public static byte[] EncodePhrase (System.Text.Encoding charset, string phrase);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodePhrase(class System.Text.Encoding charset, string phrase) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="phrase" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">To be added.</param>
+        <param name="phrase">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncodePhrase">
+      <MemberSignature Language="C#" Value="public static byte[] EncodePhrase (MimeKit.FormatOptions options, System.Text.Encoding charset, string phrase);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodePhrase(class MimeKit.FormatOptions options, class System.Text.Encoding charset, string phrase) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="phrase" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="charset">To be added.</param>
+        <param name="phrase">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncodeText">
+      <MemberSignature Language="C#" Value="public static byte[] EncodeText (System.Text.Encoding charset, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodeText(class System.Text.Encoding charset, string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">To be added.</param>
+        <param name="text">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncodeText">
+      <MemberSignature Language="C#" Value="public static byte[] EncodeText (MimeKit.FormatOptions options, System.Text.Encoding charset, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodeText(class MimeKit.FormatOptions options, class System.Text.Encoding charset, string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="options">To be added.</param>
+        <param name="charset">To be added.</param>
+        <param name="text">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

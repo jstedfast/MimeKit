@@ -1,0 +1,122 @@
+<Type Name="X509CertificateExtensions" FullName="MimeKit.Cryptography.X509CertificateExtensions">
+  <TypeSignature Language="C#" Value="public static class X509CertificateExtensions" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit X509CertificateExtensions extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="GetCommonName">
+      <MemberSignature Language="C#" Value="public static string GetCommonName (this Org.BouncyCastle.X509.X509Certificate cert);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetCommonName(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+      </Parameters>
+      <Docs>
+        <param name="cert">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetIssuerNameInfo">
+      <MemberSignature Language="C#" Value="public static string GetIssuerNameInfo (this Org.BouncyCastle.X509.X509Certificate cert, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIssuerNameInfo(class Org.BouncyCastle.X509.X509Certificate cert, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
+      </Parameters>
+      <Docs>
+        <param name="cert">To be added.</param>
+        <param name="identifier">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSubjectEmail">
+      <MemberSignature Language="C#" Value="public static string GetSubjectEmail (this Org.BouncyCastle.X509.X509Certificate cert);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectEmail(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+      </Parameters>
+      <Docs>
+        <param name="cert">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSubjectName">
+      <MemberSignature Language="C#" Value="public static string GetSubjectName (this Org.BouncyCastle.X509.X509Certificate cert);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectName(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+      </Parameters>
+      <Docs>
+        <param name="cert">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSubjectNameInfo">
+      <MemberSignature Language="C#" Value="public static string GetSubjectNameInfo (this Org.BouncyCastle.X509.X509Certificate cert, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectNameInfo(class Org.BouncyCastle.X509.X509Certificate cert, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
+      </Parameters>
+      <Docs>
+        <param name="cert">To be added.</param>
+        <param name="identifier">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

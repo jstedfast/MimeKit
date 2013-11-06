@@ -1,0 +1,706 @@
+<Type Name="OpenPgpContext" FullName="MimeKit.Cryptography.OpenPgpContext">
+  <TypeSignature Language="C#" Value="public abstract class OpenPgpContext : MimeKit.Cryptography.CryptographyContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit OpenPgpContext extends MimeKit.Cryptography.CryptographyContext" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.Cryptography.CryptographyContext</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected OpenPgpContext (string pubring, string secring);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string pubring, string secring) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="pubring" Type="System.String" />
+        <Parameter Name="secring" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="pubring">To be added.</param>
+        <param name="secring">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decrypt">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimeEntity Decrypt (System.IO.Stream encryptedData, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimeEntity Decrypt(class System.IO.Stream encryptedData, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="encryptedData" Type="System.IO.Stream" />
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="encryptedData">To be added.</param>
+        <param name="signatures">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimePart Encrypt (System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimePart Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="recipients">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public MimeKit.MimePart Encrypt (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimePart Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="recipients">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncryptionProtocol">
+      <MemberSignature Language="C#" Value="public override string EncryptionProtocol { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string EncryptionProtocol" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Export">
+      <MemberSignature Language="C#" Value="public MimeKit.MimePart Export (Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle keys);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimePart Export(class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle keys) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="keys" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle" />
+      </Parameters>
+      <Docs>
+        <param name="keys">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Export">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimePart Export (System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; mailboxes);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimePart Export(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; mailboxes) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailboxes" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="mailboxes">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Export">
+      <MemberSignature Language="C#" Value="public MimeKit.MimePart Export (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; keys);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimePart Export(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; keys) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="keys" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="keys">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDigestAlgorithm">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm(valuetype Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="hashAlgorithm" Type="Org.BouncyCastle.Bcpg.HashAlgorithmTag" />
+      </Parameters>
+      <Docs>
+        <param name="hashAlgorithm">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDigestAlgorithm">
+      <MemberSignature Language="C#" Value="public override MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm (string micalg);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance valuetype MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm(string micalg) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="micalg" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="micalg">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEncryptionKey">
+      <MemberSignature Language="C#" Value="protected virtual Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey GetEncryptionKey (MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey GetEncryptionKey(class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEncryptionKeys">
+      <MemberSignature Language="C#" Value="protected virtual System.Collections.Generic.IList&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; GetEncryptionKeys (System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; mailboxes);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; GetEncryptionKeys(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; mailboxes) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailboxes" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="mailboxes">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetHashAlgorithm">
+      <MemberSignature Language="C#" Value="public static Org.BouncyCastle.Bcpg.HashAlgorithmTag GetHashAlgorithm (MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype Org.BouncyCastle.Bcpg.HashAlgorithmTag GetHashAlgorithm(valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.HashAlgorithmTag</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="digestAlgo">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetMicAlgorithmName">
+      <MemberSignature Language="C#" Value="public override string GetMicAlgorithmName (MimeKit.Cryptography.DigestAlgorithm micalg);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string GetMicAlgorithmName(valuetype MimeKit.Cryptography.DigestAlgorithm micalg) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="micalg" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="micalg">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPasswordForKey">
+      <MemberSignature Language="C#" Value="protected abstract string GetPasswordForKey (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey key);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance string GetPasswordForKey(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey key) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPrivateKey">
+      <MemberSignature Language="C#" Value="protected Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey GetPrivateKey (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey key);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey GetPrivateKey(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey key) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPrivateKey">
+      <MemberSignature Language="C#" Value="protected Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey GetPrivateKey (long keyId);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey GetPrivateKey(int64 keyId) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPrivateKey</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="keyId" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="keyId">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPublicKeyAlgorithm">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.PublicKeyAlgorithm GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag algorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype MimeKit.Cryptography.PublicKeyAlgorithm GetPublicKeyAlgorithm(valuetype Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag algorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSigningKey">
+      <MemberSignature Language="C#" Value="protected virtual Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey GetSigningKey (MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey GetSigningKey(class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public override void Import (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ImportSecretKeys">
+      <MemberSignature Language="C#" Value="public virtual void ImportSecretKeys (System.IO.Stream rawData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ImportSecretKeys(class System.IO.Stream rawData) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="rawData" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="rawData">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyExchangeProtocol">
+      <MemberSignature Language="C#" Value="public override string KeyExchangeProtocol { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string KeyExchangeProtocol" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PublicKeyRingBundle">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle PublicKeyRingBundle { get; protected set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle PublicKeyRingBundle" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PublicKeyRingPath">
+      <MemberSignature Language="C#" Value="protected string PublicKeyRingPath { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string PublicKeyRingPath" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SavePublicKeyRingBundle">
+      <MemberSignature Language="C#" Value="protected void SavePublicKeyRingBundle ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SavePublicKeyRingBundle() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SaveSecretKeyRingBundle">
+      <MemberSignature Language="C#" Value="protected void SaveSecretKeyRingBundle ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SaveSecretKeyRingBundle() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SecretKeyRingBundle">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKeyRingBundle SecretKeyRingBundle { get; protected set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKeyRingBundle SecretKeyRingBundle" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKeyRingBundle</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SecretKeyRingPath">
+      <MemberSignature Language="C#" Value="protected string SecretKeyRingPath { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string SecretKeyRingPath" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimePart Sign (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimePart Sign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">To be added.</param>
+        <param name="digestAlgo">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.ApplicationPgpSignature Sign (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.ApplicationPgpSignature Sign(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPgpSignature</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="hashAlgorithm" Type="Org.BouncyCastle.Bcpg.HashAlgorithmTag" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">To be added.</param>
+        <param name="hashAlgorithm">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimePart SignAndEncrypt (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimePart SignAndEncrypt(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">To be added.</param>
+        <param name="digestAlgo">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public MimeKit.MimePart SignAndEncrypt (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimePart SignAndEncrypt(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="hashAlgorithm" Type="Org.BouncyCastle.Bcpg.HashAlgorithmTag" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">To be added.</param>
+        <param name="hashAlgorithm">To be added.</param>
+        <param name="recipients">To be added.</param>
+        <param name="content">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignatureProtocol">
+      <MemberSignature Language="C#" Value="public override string SignatureProtocol { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string SignatureProtocol" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Supports">
+      <MemberSignature Language="C#" Value="public override bool Supports (string protocol);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool Supports(string protocol) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="protocol" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="protocol">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Verify">
+      <MemberSignature Language="C#" Value="public override System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; Verify (System.IO.Stream content, System.IO.Stream signatureData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="content" Type="System.IO.Stream" />
+        <Parameter Name="signatureData" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="content">To be added.</param>
+        <param name="signatureData">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

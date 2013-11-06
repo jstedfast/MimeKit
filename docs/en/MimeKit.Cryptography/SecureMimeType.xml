@@ -1,0 +1,87 @@
+<Type Name="SecureMimeType" FullName="MimeKit.Cryptography.SecureMimeType">
+  <TypeSignature Language="C#" Value="public enum SecureMimeType" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed SecureMimeType extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="CertsOnly">
+      <MemberSignature Language="C#" Value="CertsOnly" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeType CertsOnly = int32(3)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="CompressedData">
+      <MemberSignature Language="C#" Value="CompressedData" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeType CompressedData = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="EnvelopedData">
+      <MemberSignature Language="C#" Value="EnvelopedData" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeType EnvelopedData = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="SignedData">
+      <MemberSignature Language="C#" Value="SignedData" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeType SignedData = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Unknown">
+      <MemberSignature Language="C#" Value="Unknown" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeType Unknown = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
