@@ -38,14 +38,13 @@
         <Attribute>
           <AttributeName>System.Runtime.InteropServices.Guid("2fe79b66-d107-45da-9493-175f59c4a53c")</AttributeName>
         </Attribute>
-        <Attribute>
-          <AttributeName>System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.0", FrameworkDisplayName="")</AttributeName>
-        </Attribute>
       </Attributes>
     </Assembly>
   </Assemblies>
-  <Remarks>To be added.</Remarks>
-  <Copyright>To be added.</Copyright>
+  <Remarks>
+    <para>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP/MIME messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.</para>
+  </Remarks>
+  <Copyright>Copyright (c) 2013 Jeffrey Stedfast</Copyright>
   <Types>
     <Namespace Name="MimeKit">
       <Type Name="ContentDisposition" Kind="Class" />
@@ -152,7 +151,7 @@
       <Type Name="Rfc2047" Kind="Class" />
     </Namespace>
   </Types>
-  <Title>MimeKit.Mac</Title>
+  <Title>MimeKit</Title>
   <ExtensionMethods>
     <ExtensionMethod>
       <Targets>

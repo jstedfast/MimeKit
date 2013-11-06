@@ -1,6 +1,6 @@
 <Namespace Name="MimeKit.IO">
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Custom <see cref="T:System.IO.Stream"/> classes that MimeKit uses.</summary>
     <remarks>To be added.</remarks>
   </Docs>
 </Namespace>

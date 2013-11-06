@@ -91,6 +91,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
 		/// </summary>
+		/// <returns>A new <see cref="UUDecoder"/> with identical state.</returns>
 		public UUDecoder () : this (false)
 		{
 		}
@@ -388,9 +389,9 @@ namespace MimeKit.Encodings {
 		/// a valid range in the <paramref name="input"/> byte array.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="output"/> is not large enough to contain the decoded content.
-		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
 		public int Decode (byte[] input, int startIndex, int length, byte[] output)
 		{

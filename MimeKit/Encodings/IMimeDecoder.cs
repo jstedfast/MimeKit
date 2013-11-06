@@ -43,6 +43,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="IMimeDecoder"/> with its current state.
 		/// </summary>
+		/// <returns>A new <see cref="IMimeDecoder"/> with identical state.</returns>
 		IMimeDecoder Clone ();
 
 		/// <summary>
@@ -101,9 +102,9 @@ namespace MimeKit.Encodings {
 		/// a valid range in the <paramref name="input"/> byte array.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="output"/> is not large enough to contain the decoded content.
-		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
 		int Decode (byte[] input, int startIndex, int length, byte[] output);
 

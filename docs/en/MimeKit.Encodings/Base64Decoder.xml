@@ -54,7 +54,7 @@
         <summary>
             Clone the <see cref="T:MimeKit.Encodings.Base64Decoder" /> with its current state.
             </summary>
-        <returns>To be added.</returns>
+        <returns>A new <see cref="T:MimeKit.Encodings.Base64Decoder" /> with identical state.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -140,10 +140,11 @@
             a valid range in the <paramref name="input" /> byte array.
             </exception>
         <exception cref="T:System.ArgumentException">
-          <paramref name="output" /> is not large enough to contain the decoded content.
-            Use the <see cref="M:MimeKit.Encodings.Base64Decoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
-            necessary length of the <paramref name="output" /> byte array.
-            </exception>
+          <para>
+            <paramref name="output" /> is not large enough to contain the encoded content.</para>
+          <para>Use the <see cref="M:MimeKit.Encodings.Base64Decoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+            necessary length of the <paramref name="output" /> byte array.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
