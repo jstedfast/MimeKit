@@ -94,8 +94,8 @@ flexibility in that I'd be able use Generics and create a more .NET-compliant AP
 
 First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
 
-    git clone git://github.com/jstedfast/MimeKit.git
-    git clone git://github.com/jstedfast/bc-csharp.git
+    git clone https://github.com/jstedfast/MimeKit.git
+    git clone https://github.com/jstedfast/bc-csharp.git
 
 Currently, MimeKit depends on the visual-studio-2010 branch of bc-csharp for the Visual Studio 2010 project
 files that I've added (to replace the Visual Studio 2003 project files). To switch to that branch,
