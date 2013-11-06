@@ -1,0 +1,131 @@
+<Type Name="TrustLevel" FullName="MimeKit.Cryptography.TrustLevel">
+  <TypeSignature Language="C#" Value="public enum TrustLevel" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TrustLevel extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            The trust level of a certificate or key.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Expired">
+      <MemberSignature Language="C#" Value="Expired" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Expired = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The trust has expired.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Fully">
+      <MemberSignature Language="C#" Value="Fully" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Fully = int32(5)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Fully trust this certificate or key.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Marginal">
+      <MemberSignature Language="C#" Value="Marginal" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Marginal = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Marginally trust this certificate or key.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Never">
+      <MemberSignature Language="C#" Value="Never" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Never = int32(3)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Never trust this certificate or key.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="None">
+      <MemberSignature Language="C#" Value="None" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel None = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            No trust level specified.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Ultimate">
+      <MemberSignature Language="C#" Value="Ultimate" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Ultimate = int32(6)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The ultimate level of trust for a certificate or key.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Undefined">
+      <MemberSignature Language="C#" Value="Undefined" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.TrustLevel Undefined = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            An unspecified trust.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

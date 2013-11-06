@@ -1,0 +1,137 @@
+<Type Name="PassThroughFilter" FullName="MimeKit.IO.Filters.PassThroughFilter">
+  <TypeSignature Language="C#" Value="public class PassThroughFilter : MimeKit.IO.Filters.IMimeFilter" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit PassThroughFilter extends System.Object implements class MimeKit.IO.Filters.IMimeFilter" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>MimeKit.IO.Filters.IMimeFilter</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            A filter that simply passes data through without any processing.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public PassThroughFilter ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.PassThroughFilter" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Filter">
+      <MemberSignature Language="C#" Value="public byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="outputIndex" Type="System.Int32&amp;" RefType="out" />
+        <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The number of bytes of the input to filter.
+            </param>
+        <param name="outputIndex">
+            The starting index of the output in the returned buffer.
+            </param>
+        <param name="outputLength">
+            The length of the output buffer.
+            </param>
+        <summary>
+            Filters the specified input.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Flush">
+      <MemberSignature Language="C#" Value="public byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] Flush(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="outputIndex" Type="System.Int32&amp;" RefType="out" />
+        <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The number of bytes of the input to filter.
+            </param>
+        <param name="outputIndex">
+            The starting index of the output in the returned buffer.
+            </param>
+        <param name="outputLength">
+            The length of the output buffer.
+            </param>
+        <summary>
+            Filters the specified input, flushing all internally buffered data to the output.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reset">
+      <MemberSignature Language="C#" Value="public void Reset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Resets the filter.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

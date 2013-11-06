@@ -1,0 +1,645 @@
+<Type Name="MimeParser" FullName="MimeKit.MimeParser">
+  <TypeSignature Language="C#" Value="public sealed class MimeParser" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A MIME parser which can be used to parse <see cref="T:MimeKit.MimeMessage" />s and
+            <see cref="T:MimeKit.MimeEntity" />s from arbitrary streams.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeParser (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="CurrentStreamOffset">
+      <MemberSignature Language="C#" Value="public long CurrentStreamOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 CurrentStreamOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current stream offset that the parser is at.
+            </summary>
+        <value>The stream offset.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsEndOfStream">
+      <MemberSignature Language="C#" Value="public bool IsEndOfStream { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsEndOfStream" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether the parser has reached the end of the input stream.
+            </summary>
+        <value>
+          <c>true</c> if this parser has reached the end of the input stream;
+            otherwise, <c>false</c>.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MboxMarker">
+      <MemberSignature Language="C#" Value="public string MboxMarker { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string MboxMarker" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the most recent mbox marker.
+            </summary>
+        <value>The mbox marker.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MboxMarkerOffset">
+      <MemberSignature Language="C#" Value="public long MboxMarkerOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 MboxMarkerOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the most recent mbox marker offset.
+            </summary>
+        <value>The mbox marker offset.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseEntity">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity ParseEntity ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity ParseEntity() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Parses an entity from the stream.
+            </summary>
+        <returns>The parsed entity.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseMessage">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeMessage ParseMessage ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Parses a message from the stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStream">
+      <MemberSignature Language="C#" Value="public void SetStream (MimeKit.ParserOptions options, System.IO.Stream stream, MimeKit.MimeFormat format, bool persistent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="format" Type="MimeKit.MimeFormat" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

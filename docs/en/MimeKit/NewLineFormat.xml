@@ -1,0 +1,51 @@
+<Type Name="NewLineFormat" FullName="MimeKit.NewLineFormat">
+  <TypeSignature Language="C#" Value="public enum NewLineFormat" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed NewLineFormat extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            A New-Line format.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Dos">
+      <MemberSignature Language="C#" Value="Dos" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.NewLineFormat Dos = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.NewLineFormat</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The DOS New-Line format (<c>"\r\n"</c>).
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Unix">
+      <MemberSignature Language="C#" Value="Unix" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.NewLineFormat Unix = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.NewLineFormat</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The Unix New-Line format (<c>"\n"</c>)
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

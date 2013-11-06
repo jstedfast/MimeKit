@@ -1,0 +1,106 @@
+<Type Name="FormatOptions" FullName="MimeKit.FormatOptions">
+  <TypeSignature Language="C#" Value="public sealed class FormatOptions" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed FormatOptions extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            Format options for serializing various MimeKit objects.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public FormatOptions ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public MimeKit.FormatOptions Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.FormatOptions Clone() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.FormatOptions</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Clones an instance of <see cref="T:MimeKit.FormatOptions" />.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Default">
+      <MemberSignature Language="C#" Value="public static readonly MimeKit.FormatOptions Default;" />
+      <MemberSignature Language="ILAsm" Value=".field public static initonly class MimeKit.FormatOptions Default" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.FormatOptions</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The default formatting options.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MaxLineLength">
+      <MemberSignature Language="C#" Value="public int MaxLineLength { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 MaxLineLength" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the maximum line length used by the encoders. The encoders
+            use this value to determine where to place line breaks.
+            </summary>
+        <value>The maximum line length.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewLineFormat">
+      <MemberSignature Language="C#" Value="public MimeKit.NewLineFormat NewLineFormat { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.NewLineFormat NewLineFormat" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.NewLineFormat</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the new-line format.
+            </summary>
+        <value>The new-line format.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
