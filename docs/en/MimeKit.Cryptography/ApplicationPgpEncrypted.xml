@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public class ApplicationPgpEncrypted : MimeKit.MimePart" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPgpEncrypted extends MimeKit.MimePart" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

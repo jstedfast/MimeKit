@@ -1,8 +1,8 @@
-<Type Name="MacSecureMimeContext" FullName="MimeKit.Cryptography.MacSecureMimeContext">
-  <TypeSignature Language="C#" Value="public class MacSecureMimeContext : MimeKit.Cryptography.SecureMimeContext" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MacSecureMimeContext extends MimeKit.Cryptography.SecureMimeContext" />
+<Type Name="WindowsSecureMimeContext" FullName="MimeKit.Cryptography.WindowsSecureMimeContext">
+  <TypeSignature Language="C#" Value="public class WindowsSecureMimeContext : MimeKit.Cryptography.SecureMimeContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit WindowsSecureMimeContext extends MimeKit.Cryptography.SecureMimeContext" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -15,7 +15,7 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public MacSecureMimeContext ();" />
+      <MemberSignature Language="C#" Value="public WindowsSecureMimeContext ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
@@ -28,20 +28,34 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public MacSecureMimeContext (string path, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string path, string password) cil managed" />
+      <MemberSignature Language="C#" Value="public WindowsSecureMimeContext (System.Security.Cryptography.X509Certificates.X509Store store);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Security.Cryptography.X509Certificates.X509Store store) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
-        <Parameter Name="password" Type="System.String" />
+        <Parameter Name="store" Type="System.Security.Cryptography.X509Certificates.X509Store" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="password">To be added.</param>
+        <param name="store">To be added.</param>
         <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CertificateStore">
+      <MemberSignature Language="C#" Value="public System.Security.Cryptography.X509Certificates.X509Store CertificateStore { get; protected set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Security.Cryptography.X509Certificates.X509Store CertificateStore" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Security.Cryptography.X509Certificates.X509Store</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -59,12 +73,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">If <c>true</c>, this method is being called by
-            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose(System.Boolean)" />;
-            otherwise it is being called by the finalizer.</param>
-        <summary>
-            Releases all resources used by the <see cref="T:MimeKit.Cryptography.MacSecureMimeContext" /> object.
-            </summary>
+        <param name="disposing">To be added.</param>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -82,11 +92,9 @@
         <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
       </Parameters>
       <Docs>
-        <param name="selector">The search criteria for the certificate.</param>
-        <summary>
-            Gets the X.509 certificate based on the selector.
-            </summary>
-        <returns>The certificate on success; otherwise <c>null</c>.</returns>
+        <param name="selector">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -104,15 +112,10 @@
         <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
       </Parameters>
       <Docs>
-        <param name="mailbox">The mailbox.</param>
-        <summary>
-            Gets the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> for the specified mailbox.
-            </summary>
-        <returns>A <see cref="T:MimeKit.Cryptography.CmsRecipient" />.</returns>
+        <param name="mailbox">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
         <remarks>To be added.</remarks>
-        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
-            A certificate for the specified <paramref name="mailbox" /> could not be found.
-            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetCmsSigner">
@@ -130,16 +133,11 @@
         <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="mailbox">The mailbox.</param>
-        <param name="digestAlgo">The preferred digest algorithm.</param>
-        <summary>
-            Gets the <see cref="T:MimeKit.Cryptography.CmsSigner" /> for the specified mailbox.
-            </summary>
-        <returns>A <see cref="T:MimeKit.Cryptography.CmsSigner" />.</returns>
+        <param name="mailbox">To be added.</param>
+        <param name="digestAlgo">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
         <remarks>To be added.</remarks>
-        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
-            A certificate for the specified <paramref name="mailbox" /> could not be found.
-            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -156,11 +154,9 @@
         <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
       </Parameters>
       <Docs>
-        <param name="selector">The search criteria for the private key.</param>
-        <summary>
-            Gets the private key based on the provided selector.
-            </summary>
-        <returns>The private key on success; otherwise <c>null</c>.</returns>
+        <param name="selector">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -178,18 +174,9 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">The raw key data.</param>
-        <summary>
-            Imports certificates (as from a certs-only application/pkcs-mime part)
-            from the specified stream.
-            </summary>
+        <param name="stream">To be added.</param>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <paramref name="stream" /> is <c>null</c>.
-            </exception>
-        <exception cref="T:System.NotSupportedException">
-            Importing keys is not supported by this cryptography context.
-            </exception>
       </Docs>
     </Member>
     <Member MemberName="ImportPkcs12">
@@ -207,22 +194,10 @@
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="stream">The raw certificate data.</param>
-        <param name="password">The password to unlock the stream.</param>
-        <summary>
-            Imports the pkcs12-encoded certificate and key data.
-            </summary>
+        <param name="stream">To be added.</param>
+        <param name="password">To be added.</param>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="stream" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="password" /> is <c>null</c>.</para>
-        </exception>
-        <exception cref="T:System.NotSupportedException">
-            Importing keys is not supported by this cryptography context.
-            </exception>
       </Docs>
     </Member>
   </Members>

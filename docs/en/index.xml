@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit.Mac" Version="0.11.0.0">
+    <Assembly Name="MimeKit" Version="0.11.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
@@ -92,7 +92,6 @@
       <Type Name="GnuPGContext" Kind="Class" />
       <Type Name="IDigitalCertificate" Kind="Interface" />
       <Type Name="IDigitalSignature" Kind="Interface" />
-      <Type Name="MacSecureMimeContext" Kind="Class" />
       <Type Name="MultipartEncrypted" Kind="Class" />
       <Type Name="MultipartSigned" Kind="Class" />
       <Type Name="OpenPgpContext" Kind="Class" />
@@ -105,6 +104,7 @@
       <Type Name="SecureMimeType" Kind="Enumeration" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
       <Type Name="TrustLevel" Kind="Enumeration" />
+      <Type Name="WindowsSecureMimeContext" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
       <Type Name="X509CertificateStore" Kind="Class" />
     </Namespace>

@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public class Base64Decoder : MimeKit.Encodings.IMimeDecoder" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Base64Decoder extends System.Object implements class MimeKit.Encodings.IMimeDecoder" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

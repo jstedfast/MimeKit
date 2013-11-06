@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public class MultipartSigned : MimeKit.Multipart" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MultipartSigned extends MimeKit.Multipart" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

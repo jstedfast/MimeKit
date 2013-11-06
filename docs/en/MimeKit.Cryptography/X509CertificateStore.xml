@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public class X509CertificateStore : Org.BouncyCastle.X509.Store.IX509Store" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CertificateStore extends System.Object implements class Org.BouncyCastle.X509.Store.IX509Store" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

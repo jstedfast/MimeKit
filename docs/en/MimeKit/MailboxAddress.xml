@@ -2,7 +2,7 @@
   <TypeSignature Language="C#" Value="public sealed class MailboxAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.MailboxAddress&gt;" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MailboxAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.MailboxAddress&gt;" />
   <AssemblyInfo>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>

@@ -90,6 +90,34 @@ Now that I typically find myself working in C# rather than lower level languages
 begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
 flexibility in that I'd be able use Generics and create a more .NET-compliant API.
 
+## Building
+
+First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
+
+    git clone https://github.com/jstedfast/MimeKit.git
+    git clone https://github.com/jstedfast/bc-csharp.git
+
+Currently, MimeKit depends on the visual-studio-2010 branch of bc-csharp for the Visual Studio 2010 project
+files that I've added (to replace the Visual Studio 2003 project files). To switch to that branch,
+
+    cd bc-csharp
+    git checkout -b visual-studio-2010 origin/visual-studio-2010
+
+In the top-level MimeKit source directory, there are two solution files: MimeKitDesktopOnly.sln and MimeKit.sln.
+
+MimeKitDesktopOnly.sln just includes the .NET Framework 4.0 C# project (MimeKit/MimeKit.csproj) and the UnitTests
+project (UnitTests/UnitTests.csproj).
+
+MimeKit.sln includes everything that is in the MimeKitDesktopOnly solution as well as the projects for Xamarin.Android,
+Xamarin.iOS, and Xamarin.Mac.
+
+If you don't have the Xamarin products, you'll probably want to open the MimeKitDesktopOnly.sln instead of MimeKit.sln.
+
+Once you've opened the appropriate MimeKit solution file in either Xamarin Studio or Visual Studio 2010+ (either will work),
+you can simply choose the Debug or Release build configuration and then build.
+
+Note: The Release build will generate the xml API documentation, but the Debug build will not.
+
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
@@ -107,4 +135,4 @@ Before opening a new issue, please search for existing issues to avoid submittin
 
 ## Documentation
 
-You're looking at it.
+API documentation can be found in the docs/ directory.
