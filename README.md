@@ -114,7 +114,7 @@ Xamarin.iOS, and Xamarin.Mac.
 If you don't have the Xamarin products, you'll probably want to open the MimeKitDesktopOnly.sln instead of MimeKit.sln.
 
 Once you've opened the appropriate MimeKit solution file in either Xamarin Studio or Visual Studio 2010+ (either will work),
-you can simply choose Debug or Release and build.
+you can simply choose the Debug or Release build configuration and then build.
 
 Note: The Release build will generate the xml API documentation, but the Debug build will not.
 
@@ -135,4 +135,4 @@ Before opening a new issue, please search for existing issues to avoid submittin
 
 ## Documentation
 
-You're looking at it.
+API documentation is build as part of the build process for Release builds.
