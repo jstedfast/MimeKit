@@ -33,9 +33,7 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">
-            Encoding.
-            </param>
+        <param name="encoding">The encoding to return in the <see cref="P:MimeKit.Encodings.PassThroughEncoder.Encoding" /> property.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.PassThroughEncoder" /> class.
             </summary>
@@ -120,9 +118,7 @@
         <summary>
             Gets the encoding.
             </summary>
-        <value>
-            The encoding.
-            </value>
+        <value>The encoding.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -140,15 +136,11 @@
         <Parameter Name="inputLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="inputLength">
-            The input length.
-            </param>
+        <param name="inputLength">The input length.</param>
         <summary>
             Estimates the length of the output.
             </summary>
-        <returns>
-            The estimated output length.
-            </returns>
+        <returns>The estimated output length.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

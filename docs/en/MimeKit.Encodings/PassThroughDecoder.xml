@@ -33,9 +33,7 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">
-            Encoding.
-            </param>
+        <param name="encoding">The encoding to return in the <see cref="P:MimeKit.Encodings.PassThroughDecoder.Encoding" /> property.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.PassThroughDecoder" /> class.
             </summary>
@@ -77,21 +75,13 @@
         <Parameter Name="output" Type="System.Byte*" />
       </Parameters>
       <Docs>
-        <param name="input">
-            A pointer to the beginning of the input buffer.
-            </param>
-        <param name="length">
-            The length of the input buffer.
-            </param>
-        <param name="output">
-            A pointer to the beginning of the output buffer.
-            </param>
+        <param name="input">A pointer to the beginning of the input buffer.</param>
+        <param name="length">The length of the input buffer.</param>
+        <param name="output">A pointer to the beginning of the output buffer.</param>
         <summary>
             Decodes the specified input into the output buffer.
             </summary>
-        <returns>
-            The number of bytes written to the output buffer.
-            </returns>
+        <returns>The number of bytes written to the output buffer.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -112,24 +102,14 @@
         <Parameter Name="output" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="input">
-            The input buffer.
-            </param>
-        <param name="startIndex">
-            The starting index of the input buffer.
-            </param>
-        <param name="length">
-            The length of the input buffer.
-            </param>
-        <param name="output">
-            The output buffer.
-            </param>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer.</param>
+        <param name="output">The output buffer.</param>
         <summary>
             Decodes the specified input into the output buffer.
             </summary>
-        <returns>
-            The number of bytes written to the output buffer.
-            </returns>
+        <returns>The number of bytes written to the output buffer.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -164,9 +144,7 @@
         <summary>
             Gets the encoding.
             </summary>
-        <value>
-            The encoding.
-            </value>
+        <value>The encoding.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -184,15 +162,11 @@
         <Parameter Name="inputLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="inputLength">
-            The input length.
-            </param>
+        <param name="inputLength">The input length.</param>
         <summary>
             Estimates the length of the output.
             </summary>
-        <returns>
-            The estimated output length.
-            </returns>
+        <returns>The estimated output length.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

@@ -62,9 +62,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.Default; }
 		}
@@ -72,12 +70,8 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
-		/// <returns>
-		/// The estimated output length.
-		/// </returns>
-		/// <param name='inputLength'>
-		/// The input length.
-		/// </param>
+		/// <returns>The estimated output length.</returns>
+		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			return inputLength * 3;

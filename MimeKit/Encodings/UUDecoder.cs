@@ -114,9 +114,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding
 		{
 			get { return ContentEncoding.UUEncode; }
@@ -125,12 +123,8 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
-		/// <returns>
-		/// The estimated output length.
-		/// </returns>
-		/// <param name='inputLength'>
-		/// The input length.
-		/// </param>
+		/// <returns>The estimated output length.</returns>
+		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// add an extra 3 bytes for the saved input bytes from previous decode step
@@ -267,18 +261,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// A pointer to the beginning of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// A pointer to the beginning of the output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			if (state == UUDecoderState.Ended)
@@ -364,21 +350,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// The output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
