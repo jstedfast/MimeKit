@@ -23,7 +23,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.WindowsSecureMimeContext" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -38,9 +40,14 @@
         <Parameter Name="store" Type="System.Security.Cryptography.X509Certificates.X509Store" />
       </Parameters>
       <Docs>
-        <param name="store">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="store">The X509 certificate store.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.WindowsSecureMimeContext" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="store" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CertificateStore">
@@ -54,8 +61,10 @@
         <ReturnType>System.Security.Cryptography.X509Certificates.X509Store</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the X509 certificate store.
+            </summary>
+        <value>The X509 certificate store.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -73,8 +82,10 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <summary>
+            Dispose the specified disposing.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -92,9 +103,11 @@
         <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
       </Parameters>
       <Docs>
-        <param name="selector">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="selector">The search criteria for the certificate.</param>
+        <summary>
+            Gets the X.509 certificate based on the selector.
+            </summary>
+        <returns>The certificate on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -112,10 +125,15 @@
         <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
       </Parameters>
       <Docs>
-        <param name="mailbox">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Gets the X509 certificate associated with the <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>The certificate.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetCmsSigner">
@@ -133,11 +151,16 @@
         <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="mailbox">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailbox">The mailbox.</param>
+        <param name="digestAlgo">The preferred digest algorithm.</param>
+        <summary>
+            Gets the cms signer for the specified <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>The cms signer.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -154,9 +177,11 @@
         <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
       </Parameters>
       <Docs>
-        <param name="selector">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="selector">The search criteria for the private key.</param>
+        <summary>
+            Gets the private key based on the provided selector.
+            </summary>
+        <returns>The private key on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -174,9 +199,18 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The raw certificate data.</param>
+        <summary>
+            Imports certificates (as from a certs-only application/pkcs-mime part)
+            from the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred while importing.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ImportPkcs12">
@@ -194,10 +228,22 @@
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="password">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The raw certificate data.</param>
+        <param name="password">The password to unlock the stream.</param>
+        <summary>
+            Imports the pkcs12-encoded certificate and key data.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="password" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            Importing keys is not supported by this cryptography context.
+            </exception>
       </Docs>
     </Member>
   </Members>
