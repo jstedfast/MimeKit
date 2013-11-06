@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An S/MIME part with a Content-Type of application/pkcs7-signature.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,8 +27,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Signature" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -41,9 +45,22 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The content stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Signature" />
+            class with a Content-Type of application/pkcs7-signature.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="stream" /> does not support reading.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> does not support seeking.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

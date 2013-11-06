@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An abstract MIME entity.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,9 +27,14 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
+            </summary>
+        <remarks>
+            Custom <see cref="T:MimeKit.MimeEntity" /> subclasses MUST implement this constructor
+            in order to register it using <see cref="M:MimeKit.MimeEntity.Register(System.String,System.Type)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -42,10 +49,19 @@
         <Parameter Name="mediaSubtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mediaType">To be added.</param>
-        <param name="mediaSubtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="ContentDisposition">
@@ -59,8 +75,10 @@
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content disposition.
+            </summary>
+        <value>The content disposition.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -75,8 +93,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content identifier.
+            </summary>
+        <value>The content identifier.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -91,8 +111,10 @@
         <ReturnType>MimeKit.ContentType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the type of the content.
+            </summary>
+        <value>The type of the content.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -107,8 +129,10 @@
         <ReturnType>MimeKit.HeaderList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of headers.
+            </summary>
+        <value>The list of headers.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -123,8 +147,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is initializing.
+            </summary>
+        <value>
+          <c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -140,7 +167,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Raises the changed event.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -159,9 +188,11 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="action">The type of change.</param>
+        <param name="header">The header being added, changed or removed.</param>
+        <summary>
+            Called when the headers change in some way.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -180,10 +211,35 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="mimeType">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="mimeType">The MIME type.</param>
+        <param name="type">A custom subclass of <see cref="T:MimeKit.MimeEntity" />.</param>
+        <summary>
+            Registers the custom MIME entity. Once registered, all <see cref="T:MimeKit.MimeParser" />
+            instances will instantiate your custom <see cref="T:MimeKit.MimeEntity" /> when the specified
+            mime-type is encountered.
+            </summary>
+        <remarks>
+            Your custom <see cref="T:MimeKit.MimeEntity" /> class should not subclass
+            <see cref="T:MimeKit.MimeEntity" /> directly, but rather it should subclass
+            <see cref="T:MimeKit.Multipart" />, <see cref="T:MimeKit.MimePart" />,
+            <see cref="T:MimeKit.MessagePart" />, or one of their derivatives.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mimeType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="type" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="type" /> is not a subclass of <see cref="T:MimeKit.Multipart" />,
+            <see cref="T:MimeKit.MimePart" />, or <see cref="T:MimeKit.MessagePart" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="type" /> does not have a constructor that takes
+            only a <see cref="T:MimeKit.MimeEntityConstructorInfo" /> argument.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveHeader">
@@ -200,8 +256,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The name of the header.</param>
+        <summary>
+            Removes the header.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -220,9 +278,11 @@
         <Parameter Name="rawValue" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="rawValue">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The name of the header.</param>
+        <param name="rawValue">The raw value of the header.</param>
+        <summary>
+            Sets the header using the raw value.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -241,9 +301,11 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The name of the header.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Sets the header.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -261,9 +323,12 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">The object.</param>
+        <summary>
+            Try to use given object to initialize itself.
+            </summary>
+        <returns>
+          <c>true</c> if the object was recognized and used; <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -281,9 +346,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the entity instance to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -301,10 +371,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the entity instance to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

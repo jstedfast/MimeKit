@@ -7,7 +7,9 @@
   </AssemblyInfo>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An interface for incrementally decoding content.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clone the <see cref="T:MimeKit.Encodings.IMimeDecoder" /> with its current state.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -44,11 +48,21 @@
         <Parameter Name="output" Type="System.Byte*" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">
+            A pointer to the beginning of the input buffer.
+            </param>
+        <param name="length">
+            The length of the input buffer.
+            </param>
+        <param name="output">
+            A pointer to the beginning of the output buffer.
+            </param>
+        <summary>
+            Decodes the specified input into the output buffer.
+            </summary>
+        <returns>
+            The number of bytes written to the output buffer.
+            </returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -69,13 +83,41 @@
         <Parameter Name="output" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The length of the input buffer.
+            </param>
+        <param name="output">
+            The output buffer.
+            </param>
+        <summary>
+            Decodes the specified input into the output buffer.
+            </summary>
+        <returns>
+            The number of bytes written to the output buffer.
+            </returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="input" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="output" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="output" /> is not large enough to contain the decoded content.
+            Use the <see cref="M:MimeKit.Encodings.IMimeDecoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+            necessary length of the <paramref name="output" /> byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -89,8 +131,12 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encoding.
+            </summary>
+        <value>
+            The encoding.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -108,9 +154,15 @@
         <Parameter Name="inputLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="inputLength">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="inputLength">
+            The input length.
+            </param>
+        <summary>
+            Estimates the length of the output.
+            </summary>
+        <returns>
+            The estimated output length.
+            </returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -126,7 +178,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the decoder.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Encapsulates a content stream used by <see cref="T:MimeKit.MimePart" />.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -30,10 +32,26 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="encoding">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The content stream.</param>
+        <param name="encoding">The stream encoding.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ContentObject" /> class.
+            </summary>
+        <remarks>
+            When creating new <see cref="T:MimeKit.MimePart" />s, the <paramref name="encoding" />
+            should typically be <see cref="F:MimeKit.ContentEncoding.Default" /> unless the
+            <paramref name="stream" /> has already been encoded.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="stream" /> does not support reading.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> does not support seeking.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodeTo">
@@ -50,9 +68,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Decodes the content stream into another stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -66,8 +89,10 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content encoding.
+            </summary>
+        <value>The content encoding.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -82,8 +107,10 @@
         <ReturnType>System.IO.Stream</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content stream.
+            </summary>
+        <value>The content stream.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -101,9 +128,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the raw content stream to to another stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

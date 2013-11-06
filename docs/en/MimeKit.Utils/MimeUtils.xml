@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            MIME utility methods.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -28,10 +30,15 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to parse.</param>
+        <summary>
+            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            </summary>
+        <returns>The references.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="EnumerateReferences">
@@ -50,12 +57,21 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The raw byte buffer to parse.</param>
+        <param name="startIndex">The index into the buffer to start parsing.</param>
+        <param name="length">The length of the buffer to parse.</param>
+        <summary>
+            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            </summary>
+        <returns>The references.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GenerateMessageId">
@@ -70,8 +86,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Generates a token suitable for a Message-Id.
+            </summary>
+        <returns>The message identifier.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -89,10 +107,15 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="domain">A domain to use.</param>
+        <summary>
+            Generates a token suitable for a Message-Id.
+            </summary>
+        <returns>The message identifier.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Quote">
@@ -109,10 +132,16 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="text">The text to quote.</param>
+        <summary>
+            Quotes the specified text, enclosing it in double-quotes and escaping
+            any backslashes and double-quotes within.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParseVersion">
@@ -130,11 +159,17 @@
         <Parameter Name="version" Type="System.Version&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="version">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to parse.</param>
+        <param name="version">The parsed version.</param>
+        <summary>
+            Tries to parse a version from a header such as Mime-Version.
+            </summary>
+        <returns>
+          <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParseVersion">
@@ -154,13 +189,23 @@
         <Parameter Name="version" Type="System.Version&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="version">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The raw byte buffer to parse.</param>
+        <param name="startIndex">The index into the buffer to start parsing.</param>
+        <param name="length">The length of the buffer to parse.</param>
+        <param name="version">The parsed version.</param>
+        <summary>
+            Tries to parse a version from a header such as Mime-Version.
+            </summary>
+        <returns>
+          <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Unquote">
@@ -177,10 +222,16 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="text">The text to unquote.</param>
+        <summary>
+            Unquotes the specified text, removing any escaped backslashes and
+            double-quotes within.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

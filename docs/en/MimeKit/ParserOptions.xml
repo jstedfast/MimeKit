@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Parser options as used by <see cref="T:MimeKit.MimeParser" /> as well as various Parse and TryParse methods in MimeKit.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -38,9 +40,17 @@
         <ReturnType>System.Text.Encoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets or sets the charset encoding to use as a fallback for 8bit headers.
+            </summary>
+        <value>The charset encoding.</value>
+        <remarks>
+          <see cref="M:MimeKit.Utils.Rfc2047.DecodeText(MimeKit.ParserOptions,System.Byte[])" /> and
+            <see cref="M:MimeKit.Utils.Rfc2047.DecodePhrase(MimeKit.ParserOptions,System.Byte[])" />
+            use this charset encoding as a fallback when decoding 8bit text into unicode. The first
+            charset encoding attempted is UTF-8, followed by this charset encoding, before finally
+            falling back to iso-8859-1.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -55,7 +65,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clones an instance of <see cref="T:MimeKit.ParserOptions" />.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -71,7 +83,9 @@
         <ReturnType>MimeKit.ParserOptions</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The default parser options.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -86,8 +100,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets a value indicating whether rfc2047 workarounds should be used.
+            </summary>
+        <value>
+          <c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -102,9 +119,17 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets or sets a value indicating whether the Content-Length value should be
+            respected when parsing mbox streams.
+            </summary>
+        <value>
+          <c>true</c> if the Content-Length value should be respected;
+            otherwise, <c>false</c>.</value>
+        <remarks>
+            For more information about why this may be useful, you can find more information
+            at http://www.jwz.org/doc/content-length.html
+            </remarks>
       </Docs>
     </Member>
   </Members>

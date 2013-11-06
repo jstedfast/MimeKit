@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An address group, as specified by rfc0822.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -29,8 +31,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The name of the group.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -46,9 +50,11 @@
         <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The name of the group.</param>
+        <param name="addresses">A list of addresses.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -64,10 +70,15 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="encoding">To be added.</param>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the group.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encoding" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -83,11 +94,16 @@
         <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="encoding">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the group.</param>
+        <param name="addresses">A list of addresses.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encoding" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -104,9 +120,13 @@
         <Parameter Name="other" Type="MimeKit.GroupAddress" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="other">The <see cref="T:MimeKit.GroupAddress" /> to compare with the current <see cref="T:MimeKit.GroupAddress" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current <see cref="T:MimeKit.GroupAddress" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current
+            <see cref="T:MimeKit.GroupAddress" />; otherwise, <c>false</c>.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -121,8 +141,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the members of the group.
+            </summary>
+        <value>The list of members.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -140,9 +162,11 @@
         <Parameter Name="encode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="encode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.GroupAddress" /> will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.GroupAddress" /> to a string, optionally encoding it for transport.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.GroupAddress" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

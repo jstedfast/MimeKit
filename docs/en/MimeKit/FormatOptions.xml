@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Format options for serializing various MimeKit objects.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -39,7 +41,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clones an instance of <see cref="T:MimeKit.FormatOptions" />.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -55,7 +59,9 @@
         <ReturnType>MimeKit.FormatOptions</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The default formatting options.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -70,8 +76,11 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the maximum line length used by the encoders. The encoders
+            use this value to determine where to place line breaks.
+            </summary>
+        <value>The maximum line length.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -86,8 +95,10 @@
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the new-line format.
+            </summary>
+        <value>The new-line format.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

@@ -20,7 +20,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A list of <see cref="T:MimeKit.Header" />s.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -33,7 +35,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.HeaderList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -51,9 +55,14 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="header">The header to add.</param>
+        <summary>
+            Adds the specified header.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -71,10 +80,18 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The header identifier.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Adds a header with the specified field and value.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -92,10 +109,22 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Adds a header with the specified field and value.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -110,7 +139,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Removes all headers from the <see cref="T:MimeKit.HeaderList" />.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -128,10 +159,17 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="header">The header.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.HeaderList" /> contains the specified header.
+            </summary>
+        <returns>
+          <value>true</value> if the specified header is contained;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -148,10 +186,17 @@
         <Parameter Name="id" Type="MimeKit.HeaderId" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="id">The header identifier.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.HeaderList" /> contains a header with the specified field name.
+            </summary>
+        <returns>
+          <value>true</value> if the requested header exists;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -168,10 +213,17 @@
         <Parameter Name="field" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="field">The name of the header field.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.HeaderList" /> contains a header with the specified field name.
+            </summary>
+        <returns>
+          <value>true</value> if the requested header exists;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="field" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -189,10 +241,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the headers to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the headers in the <see cref="T:MimeKit.HeaderList" /> to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -206,8 +266,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of headers in the <see cref="T:MimeKit.HeaderList" />.
+            </summary>
+        <value>The number of headers.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -223,8 +285,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the list of headers.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -242,10 +306,15 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="header">The header.</param>
+        <summary>
+            Gets the index of the requested header, if it exists.
+            </summary>
+        <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -262,10 +331,15 @@
         <Parameter Name="id" Type="MimeKit.HeaderId" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="id">The header id.</param>
+        <summary>
+            Gets the index of the requested header, if it exists.
+            </summary>
+        <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -282,10 +356,15 @@
         <Parameter Name="field" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="field">The name of the header field.</param>
+        <summary>
+            Gets the index of the requested header, if it exists.
+            </summary>
+        <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="field" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -303,10 +382,18 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the header.</param>
+        <param name="header">The header.</param>
+        <summary>
+            Inserts the specified header at the given index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -325,11 +412,23 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="id">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the header.</param>
+        <param name="id">The header identifier.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Inserts a header with the specified field and value at the given index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="index" /> is out of range.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -348,11 +447,26 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the header.</param>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Inserts a header with the specified field and value at the given index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -366,8 +480,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -385,10 +502,16 @@
         <Parameter Name="id" Type="MimeKit.HeaderId" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The header identifier.</param>
+        <summary>
+            Gets or sets the value of the first occurance of a header
+            with the specified field name.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -405,10 +528,18 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.Header" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -425,10 +556,20 @@
         <Parameter Name="field" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="field">The name of the header field.</param>
+        <summary>
+            Gets or sets the value of the first occurance of a header
+            with the specified field name.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -445,10 +586,17 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="header">The header.</param>
+        <summary>
+            Removes the specified header.
+            </summary>
+        <returns>
+          <c>true</c> if the specified header was removed;
+            otherwise <c>false</c>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -465,10 +613,17 @@
         <Parameter Name="id" Type="MimeKit.HeaderId" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="id">The header identifier.</param>
+        <summary>
+            Removes the first occurance of the specified header field.
+            </summary>
+        <returns>
+          <value>true</value> if the frst occurance of the specified
+            header was removed; otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -485,10 +640,17 @@
         <Parameter Name="field" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="field">The name of the header field.</param>
+        <summary>
+            Removes the first occurance of the specified header field.
+            </summary>
+        <returns>
+          <value>true</value> if the frst occurance of the specified
+            header was removed; otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="field" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAll">
@@ -505,9 +667,14 @@
         <Parameter Name="id" Type="MimeKit.HeaderId" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The header identifier.</param>
+        <summary>
+            Removes all of the headers matching the specified field name.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAll">
@@ -524,9 +691,14 @@
         <Parameter Name="field" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="field">The name of the header field.</param>
+        <summary>
+            Removes all of the headers matching the specified field name.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="field" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -543,9 +715,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the header at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Replace">
@@ -562,9 +739,15 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="header">The header.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            If no headers with the specified header's field name exist, it is simply added.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="header" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Replace">
@@ -582,10 +765,19 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The header identifier.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            If no headers with the specified field name exist, it is simply added.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Replace">
@@ -603,10 +795,23 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            If no headers with the specified field name exist, it is simply added.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -640,9 +845,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.HeaderList" /> to a stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -660,10 +870,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.HeaderList" /> to a stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

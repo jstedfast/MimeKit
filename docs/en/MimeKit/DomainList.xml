@@ -20,7 +20,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A domain list.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -33,7 +35,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.DomainList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -48,8 +52,10 @@
         <Parameter Name="domains" Type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="domains">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="domains">A domain list.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.DomainList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -67,9 +73,14 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="domain">The domain.</param>
+        <summary>
+            Add the specified domain.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -84,7 +95,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clears the domain list.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -102,10 +115,17 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="domain">The domain.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.DomainList" /> contains the specified domain.
+            </summary>
+        <returns>
+          <value>true</value> if the specified domain is contained;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -123,10 +143,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the domains to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the domains in the <see cref="T:MimeKit.DomainList" /> to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -140,8 +168,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of domains in the <see cref="T:MimeKit.DomainList" />.
+            </summary>
+        <value>The number of domains.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -157,8 +187,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the list of domains.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -176,10 +208,15 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="domain">The domain.</param>
+        <summary>
+            Gets the index of the requested domain, if it exists.
+            </summary>
+        <returns>The index of the requested domain; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -197,10 +234,18 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the domain.</param>
+        <param name="domain">The domain to insert.</param>
+        <summary>
+            Insert the domain at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -214,8 +259,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -233,10 +281,18 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.DomainList" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -253,10 +309,17 @@
         <Parameter Name="domain" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="domain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="domain">The domain.</param>
+        <summary>
+            Removes the specified domain.
+            </summary>
+        <returns>
+          <value>true</value> if the specified domain was removed;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -273,9 +336,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the domain at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -307,8 +375,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Serializes the <see cref="T:MimeKit.DomainList" /> to a string.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.DomainList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

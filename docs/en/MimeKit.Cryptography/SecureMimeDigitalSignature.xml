@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An S/MIME digital signature.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -29,8 +31,10 @@
         <ReturnType>System.DateTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the creation date of the digital signature.
+            </summary>
+        <value>The creation date.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -45,8 +49,10 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the digest algorithm used for the signature.
+            </summary>
+        <value>The digest algorithm.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -61,8 +67,10 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the public key algorithm used for the signature.
+            </summary>
+        <value>The public key algorithm.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -77,8 +85,10 @@
         <ReturnType>MimeKit.Cryptography.IDigitalCertificate</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets certificate used by the signer.
+            </summary>
+        <value>The signer's certificate.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

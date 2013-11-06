@@ -20,7 +20,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A list of parameters, as found in the Content-Type and Content-Disposition headers.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -33,7 +35,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ParameterList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -51,9 +55,18 @@
         <Parameter Name="param" Type="MimeKit.Parameter" />
       </Parameters>
       <Docs>
-        <param name="param">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="param">The parameter to add.</param>
+        <summary>
+            Adds the specified parameter.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="param" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            A parameter with the same name as <paramref name="param" />
+            already exists.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -71,10 +84,22 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The parameter name.</param>
+        <param name="value">The parameter value.</param>
+        <summary>
+            Adds a parameter with the specified name and value.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="name" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="name" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -89,7 +114,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Removes all parameters from the <see cref="T:MimeKit.ParameterList" />.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -107,10 +134,17 @@
         <Parameter Name="param" Type="MimeKit.Parameter" />
       </Parameters>
       <Docs>
-        <param name="param">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="param">The parameter.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.ParameterList" /> contains the specified parameter.
+            </summary>
+        <returns>
+          <value>true</value> if the specified parameter is contained;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="param" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -127,10 +161,17 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The parameter name.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.ParameterList" /> contains a parameter with the specified name.
+            </summary>
+        <returns>
+          <value>true</value> if the requested parameter exists;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -148,9 +189,11 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the parameters to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the contained parameters to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -165,8 +208,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of parameters in the <see cref="T:MimeKit.ParameterList" />.
+            </summary>
+        <value>The number of parameters.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -182,8 +227,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the list of parameters.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -201,10 +248,15 @@
         <Parameter Name="param" Type="MimeKit.Parameter" />
       </Parameters>
       <Docs>
-        <param name="param">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="param">The parameter.</param>
+        <summary>
+            Gets the index of the requested parameter, if it exists.
+            </summary>
+        <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="param" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -221,10 +273,15 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The parameter name.</param>
+        <summary>
+            Gets the index of the requested parameter, if it exists.
+            </summary>
+        <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -242,10 +299,22 @@
         <Parameter Name="param" Type="MimeKit.Parameter" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="param">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the parameter.</param>
+        <param name="param">The parameter.</param>
+        <summary>
+            Inserts the specified parameter at the given index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="param" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="index" /> is out of range.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            A parameter with the same name as <paramref name="param" />
+            already exists.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -264,11 +333,26 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the parameter.</param>
+        <param name="name">The parameter name.</param>
+        <param name="value">The parameter value.</param>
+        <summary>
+            Inserts a parameter with the specified name and value at the given index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="name" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="name" /> contains illegal characters.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -282,8 +366,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -301,10 +388,22 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.Parameter" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="index" /> is out of range.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            A parameter with the same name as <paramref name="value" />
+            already exists.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -321,10 +420,23 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The parameter name.</param>
+        <summary>
+            Gets or sets the value of the first occurance of a parameter
+            with the specified name.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="name" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="name" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -341,10 +453,17 @@
         <Parameter Name="param" Type="MimeKit.Parameter" />
       </Parameters>
       <Docs>
-        <param name="param">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="param">The parameter.</param>
+        <summary>
+            Removes the specified parameter.
+            </summary>
+        <returns>
+          <value>true</value> if the specified parameter was removed;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="param" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -361,10 +480,17 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The parameter name.</param>
+        <summary>
+            Removes the first occurance of the specified parameter.
+            </summary>
+        <returns>
+          <value>true</value> if the frst occurance of the specified
+            parameter was removed; otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -381,9 +507,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the parameter at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -415,8 +546,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Returns a <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.ParameterList" />.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.ParameterList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A bounded stream, confined to reading and writing data to a limited subset of the overall source stream.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -28,12 +30,35 @@
         <Parameter Name="leaveOpen" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="baseStream">To be added.</param>
-        <param name="startBoundary">To be added.</param>
-        <param name="endBoundary">To be added.</param>
-        <param name="leaveOpen">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="baseStream">
+            The underlying stream.
+            </param>
+        <param name="startBoundary">
+            The offset in the base stream that will mark the start of this substream.
+            </param>
+        <param name="endBoundary">
+            The offset in the base stream that will mark the end of this substream.
+            </param>
+        <param name="leaveOpen">
+          <c>true</c> to leave the baseStream open after the
+            <see cref="T:MimeKit.IO.BoundStream" /> is disposed;
+            otherwise, <c>false</c>.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.BoundStream" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="baseStream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="startBoundary" /> is less than zero.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="endBoundary" /> is greater than or equal to zero
+            -and- is less than <paramref name="startBoundary" />.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="BaseStream">
@@ -47,8 +72,12 @@
         <ReturnType>System.IO.Stream</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the underlying stream.
+            </summary>
+        <value>
+            The underlying stream.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -63,8 +92,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Checks whether or not the stream supports reading.
+            </summary>
+        <value>
+          <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -79,8 +112,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Checks whether or not the stream supports seeking.
+            </summary>
+        <value>
+          <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -95,8 +132,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Checks whether or not I/O operations can timeout.
+            </summary>
+        <value>
+          <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -111,8 +152,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Checks whether or not the stream supports writing.
+            </summary>
+        <value>
+          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -130,8 +175,10 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <summary>
+            Dispose the specified disposing.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -146,8 +193,12 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the end boundary offset of the underlying stream.
+            </summary>
+        <value>
+            The end boundary offset of the underlying stream.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -163,8 +214,16 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Flushes any internal output buffers.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support writing.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Length">
@@ -178,9 +237,16 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the length of the stream.
+            </summary>
+        <value>
+            The length of the stream.
+            </value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Position">
@@ -194,9 +260,19 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the position of the stream.
+            </summary>
+        <value>
+            The position of the stream.
+            </value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support seeking.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Read">
@@ -215,12 +291,26 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="buffer">
+            The buffer to read data into.
+            </param>
+        <param name="offset">
+            The offset into the buffer to start reading data.
+            </param>
+        <param name="count">
+            The number of bytes to read.
+            </param>
+        <summary>
+            Reads data into the specified buffer.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support reading.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ReadTimeout">
@@ -234,8 +324,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the read timeout.
+            </summary>
+        <value>
+            The read timeout.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -254,11 +348,29 @@
         <Parameter Name="origin" Type="System.IO.SeekOrigin" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <param name="origin">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="offset">
+            The offset from the specified origin.
+            </param>
+        <param name="origin">
+            The origin from which to seek.
+            </param>
+        <summary>
+            Seeks to the specified offset.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support seeking.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="origin" /> is not a valid <see cref="T:System.IO.SeekOrigin" />.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetLength">
@@ -275,9 +387,22 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">
+            The new length.
+            </param>
+        <summary>
+            Sets the length.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support setting the length.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="StartBoundary">
@@ -291,8 +416,12 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the start boundary offset of the underlying stream.
+            </summary>
+        <value>
+            The start boundary offset of the underlying stream.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -312,11 +441,25 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="buffer">
+            The buffer to write.
+            </param>
+        <param name="offset">
+            The offset of the first byte to write.
+            </param>
+        <param name="count">
+            The number of bytes to write.
+            </param>
+        <summary>
+            Writes the specified buffer.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The stream does not support writing.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="WriteTimeout">
@@ -330,8 +473,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the write timeout.
+            </summary>
+        <value>
+            The write timeout.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

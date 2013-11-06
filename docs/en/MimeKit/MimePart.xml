@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A basic leaf-node MIME part that contains content such as the message body or an attachment.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,10 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the default Content-Type of application/octet-stream.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -38,8 +43,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -55,10 +62,20 @@
         <Parameter Name="mediaSubtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mediaType">To be added.</param>
-        <param name="mediaSubtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified media type and subtype.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -80,11 +97,32 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="mediaType">To be added.</param>
-        <param name="mediaSubtype">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <param name="args">An array of initialization parameters: headers and part content.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified media type and subtype.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:MimeKit.IContentObject" /> or
+            <see cref="T:System.IO.Stream" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="ComputeContentMd5">
@@ -99,9 +137,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Computes the md5sum of the content.
+            </summary>
+        <returns>The md5sum of the content.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The <see cref="T:MimeKit.ContentObject" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ContentDuration">
@@ -115,9 +158,14 @@
         <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the duration of the content if available.
+            </summary>
+        <value>The duration of the content.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="value" /> is negative.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ContentMd5">
@@ -131,8 +179,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the md5sum of the content.
+            </summary>
+        <value>The md5sum of the content.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -147,8 +197,10 @@
         <ReturnType>MimeKit.IContentObject</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content of the mime part.
+            </summary>
+        <value>The content of the mime part.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -163,8 +215,10 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the content transfer encoding.
+            </summary>
+        <value>The content transfer encoding.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -179,8 +233,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the name of the file.
+            </summary>
+        <value>The name of the file.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -199,9 +255,11 @@
         <Parameter Name="header" Type="MimeKit.Header" />
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="action">The type of change.</param>
+        <param name="header">The header being added, changed or removed.</param>
+        <summary>
+            Called when the headers change in some way.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -217,8 +275,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Verifies the Content-Md5 value against an independently computed md5sum.
+            </summary>
+        <returns>
+          <c>true</c>, if content md5sum was verified, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -237,10 +298,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.MimePart" /> to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

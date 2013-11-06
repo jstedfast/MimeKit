@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A filter for encoding MIME content.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,8 +27,12 @@
         <Parameter Name="encoder" Type="MimeKit.Encodings.IMimeEncoder" />
       </Parameters>
       <Docs>
-        <param name="encoder">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="encoder">
+            A specific encoder for the filter to use.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.EncoderFilter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -44,8 +50,12 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="encoding">
+            The encoding to create a filter for.
+            </param>
+        <summary>
+            Create a filter that will encode using specified encoding.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -61,8 +71,12 @@
         <ReturnType>MimeKit.Encodings.IMimeEncoder</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encoder used by this filter.
+            </summary>
+        <value>
+            The encoder.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -77,8 +91,12 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encoding.
+            </summary>
+        <value>
+            The encoding.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -101,14 +119,16 @@
         <Parameter Name="flush" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
+        <param name="outputIndex">The output index.</param>
+        <param name="outputLength">The output length.</param>
+        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+        <summary>
+            Filter the specified input.
+            </summary>
+        <returns>The filtered output.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -124,7 +144,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the filter.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

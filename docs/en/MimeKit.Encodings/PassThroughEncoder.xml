@@ -14,8 +14,12 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+            A pass-through encoder implementing the <see cref="T:MimeKit.Encodings.IMimeDecoder" /> interface.
+            </summary>
+    <remarks>
+            Simply copies data as-is from the input buffer into the output buffer.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -29,8 +33,12 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="encoding">
+            Encoding.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.PassThroughEncoder" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -46,7 +54,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clone the <see cref="T:MimeKit.Encodings.PassThroughEncoder" /> with its current state.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -68,13 +78,41 @@
         <Parameter Name="output" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The length of the input buffer.
+            </param>
+        <param name="output">
+            The output buffer.
+            </param>
+        <summary>
+            Encodes the specified input into the output buffer.
+            </summary>
+        <returns>
+            The number of bytes written to the output buffer.
+            </returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="input" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="output" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="output" /> is not large enough to contain the encoded content.
+            Use the <see cref="M:MimeKit.Encodings.PassThroughEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+            necessary length of the <paramref name="output" /> byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -88,8 +126,12 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encoding.
+            </summary>
+        <value>
+            The encoding.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -107,9 +149,15 @@
         <Parameter Name="inputLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="inputLength">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="inputLength">
+            The input length.
+            </param>
+        <summary>
+            Estimates the length of the output.
+            </summary>
+        <returns>
+            The estimated output length.
+            </returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -130,13 +178,41 @@
         <Parameter Name="output" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The length of the input buffer.
+            </param>
+        <param name="output">
+            The output buffer.
+            </param>
+        <summary>
+            Encodes the specified input into the output buffer, flushing any internal buffer state as well.
+            </summary>
+        <returns>
+            The number of bytes written to the output buffer.
+            </returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="input" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="output" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="output" /> is not large enough to contain the encoded content.
+            Use the <see cref="M:MimeKit.Encodings.PassThroughEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+            necessary length of the <paramref name="output" /> byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -151,7 +227,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the encoder.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An exception that is thrown when an error occurrs in <see cref="M:MimeKit.Cryptography.IDigitalSignature.Verify" />.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members />

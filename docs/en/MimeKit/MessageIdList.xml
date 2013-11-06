@@ -20,7 +20,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A list of Message-Ids, as found in the References header.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -33,7 +35,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessageIdList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -51,9 +55,17 @@
         <Parameter Name="messageId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="messageId">The Message-Id.</param>
+        <summary>
+            Add the specified Message-Id.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="messageId" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="messageId" /> is improperly formatted.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -68,7 +80,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clears the Message-Id list.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -86,10 +100,17 @@
         <Parameter Name="messageId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="messageId">The Message-Id.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.MessageIdList" /> contains the specified Message-Id.
+            </summary>
+        <returns>
+          <value>true</value> if the specified Message-Id is contained;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="messageId" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -107,10 +128,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the Message-Ids to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the Message-Ids in the <see cref="T:MimeKit.MessageIdList" /> to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -124,8 +153,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of Message-Ids in the <see cref="T:MimeKit.MessageIdList" />.
+            </summary>
+        <value>The number of Message-Ids.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -141,8 +172,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the list of Message-Ids.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -160,10 +193,15 @@
         <Parameter Name="messageId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="messageId">The Message-Id.</param>
+        <summary>
+            Gets the index of the requested Message-Id, if it exists.
+            </summary>
+        <returns>The index of the requested Message-Id; otherwise <value>-1</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="messageId" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -181,10 +219,21 @@
         <Parameter Name="messageId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the Message-Id.</param>
+        <param name="messageId">The Message-Id to insert.</param>
+        <summary>
+            Insert the Message-Id at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="messageId" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="messageId" /> is improperly formatted.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -198,8 +247,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -217,10 +269,21 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.MessageIdList" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -237,10 +300,17 @@
         <Parameter Name="messageId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="messageId">The Message-Id.</param>
+        <summary>
+            Removes the specified Message-Id.
+            </summary>
+        <returns>
+          <value>true</value> if the specified Message-Id was removed;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="messageId" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -257,9 +327,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the Message-Id at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -291,8 +366,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Serializes the <see cref="T:MimeKit.MessageIdList" /> to a string.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MessageIdList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

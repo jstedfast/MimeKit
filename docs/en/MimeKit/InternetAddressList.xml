@@ -23,7 +23,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A list of <see cref="T:MimeKit.InternetAddress" />es.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -36,7 +38,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -51,8 +55,10 @@
         <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="addresses">An initial list of addresses.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -70,9 +76,14 @@
         <Parameter Name="address" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="address">The address.</param>
+        <summary>
+            Adds the specified address.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="AddRange">
@@ -89,9 +100,14 @@
         <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="addresses">A colelction of addresses.</param>
+        <summary>
+            Adds a collection of addresses.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="addresses" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -106,7 +122,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clears the <see cref="T:MimeKit.InternetAddressList" />.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -124,10 +142,17 @@
         <Parameter Name="address" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="address">The address.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.InternetAddressList" /> contains the specified address.
+            </summary>
+        <returns>
+          <value>true</value> if the requested address exists;
+            otherwise <value>false</value>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -145,10 +170,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the addresses to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the addresses in the <see cref="T:MimeKit.InternetAddressList" /> to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -162,8 +195,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of addresses in the <see cref="T:MimeKit.InternetAddressList" />.
+            </summary>
+        <value>The number of addresses.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -181,9 +216,13 @@
         <Parameter Name="other" Type="MimeKit.InternetAddressList" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="other">The <see cref="T:MimeKit.InternetAddressList" /> to compare with the current <see cref="T:MimeKit.InternetAddressList" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.InternetAddressList" /> is equal to the current <see cref="T:MimeKit.InternetAddressList" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.InternetAddressList" /> is equal to the current
+            <see cref="T:MimeKit.InternetAddressList" />; otherwise, <c>false</c>.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -199,8 +238,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the list of addresses.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -218,10 +259,15 @@
         <Parameter Name="address" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="address">The address to get the index of.</param>
+        <summary>
+            Gets the index of the specified address.
+            </summary>
+        <returns>The index of the specified address if found; otherwise <c>-1</c>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -239,10 +285,18 @@
         <Parameter Name="address" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index to insert the address.</param>
+        <param name="address">The address.</param>
+        <summary>
+            Inserts the address at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -256,8 +310,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -275,10 +332,18 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The idnex of the addres to get or set.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.InternetAddressList" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Mailboxes">
@@ -292,9 +357,14 @@
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+            Recursively gets all of the mailboxes contained within the <see cref="T:MimeKit.InternetAddressList" />.
+            </summary>
+        <value>The mailboxes.</value>
+        <remarks>
+            This API is useful for collecting a flattened list of <see cref="T:MimeKit.MailboxAddress" />
+            recipients for use with sending via SMTP or for encrypting via S/MIME or PGP/MIME.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -311,10 +381,18 @@
         <Parameter Name="buffer" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -331,10 +409,18 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text.</param>
+        <summary>
+            Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="text" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -352,11 +438,23 @@
         <Parameter Name="buffer" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -374,11 +472,23 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <summary>
+            Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="text" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -396,11 +506,22 @@
         <Parameter Name="startIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -419,12 +540,27 @@
         <Parameter Name="startIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" />is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -443,12 +579,24 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -468,13 +616,29 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -491,10 +655,15 @@
         <Parameter Name="address" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="address">The address.</param>
+        <summary>
+            Removes the specified address.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -511,9 +680,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index of the address to remove.</param>
+        <summary>
+            Removes the address at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -545,8 +719,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string suitable for display.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -564,9 +740,11 @@
         <Parameter Name="encode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="encode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.InternetAddressList" /> will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string, optionally encoding it for transport.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -585,10 +763,12 @@
         <Parameter Name="encode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="encode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The formatting options.</param>
+        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.InternetAddressList" /> will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string, optionally encoding it for transport.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -607,11 +787,17 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -629,11 +815,17 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -652,12 +844,22 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -676,12 +878,22 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="text">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -700,12 +912,21 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -725,13 +946,26 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -751,13 +985,23 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -778,14 +1022,28 @@
         <Parameter Name="addresses" Type="MimeKit.InternetAddressList&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="addresses">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="addresses">The parsed addresses.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
   </Members>

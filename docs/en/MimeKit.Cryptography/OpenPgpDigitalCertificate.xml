@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An OpenPGP digital certificate.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -29,8 +31,10 @@
         <ReturnType>System.DateTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the date that the certificate was created.
+            </summary>
+        <value>The creation date.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -45,8 +49,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the email address of the owner of the certificate.
+            </summary>
+        <value>The email address.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -61,8 +67,10 @@
         <ReturnType>System.DateTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the expiration date of the certificate.
+            </summary>
+        <value>The expiration date.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -77,8 +85,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the fingerprint of the certificate.
+            </summary>
+        <value>The fingerprint.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -93,8 +103,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the name of the owner of the certificate.
+            </summary>
+        <value>The name of the owner.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -109,8 +121,10 @@
         <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the public key.
+            </summary>
+        <value>The public key.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -125,8 +139,10 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the public key algorithm supported by the certificate.
+            </summary>
+        <value>The public key algorithm.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -141,8 +157,10 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the trust level for the certificate.
+            </summary>
+        <value>The trust level.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

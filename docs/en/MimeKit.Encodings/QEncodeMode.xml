@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Q-Encoding mode.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.Encodings.QEncodeMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            A mode for encoding phrases, as defined by rfc0822.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Text">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.Encodings.QEncodeMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            A mode for encoding text.
+            </summary>
       </Docs>
     </Member>
   </Members>

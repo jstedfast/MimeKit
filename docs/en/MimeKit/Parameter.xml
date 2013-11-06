@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A header parameter as found in the Content-Type and Content-Disposition headers.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,10 +28,22 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">The parameter name.</param>
+        <param name="value">The parameter value.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Parameter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="name" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="name" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -43,8 +57,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the parameter name.
+            </summary>
+        <value>The parameter name.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -60,8 +76,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Returns a <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.Parameter" />.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.Parameter" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -76,9 +96,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the parameter value.
+            </summary>
+        <value>The parameter value.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

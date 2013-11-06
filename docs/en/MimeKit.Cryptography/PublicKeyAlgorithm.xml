@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Public key algorithms.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Diffie-Hellman algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Dsa">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The DSA algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ElGamalEncrypt">
@@ -52,7 +58,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The El-Gamal encryption-only algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ElGamalGeneral">
@@ -66,7 +74,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The El-Gamal algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EllipticCurve">
@@ -80,7 +90,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The elliptic curve algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EllipticCurveDsa">
@@ -94,7 +106,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The elliptic curve DSA algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="None">
@@ -108,7 +122,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            No public key algorithm specified.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RsaEncrypt">
@@ -122,7 +138,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The RSA encryption-only algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RsaGeneral">
@@ -136,7 +154,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The RSA algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RsaSign">
@@ -150,7 +170,9 @@
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The RSA sign-only algorithm.
+            </summary>
       </Docs>
     </Member>
   </Members>

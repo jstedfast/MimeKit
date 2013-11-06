@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A Textual MIME part.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,10 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
+            class with a Content-Type of text/plain.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -38,8 +43,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.TextPart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -54,9 +61,15 @@
         <Parameter Name="subtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The media subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
+            class with the specified text subtype.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="subtype" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -77,10 +90,27 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The media subtype.</param>
+        <param name="args">An array of initialization parameters: headers, charset encoding and text.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
+            class with the specified text subtype.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="subtype" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:System.Text.Encoding" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="GetText">
@@ -97,10 +127,16 @@
         <Parameter Name="charset" Type="System.Text.Encoding" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="charset">The charset encoding to use.</param>
+        <summary>
+            Gets the decoded text content using the provided charset to override
+            the charset specified in the Content-Type parameters.
+            </summary>
+        <returns>The decoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="charset" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -118,10 +154,19 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="charset">The charset encoding.</param>
+        <param name="text">The text content.</param>
+        <summary>
+            Sets the text content and the charset parameter in the Content-Type header.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Text">
@@ -135,8 +180,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the decoded text content.
+            </summary>
+        <value>The text.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

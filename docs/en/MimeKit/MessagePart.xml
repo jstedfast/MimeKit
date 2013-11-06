@@ -10,8 +10,12 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+            A MIME part containing a <see cref="T:MimeKit.MimeMessage" /> as its content.
+            </summary>
+    <remarks>
+            Represents MIME parts such as those with a Content-Type of message/rfc822 or message/news.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -23,7 +27,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -38,8 +44,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -54,9 +62,14 @@
         <Parameter Name="subtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The message subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="subtype" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -77,10 +90,26 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The message subtype.</param>
+        <param name="args">An array of initialization parameters: headers and message parts.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="subtype" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:MimeKit.MimeMessage" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Message">
@@ -94,8 +123,10 @@
         <ReturnType>MimeKit.MimeMessage</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the message content.
+            </summary>
+        <value>The message content.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -114,10 +145,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.MessagePart" /> to the stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

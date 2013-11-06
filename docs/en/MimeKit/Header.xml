@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A class representing a Message or MIME header.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,10 +28,18 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The header identifier.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -44,10 +54,22 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -63,11 +85,24 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="id">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="charset">The charset that should be used to encode the
+            header value.</param>
+        <param name="id">The header identifier.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -83,11 +118,27 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="charset">The charset that should be used to encode the
+            header value.</param>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Field">
@@ -101,8 +152,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the name of the header field.
+            </summary>
+        <value>The name of the header field.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -117,8 +170,10 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the header identifier.
+            </summary>
+        <value>The header identifier.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -133,8 +188,11 @@
         <ReturnType>System.Nullable&lt;System.Int64&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the stream offset of the beginning of the header.
+            Note: This will only be set if the header was parsed from a stream.
+            </summary>
+        <value>The stream offset.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -149,8 +207,10 @@
         <ReturnType>System.Byte[]</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the raw value of the header.
+            </summary>
+        <value>The raw value of the header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -169,10 +229,19 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="charset">A charset encoding.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Sets the header value using the specified charset.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -187,8 +256,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -207,11 +278,17 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -229,11 +306,17 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to parse.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -252,12 +335,22 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -276,12 +369,22 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="text">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text to parse.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -300,12 +403,21 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -325,13 +437,26 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -351,13 +476,23 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -378,14 +513,28 @@
         <Parameter Name="header" Type="MimeKit.Header&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="header">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="header">The parsed header.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.Header" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Unfold">
@@ -402,8 +551,10 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="text">The header text.</param>
+        <summary>
+            Unfold the specified header text.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
@@ -419,9 +570,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the header value.
+            </summary>
+        <value>The header value.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

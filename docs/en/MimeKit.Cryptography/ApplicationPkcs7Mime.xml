@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An S/MIME part with a Content-Type of application/pkcs7-mime.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,8 +27,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -42,10 +46,25 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">The S/MIME type.</param>
+        <param name="stream">The content stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="type" /> is not a valid value.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="stream" /> does not support reading.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> does not support seeking.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -60,9 +79,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Decrypt the content.
+            </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header does not support decryption.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -79,10 +103,18 @@
         <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ctx">The S/MIME context to use for decrypting.</param>
+        <summary>
+            Decrypt using the specified <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header does not support decryption.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -100,11 +132,19 @@
         <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="signatures">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ctx">The S/MIME context to use for decrypting.</param>
+        <param name="signatures">The list of digital signatures for this application/pkcs7-mime part.</param>
+        <summary>
+            Decrypt using the specified <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header does not support decryption.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -123,12 +163,24 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to use for encrypting.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="entity">The entity.</param>
+        <summary>
+            Encrypt the specified entity.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is<c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -147,12 +199,30 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to use for encrypting.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="entity">The entity.</param>
+        <summary>
+            Encrypt the specified entity.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is<c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            Valid certificates could not be found for one or more of the <paramref name="recipients" />.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for one or more of the <paramref name="recipients" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Import">
@@ -169,9 +239,14 @@
         <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to import certificates into.</param>
+        <summary>
+            Import the certificates contained in the content.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header does not support decryption.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SecureMimeType">
@@ -185,8 +260,10 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the value of the "smime-type" parameter.
+            </summary>
+        <value>The value of the "smime-type" parameter.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -207,13 +284,28 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="signer">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
+        <param name="signer">The signer.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="entity">The entity.</param>
+        <summary>
+            Sign and Encrypt the specified entity.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is<c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -234,14 +326,34 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="entity">The entity.</param>
+        <summary>
+            Sign and Encrypt the specified entity.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is<c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is<c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+          <para>A signing certificate could not be found for <paramref name="signer" />.</para>
+          <para>-or-</para>
+          <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

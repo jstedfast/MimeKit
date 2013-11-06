@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A digest algorithm.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The double-SHA digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Haval5160">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The HAVAL 5-pass 160-bit digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MD2">
@@ -52,7 +58,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MD2 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MD4">
@@ -66,7 +74,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MD4 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MD5">
@@ -80,7 +90,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MD5 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="None">
@@ -94,7 +106,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            No digest algorithm specified.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RipeMD160">
@@ -108,7 +122,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Ripe-MD/160 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sha1">
@@ -122,7 +138,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The SHA1 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sha224">
@@ -136,7 +154,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The SHA224 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sha256">
@@ -150,7 +170,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The SHA256 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sha384">
@@ -164,7 +186,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The SHA384 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sha512">
@@ -178,7 +202,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The SHA512 digest algorithm.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Tiger192">
@@ -192,7 +218,9 @@
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The TIGER/192 digest algorithm.
+            </summary>
       </Docs>
     </Member>
   </Members>

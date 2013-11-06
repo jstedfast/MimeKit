@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A signed multipart, as sued by both S/MIME and PGP/MIME protocols.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.MultipartSigned" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -38,8 +42,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.MultipartSigned" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -58,11 +64,23 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="signer">The signer.</param>
+        <param name="entity">The entity to sign.</param>
+        <summary>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            A cryptography context suitable for signing could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -81,12 +99,24 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="signer">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ctx">The S/MIME context to use for signing.</param>
+        <param name="signer">The signer.</param>
+        <param name="entity">The entity to sign.</param>
+        <summary>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -106,13 +136,31 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ctx">The cryptography context to use for signing.</param>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="entity">The entity to sign.</param>
+        <summary>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for <paramref name="signer" />.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred while signing.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -127,9 +175,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Verify the multipart/signed content.
+            </summary>
+        <returns>A signer info collection.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.FormatException">
+          <para>The <c>protocol</c> parameter was not specified.</para>
+          <para>-or-</para>
+          <para>The multipart is malformed in some way.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            A suitable <see cref="T:MimeKit.Cryptography.CryptographyContext" /> for
+            verifying could not be found.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred while verifying.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -146,10 +208,24 @@
         <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
       </Parameters>
       <Docs>
-        <param name="ctx">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ctx">The cryptography context to use for verifying the signature.</param>
+        <summary>
+            Verify the multipart/signed content.
+            </summary>
+        <returns>A signer info collection.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.FormatException">
+            The multipart is malformed in some way.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="ctx" /> does not support verifying the signature part.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred while verifying.
+            </exception>
       </Docs>
     </Member>
   </Members>

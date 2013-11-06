@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A filter that will convert from Unix line endings to Windows/DOS line endings.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.Unix2DosFilter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -46,14 +50,16 @@
         <Parameter Name="flush" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
+        <param name="outputIndex">The output index.</param>
+        <param name="outputLength">The output length.</param>
+        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+        <summary>
+            Filter the specified input.
+            </summary>
+        <returns>The filtered output.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -69,7 +75,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the filter.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

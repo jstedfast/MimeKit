@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A class representing a Content-Type header value.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,10 +28,26 @@
         <Parameter Name="mediaSubtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mediaType">To be added.</param>
-        <param name="mediaSubtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mediaType">Media type.</param>
+        <param name="mediaSubtype">Media subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="mediaType" /> is empty or contains invalid characters.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is empty or contains invalid characters.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Boundary">
@@ -43,8 +61,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the boundary parameter.
+            </summary>
+        <value>The boundary.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -59,8 +79,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the charset parameter.
+            </summary>
+        <value>The charset.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -79,11 +101,22 @@
         <Parameter Name="mediaSubtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mediaType">To be added.</param>
-        <param name="mediaSubtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <summary>
+            Checks if the this instance of <see cref="T:MimeKit.ContentType" /> matches
+            the specified mediaType and mediaSubtype.
+            Note: If the specified mediaType or mediaSubtype are "*", they match anything.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="MediaSubtype">
@@ -97,9 +130,17 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the media subtype.
+            </summary>
+        <value>The media subtype.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is empty or contains invalid characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="MediaType">
@@ -113,9 +154,17 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the type of the media.
+            </summary>
+        <value>The type of the media.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is empty or contains invalid characters.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -129,8 +178,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the name parameter.
+            </summary>
+        <value>The name.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -145,8 +196,10 @@
         <ReturnType>MimeKit.ParameterList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the parameters.
+            </summary>
+        <value>The parameters.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -164,10 +217,18 @@
         <Parameter Name="buffer" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -184,10 +245,18 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text.</param>
+        <summary>
+            Parse the specified text into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="text" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -205,11 +274,23 @@
         <Parameter Name="buffer" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -227,11 +308,22 @@
         <Parameter Name="startIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The start index of the buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -250,12 +342,27 @@
         <Parameter Name="startIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The start index of the buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -274,12 +381,24 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The start index of the buffer.</param>
+        <param name="length">The length of the buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -299,13 +418,29 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The start index of the buffer.</param>
+        <param name="length">The length of the buffer.</param>
+        <summary>
+            Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -320,8 +455,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Returns a <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.ContentType" />.
+            </summary>
+        <returns>A <see cref="T:System.String" /> that represents the current
+            <see cref="T:MimeKit.ContentType" />.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -340,11 +479,17 @@
         <Parameter Name="encode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="encode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="charset">The charset to be used when encoding the parameter values.</param>
+        <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.ContentType" /> to a string,
+            optionally encoding the parameters.
+            </summary>
+        <returns>The serialized string.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="charset" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -362,11 +507,17 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -384,11 +535,17 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to parse.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -407,12 +564,22 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -431,12 +598,21 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -456,13 +632,26 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -482,13 +671,23 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -509,14 +708,28 @@
         <Parameter Name="type" Type="MimeKit.ContentType&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="type">The parsed content type.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.ContentType" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
   </Members>

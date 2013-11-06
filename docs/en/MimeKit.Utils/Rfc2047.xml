@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Utility methods for encoding and decoding rfc2047 encoded-word tokens.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -28,10 +30,15 @@
         <Parameter Name="phrase" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="phrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="phrase">The phrase to decode.</param>
+        <summary>
+            Decodes the specified phrase.
+            </summary>
+        <returns>The decoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="phrase" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodePhrase">
@@ -49,11 +56,20 @@
         <Parameter Name="phrase" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="phrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="phrase">The phrase to decode.</param>
+        <summary>
+            Decodes the specified phrase.
+            </summary>
+        <returns>The decoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="phrase" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodePhrase">
@@ -72,12 +88,22 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="phrase">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="phrase">The phrase to decode.</param>
+        <param name="startIndex">The starting index.</param>
+        <param name="count">The number of bytes to decode.</param>
+        <summary>
+            Decodes the specified number of bytes of the phrase starting
+            at the specified starting index.
+            </summary>
+        <returns>The decoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="phrase" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="count" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodePhrase">
@@ -97,13 +123,27 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="phrase">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="phrase">The phrase to decode.</param>
+        <param name="startIndex">The starting index.</param>
+        <param name="count">The number of bytes to decode.</param>
+        <summary>
+            Decodes the specified number of bytes of the phrase starting
+            at the specified starting index.
+            </summary>
+        <returns>The decoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="phrase" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="count" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodeText">
@@ -120,10 +160,15 @@
         <Parameter Name="text" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to decode.</param>
+        <summary>
+            Decodes the unstructured text.
+            </summary>
+        <returns>The decoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodeText">
@@ -141,11 +186,20 @@
         <Parameter Name="text" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text to decode.</param>
+        <summary>
+            Decodes the unstructured text.
+            </summary>
+        <returns>The decoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodeText">
@@ -164,12 +218,22 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text to decode.</param>
+        <param name="startIndex">The starting index.</param>
+        <param name="count">The number of bytes to decode.</param>
+        <summary>
+            Decodes the specified number of bytes of unstructured text starting
+            at the specified starting index.
+            </summary>
+        <returns>The decoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="count" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DecodeText">
@@ -189,13 +253,27 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="text">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text to decode.</param>
+        <param name="startIndex">The starting index.</param>
+        <param name="count">The number of bytes to decode.</param>
+        <summary>
+            Decodes the specified number of bytes of unstructured text starting
+            at the specified starting index.
+            </summary>
+        <returns>The decoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="count" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="EncodePhrase">
@@ -213,11 +291,21 @@
         <Parameter Name="phrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="phrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="charset">The charset encoding.</param>
+        <param name="phrase">The phrase to encode.</param>
+        <summary>
+            Encodes the phrase using the specified charset encoding according
+            to the rules of RFC 2047.
+            </summary>
+        <returns>The encoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="phrase" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="EncodePhrase">
@@ -236,12 +324,25 @@
         <Parameter Name="phrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="charset">To be added.</param>
-        <param name="phrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The formatting options</param>
+        <param name="charset">The charset encoding.</param>
+        <param name="phrase">The phrase to encode.</param>
+        <summary>
+            Encodes the phrase using the specified charset encoding according
+            to the rules of RFC 2047.
+            </summary>
+        <returns>The encoded phrase.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="phrase" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="EncodeText">
@@ -259,11 +360,21 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="charset">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="charset">The charset encoding.</param>
+        <param name="text">The text to encode.</param>
+        <summary>
+            Encodes the unstructured text using the specified charset encoding
+            according to the rules of RFC 2047.
+            </summary>
+        <returns>The encoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="EncodeText">
@@ -282,12 +393,25 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="charset">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">The formatting options</param>
+        <param name="charset">The charset encoding.</param>
+        <param name="text">The text to encode.</param>
+        <summary>
+            Encodes the unstructured text using the specified charset encoding
+            according to the rules of RFC 2047.
+            </summary>
+        <returns>The encoded text.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

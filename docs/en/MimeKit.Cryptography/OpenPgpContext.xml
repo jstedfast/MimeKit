@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An abstract OpenPGP cryptography context which can be used for PGP/MIME.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,10 +28,25 @@
         <Parameter Name="secring" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pubring">To be added.</param>
-        <param name="secring">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pubring">The public keyring file path.</param>
+        <param name="secring">The secret keyring file path.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="pubring" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="secring" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An error occurred while reading one of the keyring files.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+            An error occurred while parsing one of the keyring files.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -47,11 +64,25 @@
         <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="encryptedData">To be added.</param>
-        <param name="signatures">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="encryptedData">The encrypted data.</param>
+        <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+        <summary>
+            Decrypt an encrypted stream.
+            </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            The secret key could not be found to decrypt the stream.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -69,11 +100,29 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A public key could not be found for one or more of the <paramref name="recipients" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -91,11 +140,26 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="EncryptionProtocol">
@@ -109,8 +173,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encryption protocol.
+            </summary>
+        <value>The encryption protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -128,10 +194,15 @@
         <Parameter Name="keys" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle" />
       </Parameters>
       <Docs>
-        <param name="keys">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keys">The keys.</param>
+        <summary>
+            Exports the specified public keys.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance containing the exported public keys.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="keys" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Export">
@@ -148,10 +219,18 @@
         <Parameter Name="mailboxes" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="mailboxes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailboxes">The mailboxes.</param>
+        <summary>
+            Exports the public keys for the specified mailboxes.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance containing the exported public keys.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailboxes" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="mailboxes" /> was empty.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Export">
@@ -168,10 +247,15 @@
         <Parameter Name="keys" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
       </Parameters>
       <Docs>
-        <param name="keys">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keys">The keys.</param>
+        <summary>
+            Exports the specified public keys.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance containing the exported public keys.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="keys" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetDigestAlgorithm">
@@ -188,10 +272,19 @@
         <Parameter Name="hashAlgorithm" Type="Org.BouncyCastle.Bcpg.HashAlgorithmTag" />
       </Parameters>
       <Docs>
-        <param name="hashAlgorithm">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="hashAlgorithm">The hash algorithm.</param>
+        <summary>
+            Gets the equivalent <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> for the specified
+            <see cref="T:Org.BouncyCastle.Bcpg.HashAlgorithmTag" />.
+            </summary>
+        <returns>The digest algorithm.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="hashAlgorithm" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="hashAlgorithm" /> does not have an equivalent <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> value.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetDigestAlgorithm">
@@ -208,10 +301,15 @@
         <Parameter Name="micalg" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="micalg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="micalg">The micalg parameter value.</param>
+        <summary>
+            Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+            </summary>
+        <returns>The digest algorithm.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="micalg" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetEncryptionKey">
@@ -228,10 +326,15 @@
         <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
       </Parameters>
       <Docs>
-        <param name="mailbox">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Gets the encryption key associated with the <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>The encryption key.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            An encryption key for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetEncryptionKeys">
@@ -248,10 +351,15 @@
         <Parameter Name="mailboxes" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="mailboxes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailboxes">The mailboxes.</param>
+        <summary>
+            Gets the encryption keys for the specified <see cref="T:MimeKit.MailboxAddress" />es.
+            </summary>
+        <returns>The encryption keys.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            An encryption key for one or more of the <paramref name="mailboxes" /> could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetHashAlgorithm">
@@ -268,10 +376,20 @@
         <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="digestAlgo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Gets the equivalent <see cref="T:Org.BouncyCastle.Bcpg.HashAlgorithmTag" /> for the
+            specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" />.
+            </summary>
+        <returns>The hash algorithm.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="digestAlgo" /> does not have an equivalent
+            <see cref="T:Org.BouncyCastle.Bcpg.HashAlgorithmTag" /> value.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetMicAlgorithmName">
@@ -288,10 +406,15 @@
         <Parameter Name="micalg" Type="MimeKit.Cryptography.DigestAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="micalg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="micalg">The digest algorithm.</param>
+        <summary>
+            Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+            </summary>
+        <returns>The micalg value.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="micalg" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPasswordForKey">
@@ -308,10 +431,15 @@
         <Parameter Name="key" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">The key.</param>
+        <summary>
+            Gets the password for key.
+            </summary>
+        <returns>The password for key.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password request.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -328,10 +456,21 @@
         <Parameter Name="key" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">The secret key.</param>
+        <summary>
+            Gets the private key from the specified secret key.
+            </summary>
+        <returns>The private key.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="key" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -348,10 +487,21 @@
         <Parameter Name="keyId" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="keyId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keyId">The key identifier.</param>
+        <summary>
+            Gets the private key.
+            </summary>
+        <returns>The private key.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            The specified secret key could not be found.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPublicKeyAlgorithm">
@@ -368,10 +518,19 @@
         <Parameter Name="algorithm" Type="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag" />
       </Parameters>
       <Docs>
-        <param name="algorithm">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="algorithm">The public-key algorithm.</param>
+        <summary>
+            Gets the equivalent <see cref="T:MimeKit.Cryptography.PublicKeyAlgorithm" /> for the specified
+            <see cref="T:Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag" />.
+            </summary>
+        <returns>The public-key algorithm.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="algorithm" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="algorithm" /> does not have an equivalent <see cref="T:MimeKit.Cryptography.PublicKeyAlgorithm" /> value.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetSigningKey">
@@ -388,10 +547,15 @@
         <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
       </Parameters>
       <Docs>
-        <param name="mailbox">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Gets the signing key associated with the <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>The signing key.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing key for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Import">
@@ -408,9 +572,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The raw key data.</param>
+        <summary>
+            Imports public pgp keys from the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+          <para>An error occurred while parsing the raw key-ring data</para>
+          <para>-or-</para>
+          <para>An error occured while saving the public key-ring bundle.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="ImportSecretKeys">
@@ -427,9 +601,19 @@
         <Parameter Name="rawData" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="rawData">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="rawData">The raw key data.</param>
+        <summary>
+            Imports secret pgp keys from the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="rawData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+          <para>An error occurred while parsing the raw key-ring data</para>
+          <para>-or-</para>
+          <para>An error occured while saving the public key-ring bundle.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="KeyExchangeProtocol">
@@ -443,8 +627,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the key exchange protocol.
+            </summary>
+        <value>The key exchange protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -459,8 +645,10 @@
         <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKeyRingBundle</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the public keyring bundle.
+            </summary>
+        <value>The public keyring bundle.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -475,8 +663,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the public key ring path.
+            </summary>
+        <value>The public key ring path.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -492,8 +682,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Saves the public key-ring bundle.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.IO.IOException">
+            An error occured while saving the public key-ring bundle.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SaveSecretKeyRingBundle">
@@ -508,8 +703,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Saves the secret key-ring bundle.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.IO.IOException">
+            An error occured while saving the secret key-ring bundle.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SecretKeyRingBundle">
@@ -523,8 +723,10 @@
         <ReturnType>Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKeyRingBundle</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the secret keyring bundle.
+            </summary>
+        <value>The secret keyring bundle.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -539,8 +741,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the secret key ring path.
+            </summary>
+        <value>The secret key ring path.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -560,12 +764,37 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Sign the content using the specified signer.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the detached signature data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing key could not be found for <paramref name="signer" />.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -584,12 +813,31 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="hashAlgorithm">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="hashAlgorithm">The hashing algorithm to use for signing.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Sign the content using the specified signer.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the detached signature data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="signer" /> cannot be used for signing.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -609,13 +857,48 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Signs and encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+          <para>A signing key could not be found for <paramref name="signer" />.</para>
+          <para>-or-</para>
+          <para>A public key could not be found for one or more of the <paramref name="recipients" />.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -635,13 +918,40 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="hashAlgorithm">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="hashAlgorithm">The hashing algorithm to use for signing.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Signs and encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="signer" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignatureProtocol">
@@ -655,8 +965,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the signature protocol.
+            </summary>
+        <value>The signature protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -674,10 +986,16 @@
         <Parameter Name="protocol" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="protocol">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="protocol">The protocol.</param>
+        <summary>
+            Checks whether or not the specified protocol is supported by the <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            </summary>
+        <returns>
+          <c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="protocol" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -695,11 +1013,20 @@
         <Parameter Name="signatureData" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="content">To be added.</param>
-        <param name="signatureData">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="content">The content.</param>
+        <param name="signatureData">The signature data.</param>
+        <summary>
+            Verify the specified content and signatureData.
+            </summary>
+        <returns>A list of digital signatures.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signatureData" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

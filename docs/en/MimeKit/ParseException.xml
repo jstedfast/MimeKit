@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A Parse exception as thrown by the various Parse methods in MimeKit.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,8 +27,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the index of the byte that caused the error.
+            </summary>
+        <value>The index of the byte that caused error.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -41,8 +45,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the byte index of the token that was malformed.
+            </summary>
+        <value>The byte index of the token.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

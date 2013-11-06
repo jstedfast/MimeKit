@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An enumeration of common header fields.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Ad-Hoc header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ApparentlyTo">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Apparently-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Approved">
@@ -52,7 +58,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Approved header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Article">
@@ -66,7 +74,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Article header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Bcc">
@@ -80,7 +90,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Bcc header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Bytes">
@@ -94,7 +106,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Bytes header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Cc">
@@ -108,7 +122,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Cc header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Comments">
@@ -122,7 +138,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Comments header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentBase">
@@ -136,7 +154,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Base header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentClass">
@@ -150,7 +170,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Class header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentDescription">
@@ -164,7 +186,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Description header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentDisposition">
@@ -178,7 +202,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Disposition header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentDuration">
@@ -192,7 +218,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Duration header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentId">
@@ -206,7 +234,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Id header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentLanguage">
@@ -220,7 +250,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Language header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentLocation">
@@ -234,7 +266,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Location header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentMd5">
@@ -248,7 +282,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Md5 header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentTransferEncoding">
@@ -262,7 +298,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Transfer-Encoding header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentType">
@@ -276,7 +314,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Content-Type header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Control">
@@ -290,7 +330,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Control header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Date">
@@ -304,7 +346,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Date header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DeferredDelivery">
@@ -318,7 +362,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Deferred-Delivery header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DispositionNotificationTo">
@@ -332,7 +378,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Disposition-Notification-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Distribution">
@@ -346,7 +394,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Distribution header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -360,7 +410,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Encoding header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Encrypted">
@@ -374,7 +426,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Encrypted header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Expires">
@@ -388,7 +442,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Expires header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpiryDate">
@@ -402,7 +458,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Expiry-Date header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FollowUpTo">
@@ -416,7 +474,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Followup-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="From">
@@ -430,7 +490,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The From header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Importance">
@@ -444,7 +506,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Importance header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InReplyTo">
@@ -458,7 +522,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The In-Reply-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Keywords">
@@ -472,7 +538,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Keywords header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Lines">
@@ -486,7 +554,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Lines header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListHelp">
@@ -500,7 +570,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The List-Help header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListSubscribe">
@@ -514,7 +586,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The List-Subscribe header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListUnsubscribe">
@@ -528,7 +602,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The List-Unsubscribe header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageId">
@@ -542,7 +618,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Message-Id header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MimeVersion">
@@ -556,7 +634,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MIME-Version header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NewsGroups">
@@ -570,7 +650,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The News-Groups header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NntpPostingHost">
@@ -584,7 +666,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Nntp-Posting-Host header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Organization">
@@ -598,7 +682,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Organization header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Path">
@@ -612,7 +698,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Path header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Precedence">
@@ -626,7 +714,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Precedence header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Priority">
@@ -640,7 +730,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Priority header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Received">
@@ -654,7 +746,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Received header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="References">
@@ -668,7 +762,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The References header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyBy">
@@ -682,7 +778,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Reply-By header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyTo">
@@ -696,7 +794,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Reply-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentBcc">
@@ -710,7 +810,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Bcc header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentCc">
@@ -724,7 +826,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Cc header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentDate">
@@ -738,7 +842,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Date header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentFrom">
@@ -752,7 +858,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-From header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentMessageId">
@@ -766,7 +874,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Message-Id header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentReplyTo">
@@ -780,7 +890,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Reply-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentSender">
@@ -794,7 +906,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-Sender header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResentTo">
@@ -808,7 +922,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Resent-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReturnPath">
@@ -822,7 +938,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Return-Path header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReturnReceiptTo">
@@ -836,7 +954,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Return-Receipt-To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sender">
@@ -850,7 +970,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Sender header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sensitivity">
@@ -864,7 +986,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Sensitivity header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Subject">
@@ -878,7 +1002,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Subject header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Summary">
@@ -892,7 +1018,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Summary header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Supercedes">
@@ -906,7 +1034,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Supercedes header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="To">
@@ -920,7 +1050,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The To header field.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Unknown">
@@ -934,7 +1066,9 @@
         <ReturnType>MimeKit.HeaderId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            An unknown header field.
+            </summary>
       </Docs>
     </Member>
   </Members>

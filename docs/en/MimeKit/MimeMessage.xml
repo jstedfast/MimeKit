@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A MIME message.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -45,8 +49,20 @@
       </Parameters>
       <Docs>
         <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
+            <param name="args">An array of initialization parameters: headers and message parts.</param></summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="args" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:MimeKit.MimeEntity" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Bcc">
@@ -60,8 +76,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the Bcc header.
+            </summary>
+        <value>The list of addresses in the Bcc header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -76,8 +94,10 @@
         <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the body of the message.
+            </summary>
+        <value>The body of the message.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -92,8 +112,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the Cc header.
+            </summary>
+        <value>The list of addresses in the Cc header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -108,8 +130,10 @@
         <ReturnType>System.DateTimeOffset</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the date of the message.
+            </summary>
+        <value>The date of the message.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -124,8 +148,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the From header.
+            </summary>
+        <value>The list of addresses in the From header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -140,8 +166,10 @@
         <ReturnType>MimeKit.HeaderList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of headers.
+            </summary>
+        <value>The list of headers.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -156,9 +184,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the message-id that this message is in reply to.
+            </summary>
+        <value>The message id that this message is in reply to.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="MessageId">
@@ -172,9 +205,17 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the message identifier.
+            </summary>
+        <value>The message identifier.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="MimeVersion">
@@ -188,9 +229,14 @@
         <ReturnType>System.Version</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the MIME-Version.
+            </summary>
+        <value>The MIME version.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="References">
@@ -204,8 +250,10 @@
         <ReturnType>MimeKit.MessageIdList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the list of references to other messages.
+            </summary>
+        <value>The references.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -220,8 +268,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the Reply-To header.
+            </summary>
+        <value>The list of addresses in the Reply-To header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -236,8 +286,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the Sender header.
+            </summary>
+        <value>The list of addresses in the Sender header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -252,9 +304,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the subject of the message.
+            </summary>
+        <value>The subject of the message.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="To">
@@ -268,8 +325,10 @@
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the list of addresses in the To header.
+            </summary>
+        <value>The list of addresses in the To header.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -287,9 +346,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the message to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -307,10 +371,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the message to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

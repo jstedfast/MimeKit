@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            The type of S/MIME data that an application/pkcs7-mime part contains.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            S/MIME certificate data.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CompressedData">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            S/MIME compressed data.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EnvelopedData">
@@ -52,7 +58,9 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            S/MIME enveloped data.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SignedData">
@@ -66,7 +74,9 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            S/MIME signed data.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Unknown">
@@ -80,7 +90,9 @@
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The S/MIME data type is unknown.
+            </summary>
       </Docs>
     </Member>
   </Members>

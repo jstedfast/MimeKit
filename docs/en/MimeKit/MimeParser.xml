@@ -10,7 +10,10 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A MIME parser which can be used to parse <see cref="T:MimeKit.MimeMessage" />s and
+            <see cref="T:MimeKit.MimeEntity" />s from arbitrary streams.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,9 +28,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -42,10 +50,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -60,10 +77,15 @@
         <Parameter Name="format" Type="MimeKit.MimeFormat" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -78,10 +100,24 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -97,11 +133,20 @@
         <Parameter Name="format" Type="MimeKit.MimeFormat" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -117,11 +162,29 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -137,11 +200,25 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -158,12 +235,30 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="CurrentStreamOffset">
@@ -177,8 +272,10 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the current stream offset that the parser is at.
+            </summary>
+        <value>The stream offset.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -193,8 +290,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether the parser has reached the end of the input stream.
+            </summary>
+        <value>
+          <c>true</c> if this parser has reached the end of the input stream;
+            otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -209,8 +310,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the most recent mbox marker.
+            </summary>
+        <value>The mbox marker.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -225,8 +328,10 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the most recent mbox marker offset.
+            </summary>
+        <value>The mbox marker offset.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -242,8 +347,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Parses an entity from the stream.
+            </summary>
+        <returns>The parsed entity.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -259,8 +366,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Parses a message from the stream.
+            </summary>
+        <returns>The parsed message.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -278,9 +387,14 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -298,10 +412,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -319,10 +442,15 @@
         <Parameter Name="format" Type="MimeKit.MimeFormat" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -340,10 +468,24 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -362,11 +504,20 @@
         <Parameter Name="format" Type="MimeKit.MimeFormat" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -385,11 +536,29 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -408,11 +577,25 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -432,12 +615,30 @@
         <Parameter Name="persistent" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="persistent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream to parse.</param>
+        <param name="format">The format of the stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <summary>
+            Sets the stream to parse.
+            </summary>
+        <remarks>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+          <para>It should be noted, however, that disposing <paramref name="stream" /> will make it impossible
+            for <see cref="T:MimeKit.ContentObject" /> to read the content.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

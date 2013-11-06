@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A base implementation for MIME filters.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -46,9 +48,11 @@
         <Parameter Name="keep" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="size">To be added.</param>
-        <param name="keep">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="size">The minimum size needed.</param>
+        <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
+        <summary>
+            Ensures that the output buffer is greater than or equal to the specified size.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -70,14 +74,33 @@
         <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The number of bytes of the input to filter.
+            </param>
+        <param name="outputIndex">
+            The starting index of the output in the returned buffer.
+            </param>
+        <param name="outputLength">
+            The length of the output buffer.
+            </param>
+        <summary>
+            Filters the specified input.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="input" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -99,14 +122,16 @@
         <Parameter Name="flush" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
+        <param name="outputIndex">The output index.</param>
+        <param name="outputLength">The output length.</param>
+        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+        <summary>
+            Filter the specified input.
+            </summary>
+        <returns>The filtered output.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -128,14 +153,33 @@
         <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="input">
+            The input buffer.
+            </param>
+        <param name="startIndex">
+            The starting index of the input buffer.
+            </param>
+        <param name="length">
+            The number of bytes of the input to filter.
+            </param>
+        <param name="outputIndex">
+            The starting index of the output in the returned buffer.
+            </param>
+        <param name="outputLength">
+            The length of the output buffer.
+            </param>
+        <summary>
+            Filters the specified input, flushing all internally buffered data to the output.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="input" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="output">
@@ -165,7 +209,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the filter.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -185,10 +231,12 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the buffer to save.</param>
+        <param name="length">The length of the buffer to save, starting at <paramref name="startIndex" />.</param>
+        <summary>
+            Saves the remaining input for the next round of processing.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

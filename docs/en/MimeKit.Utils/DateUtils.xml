@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            Utility methods to parse and format rfc0822 date strings.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -28,9 +30,11 @@
         <Parameter Name="date" Type="System.DateTimeOffset" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="date">The date.</param>
+        <summary>
+            Formats the <see cref="T:System.DateTimeOffset" /> as an rfc0822 date string.
+            </summary>
+        <returns>The formatted string.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -49,11 +53,17 @@
         <Parameter Name="date" Type="System.DateTimeOffset&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="date">The parsed date.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:System.DateTimeOffset" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParseDateTime">
@@ -71,11 +81,17 @@
         <Parameter Name="date" Type="System.DateTimeOffset&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The input text.</param>
+        <param name="date">The parsed date.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:System.DateTimeOffset" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParseDateTime">
@@ -94,12 +110,21 @@
         <Parameter Name="date" Type="System.DateTimeOffset&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="date">The parsed date.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:System.DateTimeOffset" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is not within the range of the byte array.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="TryParseDateTime">
@@ -119,13 +144,23 @@
         <Parameter Name="date" Type="System.DateTimeOffset&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="date">The parsed date.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:System.DateTimeOffset" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
   </Members>

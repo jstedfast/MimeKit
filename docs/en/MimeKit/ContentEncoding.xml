@@ -9,7 +9,10 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An enumeration of all supported content transfer encodings.
+            <seealso cref="P:MimeKit.MimePart.ContentTransferEncoding" />.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +27,15 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The base64 content transfer encoding.
+            <seealso cref="T:MimeKit.Encodings.Base64Encoder" />.
+            </summary>
+        <remarks>
+            This encoding is typically used for encoding binary data
+            or textual content in a largely 8bit charset encoding and
+            is supported by all message transport services.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Binary">
@@ -38,7 +49,13 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The binary content transfer encoding.
+            </summary>
+        <remarks>
+            This encoding is simply unencoded binary data. Typically not
+            supported by standard message transport services such as SMTP.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Default">
@@ -52,7 +69,9 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The default encoding (aka no encoding at all).
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EightBit">
@@ -66,7 +85,15 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The 8bit content transfer encoding.
+            </summary>
+        <remarks>
+            This encoding should be restricted to textual content
+            outside of the US-ASCII range but may not be supported
+            by all transport services such as older SMTP servers
+            that do not support the 8BITMIME extension.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="QuotedPrintable">
@@ -80,7 +107,16 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The quoted printable content transfer encoding.
+            <seealso cref="T:MimeKit.Encodings.QuotedPrintableEncoder" />.
+            </summary>
+        <remarks>
+            This encoding is used for textual content that is in a charset
+            that has a minority of characters outside of the US-ASCII range
+            (such as ISO-8859-1 and other single-byte charset encodings) and
+            is supported by all message transport services.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SevenBit">
@@ -94,7 +130,13 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The 7bit content transfer encoding.
+            </summary>
+        <remarks>
+            This encoding should be restricted to textual content
+            in the US-ASCII range.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="UUEncode">
@@ -108,7 +150,14 @@
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The uuencode content transfer encoding.
+            <seealso cref="T:MimeKit.Encodings.UUEncoder" />.
+            </summary>
+        <remarks>
+            This is an obsolete encoding meant for encoding binary
+            data and has largely been superceeded by <see cref="F:MimeKit.ContentEncoding.Base64" />.
+            </remarks>
       </Docs>
     </Member>
   </Members>

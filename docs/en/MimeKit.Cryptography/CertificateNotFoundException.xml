@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An exception that is thrown when a certificate could not be found for a specified mailbox.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,9 +28,11 @@
         <Parameter Name="message" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mailbox">To be added.</param>
-        <param name="message">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mailbox">The mailbox that could not be resolved to a valid certificate.</param>
+        <param name="message">A message explaining the error.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -44,9 +48,11 @@
         <Parameter Name="message" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="keyid">To be added.</param>
-        <param name="message">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
+        <param name="message">A message explaining the error.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -61,8 +67,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the key id that could not be found.
+            </summary>
+        <value>The key id.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

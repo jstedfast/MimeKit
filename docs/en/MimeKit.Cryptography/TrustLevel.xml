@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            The trust level of a certificate or key.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The trust has expired.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Fully">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Fully trust this certificate or key.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Marginal">
@@ -52,7 +58,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Marginally trust this certificate or key.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Never">
@@ -66,7 +74,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Never trust this certificate or key.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="None">
@@ -80,7 +90,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            No trust level specified.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Ultimate">
@@ -94,7 +106,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The ultimate level of trust for a certificate or key.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Undefined">
@@ -108,7 +122,9 @@
         <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            An unspecified trust.
+            </summary>
       </Docs>
     </Member>
   </Members>

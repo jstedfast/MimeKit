@@ -14,7 +14,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An abstract cryptography context.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -42,8 +44,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets a value indicating whether this <see cref="T:MimeKit.Cryptography.CryptographyContext" /> allows online
+            certificate retrieval.
+            </summary>
+        <value>
+          <c>true</c> if online certificate retrieval should be allowed; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -61,10 +67,19 @@
         <Parameter Name="protocol" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="protocol">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="protocol">The protocol.</param>
+        <summary>
+            Creates a new <see cref="T:MimeKit.Cryptography.CryptographyContext" /> for the specified protocol.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="protocol" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            There are no supported <see cref="T:MimeKit.Cryptography.CryptographyContext" />s that support
+            the specified <paramref name="protocol" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -82,11 +97,16 @@
         <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="encryptedData">To be added.</param>
-        <param name="signatures">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="encryptedData">The encrypted data.</param>
+        <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+        <summary>
+            Decrypt the specified encryptedData.
+            </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -101,8 +121,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Releases all resources used by the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> object.
+            </summary>
+        <remarks>Call <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose" /> when you are finished using the <see cref="T:MimeKit.Cryptography.CryptographyContext" />. The
+            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose" /> method leaves the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> in an unusable state. After
+            calling <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose" />, you must release all references to the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> so
+            the garbage collector can reclaim the memory that the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> was occupying.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -119,8 +144,12 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">If <c>true</c>, this method is being called by
+            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose(System.Boolean)" />;
+            otherwise it is being called by the finalizer.</param>
+        <summary>
+            Releases all resources used by the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> object.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -139,11 +168,24 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for one or more of the <paramref name="recipients" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="EncryptionProtocol">
@@ -157,8 +199,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the encryption protocol.
+            </summary>
+        <value>The encryption protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -196,10 +240,15 @@
         <Parameter Name="micalg" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="micalg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="micalg">The micalg parameter value.</param>
+        <summary>
+            Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+            </summary>
+        <returns>The digest algorithm.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="micalg" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetMicAlgorithmName">
@@ -216,10 +265,15 @@
         <Parameter Name="micalg" Type="MimeKit.Cryptography.DigestAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="micalg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="micalg">The digest algorithm.</param>
+        <summary>
+            Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+            </summary>
+        <returns>The micalg value.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="micalg" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Import">
@@ -236,9 +290,17 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stream">The raw certificate or key data.</param>
+        <summary>
+            Imports the public certificates or keys from the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            Importing keys is not supported by this cryptography context.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="KeyExchangeProtocol">
@@ -252,8 +314,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the key exchange protocol.
+            </summary>
+        <value>The key exchange protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -268,8 +332,10 @@
         <ReturnType>System.TimeSpan</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the online certificate retrieval timeout.
+            </summary>
+        <value>The online certificate retrieval timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -287,9 +353,23 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A custom subclass of <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> or
+            <see cref="T:MimeKit.Cryptography.OpenPgpContext" />.</param>
+        <summary>
+            Registers a default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> or <see cref="T:MimeKit.Cryptography.OpenPgpContext" />.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="type" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="type" /> is not a subclass of
+            <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> or <see cref="T:MimeKit.Cryptography.OpenPgpContext" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="type" /> does not have a parameterless constructor.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -308,12 +388,31 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Sign the content using the specified signer.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the detached signature data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for <paramref name="signer" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -333,13 +432,37 @@
         <Parameter Name="content" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="signer">To be added.</param>
-        <param name="digestAlgo">To be added.</param>
-        <param name="recipients">To be added.</param>
-        <param name="content">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Signs and encrypts the specified content for the specified recipients.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the encrypted data.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+          <para>A signing certificate could not be found for <paramref name="signer" />.</para>
+          <para>-or-</para>
+          <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="SignatureProtocol">
@@ -353,8 +476,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the signature protocol.
+            </summary>
+        <value>The signature protocol.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -372,10 +497,16 @@
         <Parameter Name="protocol" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="protocol">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="protocol">The protocol.</param>
+        <summary>
+            Checks whether or not the specified protocol is supported by the <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            </summary>
+        <returns>
+          <c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="protocol" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -393,11 +524,20 @@
         <Parameter Name="signatureData" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="content">To be added.</param>
-        <param name="signatureData">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="content">The content.</param>
+        <param name="signatureData">The signature data.</param>
+        <summary>
+            Verify the specified content and signatureData.
+            </summary>
+        <returns>A list of digital signatures.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signatureData" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

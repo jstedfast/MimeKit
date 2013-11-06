@@ -10,7 +10,10 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A charset filter for incrementally converting text streams from
+            one charset encoding to another.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -26,10 +29,28 @@
         <Parameter Name="targetCodePage" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sourceCodePage">To be added.</param>
-        <param name="targetCodePage">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sourceCodePage">
+            Source code page.
+            </param>
+        <param name="targetCodePage">
+            Target code page.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="sourceCodePage" /> is less than zero or greater than 65535.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetCodePage" /> is less than zero or greater than 65535.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>The <paramref name="sourceCodePage" /> is not supported by the system.</para>
+          <para>-or-</para>
+          <para>The <paramref name="targetCodePage" /> is not supported by the system.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -44,10 +65,28 @@
         <Parameter Name="targetEncodingName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sourceEncodingName">To be added.</param>
-        <param name="targetEncodingName">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sourceEncodingName">
+            Source encoding name.
+            </param>
+        <param name="targetEncodingName">
+            Target encoding name.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="sourceEncodingName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetEncodingName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>The <paramref name="sourceEncodingName" /> is not supported by the system.</para>
+          <para>-or-</para>
+          <para>The <paramref name="targetEncodingName" /> is not supported by the system.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -62,10 +101,23 @@
         <Parameter Name="targetEncoding" Type="System.Text.Encoding" />
       </Parameters>
       <Docs>
-        <param name="sourceEncoding">To be added.</param>
-        <param name="targetEncoding">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sourceEncoding">
+            Source encoding.
+            </param>
+        <param name="targetEncoding">
+            Target encoding.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="sourceEncoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetEncoding" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -87,14 +139,16 @@
         <Parameter Name="flush" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
-        <param name="startIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="outputIndex">To be added.</param>
-        <param name="outputLength">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
+        <param name="outputIndex">The output index.</param>
+        <param name="outputLength">The output length.</param>
+        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+        <summary>
+            Filter the specified input.
+            </summary>
+        <returns>The filtered output.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -110,7 +164,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Resets the filter.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -125,8 +181,12 @@
         <ReturnType>System.Text.Encoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the source encoding.
+            </summary>
+        <value>
+            The source encoding.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -141,8 +201,12 @@
         <ReturnType>System.Text.Encoding</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the target encoding.
+            </summary>
+        <value>
+            The target encoding.
+            </value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

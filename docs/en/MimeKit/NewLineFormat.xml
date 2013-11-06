@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A New-Line format.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The DOS New-Line format (<c>"\r\n"</c>).
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Unix">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Unix New-Line format (<c>"\n"</c>)
+            </summary>
       </Docs>
     </Member>
   </Members>

@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            The format of the MIME stream.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,7 +26,9 @@
         <ReturnType>MimeKit.MimeFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The default stream format.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Entity">
@@ -38,7 +42,9 @@
         <ReturnType>MimeKit.MimeFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The stream contains a single MIME entity or message.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Mbox">
@@ -52,7 +58,10 @@
         <ReturnType>MimeKit.MimeFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The stream is in the Unix mbox format and may contain
+            more than a single message.
+            </summary>
       </Docs>
     </Member>
   </Members>

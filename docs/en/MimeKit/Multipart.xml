@@ -20,7 +20,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A Multipart MIME part which may contain a collection of MIME parts.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -33,7 +35,10 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class
+            with a default Content-Type of multipart/mixed.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -48,8 +53,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -64,9 +71,14 @@
         <Parameter Name="subtype" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The multipart media sub-type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="subtype" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -87,10 +99,22 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subtype">The multipart media sub-type.</param>
+        <param name="args">An array of initialization parameters: headers and MIME entities.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="subtype" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="args" /> contains one or more arguments of an unknown type.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -107,9 +131,14 @@
         <Parameter Name="part" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="part">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="part">The part to add.</param>
+        <summary>
+            Adds the specified part.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="part" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Boundary">
@@ -123,9 +152,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the boundary.
+            </summary>
+        <value>The boundary.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -140,7 +174,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Removes all of the children.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -158,10 +194,15 @@
         <Parameter Name="part" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="part">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="part">The part to check for.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.Multipart" /> contains the specified part.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="part" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -179,10 +220,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array to copy the headers to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the entities in the <see cref="T:MimeKit.Multipart" /> to the specified array.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -196,8 +245,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of child parts.
+            </summary>
+        <value>The number of child parts.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -212,8 +263,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the epilogue.
+            </summary>
+        <value>The epilogue.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -229,8 +282,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -248,10 +303,15 @@
         <Parameter Name="part" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="part">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="part">The part.</param>
+        <summary>
+            Gets the index of the specified part.
+            </summary>
+        <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="part" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -269,10 +329,18 @@
         <Parameter Name="part" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="part">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <param name="part">The part.</param>
+        <summary>
+            Insert the part atthe specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="part" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -286,8 +354,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -305,10 +376,18 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Preamble">
@@ -322,8 +401,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets or sets the preamble.
+            </summary>
+        <value>The preamble.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -341,10 +422,16 @@
         <Parameter Name="part" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="part">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="part">The part to remove.</param>
+        <summary>
+            Remove the specified part.
+            </summary>
+        <returns>
+          <c>true</c> if the part was removed; otherwise <c>false</c>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="part" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveAt">
@@ -361,9 +448,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the part at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
@@ -398,10 +490,19 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The stream.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.Multipart" /> to the specified stream.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
   </Members>

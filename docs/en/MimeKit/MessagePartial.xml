@@ -10,8 +10,12 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+            A MIME part containing a partial message as its content.
+            </summary>
+    <remarks>
+            Represents a MIME part with a Content-Type of message/partial.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -25,8 +29,10 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePartial" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -43,11 +49,23 @@
         <Parameter Name="total" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="number">To be added.</param>
-        <param name="total">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="id">The id value shared among the partial message parts.</param>
+        <param name="number">The part number for this partial message part.</param>
+        <param name="total">The total number of partial message parts.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePartial" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="id" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="number" /> is negative.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="total" /> is less than <paramref name="number" />.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Id">
@@ -61,8 +79,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the identifier.
+            </summary>
+        <value>The identifier.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -80,10 +100,15 @@
         <Parameter Name="partials" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt;" />
       </Parameters>
       <Docs>
-        <param name="partials">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="partials">The list of partial message parts.</param>
+        <summary>
+            Join the specified message/partial parts into the complete message.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="partials" />is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Join">
@@ -101,11 +126,20 @@
         <Parameter Name="partials" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <param name="partials">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="options">The parser options to use.</param>
+        <param name="partials">The list of partial message parts.</param>
+        <summary>
+            Join the specified message/partial parts into the complete message.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="partials" />is <c>null</c>.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Number">
@@ -119,8 +153,10 @@
         <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the part number for this partial message part.
+            </summary>
+        <value>The part number.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -139,11 +175,20 @@
         <Parameter Name="maxSize" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="message">To be added.</param>
-        <param name="maxSize">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="message">The message.</param>
+        <param name="maxSize">The maximum size for each message body.</param>
+        <summary>
+            Split the specified message into multiple messages, each with a
+            message/partial body no larger than the max size specified.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="message" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="maxSize" /> is less than <c>1</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Total">
@@ -157,8 +202,10 @@
         <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the total number of parts.
+            </summary>
+        <value>The total number of parts.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
