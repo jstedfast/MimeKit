@@ -96,7 +96,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var certificate in keychain.GetCertificates (CssmKeyUse.Encrypt)) {
-				if (certificate.GetSubjectEmail () == mailbox.Address)
+				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
 
@@ -115,7 +115,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			foreach (var signer in keychain.GetAllCmsSigners ()) {
-				if (signer.Certificate.GetSubjectEmail () == mailbox.Address) {
+				if (signer.Certificate.GetSubjectEmailAddress () == mailbox.Address) {
 					signer.DigestAlgorithm = digestAlgo;
 					return signer;
 				}
