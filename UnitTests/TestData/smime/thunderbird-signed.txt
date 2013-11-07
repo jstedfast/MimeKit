@@ -1,6 +1,3 @@
-X-Mozilla-Status: 0001
-X-Mozilla-Status2: 00800000
-X-Mozilla-Keys:                                                                                 
 Message-ID: <52756054.60206@gnome.org>
 Date: Sat, 02 Nov 2013 16:28:04 -0400
 From: Jeffrey Stedfast <fejj@gnome.org>
