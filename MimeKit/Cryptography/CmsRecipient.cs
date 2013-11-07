@@ -29,8 +29,19 @@ using System;
 using Org.BouncyCastle.X509;
 
 namespace MimeKit.Cryptography {
-	public class CmsRecipient
+	/// <summary>
+	/// An S/MIME recipient.
+	/// </summary>
+	public sealed class CmsRecipient
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <param name="certificate">The recipient's certificate.</param>
+		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public CmsRecipient (X509Certificate certificate, SubjectIdentifierType recipientIdentifierType)
 		{
 			if (certificate == null)
@@ -44,6 +55,13 @@ namespace MimeKit.Cryptography {
 			Certificate = certificate;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <param name="certificate">The recipient's certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public CmsRecipient (X509Certificate certificate)
 		{
 			if (certificate == null)
@@ -53,10 +71,18 @@ namespace MimeKit.Cryptography {
 			Certificate = certificate;
 		}
 
+		/// <summary>
+		/// Gets the recipient's certificate.
+		/// </summary>
+		/// <value>The certificate.</value>
 		public X509Certificate Certificate {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the recipient identifier type.
+		/// </summary>
+		/// <value>The recipient identifier type.</value>
 		public SubjectIdentifierType RecipientIdentifierType {
 			get; private set;
 		}

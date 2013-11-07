@@ -1,6 +1,6 @@
 <Type Name="CmsRecipientCollection" FullName="MimeKit.Cryptography.CmsRecipientCollection">
-  <TypeSignature Language="C#" Value="public class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public sealed class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
@@ -17,7 +17,9 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A collection of <see cref="T:MimeKit.Cryptography.CmsRecipient" />s.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -30,7 +32,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -48,9 +52,14 @@
         <Parameter Name="recipient" Type="MimeKit.Cryptography.CmsRecipient" />
       </Parameters>
       <Docs>
-        <param name="recipient">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="recipient">The recipient.</param>
+        <summary>
+            Adds the specified recipient.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="recipient" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Clear">
@@ -65,7 +74,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Clears the recipient collection.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -83,10 +94,15 @@
         <Parameter Name="recipient" Type="MimeKit.Cryptography.CmsRecipient" />
       </Parameters>
       <Docs>
-        <param name="recipient">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="recipient">The recipient.</param>
+        <summary>
+            Check if the collection contains the specified recipient.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="recipient" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="CopyTo">
@@ -104,10 +120,18 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The array.</param>
+        <param name="arrayIndex">The array index.</param>
+        <summary>
+            Copies the recpients into the specified array starting at the specified index.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -121,8 +145,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the number of recipients in the collection.
+            </summary>
+        <value>The number of recipients in the collection.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -138,8 +164,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Gets an enumerator for the collection of recipients.
+            </summary>
+        <returns>The enumerator.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -154,8 +182,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -173,10 +204,15 @@
         <Parameter Name="recipient" Type="MimeKit.Cryptography.CmsRecipient" />
       </Parameters>
       <Docs>
-        <param name="recipient">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="recipient">The recipient.</param>
+        <summary>
+            Remove the specified recipient.
+            </summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="recipient" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">

@@ -1,6 +1,6 @@
 <Type Name="CmsRecipient" FullName="MimeKit.Cryptography.CmsRecipient">
-  <TypeSignature Language="C#" Value="public class CmsRecipient" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsRecipient extends System.Object" />
+  <TypeSignature Language="C#" Value="public sealed class CmsRecipient" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipient extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An S/MIME recipient.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -25,9 +27,14 @@
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
       </Parameters>
       <Docs>
-        <param name="certificate">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="certificate">The recipient's certificate.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -42,10 +49,15 @@
         <Parameter Name="recipientIdentifierType" Type="MimeKit.Cryptography.SubjectIdentifierType" />
       </Parameters>
       <Docs>
-        <param name="certificate">To be added.</param>
-        <param name="recipientIdentifierType">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="certificate">The recipient's certificate.</param>
+        <param name="recipientIdentifierType">The recipient identifier type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> class.
+            </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Certificate">
@@ -59,8 +71,10 @@
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the recipient's certificate.
+            </summary>
+        <value>The certificate.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -75,8 +89,10 @@
         <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the recipient identifier type.
+            </summary>
+        <value>The recipient identifier type.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

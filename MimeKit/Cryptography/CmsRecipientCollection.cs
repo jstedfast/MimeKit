@@ -29,10 +29,16 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
-	public class CmsRecipientCollection : ICollection<CmsRecipient>
+	/// <summary>
+	/// A collection of <see cref="CmsRecipient"/>s.
+	/// </summary>
+	public sealed class CmsRecipientCollection : ICollection<CmsRecipient>
 	{
 		readonly IList<CmsRecipient> recipients;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipientCollection"/> class.
+		/// </summary>
 		public CmsRecipientCollection ()
 		{
 			recipients = new List<CmsRecipient> ();
@@ -40,14 +46,29 @@ namespace MimeKit.Cryptography {
 
 		#region ICollection implementation
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the number of recipients in the collection.
+		/// </summary>
+		/// <value>The number of recipients in the collection.</value>
 		public int Count {
 			get { return recipients.Count; }
 		}
 
+		/// <summary>
+		/// Adds the specified recipient.
+		/// </summary>
+		/// <param name="recipient">The recipient.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="recipient"/> is <c>null</c>.
+		/// </exception>
 		public void Add (CmsRecipient recipient)
 		{
 			if (recipient == null)
@@ -56,11 +77,21 @@ namespace MimeKit.Cryptography {
 			recipients.Add (recipient);
 		}
 
+		/// <summary>
+		/// Clears the recipient collection.
+		/// </summary>
 		public void Clear ()
 		{
 			recipients.Clear ();
 		}
 
+		/// <summary>
+		/// Check if the collection contains the specified recipient.
+		/// </summary>
+		/// <param name="recipient">The recipient.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="recipient"/> is <c>null</c>.
+		/// </exception>
 		public bool Contains (CmsRecipient recipient)
 		{
 			if (recipient == null)
@@ -69,6 +100,17 @@ namespace MimeKit.Cryptography {
 			return recipients.Contains (recipient);
 		}
 
+		/// <summary>
+		/// Copies the recpients into the specified array starting at the specified index.
+		/// </summary>
+		/// <param name="array">The array.</param>
+		/// <param name="arrayIndex">The array index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="array"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="arrayIndex"/> is out of range.
+		/// </exception>
 		public void CopyTo (CmsRecipient[] array, int arrayIndex)
 		{
 			if (array == null)
@@ -80,6 +122,13 @@ namespace MimeKit.Cryptography {
 			recipients.CopyTo (array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Remove the specified recipient.
+		/// </summary>
+		/// <param name="recipient">The recipient.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="recipient"/> is <c>null</c>.
+		/// </exception>
 		public bool Remove (CmsRecipient recipient)
 		{
 			if (recipient == null)
@@ -92,6 +141,10 @@ namespace MimeKit.Cryptography {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the collection of recipients.
+		/// </summary>
+		/// <returns>The enumerator.</returns>
 		public IEnumerator<CmsRecipient> GetEnumerator ()
 		{
 			return recipients.GetEnumerator ();

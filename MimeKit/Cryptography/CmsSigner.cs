@@ -31,12 +31,17 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.Pkcs;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An S/MIME signer.
+	/// </summary>
 	public sealed class CmsSigner
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
 		public CmsSigner ()
 		{
 			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
@@ -44,6 +49,19 @@ namespace MimeKit.Cryptography {
 			DigestAlgorithm = DigestAlgorithm.Sha1;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
+		/// <param name="chain">The chain of certificates starting with the signer's certificate back to the root.</param>
+		/// <param name="key">The signer's private key.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="chain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="chain"/> did not contain any certificates.
+		/// </exception>
 		public CmsSigner (IEnumerable<X509CertificateEntry> chain, AsymmetricKeyEntry key)
 		{
 			if (chain == null)
@@ -58,8 +76,21 @@ namespace MimeKit.Cryptography {
 				if (Certificate == null)
 					Certificate = entry.Certificate;
 			}
+
+			if (CertificateChain.Count == 0)
+				throw new ArgumentException ("The certificate chain was empty.", "chain");
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
+		/// <param name="certificate">The signer's certificate.</param>
+		/// <param name="key">The signer's private key.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="certificate"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// </exception>
 		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key) : this ()
 		{
 			if (certificate == null)
@@ -74,26 +105,50 @@ namespace MimeKit.Cryptography {
 			PrivateKey = key;
 		}
 
+		/// <summary>
+		/// Gets or sets the signer's certificate.
+		/// </summary>
+		/// <value>The signer's certificate.</value>
 		public X509Certificate Certificate {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the certificate chain.
+		/// </summary>
+		/// <value>The certificate chain.</value>
 		public IList<X509Certificate> CertificateChain {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the digest algorithm.
+		/// </summary>
+		/// <value>The digest algorithm.</value>
 		public DigestAlgorithm DigestAlgorithm {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the private key.
+		/// </summary>
+		/// <value>The private key.</value>
 		public AsymmetricKeyParameter PrivateKey {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the signed attributes.
+		/// </summary>
+		/// <value>The signed attributes.</value>
 		public AttributeTable SignedAttributes {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the unsigned attributes.
+		/// </summary>
+		/// <value>The unsigned attributes.</value>
 		public AttributeTable UnsignedAttributes {
 			get; set;
 		}
