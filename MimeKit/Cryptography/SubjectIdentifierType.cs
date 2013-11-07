@@ -25,10 +25,23 @@
 //
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The method to use for identifying a certificate.
+	/// </summary>
 	public enum SubjectIdentifierType {
+		/// <summary>
+		/// The identifier type is unknown.
+		/// </summary>
 		Unknown,
+
+		/// <summary>
+		/// Identify the certificate by its Issuer and Serial Number properties.
+		/// </summary>
 		IssuerAndSerialNumber,
+
+		/// <summary>
+		/// Identify the certificate by the sha1 hash of its public key.
+		/// </summary>
 		SubjectKeyIdentifier,
-		NoSignature
 	}
 }

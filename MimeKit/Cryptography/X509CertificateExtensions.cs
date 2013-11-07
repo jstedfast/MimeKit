@@ -31,41 +31,71 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// X509Certificate extension methods.
+	/// </summary>
 	public static class X509CertificateExtensions
 	{
-		public static string GetIssuerNameInfo (this X509Certificate cert, DerObjectIdentifier identifier)
+		/// <summary>
+		/// Gets the issuer name info.
+		/// </summary>
+		/// <returns>The issuer name info.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="identifier">The name identifier.</param>
+		public static string GetIssuerNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
 			// FIXME: this should be fixed to return IList<string>
-			var list = cert.IssuerDN.GetValueList (identifier);
+			var list = certificate.IssuerDN.GetValueList (identifier);
 			if (list.Count == 0)
 				return null;
 
 			return (string) list[0];
 		}
 
-		public static string GetSubjectNameInfo (this X509Certificate cert, DerObjectIdentifier identifier)
+		/// <summary>
+		/// Gets the issuer name info.
+		/// </summary>
+		/// <returns>The issuer name info.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="identifier">The name identifier.</param>
+		public static string GetSubjectNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
 			// FIXME: this should be fixed to return IList<string>
-			var list = cert.SubjectDN.GetValueList (identifier);
+			var list = certificate.SubjectDN.GetValueList (identifier);
 			if (list.Count == 0)
 				return null;
 
 			return (string) list[0];
 		}
 
-		public static string GetCommonName (this X509Certificate cert)
+		/// <summary>
+		/// Gets the common name of the certificate.
+		/// </summary>
+		/// <returns>The common name.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public static string GetCommonName (this X509Certificate certificate)
 		{
-			return cert.GetSubjectNameInfo (X509Name.CN);
+			return certificate.GetSubjectNameInfo (X509Name.CN);
 		}
 
-		public static string GetSubjectName (this X509Certificate cert)
+		/// <summary>
+		/// Gets the subject name of the certificate.
+		/// </summary>
+		/// <returns>The subject name.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public static string GetSubjectName (this X509Certificate certificate)
 		{
-			return cert.GetSubjectNameInfo (X509Name.Name);
+			return certificate.GetSubjectNameInfo (X509Name.Name);
 		}
 
-		public static string GetSubjectEmail (this X509Certificate cert)
+		/// <summary>
+		/// Gets the subject email address of the certificate.
+		/// </summary>
+		/// <returns>The subject email address.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public static string GetSubjectEmailAddress (this X509Certificate certificate)
 		{
-			return cert.GetSubjectNameInfo (X509Name.EmailAddress);
+			return certificate.GetSubjectNameInfo (X509Name.EmailAddress);
 		}
 	}
 }

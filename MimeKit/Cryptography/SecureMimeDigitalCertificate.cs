@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The email address.</value>
 		public string Email {
-			get { return Certificate.GetSubjectEmail (); }
+			get { return Certificate.GetSubjectEmailAddress (); }
 		}
 
 		/// <summary>

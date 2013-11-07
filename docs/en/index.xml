@@ -38,9 +38,6 @@
         <Attribute>
           <AttributeName>System.Runtime.InteropServices.Guid("2fe79b66-d107-45da-9493-175f59c4a53c")</AttributeName>
         </Attribute>
-        <Attribute>
-          <AttributeName>System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.0", FrameworkDisplayName="")</AttributeName>
-        </Attribute>
       </Attributes>
     </Assembly>
   </Assemblies>
@@ -161,18 +158,20 @@
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
       <Member MemberName="GetCommonName">
-        <MemberSignature Language="C#" Value="public static string GetCommonName (this Org.BouncyCastle.X509.X509Certificate cert);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetCommonName(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+        <MemberSignature Language="C#" Value="public static string GetCommonName (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetCommonName(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
         </Parameters>
         <Docs>
-          <param name="cert">To be added.</param>
-          <summary>To be added.</summary>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the common name of the certificate.
+            </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetCommonName(Org.BouncyCastle.X509.X509Certificate)" />
       </Member>
@@ -182,20 +181,22 @@
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
       <Member MemberName="GetIssuerNameInfo">
-        <MemberSignature Language="C#" Value="public static string GetIssuerNameInfo (this Org.BouncyCastle.X509.X509Certificate cert, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIssuerNameInfo(class Org.BouncyCastle.X509.X509Certificate cert, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+        <MemberSignature Language="C#" Value="public static string GetIssuerNameInfo (this Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIssuerNameInfo(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
           <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
         </Parameters>
         <Docs>
-          <param name="cert">To be added.</param>
-          <param name="identifier">To be added.</param>
-          <summary>To be added.</summary>
+          <param name="certificate">The certificate.</param>
+          <param name="identifier">The name identifier.</param>
+          <summary>
+            Gets the issuer name info.
+            </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetIssuerNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
       </Member>
@@ -204,21 +205,23 @@
       <Targets>
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
-      <Member MemberName="GetSubjectEmail">
-        <MemberSignature Language="C#" Value="public static string GetSubjectEmail (this Org.BouncyCastle.X509.X509Certificate cert);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectEmail(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+      <Member MemberName="GetSubjectEmailAddress">
+        <MemberSignature Language="C#" Value="public static string GetSubjectEmailAddress (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectEmailAddress(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
         </Parameters>
         <Docs>
-          <param name="cert">To be added.</param>
-          <summary>To be added.</summary>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the subject email address of the certificate.
+            </summary>
         </Docs>
-        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectEmail(Org.BouncyCastle.X509.X509Certificate)" />
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectEmailAddress(Org.BouncyCastle.X509.X509Certificate)" />
       </Member>
     </ExtensionMethod>
     <ExtensionMethod>
@@ -226,18 +229,20 @@
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
       <Member MemberName="GetSubjectName">
-        <MemberSignature Language="C#" Value="public static string GetSubjectName (this Org.BouncyCastle.X509.X509Certificate cert);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectName(class Org.BouncyCastle.X509.X509Certificate cert) cil managed" />
+        <MemberSignature Language="C#" Value="public static string GetSubjectName (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectName(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
         </Parameters>
         <Docs>
-          <param name="cert">To be added.</param>
-          <summary>To be added.</summary>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the subject name of the certificate.
+            </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectName(Org.BouncyCastle.X509.X509Certificate)" />
       </Member>
@@ -247,20 +252,22 @@
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
       <Member MemberName="GetSubjectNameInfo">
-        <MemberSignature Language="C#" Value="public static string GetSubjectNameInfo (this Org.BouncyCastle.X509.X509Certificate cert, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectNameInfo(class Org.BouncyCastle.X509.X509Certificate cert, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+        <MemberSignature Language="C#" Value="public static string GetSubjectNameInfo (this Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectNameInfo(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="cert" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
           <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
         </Parameters>
         <Docs>
-          <param name="cert">To be added.</param>
-          <param name="identifier">To be added.</param>
-          <summary>To be added.</summary>
+          <param name="certificate">The certificate.</param>
+          <param name="identifier">The name identifier.</param>
+          <summary>
+            Gets the issuer name info.
+            </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
       </Member>

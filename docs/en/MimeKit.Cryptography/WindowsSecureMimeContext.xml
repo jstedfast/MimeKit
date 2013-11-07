@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            An S/MIME cryptography context that uses Windows' <see cref="T:System.Security.Cryptography.X509Certificates.X509Store" />.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>

@@ -9,7 +9,9 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            The method to use for identifying a certificate.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -24,21 +26,9 @@
         <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-      </Docs>
-    </Member>
-    <Member MemberName="NoSignature">
-      <MemberSignature Language="C#" Value="NoSignature" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SubjectIdentifierType NoSignature = int32(3)" />
-      <MemberType>Field</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Identify the certificate by its Issuer and Serial Number properties.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SubjectKeyIdentifier">
@@ -52,7 +42,9 @@
         <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Identify the certificate by the sha1 hash of its public key.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Unknown">
@@ -66,7 +58,9 @@
         <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The identifier type is unknown.
+            </summary>
       </Docs>
     </Member>
   </Members>

@@ -33,14 +33,16 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
-using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509.Store;
 
 using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An S/MIME cryptography context that uses Windows' <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>.
+	/// </summary>
 	public class WindowsSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>

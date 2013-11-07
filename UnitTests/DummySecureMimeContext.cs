@@ -93,7 +93,7 @@ namespace UnitTests {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var certificate in certificates) {
-				if (certificate.GetSubjectEmail () == mailbox.Address)
+				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
 
@@ -117,7 +117,7 @@ namespace UnitTests {
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
 
-				if (certificate.GetSubjectEmail () == mailbox.Address) {
+				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {
 					var signer = new CmsSigner (certificate, key);
 					signer.DigestAlgorithm = digestAlgo;
 					return signer;

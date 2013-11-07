@@ -10,7 +10,9 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+            A <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> that uses the GnuPG keyrings.
+            </summary>
     <remarks>To be added.</remarks>
   </Docs>
   <Members>
@@ -23,7 +25,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.GnuPGContext" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

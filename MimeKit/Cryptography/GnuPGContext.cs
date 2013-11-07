@@ -28,6 +28,9 @@ using System;
 using System.IO;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A <see cref="OpenPgpContext"/> that uses the GnuPG keyrings.
+	/// </summary>
 	public abstract class GnuPGContext : OpenPgpContext
 	{
 		static readonly string PublicKeyRing;
@@ -51,6 +54,9 @@ namespace MimeKit.Cryptography {
 			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.GnuPGContext"/> class.
+		/// </summary>
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
 		}
