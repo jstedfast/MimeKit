@@ -40,7 +40,6 @@ using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
-using System.Diagnostics;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -329,6 +328,13 @@ namespace MimeKit.Cryptography {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
 
+				Asn1EncodableVector vector = signerInfo.UnsignedAttributes.GetAll (CmsAttributes.SigningTime);
+				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
+					Time time = (Time) ((DerSet) attr.AttrValues)[0];
+					signature.CreationDate = time.Date;
+					break;
+				}
+
 				if (certificate != null)
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
 
@@ -353,7 +359,6 @@ namespace MimeKit.Cryptography {
 //					}
 //				}
 
-				// FIXME: how do I get the creation timestamps?
 				signatures.Add (signature);
 			}
 
