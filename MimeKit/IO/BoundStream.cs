@@ -40,20 +40,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.BoundStream"/> class.
 		/// </summary>
-		/// <param name='baseStream'>
-		/// The underlying stream.
-		/// </param>
-		/// <param name='startBoundary'>
-		/// The offset in the base stream that will mark the start of this substream.
-		/// </param>
-		/// <param name='endBoundary'>
-		/// The offset in the base stream that will mark the end of this substream.
-		/// </param>
-		/// <param name='leaveOpen'>
-		/// <c>true</c> to leave the baseStream open after the
-		/// <see cref="MimeKit.IO.BoundStream"/> is disposed;
-		/// otherwise, <c>false</c>.
-		/// </param>
+		/// <param name='baseStream'>The underlying stream.</param>
+		/// <param name='startBoundary'>The offset in the base stream that will mark the start of this substream.</param>
+		/// <param name='endBoundary'>The offset in the base stream that will mark the end of this substream.</param>
+		/// <param name='leaveOpen'><c>true</c> to leave the baseStream open after the
+		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="baseStream"/> is <c>null</c>.
 		/// </exception>
@@ -85,9 +76,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The underlying stream.
-		/// </value>
+		/// <value>The underlying stream.</value>
 		public Stream BaseStream {
 			get; private set;
 		}
@@ -95,9 +84,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the start boundary offset of the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The start boundary offset of the underlying stream.
-		/// </value>
+		/// <value>The start boundary offset of the underlying stream.</value>
 		public long StartBoundary {
 			get; private set;
 		}
@@ -105,9 +92,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the end boundary offset of the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The end boundary offset of the underlying stream.
-		/// </value>
+		/// <value>The end boundary offset of the underlying stream.</value>
 		public long EndBoundary {
 			get; private set;
 		}
@@ -116,10 +101,8 @@ namespace MimeKit.IO {
 		/// Checks whether or not the underlying stream will remain open after
 		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the underlying stream should remain open after the
-		/// <see cref="MimeKit.IO.BoundStream"/> is disposed; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the underlying stream should remain open after the
+		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</value>
 		bool LeaveOpen {
 			get; set;
 		}
@@ -153,9 +136,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return BaseStream.CanRead; }
 		}
@@ -163,9 +144,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return BaseStream.CanWrite; }
 		}
@@ -173,9 +152,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return BaseStream.CanSeek; }
 		}
@@ -183,9 +160,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return BaseStream.CanTimeout; }
 		}
@@ -193,9 +168,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length of the stream.
 		/// </summary>
-		/// <value>
-		/// The length of the stream.
-		/// </value>
+		/// <value>The length of the stream.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -216,9 +189,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position of the stream.
 		/// </summary>
-		/// <value>
-		/// The position of the stream.
-		/// </value>
+		/// <value>The position of the stream.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -233,9 +204,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the read timeout.
 		/// </summary>
-		/// <value>
-		/// The read timeout.
-		/// </value>
+		/// <value>The read timeout.</value>
 		public override int ReadTimeout {
 			get { return BaseStream.ReadTimeout; }
 			set { BaseStream.ReadTimeout = value; }
@@ -244,9 +213,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the write timeout.
 		/// </summary>
-		/// <value>
-		/// The write timeout.
-		/// </value>
+		/// <value>The write timeout.</value>
 		public override int WriteTimeout {
 			get { return BaseStream.WriteTimeout; }
 			set { BaseStream.WriteTimeout = value; }
@@ -267,15 +234,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Reads data into the specified buffer.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset into the buffer to start reading data.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
+		/// <returns>The number of bytes read.</returns>
+		/// <param name='buffer'>The buffer to read data into.</param>
+		/// <param name='offset'>The offset into the buffer to start reading data.</param>
+		/// <param name='count'>The number of bytes to read.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -313,15 +275,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Writes the specified buffer.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset of the first byte to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
+		/// <param name='buffer'>The buffer to write.</param>
+		/// <param name='offset'>The offset of the first byte to write.</param>
+		/// <param name='count'>The number of bytes to write.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -355,12 +311,8 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Seeks to the specified offset.
 		/// </summary>
-		/// <param name='offset'>
-		/// The offset from the specified origin.
-		/// </param>
-		/// <param name='origin'>
-		/// The origin from which to seek.
-		/// </param>
+		/// <param name='offset'>The offset from the specified origin.</param>
+		/// <param name='origin'>The origin from which to seek.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -448,9 +400,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the length.
 		/// </summary>
-		/// <param name='value'>
-		/// The new length.
-		/// </param>
+		/// <param name='value'>The new length.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>

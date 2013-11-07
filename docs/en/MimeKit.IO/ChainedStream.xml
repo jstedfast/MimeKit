@@ -70,8 +70,7 @@
             Checks whether or not the stream supports reading.
             </summary>
         <value>
-          <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -90,8 +89,7 @@
             Checks whether or not the stream supports seeking.
             </summary>
         <value>
-          <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -110,8 +108,7 @@
             Checks whether or not I/O operations can timeout.
             </summary>
         <value>
-          <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -130,8 +127,7 @@
             Checks whether or not the stream supports writing.
             </summary>
         <value>
-          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -194,9 +190,7 @@
         <summary>
             Gets the length of the stream.
             </summary>
-        <value>
-            The length of the stream.
-            </value>
+        <value>The length of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -217,9 +211,7 @@
         <summary>
             Gets or sets the position of the stream.
             </summary>
-        <value>
-            The position of the stream.
-            </value>
+        <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -245,19 +237,13 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">
-            The buffer to read data into.
-            </param>
-        <param name="offset">
-            The offset into the buffer to start reading data.
-            </param>
-        <param name="count">
-            The number of bytes to read.
-            </param>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of bytes to read.</param>
         <summary>
             Reads data into the specified buffer.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The number of bytes read.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -282,12 +268,8 @@
         <Parameter Name="origin" Type="System.IO.SeekOrigin" />
       </Parameters>
       <Docs>
-        <param name="offset">
-            The offset from the specified origin.
-            </param>
-        <param name="origin">
-            The origin from which to seek.
-            </param>
+        <param name="offset">The offset from the specified origin.</param>
+        <param name="origin">The origin from which to seek.</param>
         <summary>
             Seeks to the specified offset.
             </summary>
@@ -321,9 +303,7 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="value">
-            The new length.
-            </param>
+        <param name="value">The new length.</param>
         <summary>
             Sets the length.
             </summary>
@@ -352,15 +332,9 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">
-            The buffer to write.
-            </param>
-        <param name="offset">
-            The offset of the first byte to write.
-            </param>
-        <param name="count">
-            The number of bytes to write.
-            </param>
+        <param name="buffer">The buffer to write.</param>
+        <param name="offset">The offset of the first byte to write.</param>
+        <param name="count">The number of bytes to write.</param>
         <summary>
             Writes the specified buffer.
             </summary>

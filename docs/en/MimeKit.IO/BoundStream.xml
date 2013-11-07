@@ -30,20 +30,12 @@
         <Parameter Name="leaveOpen" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="baseStream">
-            The underlying stream.
-            </param>
-        <param name="startBoundary">
-            The offset in the base stream that will mark the start of this substream.
-            </param>
-        <param name="endBoundary">
-            The offset in the base stream that will mark the end of this substream.
-            </param>
+        <param name="baseStream">The underlying stream.</param>
+        <param name="startBoundary">The offset in the base stream that will mark the start of this substream.</param>
+        <param name="endBoundary">The offset in the base stream that will mark the end of this substream.</param>
         <param name="leaveOpen">
           <c>true</c> to leave the baseStream open after the
-            <see cref="T:MimeKit.IO.BoundStream" /> is disposed;
-            otherwise, <c>false</c>.
-            </param>
+            <see cref="T:MimeKit.IO.BoundStream" /> is disposed; otherwise, <c>false</c>.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.BoundStream" /> class.
             </summary>
@@ -75,9 +67,7 @@
         <summary>
             Gets the underlying stream.
             </summary>
-        <value>
-            The underlying stream.
-            </value>
+        <value>The underlying stream.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -96,8 +86,7 @@
             Checks whether or not the stream supports reading.
             </summary>
         <value>
-          <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -116,8 +105,7 @@
             Checks whether or not the stream supports seeking.
             </summary>
         <value>
-          <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -136,8 +124,7 @@
             Checks whether or not I/O operations can timeout.
             </summary>
         <value>
-          <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -156,8 +143,7 @@
             Checks whether or not the stream supports writing.
             </summary>
         <value>
-          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-            </value>
+          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -196,9 +182,7 @@
         <summary>
             Gets the end boundary offset of the underlying stream.
             </summary>
-        <value>
-            The end boundary offset of the underlying stream.
-            </value>
+        <value>The end boundary offset of the underlying stream.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -240,9 +224,7 @@
         <summary>
             Gets the length of the stream.
             </summary>
-        <value>
-            The length of the stream.
-            </value>
+        <value>The length of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -263,9 +245,7 @@
         <summary>
             Gets or sets the position of the stream.
             </summary>
-        <value>
-            The position of the stream.
-            </value>
+        <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -291,19 +271,13 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">
-            The buffer to read data into.
-            </param>
-        <param name="offset">
-            The offset into the buffer to start reading data.
-            </param>
-        <param name="count">
-            The number of bytes to read.
-            </param>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of bytes to read.</param>
         <summary>
             Reads data into the specified buffer.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The number of bytes read.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -327,9 +301,7 @@
         <summary>
             Gets or sets the read timeout.
             </summary>
-        <value>
-            The read timeout.
-            </value>
+        <value>The read timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -348,12 +320,8 @@
         <Parameter Name="origin" Type="System.IO.SeekOrigin" />
       </Parameters>
       <Docs>
-        <param name="offset">
-            The offset from the specified origin.
-            </param>
-        <param name="origin">
-            The origin from which to seek.
-            </param>
+        <param name="offset">The offset from the specified origin.</param>
+        <param name="origin">The origin from which to seek.</param>
         <summary>
             Seeks to the specified offset.
             </summary>
@@ -387,9 +355,7 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="value">
-            The new length.
-            </param>
+        <param name="value">The new length.</param>
         <summary>
             Sets the length.
             </summary>
@@ -419,9 +385,7 @@
         <summary>
             Gets the start boundary offset of the underlying stream.
             </summary>
-        <value>
-            The start boundary offset of the underlying stream.
-            </value>
+        <value>The start boundary offset of the underlying stream.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -441,15 +405,9 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="buffer">
-            The buffer to write.
-            </param>
-        <param name="offset">
-            The offset of the first byte to write.
-            </param>
-        <param name="count">
-            The number of bytes to write.
-            </param>
+        <param name="buffer">The buffer to write.</param>
+        <param name="offset">The offset of the first byte to write.</param>
+        <param name="count">The number of bytes to write.</param>
         <summary>
             Writes the specified buffer.
             </summary>
@@ -476,9 +434,7 @@
         <summary>
             Gets or sets the write timeout.
             </summary>
-        <value>
-            The write timeout.
-            </value>
+        <value>The write timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

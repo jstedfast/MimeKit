@@ -56,9 +56,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.FilteredStream"/> class.
 		/// </summary>
-		/// <param name='source'>
-		/// The underlying stream to filter from or filter to.
-		/// </param>
+		/// <param name='source'>The underlying stream to filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="source"/> is <c>null</c>.
 		/// </exception>
@@ -74,9 +72,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the underlying source stream.
 		/// </summary>
-		/// <value>
-		/// The underlying source stream.
-		/// </value>
+		/// <value>The underlying source stream.</value>
 		public Stream Source {
 			get; private set;
 		}
@@ -84,9 +80,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Adds the specified filter.
 		/// </summary>
-		/// <param name='filter'>
-		/// Filter.
-		/// </param>
+		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -101,9 +95,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Contains the specified filter.
 		/// </summary>
-		/// <param name='filter'>
-		/// Filter.
-		/// </param>
+		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -118,9 +110,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Remove the specified filter.
 		/// </summary>
-		/// <param name='filter'>
-		/// Filter.
-		/// </param>
+		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -155,9 +145,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return Source.CanRead; }
 		}
@@ -165,9 +153,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return Source.CanWrite; }
 		}
@@ -175,9 +161,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return false; }
 		}
@@ -185,9 +169,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
 		}
@@ -195,9 +177,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length of the stream.
 		/// </summary>
-		/// <value>
-		/// The length of the stream.
-		/// </value>
+		/// <value>The length of the stream.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support setting the length.
 		/// </exception>
@@ -208,9 +188,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position of the stream.
 		/// </summary>
-		/// <value>
-		/// The position of the stream.
-		/// </value>
+		/// <value>The position of the stream.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
 		/// </exception>
@@ -222,9 +200,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the read timeout.
 		/// </summary>
-		/// <value>
-		/// The read timeout.
-		/// </value>
+		/// <value>The read timeout.</value>
 		public override int ReadTimeout
 		{
 			get { return Source.ReadTimeout; }
@@ -234,9 +210,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the write timeout.
 		/// </summary>
-		/// <value>
-		/// The write timeout.
-		/// </value>
+		/// <value>The write timeout.</value>
 		public override int WriteTimeout
 		{
 			get { return Source.WriteTimeout; }
@@ -258,15 +232,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Reads data into the specified buffer.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset into the buffer to start reading data.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
+		/// <returns>The number of bytes read.</returns>
+		/// <param name='buffer'>The buffer to read data into.</param>
+		/// <param name='offset'>The offset into the buffer to start reading data.</param>
+		/// <param name='count'>The number of bytes to read.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -315,15 +284,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Writes the specified buffer.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset of the first byte to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
+		/// <param name='buffer'>The buffer to write.</param>
+		/// <param name='offset'>The offset of the first byte to write.</param>
+		/// <param name='count'>The number of bytes to write.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -354,12 +317,8 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Seeks to the specified offset.
 		/// </summary>
-		/// <param name='offset'>
-		/// The offset from the specified origin.
-		/// </param>
-		/// <param name='origin'>
-		/// The origin from which to seek.
-		/// </param>
+		/// <param name='offset'>The offset from the specified origin.</param>
+		/// <param name='origin'>The origin from which to seek.</param>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
 		/// </exception>
@@ -408,9 +367,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the length.
 		/// </summary>
-		/// <param name='value'>
-		/// The new length.
-		/// </param>
+		/// <param name='value'>The new length.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
