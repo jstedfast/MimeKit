@@ -29,7 +29,8 @@
       <Docs>
         <param name="entity">Information used by the constructor.</param>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class
+            based on the <see cref="T:MimeKit.MimeEntityConstructorInfo" />.
             </summary>
         <remarks>
             Custom <see cref="T:MimeKit.MimeEntity" /> subclasses MUST implement this constructor

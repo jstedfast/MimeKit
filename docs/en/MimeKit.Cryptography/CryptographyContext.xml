@@ -145,8 +145,7 @@
       </Parameters>
       <Docs>
         <param name="disposing">If <c>true</c>, this method is being called by
-            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose(System.Boolean)" />;
-            otherwise it is being called by the finalizer.</param>
+            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose" />; otherwise it is being called by the finalizer.</param>
         <summary>
             Releases all resources used by the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> object.
             </summary>
@@ -220,10 +219,21 @@
         <Parameter Name="mailboxes" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
       </Parameters>
       <Docs>
-        <param name="mailboxes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mailboxes">The mailboxes.</param>
+        <summary>
+            Exports the keys for the specified mailboxes.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance containing the exported keys.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailboxes" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="mailboxes" /> was empty.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            Exporting keys is not supported by this cryptography context.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetDigestAlgorithm">

@@ -202,7 +202,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
 
-		protected static string GetOid (DigestAlgorithm digestAlgo)
+		static string GetOid (DigestAlgorithm digestAlgo)
 		{
 			switch (digestAlgo) {
 			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;

@@ -31,11 +31,17 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A MIME part with a Content-Type of application/pgp-signature.
 	/// </summary>
+	/// <remarks>
+	/// An application/pgp-signature part contains detatched pgp signature data
+	/// and is typically contained within a <see cref="MultipartSigned"/> part.
+	/// </remarks>
 	public class ApplicationPgpSignature : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>
+		/// class based on the <see cref="MimeKit.MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPgpSignature (MimeEntityConstructorInfo entity) : base (entity)
 		{

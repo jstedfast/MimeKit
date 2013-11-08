@@ -99,6 +99,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="UUDecoder"/> with its current state.
 		/// </summary>
+		/// <returns>A new <see cref="UUDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
 			var decoder = new UUDecoder (initial == UUDecoderState.Payload);

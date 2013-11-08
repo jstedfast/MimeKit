@@ -103,8 +103,10 @@
         <ReturnType>Org.BouncyCastle.Cms.SignerInformation</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>
+            Gets the signer info.
+            </summary>
+        <value>The signer info.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -120,9 +122,15 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>
+            Verify the digital signature.
+            </summary>
+        <returns>
+          <c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException">
+            An error verifying the signature has occurred.
+            </exception>
       </Docs>
     </Member>
   </Members>

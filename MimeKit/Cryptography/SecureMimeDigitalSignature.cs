@@ -46,6 +46,10 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		/// <summary>
+		/// Gets the signer info.
+		/// </summary>
+		/// <value>The signer info.</value>
 		public SignerInformation SignerInfo {
 			get; private set;
 		}
@@ -87,7 +91,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Verify the digital signature.
 		/// </summary>
-		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.
+		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>

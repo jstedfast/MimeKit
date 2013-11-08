@@ -47,7 +47,8 @@ namespace MimeKit {
 		int? duration;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// based on the <see cref="MimeEntityConstructorInfo"/>.
 		/// </summary>
 		/// <param name="entity">Information used by the constructor.</param>
 		public MimePart (MimeEntityConstructorInfo entity) : base (entity)

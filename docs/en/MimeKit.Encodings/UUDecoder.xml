@@ -77,7 +77,7 @@
         <summary>
             Clone the <see cref="T:MimeKit.Encodings.UUDecoder" /> with its current state.
             </summary>
-        <returns>To be added.</returns>
+        <returns>A new <see cref="T:MimeKit.Encodings.UUDecoder" /> with identical state.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

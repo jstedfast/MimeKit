@@ -13,7 +13,11 @@
     <summary>
             A MIME part with a Content-Type of application/pgp-encrypted.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An application/pgp-encrypted part will typically be the child of
+            a <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part and contains only a
+            Version header.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -27,7 +31,7 @@
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPgpEncrypted" />
-            class with a Content-Type of application/pgp-encrypted and content matching "Version: 1\n".
+            class with a Content-Type of application/pgp-encrypted and content matching <c>"Version: 1\n"</c>.
             </summary>
         <remarks>To be added.</remarks>
       </Docs>
@@ -45,9 +49,10 @@
       <Docs>
         <param name="entity">Information used by the constructor.</param>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPgpEncrypted" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPgpEncrypted" />
+            class based on the <see cref="T:MimeKit.MimeEntityConstructorInfo" />.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
       </Docs>
     </Member>
   </Members>

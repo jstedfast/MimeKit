@@ -322,26 +322,6 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="GetOid">
-      <MemberSignature Language="C#" Value="protected static string GetOid (MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
-      <MemberSignature Language="ILAsm" Value=".method familystatic hidebysig string GetOid(valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
-      </Parameters>
-      <Docs>
-        <param name="digestAlgo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="GetPrivateKey">
       <MemberSignature Language="C#" Value="protected abstract Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />

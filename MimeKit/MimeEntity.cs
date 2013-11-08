@@ -49,7 +49,8 @@ namespace MimeKit {
 		string contentId;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
+		/// based on the <see cref="MimeEntityConstructorInfo"/>.
 		/// </summary>
 		/// <param name="entity">Information used by the constructor.</param>
 		/// <remarks>

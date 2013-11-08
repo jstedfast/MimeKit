@@ -23,6 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
 using System;
 using System.IO;
 using System.Text;
@@ -31,11 +32,18 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A MIME part with a Content-Type of application/pgp-encrypted.
 	/// </summary>
+	/// <remarks>
+	/// An application/pgp-encrypted part will typically be the child of
+	/// a <see cref="MultipartEncrypted"/> part and contains only a
+	/// Version header.
+	/// </remarks>
 	public class ApplicationPgpEncrypted : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
+		/// class based on the <see cref="MimeKit.MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPgpEncrypted (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -43,7 +51,7 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
-		/// class with a Content-Type of application/pgp-encrypted and content matching "Version: 1\n".
+		/// class with a Content-Type of application/pgp-encrypted and content matching <c>"Version: 1\n"</c>.
 		/// </summary>
 		public ApplicationPgpEncrypted () : base ("application", "pgp-encrypted")
 		{
@@ -56,4 +64,3 @@ namespace MimeKit.Cryptography {
 		}
 	}
 }
-
