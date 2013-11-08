@@ -35,7 +35,7 @@ namespace MimeKit.Cryptography {
 	/// An application/pgp-signature part contains detatched pgp signature data
 	/// and is typically contained within a <see cref="MultipartSigned"/> part.
 	/// </remarks>
-	public class ApplicationPgpSignature : MimePart
+	public sealed class ApplicationPgpSignature : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>

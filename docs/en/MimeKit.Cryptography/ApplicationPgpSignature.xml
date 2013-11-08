@@ -1,6 +1,6 @@
 <Type Name="ApplicationPgpSignature" FullName="MimeKit.Cryptography.ApplicationPgpSignature">
-  <TypeSignature Language="C#" Value="public class ApplicationPgpSignature : MimeKit.MimePart" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPgpSignature extends MimeKit.MimePart" />
+  <TypeSignature Language="C#" Value="public sealed class ApplicationPgpSignature : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ApplicationPgpSignature extends MimeKit.MimePart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>

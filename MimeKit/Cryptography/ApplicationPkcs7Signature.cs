@@ -31,7 +31,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-signature.
 	/// </summary>
-	public class ApplicationPkcs7Signature : MimePart
+	public sealed class ApplicationPkcs7Signature : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> class.

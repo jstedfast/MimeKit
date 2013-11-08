@@ -1,6 +1,6 @@
 <Type Name="ApplicationPkcs7Mime" FullName="MimeKit.Cryptography.ApplicationPkcs7Mime">
-  <TypeSignature Language="C#" Value="public class ApplicationPkcs7Mime : MimeKit.MimePart" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPkcs7Mime extends MimeKit.MimePart" />
+  <TypeSignature Language="C#" Value="public sealed class ApplicationPkcs7Mime : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ApplicationPkcs7Mime extends MimeKit.MimePart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.11.0.0</AssemblyVersion>
