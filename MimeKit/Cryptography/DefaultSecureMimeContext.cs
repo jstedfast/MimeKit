@@ -27,9 +27,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.X509;
@@ -38,6 +35,13 @@ using Org.BouncyCastle.X509.Store;
 namespace MimeKit.Cryptography {
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
+		/// <summary>
+		/// The default certificate store path.
+		/// </summary>
+		/// <remarks>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\certificates.p12</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/certificates.p12</c>.</para>
+		/// </remarks>
 		protected static readonly string DefaultCertificateStorePath;
 
 		readonly X509CertificateStore store;
@@ -171,9 +175,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports the pkcs12-encoded certificate and key data.
+		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
-		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
@@ -183,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (Stream stream, string password)
+		public override void Import (Stream stream, string password)
 		{
 			store.Import (stream, password);
 

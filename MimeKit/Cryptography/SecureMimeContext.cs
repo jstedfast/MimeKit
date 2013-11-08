@@ -617,9 +617,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports the pkcs12-encoded certificate and key data.
+		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
-		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
@@ -629,7 +629,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public virtual void ImportPkcs12 (Stream stream, string password)
+		public virtual void Import (Stream stream, string password)
 		{
 			throw new NotSupportedException ();
 		}

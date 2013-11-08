@@ -55,6 +55,8 @@ namespace MimeKit.Cryptography {
 			keychain = SecKeychain.Default;
 		}
 
+		#region implemented abstract members of SecureMimeContext
+
 		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
@@ -125,28 +127,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports certificates (as from a certs-only application/pkcs-mime part)
-		/// from the specified stream.
+		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
-		/// <param name="stream">The raw key data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
-		public override void Import (Stream stream)
-		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			// FIXME: implement this
-		}
-
-		/// <summary>
-		/// Imports the pkcs12-encoded certificate and key data.
-		/// </summary>
-		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
@@ -156,7 +139,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (Stream stream, string password)
+		public override void Import (Stream stream, string password)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -180,6 +163,31 @@ namespace MimeKit.Cryptography {
 				}
 			}
 		}
+
+		#endregion
+
+		#region implemented abstract members of CryptographyContext
+
+		/// <summary>
+		/// Imports certificates (as from a certs-only application/pkcs-mime part)
+		/// from the specified stream.
+		/// </summary>
+		/// <param name="stream">The raw key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
+		public override void Import (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			// FIXME: implement this
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeKit.Cryptography.MacSecureMimeContext"/> object.

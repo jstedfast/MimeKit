@@ -128,9 +128,9 @@ namespace UnitTests {
 		}
 
 		/// <summary>
-		/// Imports the pkcs12-encoded certificate and key data.
+		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
-		/// <param name="stream">The raw certificate data.</param>
+		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
@@ -140,7 +140,7 @@ namespace UnitTests {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void ImportPkcs12 (Stream stream, string password)
+		public override void Import (Stream stream, string password)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");

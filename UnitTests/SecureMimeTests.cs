@@ -58,7 +58,7 @@ namespace UnitTests {
 			path = Path.Combine (dataDir, "smime.p12");
 
 			using (var file = File.OpenRead (path)) {
-				ctx.ImportPkcs12 (file, "no.secret");
+				ctx.Import (file, "no.secret");
 			}
 
 			return ctx;
@@ -172,7 +172,7 @@ namespace UnitTests {
 				MimeEntity decrypted = null;
 
 				using (var file = File.OpenRead (p12)) {
-					ctx.ImportPkcs12 (file, "no.secret");
+					ctx.Import (file, "no.secret");
 				}
 
 				var type = encrypted.ContentType.Parameters["smime-type"];
@@ -269,7 +269,7 @@ namespace UnitTests {
 				MimeEntity decrypted = null;
 
 				using (var file = File.OpenRead (p12)) {
-					ctx.ImportPkcs12 (file, "no.secret");
+					ctx.Import (file, "no.secret");
 				}
 
 				var type = encrypted.ContentType.Parameters["smime-type"];

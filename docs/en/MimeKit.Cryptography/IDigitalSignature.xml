@@ -8,7 +8,7 @@
   <Interfaces />
   <Docs>
     <summary>
-            A digital signature.
+            An interface for a digital signature.
             </summary>
     <remarks>To be added.</remarks>
   </Docs>

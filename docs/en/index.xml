@@ -89,6 +89,7 @@
       <Type Name="CmsRecipientCollection" Kind="Class" />
       <Type Name="CmsSigner" Kind="Class" />
       <Type Name="CryptographyContext" Kind="Class" />
+      <Type Name="DefaultSecureMimeContext" Kind="Class" />
       <Type Name="DigestAlgorithm" Kind="Enumeration" />
       <Type Name="DigitalSignatureVerifyException" Kind="Class" />
       <Type Name="GnuPGContext" Kind="Class" />

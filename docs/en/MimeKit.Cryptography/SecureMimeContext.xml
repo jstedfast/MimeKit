@@ -344,9 +344,9 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="ImportPkcs12">
-      <MemberSignature Language="C#" Value="public virtual void ImportPkcs12 (System.IO.Stream stream, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ImportPkcs12(class System.IO.Stream stream, string password) cil managed" />
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public virtual void Import (System.IO.Stream stream, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Import(class System.IO.Stream stream, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
@@ -359,10 +359,10 @@
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="stream">The raw certificate data.</param>
+        <param name="stream">The raw certificate and key data.</param>
         <param name="password">The password to unlock the stream.</param>
         <summary>
-            Imports the pkcs12-encoded certificate and key data.
+            Imports certificates and keys from a pkcs12-encoded stream.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">

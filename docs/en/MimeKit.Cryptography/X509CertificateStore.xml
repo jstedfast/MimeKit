@@ -84,14 +84,14 @@
       </Docs>
     </Member>
     <Member MemberName="Certificates">
-      <MemberSignature Language="C#" Value="public System.Collections.ObjectModel.ReadOnlyCollection&lt;Org.BouncyCastle.X509.X509Certificate&gt; Certificates { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.ObjectModel.ReadOnlyCollection`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; Certificates" />
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; Certificates { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; Certificates" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.ObjectModel.ReadOnlyCollection&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
@@ -102,14 +102,14 @@
       </Docs>
     </Member>
     <Member MemberName="GetMatches">
-      <MemberSignature Language="C#" Value="public System.Collections.ICollection GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.ICollection GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.ICollection</ReturnType>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
@@ -117,7 +117,7 @@
       <Docs>
         <param name="selector">The match criteria.</param>
         <summary>
-            Gets a collection of matching <see cref="T:Org.BouncyCastle.X509.X509Certificate" />s
+            Gets an enumerator of matching <see cref="T:Org.BouncyCastle.X509.X509Certificate" />s
             based on the specified selector.
             </summary>
         <returns>The matching certificates.</returns>
@@ -324,6 +324,29 @@
         <exception cref="T:System.IO.IOException">
             An error occurred reading the file.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Org.BouncyCastle.X509.Store.IX509Store.GetMatches">
+      <MemberSignature Language="C#" Value="System.Collections.ICollection IX509Store.GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.ICollection Org.BouncyCastle.X509.Store.IX509Store.GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.ICollection</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
+      </Parameters>
+      <Docs>
+        <param name="selector">The match criteria.</param>
+        <summary>
+            Gets a collection of matching <see cref="T:Org.BouncyCastle.X509.X509Certificate" />s
+            based on the specified selector.
+            </summary>
+        <returns>The matching certificates.</returns>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
