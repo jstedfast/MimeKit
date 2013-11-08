@@ -26,9 +26,9 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
@@ -59,8 +59,8 @@ namespace MimeKit.Cryptography {
 		/// Gets a read-only list of certificates currently in the store.
 		/// </summary>
 		/// <value>The certificates.</value>
-		public ReadOnlyCollection<X509Certificate> Certificates {
-			get { return new ReadOnlyCollection<X509Certificate> (certs); }
+		public IEnumerable<X509Certificate> Certificates {
+			get { return certs; }
 		}
 
 		/// <summary>
@@ -294,6 +294,24 @@ namespace MimeKit.Cryptography {
 				Import (stream, password);
 		}
 
+		/// <summary>
+		/// Gets an enumerator of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
+		/// based on the specified selector.
+		/// </summary>
+		/// <returns>The matching certificates.</returns>
+		/// <param name="selector">The match criteria.</param>
+		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
+		{
+			foreach (var certificate in certs) {
+				if (selector == null || selector.Match (certificate))
+					yield return certificate;
+			}
+
+			yield break;
+		}
+
+
+
 		#region IX509Store implementation
 
 		/// <summary>
@@ -302,7 +320,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		public ICollection GetMatches (IX509Selector selector)
+		ICollection IX509Store.GetMatches (IX509Selector selector)
 		{
 			var matches = new List<X509Certificate> ();
 

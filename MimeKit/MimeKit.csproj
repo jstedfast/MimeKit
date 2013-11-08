@@ -51,6 +51,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
