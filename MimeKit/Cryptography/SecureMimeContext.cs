@@ -328,11 +328,13 @@ namespace MimeKit.Cryptography {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
 
-				Asn1EncodableVector vector = signerInfo.UnsignedAttributes.GetAll (CmsAttributes.SigningTime);
-				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
-					Time time = (Time) ((DerSet) attr.AttrValues)[0];
-					signature.CreationDate = time.Date;
-					break;
+				if (signerInfo.SignedAttributes != null) {
+					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
+					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
+						var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
+						signature.CreationDate = signingTime.ToAdjustedDateTime ();
+						break;
+					}
 				}
 
 				if (certificate != null)
