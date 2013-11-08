@@ -28,7 +28,7 @@ using System;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A digital signature.
+	/// An interface for a digital signature.
 	/// </summary>
 	public interface IDigitalSignature
 	{

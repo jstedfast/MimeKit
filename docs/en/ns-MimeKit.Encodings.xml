@@ -1,6 +1,6 @@
 <Namespace Name="MimeKit.Encodings">
   <Docs>
     <summary>Encoders and decoders used by MIME.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Encoders and decoders used by MIME.</remarks>
   </Docs>
 </Namespace>
