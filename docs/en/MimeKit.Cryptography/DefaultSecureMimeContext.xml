@@ -1,0 +1,245 @@
+<Type Name="DefaultSecureMimeContext" FullName="MimeKit.Cryptography.DefaultSecureMimeContext">
+  <TypeSignature Language="C#" Value="public class DefaultSecureMimeContext : MimeKit.Cryptography.SecureMimeContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi DefaultSecureMimeContext extends MimeKit.Cryptography.SecureMimeContext" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.Cryptography.SecureMimeContext</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> implementation that uses a pkcs12 file as a certificate and private key store.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public DefaultSecureMimeContext ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.IO.IOException">
+            An error occurred while reading the backing pkcs12 file.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string path, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string path, string password) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="password" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="path">The path to the pkcs12 backing file.</param>
+        <param name="password">The password for the pkcs12 file.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="path" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="password" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An error occurred while reading the file.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="DefaultCertificateStorePath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultCertificateStorePath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultCertificateStorePath" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The default certificate store path.
+            </summary>
+        <remarks>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\certificates.p12</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/certificates.p12</c>.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetCertificate">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.X509Certificate GetCertificate(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
+      </Parameters>
+      <Docs>
+        <param name="selector">The search criteria for the certificate.</param>
+        <summary>
+            Gets the X.509 certificate based on the selector.
+            </summary>
+        <returns>The certificate on success; otherwise <c>null</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetCmsRecipient">
+      <MemberSignature Language="C#" Value="protected override MimeKit.Cryptography.CmsRecipient GetCmsRecipient (MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsRecipient GetCmsRecipient(class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.CmsRecipient</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Gets the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> for the specified mailbox.
+            </summary>
+        <returns>A <see cref="T:MimeKit.Cryptography.CmsRecipient" />.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetCmsSigner">
+      <MemberSignature Language="C#" Value="protected override MimeKit.Cryptography.CmsSigner GetCmsSigner (MimeKit.MailboxAddress mailbox, MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsSigner GetCmsSigner(class MimeKit.MailboxAddress mailbox, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.CmsSigner</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">The mailbox.</param>
+        <param name="digestAlgo">The preferred digest algorithm.</param>
+        <summary>
+            Gets the <see cref="T:MimeKit.Cryptography.CmsSigner" /> for the specified mailbox.
+            </summary>
+        <returns>A <see cref="T:MimeKit.Cryptography.CmsSigner" />.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPrivateKey">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
+      </Parameters>
+      <Docs>
+        <param name="selector">The search criteria for the private key.</param>
+        <summary>
+            Gets the private key based on the provided selector.
+            </summary>
+        <returns>The private key on success; otherwise <c>null</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public override void Import (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The raw key data.</param>
+        <summary>
+            Imports certificates (as from a certs-only application/pkcs-mime part)
+            from the specified stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            Importing keys is not supported by this cryptography context.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public override void Import (System.IO.Stream stream, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream, string password) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="password" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The raw certificate and key data.</param>
+        <param name="password">The password to unlock the data.</param>
+        <summary>
+            Imports certificates and keys from a pkcs12-encoded stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="password" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            Importing keys is not supported by this cryptography context.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

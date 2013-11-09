@@ -101,6 +101,84 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="Export">
+      <MemberSignature Language="C#" Value="public void Export (System.IO.Stream stream, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(class System.IO.Stream stream, string password) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="password" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The output stream.</param>
+        <param name="password">The password to use to lock the private keys.</param>
+        <summary>
+            Export the specified stream and password to a pkcs12-formatted file.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="password" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An error occurred while writing to the stream.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Export">
+      <MemberSignature Language="C#" Value="public void Export (string fileName, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(string fileName, string password) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="password" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The file path to write to.</param>
+        <param name="password">The password to use to lock the private keys.</param>
+        <summary>
+            Export the specified stream and password to a pkcs12-formatted file.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="password" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.PathTooLongException">
+            The specified path exceeds the maximum allowed path length of the system.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+            A directory in the specified path does not exist.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to create the specified file.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An error occurred while writing to the stream.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="GetMatches">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
@@ -323,6 +401,12 @@
             </exception>
         <exception cref="T:System.IO.IOException">
             An error occurred reading the file.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
             </exception>
       </Docs>
     </Member>

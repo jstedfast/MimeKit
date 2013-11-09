@@ -33,6 +33,9 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// A default <see cref="SecureMimeContext"/> implementation that uses a pkcs12 file as a certificate and private key store.
+	/// </summary>
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
@@ -100,6 +103,15 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DefaultSecureMimeContext () : this (DefaultCertificateStorePath, "no.secret")
 		{
+		}
+
+		void Save ()
+		{
+			var dir = Path.GetDirectoryName (path);
+			if (!Directory.Exists (dir))
+				Directory.CreateDirectory (dir);
+
+			store.Export (path, password);
 		}
 
 		#region implemented abstract members of SecureMimeContext
@@ -190,8 +202,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream, string password)
 		{
 			store.Import (stream, password);
-
-			// FIXME: save the certificates
+			Save ();
 		}
 
 		#endregion
@@ -212,8 +223,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream)
 		{
 			store.Import (stream);
-
-			// FIXME: save the certificates
+			Save ();
 		}
 
 		#endregion
