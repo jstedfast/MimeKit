@@ -271,7 +271,8 @@ namespace MimeKit.Cryptography {
 				case "application/pkcs7-keys":
 					if (SecureMimeContextConstructor != null)
 						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
-					throw new NotSupportedException ();
+
+					return new DefaultSecureMimeContext ();
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
 				case "application/x-pgp-encrypted":
@@ -280,7 +281,8 @@ namespace MimeKit.Cryptography {
 				case "application/pgp-keys":
 					if (OpenPgpContextConstructor != null)
 						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
-					throw new NotSupportedException ();
+
+					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.GnuPGContext and then registering it with MimeKit.Cryptography.CryptographyContext.Register().");
 				default:
 					throw new NotSupportedException ();
 				}
