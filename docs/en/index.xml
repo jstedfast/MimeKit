@@ -106,7 +106,6 @@
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />
       <Type Name="SecureMimeType" Kind="Enumeration" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
-      <Type Name="TrustLevel" Kind="Enumeration" />
       <Type Name="WindowsSecureMimeContext" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
       <Type Name="X509CertificateStore" Kind="Class" />

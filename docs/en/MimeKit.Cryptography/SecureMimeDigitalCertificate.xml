@@ -146,23 +146,5 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="TrustLevel">
-      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.TrustLevel TrustLevel { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.TrustLevel TrustLevel" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.Cryptography.TrustLevel</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets the trust level for the certificate.
-            </summary>
-        <value>The trust level.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
   </Members>
 </Type>
