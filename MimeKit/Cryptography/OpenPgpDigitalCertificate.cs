@@ -43,12 +43,12 @@ namespace MimeKit.Cryptography {
 			for (int i = 0; i < data.Length; i++)
 				builder.Append (data[i].ToString ("X"));
 
-			var trust = pubkey.GetTrustData ();
-			if (trust != null) {
-				TrustLevel = (TrustLevel) (trust[0] & 15);
-			} else {
-				TrustLevel = TrustLevel.None;
-			}
+//			var trust = pubkey.GetTrustData ();
+//			if (trust != null) {
+//				TrustLevel = (TrustLevel) (trust[0] & 15);
+//			} else {
+//				TrustLevel = TrustLevel.None;
+//			}
 
 			Fingerprint = builder.ToString ();
 			PublicKey = pubkey;
@@ -108,14 +108,6 @@ namespace MimeKit.Cryptography {
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
 			get { return CreationDate.AddSeconds ((double) PublicKey.GetValidSeconds ()); }
-		}
-
-		/// <summary>
-		/// Gets the trust level for the certificate.
-		/// </summary>
-		/// <value>The trust level.</value>
-		public TrustLevel TrustLevel {
-			get; private set;
 		}
 
 		/// <summary>

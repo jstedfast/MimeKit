@@ -57,6 +57,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
@@ -74,7 +75,6 @@
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
-    <Compile Include="Cryptography\TrustLevel.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Cryptography\X509CertificateStore.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
@@ -164,7 +164,6 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
-    <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />

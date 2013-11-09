@@ -51,12 +51,6 @@ namespace MimeKit.Cryptography {
 		DateTime ExpirationDate { get; }
 
 		/// <summary>
-		/// Gets the trust level for the certificate.
-		/// </summary>
-		/// <value>The trust level.</value>
-		TrustLevel TrustLevel { get; }
-
-		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
 		/// <value>The fingerprint.</value>

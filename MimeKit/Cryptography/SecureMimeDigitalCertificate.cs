@@ -117,14 +117,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the trust level for the certificate.
-		/// </summary>
-		/// <value>The trust level.</value>
-		public TrustLevel TrustLevel {
-			get; private set;
-		}
-
-		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
 		/// <value>The fingerprint.</value>
