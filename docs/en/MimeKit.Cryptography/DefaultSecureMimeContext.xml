@@ -35,26 +35,31 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string path, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string path, string password) cil managed" />
+      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string rootCertificatesPath, string userCertificatesPath, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string rootCertificatesPath, string userCertificatesPath, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="rootCertificatesPath" Type="System.String" />
+        <Parameter Name="userCertificatesPath" Type="System.String" />
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="path">The path to the pkcs12 backing file.</param>
-        <param name="password">The password for the pkcs12 file.</param>
+        <param name="rootCertificatesPath">The path to the root certificates.</param>
+        <param name="userCertificatesPath">The path to the pkcs12-formatted user certificates.</param>
+        <param name="password">The password for the pkcs12 user certificates file.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="path" /> is <c>null</c>.</para>
+            <paramref name="rootCertificatesPath" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="userCertificatesPath" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="password" /> is <c>null</c>.</para>
@@ -64,9 +69,9 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="DefaultCertificateStorePath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultCertificateStorePath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultCertificateStorePath" />
+    <Member MemberName="DefaultRootCertificatesPath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultRootCertificatesPath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultRootCertificatesPath" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.11.0.0</AssemblyVersion>
@@ -76,11 +81,31 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The default certificate store path.
+            The default root certificate store path.
             </summary>
         <remarks>
-          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\certificates.p12</c>.</para>
-          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/certificates.p12</c>.</para>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root-certs.crt</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/root-certs.crt</c>.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DefaultUserCertificatesPath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultUserCertificatesPath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultUserCertificatesPath" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The default user certificate store path.
+            </summary>
+        <remarks>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user-certs.p12</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/user-certs.p12</c>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -103,6 +128,25 @@
             Gets the X.509 certificate based on the selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetCertificateRevocationLists">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the certificate revocation lists.
+            </summary>
+        <returns>The certificate revocation lists.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -158,6 +202,25 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="GetIntermediateCertificates">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the intermediate certificates.
+            </summary>
+        <returns>The intermediate certificates.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetPrivateKey">
       <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
@@ -177,6 +240,25 @@
             Gets the private key based on the provided selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetTrustedAnchors">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Utilities.Collections.HashSet</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the trusted anchors.
+            </summary>
+        <returns>The trusted anchors.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

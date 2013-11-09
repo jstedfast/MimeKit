@@ -26,7 +26,7 @@
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
     <UseSGen>false</UseSGen>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentation>true</GenerateDocumentation>
+    <GenerateDocumentation>True</GenerateDocumentation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -164,6 +164,7 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />
@@ -179,4 +180,13 @@
       <Name>BouncyCastle</Name>
     </ProjectReference>
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

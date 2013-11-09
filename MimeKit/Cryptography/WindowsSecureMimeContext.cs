@@ -26,14 +26,18 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
+using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509.Store;
 
 using MimeKit.IO;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -112,6 +116,58 @@ namespace MimeKit.Cryptography {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Gets the trusted anchors.
+		/// </summary>
+		/// <returns>The trusted anchors.</returns>
+		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
+		{
+			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
+			var root = new X509Store (StoreName.Root, StoreLocation.CurrentUser);
+
+			try {
+				root.Open (OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+			} catch {
+				return anchors;
+			}
+
+			foreach (var certificate in root.Certificates) {
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
+				anchors.Add (new TrustAnchor (cert, null));
+			}
+
+			root.Close ();
+
+			return anchors;
+		}
+
+		/// <summary>
+		/// Gets the intermediate certificates.
+		/// </summary>
+		/// <returns>The intermediate certificates.</returns>
+		protected override IX509Store GetIntermediateCertificates ()
+		{
+			var store = new X509CertificateStore ();
+
+			foreach (var certificate in CertificateStore.Certificates) {
+				var cert = DotNetUtilities.FromX509Certificate (certificate);
+				store.Add (cert);
+			}
+
+			return store;
+		}
+
+		/// <summary>
+		/// Gets the certificate revocation lists.
+		/// </summary>
+		/// <returns>The certificate revocation lists.</returns>
+		protected override IX509Store GetCertificateRevocationLists ()
+		{
+			var crls = new List<X509Crl> ();
+
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
 		/// <summary>

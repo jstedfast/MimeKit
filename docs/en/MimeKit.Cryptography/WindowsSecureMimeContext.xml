@@ -113,6 +113,25 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetCertificateRevocationLists">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the certificate revocation lists.
+            </summary>
+        <returns>The certificate revocation lists.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetCmsRecipient">
       <MemberSignature Language="C#" Value="protected override MimeKit.Cryptography.CmsRecipient GetCmsRecipient (MimeKit.MailboxAddress mailbox);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsRecipient GetCmsRecipient(class MimeKit.MailboxAddress mailbox) cil managed" />
@@ -165,6 +184,25 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="GetIntermediateCertificates">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the intermediate certificates.
+            </summary>
+        <returns>The intermediate certificates.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetPrivateKey">
       <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
@@ -184,6 +222,25 @@
             Gets the private key based on the provided selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetTrustedAnchors">
+      <MemberSignature Language="C#" Value="protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Utilities.Collections.HashSet</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the trusted anchors.
+            </summary>
+        <returns>The trusted anchors.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

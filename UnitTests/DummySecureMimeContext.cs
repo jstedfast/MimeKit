@@ -36,6 +36,7 @@ using Org.BouncyCastle.Cms;
 
 using MimeKit;
 using MimeKit.Cryptography;
+using Org.BouncyCastle.Pkix;
 
 namespace UnitTests {
 	public class DummySecureMimeContext : SecureMimeContext
@@ -80,6 +81,47 @@ namespace UnitTests {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Gets the trusted anchors.
+		/// </summary>
+		/// <returns>The trusted anchors.</returns>
+		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
+		{
+			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
+
+			foreach (var certificate in certificates) {
+				anchors.Add (new TrustAnchor (certificate, null));
+			}
+
+			return anchors;
+		}
+
+		/// <summary>
+		/// Gets the intermediate certificates.
+		/// </summary>
+		/// <returns>The intermediate certificates.</returns>
+		protected override IX509Store GetIntermediateCertificates ()
+		{
+			var store = new X509CertificateStore ();
+
+			foreach (var certificate in certificates) {
+				store.Add (certificate);
+			}
+
+			return store;
+		}
+
+		/// <summary>
+		/// Gets the certificate revocation lists.
+		/// </summary>
+		/// <returns>The certificate revocation lists.</returns>
+		protected override IX509Store GetCertificateRevocationLists ()
+		{
+			var crls = new List<X509Crl> ();
+
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
 		/// <summary>

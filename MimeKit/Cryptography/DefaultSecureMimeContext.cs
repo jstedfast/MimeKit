@@ -27,7 +27,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
+using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
@@ -39,15 +41,25 @@ namespace MimeKit.Cryptography {
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
-		/// The default certificate store path.
+		/// The default root certificate store path.
 		/// </summary>
 		/// <remarks>
-		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\certificates.p12</c>.</para>
-		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/certificates.p12</c>.</para>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root-certs.crt</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/root-certs.crt</c>.</para>
 		/// </remarks>
-		protected static readonly string DefaultCertificateStorePath;
+		protected static readonly string DefaultRootCertificatesPath;
+
+		/// <summary>
+		/// The default user certificate store path.
+		/// </summary>
+		/// <remarks>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user-certs.p12</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/user-certs.p12</c>.</para>
+		/// </remarks>
+		protected static readonly string DefaultUserCertificatesPath;
 
 		readonly X509CertificateStore store;
+		readonly X509CertificateStore root;
 		readonly string password;
 		readonly string path;
 
@@ -66,33 +78,43 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (path))
 				Directory.CreateDirectory (path);
 
-			DefaultCertificateStorePath = Path.Combine (path, "smime.p12");
+			DefaultRootCertificatesPath = Path.Combine (path, "root-certs.crt");
+			DefaultUserCertificatesPath = Path.Combine (path, "user-certs.p12");
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
-		/// <param name="path">The path to the pkcs12 backing file.</param>
-		/// <param name="password">The password for the pkcs12 file.</param>
+		/// <param name="rootCertificatesPath">The path to the root certificates.</param>
+		/// <param name="userCertificatesPath">The path to the pkcs12-formatted user certificates.</param>
+		/// <param name="password">The password for the pkcs12 user certificates file.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="path"/> is <c>null</c>.</para>
+		/// <para><paramref name="rootCertificatesPath"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="userCertificatesPath"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading the file.
 		/// </exception>
-		protected DefaultSecureMimeContext (string path, string password)
+		protected DefaultSecureMimeContext (string rootCertificatesPath, string userCertificatesPath, string password)
 		{
 			store = new X509CertificateStore ();
+			root = new X509CertificateStore ();
 
 			try {
-				store.Import (path, password);
+				store.Import (userCertificatesPath, password);
 			} catch (FileNotFoundException) {
 			}
 
+			try {
+				root.Import (rootCertificatesPath);
+			} catch (FileNotFoundException) {
+			}
+
+			this.path = userCertificatesPath;
 			this.password = password;
-			this.path = path;
 		}
 
 		/// <summary>
@@ -101,7 +123,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading the backing pkcs12 file.
 		/// </exception>
-		public DefaultSecureMimeContext () : this (DefaultCertificateStorePath, "no.secret")
+		public DefaultSecureMimeContext () : this (DefaultRootCertificatesPath, DefaultUserCertificatesPath, "no.secret")
 		{
 		}
 
@@ -142,6 +164,41 @@ namespace MimeKit.Cryptography {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Gets the trusted anchors.
+		/// </summary>
+		/// <returns>The trusted anchors.</returns>
+		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
+		{
+			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
+
+			foreach (var certificate in root.Certificates) {
+				anchors.Add (new TrustAnchor (certificate, null));
+			}
+
+			return anchors;
+		}
+
+		/// <summary>
+		/// Gets the intermediate certificates.
+		/// </summary>
+		/// <returns>The intermediate certificates.</returns>
+		protected override IX509Store GetIntermediateCertificates ()
+		{
+			return store;
+		}
+
+		/// <summary>
+		/// Gets the certificate revocation lists.
+		/// </summary>
+		/// <returns>The certificate revocation lists.</returns>
+		protected override IX509Store GetCertificateRevocationLists ()
+		{
+			var crls = new List<X509Crl> ();
+
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
 		/// <summary>
