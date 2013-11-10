@@ -13,7 +13,11 @@
     <summary>
             An abstract OpenPGP cryptography context which can be used for PGP/MIME.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Generally speaking, applications should not use a <see cref="T:MimeKit.Cryptography.OpenPgpContext" />
+            directly, but rather via higher level APIs such as <see cref="T:MimeKit.Cryptography.MultipartSigned" />
+            and <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

@@ -33,6 +33,11 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract cryptography context.
 	/// </summary>
+	/// <remarks>
+	/// Generally speaking, applications should not use a <see cref="CryptographyContext"/>
+	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>,
+	/// <see cref="MultipartEncrypted"/> and <see cref="ApplicationPkcs7Mime"/>.
+	/// </remarks>
 	public abstract class CryptographyContext : IDisposable
 	{
 		static ConstructorInfo SecureMimeContextConstructor;

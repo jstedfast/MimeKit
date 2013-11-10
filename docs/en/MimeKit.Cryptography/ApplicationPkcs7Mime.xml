@@ -155,7 +155,7 @@
         <returns>The decompressed <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "compressed-data".
             </exception>
       </Docs>
     </Member>
@@ -183,7 +183,7 @@
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "compressed-data".
             </exception>
       </Docs>
     </Member>
@@ -205,7 +205,7 @@
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
       </Docs>
     </Member>
@@ -233,7 +233,7 @@
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "enveloped-data".
             </exception>
       </Docs>
     </Member>
@@ -263,7 +263,7 @@
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "enveloped-data".
             </exception>
       </Docs>
     </Member>
@@ -433,7 +433,7 @@
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header does not support decryption.
+            The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
       </Docs>
     </Member>
@@ -788,6 +788,58 @@
           <para>-or-</para>
           <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
         </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Verify">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Verify (out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Verify(class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="signatures">The digital signatures.</param>
+        <summary>
+            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </summary>
+        <returns>The unencapsulated <see cref="T:MimeKit.MimeEntity" />.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header is not "signed-data".
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Verify">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Verify (MimeKit.Cryptography.SecureMimeContext ctx, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Verify(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The S/MIME context to use for verifying the signature.</param>
+        <param name="signatures">The digital signatures.</param>
+        <summary>
+            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </summary>
+        <returns>The unencapsulated <see cref="T:MimeKit.MimeEntity" />.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The "smime-type" parameter on the Content-Type header is not "signed-data".
+            </exception>
       </Docs>
     </Member>
   </Members>

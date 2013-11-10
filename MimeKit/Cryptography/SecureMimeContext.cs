@@ -43,6 +43,11 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
 	/// </summary>
+	/// <remarks>
+	/// Generally speaking, applications should not use a <see cref="SecureMimeContext"/>
+	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>
+	/// and <see cref="ApplicationPkcs7Mime"/>.
+	/// </remarks>
 	public abstract class SecureMimeContext : CryptographyContext
 	{
 		/// <summary>
@@ -541,26 +546,27 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Verify the digital signatures of the specified signedData and extract the original content.
 		/// </summary>
-		/// <returns>A list of digital signatures.</returns>
+		/// <returns>The unencapsulated <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="signedData">The signed data.</param>
-		/// <param name="content">The original content.</param>
+		/// <param name="signatures">The digital signatures.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
-		public IList<IDigitalSignature> Verify (Stream signedData, out Stream content)
+		public MimeEntity Verify (Stream signedData, out IList<IDigitalSignature> signatures)
 		{
 			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
-			var parser = new CmsSignedDataParser (signedData);
-			var signed = parser.GetSignedContent ();
+			var signedDataParser = new CmsSignedDataParser (signedData);
+			var signed = signedDataParser.GetSignedContent ();
 
-			content = new MemoryStream ();
-			signed.ContentStream.CopyTo (content, 4096);
-			content.Position = 0;
+			var parser = new MimeParser (signed.ContentStream, MimeFormat.Entity);
+			var entity = parser.ParseEntity ();
 
-			return GetDigitalSignatures (parser);
+			signatures = GetDigitalSignatures (signedDataParser);
+
+			return entity;
 		}
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)

@@ -17,7 +17,11 @@
     <summary>
             An abstract cryptography context.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Generally speaking, applications should not use a <see cref="T:MimeKit.Cryptography.CryptographyContext" />
+            directly, but rather via higher level APIs such as <see cref="T:MimeKit.Cryptography.MultipartSigned" />,
+            <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> and <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

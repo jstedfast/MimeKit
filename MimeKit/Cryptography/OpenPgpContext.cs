@@ -37,6 +37,11 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
 	/// </summary>
+	/// <remarks>
+	/// Generally speaking, applications should not use a <see cref="OpenPgpContext"/>
+	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>
+	/// and <see cref="MultipartEncrypted"/>.
+	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
 		/// <summary>

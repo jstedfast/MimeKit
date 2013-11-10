@@ -28,8 +28,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-// FIXME: Implement support for signed-data
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
@@ -132,7 +130,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
 		public MimeEntity Decompress (SecureMimeContext ctx)
 		{
@@ -156,7 +154,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
 		public MimeEntity Decompress ()
 		{
@@ -179,7 +177,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx, out IList<IDigitalSignature> signatures)
 		{
@@ -207,7 +205,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
@@ -228,7 +226,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
@@ -243,7 +241,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
 		public void Import (SecureMimeContext ctx)
 		{
@@ -252,10 +250,49 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				ContentObject.WriteTo (memory);
+				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
 				ctx.Import (memory);
+			}
+		}
+
+		/// <summary>
+		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// </summary>
+		/// <returns>The unencapsulated <see cref="MimeEntity"/>.</returns>
+		/// <param name="ctx">The S/MIME context to use for verifying the signature.</param>
+		/// <param name="signatures">The digital signatures.</param>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+		/// </exception>
+		public MimeEntity Verify (SecureMimeContext ctx, out IList<IDigitalSignature> signatures)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (SecureMimeType != SecureMimeType.SignedData)
+				throw new InvalidOperationException ();
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
+
+				return ctx.Verify (memory, out signatures);
+			}
+		}
+
+		/// <summary>
+		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// </summary>
+		/// <returns>The unencapsulated <see cref="MimeEntity"/>.</returns>
+		/// <param name="signatures">The digital signatures.</param>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+		/// </exception>
+		public MimeEntity Verify (out IList<IDigitalSignature> signatures)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Verify (ctx, out signatures);
 			}
 		}
 
