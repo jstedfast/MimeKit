@@ -296,7 +296,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static void PrepareEntityForEncrypting (MimeEntity entity)
+		static void PrepareEntity (MimeEntity entity)
 		{
 			if (entity is Multipart) {
 				// Note: we do not want to modify multipart/signed parts
@@ -306,12 +306,12 @@ namespace MimeKit.Cryptography {
 				var multipart = (Multipart) entity;
 
 				foreach (var subpart in multipart)
-					PrepareEntityForEncrypting (subpart);
+					PrepareEntity (subpart);
 			} else if (entity is MessagePart) {
 				var mpart = (MessagePart) entity;
 
 				if (mpart.Message != null && mpart.Message.Body != null)
-					PrepareEntityForEncrypting (mpart.Message.Body);
+					PrepareEntity (mpart.Message.Body);
 			} else {
 				var part = (MimePart) entity;
 
@@ -349,7 +349,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
+				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -407,7 +407,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
+				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -474,7 +474,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
+				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -546,7 +546,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
+				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -621,7 +621,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
+				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
