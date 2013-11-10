@@ -116,6 +116,52 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Decompress using the specified <see cref="SecureMimeContext"/>.
+		/// </summary>
+		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
+		public MimeEntity Decompress (SecureMimeContext ctx)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (SecureMimeType != SecureMimeType.CompressedData)
+				throw new InvalidOperationException ();
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
+
+				return ctx.Decompress (memory);
+			}
+		}
+
+		/// <summary>
+		/// Decompress using the specified <see cref="SecureMimeContext"/>.
+		/// </summary>
+		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// </exception>
+		public MimeEntity Decompress ()
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (SecureMimeType != SecureMimeType.CompressedData)
+				throw new InvalidOperationException ();
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Decompress (ctx);
+			}
+		}
+
+		/// <summary>
 		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
@@ -228,6 +274,54 @@ namespace MimeKit.Cryptography {
 					part.ContentTransferEncoding = ContentEncoding.Base64;
 				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
 					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+			}
+		}
+
+		/// <summary>
+		/// Compress the specified entity.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context to use for compressing.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// </exception>
+		public static ApplicationPkcs7Mime Compress (SecureMimeContext ctx, MimeEntity entity)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				PrepareEntityForEncrypting (entity);
+				entity.WriteTo (options, memory);
+				memory.Position = 0;
+
+				return ctx.Compress (memory);
+			}
+		}
+
+		/// <summary>
+		/// Compress the specified entity.
+		/// </summary>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="entity"/> is<c>null</c>.
+		/// </exception>
+		public static ApplicationPkcs7Mime Compress (MimeEntity entity)
+		{
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Compress (ctx, entity);
 			}
 		}
 

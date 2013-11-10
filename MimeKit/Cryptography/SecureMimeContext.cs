@@ -239,6 +239,48 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Compress the specified stream.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the compressed content.</returns>
+		/// <param name="stream">The stream to compress.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public ApplicationPkcs7Mime Compress (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var compresser = new CmsCompressedDataGenerator ();
+			var processable = new CmsProcessableInputStream (stream);
+			var compressed = compresser.Generate (processable, CmsCompressedDataGenerator.ZLib);
+			var encoded = compressed.GetEncoded ();
+
+			return new ApplicationPkcs7Mime (SecureMimeType.CompressedData, new MemoryStream (encoded, false));
+		}
+
+		/// <summary>
+		/// Decompress the specified stream.
+		/// </summary>
+		/// <returns>The decompressed mime part.</returns>
+		/// <param name="stream">The stream to decompress.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public MimeEntity Decompress (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var decompresser = new CmsCompressedDataParser (stream);
+			var content = decompresser.GetContent ();
+			var parser = new MimeParser (content.ContentStream, MimeFormat.Entity);
+
+			return parser.ParseEntity ();
+		}
+
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
 		{
 			var cms = new CmsSignedDataStreamGenerator ();

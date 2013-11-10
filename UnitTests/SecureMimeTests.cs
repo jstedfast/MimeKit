@@ -65,6 +65,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSecureMimeCompression ()
+		{
+			var original = new TextPart ("plain");
+			original.Text = "This is some text that we'll end up compressing...";
+
+			using (var ctx = CreateContext ()) {
+				var compressed = ApplicationPkcs7Mime.Compress (ctx, original);
+
+				Assert.AreEqual (SecureMimeType.CompressedData, compressed.SecureMimeType, "S/MIME type did not match.");
+
+				var decompressed = compressed.Decompress (ctx);
+
+				Assert.IsInstanceOfType (typeof (TextPart), decompressed, "Decompressed part is not the expected type.");
+				Assert.AreEqual (original.Text, ((TextPart) decompressed).Text, "Decompressed content is not the same as the original.");
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeSigning ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
