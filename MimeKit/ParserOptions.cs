@@ -36,11 +36,20 @@ namespace MimeKit {
 		/// <summary>
 		/// The default parser options.
 		/// </summary>
+		/// <remarks>
+		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="MimeParser"/> or other Parse and TryParse
+		/// methods throughout MimeKit, <see cref="ParserOptions.Default"/> will be used.
+		/// </remarks>
 		public static readonly ParserOptions Default;
 
 		/// <summary>
 		/// Gets or sets a value indicating whether rfc2047 workarounds should be used.
 		/// </summary>
+		/// <remarks>
+		/// In general, you'll probably want this value to be <c>true</c> (the default) as it
+		/// allows maximum interoperability with existing (broken) mail clients and other mail
+		/// software such as sloppily written perl scripts (aka spambots).
+		/// </remarks>
 		/// <value><c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
 		public bool EnableRfc2047Workarounds { get; set; }
 
@@ -51,7 +60,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if the Content-Length value should be respected;
 		/// otherwise, <c>false</c>.</value>
 		/// <remarks>
-		/// For more information about why this may be useful, you can find more information
+		/// For more details about why this may be useful, you can find more information
 		/// at http://www.jwz.org/doc/content-length.html
 		/// </remarks>
 		public bool RespectContentLength { get; set; }
@@ -78,8 +87,16 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParserOptions"/> class.
+		/// </summary>
+		public ParserOptions ()
+		{
+		}
+
+		/// <summary>
 		/// Clones an instance of <see cref="MimeKit.ParserOptions"/>.
 		/// </summary>
+		/// <returns>An identical copy of the current instance.</returns>
 		public ParserOptions Clone ()
 		{
 			var options = new ParserOptions ();

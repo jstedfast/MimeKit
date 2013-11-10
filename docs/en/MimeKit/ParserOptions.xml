@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed ParserOptions extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+    <AssemblyVersion>0.12.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -21,11 +21,13 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ParserOptions" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -34,7 +36,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding CharsetEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -58,7 +60,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.ParserOptions Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ParserOptions</ReturnType>
@@ -68,7 +70,7 @@
         <summary>
             Clones an instance of <see cref="T:MimeKit.ParserOptions" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>An identical copy of the current instance.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -77,7 +79,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static initonly class MimeKit.ParserOptions Default" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ParserOptions</ReturnType>
@@ -86,7 +88,10 @@
         <summary>
             The default parser options.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If a <see cref="T:MimeKit.ParserOptions" /> is not supplied to <see cref="T:MimeKit.MimeParser" /> or other Parse and TryParse
+            methods throughout MimeKit, <see cref="F:MimeKit.ParserOptions.Default" /> will be used.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EnableRfc2047Workarounds">
@@ -94,7 +99,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool EnableRfc2047Workarounds" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -105,7 +110,11 @@
             </summary>
         <value>
           <c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            In general, you'll probably want this value to be <c>true</c> (the default) as it
+            allows maximum interoperability with existing (broken) mail clients and other mail
+            software such as sloppily written perl scripts (aka spambots).
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="RespectContentLength">
@@ -113,7 +122,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool RespectContentLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.11.0.0</AssemblyVersion>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -127,7 +136,7 @@
           <c>true</c> if the Content-Length value should be respected;
             otherwise, <c>false</c>.</value>
         <remarks>
-            For more information about why this may be useful, you can find more information
+            For more details about why this may be useful, you can find more information
             at http://www.jwz.org/doc/content-length.html
             </remarks>
       </Docs>

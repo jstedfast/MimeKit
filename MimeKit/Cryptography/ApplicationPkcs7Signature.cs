@@ -31,11 +31,18 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-signature.
 	/// </summary>
+	/// <remarks>
+	/// <para>An application/pkcs7-signature part contains detatched pkcs7 signature data
+	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
+	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
+	/// method on the parent multipart/signed part.</para>
+	/// </remarks>
 	public sealed class ApplicationPkcs7Signature : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> class.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPkcs7Signature (MimeEntityConstructorInfo entity) : base (entity)
 		{

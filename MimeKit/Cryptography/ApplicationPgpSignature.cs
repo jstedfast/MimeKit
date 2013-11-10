@@ -32,8 +32,10 @@ namespace MimeKit.Cryptography {
 	/// A MIME part with a Content-Type of application/pgp-signature.
 	/// </summary>
 	/// <remarks>
-	/// An application/pgp-signature part contains detatched pgp signature data
-	/// and is typically contained within a <see cref="MultipartSigned"/> part.
+	/// <para>An application/pgp-signature part contains detatched pgp signature data
+	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
+	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
+	/// method on the parent multipart/signed part.</para>
 	/// </remarks>
 	public sealed class ApplicationPgpSignature : MimePart
 	{

@@ -50,6 +50,7 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// based on the <see cref="MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public MimePart (MimeEntityConstructorInfo entity) : base (entity)
 		{

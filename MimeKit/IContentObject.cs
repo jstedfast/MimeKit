@@ -55,7 +55,7 @@ namespace MimeKit {
 		void DecodeTo (Stream stream);
 
 		/// <summary>
-		/// Writes the raw content stream to to another stream.
+		/// Writes the raw content stream, in its existing encoding, to another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
