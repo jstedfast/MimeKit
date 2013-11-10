@@ -124,6 +124,10 @@ The first thing you'll need to do is fork MimeKit to your own GitHub repository.
 
     git clone git@github.com/<your-account>/MimeKit.git
 
+If you use [Xamarin Studio](http://xamarin.com/studio) or [MonoDevelop](http://monodevelop.org), both MimeKit.sln
+and MimeKitDesktopOnly.sln are configured with the coding style used by MimeKit. If you use Visual Studio or some
+other editor, please try to maintain the existing coding style as best as you can.
+
 Once you've got some changes that you'd like to submit upstream to the official MimeKit repository,
 simply send me a Pull Request and I will try to review your changes in a timely manner.
 
