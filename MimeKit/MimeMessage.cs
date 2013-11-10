@@ -678,5 +678,47 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException ();
 			}
 		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, Stream stream)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new MimeParser (options, stream, MimeFormat.Entity);
+
+			return parser.ParseMessage ();
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public static MimeMessage Load (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new MimeParser (stream, MimeFormat.Entity);
+
+			return parser.ParseMessage ();
+		}
 	}
 }

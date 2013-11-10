@@ -28,8 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-// FIXME: Implement a Verify() method for parts tagged with signed-data?
-// FIXME: Implement a Decompress() method for parts tagged with compressed-data?
+// FIXME: Implement support for signed-data
 
 namespace MimeKit.Cryptography {
 	/// <summary>
