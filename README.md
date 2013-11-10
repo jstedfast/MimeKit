@@ -118,6 +118,122 @@ you can simply choose the Debug or Release build configuration and then build.
 
 Note: The Release build will generate the xml API documentation, but the Debug build will not.
 
+## Using MimeKit
+
+### Parsing Messages
+
+One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
+There are two ways of accomplishing this task.
+
+The first way is to use one of the Load() methods on MimeKit.MimeMessage:
+
+    // Load a MimeMessage from a stream
+    var message = MimeMessage.Load (stream);
+
+The second way is to use the MimeParser class. For the most part, using the MimeParser directly is not necessary
+unless you wish to parse a Unix mbox file stream. However, this is how you would do it:
+
+    // Load a MimeMessage from a stream
+    var parser = new MimeParser (stream, MimeFormat.Entity);
+    var message = parser.ParseMessage ();
+
+For Unix mbox file streams, you would use the parser like this:
+
+    // Load every message from a Unix mbox
+    var parser = new MimeParser (stream, MimeFormat.UnixMbox);
+    while (!parser.IsEndOfStream) {
+        var message = parser.ParseMessage ();
+        
+        // do something with the message
+    }
+
+### Traversing the parts of a MimeMessage
+
+Once you have parsed a MimeMessage, you'll most likely want to traverse the tree of MIME entities.
+
+The MimeMessage.Body is the top-level MIME entity of the message. Generally, it will either be a
+TextPart or a Multipart.
+
+As an example, if you wanted to render the MimeMessage to some sort of UI control, you might
+use code similar to this:
+
+    void RenderMessage (MimeMessage message)
+    {
+        RenderMimeEntity (message.Body);
+    }
+
+    void RenderMimeEntity (MimeEntity entity)
+    {
+        if (entity is MessagePart) {
+            // This entity is an attached message/rfc822 mime part.
+            var messagePart = (MessagePart) entity;
+           
+            // If you'd like to render this inline instead of treating
+            // it as an attachment, you would just continue to recurse:
+            RenderMessage (messagePart.Message);
+        } else if (entity is Multipart) {
+            // This entity is a multipart container.
+            var multipart = (Multipart) entity;
+            
+            foreach (var subpart in multipart)
+                RenderMimeEntity (subpart);
+        } else {
+            // Everything that isn't either a MessagePart or a Multipart is a MimePart
+            var part = (MimePart) entity;
+            
+            // Don't render anything that is explicitly marked as an attachment.
+            if (part.ContentDisposition != null && part.ContentDisposition.IsAttachment)
+                return;
+            
+            if (part is TextPart) {
+                // This is a mime part with textual content.
+                var text = (TextPart) part;
+                
+                if (text.ContentType.Matches ("text", "html"))
+                    RenderHtml (text.Text);
+                else
+                    RenderText (text.Text);
+            } else if (entity.ContentType.Matches ("image", "*")) {
+                using (var content = new MemoryStream ()) {
+                    // If the content is base64 encoded (which it probably is), decode it.
+                    part.ContentObject.DecodeTo (memory);
+                    
+                    RenderImage (memory);
+                }
+            }
+        }
+    }
+
+### Verifying S/MIME and PGP/MIME Digital Signatures
+
+Both S/MIME and PGP/MIME use a multipart/signed to contain the signed content and the detached signature data.
+
+A multipart/signed contains exactly 2 parts: the first MimeEntity is the signed content while the second
+MimeEntity is the detached signature and, by default, will either be an ApplicationPgpSignature part or
+an ApplicationPkcs7Signature part.
+
+Because the multipart/signed part may have been signed by multiple signers, it is important to
+verify each of the digital signatures (one for each signer) that are returned by the
+MultipartSigned.Verify() method:
+
+    if (entity is MultipartSigned) {
+        var signed = (MultipartSigned) entity;
+        
+        foreach (var signature in signed.Verify ()) {
+            try {
+                bool valid = signature.Verify ();
+                
+                // If valid is true, then it signifies that the signed content has not been
+                // modified since this particular signer signed the content.
+                //
+                // However, if it is false, then it indicates that the signed content has been
+                // modified.
+            } catch (DigitalSignatureVerifyException) {
+                // There was an error verifying the signature.
+            }
+        }
+    }
+
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
