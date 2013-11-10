@@ -14,9 +14,9 @@
             A MIME part with a Content-Type of application/pgp-encrypted.
             </summary>
     <remarks>
-            An application/pgp-encrypted part will typically be the child of
-            a <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part and contains only a
-            Version header.
+            An application/pgp-encrypted part will typically be the first child of
+            a <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part and contains only a Version
+            header.
             </remarks>
   </Docs>
   <Members>
@@ -30,10 +30,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPgpEncrypted" />
-            class with a Content-Type of application/pgp-encrypted and content matching <c>"Version: 1\n"</c>.
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ApplicationPgpEncrypted" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME part with a Content-Type of application/pgp-encrypted
+            and content matching <c>"Version: 1\n"</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">

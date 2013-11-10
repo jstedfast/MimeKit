@@ -33,9 +33,9 @@ namespace MimeKit.Cryptography {
 	/// A MIME part with a Content-Type of application/pgp-encrypted.
 	/// </summary>
 	/// <remarks>
-	/// An application/pgp-encrypted part will typically be the child of
-	/// a <see cref="MultipartEncrypted"/> part and contains only a
-	/// Version header.
+	/// An application/pgp-encrypted part will typically be the first child of
+	/// a <see cref="MultipartEncrypted"/> part and contains only a Version
+	/// header.
 	/// </remarks>
 	public sealed class ApplicationPgpEncrypted : MimePart
 	{
@@ -50,9 +50,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
-		/// class with a Content-Type of application/pgp-encrypted and content matching <c>"Version: 1\n"</c>.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME part with a Content-Type of application/pgp-encrypted
+		/// and content matching <c>"Version: 1\n"</c>.
+		/// </remarks>
 		public ApplicationPgpEncrypted () : base ("application", "pgp-encrypted")
 		{
 			ContentDisposition = new ContentDisposition ("attachment");

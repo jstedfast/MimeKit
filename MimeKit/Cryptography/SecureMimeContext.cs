@@ -300,6 +300,72 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Sign and encapsulate the content using the specified signer.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		public ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (signer.Certificate == null)
+				throw new ArgumentException ("No signer certificate specified.", "signer");
+
+			if (signer.PrivateKey == null)
+				throw new ArgumentException ("No private key specified.", "signer");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (signer, content, true));
+		}
+
+		/// <summary>
+		/// Sign and encapsulate the content using the specified signer.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		public ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		{
+			// FIXME: find out what exceptions BouncyCastle can throw...
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var cmsSigner = GetCmsSigner (signer, digestAlgo);
+
+			return EncapsulatedSign (cmsSigner, content);
+		}
+
+		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance

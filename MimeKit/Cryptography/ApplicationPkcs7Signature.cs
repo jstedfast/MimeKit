@@ -52,6 +52,10 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/>
 		/// class with a Content-Type of application/pkcs7-signature.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME part with a Content-Type of application/pkcs7-signature
+		/// and the <paramref name="stream"/> as its content.
+		/// </remarks>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
