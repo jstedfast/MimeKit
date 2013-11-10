@@ -140,7 +140,7 @@ unless you wish to parse a Unix mbox file stream. However, this is how you would
 For Unix mbox file streams, you would use the parser like this:
 
     // Load every message from a Unix mbox
-    var parser = new MimeParser (stream, MimeFormat.UnixMbox);
+    var parser = new MimeParser (stream, MimeFormat.Mbox);
     while (!parser.IsEndOfStream) {
         var message = parser.ParseMessage ();
         
