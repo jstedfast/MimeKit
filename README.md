@@ -147,7 +147,7 @@ For Unix mbox file streams, you would use the parser like this:
         // do something with the message
     }
 
-### Traversing the parts of a MimeMessage
+### Traversing a MimeMessage
 
 Once you have parsed a MimeMessage, you'll most likely want to traverse the tree of MIME entities.
 
