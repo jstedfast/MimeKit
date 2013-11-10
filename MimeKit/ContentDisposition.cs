@@ -103,6 +103,24 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets a value indicating whether the <see cref="MimePart"/> is an attachment.
+		/// </summary>
+		/// <value><c>true</c> if the <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		public bool IsAttachment {
+			get { return disposition.ToLowerInvariant () == Attachment; }
+			set { disposition = value ? Attachment : Inline; }
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the <see cref="MimePart"/> should be rendered inline.
+		/// </summary>
+		/// <value><c>true</c> if the <see cref="MimePart"/> should be rendered inline; otherwise, <c>false</c>.</value>
+		public bool IsInline {
+			get { return disposition.ToLowerInvariant () == Inline; }
+			set { disposition = value ? Inline : Attachment; }
+		}
+
+		/// <summary>
 		/// Gets the parameters.
 		/// </summary>
 		/// <value>The parameters.</value>
