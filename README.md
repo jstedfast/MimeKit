@@ -23,6 +23,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2231](http://www.ietf.org/rfc/rfc2231.txt): MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations (Obsoletes rfc2184)
 * [2311](http://www.ietf.org/rfc/rfc2311.txt): S/MIME Version 2 Message Specification
 * [2312](http://www.ietf.org/rfc/rfc2312.txt): S/MIME Version 2 Certificate Handling
+* [2315](http://www.ietf.org/rfc/rfc2315.txt): PKCS #7: Cryptographic Message Syntax
 * [2424](http://www.ietf.org/rfc/rfc2424.txt): Content Duration MIME Header Definition
 * [2630](http://www.ietf.org/rfc/rfc2630.txt): Cryptographic Message Syntax
 * [2632](http://www.ietf.org/rfc/rfc2632.txt): S/MIME Version 3 Certificate Handling
@@ -33,6 +34,8 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [3850](http://www.ietf.org/rfc/rfc3850.txt): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)
 * [3851](http://www.ietf.org/rfc/rfc3851.txt): S/MIME Version 3.1 Message Specification (Obsoletes rfc2633)
 * [5322](http://www.ietf.org/rfc/rfc5322.txt): Internet Message Format (Obsoletes rfc2822) 
+* [5750](http://www.ietf.org/rfc/rfc5750.txt): S/MIME Version 3.2 Certificate Handling (Obsoletes rfc3850)
+* [5751](http://www.ietf.org/rfc/rfc5751.txt): S/MIME Version 3.2 Message Specification (Obsoletes rfc3851)
 
 #### Other RFCs of interest:
 
@@ -43,15 +46,6 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2111](http://www.ietf.org/rfc/rfc2111.txt): Content-ID and Message-ID Uniform Resource Locators
 * [2112](http://www.ietf.org/rfc/rfc2112.txt): The MIME Multipart/Related Content-type (Obsoletes rfc1872)
 * [2387](http://www.ietf.org/rfc/rfc2387.txt): The MIME Multipart/Related Content-type (Obsoletes rfc2112)
-
-#### Cryptography related RFCs (needed by S/MIME)
-
-* [2268](http://www.ietf.org/rfc/rfc2268.txt): A Description of the RC2(r) Encryption Algorithm
-* [2313](http://www.ietf.org/rfc/rfc2313.txt): PKCS #1: RSA Encryption
-* [2314](http://www.ietf.org/rfc/rfc2314.txt): PKCS #10: Certification Request Syntax
-* [2315](http://www.ietf.org/rfc/rfc2315.txt): PKCS #7: Cryptographic Message Syntax
-* [2631](http://www.ietf.org/rfc/rfc2631.txt): Diffie-Hellman Key Agreement Method 
-
 
 ## License Information
 
