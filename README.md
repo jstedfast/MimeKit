@@ -176,7 +176,7 @@ use code similar to this:
             var part = (MimePart) entity;
             
             // Don't render anything that is explicitly marked as an attachment.
-            if (part.ContentDisposition != null && part.ContentDisposition.IsAttachment)
+            if (part.IsAttachment)
                 return;
             
             if (part is TextPart) {
