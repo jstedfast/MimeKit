@@ -230,15 +230,11 @@ namespace UnitTests {
 
 			var parser = new CmsSignedDataParser (stream);
 			var certs = parser.GetCertificates ("Collection");
-			var store = parser.GetSignerInfos ();
+			// FIXME: import the CRLs as well
+			//var crls = parser.GetCrls ("Collection");
 
-			foreach (SignerInformation signerInfo in store.GetSigners ()) {
-				var matches = certs.GetMatches (signerInfo.SignerID);
-
-				foreach (X509Certificate certificate in matches) {
-					certificates.Add (certificate);
-				}
-			}
+			foreach (X509Certificate certificate in certs.GetMatches (null))
+				certificates.Add (certificate);
 		}
 
 		#endregion

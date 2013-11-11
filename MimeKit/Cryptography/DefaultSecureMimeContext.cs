@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.X509;
@@ -258,6 +259,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void Import (Stream stream, string password)
 		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			if (password == null)
+				throw new ArgumentNullException ("password");
+
 			store.Import (stream, password);
 			Save ();
 		}
@@ -279,7 +286,17 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void Import (Stream stream)
 		{
-			store.Import (stream);
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new CmsSignedDataParser (stream);
+			var certificates = parser.GetCertificates ("Collection");
+			// FIXME: import the CRLs as well
+			//var crls = parser.GetCrls ("Collection");
+
+			foreach (X509Certificate certificate in certificates.GetMatches (null))
+				store.Add (certificate);
+
 			Save ();
 		}
 

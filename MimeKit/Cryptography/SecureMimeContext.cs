@@ -847,11 +847,12 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
-			var cms = new CmsSignedDataGenerator ();
-			cms.AddCertificates (certificates);
+			var cms = new CmsSignedDataStreamGenerator ();
+			var memory = new MemoryStream ();
 
-			var signedData = cms.Generate (new CmsProcessableByteArray (new byte[0]), false);
-			var memory = new MemoryStream (signedData.GetEncoded (), false);
+			cms.AddCertificates (certificates);
+			cms.Open (memory).Close ();
+			memory.Position = 0;
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
 		}
