@@ -232,6 +232,24 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets a value indicating whether this <see cref="MimePart"/> is an attachment.
+		/// </summary>
+		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		public bool IsAttachment {
+			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
+			set {
+				if (value) {
+					if (ContentDisposition == null)
+						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+					else if (!ContentDisposition.IsAttachment)
+						ContentDisposition.Disposition = ContentDisposition.Attachment;
+				} else if (ContentDisposition != null && ContentDisposition.IsAttachment) {
+					ContentDisposition.Disposition = ContentDisposition.Inline;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Computes the md5sum of the content.
 		/// </summary>
 		/// <returns>The md5sum of the content.</returns>

@@ -112,15 +112,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets a value indicating whether the <see cref="MimePart"/> should be rendered inline.
-		/// </summary>
-		/// <value><c>true</c> if the <see cref="MimePart"/> should be rendered inline; otherwise, <c>false</c>.</value>
-		public bool IsInline {
-			get { return disposition.ToLowerInvariant () == Inline; }
-			set { disposition = value ? Inline : Attachment; }
-		}
-
-		/// <summary>
 		/// Gets the parameters.
 		/// </summary>
 		/// <value>The parameters.</value>
