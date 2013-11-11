@@ -43,6 +43,7 @@ namespace UnitTests {
 	{
 		internal readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys = new Dictionary<X509Certificate, AsymmetricKeyParameter> ();
 		internal readonly List<X509Certificate> certificates = new List<X509Certificate> ();
+		internal readonly List<X509Crl> crls = new List<X509Crl> ();
 
 		#region implemented abstract members of SecureMimeContext
 
@@ -119,8 +120,6 @@ namespace UnitTests {
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
-			var crls = new List<X509Crl> ();
-
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
@@ -196,7 +195,7 @@ namespace UnitTests {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			// FIXME: implement this
+			crls.Add (crl);
 		}
 
 		/// <summary>
