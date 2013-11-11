@@ -821,8 +821,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
 		/// <para><paramref name="signer"/> is<c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="recipients"/> is<c>null</c>.</para>

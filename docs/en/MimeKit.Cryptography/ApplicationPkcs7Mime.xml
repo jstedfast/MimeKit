@@ -778,9 +778,6 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="ctx" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
             <paramref name="signer" /> is<c>null</c>.</para>
           <para>-or-</para>
           <para>
