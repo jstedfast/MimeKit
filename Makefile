@@ -19,4 +19,4 @@ merge-docs: $(ASSEMBLY) $(XMLDOCS)
 	mdoc update -i $(XMLDOCS) -o docs/en $(ASSEMBLY)
 
 html-docs:
-	mdoc export-html -o htmldocs docs/en
+	mdoc export-html --force-update --template=docs/github-pages.xslt -o ../MimeKit-docs/docs docs/en
