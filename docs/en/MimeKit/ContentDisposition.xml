@@ -28,7 +28,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ContentDisposition" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This is identical to <see cref="M:MimeKit.ContentDisposition.#ctor(System.String)" /> with a disposition
+            value of <see cref="F:MimeKit.ContentDisposition.Attachment" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -46,7 +49,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ContentDisposition" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The disposition should either be <see cref="F:MimeKit.ContentDisposition.Attachment" />
+            or <see cref="F:MimeKit.ContentDisposition.Inline" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="disposition" /> is <c>null</c>.
             </exception>
@@ -69,7 +75,9 @@
         <summary>
             The attachment disposition.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates that the <see cref="T:MimeKit.MimePart" /> should be treated as an attachment.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreationDate">
@@ -146,7 +154,9 @@
         <summary>
             The inline disposition.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates that the <see cref="T:MimeKit.MimePart" /> should be rendered inline.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAttachment">

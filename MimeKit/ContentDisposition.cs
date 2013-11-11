@@ -38,11 +38,17 @@ namespace MimeKit {
 		/// <summary>
 		/// The attachment disposition.
 		/// </summary>
+		/// <remarks>
+		/// Indicates that the <see cref="MimePart"/> should be treated as an attachment.
+		/// </remarks>
 		public const string Attachment = "attachment";
 
 		/// <summary>
 		/// The inline disposition.
 		/// </summary>
+		/// <remarks>
+		/// Indicates that the <see cref="MimePart"/> should be rendered inline.
+		/// </remarks>
 		public const string Inline = "inline";
 
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
@@ -52,6 +58,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
+		/// <remarks>
+		/// The disposition should either be <see cref="ContentDisposition.Attachment"/>
+		/// or <see cref="ContentDisposition.Inline"/>.
+		/// </remarks>
 		/// <param name="disposition">The disposition.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="disposition"/> is <c>null</c>.
@@ -68,7 +78,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
-		public ContentDisposition () : this ("attachment")
+		/// <remarks>
+		/// This is identical to <see cref="ContentDisposition(string)"/> with a disposition
+		/// value of <see cref="ContentDisposition.Attachment"/>.
+		/// </remarks>
+		public ContentDisposition () : this (Attachment)
 		{
 		}
 
@@ -107,7 +121,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <value><c>true</c> if the <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
 		public bool IsAttachment {
-			get { return disposition.ToLowerInvariant () == Attachment; }
+			get { return icase.Compare (disposition, Attachment) == 0; }
 			set { disposition = value ? Attachment : Inline; }
 		}
 

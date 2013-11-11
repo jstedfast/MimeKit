@@ -203,8 +203,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the name of the file.
+		/// Gets or sets the name of the file.
 		/// </summary>
+		/// <remarks>
+		/// <para>First checks for the "filename" parameter on the Content-Disposition header. If
+		/// that does not exist, then the "name" parameter on the Content-Type header is used.</para>
+		/// <para>When setting the filename, both the "filename" parameter on the Content-Disposition
+		/// header and the "name" parameter on the Content-Type header are set.</para>
+		/// </remarks>
 		/// <value>The name of the file.</value>
 		public string FileName {
 			get {
@@ -220,6 +226,17 @@ namespace MimeKit {
 					return null;
 
 				return filename.Trim ();
+			}
+			set {
+				if (value != null) {
+					if (ContentDisposition == null)
+						ContentDisposition = new ContentDisposition ();
+					ContentDisposition.FileName = value;
+				} else if (ContentDisposition != null) {
+					ContentDisposition.FileName = value;
+				}
+
+				ContentType.Name = value;
 			}
 		}
 

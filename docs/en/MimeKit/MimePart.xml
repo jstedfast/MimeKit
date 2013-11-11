@@ -224,7 +224,7 @@
       </Docs>
     </Member>
     <Member MemberName="FileName">
-      <MemberSignature Language="C#" Value="public string FileName { get; }" />
+      <MemberSignature Language="C#" Value="public string FileName { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string FileName" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
@@ -235,10 +235,15 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the name of the file.
+            Gets or sets the name of the file.
             </summary>
         <value>The name of the file.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>First checks for the "filename" parameter on the Content-Disposition header. If
+            that does not exist, then the "name" parameter on the Content-Type header is used.</para>
+          <para>When setting the filename, both the "filename" parameter on the Content-Disposition
+            header and the "name" parameter on the Content-Type header are set.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAttachment">
