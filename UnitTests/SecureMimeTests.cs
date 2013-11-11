@@ -83,6 +83,38 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSecureMimeEncapsulatedSigning ()
+		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			var cleartext = new TextPart ("plain");
+			cleartext.Text = "This is some text that we'll end up signing...";
+
+			using (var ctx = CreateContext ()) {
+				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
+				IList<IDigitalSignature> signatures;
+
+				Assert.AreEqual (SecureMimeType.SignedData, signed.SecureMimeType, "S/MIME type did not match.");
+
+				var decoded = signed.Verify (ctx, out signatures);
+
+				Assert.IsInstanceOfType (typeof (TextPart), decoded, "Decompressed part is not the expected type.");
+				Assert.AreEqual (cleartext.Text, ((TextPart) decoded).Text, "Decompressed content is not the same as the original.");
+
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeSigning ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
