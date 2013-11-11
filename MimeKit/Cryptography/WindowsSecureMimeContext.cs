@@ -226,6 +226,36 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			CertificateStore.Add (new X509Certificate2 (certificate.GetEncoded ()));
+		}
+
+		/// <summary>
+		/// Import the specified certificate revocation list.
+		/// </summary>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (X509Crl crl)
+		{
+			if (crl == null)
+				throw new ArgumentNullException ("crl");
+
+			// FIXME: implement this
+		}
+
+		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <param name="stream">The raw certificate and key data.</param>
@@ -263,45 +293,6 @@ namespace MimeKit.Cryptography {
 			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
 
 			CertificateStore.AddRange (certs);
-		}
-
-		#endregion
-
-		#region implemented abstract members of CryptographyContext
-
-		/// <summary>
-		/// Imports certificates (as from a certs-only application/pkcs-mime part)
-		/// from the specified stream.
-		/// </summary>
-		/// <param name="stream">The raw certificate data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while importing.
-		/// </exception>
-		public override void Import (Stream stream)
-		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			byte[] rawData;
-
-			if (stream is MemoryBlockStream) {
-				rawData = ((MemoryBlockStream) stream).ToArray ();
-			} else if (stream is MemoryStream) {
-				rawData = ((MemoryStream) stream).ToArray ();
-			} else {
-				using (var memory = new MemoryStream  ()) {
-					stream.CopyTo (memory, 4096);
-					rawData = memory.ToArray ();
-				}
-			}
-
-			var contentInfo = new ContentInfo (rawData);
-			var signed = new SignedCms (contentInfo, false);
-
-			CertificateStore.AddRange (signed.Certificates);
 		}
 
 		#endregion

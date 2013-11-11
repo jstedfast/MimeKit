@@ -493,6 +493,12 @@ namespace MimeKit.Cryptography {
 			var crls = parser.GetCrls ("Collection");
 			var store = parser.GetSignerInfos ();
 
+			foreach (X509Certificate certificate in certificates.GetMatches (null))
+				Import (certificate);
+
+			foreach (X509Crl crl in crls.GetMatches (null))
+				Import (crl);
+
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
@@ -855,6 +861,52 @@ namespace MimeKit.Cryptography {
 			memory.Position = 0;
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
+		}
+
+		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public abstract void Import (X509Certificate certificate);
+
+		/// <summary>
+		/// Import the specified certificate revocation list.
+		/// </summary>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
+		public abstract void Import (X509Crl crl);
+
+		/// <summary>
+		/// Imports certificates (as from a certs-only application/pkcs-mime part)
+		/// from the specified stream.
+		/// </summary>
+		/// <param name="stream">The raw key data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override void Import (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new CmsSignedDataParser (stream);
+			var certificates = parser.GetCertificates ("Collection");
+
+			foreach (X509Certificate certificate in certificates.GetMatches (null))
+				Import (certificate);
+
+			var crls = parser.GetCrls ("Collection");
+
+			foreach (X509Crl crl in crls.GetMatches (null))
+				Import (crl);
 		}
 	}
 }

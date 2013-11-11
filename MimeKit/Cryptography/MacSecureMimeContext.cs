@@ -168,6 +168,36 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			keychain.Add (certificate);
+		}
+
+		/// <summary>
+		/// Import the specified certificate revocation list.
+		/// </summary>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (X509Crl crl)
+		{
+			if (crl == null)
+				throw new ArgumentNullException ("crl");
+
+			// FIXME: implement this
+		}
+
+		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <param name="stream">The raw certificate and key data.</param>
@@ -203,29 +233,6 @@ namespace MimeKit.Cryptography {
 					keychain.Add (entry.Certificate);
 				}
 			}
-		}
-
-		#endregion
-
-		#region implemented abstract members of CryptographyContext
-
-		/// <summary>
-		/// Imports certificates (as from a certs-only application/pkcs-mime part)
-		/// from the specified stream.
-		/// </summary>
-		/// <param name="stream">The raw key data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
-		public override void Import (Stream stream)
-		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			// FIXME: implement this
 		}
 
 		#endregion

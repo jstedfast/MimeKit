@@ -245,6 +245,37 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			store.Add (certificate);
+			Save ();
+		}
+
+		/// <summary>
+		/// Import the specified certificate revocation list.
+		/// </summary>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
+		public override void Import (X509Crl crl)
+		{
+			if (crl == null)
+				throw new ArgumentNullException ("crl");
+
+			// FIXME: implement this
+		}
+
+		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <param name="stream">The raw certificate and key data.</param>
@@ -266,37 +297,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("password");
 
 			store.Import (stream, password);
-			Save ();
-		}
-
-		#endregion
-
-		#region implemented abstract members of CryptographyContext
-
-		/// <summary>
-		/// Imports certificates (as from a certs-only application/pkcs-mime part)
-		/// from the specified stream.
-		/// </summary>
-		/// <param name="stream">The raw key data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public override void Import (Stream stream)
-		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			var parser = new CmsSignedDataParser (stream);
-			var certificates = parser.GetCertificates ("Collection");
-			// FIXME: import the CRLs as well
-			//var crls = parser.GetCrls ("Collection");
-
-			foreach (X509Certificate certificate in certificates.GetMatches (null))
-				store.Add (certificate);
-
 			Save ();
 		}
 

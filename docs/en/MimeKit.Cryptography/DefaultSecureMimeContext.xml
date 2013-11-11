@@ -263,8 +263,8 @@
       </Docs>
     </Member>
     <Member MemberName="Import">
-      <MemberSignature Language="C#" Value="public override void Import (System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream) cil managed" />
+      <MemberSignature Language="C#" Value="public override void Import (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
@@ -273,23 +273,40 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
       </Parameters>
       <Docs>
-        <param name="stream">The raw key data.</param>
+        <param name="certificate">The certificate.</param>
         <summary>
-            Imports certificates (as from a certs-only application/pkcs-mime part)
-            from the specified stream.
+            Import the specified certificate.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
-          <paramref name="stream" /> is <c>null</c>.
+          <paramref name="certificate" /> is <c>null</c>.
             </exception>
-        <exception cref="T:System.NotSupportedException">
-            Importing keys is not supported by this cryptography context.
-            </exception>
-        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
-            An error occurred in the cryptographic message syntax subsystem.
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public override void Import (Org.BouncyCastle.X509.X509Crl crl);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Crl crl) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="crl" Type="Org.BouncyCastle.X509.X509Crl" />
+      </Parameters>
+      <Docs>
+        <param name="crl">The certificate revocation list.</param>
+        <summary>
+            Import the specified certificate revocation list.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="crl" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>
