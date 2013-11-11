@@ -101,6 +101,9 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="entity" /> is<c>null</c>.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Compress">
@@ -135,6 +138,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decompress">
@@ -156,6 +162,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "compressed-data".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -185,6 +194,9 @@
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "compressed-data".
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
@@ -206,6 +218,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -234,6 +249,9 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "enveloped-data".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -264,6 +282,9 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "enveloped-data".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -296,6 +317,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -333,6 +357,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate could not be found for one or more of the <paramref name="recipients" />.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -369,6 +396,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -411,6 +441,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate could not be found for one or more of the <paramref name="recipients" />.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Import">
@@ -434,6 +467,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -489,6 +525,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -530,6 +569,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -570,6 +612,9 @@
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -617,6 +662,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -653,6 +701,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -694,6 +745,9 @@
           <para>
             <paramref name="entity" /> is<c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -740,6 +794,9 @@
           <para>-or-</para>
           <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -788,6 +845,9 @@
           <para>-or-</para>
           <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -812,6 +872,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -839,6 +902,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>

@@ -57,6 +57,9 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Decompress">
@@ -81,6 +84,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -108,6 +114,9 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -141,6 +150,9 @@
           <para>
             <paramref name="content" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="EncapsulatedSign">
@@ -184,6 +196,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -216,6 +231,9 @@
           <para>
             <paramref name="content" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -253,6 +271,9 @@
             </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate could not be found for one or more of the <paramref name="recipients" />.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -299,7 +320,13 @@
           <paramref name="mailboxes" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.ArgumentException">
+            No mailboxes were specified.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for one or more of the <paramref name="mailboxes" /> could not be found.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -612,6 +639,9 @@
           <para>
             <paramref name="content" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -655,6 +685,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -691,6 +724,9 @@
           <para>
             <paramref name="content" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignAndEncrypt">
@@ -742,6 +778,9 @@
           <para>-or-</para>
           <para>A certificate could not be found for one or more of the <paramref name="recipients" />.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="SignatureProtocol">
@@ -813,6 +852,9 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="signedData" /> is <c>null</c>.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -844,6 +886,9 @@
           <para>
             <paramref name="signatureData" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
   </Members>

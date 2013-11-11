@@ -97,8 +97,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
@@ -163,6 +163,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
 		{
@@ -231,6 +234,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature")) {
@@ -252,8 +258,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public IList<IDigitalSignature> Verify (CryptographyContext ctx)
 		{
@@ -309,8 +315,8 @@ namespace MimeKit.Cryptography {
 		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
 		/// verifying could not be found.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public IList<IDigitalSignature> Verify ()
 		{

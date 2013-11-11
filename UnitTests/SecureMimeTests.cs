@@ -384,11 +384,7 @@ namespace UnitTests {
 				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
 
 				using (var imported = new DummySecureMimeContext ()) {
-					try {
-						pkcs7mime.Import (imported);
-					} catch (Exception ex) {
-						Assert.Fail ("Failed to import certificates: {0}", ex);
-					}
+					pkcs7mime.Import (imported);
 
 					Assert.AreEqual (1, imported.certificates.Count, "Unexpected number of imported certificates.");
 					Assert.IsFalse (imported.keys.Count > 0, "One or more of the certificates included the private key.");

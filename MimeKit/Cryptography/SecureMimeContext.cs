@@ -253,6 +253,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Mime Compress (Stream stream)
 		{
 			if (stream == null)
@@ -273,6 +276,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="stream">The stream to decompress.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public MimeEntity Decompress (Stream stream)
 		{
@@ -316,9 +322,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -356,9 +364,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -382,9 +392,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -422,9 +434,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -527,9 +541,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
@@ -552,9 +568,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public MimeEntity Verify (Stream signedData, out IList<IDigitalSignature> signatures)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
@@ -601,9 +619,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
 
@@ -631,9 +651,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
 
@@ -656,9 +678,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -701,9 +725,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -725,9 +751,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
@@ -794,11 +822,16 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="mailboxes"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
+		/// No mailboxes were specified.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
-			// FIXME: find out what exceptions BouncyCastle can throw...
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 

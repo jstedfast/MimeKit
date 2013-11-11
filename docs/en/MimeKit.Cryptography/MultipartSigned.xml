@@ -81,6 +81,9 @@
         <exception cref="T:System.NotSupportedException">
             A cryptography context suitable for signing could not be found.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -117,6 +120,9 @@
           <para>
             <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -161,6 +167,9 @@
         <exception cref="T:System.Security.Cryptography.CryptographicException">
             An error occurred while signing.
             </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -191,6 +200,9 @@
             </exception>
         <exception cref="T:System.Security.Cryptography.CryptographicException">
             An error occurred while verifying.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
@@ -225,6 +237,9 @@
             </exception>
         <exception cref="T:System.Security.Cryptography.CryptographicException">
             An error occurred while verifying.
+            </exception>
+        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
+            An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
