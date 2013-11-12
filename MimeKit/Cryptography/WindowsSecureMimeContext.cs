@@ -443,7 +443,7 @@ namespace MimeKit.Cryptography {
 			var store = new X509Store (StoreName.My, StoreLocation);
 			store.Open (OpenFlags.ReadOnly);
 
-			enveloped.Decrypt (store.Certificates);
+			enveloped.Decrypt ();
 			store.Close ();
 
 			var decryptedData = enveloped.Encode ();
