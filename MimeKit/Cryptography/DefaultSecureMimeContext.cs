@@ -42,11 +42,20 @@ namespace MimeKit.Cryptography {
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
+		/// The default store path for certificates belonging to people in the user's addressbook.
+		/// </summary>
+		/// <remarks>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\addressbook.crt</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/addressbook.crt</c>.</para>
+		/// </remarks>
+		protected static readonly string DefaultAddressBookCertificatesPath;
+
+		/// <summary>
 		/// The default store path for root (CA) certificates.
 		/// </summary>
 		/// <remarks>
-		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root-certs.crt</c>.</para>
-		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/root-certs.crt</c>.</para>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root.crt</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/root.crt</c>.</para>
 		/// </remarks>
 		protected static readonly string DefaultRootCertificatesPath;
 
@@ -54,25 +63,16 @@ namespace MimeKit.Cryptography {
 		/// The default store path for user certificates and keys.
 		/// </summary>
 		/// <remarks>
-		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user-certs.p12</c>.</para>
-		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/user-certs.p12</c>.</para>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user.p12</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/user.p12</c>.</para>
 		/// </remarks>
 		protected static readonly string DefaultUserCertificatesPath;
-
-		/// <summary>
-		/// The default store path for certificates belonging to people in the user's addressbook.
-		/// </summary>
-		/// <remarks>
-		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\addressbook-certs.crt</c>.</para>
-		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/addressbook-certs.crt</c>.</para>
-		/// </remarks>
-		protected static readonly string DefaultAddressBookCertificatesPath;
 
 		readonly X509CertificateStore addressbook;
 		readonly X509CertificateStore store;
 		readonly X509CertificateStore root;
-		readonly string addressbookPath;
-		readonly string userPath;
+		readonly string addressbookFileName;
+		readonly string userFileName;
 		readonly string password;
 
 		static DefaultSecureMimeContext ()
@@ -90,51 +90,53 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (path))
 				Directory.CreateDirectory (path);
 
-			DefaultAddressBookCertificatesPath = Path.Combine (path, "addressbook-certs.crt");
-			DefaultRootCertificatesPath = Path.Combine (path, "root-certs.crt");
-			DefaultUserCertificatesPath = Path.Combine (path, "user-certs.p12");
+			DefaultAddressBookCertificatesPath = Path.Combine (path, "addressbook.crt");
+			DefaultRootCertificatesPath = Path.Combine (path, "root.crt");
+			DefaultUserCertificatesPath = Path.Combine (path, "user.p12");
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
-		/// <param name="addressbookCertificatesPath">The path to the addressbook certificates.</param>
-		/// <param name="rootCertificatesPath">The path to the root certificates.</param>
-		/// <param name="userCertificatesPath">The path to the pkcs12-formatted user certificates.</param>
+		/// <param name="addressbookFileName">The path to the addressbook certificates.</param>
+		/// <param name="rootFileName">The path to the root certificates.</param>
+		/// <param name="userFileName">The path to the pkcs12-formatted user certificates.</param>
 		/// <param name="password">The password for the pkcs12 user certificates file.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="rootCertificatesPath"/> is <c>null</c>.</para>
+		/// <para><paramref name="addressbookFileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="userCertificatesPath"/> is <c>null</c>.</para>
+		/// <para><paramref name="rootFileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="userFileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading the file.
 		/// </exception>
-		protected DefaultSecureMimeContext (string addressbookCertificatesPath, string rootCertificatesPath, string userCertificatesPath, string password)
+		protected DefaultSecureMimeContext (string addressbookFileName, string rootFileName, string userFileName, string password)
 		{
 			addressbook = new X509CertificateStore ();
 			store = new X509CertificateStore ();
 			root = new X509CertificateStore ();
 
 			try {
-				addressbook.Import (addressbookCertificatesPath);
+				addressbook.Import (addressbookFileName);
 			} catch (FileNotFoundException) {
 			}
 
 			try {
-				store.Import (userCertificatesPath, password);
+				store.Import (userFileName, password);
 			} catch (FileNotFoundException) {
 			}
 
 			try {
-				root.Import (rootCertificatesPath);
+				root.Import (rootFileName);
 			} catch (FileNotFoundException) {
 			}
 
-			this.addressbookPath = addressbookCertificatesPath;
-			this.userPath = userCertificatesPath;
+			this.addressbookFileName = addressbookFileName;
+			this.userFileName = userFileName;
 			this.password = password;
 		}
 
@@ -150,8 +152,8 @@ namespace MimeKit.Cryptography {
 
 		void SaveAddressBookCerts ()
 		{
-			var filename = Path.GetFileName (addressbookPath) + "~";
-			var dirname = Path.GetDirectoryName (addressbookPath);
+			var filename = Path.GetFileName (addressbookFileName) + "~";
+			var dirname = Path.GetDirectoryName (addressbookFileName);
 			var tmp = Path.Combine (dirname, "." + filename);
 			var bak = Path.Combine (dirname, filename);
 
@@ -160,16 +162,16 @@ namespace MimeKit.Cryptography {
 
 			addressbook.Export (tmp);
 
-			if (File.Exists (addressbookPath))
-				File.Replace (tmp, addressbookPath, bak);
+			if (File.Exists (addressbookFileName))
+				File.Replace (tmp, addressbookFileName, bak);
 			else
-				File.Move (tmp, addressbookPath);
+				File.Move (tmp, addressbookFileName);
 		}
 
 		void SaveUserCerts ()
 		{
-			var filename = Path.GetFileName (userPath) + "~";
-			var dirname = Path.GetDirectoryName (userPath);
+			var filename = Path.GetFileName (userFileName) + "~";
+			var dirname = Path.GetDirectoryName (userFileName);
 			var tmp = Path.Combine (dirname, "." + filename);
 			var bak = Path.Combine (dirname, filename);
 
@@ -178,10 +180,10 @@ namespace MimeKit.Cryptography {
 
 			store.Export (tmp, password);
 
-			if (File.Exists (userPath))
-				File.Replace (tmp, userPath, bak);
+			if (File.Exists (userFileName))
+				File.Replace (tmp, userFileName, bak);
 			else
-				File.Move (tmp, userPath);
+				File.Move (tmp, userFileName);
 		}
 
 		#region implemented abstract members of SecureMimeContext
@@ -193,7 +195,15 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
-			return store.GetMatches (selector).FirstOrDefault ();
+			var certificate = store.GetMatches (selector).FirstOrDefault ();
+			if (certificate != null)
+				return certificate;
+
+			certificate = addressbook.GetMatches (selector).FirstOrDefault ();
+			if (certificate != null)
+				return certificate;
+
+			return root.GetMatches (selector).FirstOrDefault ();
 		}
 
 		/// <summary>
@@ -235,7 +245,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			return store;
+			return addressbook;
 		}
 
 		/// <summary>
@@ -245,6 +255,8 @@ namespace MimeKit.Cryptography {
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
 			var crls = new List<X509Crl> ();
+
+			// FIXME: need to figure out what to do with crls
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
@@ -260,6 +272,11 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var certificate in store.Certificates) {
+				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
+					return new CmsRecipient (certificate);
+			}
+
+			foreach (var certificate in addressbook.Certificates) {
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
