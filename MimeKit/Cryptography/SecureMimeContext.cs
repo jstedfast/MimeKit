@@ -683,83 +683,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Signs and encrypts the specified content for the specified recipients.
-		/// </summary>
-		/// <param name="signer">The signer.</param>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, Stream content)
-		{
-			if (signer == null)
-				throw new ArgumentNullException ("signer");
-
-			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			using (var signed = Sign (signer, content, true)) {
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, signed));
-			}
-		}
-
-		/// <summary>
-		/// Encrypt the specified content for the specified recipients, optionally
-		/// signing the content if the signer provided is not null.
-		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="digestAlgo"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
-		/// <para>-or-</para>
-		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public override MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
-		{
-			if (signer == null)
-				throw new ArgumentNullException ("signer");
-
-			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			return SignAndEncrypt (GetCmsSigner (signer, digestAlgo), GetCmsRecipients (recipients), content);
-		}
-
-		/// <summary>
 		/// Decrypt the specified encryptedData.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
@@ -824,10 +747,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public virtual void Import (Stream stream, string password)
-		{
-			throw new NotSupportedException ();
-		}
+		public abstract void Import (Stream stream, string password);
 
 		/// <summary>
 		/// Exports the certificates for the specified mailboxes.

@@ -250,6 +250,16 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}
 
+		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
+		{
+			var recipients = new RealCmsRecipientCollection ();
+
+			foreach (var mailbox in mailboxes)
+				recipients.Add (GetRealCmsRecipient (mailbox));
+
+			return recipients;
+		}
+
 		/// <summary>
 		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
