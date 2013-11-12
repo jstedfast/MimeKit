@@ -306,6 +306,62 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Export the certificates to an unencrypted stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while writing to the stream.
+		/// </exception>
+		public void Export (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			foreach (var certificate in certs) {
+				var encoded = certificate.GetEncoded ();
+				stream.Write (encoded, 0, encoded.Length);
+			}
+		}
+
+		/// <summary>
+		/// Export the certificates to an unencrypted file.
+		/// </summary>
+		/// <param name="fileName">The file path to write to.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.PathTooLongException">
+		/// The specified path exceeds the maximum allowed path length of the system.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// A directory in the specified path does not exist.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to create the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while writing to the stream.
+		/// </exception>
+		public void Export (string fileName)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			if (string.IsNullOrEmpty (fileName))
+				throw new ArgumentException ("The specified path is empty.", "fileName");
+
+			using (var file = File.Create (fileName)) {
+				Export (file);
+			}
+		}
+
+		/// <summary>
 		/// Export the specified stream and password to a pkcs12-formatted file.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>

@@ -247,9 +247,6 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextConstructor != null)
 						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
 
-					if (Path.DirectorySeparatorChar == '\\')
-						return new WindowsSecureMimeContext ();
-
 					return new DefaultSecureMimeContext ();
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":

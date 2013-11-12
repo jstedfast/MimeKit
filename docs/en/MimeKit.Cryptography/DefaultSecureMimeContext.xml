@@ -30,23 +30,25 @@
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.IO.IOException">
-            An error occurred while reading the backing pkcs12 file.
+            An error occurred while reading one of the certificate stores.
             </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string rootCertificatesPath, string userCertificatesPath, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string rootCertificatesPath, string userCertificatesPath, string password) cil managed" />
+      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string addressbookCertificatesPath, string rootCertificatesPath, string userCertificatesPath, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string addressbookCertificatesPath, string rootCertificatesPath, string userCertificatesPath, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
+        <Parameter Name="addressbookCertificatesPath" Type="System.String" />
         <Parameter Name="rootCertificatesPath" Type="System.String" />
         <Parameter Name="userCertificatesPath" Type="System.String" />
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
+        <param name="addressbookCertificatesPath">The path to the addressbook certificates.</param>
         <param name="rootCertificatesPath">The path to the root certificates.</param>
         <param name="userCertificatesPath">The path to the pkcs12-formatted user certificates.</param>
         <param name="password">The password for the pkcs12 user certificates file.</param>
@@ -69,6 +71,26 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="DefaultAddressBookCertificatesPath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultAddressBookCertificatesPath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultAddressBookCertificatesPath" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The default store path for certificates belonging to people in the user's addressbook.
+            </summary>
+        <remarks>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\addressbook-certs.crt</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/addressbook-certs.crt</c>.</para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DefaultRootCertificatesPath">
       <MemberSignature Language="C#" Value="protected static readonly string DefaultRootCertificatesPath;" />
       <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultRootCertificatesPath" />
@@ -81,7 +103,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The default root certificate store path.
+            The default store path for root (CA) certificates.
             </summary>
         <remarks>
           <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root-certs.crt</c>.</para>
@@ -101,7 +123,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The default user certificate store path.
+            The default store path for user certificates and keys.
             </summary>
         <remarks>
           <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user-certs.p12</c>.</para>
