@@ -92,5 +92,6 @@
     <None Include="TestData\smime\smime.crt" />
     <None Include="TestData\openpgp\mimekit.gpg.pub" />
     <None Include="TestData\openpgp\mimekit.gpg.sec" />
+    <None Include="TestData\messages\empty-multipart.txt" />
   </ItemGroup>
 </Project>

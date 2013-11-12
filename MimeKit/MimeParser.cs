@@ -38,8 +38,10 @@ namespace MimeKit {
 	{
 		None,
 		Eos,
-		Boundary,
-		EndBoundary
+		ImmediateBoundary,
+		ImmediateEndBoundary,
+		ParentBoundary,
+		ParentEndBoundary,
 	}
 
 	class Boundary
@@ -997,10 +999,10 @@ namespace MimeKit {
 				var boundary = bounds[i];
 
 				if (curOffset >= boundary.ContentEnd && IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
-					return BoundaryType.EndBoundary;
+					return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
 
 				if (IsBoundary (start, length, boundary.Marker, boundary.Length))
-					return BoundaryType.Boundary;
+					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
 			}
 
 			return BoundaryType.None;
@@ -1172,13 +1174,17 @@ namespace MimeKit {
 					inptr++;
 
 				found = CheckBoundary (inputIndex, start, (int) (inptr - start));
-				if (found == BoundaryType.Boundary)
-					return BoundaryType.Boundary;
 
-				if (found == BoundaryType.EndBoundary) {
+				switch (found) {
+				case BoundaryType.ImmediateEndBoundary:
+				case BoundaryType.ImmediateBoundary:
+				case BoundaryType.ParentBoundary:
+					return found;
+				case BoundaryType.ParentEndBoundary:
 					// ignore "From " boundaries, broken mailers tend to include these...
 					if (!IsMboxMarker (start))
-						return BoundaryType.EndBoundary;
+						return found;
+					break;
 				}
 			}
 
@@ -1255,7 +1261,7 @@ namespace MimeKit {
 					found = ConstructMimePart ((MimePart) entity, inbuf);
 
 				multipart.Add (entity);
-			} while (found == BoundaryType.Boundary && FoundImmediateBoundary (inbuf, false));
+			} while (found == BoundaryType.ImmediateBoundary);
 
 			return found;
 		}
@@ -1287,18 +1293,25 @@ namespace MimeKit {
 			PushBoundary (boundary);
 
 			var found = MultipartScanPreamble (multipart, inbuf);
-			if (found == BoundaryType.Boundary)
+			if (found == BoundaryType.ImmediateBoundary)
 				found = MultipartScanSubparts (multipart, inbuf);
 
-			if (found == BoundaryType.EndBoundary && FoundImmediateBoundary (inbuf, true)) {
+			if (found == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
 				SkipLine (inbuf);
 				PopBoundary ();
-				found = MultipartScanEpilogue (multipart, inbuf);
-			} else {
-				// We either found the end of the stream or we found a parent's boundary
-				PopBoundary ();
+
+				return MultipartScanEpilogue (multipart, inbuf);
 			}
+
+			// We either found the end of the stream or we found a parent's boundary
+			PopBoundary ();
+
+			if (found == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
+				return BoundaryType.ImmediateEndBoundary;
+
+			if (found == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
+				return BoundaryType.ImmediateBoundary;
 
 			return found;
 		}
