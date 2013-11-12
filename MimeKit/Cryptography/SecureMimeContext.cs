@@ -715,7 +715,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new CmsException ("Can't decrypt.");
+			throw new CmsException ("A suitable private key could not be found for decrypting.");
 		}
 
 		/// <summary>
