@@ -178,26 +178,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					PrepareEntityForEncrypting (entity);
-					entity.WriteTo (options, memory);
-					memory.Position = 0;
-
-					var encrypted = new MultipartEncrypted ();
-					encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-					// add the protocol version part
-					encrypted.Add (new ApplicationPgpEncrypted ());
-
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
-
-					return encrypted;
-				}
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
+				return Create (ctx, signer, digestAlgo, recipients, entity);
 			}
 		}
 
@@ -274,29 +256,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var ctx = CryptographyContext.Create ("application/pgp-encrypted")) {
-				using (var memory = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (memory)) {
-						filtered.Add (new Unix2DosFilter ());
-
-						PrepareEntityForEncrypting (entity);
-						entity.WriteTo (filtered);
-						filtered.Flush ();
-					}
-
-					memory.Position = 0;
-
-					var encrypted = new MultipartEncrypted ();
-					encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-					// add the protocol version part
-					encrypted.Add (new ApplicationPgpEncrypted ());
-
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.Encrypt (recipients, memory));
-
-					return encrypted;
-				}
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
+				return Create (ctx, recipients, entity);
 			}
 		}
 
