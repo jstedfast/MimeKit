@@ -408,7 +408,7 @@ namespace MimeKit.Cryptography {
 					memory.Position = 0;
 
 					if (pgp != null)
-						return ctx.Decrypt (memory, out signatures);
+						return pgp.Decrypt (memory, out signatures);
 
 					signatures = null;
 
