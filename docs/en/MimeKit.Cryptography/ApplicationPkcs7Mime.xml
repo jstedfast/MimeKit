@@ -99,7 +99,7 @@
             even among those that support S/MIME.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
-          <paramref name="entity" /> is<c>null</c>.
+          <paramref name="entity" /> is <c>null</c>.
             </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -136,7 +136,7 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -255,39 +255,6 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="Decrypt">
-      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Decrypt (MimeKit.Cryptography.SecureMimeContext ctx, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.MimeEntity</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
-        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
-      </Parameters>
-      <Docs>
-        <param name="ctx">The S/MIME context to use for decrypting.</param>
-        <param name="signatures">The list of digital signatures for this application/pkcs7-mime part.</param>
-        <summary>
-            Decrypt using the specified <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
-            </summary>
-        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <paramref name="ctx" /> is <c>null</c>.
-            </exception>
-        <exception cref="T:System.InvalidOperationException">
-            The "smime-type" parameter on the Content-Type header is not "enveloped-data".
-            </exception>
-        <exception cref="T:Org.BouncyCastle.Cms.CmsException">
-            An error occurred in the cryptographic message syntax subsystem.
-            </exception>
-      </Docs>
-    </Member>
     <Member MemberName="Encrypt">
       <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt (MimeKit.Cryptography.CmsRecipientCollection recipients, MimeKit.MimeEntity entity);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
@@ -312,10 +279,10 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -346,10 +313,10 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
             Valid certificates could not be found for one or more of the <paramref name="recipients" />.
@@ -391,10 +358,10 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -430,10 +397,10 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
             Valid certificates could not be found for one or more of the <paramref name="recipients" />.
@@ -520,10 +487,10 @@
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -564,10 +531,10 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -605,10 +572,10 @@
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
@@ -654,10 +621,10 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A signing certificate could not be found for <paramref name="signer" />.
@@ -693,13 +660,13 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -737,13 +704,13 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
@@ -778,13 +745,13 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
           <para>A signing certificate could not be found for <paramref name="signer" />.</para>
@@ -829,13 +796,13 @@
             <paramref name="ctx" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="signer" /> is<c>null</c>.</para>
+            <paramref name="signer" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="recipients" /> is<c>null</c>.</para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
-            <paramref name="entity" /> is<c>null</c>.</para>
+            <paramref name="entity" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
           <para>A signing certificate could not be found for <paramref name="signer" />.</para>

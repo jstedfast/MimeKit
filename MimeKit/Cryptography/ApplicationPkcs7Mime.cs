@@ -322,7 +322,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -356,7 +356,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is<c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -380,9 +380,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -416,9 +416,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -445,9 +445,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -487,9 +487,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -528,9 +528,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -570,9 +570,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -606,9 +606,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
@@ -652,9 +652,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
@@ -685,11 +685,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -718,11 +718,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -754,11 +754,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
@@ -793,11 +793,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>

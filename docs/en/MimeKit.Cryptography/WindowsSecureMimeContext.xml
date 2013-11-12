@@ -50,8 +50,8 @@
       </Docs>
     </Member>
     <Member MemberName="Decrypt">
-      <MemberSignature Language="C#" Value="public override MimeKit.MimeEntity Decrypt (System.IO.Stream encryptedData, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimeEntity Decrypt(class System.IO.Stream encryptedData, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberSignature Language="C#" Value="public override MimeKit.MimeEntity Decrypt (System.IO.Stream encryptedData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimeEntity Decrypt(class System.IO.Stream encryptedData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
@@ -61,13 +61,11 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="encryptedData" Type="System.IO.Stream" />
-        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
         <param name="encryptedData">The encrypted data.</param>
-        <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Decrypt the specified encryptedData.
+            Decrypt the encrypted data.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
