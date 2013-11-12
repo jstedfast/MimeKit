@@ -223,7 +223,18 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
 
-		static string GetOid (DigestAlgorithm digestAlgo)
+		/// <summary>
+		/// Gets the digest oid.
+		/// </summary>
+		/// <returns>The digest oid.</returns>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		protected static string GetDigestOid (DigestAlgorithm digestAlgo)
 		{
 			switch (digestAlgo) {
 			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;
@@ -296,7 +307,7 @@ namespace MimeKit.Cryptography {
 		{
 			var cms = new CmsSignedDataStreamGenerator ();
 
-			cms.AddSigner (signer.PrivateKey, signer.Certificate, GetOid (signer.DigestAlgorithm),
+			cms.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
 				signer.SignedAttributes, signer.UnsignedAttributes);
 
 			var memory = new MemoryStream ();
@@ -367,7 +378,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		public virtual ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");

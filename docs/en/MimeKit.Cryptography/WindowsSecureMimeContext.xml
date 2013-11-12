@@ -32,63 +32,97 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public WindowsSecureMimeContext (System.Security.Cryptography.X509Certificates.X509Store store);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Security.Cryptography.X509Certificates.X509Store store) cil managed" />
+      <MemberSignature Language="C#" Value="public WindowsSecureMimeContext (System.Security.Cryptography.X509Certificates.StoreLocation location);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype System.Security.Cryptography.X509Certificates.StoreLocation location) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="store" Type="System.Security.Cryptography.X509Certificates.X509Store" />
+        <Parameter Name="location" Type="System.Security.Cryptography.X509Certificates.StoreLocation" />
       </Parameters>
       <Docs>
-        <param name="store">The X509 certificate store.</param>
+        <param name="location">The X.509 store location.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.WindowsSecureMimeContext" /> class.
             </summary>
         <remarks>To be added.</remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <paramref name="store" /> is <c>null</c>.
-            </exception>
       </Docs>
     </Member>
-    <Member MemberName="CertificateStore">
-      <MemberSignature Language="C#" Value="public System.Security.Cryptography.X509Certificates.X509Store CertificateStore { get; protected set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class System.Security.Cryptography.X509Certificates.X509Store CertificateStore" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Security.Cryptography.X509Certificates.X509Store</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets or sets the X509 certificate store.
-            </summary>
-        <value>The X509 certificate store.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="Dispose">
-      <MemberSignature Language="C#" Value="protected override void Dispose (bool disposing);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Dispose(bool disposing) cil managed" />
+    <Member MemberName="Decrypt">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimeEntity Decrypt (System.IO.Stream encryptedData, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimeEntity Decrypt(class System.IO.Stream encryptedData, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="disposing" Type="System.Boolean" />
+        <Parameter Name="encryptedData" Type="System.IO.Stream" />
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <param name="encryptedData">The encrypted data.</param>
+        <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Dispose the specified disposing.
+            Decrypt the specified encryptedData.
             </summary>
+        <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="EncapsulatedSign">
+      <MemberSignature Language="C#" Value="public override MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Sign and encapsulate the content using the specified signer.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance
+            containing the detached signature data.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for <paramref name="signer" />.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetCertificate">
@@ -323,6 +357,70 @@
         <exception cref="T:System.NotSupportedException">
             Importing keys is not supported by this cryptography context.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public override MimeKit.MimePart Sign (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.MimePart Sign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimePart</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="signer">The signer.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="content">The content.</param>
+        <summary>
+            Sign the content using the specified signer.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.MimePart" /> instance
+            containing the detached signature data.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for <paramref name="signer" />.
+            </exception>
+        <exception cref="T:System.Security.Cryptography.CryptographicException">
+            An error occurred in the cryptographic message syntax subsystem.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="StoreLocation">
+      <MemberSignature Language="C#" Value="public System.Security.Cryptography.X509Certificates.StoreLocation StoreLocation { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Security.Cryptography.X509Certificates.StoreLocation StoreLocation" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Security.Cryptography.X509Certificates.StoreLocation</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the X.509 store location.
+            </summary>
+        <value>The store location.</value>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
   </Members>

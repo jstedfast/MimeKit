@@ -27,17 +27,22 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkix;
+using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 
+using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
+using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
+using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
+
 using MimeKit.IO;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -48,33 +53,25 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
 		/// </summary>
-		/// <param name="store">The X509 certificate store.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="store"/> is <c>null</c>.
-		/// </exception>
-		public WindowsSecureMimeContext (X509Store store)
+		/// <param name="location">The X.509 store location.</param>
+		public WindowsSecureMimeContext (StoreLocation location)
 		{
-			if (store == null)
-				throw new ArgumentNullException ("store");
-
-			CertificateStore = store;
+			StoreLocation = location;
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
 		/// </summary>
-		public WindowsSecureMimeContext ()
+		public WindowsSecureMimeContext () : this (StoreLocation.CurrentUser)
 		{
-			CertificateStore = new X509Store (StoreName.My, StoreLocation.CurrentUser);
-			CertificateStore.Open (OpenFlags.ReadWrite);
 		}
 
 		/// <summary>
-		/// Gets or sets the X509 certificate store.
+		/// Gets the X.509 store location.
 		/// </summary>
-		/// <value>The X509 certificate store.</value>
-		public X509Store CertificateStore {
-			get; protected set;
+		/// <value>The store location.</value>
+		public StoreLocation StoreLocation {
+			get; private set;
 		}
 
 		#region implemented abstract members of SecureMimeContext
@@ -86,11 +83,22 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (IX509Selector selector)
 		{
-			foreach (var certificate in CertificateStore.Certificates) {
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
+			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
 
-				if (selector.Match (cert))
-					return cert;
+			foreach (var storeName in storeNames) {
+				var store = new X509Store (storeName, StoreLocation);
+
+				store.Open (OpenFlags.ReadOnly);
+
+				try {
+					foreach (var certificate in store.Certificates) {
+						var cert = DotNetUtilities.FromX509Certificate (certificate);
+						if (selector.Match (cert))
+							return cert;
+					}
+				} finally {
+					store.Close ();
+				}
 			}
 
 			return null;
@@ -103,16 +111,24 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
-			foreach (var certificate in CertificateStore.Certificates) {
-				if (!certificate.HasPrivateKey)
-					continue;
+			var store = new X509Store (StoreName.My, StoreLocation);
 
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
+			store.Open (OpenFlags.ReadOnly);
 
-				if (selector.Match (cert)) {
-					var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-					return pair.Private;
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (!certificate.HasPrivateKey)
+						continue;
+
+					var cert = DotNetUtilities.FromX509Certificate (certificate);
+
+					if (selector.Match (cert)) {
+						var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+						return pair.Private;
+					}
 				}
+			} finally {
+				store.Close ();
 			}
 
 			return null;
@@ -124,21 +140,21 @@ namespace MimeKit.Cryptography {
 		/// <returns>The trusted anchors.</returns>
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
+			var storeNames = new StoreName[] { StoreName.TrustedPeople, StoreName.Root };
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
-			var root = new X509Store (StoreName.Root, StoreLocation.CurrentUser);
 
-			try {
-				root.Open (OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-			} catch {
-				return anchors;
+			foreach (var storeName in storeNames) {
+				var store = new X509Store (storeName, StoreLocation);
+
+				store.Open (OpenFlags.ReadOnly);
+
+				foreach (var certificate in store.Certificates) {
+					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					anchors.Add (new TrustAnchor (cert, null));
+				}
+
+				store.Close ();
 			}
-
-			foreach (var certificate in root.Certificates) {
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
-				anchors.Add (new TrustAnchor (cert, null));
-			}
-
-			root.Close ();
 
 			return anchors;
 		}
@@ -149,14 +165,23 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var store = new X509CertificateStore ();
+			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			var intermediate = new X509CertificateStore ();
 
-			foreach (var certificate in CertificateStore.Certificates) {
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
-				store.Add (cert);
+			foreach (var storeName in storeNames) {
+				var store = new X509Store (storeName, StoreLocation);
+
+				store.Open (OpenFlags.ReadOnly);
+
+				foreach (var certificate in store.Certificates) {
+					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					intermediate.Add (cert);
+				}
+
+				store.Close ();
 			}
 
-			return store;
+			return intermediate;
 		}
 
 		/// <summary>
@@ -180,15 +205,46 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
+			var store = new X509Store (StoreName.My, StoreLocation);
 
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-					continue;
+			store.Open (OpenFlags.ReadOnly);
 
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						continue;
 
-				return new CmsRecipient (cert);
+					var cert = DotNetUtilities.FromX509Certificate (certificate);
+
+					return new CmsRecipient (cert);
+				}
+			} finally {
+				store.Close ();
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
+		{
+			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook };
+
+			foreach (var storeName in storeNames) {
+				var store = new X509Store (storeName, StoreLocation);
+
+				store.Open (OpenFlags.ReadOnly);
+
+				try {
+					foreach (var certificate in store.Certificates) {
+						if (!certificate.HasPrivateKey)
+							continue;
+
+						if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
+							return new RealCmsRecipient (certificate);
+					}
+				} finally {
+					store.Close ();
+				}
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -205,24 +261,188 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var certificates = CertificateStore.Certificates;//.Find (X509FindType.FindByKeyUsage, flags, true);
+			var store = new X509Store (StoreName.My, StoreLocation);
 
-			foreach (var certificate in certificates) {
-				if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-					continue;
+			store.Open (OpenFlags.ReadOnly);
 
-				if (!certificate.HasPrivateKey)
-					continue;
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (!certificate.HasPrivateKey)
+						continue;
 
-				var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-				var cert = DotNetUtilities.FromX509Certificate (certificate);
-				var signer = new CmsSigner (cert, pair.Private);
-				signer.DigestAlgorithm = digestAlgo;
+					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						continue;
 
-				return signer;
+					var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					var signer = new CmsSigner (cert, pair.Private);
+					signer.DigestAlgorithm = digestAlgo;
+
+					return signer;
+				}
+			} finally {
+				store.Close ();
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+		}
+
+		RealCmsSigner GetRealCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		{
+			var store = new X509Store (StoreName.My, StoreLocation);
+
+			store.Open (OpenFlags.ReadOnly);
+
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (!certificate.HasPrivateKey)
+						continue;
+
+					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						continue;
+
+					var signer = new RealCmsSigner (certificate);
+					signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
+					signer.IncludeOption = X509IncludeOption.ExcludeRoot;
+					return signer;
+				}
+			} finally {
+				store.Close ();
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+		}
+
+		byte[] ReadAllBytes (Stream stream)
+		{
+			if (stream is MemoryBlockStream)
+				return ((MemoryBlockStream) stream).ToArray ();
+
+			if (stream is MemoryStream)
+				return ((MemoryStream) stream).ToArray ();
+
+			using (var memory = new MemoryBlockStream ()) {
+				stream.CopyTo (memory, 4096);
+				return memory.ToArray ();
+			}
+		}
+
+		/// <summary>
+		/// Sign and encapsulate the content using the specified signer.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
+			var signed = new SignedCms (contentInfo, false);
+			signed.ComputeSignature (cmsSigner);
+			var signedData = signed.Encode ();
+
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, new MemoryStream (signedData, false));
+		}
+
+		/// <summary>
+		/// Sign the content using the specified signer.
+		/// </summary>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
+			var signed = new SignedCms (contentInfo, true);
+			signed.ComputeSignature (cmsSigner);
+			var signedData = signed.Encode ();
+
+			return new ApplicationPkcs7Signature (new MemoryStream (signedData, false));
+		}
+
+		/// <summary>
+		/// Decrypt the specified encryptedData.
+		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			var enveloped = new EnvelopedCms ();
+			enveloped.Decode (ReadAllBytes (encryptedData));
+
+			var store = new X509Store (StoreName.My, StoreLocation);
+			store.Open (OpenFlags.ReadOnly);
+
+			enveloped.Decrypt (store.Certificates);
+			store.Close ();
+
+			var decryptedData = enveloped.Encode ();
+			signatures = null;
+
+			using (var memory = new MemoryStream (decryptedData, false)) {
+				return MimeEntity.Load (memory);
+			}
 		}
 
 		/// <summary>
@@ -234,10 +454,11 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
 		{
-			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+			var store = new X509Store (StoreName.AddressBook, StoreLocation);
 
-			CertificateStore.Add (new X509Certificate2 (certificate.GetEncoded ()));
+			store.Open (OpenFlags.ReadWrite);
+			store.Add (new X509Certificate2 (certificate.GetEncoded ()));
+			store.Close ();
 		}
 
 		/// <summary>
@@ -288,27 +509,15 @@ namespace MimeKit.Cryptography {
 					rawData = memory.ToArray ();
 				}
 			}
-
+			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
-			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.Exportable);
 
-			CertificateStore.AddRange (certs);
+			store.Open (OpenFlags.ReadWrite);
+			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet);
+			store.AddRange (certs);
+			store.Close ();
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Dispose the specified disposing.
-		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && CertificateStore != null) {
-				CertificateStore.Close ();
-				CertificateStore = null;
-			}
-
-			base.Dispose (disposing);
-		}
 	}
 }

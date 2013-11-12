@@ -156,8 +156,8 @@
       </Docs>
     </Member>
     <Member MemberName="EncapsulatedSign">
-      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.IO.Stream content);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Cryptography.ApplicationPkcs7Mime EncapsulatedSign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.12.0.0</AssemblyVersion>
@@ -470,6 +470,34 @@
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="micalg" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDigestOid">
+      <MemberSignature Language="C#" Value="protected static string GetDigestOid (MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method familystatic hidebysig string GetDigestOid(valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Gets the digest oid.
+            </summary>
+        <returns>The digest oid.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="digestAlgo" /> is out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> is not supported by this context.
             </exception>
       </Docs>
     </Member>
