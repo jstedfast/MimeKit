@@ -176,37 +176,6 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
-		/// <param name="signatures">The list of digital signatures for this application/pkcs7-mime part.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx, out IList<IDigitalSignature> signatures)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
-
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
-				throw new InvalidOperationException ();
-
-			using (var memory = new MemoryStream ()) {
-				ContentObject.DecodeTo (memory);
-				memory.Position = 0;
-
-				return ctx.Decrypt (memory, out signatures);
-			}
-		}
-
-		/// <summary>
-		/// Decrypt using the specified <see cref="CryptographyContext"/>.
-		/// </summary>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -224,9 +193,12 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.EnvelopedData)
 				throw new InvalidOperationException ();
 
-			IList<IDigitalSignature> signatures;
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
 
-			return Decrypt (ctx, out signatures);
+				return ctx.Decrypt (memory);
+			}
 		}
 
 		/// <summary>

@@ -687,14 +687,13 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
+		public override MimeEntity Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -709,21 +708,6 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var content = recipient.GetContent (key);
-
-				try {
-					var parser = new CmsSignedDataParser (content);
-					var signed = parser.GetSignedContent ();
-
-					using (var memory = new MemoryStream ()) {
-						signed.ContentStream.CopyTo (memory, 4096);
-						content = memory.ToArray ();
-					}
-
-					signatures = GetDigitalSignatures (parser);
-				} catch (Exception ex) {
-					Console.WriteLine ("Failed to verify signed data: {0}", ex);
-					signatures = null;
-				}
 
 				using (var memory = new MemoryStream (content, false)) {
 					var parser = new MimeParser (memory, MimeFormat.Entity);

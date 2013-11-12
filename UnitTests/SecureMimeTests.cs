@@ -218,7 +218,6 @@ namespace UnitTests {
 
 			using (var ctx = CreateContext ()) {
 				var encrypted = (ApplicationPkcs7Mime) message.Body;
-				IList<IDigitalSignature> signatures = null;
 				MimeEntity decrypted = null;
 
 				using (var file = File.OpenRead (p12)) {
@@ -229,13 +228,11 @@ namespace UnitTests {
 				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
 
 				try {
-					decrypted = encrypted.Decrypt (ctx, out signatures);
+					decrypted = encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
 					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
 				}
-
-				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
 
 				// The decrypted part should be a multipart/mixed with a text/plain part and an image attachment,
 				// very much like the thunderbird-signed.txt message.
@@ -268,11 +265,7 @@ namespace UnitTests {
 			}
 
 			using (var ctx = CreateContext ()) {
-				IList<IDigitalSignature> signatures;
-
-				var decrypted = encrypted.Decrypt (ctx, out signatures);
-
-				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
+				var decrypted = encrypted.Decrypt (ctx);
 
 				// The decrypted part should be a multipart/signed
 				Assert.IsInstanceOfType (typeof (MultipartSigned), decrypted, "Expected the decrypted part to be a multipart/signed.");
@@ -284,7 +277,7 @@ namespace UnitTests {
 				var extracted = (TextPart) signed[0];
 				Assert.AreEqual (cleartext.Text, extracted.Text, "The decrypted text part's text does not match the original.");
 
-				signatures = signed.Verify (ctx);
+				var signatures = signed.Verify (ctx);
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
@@ -315,7 +308,6 @@ namespace UnitTests {
 
 			using (var ctx = CreateContext ()) {
 				var encrypted = (ApplicationPkcs7Mime) message.Body;
-				IList<IDigitalSignature> signatures = null;
 				MimeEntity decrypted = null;
 
 				using (var file = File.OpenRead (p12)) {
@@ -326,13 +318,11 @@ namespace UnitTests {
 				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
 
 				try {
-					decrypted = encrypted.Decrypt (ctx, out signatures);
+					decrypted = encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
 					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
 				}
-
-				Assert.IsNull (signatures, "Did not expect to find any signatures from an encrypted message.");
 
 				// The decrypted part should be a multipart/signed
 				Assert.IsInstanceOfType (typeof (MultipartSigned), decrypted, "Expected the decrypted part to be a multipart/signed.");
@@ -349,7 +339,7 @@ namespace UnitTests {
 				Assert.IsInstanceOfType (typeof (MimePart), multipart[1], "Expected the second part of the decrypted multipart to be a MimePart.");
 				Assert.IsInstanceOfType (typeof (MimePart), multipart[2], "Expected the third part of the decrypted multipart to be a MimePart.");
 
-				signatures = signed.Verify (ctx);
+				var signatures = signed.Verify (ctx);
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {

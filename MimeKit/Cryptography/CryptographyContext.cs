@@ -164,11 +164,10 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		public abstract MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures);
+		public abstract MimeEntity Decrypt (Stream encryptedData);
 
 		/// <summary>
 		/// Imports the public certificates or keys from the specified stream.

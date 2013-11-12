@@ -422,18 +422,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt the specified encryptedData.
+		/// Decrypt the encrypted data.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
+		public override MimeEntity Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -448,7 +447,6 @@ namespace MimeKit.Cryptography {
 			store.Close ();
 
 			var decryptedData = enveloped.Encode ();
-			signatures = null;
 
 			using (var memory = new MemoryStream (decryptedData, false)) {
 				return MimeEntity.Load (memory);

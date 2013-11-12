@@ -951,7 +951,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
+		public MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -1029,6 +1029,33 @@ namespace MimeKit.Cryptography {
 
 				return parser.ParseEntity ();
 			}
+		}
+
+		/// <summary>
+		/// Decrypt the encrypted data.
+		/// </summary>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// The secret key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public override MimeEntity Decrypt (Stream encryptedData)
+		{
+			IList<IDigitalSignature> signatures;
+
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			return Decrypt (encryptedData, out signatures);
 		}
 
 		/// <summary>

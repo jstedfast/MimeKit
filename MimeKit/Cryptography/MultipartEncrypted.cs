@@ -402,10 +402,17 @@ namespace MimeKit.Cryptography {
 
 			using (var ctx = CryptographyContext.Create (protocol)) {
 				using (var memory = new MemoryStream ()) {
+					var pgp = ctx as OpenPgpContext;
+
 					encrypted.ContentObject.DecodeTo (memory);
 					memory.Position = 0;
 
-					return ctx.Decrypt (memory, out signatures);
+					if (pgp != null)
+						return ctx.Decrypt (memory, out signatures);
+
+					signatures = null;
+
+					return ctx.Decrypt (memory);
 				}
 			}
 		}
