@@ -228,6 +228,45 @@ MultipartSigned.Verify() method:
         }
     }
 
+### Getting the Decoded Content of a MIME Part
+
+At some point, you're going to want to extract the decoded content of a MimePart (such as an image) and
+save it to disk or feed it to a UI control to display it.
+
+Once you've found the MimePart object that you'd like to extract the content of, here's how you can
+save the decoded content to a file:
+
+    // This will get the name of the file as specified by the sending mail client.
+    // Note: this value *may* be null, so you'll want to handle that case in your code.
+    var fileName = part.FileName;
+
+    using (var stream = File.Create (fileName)) {
+        part.ContentObject.DecodeTo (stream);
+    }
+
+You can also get access to the original encoded content and its encoding by poking at the Stream and
+Encoding properties of the ContentObject. This might be useful if you want to pass the content off
+to a UI control that can do its own loading from a stream.
+
+    var filtered = new FilteredStream (part.ContentObject.Stream);
+
+    // Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load or MimeEntity.Load),
+    // the ContentObject.Encoding will match the part.Encoding.
+
+    // Create an IMimeFilter that can decode the ContentEncoding.
+    var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
+
+    // Add the filter to our filtered stream.
+    filtered.Add (decoder);
+
+    // At this point, you can now read from the 'filtered' stream as if it were the original, raw content.
+    // Assuming you have an image UI control that could load from a stream, you could do something like this:
+    imageControl.Load (filtered);
+
+There are a number of useful filters that can be applied to a FilteredStream, so if you find this type of
+interface appealing, I suggest taking a look at the available filters in the MimeKit.IO.Filters namespace
+or even write your own! The possibilities are limited only by your imagination.
+
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
