@@ -100,7 +100,9 @@
       <Type Name="OpenPgpContext" Kind="Class" />
       <Type Name="OpenPgpDigitalCertificate" Kind="Class" />
       <Type Name="OpenPgpDigitalSignature" Kind="Class" />
+      <Type Name="PrivateKeyNotFoundException" Kind="Class" />
       <Type Name="PublicKeyAlgorithm" Kind="Enumeration" />
+      <Type Name="PublicKeyNotFoundException" Kind="Class" />
       <Type Name="SecureMimeContext" Kind="Class" />
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />

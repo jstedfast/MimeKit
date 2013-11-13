@@ -28,6 +28,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+using Org.BouncyCastle.Bcpg.OpenPgp;
+
 using MimeKit.IO;
 using MimeKit.IO.Filters;
 
@@ -94,8 +96,17 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -148,6 +159,118 @@ namespace MimeKit.Cryptography {
 				signed.Add (signature);
 
 				return signed;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="ctx">The OpenPGP context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			PrepareEntityForSigning (entity);
+
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					// Note: see rfc3156, section 3 - second note
+					filtered.Add (new ArmoredFromFilter ());
+
+					// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+					filtered.Add (new TrailingWhitespaceFilter ());
+
+					// Note: see rfc2015 or rfc3156, section 5.1
+					filtered.Add (new Unix2DosFilter ());
+
+					entity.WriteTo (filtered);
+					filtered.Flush ();
+				}
+
+				memory.Position = 0;
+
+				// Note: we need to parse the modified entity structure to preserve any modifications
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parsed = parser.ParseEntity ();
+				memory.Position = 0;
+
+				// sign the cleartext content
+				var micalg = ctx.GetMicAlgorithmName (digestAlgo);
+				var signature = ctx.Sign (signer, digestAlgo, memory);
+				var signed = new MultipartSigned ();
+
+				// set the protocol and micalg Content-Type parameters
+				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+				signed.ContentType.Parameters["micalg"] = micalg;
+
+				// add the modified/parsed entity as our first part
+				signed.Add (parsed);
+
+				// add the detached signature as the second part
+				signed.Add (signature);
+
+				return signed;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <para>A cryptography context suitable for signing could not be found.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature")) {
+				return Create (ctx, signer, digestAlgo, entity);
 			}
 		}
 
@@ -312,8 +435,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
-		/// verifying could not be found.
+		/// A cryptography context suitable for verifying the signature could not be found.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.

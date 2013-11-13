@@ -223,14 +223,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the encryption key associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the public key associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
 		/// <returns>The encryption key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// An encryption key for the specified <paramref name="mailbox"/> could not be found.
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected virtual PgpPublicKey GetEncryptionKey (MailboxAddress mailbox)
+		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
 			// FIXME: do the mailbox comparisons ourselves?
 			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
@@ -249,23 +249,23 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid encryption key could not be found.");
+			throw new PublicKeyNotFoundException (mailbox, "The public key could not be found.");
 		}
 
 		/// <summary>
-		/// Gets the encryption keys for the specified <see cref="MimeKit.MailboxAddress"/>es.
+		/// Gets the public keys for the specified <see cref="MimeKit.MailboxAddress"/>es.
 		/// </summary>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// An encryption key for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		protected virtual IList<PgpPublicKey> GetEncryptionKeys (IEnumerable<MailboxAddress> mailboxes)
+		protected virtual IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
 			var recipients = new List<PgpPublicKey> ();
 
 			foreach (var mailbox in mailboxes)
-				recipients.Add (GetEncryptionKey (mailbox));
+				recipients.Add (GetPublicKey (mailbox));
 
 			return recipients;
 		}
@@ -275,8 +275,8 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The signing key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing key for the specified <paramref name="mailbox"/> could not be found.
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// A private key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{
@@ -300,7 +300,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid secret signing key could not be found.");
+			throw new PrivateKeyNotFoundException (mailbox, "The private key could not be found.");
 		}
 
 		/// <summary>
@@ -376,7 +376,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new CertificateNotFoundException (keyId.ToString ("X"), "A valid secret signing key could not be found.");
+			throw new PrivateKeyNotFoundException (keyId.ToString ("X"), "The private key could not be found.");
 		}
 
 		/// <summary>
@@ -430,7 +430,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
+		/// <exception cref="PrivateKeyNotFoundException">
 		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
@@ -447,10 +447,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var key = GetSigningKey (signer);
 
-			return Sign (key, hashAlgorithm, content);
+			return Sign (key, digestAlgo, content);
 		}
 
 		/// <summary>
@@ -459,7 +458,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
-		/// <param name="hashAlgorithm">The hashing algorithm to use for signing.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
@@ -469,13 +468,19 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public ApplicationPgpSignature Sign (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, Stream content)
+		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -486,6 +491,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
+			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var memory = new MemoryStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
@@ -658,7 +664,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
+		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
@@ -670,7 +676,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
-			return Encrypt (GetEncryptionKeys (recipients), content);
+			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
 		Stream Compress (Stream content)
@@ -788,10 +794,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// <para>A signing key could not be found for <paramref name="signer"/>.</para>
-		/// <para>-or-</para>
-		/// <para>A public key could not be found for one or more of the <paramref name="recipients"/>.</para>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
@@ -810,10 +817,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var key = GetSigningKey (signer);
 
-			return SignAndEncrypt (key, hashAlgorithm, GetEncryptionKeys (recipients), content);
+			return SignAndEncrypt (key, digestAlgo, GetPublicKeys (recipients), content);
 		}
 
 		/// <summary>
@@ -822,7 +828,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
-		/// <param name="hashAlgorithm">The hashing algorithm to use for signing.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -845,7 +851,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, HashAlgorithmTag hashAlgorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			// FIXME: document the exceptions that can be thrown by BouncyCastle
 
@@ -862,6 +868,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			int count = 0;
 
 			foreach (var recipient in recipients) {
@@ -942,8 +949,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// The secret key could not be found to decrypt the stream.
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
@@ -1039,8 +1046,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// The secret key could not be found to decrypt the stream.
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
@@ -1200,7 +1207,7 @@ namespace MimeKit.Cryptography {
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
 
-			return Export (GetEncryptionKeys (mailboxes));
+			return Export (GetPublicKeys (mailboxes));
 		}
 
 		/// <summary>

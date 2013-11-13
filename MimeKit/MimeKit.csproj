@@ -62,7 +62,9 @@
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
+    <Compile Include="Cryptography\PrivateKeyNotFoundException.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
+    <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />

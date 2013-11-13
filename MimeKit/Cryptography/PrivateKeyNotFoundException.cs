@@ -1,5 +1,5 @@
 //
-// CertificateNotFoundException.cs
+// PrivateKeyNotFoundException.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -28,25 +28,35 @@ using System;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
+	/// An exception that is thrown when a private key could not be found for a specified mailbox or key id.
 	/// </summary>
-	public class CertificateNotFoundException : Exception
+	public class PrivateKeyNotFoundException : Exception
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
 		/// </summary>
-		/// <param name="mailbox">The mailbox that could not be resolved to a valid certificate.</param>
+		/// <param name="mailbox">The mailbox that could not be resolved to a valid private key.</param>
 		/// <param name="message">A message explaining the error.</param>
-		public CertificateNotFoundException (MailboxAddress mailbox, string message) : base (message)
+		public PrivateKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
 		{
-			Mailbox = mailbox;
+			KeyId = mailbox.Address;
 		}
 
 		/// <summary>
-		/// Gets the mailbox address that could not be resolved to a certificate.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
 		/// </summary>
-		/// <value>The mailbox address.</value>
-		public MailboxAddress Mailbox {
+		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
+		/// <param name="message">A message explaining the error.</param>
+		public PrivateKeyNotFoundException (string keyid, string message) : base (message)
+		{
+			KeyId = keyid;
+		}
+
+		/// <summary>
+		/// Gets the key id that could not be found.
+		/// </summary>
+		/// <value>The key id.</value>
+		public string KeyId {
 			get; private set;
 		}
 	}

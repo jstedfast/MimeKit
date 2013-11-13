@@ -1,5 +1,5 @@
 //
-// CertificateNotFoundException.cs
+// PublicKeyNotFoundException.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -28,24 +28,24 @@ using System;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
+	/// An exception that is thrown when a public key could not be found for a specified mailbox.
 	/// </summary>
-	public class CertificateNotFoundException : Exception
+	public class PublicKeyNotFoundException : Exception
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PublicKeyNotFoundException"/> class.
 		/// </summary>
-		/// <param name="mailbox">The mailbox that could not be resolved to a valid certificate.</param>
+		/// <param name="mailbox">The mailbox that could not be resolved to a valid private key.</param>
 		/// <param name="message">A message explaining the error.</param>
-		public CertificateNotFoundException (MailboxAddress mailbox, string message) : base (message)
+		public PublicKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
 		{
 			Mailbox = mailbox;
 		}
 
 		/// <summary>
-		/// Gets the mailbox address that could not be resolved to a certificate.
+		/// Gets the key id that could not be found.
 		/// </summary>
-		/// <value>The mailbox address.</value>
+		/// <value>The key id.</value>
 		public MailboxAddress Mailbox {
 			get; private set;
 		}
