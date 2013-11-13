@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
@@ -24,7 +24,7 @@ In addition to having a far superior parser implementation, MimeKit's object tre
 * Fixed support for importing certificates from an S/MIME certs-only message.
 * Added MimeMessage.Load() and MimeEntity.Load() convenience methods.
 * Added MimePart.IsAttachment convenience property.
-* Improved documentation and published to to the web: http://jstedfast.github.io/MimeKit/docs
+* Improved documentation and published to to the web: http://jstedfast.github.io/MimeKit/docs</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
         <tags>mime security smime openpgp pgp mbox email parser xamarin android ios</tags>
