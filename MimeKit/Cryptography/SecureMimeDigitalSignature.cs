@@ -59,8 +59,23 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the certificate chain.
 		/// </summary>
+		/// <remarks>
+		/// If building the certificate chain failed, this value will be <c>null</c> and
+		/// <see cref="ChainException"/> will be set.
+		/// </remarks>
 		/// <value>The certificate chain.</value>
 		public PkixCertPath Chain {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// The exception that occurred, if any, while building the certificate chain.
+		/// </summary>
+		/// <remarks>
+		/// This will only be set if building the certificate chain failed.
+		/// </remarks>
+		/// <value>The exception.</value>
+		public Exception ChainException {
 			get; internal set;
 		}
 

@@ -535,17 +535,10 @@ namespace MimeKit.Cryptography {
 
 				var anchors = GetTrustedAnchors ();
 
-				var chain = BuildCertPath (anchors, certificates, crls, certificate, signedDate);
-
-//				var parameters = new PkixParameters (anchors);
-//				var validator = new PkixCertPathValidator ();
-//				var result = validator.Validate (chain, parameters);
-
-				signature.Chain = chain;
-
-				Console.WriteLine ("Chain:");
-				foreach (X509Certificate cert in chain.Certificates) {
-					Console.WriteLine ("{0}", cert.GetCommonName ());
+				try {
+					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signedDate);
+				} catch (Exception ex) {
+					signature.ChainException = ex;
 				}
 
 				signatures.Add (signature);
