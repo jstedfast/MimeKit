@@ -37,6 +37,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Utilities.Date;
 using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
@@ -472,7 +473,7 @@ namespace MimeKit.Cryptography {
 			return GetCertificate (signer);
 		}
 
-		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate)
+		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime? signingTime)
 		{
 			var intermediate = new X509CertificateStore ();
 			foreach (X509Certificate cert in certificates.GetMatches (null))
@@ -492,6 +493,9 @@ namespace MimeKit.Cryptography {
 			// Note: we disable revocation unless we actually have non-empty revocation lists
 			parameters.IsRevocationEnabled = localCrls.GetMatches (null).Count > 0;
 			parameters.ValidityModel = PkixParameters.ChainValidityModel;
+
+			if (signingTime.HasValue)
+				parameters.Date = new DateTimeObject (signingTime.Value);
 
 			var result = new PkixCertPathBuilder ().Build (parameters);
 
@@ -514,12 +518,14 @@ namespace MimeKit.Cryptography {
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
+				DateTime? signedDate = null;
 
 				if (signerInfo.SignedAttributes != null) {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
 					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
 						var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
 						signature.CreationDate = signingTime.ToAdjustedDateTime ();
+						signedDate = signature.CreationDate;
 						break;
 					}
 				}
@@ -529,7 +535,7 @@ namespace MimeKit.Cryptography {
 
 				var anchors = GetTrustedAnchors ();
 
-				var chain = BuildCertPath (anchors, certificates, crls, certificate);
+				var chain = BuildCertPath (anchors, certificates, crls, certificate, signedDate);
 
 //				var parameters = new PkixParameters (anchors);
 //				var validator = new PkixCertPathValidator ();
