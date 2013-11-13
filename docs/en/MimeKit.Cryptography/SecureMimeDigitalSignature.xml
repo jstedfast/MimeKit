@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit SecureMimeDigitalSignature extends System.Object implements class MimeKit.Cryptography.IDigitalSignature" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.12.0.0</AssemblyVersion>
+    <AssemblyVersion>0.13.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -25,7 +25,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Pkix.PkixCertPath Chain" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Pkix.PkixCertPath</ReturnType>
@@ -35,7 +35,30 @@
             Gets the certificate chain.
             </summary>
         <value>The certificate chain.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If building the certificate chain failed, this value will be <c>null</c> and
+            <see cref="P:MimeKit.Cryptography.SecureMimeDigitalSignature.ChainException" /> will be set.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ChainException">
+      <MemberSignature Language="C#" Value="public Exception ChainException { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Exception ChainException" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Exception</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The exception that occurred, if any, while building the certificate chain.
+            </summary>
+        <value>The exception.</value>
+        <remarks>
+            This will only be set if building the certificate chain failed.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreationDate">
@@ -43,7 +66,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime CreationDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -61,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.DigestAlgorithm DigestAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
@@ -79,7 +102,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
@@ -97,7 +120,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Cryptography.IDigitalCertificate SignerCertificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.IDigitalCertificate</ReturnType>
@@ -115,7 +138,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Cms.SignerInformation SignerInfo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Cms.SignerInformation</ReturnType>
@@ -133,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Verify() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>

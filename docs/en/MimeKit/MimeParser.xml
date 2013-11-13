@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.12.0.0</AssemblyVersion>
+    <AssemblyVersion>0.13.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -22,7 +22,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -43,7 +43,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -70,7 +70,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -93,7 +93,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -125,7 +125,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -154,7 +154,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -192,7 +192,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -226,7 +226,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -266,7 +266,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int64 CurrentStreamOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
@@ -284,7 +284,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsEndOfStream" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -304,7 +304,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string MboxMarker" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -322,7 +322,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int64 MboxMarkerOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
@@ -340,7 +340,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity ParseEntity() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -359,7 +359,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -378,7 +378,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -402,7 +402,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -432,7 +432,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -458,7 +458,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -493,7 +493,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -525,7 +525,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -566,7 +566,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -603,7 +603,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.12.0.0</AssemblyVersion>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

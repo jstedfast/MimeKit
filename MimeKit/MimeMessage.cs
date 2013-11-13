@@ -720,5 +720,71 @@ namespace MimeKit {
 
 			return parser.ParseMessage ();
 		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, string fileName)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName)) {
+				return Load (options, stream);
+			}
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
+		public static MimeMessage Load (string fileName)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName)) {
+				return Load (stream);
+			}
+		}
 	}
 }
