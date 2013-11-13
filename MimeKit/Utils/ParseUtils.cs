@@ -141,7 +141,7 @@ namespace MimeKit.Utils {
 			return index > start;
 		}
 
-		public static bool SkipTToken (byte[] text, ref int index, int endIndex)
+		public static bool SkipToken (byte[] text, ref int index, int endIndex)
 		{
 			int start = index;
 

@@ -73,13 +73,18 @@ namespace MimeKit {
 				throw new ArgumentException ("The subtype is not allowed to be empty.", "mediaSubtype");
 
 			for (int i = 0; i < mediaSubtype.Length; i++) {
-				if (mediaSubtype[i] >= 127 || !IsAtom ((byte) mediaSubtype[i]))
+				if (mediaSubtype[i] >= 127 || !IsToken ((byte) mediaSubtype[i]))
 					throw new ArgumentException ("Illegal characters in subtype.", "mediaSubtype");
 			}
 
 			Parameters = new ParameterList ();
 			subtype = mediaSubtype;
 			type = mediaType;
+		}
+
+		static bool IsToken (byte c)
+		{
+			return c.IsToken ();
 		}
 
 		static bool IsAtom (byte c)
@@ -140,7 +145,7 @@ namespace MimeKit {
 					throw new ArgumentException ("MediaSubtype is not allowed to be empty.", "value");
 
 				for (int i = 0; i < value.Length; i++) {
-					if (value[i] > 127 || !IsAtom ((byte) value[i]))
+					if (value[i] > 127 || !IsToken ((byte) value[i]))
 						throw new ArgumentException ("Illegal characters in media subtype.", "value");
 				}
 
@@ -355,7 +360,7 @@ namespace MimeKit {
 				return false;
 
 			start = index;
-			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+			if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Invalid atom token at position {0}", start), start, index);
 

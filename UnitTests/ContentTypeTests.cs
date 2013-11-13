@@ -46,6 +46,17 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSimpleContentTypeWithVendorExtension ()
+		{
+			string text = "application/x-vnd.msdoc";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "x-vnd.msdoc", "Media subtype does not match: {0}", text);
+		}
+
+		[Test]
 		public void TestSimpleContentTypeWithParameter ()
 		{
 			string text = "multipart/mixed; boundary=\"boundary-text\"";

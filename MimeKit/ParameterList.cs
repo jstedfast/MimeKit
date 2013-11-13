@@ -627,7 +627,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '"')
 				ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError);
 			else
-				ParseUtils.SkipTToken (text, ref index, endIndex);
+				ParseUtils.SkipToken (text, ref index, endIndex);
 
 			pair = new NameValuePair () {
 				ValueLength = index - valueIndex,
