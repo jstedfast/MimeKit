@@ -491,6 +491,7 @@ namespace MimeKit.Cryptography {
 
 			// Note: we disable revocation unless we actually have non-empty revocation lists
 			parameters.IsRevocationEnabled = localCrls.GetMatches (null).Count > 0;
+			parameters.ValidityModel = PkixParameters.ChainValidityModel;
 
 			var result = new PkixCertPathBuilder ().Build (parameters);
 
