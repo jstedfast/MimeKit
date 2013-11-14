@@ -26,6 +26,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -89,6 +90,52 @@ namespace UnitTests {
 
 			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
 			Assert.AreEqual ("<some.message.id.2@some.domain>", msgid, "The parsed msgid does not match");
+		}
+
+		[Test]
+		public void TestSimpleRfc2047QEncodedPhrase ()
+		{
+			var input = "=?iso-8859-1?q?hola?=";
+
+			var actual = Rfc2047.DecodePhrase (Encoding.ASCII.GetBytes (input));
+
+			Assert.AreEqual ("hola", actual);
+		}
+
+		[Test]
+		public void TestSimpleRfc2047BEcnodedPhrase ()
+		{
+			var encoding = "iso-8859-1";
+
+			var input = "=?" + encoding + "?B?"
+			            + Convert.ToBase64String (Encoding.GetEncoding (encoding).GetBytes ("hola"))
+			            + "?=";
+			var actual = Rfc2047.DecodePhrase (Encoding.ASCII.GetBytes (input));
+
+			Assert.AreEqual ("hola", actual);
+		}
+
+		[Test]
+		public void TestSimpleRfc2047QEncodedText ()
+		{
+			var input = "=?iso-8859-1?q?hola?=";
+
+			var actual = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (input));
+
+			Assert.AreEqual ("hola", actual);
+		}
+
+		[Test]
+		public void TestSimpleRfc2047BEcnodedText ()
+		{
+			var encoding = "iso-8859-1";
+
+			var input = "=?" + encoding + "?B?"
+			            + Convert.ToBase64String(Encoding.GetEncoding(encoding).GetBytes("hola"))
+			            + "?=";
+			var actual = Rfc2047.DecodeText(Encoding.ASCII.GetBytes(input));
+
+			Assert.AreEqual("hola", actual);
 		}
 	}
 }

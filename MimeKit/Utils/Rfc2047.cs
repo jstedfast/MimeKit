@@ -224,7 +224,7 @@ namespace MimeKit.Utils {
 								inptr++;
 							}
 
-							if (inptr + 2 >= inend) {
+							if (inptr + 2 > inend) {
 								// didn't find an end marker...
 								inptr = word + 2;
 								ascii = true;
@@ -350,7 +350,7 @@ namespace MimeKit.Utils {
 								inptr++;
 							}
 
-							if (inptr + 2 >= inend) {
+							if (inptr + 2 > inend) {
 								// didn't find an end marker...
 								inptr = word + 2;
 								ascii = true;
