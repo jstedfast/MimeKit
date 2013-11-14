@@ -250,8 +250,8 @@ to a UI control that can do its own loading from a stream.
 
     var filtered = new FilteredStream (part.ContentObject.Stream);
 
-    // Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load or MimeEntity.Load),
-    // the ContentObject.Encoding will match the part.Encoding.
+    // Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load
+    // or MimeEntity.Load), the ContentObject.Encoding will match the part.Encoding.
 
     // Create an IMimeFilter that can decode the ContentEncoding.
     var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
@@ -259,8 +259,9 @@ to a UI control that can do its own loading from a stream.
     // Add the filter to our filtered stream.
     filtered.Add (decoder);
 
-    // At this point, you can now read from the 'filtered' stream as if it were the original, raw content.
-    // Assuming you have an image UI control that could load from a stream, you could do something like this:
+    // At this point, you can now read from the 'filtered' stream as if it were the original,
+    // raw content. Assuming you have an image UI control that could load from a stream, you
+    // could do something like this:
     imageControl.Load (filtered);
 
 There are a number of useful filters that can be applied to a FilteredStream, so if you find this type of
