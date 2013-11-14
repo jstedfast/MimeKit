@@ -297,11 +297,10 @@ namespace MimeKit.Cryptography {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			var decompresser = new CmsCompressedDataParser (stream);
-			var content = decompresser.GetContent ();
-			var parser = new MimeParser (content.ContentStream, MimeFormat.Entity);
+			var parser = new CmsCompressedDataParser (stream);
+			var content = parser.GetContent ();
 
-			return parser.ParseEntity ();
+			return MimeEntity.Load (content.ContentStream);
 		}
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
@@ -593,13 +592,11 @@ namespace MimeKit.Cryptography {
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
-			var signedDataParser = new CmsSignedDataParser (signedData);
-			var signed = signedDataParser.GetSignedContent ();
+			var parser = new CmsSignedDataParser (signedData);
+			var signed = parser.GetSignedContent ();
+			var entity = MimeEntity.Load (signed.ContentStream);
 
-			var parser = new MimeParser (signed.ContentStream, MimeFormat.Entity);
-			var entity = parser.ParseEntity ();
-
-			signatures = GetDigitalSignatures (signedDataParser);
+			signatures = GetDigitalSignatures (parser);
 
 			return entity;
 		}
@@ -698,9 +695,9 @@ namespace MimeKit.Cryptography {
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			var enveloped = new CmsEnvelopedDataParser (encryptedData);
-			var recipients = enveloped.GetRecipientInfos ();
-			var algorithm = enveloped.EncryptionAlgorithmID;
+			var parser = new CmsEnvelopedDataParser (encryptedData);
+			var recipients = parser.GetRecipientInfos ();
+			var algorithm = parser.EncryptionAlgorithmID;
 			AsymmetricKeyParameter key;
 
 			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
@@ -710,8 +707,7 @@ namespace MimeKit.Cryptography {
 				var content = recipient.GetContent (key);
 
 				using (var memory = new MemoryStream (content, false)) {
-					var parser = new MimeParser (memory, MimeFormat.Entity);
-					return parser.ParseEntity ();
+					return MimeEntity.Load (memory);
 				}
 			}
 

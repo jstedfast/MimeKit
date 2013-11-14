@@ -991,50 +991,49 @@ namespace MimeKit.Cryptography {
 				PgpOnePassSignatureList onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
-				var memory = new MemoryStream ();
 
-				obj = factory.NextPgpObject ();
-				while (obj != null) {
-					if (obj is PgpCompressedData) {
-						if (compressed != null)
-							throw new Exception ("recursive compression detected.");
+				using (var memory = new MemoryStream ()) {
+					obj = factory.NextPgpObject ();
+					while (obj != null) {
+						if (obj is PgpCompressedData) {
+							if (compressed != null)
+								throw new Exception ("recursive compression detected.");
 
-						compressed = (PgpCompressedData) obj;
-						factory = new PgpObjectFactory (compressed.GetDataStream ());
-					} else if (obj is PgpOnePassSignatureList) {
-						onepassList = (PgpOnePassSignatureList) obj;
-					} else if (obj is PgpSignatureList) {
-						signatureList = (PgpSignatureList) obj;
-					} else if (obj is PgpLiteralData) {
-						var literal = (PgpLiteralData) obj;
+							compressed = (PgpCompressedData) obj;
+							factory = new PgpObjectFactory (compressed.GetDataStream ());
+						} else if (obj is PgpOnePassSignatureList) {
+							onepassList = (PgpOnePassSignatureList) obj;
+						} else if (obj is PgpSignatureList) {
+							signatureList = (PgpSignatureList) obj;
+						} else if (obj is PgpLiteralData) {
+							var literal = (PgpLiteralData) obj;
 
-						using (var stream = literal.GetDataStream ()) {
-							stream.CopyTo (memory, 4096);
+							using (var stream = literal.GetDataStream ()) {
+								stream.CopyTo (memory, 4096);
+							}
 						}
+
+						obj = factory.NextPgpObject ();
 					}
 
-					obj = factory.NextPgpObject ();
-				}
-
-				memory.Position = 0;
-
-				// FIXME: validate the OnePass signatures... and do what with them?
-//				if (onepassList != null) {
-//					for (int i = 0; i < onepassList.Count; i++) {
-//						var onepass = onepassList[i];
-//					}
-//				}
-
-				if (signatureList != null) {
-					signatures = GetDigitalSignatures (signatureList, memory);
 					memory.Position = 0;
-				} else {
-					signatures = null;
+
+					// FIXME: validate the OnePass signatures... and do what with them?
+//					if (onepassList != null) {
+//						for (int i = 0; i < onepassList.Count; i++) {
+//							var onepass = onepassList[i];
+//						}
+//					}
+
+					if (signatureList != null) {
+						signatures = GetDigitalSignatures (signatureList, memory);
+						memory.Position = 0;
+					} else {
+						signatures = null;
+					}
+
+					return MimeEntity.Load (memory);
 				}
-
-				var parser = new MimeParser (memory, MimeFormat.Entity);
-
-				return parser.ParseEntity ();
 			}
 		}
 
