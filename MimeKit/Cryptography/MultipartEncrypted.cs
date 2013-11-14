@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer to use to sign the entity.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
@@ -202,7 +202,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for singing and encrypting.</param>
 		/// <param name="signer">The signer to use to sign the entity.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
@@ -328,7 +328,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -412,7 +412,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
 		/// <param name="entity">The entity to sign and encrypt.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -495,7 +495,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt this instance.
 		/// </summary>
 		/// <returns>The decrypted entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
@@ -561,7 +561,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt this instance.
 		/// </summary>
 		/// <returns>The decrypted entity.</returns>
-		/// <param name="ctx">An OpenPGP cryptography context.</param>
+		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
