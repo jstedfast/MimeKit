@@ -339,7 +339,7 @@ namespace MimeKit.IO {
 				int cur = 0;
 
 				position = 0;
-				while (cur <= max && position < real) {
+				while (cur <= max) {
 					length = streams[cur].Length;
 
 					if (real < position + length) {
