@@ -37,8 +37,10 @@ namespace MimeKit {
 	/// A Textual MIME part.
 	/// </summary>
 	/// <remarks>
-	/// Unless overridden, all textual parts parsed by the <see cref="MimeParser"/>,
-	/// such as text/plain or text/html, will be represented by a <see cref="TextPart"/>.
+	/// <para>Unless overridden, all textual parts parsed by the <see cref="MimeParser"/>,
+	/// such as text/plain or text/html, will be represented by a <see cref="TextPart"/>.</para>
+	/// <para>For more information about text media types, see section 4.1 of
+	/// http://www.ietf.org/rfc/rfc2046.txt</para>
 	/// </remarks>
 	public class TextPart : MimePart
 	{
