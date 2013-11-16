@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
+using System.Net.Mail;
 
 using MimeKit.Utils;
 using MimeKit.IO;
@@ -786,5 +787,138 @@ namespace MimeKit {
 				return Load (stream);
 			}
 		}
+
+		#region System.Net.Mail support
+
+		static System.Net.Mime.ContentType GetContentType (ContentType contentType)
+		{
+			var ctype = new System.Net.Mime.ContentType ();
+			ctype.MediaType = string.Format ("{0}/{1}", contentType.MediaType, contentType.MediaSubtype);
+
+			foreach (var param in contentType.Parameters)
+				ctype.Parameters.Add (param.Name, param.Value);
+
+			return ctype;
+		}
+
+		static System.Net.Mime.TransferEncoding GetTransferEncoding (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.QuotedPrintable:
+			case ContentEncoding.EightBit:
+				return System.Net.Mime.TransferEncoding.QuotedPrintable;
+			case ContentEncoding.SevenBit:
+				return System.Net.Mime.TransferEncoding.SevenBit;
+			default:
+				return System.Net.Mime.TransferEncoding.Base64;
+			}
+		}
+
+		static void AddBodyPart (MailMessage message, MimeEntity entity)
+		{
+			if (entity is MessagePart) {
+				// FIXME: how should this be converted into a MailMessage?
+			} else if (entity is Multipart) {
+				var multipart = (Multipart) entity;
+
+				if (multipart.ContentType.Matches ("multipart", "alternative")) {
+					foreach (var part in multipart.OfType<MimePart> ()) {
+						// clone the content
+						var content = new MemoryStream ();
+						part.ContentObject.DecodeTo (content);
+						content.Position = 0;
+
+						var view = new AlternateView (content, GetContentType (part.ContentType));
+						view.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
+						if (!string.IsNullOrEmpty (part.ContentId))
+							view.ContentId = part.ContentId;
+
+						message.AlternateViews.Add (view);
+					}
+				} else {
+					foreach (var part in multipart)
+						AddBodyPart (message, part);
+				}
+			} else {
+				var part = (MimePart) entity;
+
+				if (part.IsAttachment || !string.IsNullOrEmpty (message.Body) || !(part is TextPart)) {
+					// clone the content
+					var content = new MemoryStream ();
+					part.ContentObject.DecodeTo (content);
+					content.Position = 0;
+
+					var attachment = new Attachment (content, GetContentType (part.ContentType));
+
+					if (part.ContentDisposition != null) {
+						attachment.ContentDisposition.DispositionType = part.ContentDisposition.Disposition;
+						foreach (var param in part.ContentDisposition.Parameters)
+							attachment.ContentDisposition.Parameters.Add (param.Name, param.Value);
+					}
+
+					attachment.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
+
+					if (!string.IsNullOrEmpty (part.ContentId))
+						attachment.ContentId = part.ContentId;
+
+					message.Attachments.Add (attachment);
+				} else {
+					message.IsBodyHtml = part.ContentType.Matches ("text", "html");
+					message.Body = ((TextPart) part).Text;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="MimeMessage"/> to a
+		/// <see cref="System.Net.Mail.MailMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
+		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.
+		/// </remarks>
+		/// <param name="message">The message.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="message"/> is <c>null</c>.
+		/// </exception>
+		public static explicit operator MailMessage (MimeMessage message)
+		{
+			if (message == null)
+				throw new ArgumentNullException ("message");
+
+			var sender = message.Sender.Mailboxes.FirstOrDefault ();
+			var from = message.From.Mailboxes.FirstOrDefault ();
+			var msg = new MailMessage ();
+
+			foreach (var header in message.Headers)
+				msg.Headers.Add (header.Field, header.Value);
+
+			if (sender != null)
+				msg.Sender = (MailAddress) sender;
+
+			if (from != null)
+				msg.From = (MailAddress) from;
+
+			foreach (var mailbox in message.ReplyTo.Mailboxes)
+				msg.ReplyToList.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.ReplyTo.Mailboxes)
+				msg.To.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.ReplyTo.Mailboxes)
+				msg.CC.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.ReplyTo.Mailboxes)
+				msg.Bcc.Add ((MailAddress) mailbox);
+
+			msg.Subject = message.Subject;
+
+			if (message.Body != null)
+				AddBodyPart (msg, message.Body);
+
+			return msg;
+		}
+
+		#endregion
 	}
 }

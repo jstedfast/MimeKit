@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Net.Mail;
 
 using MimeKit.Utils;
 
@@ -264,6 +265,22 @@ namespace MimeKit {
 		void RouteChanged (object sender, EventArgs e)
 		{
 			OnChanged ();
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
+		/// <see cref="System.Net.Mail.MailAddress"/>.
+		/// </summary>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public static explicit operator MailAddress (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException ("mailbox");
+
+			return new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding);
 		}
 	}
 }
