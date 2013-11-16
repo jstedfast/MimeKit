@@ -229,8 +229,8 @@ if (entity is MultipartSigned) {
             // If valid is true, then it signifies that the signed content has not been
             // modified since this particular signer signed the content.
             //
-            // However, if it is false, then it indicates that the signed content has been
-            // modified.
+            // However, if it is false, then it indicates that the signed content has
+            // been modified.
         } catch (DigitalSignatureVerifyException) {
             // There was an error verifying the signature.
         }
@@ -272,9 +272,9 @@ var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
 // Add the filter to our filtered stream.
 filtered.Add (decoder);
 
-// At this point, you can now read from the 'filtered' stream as if it were the original,
-// raw content. Assuming you have an image UI control that could load from a stream, you
-// could do something like this:
+// At this point, you can now read from the 'filtered' stream as if it were the
+// original, raw content. Assuming you have an image UI control that could load
+// from a stream, you could do something like this:
 imageControl.Load (filtered);
 ```
 
