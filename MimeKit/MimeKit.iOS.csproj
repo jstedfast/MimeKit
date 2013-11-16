@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\MonoTouch</OutputPath>
-    <DefineConstants>DEBUG;__MOBILE__</DefineConstants>
+    <DefineConstants>DEBUG;__MOBILE__;__IOS__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -30,7 +30,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>__MOBILE__</DefineConstants>
+    <DefineConstants>__MOBILE__;__IOS__</DefineConstants>
     <GenerateDocumentation>True</GenerateDocumentation>
     <DocumentationFile>bin\Release\lib\MonoTouch\MimeKit.iOS.xml</DocumentationFile>
   </PropertyGroup>
@@ -41,6 +41,42 @@
     <Reference Include="monotouch" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.iOS.csproj">
+      <Project>{0249241C-205E-4AC0-828B-90F822359B9E}</Project>
+      <Name>BouncyCastle.iOS</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
+    <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
+    <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
+    <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
+    <Compile Include="Cryptography\CertificateNotFoundException.cs" />
+    <Compile Include="Cryptography\CmsRecipient.cs" />
+    <Compile Include="Cryptography\CmsRecipientCollection.cs" />
+    <Compile Include="Cryptography\CmsSigner.cs" />
+    <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
+    <Compile Include="Cryptography\DigestAlgorithm.cs" />
+    <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
+    <Compile Include="Cryptography\GnuPGContext.cs" />
+    <Compile Include="Cryptography\IDigitalCertificate.cs" />
+    <Compile Include="Cryptography\IDigitalSignature.cs" />
+    <Compile Include="Cryptography\MultipartEncrypted.cs" />
+    <Compile Include="Cryptography\MultipartSigned.cs" />
+    <Compile Include="Cryptography\OpenPgpContext.cs" />
+    <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
+    <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
+    <Compile Include="Cryptography\PrivateKeyNotFoundException.cs" />
+    <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
+    <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />
+    <Compile Include="Cryptography\SecureMimeContext.cs" />
+    <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
+    <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
+    <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\X509CertificateExtensions.cs" />
+    <Compile Include="Cryptography\X509CertificateStore.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />
@@ -109,6 +145,12 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Encodings\" />
+    <Folder Include="IO\Filters\" />
+    <Folder Include="IO\" />
+    <Folder Include="Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>
@@ -119,10 +161,4 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <ItemGroup>
-    <Folder Include="Encodings\" />
-    <Folder Include="IO\Filters\" />
-    <Folder Include="IO\" />
-    <Folder Include="Utils\" />
-  </ItemGroup>
 </Project>

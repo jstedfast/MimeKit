@@ -31,10 +31,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-#if !__MOBILE__
 using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -550,18 +547,15 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
-				#if !__MOBILE__
 				if (subtype == "encrypted")
 					return new MultipartEncrypted (entity);
 
 				if (subtype == "signed")
 					return new MultipartSigned (entity);
-				#endif
 
 				return new Multipart (entity);
 			}
 
-			#if !__MOBILE__
 			if (type == "application") {
 				switch (subtype) {
 				case "x-pkcs7-signature":
@@ -578,7 +572,6 @@ namespace MimeKit {
 					return new ApplicationPkcs7Mime (entity);
 				}
 			}
-			#endif
 
 			if (type == "text")
 				return new TextPart (entity);
