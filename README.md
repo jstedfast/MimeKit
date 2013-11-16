@@ -316,7 +316,8 @@ var attachment = new MimePart ("image", "gif") {
     FileName = Path.GetFileName (path)
 };
 
-// now create the multipart/mixed container to hold the message text and the image
+// now create the multipart/mixed container to hold the message text and the
+// image attachment
 var multipart = new Multipart ("mixed");
 multipart.Add (body);
 multipart.Add (attachment);
@@ -342,7 +343,8 @@ var alternative = new Multipart ("alternative");
 alternative.Add (plain);
 alternative.Add (html);
 
-// now create the multipart/mixed container to hold the multipart/alternative and the image
+// now create the multipart/mixed container to hold the multipart/alternative
+// and the image attachment
 var multipart = new Multipart ("mixed");
 multipart.Add (alternative);
 multipart.Add (attachment);
@@ -367,7 +369,8 @@ message.From.Add (joey);
 message.To.Add (alice);
 message.Subject = "How you doin?";
 
-// create our message body (perhaps a multipart/mixed with the message text and some images)
+// create our message body (perhaps a multipart/mixed with the message text and some
+// image attachments, for example)
 var body = CreateMessageBody ();
 
 // now to digitally sign our message body using the default S/MIME cryptography context
@@ -473,11 +476,11 @@ if (entity is ApplicationPkcs7Mime) {
             try {
                 bool valid = signature.Verify ();
 
-                // If valid is true, then it signifies that the signed content has not been
-                // modified since this particular signer signed the content.
+                // If valid is true, then it signifies that the signed content has not
+                // been modified since this particular signer signed the content.
                 //
-                // However, if it is false, then it indicates that the signed content has
-                // been modified.
+                // However, if it is false, then it indicates that the signed content
+                // has been modified.
             } catch (DigitalSignatureVerifyException) {
                 // There was an error verifying the signature.
             }
