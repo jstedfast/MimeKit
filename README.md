@@ -121,25 +121,31 @@ There are two ways of accomplishing this task.
 
 The first way is to use one of the Load() methods on MimeKit.MimeMessage:
 
-    // Load a MimeMessage from a stream
-    var message = MimeMessage.Load (stream);
+```csharp
+// Load a MimeMessage from a stream
+var message = MimeMessage.Load (stream);
+```
 
 The second way is to use the MimeParser class. For the most part, using the MimeParser directly is not necessary
 unless you wish to parse a Unix mbox file stream. However, this is how you would do it:
 
-    // Load a MimeMessage from a stream
-    var parser = new MimeParser (stream, MimeFormat.Entity);
-    var message = parser.ParseMessage ();
+```csharp
+// Load a MimeMessage from a stream
+var parser = new MimeParser (stream, MimeFormat.Entity);
+var message = parser.ParseMessage ();
+```
 
 For Unix mbox file streams, you would use the parser like this:
 
-    // Load every message from a Unix mbox
-    var parser = new MimeParser (stream, MimeFormat.Mbox);
-    while (!parser.IsEndOfStream) {
-        var message = parser.ParseMessage ();
-        
-        // do something with the message
-    }
+```csharp
+// Load every message from a Unix mbox
+var parser = new MimeParser (stream, MimeFormat.Mbox);
+while (!parser.IsEndOfStream) {
+    var message = parser.ParseMessage ();
+
+    // do something with the message
+}
+```
 
 ### Traversing a MimeMessage
 
@@ -151,52 +157,54 @@ TextPart or a Multipart.
 As an example, if you wanted to render the MimeMessage to some sort of UI control, you might
 use code similar to this:
 
-    void RenderMessage (MimeMessage message)
-    {
-        RenderMimeEntity (message.Body);
-    }
+```csharp
+void RenderMessage (MimeMessage message)
+{
+    RenderMimeEntity (message.Body);
+}
 
-    void RenderMimeEntity (MimeEntity entity)
-    {
-        if (entity is MessagePart) {
-            // This entity is an attached message/rfc822 mime part.
-            var messagePart = (MessagePart) entity;
-           
-            // If you'd like to render this inline instead of treating
-            // it as an attachment, you would just continue to recurse:
-            RenderMessage (messagePart.Message);
-        } else if (entity is Multipart) {
-            // This entity is a multipart container.
-            var multipart = (Multipart) entity;
-            
-            foreach (var subpart in multipart)
-                RenderMimeEntity (subpart);
-        } else {
-            // Everything that isn't either a MessagePart or a Multipart is a MimePart
-            var part = (MimePart) entity;
-            
-            // Don't render anything that is explicitly marked as an attachment.
-            if (part.IsAttachment)
-                return;
-            
-            if (part is TextPart) {
-                // This is a mime part with textual content.
-                var text = (TextPart) part;
-                
-                if (text.ContentType.Matches ("text", "html"))
-                    RenderHtml (text.Text);
-                else
-                    RenderText (text.Text);
-            } else if (entity.ContentType.Matches ("image", "*")) {
-                using (var content = new MemoryStream ()) {
-                    // If the content is base64 encoded (which it probably is), decode it.
-                    part.ContentObject.DecodeTo (memory);
-                    
-                    RenderImage (memory);
-                }
+void RenderMimeEntity (MimeEntity entity)
+{
+    if (entity is MessagePart) {
+        // This entity is an attached message/rfc822 mime part.
+        var messagePart = (MessagePart) entity;
+
+        // If you'd like to render this inline instead of treating
+        // it as an attachment, you would just continue to recurse:
+        RenderMessage (messagePart.Message);
+    } else if (entity is Multipart) {
+        // This entity is a multipart container.
+        var multipart = (Multipart) entity;
+
+        foreach (var subpart in multipart)
+            RenderMimeEntity (subpart);
+    } else {
+        // Everything that isn't either a MessagePart or a Multipart is a MimePart
+        var part = (MimePart) entity;
+
+        // Don't render anything that is explicitly marked as an attachment.
+        if (part.IsAttachment)
+            return;
+
+        if (part is TextPart) {
+            // This is a mime part with textual content.
+            var text = (TextPart) part;
+    
+            if (text.ContentType.Matches ("text", "html"))
+                RenderHtml (text.Text);
+            else
+                RenderText (text.Text);
+        } else if (entity.ContentType.Matches ("image", "*")) {
+            using (var content = new MemoryStream ()) {
+                // If the content is base64 encoded (which it probably is), decode it.
+                part.ContentObject.DecodeTo (memory);
+
+                RenderImage (memory);
             }
         }
     }
+}
+```
 
 ### Verifying S/MIME and PGP/MIME Digital Signatures
 
@@ -210,23 +218,25 @@ Because the multipart/signed part may have been signed by multiple signers, it i
 verify each of the digital signatures (one for each signer) that are returned by the
 MultipartSigned.Verify() method:
 
-    if (entity is MultipartSigned) {
-        var signed = (MultipartSigned) entity;
-        
-        foreach (var signature in signed.Verify ()) {
-            try {
-                bool valid = signature.Verify ();
-                
-                // If valid is true, then it signifies that the signed content has not been
-                // modified since this particular signer signed the content.
-                //
-                // However, if it is false, then it indicates that the signed content has been
-                // modified.
-            } catch (DigitalSignatureVerifyException) {
-                // There was an error verifying the signature.
-            }
+```csharp
+if (entity is MultipartSigned) {
+    var signed = (MultipartSigned) entity;
+
+    foreach (var signature in signed.Verify ()) {
+        try {
+            bool valid = signature.Verify ();
+
+            // If valid is true, then it signifies that the signed content has not been
+            // modified since this particular signer signed the content.
+            //
+            // However, if it is false, then it indicates that the signed content has been
+            // modified.
+        } catch (DigitalSignatureVerifyException) {
+            // There was an error verifying the signature.
         }
     }
+}
+```
 
 ### Getting the Decoded Content of a MIME Part
 
@@ -236,33 +246,37 @@ save it to disk or feed it to a UI control to display it.
 Once you've found the MimePart object that you'd like to extract the content of, here's how you can
 save the decoded content to a file:
 
-    // This will get the name of the file as specified by the sending mail client.
-    // Note: this value *may* be null, so you'll want to handle that case in your code.
-    var fileName = part.FileName;
+```csharp
+// This will get the name of the file as specified by the sending mail client.
+// Note: this value *may* be null, so you'll want to handle that case in your code.
+var fileName = part.FileName;
 
-    using (var stream = File.Create (fileName)) {
-        part.ContentObject.DecodeTo (stream);
-    }
+using (var stream = File.Create (fileName)) {
+    part.ContentObject.DecodeTo (stream);
+}
+```
 
 You can also get access to the original encoded content and its encoding by poking at the Stream and
 Encoding properties of the ContentObject. This might be useful if you want to pass the content off
 to a UI control that can do its own loading from a stream.
 
-    var filtered = new FilteredStream (part.ContentObject.Stream);
+```csharp
+var filtered = new FilteredStream (part.ContentObject.Stream);
 
-    // Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load
-    // or MimeEntity.Load), the ContentObject.Encoding will match the part.Encoding.
+// Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load
+// or MimeEntity.Load), the ContentObject.Encoding will match the part.Encoding.
 
-    // Create an IMimeFilter that can decode the ContentEncoding.
-    var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
+// Create an IMimeFilter that can decode the ContentEncoding.
+var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
 
-    // Add the filter to our filtered stream.
-    filtered.Add (decoder);
+// Add the filter to our filtered stream.
+filtered.Add (decoder);
 
-    // At this point, you can now read from the 'filtered' stream as if it were the original,
-    // raw content. Assuming you have an image UI control that could load from a stream, you
-    // could do something like this:
-    imageControl.Load (filtered);
+// At this point, you can now read from the 'filtered' stream as if it were the original,
+// raw content. Assuming you have an image UI control that could load from a stream, you
+// could do something like this:
+imageControl.Load (filtered);
+```
 
 There are a number of useful filters that can be applied to a FilteredStream, so if you find this type of
 interface appealing, I suggest taking a look at the available filters in the MimeKit.IO.Filters namespace
