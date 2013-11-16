@@ -3,14 +3,14 @@ ASSEMBLY=$(OUTDIR)/MimeKit.dll
 XMLDOCS=$(OUTDIR)/MimeKit.xml
 
 all:
-	xbuild /target:Build /p:Configuration=Release MimeKitDesktopOnly.sln
+	xbuild /target:Build /p:Configuration=Release MimeKit.Net40.sln
 
 debug:
-	xbuild /target:Build /p:Configuration=Debug MimeKitDesktopOnly.sln
+	xbuild /target:Build /p:Configuration=Debug MimeKit.Net40.sln
 
 clean:
-	xbuild /target:Clean /p:Configuration=Debug MimeKitDesktopOnly.sln
-	xbuild /target:Clean /p:Configuration=Release MimeKitDesktopOnly.sln
+	xbuild /target:Clean /p:Configuration=Debug MimeKit.Net40.sln
+	xbuild /target:Clean /p:Configuration=Release MimeKit.Net40.sln
 
 update-docs: $(ASSEMBLY)
 	mdoc update --delete -o docs/en $(ASSEMBLY)

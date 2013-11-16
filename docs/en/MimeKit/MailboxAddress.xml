@@ -180,6 +180,32 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailAddress op_Explicit (MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailAddress op_Explicit(class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Net.Mail.MailAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:MimeKit.MailboxAddress" /> to a
+            <see cref="T:System.Net.Mail.MailAddress" />.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="mailbox" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Route">
       <MemberSignature Language="C#" Value="public MimeKit.DomainList Route { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.DomainList Route" />

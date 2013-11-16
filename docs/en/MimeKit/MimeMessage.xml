@@ -375,6 +375,35 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailMessage op_Explicit (MimeKit.MimeMessage message);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailMessage op_Explicit(class MimeKit.MimeMessage message) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.13.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Net.Mail.MailMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="message" Type="MimeKit.MimeMessage" />
+      </Parameters>
+      <Docs>
+        <param name="message">The message.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:MimeKit.MimeMessage" /> to a
+            <see cref="T:System.Net.Mail.MailMessage" />.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>
+            Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
+            makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="message" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="References">
       <MemberSignature Language="C#" Value="public MimeKit.MessageIdList References { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MessageIdList References" />

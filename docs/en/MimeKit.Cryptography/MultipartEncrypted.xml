@@ -143,7 +143,7 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
@@ -183,7 +183,7 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
@@ -340,7 +340,7 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for signing and encrypting.</param>
         <param name="signer">The signer to use to sign the entity.</param>
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="recipients">The recipients for the encrypted entity.</param>
@@ -396,7 +396,7 @@
         <Parameter Name="entity" Type="MimeKit.MimeEntity" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for singing and encrypting.</param>
         <param name="signer">The signer to use to sign the entity.</param>
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="recipients">The recipients for the encrypted entity.</param>
@@ -493,7 +493,7 @@
         <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <summary>
             Decrypt this instance.
             </summary>
@@ -576,7 +576,7 @@
         <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="ctx">An OpenPGP cryptography context.</param>
+        <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
             Decrypt this instance.
