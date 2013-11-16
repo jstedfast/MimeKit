@@ -1,0 +1,16 @@
+version: 0.14
+name: MimeKit
+publisher: Jeffrey Stedfast
+id: mimekit
+publisher-url: http://github.com/jstedfast/MimeKit
+summary: A complete MIME creation and parser library with full support for S/MIME and PGP.
+monodoc: docs/
+libraries:
+  ios:
+    - MimeKit/bin/Release/lib/MonoTouch/BouncyCastle.iOS.dll
+    - MimeKit/bin/Release/lib/MonoTouch/MimeKit.iOS.dll
+  android:
+    - MimeKit/bin/Release/lib/MonoAndroid/BouncyCastle.Android.dll
+    - MimeKit/bin/Release/lib/MonoAndroid/MimeKit.Android.dll
+build:
+  - MimeKit.Mobile.sln
