@@ -1,9 +1,14 @@
-version: 0.14
-name: MimeKit
-publisher: Jeffrey Stedfast
 id: mimekit
+name: MimeKit
+version: 0.14
+publisher: Jeffrey Stedfast
 publisher-url: http://github.com/jstedfast/MimeKit
+getting-started: GettingStarted.md
+details: Details.md
+license: License.md
 summary: A complete MIME creation and parser library with full support for S/MIME and PGP.
+icons:
+  - icon-128.png
 monodoc: docs/
 libraries:
   ios:
