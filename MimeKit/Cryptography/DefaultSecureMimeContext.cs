@@ -42,6 +42,15 @@ namespace MimeKit.Cryptography {
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
+		/// The default path for the Certificate Revocation Lists (CRLs).
+		/// </summary>
+		/// <remarks>
+		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\revoked.crl</c>.</para>
+		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/revoked.crl</c>.</para>
+		/// </remarks>
+		protected static readonly string DefaultCertificateRevocationListsPath;
+
+		/// <summary>
 		/// The default store path for certificates belonging to people in the user's addressbook.
 		/// </summary>
 		/// <remarks>
@@ -71,7 +80,10 @@ namespace MimeKit.Cryptography {
 		readonly X509CertificateStore addressbook;
 		readonly X509CertificateStore store;
 		readonly X509CertificateStore root;
+		readonly HashSet<X509Crl> crls;
+
 		readonly string addressbookFileName;
+		readonly string revokedFileName;
 		readonly string userFileName;
 		readonly string password;
 
@@ -90,6 +102,7 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (path))
 				Directory.CreateDirectory (path);
 
+			DefaultCertificateRevocationListsPath = Path.Combine (path, "revoked.crl");
 			DefaultAddressBookCertificatesPath = Path.Combine (path, "addressbook.crt");
 			DefaultRootCertificatesPath = Path.Combine (path, "root.crt");
 			DefaultUserCertificatesPath = Path.Combine (path, "user.p12");
@@ -98,6 +111,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
+		/// <param name="revokedFileName">The path to the revoked certificate lists.</param>
 		/// <param name="addressbookFileName">The path to the addressbook certificates.</param>
 		/// <param name="rootFileName">The path to the root certificates.</param>
 		/// <param name="userFileName">The path to the pkcs12-formatted user certificates.</param>
@@ -114,11 +128,21 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading the file.
 		/// </exception>
-		protected DefaultSecureMimeContext (string addressbookFileName, string rootFileName, string userFileName, string password)
+		protected DefaultSecureMimeContext (string revokedFileName, string addressbookFileName, string rootFileName, string userFileName, string password)
 		{
 			addressbook = new X509CertificateStore ();
 			store = new X509CertificateStore ();
 			root = new X509CertificateStore ();
+			crls = new HashSet<X509Crl> ();
+
+			try {
+				using (var file = File.OpenRead (revokedFileName)) {
+					var parser = new X509CrlParser ();
+					foreach (X509Crl crl in parser.ReadCrls (file))
+						crls.Add (crl);
+				}
+			} catch (FileNotFoundException) {
+			}
 
 			try {
 				addressbook.Import (addressbookFileName);
@@ -136,6 +160,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			this.addressbookFileName = addressbookFileName;
+			this.revokedFileName = revokedFileName;
 			this.userFileName = userFileName;
 			this.password = password;
 		}
@@ -146,8 +171,31 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while reading one of the certificate stores.
 		/// </exception>
-		public DefaultSecureMimeContext () : this (DefaultAddressBookCertificatesPath, DefaultRootCertificatesPath, DefaultUserCertificatesPath, "no.secret")
+		public DefaultSecureMimeContext () : this (DefaultCertificateRevocationListsPath, DefaultAddressBookCertificatesPath, DefaultRootCertificatesPath, DefaultUserCertificatesPath, "no.secret")
 		{
+		}
+
+		void SaveRevocationLists ()
+		{
+			var filename = Path.GetFileName (revokedFileName) + "~";
+			var dirname = Path.GetDirectoryName (revokedFileName);
+			var tmp = Path.Combine (dirname, "." + filename);
+			var bak = Path.Combine (dirname, filename);
+
+			if (!Directory.Exists (dirname))
+				Directory.CreateDirectory (dirname);
+
+			using (var file = File.Create (revokedFileName)) {
+				foreach (var crl in crls) {
+					var encoded = crl.GetEncoded ();
+					file.Write (encoded, 0, encoded.Length);
+				}
+			}
+
+			if (File.Exists (addressbookFileName))
+				File.Replace (tmp, addressbookFileName, bak);
+			else
+				File.Move (tmp, addressbookFileName);
 		}
 
 		void SaveAddressBookCerts ()
@@ -254,11 +302,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
-			var crls = new List<X509Crl> ();
-
-			// FIXME: need to figure out what to do with crls
-
-			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls.ToList ()));
 		}
 
 		/// <summary>
@@ -336,7 +380,8 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			// FIXME: implement this
+			crls.Add (crl);
+			SaveRevocationLists ();
 		}
 
 		/// <summary>

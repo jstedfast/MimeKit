@@ -35,19 +35,21 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string addressbookFileName, string rootFileName, string userFileName, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string addressbookFileName, string rootFileName, string userFileName, string password) cil managed" />
+      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string revokedFileName, string addressbookFileName, string rootFileName, string userFileName, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string revokedFileName, string addressbookFileName, string rootFileName, string userFileName, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.14.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
+        <Parameter Name="revokedFileName" Type="System.String" />
         <Parameter Name="addressbookFileName" Type="System.String" />
         <Parameter Name="rootFileName" Type="System.String" />
         <Parameter Name="userFileName" Type="System.String" />
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
+        <param name="revokedFileName">The path to the revoked certificate lists.</param>
         <param name="addressbookFileName">The path to the addressbook certificates.</param>
         <param name="rootFileName">The path to the root certificates.</param>
         <param name="userFileName">The path to the pkcs12-formatted user certificates.</param>
@@ -91,6 +93,26 @@
         <remarks>
           <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\addressbook.crt</c>.</para>
           <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/addressbook.crt</c>.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DefaultCertificateRevocationListsPath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultCertificateRevocationListsPath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultCertificateRevocationListsPath" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The default path for the Certificate Revocation Lists (CRLs).
+            </summary>
+        <remarks>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\revoked.crl</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/revoked.crl</c>.</para>
         </remarks>
       </Docs>
     </Member>
