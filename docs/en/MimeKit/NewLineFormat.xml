@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed NewLineFormat extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.13.0.0</AssemblyVersion>
+    <AssemblyVersion>0.14.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -20,7 +20,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.NewLineFormat Dos = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.13.0.0</AssemblyVersion>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
@@ -36,7 +36,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.NewLineFormat Unix = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.13.0.0</AssemblyVersion>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.NewLineFormat</ReturnType>

@@ -92,14 +92,14 @@ namespace UnitTests {
 
 			using (var ctx = CreateContext ()) {
 				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
-				MimeEntity encapsulated;
+				MimeEntity extracted;
 
 				Assert.AreEqual (SecureMimeType.SignedData, signed.SecureMimeType, "S/MIME type did not match.");
 
-				var signatures = signed.Verify (ctx, out encapsulated);
+				var signatures = signed.Verify (ctx, out extracted);
 
-				Assert.IsInstanceOfType (typeof (TextPart), encapsulated, "Encapsulated part is not the expected type.");
-				Assert.AreEqual (cleartext.Text, ((TextPart) encapsulated).Text, "Encapsulated content is not the same as the original.");
+				Assert.IsInstanceOfType (typeof (TextPart), extracted, "Extracted part is not the expected type.");
+				Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {

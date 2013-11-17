@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.13.0.0">
+    <Assembly Name="MimeKit" Version="0.14.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
@@ -12,13 +12,13 @@
           <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2013 Jeffrey Stedfast")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyDescription("MIME and S/MIME creation and parser library")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.13.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.14.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.13.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.14.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
