@@ -244,16 +244,16 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
-		/// <returns>The unencapsulated <see cref="MimeEntity"/>.</returns>
+		/// <returns>The list of digital signatures.</returns>
 		/// <param name="ctx">The S/MIME context to use for verifying the signature.</param>
-		/// <param name="signatures">The digital signatures.</param>
+		/// <param name="entity">The unencapsulated entity.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Verify (SecureMimeContext ctx, out IList<IDigitalSignature> signatures)
+		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
 		{
 			if (SecureMimeType != SecureMimeType.SignedData)
 				throw new InvalidOperationException ();
@@ -262,25 +262,25 @@ namespace MimeKit.Cryptography {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Verify (memory, out signatures);
+				return ctx.Verify (memory, out entity);
 			}
 		}
 
 		/// <summary>
 		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
-		/// <returns>The unencapsulated <see cref="MimeEntity"/>.</returns>
-		/// <param name="signatures">The digital signatures.</param>
+		/// <returns>The list of digital signatures.</returns>
+		/// <param name="entity">The unencapsulated entity.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Verify (out IList<IDigitalSignature> signatures)
+		public DigitalSignatureCollection Verify (out MimeEntity entity)
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Verify (ctx, out signatures);
+				return Verify (ctx, out entity);
 			}
 		}
 

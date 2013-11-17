@@ -517,7 +517,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, out IList<IDigitalSignature> signatures)
+		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -584,7 +584,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (OpenPgpContext ctx)
 		{
-			IList<IDigitalSignature> signatures;
+			DigitalSignatureCollection signatures;
 
 			return Decrypt (ctx, out signatures);
 		}
@@ -612,7 +612,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (out IList<IDigitalSignature> signatures)
+		public MimeEntity Decrypt (out DigitalSignatureCollection signatures)
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -680,7 +680,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
-			IList<IDigitalSignature> signatures;
+			DigitalSignatureCollection signatures;
 
 			return Decrypt (out signatures);
 		}

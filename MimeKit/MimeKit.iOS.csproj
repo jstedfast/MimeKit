@@ -58,6 +58,7 @@
     <Compile Include="Cryptography\CryptographyContext.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
+    <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />

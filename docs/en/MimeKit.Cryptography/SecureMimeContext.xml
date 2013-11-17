@@ -837,26 +837,26 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Verify (System.IO.Stream signedData, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Verify(class System.IO.Stream signedData, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigitalSignatureCollection Verify (System.IO.Stream signedData, out MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class System.IO.Stream signedData, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>MimeKit.MimeEntity</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="signedData" Type="System.IO.Stream" />
-        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity&amp;" RefType="out" />
       </Parameters>
       <Docs>
         <param name="signedData">The signed data.</param>
-        <param name="signatures">The digital signatures.</param>
+        <param name="entity">The unencapsulated entity.</param>
         <summary>
             Verify the digital signatures of the specified signedData and extract the original content.
             </summary>
-        <returns>The unencapsulated <see cref="T:MimeKit.MimeEntity" />.</returns>
+        <returns>The list of digital signatures.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="signedData" /> is <c>null</c>.
@@ -867,14 +867,14 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public override System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; Verify (System.IO.Stream content, System.IO.Stream signatureData);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
+      <MemberSignature Language="C#" Value="public override MimeKit.Cryptography.DigitalSignatureCollection Verify (System.IO.Stream content, System.IO.Stream signatureData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="content" Type="System.IO.Stream" />

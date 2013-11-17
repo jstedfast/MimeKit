@@ -140,7 +140,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		public abstract IList<IDigitalSignature> Verify (Stream content, Stream signatureData);
+		public abstract DigitalSignatureCollection Verify (Stream content, Stream signatureData);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.

@@ -384,7 +384,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public IList<IDigitalSignature> Verify (CryptographyContext ctx)
+		public DigitalSignatureCollection Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -440,7 +440,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public IList<IDigitalSignature> Verify ()
+		public DigitalSignatureCollection Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

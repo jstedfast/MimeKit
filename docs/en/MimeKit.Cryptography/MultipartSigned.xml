@@ -279,14 +279,14 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; Verify ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; Verify() cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigitalSignatureCollection Verify ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -303,23 +303,20 @@
         <exception cref="T:System.NotSupportedException">
             A cryptography context suitable for verifying the signature could not be found.
             </exception>
-        <exception cref="T:System.Security.Cryptography.CryptographicException">
-            An error occurred while verifying.
-            </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
             </exception>
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; Verify (MimeKit.Cryptography.CryptographyContext ctx);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; Verify(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigitalSignatureCollection Verify (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
@@ -339,9 +336,6 @@
             </exception>
         <exception cref="T:System.NotSupportedException">
           <paramref name="ctx" /> does not support verifying the signature part.
-            </exception>
-        <exception cref="T:System.Security.Cryptography.CryptographicException">
-            An error occurred while verifying.
             </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.

@@ -472,14 +472,14 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public abstract System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; Verify (System.IO.Stream content, System.IO.Stream signatureData);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
+      <MemberSignature Language="C#" Value="public abstract MimeKit.Cryptography.DigitalSignatureCollection Verify (System.IO.Stream content, System.IO.Stream signatureData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="content" Type="System.IO.Stream" />

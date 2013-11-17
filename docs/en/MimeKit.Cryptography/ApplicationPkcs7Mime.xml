@@ -815,24 +815,24 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Verify (out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Verify(class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigitalSignatureCollection Verify (out MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>MimeKit.MimeEntity</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="signatures">The digital signatures.</param>
+        <param name="entity">The unencapsulated entity.</param>
         <summary>
             Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
-        <returns>The unencapsulated <see cref="T:MimeKit.MimeEntity" />.</returns>
+        <returns>The list of digital signatures.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
@@ -843,26 +843,26 @@
       </Docs>
     </Member>
     <Member MemberName="Verify">
-      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Verify (MimeKit.Cryptography.SecureMimeContext ctx, out System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Verify(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigitalSignatureCollection Verify (MimeKit.Cryptography.SecureMimeContext ctx, out MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.13.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>MimeKit.MimeEntity</ReturnType>
+        <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="ctx" Type="MimeKit.Cryptography.SecureMimeContext" />
-        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;&amp;" RefType="out" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity&amp;" RefType="out" />
       </Parameters>
       <Docs>
         <param name="ctx">The S/MIME context to use for verifying the signature.</param>
-        <param name="signatures">The digital signatures.</param>
+        <param name="entity">The unencapsulated entity.</param>
         <summary>
             Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
-        <returns>The unencapsulated <see cref="T:MimeKit.MimeEntity" />.</returns>
+        <returns>The list of digital signatures.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".

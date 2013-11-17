@@ -141,7 +141,7 @@ namespace UnitTests {
 				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				IList<IDigitalSignature> signatures;
+				DigitalSignatureCollection signatures;
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
 				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");

@@ -501,7 +501,7 @@ namespace MimeKit.Cryptography {
 			return result.CertPath;
 		}
 
-		IList<IDigitalSignature> GetDigitalSignatures (CmsSignedDataParser parser)
+		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
 		{
 			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
@@ -543,7 +543,7 @@ namespace MimeKit.Cryptography {
 				signatures.Add (signature);
 			}
 
-			return signatures;
+			return new DigitalSignatureCollection (signatures);
 		}
 
 		/// <summary>
@@ -560,7 +560,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -578,27 +578,26 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Verify the digital signatures of the specified signedData and extract the original content.
 		/// </summary>
-		/// <returns>The unencapsulated <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
-		/// <param name="signatures">The digital signatures.</param>
+		/// <param name="entity">The unencapsulated entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Verify (Stream signedData, out IList<IDigitalSignature> signatures)
+		public DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
 
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
-			var entity = MimeEntity.Load (signed.ContentStream);
 
-			signatures = GetDigitalSignatures (parser);
+			entity = MimeEntity.Load (signed.ContentStream);
 
-			return entity;
+			return GetDigitalSignatures (parser);
 		}
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)

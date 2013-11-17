@@ -578,7 +578,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		IList<IDigitalSignature> GetDigitalSignatures (PgpSignatureList signatureList, Stream content)
+		DigitalSignatureCollection GetDigitalSignatures (PgpSignatureList signatureList, Stream content)
 		{
 			var signatures = new List<IDigitalSignature> ();
 			var buf = new byte[4096];
@@ -607,7 +607,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			return signatures;
+			return new DigitalSignatureCollection (signatures);
 		}
 
 		/// <summary>
@@ -621,7 +621,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		public override IList<IDigitalSignature> Verify (Stream content, Stream signatureData)
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
 				throw new ArgumentNullException ("content");
@@ -958,7 +958,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (Stream encryptedData, out IList<IDigitalSignature> signatures)
+		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -1056,7 +1056,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
-			IList<IDigitalSignature> signatures;
+			DigitalSignatureCollection signatures;
 
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");

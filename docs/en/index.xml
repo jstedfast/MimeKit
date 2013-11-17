@@ -38,9 +38,6 @@
         <Attribute>
           <AttributeName>System.Runtime.InteropServices.Guid("2fe79b66-d107-45da-9493-175f59c4a53c")</AttributeName>
         </Attribute>
-        <Attribute>
-          <AttributeName>System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.0", FrameworkDisplayName="")</AttributeName>
-        </Attribute>
       </Attributes>
     </Assembly>
   </Assemblies>
@@ -94,6 +91,7 @@
       <Type Name="CryptographyContext" Kind="Class" />
       <Type Name="DefaultSecureMimeContext" Kind="Class" />
       <Type Name="DigestAlgorithm" Kind="Enumeration" />
+      <Type Name="DigitalSignatureCollection" Kind="Class" />
       <Type Name="DigitalSignatureVerifyException" Kind="Class" />
       <Type Name="GnuPGContext" Kind="Class" />
       <Type Name="IDigitalCertificate" Kind="Interface" />
