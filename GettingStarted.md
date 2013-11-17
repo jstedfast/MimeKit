@@ -352,13 +352,11 @@ if (entity is ApplicationPkcs7Mime) {
 
     if (pkcs7.SecureMimeType == SecureMimeType.SignedData) {
         // extract the original content and get a list of signatures
-        IList<IDigitalSignature> signatures;
+        MimeEntity extracted;
 
         // Note: if you are rendering the message, you'll want to render
         // the extracted mime part rather than the application/pkcs7-mime part.
-        MimeEntity extracted = pkcs7.Verify (out signatures);
-
-        foreach (var signature in signatures) {
+        foreach (var signature in pkcs7.Verify (out extracted)) {
             try {
                 bool valid = signature.Verify ();
 
