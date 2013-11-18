@@ -1,0 +1,266 @@
+<Type Name="SecureMimeCapability" FullName="MimeKit.Cryptography.SecureMimeCapability">
+  <TypeSignature Language="C#" Value="public enum SecureMimeCapability" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed SecureMimeCapability extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.14.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Attributes>
+    <Attribute>
+      <AttributeName>System.Flags</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>
+            A set of flags that represent the capabilities of an S/MIME client.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="AES128">
+      <MemberSignature Language="C#" Value="AES128" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability AES128 = int32(128)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the AES 128-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="AES192">
+      <MemberSignature Language="C#" Value="AES192" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability AES192 = int32(256)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the AES 192-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="AES256">
+      <MemberSignature Language="C#" Value="AES256" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability AES256 = int32(512)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the AES 256-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Camellia128">
+      <MemberSignature Language="C#" Value="Camellia128" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Camellia128 = int32(1024)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the Camellia 128-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Camellia192">
+      <MemberSignature Language="C#" Value="Camellia192" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Camellia192 = int32(2048)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the Camellia 192-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Camellia256">
+      <MemberSignature Language="C#" Value="Camellia256" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Camellia256 = int32(4096)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the Camellia 256-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Cast5">
+      <MemberSignature Language="C#" Value="Cast5" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Cast5 = int32(32)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the Cast-5 128-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DES">
+      <MemberSignature Language="C#" Value="DES" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability DES = int32(8)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the DES encryption algorithm.
+            </summary>
+        <remarks>
+            This is extremely weak encryption and should not be used
+            without consent from the user.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Idea">
+      <MemberSignature Language="C#" Value="Idea" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Idea = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the IDEA 128-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="RC2128">
+      <MemberSignature Language="C#" Value="RC2128" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability RC2128 = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the RC2 128-bit encryption algorithm.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="RC240">
+      <MemberSignature Language="C#" Value="RC240" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability RC240 = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the RC2 40-bit encryption algorithm.
+            </summary>
+        <remarks>
+            This is extremely weak encryption and should not be used
+            without consent from the user.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RC264">
+      <MemberSignature Language="C#" Value="RC264" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability RC264 = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the RC2 64-bit encryption algorithm.
+            </summary>
+        <remarks>
+            This is very weak encryption and should not be used
+            without consent from the user.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TripleDES">
+      <MemberSignature Language="C#" Value="TripleDES" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability TripleDES = int32(16)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The client supports the Triple-DES encryption algorithm.
+            </summary>
+        <remarks>
+            This is the weakest recommended encryption algorithm for use
+            starting with S/MIME v3 and should only be used as a fallback
+            if it is unknown what encryption algorithms are supported by
+            the recipient's mail client.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Unknown">
+      <MemberSignature Language="C#" Value="Unknown" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.SecureMimeCapability Unknown = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            No capabilities are known.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

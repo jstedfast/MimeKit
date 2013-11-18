@@ -80,6 +80,24 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="CommonCapabilities">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SecureMimeCapability CommonCapabilities { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeCapability CommonCapabilities" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the common S/MIME capabilities shared by all recipients.
+            </summary>
+        <value>The common S/MIME capabilities.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Contains">
       <MemberSignature Language="C#" Value="public bool Contains (MimeKit.Cryptography.CmsRecipient recipient);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.Cryptography.CmsRecipient recipient) cil managed" />

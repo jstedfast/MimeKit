@@ -96,5 +96,23 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="SecureMimeCapabilities">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the known S/MIME capabilities of the recipient's mail client.
+            </summary>
+        <value>The client capabilities.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
   </Members>
 </Type>

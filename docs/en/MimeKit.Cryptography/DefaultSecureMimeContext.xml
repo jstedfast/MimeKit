@@ -393,5 +393,30 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="UpdateSecureMimeCapabilities">
+      <MemberSignature Language="C#" Value="protected override void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.SecureMimeCapability capabilities, DateTime timestamp);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.SecureMimeCapability capabilities, valuetype System.DateTime timestamp) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+        <Parameter Name="capabilities" Type="MimeKit.Cryptography.SecureMimeCapability" />
+        <Parameter Name="timestamp" Type="System.DateTime" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <param name="capabilities">The S/MIME capabilities.</param>
+        <param name="timestamp">The timestamp.</param>
+        <summary>
+            Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
   </Members>
 </Type>

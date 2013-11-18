@@ -104,6 +104,7 @@
       <Type Name="PrivateKeyNotFoundException" Kind="Class" />
       <Type Name="PublicKeyAlgorithm" Kind="Enumeration" />
       <Type Name="PublicKeyNotFoundException" Kind="Class" />
+      <Type Name="SecureMimeCapability" Kind="Enumeration" />
       <Type Name="SecureMimeContext" Kind="Class" />
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />

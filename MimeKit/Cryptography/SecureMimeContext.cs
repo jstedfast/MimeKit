@@ -156,6 +156,29 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
+		/// </summary>
+		/// <value>The preferred encryption algorithm ranking.</value>
+		protected virtual SecureMimeCapability[] PreferredEncryptionAlgorithmRanking {
+			get {
+				return new SecureMimeCapability[] {
+					SecureMimeCapability.Camellia256,
+					SecureMimeCapability.AES256,
+					SecureMimeCapability.Camellia192,
+					SecureMimeCapability.AES192,
+					SecureMimeCapability.Camellia128,
+					SecureMimeCapability.AES128,
+					SecureMimeCapability.Idea,
+					SecureMimeCapability.Cast5,
+					SecureMimeCapability.RC2128,
+					SecureMimeCapability.TripleDES,
+					SecureMimeCapability.RC264,
+					SecureMimeCapability.RC240
+				};
+			}
+		}
+
+		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
@@ -668,6 +691,18 @@ namespace MimeKit.Cryptography {
 			return GetDigitalSignatures (parser);
 		}
 
+		SecureMimeCapability GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		{
+			var common = recipients.CommonCapabilities;
+
+			foreach (var preferred in PreferredEncryptionAlgorithmRanking) {
+				if (common.HasFlag (preferred))
+					return preferred;
+			}
+
+			return SecureMimeCapability.TripleDES;
+		}
+
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
 			var cms = new CmsEnvelopedDataGenerator ();
@@ -681,9 +716,47 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No recipients specified.", "recipients");
 
-			// FIXME: how to decide which algorithm to use?
 			var input = new CmsProcessableInputStream (content);
-			var envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
+			CmsEnvelopedData envelopedData;
+
+			switch (GetPreferredEncryptionAlgorithm (recipients)) {
+			case SecureMimeCapability.Camellia256:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia256Cbc);
+				break;
+			case SecureMimeCapability.Camellia192:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia192Cbc);
+				break;
+			case SecureMimeCapability.Camellia128:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia128Cbc);
+				break;
+			case SecureMimeCapability.AES256:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Cbc);
+				break;
+			case SecureMimeCapability.AES192:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Cbc);
+				break;
+			case SecureMimeCapability.AES128:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Cbc);
+				break;
+			case SecureMimeCapability.Cast5:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Cast5Cbc);
+				break;
+			case SecureMimeCapability.Idea:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.IdeaCbc);
+				break;
+			case SecureMimeCapability.RC2128:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
+				break;
+			case SecureMimeCapability.RC264:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 64);
+				break;
+			case SecureMimeCapability.RC240:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 40);
+				break;
+			default:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
+				break;
+			}
 
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
