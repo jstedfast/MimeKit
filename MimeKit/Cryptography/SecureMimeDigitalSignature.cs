@@ -57,6 +57,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the S/MIME capabilities advertized by the signer's mail client.
+		/// </summary>
+		/// <value>The S/MIME capabilities.</value>
+		public SecureMimeCapability SecureMimeCapabilities {
+			get; internal set;
+		}
+
+		/// <summary>
 		/// Gets the certificate chain.
 		/// </summary>
 		/// <remarks>

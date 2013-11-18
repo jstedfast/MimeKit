@@ -44,6 +44,23 @@ namespace MimeKit.Cryptography {
 			recipients = new List<CmsRecipient> ();
 		}
 
+		/// <summary>
+		/// Gets the common S/MIME capabilities shared by all recipients.
+		/// </summary>
+		/// <value>The common S/MIME capabilities.</value>
+		public SecureMimeCapability CommonCapabilities {
+			get {
+				if (recipients.Count == 0)
+					return SecureMimeCapability.Unknown;
+
+				var capabilities = recipients[0].SecureMimeCapabilities;
+				for (int i = 1; i < recipients.Count; i++)
+					capabilities &= recipients[i].SecureMimeCapabilities;
+
+				return capabilities;
+			}
+		}
+
 		#region ICollection implementation
 
 		/// <summary>

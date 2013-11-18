@@ -316,11 +316,13 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var certificate in store.Certificates) {
+				// FIXME: make sure that this certificate supports S/MIME encryption
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
 
 			foreach (var certificate in addressbook.Certificates) {
+				// FIXME: make sure that this certificate supports S/MIME encryption
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
@@ -350,6 +352,17 @@ namespace MimeKit.Cryptography {
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+		}
+
+		/// <summary>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="capabilities">The S/MIME capabilities.</param>
+		/// <param name="timestamp">The timestamp.</param>
+		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, SecureMimeCapability capabilities, DateTime timestamp)
+		{
+			// FIXME: implement this
 		}
 
 		/// <summary>

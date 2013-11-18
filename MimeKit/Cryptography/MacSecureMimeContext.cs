@@ -168,6 +168,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="capabilities">The S/MIME capabilities.</param>
+		/// <param name="timestamp">The timestamp.</param>
+		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, SecureMimeCapability capabilities, DateTime timestamp)
+		{
+			// FIXME: implement this
+		}
+
+		/// <summary>
 		/// Import the specified certificate.
 		/// </summary>
 		/// <param name="certificate">The certificate.</param>

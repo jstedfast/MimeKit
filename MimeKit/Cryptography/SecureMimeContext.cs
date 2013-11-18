@@ -39,6 +39,8 @@ using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Utilities.Date;
 using Org.BouncyCastle.Utilities.Collections;
+using Org.BouncyCastle.Asn1.Smime;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -72,7 +74,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The key exchange protocol.</value>
 		public override string KeyExchangeProtocol {
-			get { return "application/pkcs7-keys"; }
+			get { return "application/pkcs7-mime"; }
 		}
 
 		/// <summary>
@@ -223,6 +225,14 @@ namespace MimeKit.Cryptography {
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		protected abstract CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo);
+
+		/// <summary>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </summary>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="capabilities">The S/MIME capabilities.</param>
+		/// <param name="timestamp">The timestamp.</param>
+		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, SecureMimeCapability capabilities, DateTime timestamp);
 
 		/// <summary>
 		/// Gets the digest oid.
@@ -501,6 +511,48 @@ namespace MimeKit.Cryptography {
 			return result.CertPath;
 		}
 
+		SecureMimeCapability GetSecureMimeCapability (AlgorithmIdentifier algorithm)
+		{
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia256Cbc)
+				return SecureMimeCapability.Camellia256;
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia192Cbc)
+				return SecureMimeCapability.Camellia192;
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia128Cbc)
+				return SecureMimeCapability.Camellia128;
+
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Cast5Cbc)
+				return SecureMimeCapability.Cast5;
+
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc)
+				return SecureMimeCapability.AES256;
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes192Cbc)
+				return SecureMimeCapability.AES192;
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes128Cbc)
+				return SecureMimeCapability.AES128;
+
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.IdeaCbc)
+				return SecureMimeCapability.Idea;
+
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.DesEde3Cbc)
+				return SecureMimeCapability.TripleDES;
+
+			if (algorithm.ObjectID.Id == SmimeCapability.DesCbc.Id)
+				return SecureMimeCapability.DES;
+
+			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.RC2Cbc) {
+				var param = (DerInteger) algorithm.Parameters;
+				int bits = param.Value.IntValue;
+
+				switch (bits) {
+				case 128: return SecureMimeCapability.RC2128;
+				case 64: return SecureMimeCapability.RC264;
+				case 40: return SecureMimeCapability.RC240;
+				}
+			}
+
+			return SecureMimeCapability.Unknown;
+		}
+
 		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
 		{
 			var certificates = parser.GetCertificates ("Collection");
@@ -517,6 +569,7 @@ namespace MimeKit.Cryptography {
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
+				var capabilities = SecureMimeCapability.Unknown;
 				DateTime? signedDate = null;
 
 				if (signerInfo.SignedAttributes != null) {
@@ -527,10 +580,25 @@ namespace MimeKit.Cryptography {
 						signedDate = signature.CreationDate;
 						break;
 					}
+
+					vector = signerInfo.SignedAttributes.GetAll (SmimeAttributes.SmimeCapabilities);
+					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
+						foreach (Asn1Sequence sequence in attr.AttrValues) {
+							for (int i = 0; i < sequence.Count; i++) {
+								var algorithm = AlgorithmIdentifier.GetInstance (sequence[i]);
+								capabilities |= GetSecureMimeCapability (algorithm);
+							}
+						}
+					}
+
+					signature.SecureMimeCapabilities = capabilities;
 				}
 
-				if (certificate != null)
+				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
+					if (capabilities != SecureMimeCapability.Unknown && signedDate.HasValue)
+						UpdateSecureMimeCapabilities (certificate, capabilities, signedDate.Value);
+				}
 
 				var anchors = GetTrustedAnchors ();
 
