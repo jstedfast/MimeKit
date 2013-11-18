@@ -105,7 +105,7 @@ project (UnitTests/UnitTests.csproj).
 * MimeKit.sln includes everything that is in the MimeKit.Net40.sln solution as well as the projects for Xamarin.Android,
 Xamarin.iOS, and Xamarin.Mac.
 
-If you don't have the Xamarin products, you'll probably want to open the MimeKitDesktopOnly.sln instead of MimeKit.sln.
+If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net40.sln instead of MimeKit.sln.
 
 Once you've opened the appropriate MimeKit solution file in either Xamarin Studio or Visual Studio 2010+ (either will work),
 you can simply choose the Debug or Release build configuration and then build.
