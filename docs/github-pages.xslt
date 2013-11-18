@@ -14,7 +14,7 @@
           <xsl:value-of select="Title" />
         </title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="description" content="MimeKit : A C# MIME creation and parser library with support for S/MIME, PGP and Unix mbox spools" />
+        <meta name="description" content="MimeKit : A C# MIME creation and parser library with support for S/MIME, PGP and Unix mbox spools." />
         <link rel="stylesheet" type="text/css" media="screen" href="/MimeKit/stylesheets/stylesheet.css"/>
         <xsl:call-template name="create-default-style" />
         <xsl:call-template name="create-default-script" />
