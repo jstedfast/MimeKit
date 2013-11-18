@@ -32,8 +32,6 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Smime;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -49,28 +47,6 @@ namespace MimeKit.Cryptography {
 			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			DigestAlgorithm = DigestAlgorithm.Sha1;
-
-			var capabilities = new SmimeCapabilityVector ();
-			capabilities.AddCapability (NttObjectIdentifiers.IdCamellia256Cbc);
-			capabilities.AddCapability (NttObjectIdentifiers.IdCamellia192Cbc);
-			capabilities.AddCapability (NttObjectIdentifiers.IdCamellia128Cbc);
-			capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
-			capabilities.AddCapability (SmimeCapabilities.Aes192Cbc);
-			capabilities.AddCapability (SmimeCapabilities.Aes128Cbc);
-			capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
-			capabilities.AddCapability (SmimeCapabilities.IdeaCbc);
-			capabilities.AddCapability (SmimeCapabilities.Cast5Cbc);
-			capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
-
-			// For compatibility with older S/MIME implementations
-			capabilities.AddCapability (SmimeCapabilities.DesCbc);
-			capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 64);
-			capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 40);
-
-			var attr = new SmimeCapabilitiesAttribute (capabilities);
-
-			// populate our signed attributes with some S/MIME capabilities
-			SignedAttributes = SignedAttributes.Add (attr.AttrType, attr.AttrValues[0]);
 		}
 
 		/// <summary>

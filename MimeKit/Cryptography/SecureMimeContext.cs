@@ -41,6 +41,7 @@ using Org.BouncyCastle.Utilities.Date;
 using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Ntt;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -170,9 +171,10 @@ namespace MimeKit.Cryptography {
 					SecureMimeCapability.AES128,
 					SecureMimeCapability.Idea,
 					SecureMimeCapability.Cast5,
-					SecureMimeCapability.RC2128,
 					SecureMimeCapability.TripleDES,
+					SecureMimeCapability.RC2128,
 					SecureMimeCapability.RC264,
+					//SecureMimeCapability.DES,
 					SecureMimeCapability.RC240
 				};
 			}
@@ -334,6 +336,60 @@ namespace MimeKit.Cryptography {
 			var content = parser.GetContent ();
 
 			return MimeEntity.Load (content.ContentStream);
+		}
+
+		Org.BouncyCastle.Asn1.Cms.AttributeTable AddSecureMimeCapabilities (Org.BouncyCastle.Asn1.Cms.AttributeTable signedAttributes)
+		{
+			var capabilities = new SmimeCapabilityVector ();
+
+			foreach (var algorithm in PreferredEncryptionAlgorithmRanking) {
+				switch (algorithm) {
+				case SecureMimeCapability.Camellia256:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia256Cbc);
+					break;
+				case SecureMimeCapability.Camellia192:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia192Cbc);
+					break;
+				case SecureMimeCapability.Camellia128:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia128Cbc);
+					break;
+				case SecureMimeCapability.AES256:
+					capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
+					break;
+				case SecureMimeCapability.AES192:
+					capabilities.AddCapability (SmimeCapabilities.Aes192Cbc);
+					break;
+				case SecureMimeCapability.AES128:
+					capabilities.AddCapability (SmimeCapabilities.Aes128Cbc);
+					break;
+				case SecureMimeCapability.Idea:
+					capabilities.AddCapability (SmimeCapabilities.IdeaCbc);
+					break;
+				case SecureMimeCapability.Cast5:
+					capabilities.AddCapability (SmimeCapabilities.Cast5Cbc);
+					break;
+				case SecureMimeCapability.TripleDES:
+					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
+					break;
+				case SecureMimeCapability.RC2128:
+					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
+					break;
+				case SecureMimeCapability.RC264:
+					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 64);
+					break;
+				case SecureMimeCapability.RC240:
+					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 40);
+					break;
+				case SecureMimeCapability.DES:
+					capabilities.AddCapability (SmimeCapabilities.DesCbc);
+					break;
+				}
+			}
+
+			var attr = new SmimeCapabilitiesAttribute (capabilities);
+
+			// populate our signed attributes with some S/MIME capabilities
+			return signedAttributes.Add (attr.AttrType, attr.AttrValues[0]);
 		}
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)

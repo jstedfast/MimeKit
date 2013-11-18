@@ -1,5 +1,5 @@
 //
-// EncryptionAlgorithm.cs
+// SecureMimeCapability.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 		RC2128      = 1 << 2,
 
 		/// <summary>
-		/// The client supports the DES encryption algorithm.
+		/// The client supports the DES 56-bit encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// This is extremely weak encryption and should not be used
