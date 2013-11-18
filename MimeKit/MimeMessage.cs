@@ -902,13 +902,13 @@ namespace MimeKit {
 			foreach (var mailbox in message.ReplyTo.Mailboxes)
 				msg.ReplyToList.Add ((MailAddress) mailbox);
 
-			foreach (var mailbox in message.ReplyTo.Mailboxes)
+			foreach (var mailbox in message.To.Mailboxes)
 				msg.To.Add ((MailAddress) mailbox);
 
-			foreach (var mailbox in message.ReplyTo.Mailboxes)
+			foreach (var mailbox in message.Cc.Mailboxes)
 				msg.CC.Add ((MailAddress) mailbox);
 
-			foreach (var mailbox in message.ReplyTo.Mailboxes)
+			foreach (var mailbox in message.Bcc.Mailboxes)
 				msg.Bcc.Add ((MailAddress) mailbox);
 
 			msg.Subject = message.Subject;
