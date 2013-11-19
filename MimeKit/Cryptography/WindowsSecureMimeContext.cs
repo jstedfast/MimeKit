@@ -236,9 +236,6 @@ namespace MimeKit.Cryptography {
 
 				try {
 					foreach (var certificate in store.Certificates) {
-						if (!certificate.HasPrivateKey)
-							continue;
-
 						if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
 							return new RealCmsRecipient (certificate);
 					}
