@@ -372,11 +372,9 @@ namespace MimeKit.MacInterop {
 
 		public bool Add (X509Certificate certificate)
 		{
-			if (Contains (certificate))
-				return true;
-
 			using (var cert = SecCertificate.Create (certificate.GetEncoded ())) {
-				return SecCertificateAddToKeychain (cert.Handle, Handle) == OSStatus.Ok;
+				var status = SecCertificateAddToKeychain (cert.Handle, Handle);
+				return status == OSSTatus.Ok || status == OSStatus.DuplicateItem;
 			}
 		}
 
