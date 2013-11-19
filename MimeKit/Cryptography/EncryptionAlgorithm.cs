@@ -1,5 +1,5 @@
 //
-// SecureMimeCapability.cs
+// EncryptionAlgorithm.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -28,37 +28,43 @@ using System;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A set of flags that represent the capabilities of an S/MIME client.
+	/// Encryption algorithms supported by S/MIME.
 	/// </summary>
-	[Flags]
-	public enum SecureMimeCapability {
+	public enum EncryptionAlgorithm {
 		/// <summary>
-		/// No capabilities are known.
+		/// The client supports the AES 128-bit encryption algorithm.
 		/// </summary>
-		Unknown     = 0,
+		Aes128,
 
 		/// <summary>
-		/// The client supports the RC2 40-bit encryption algorithm.
+		/// The client supports the AES 192-bit encryption algorithm.
 		/// </summary>
-		/// <remarks>
-		/// This is extremely weak encryption and should not be used
-		/// without consent from the user.
-		/// </remarks>
-		RC240       = 1 << 0,
+		Aes192,
 
 		/// <summary>
-		/// The client supports the RC2 64-bit encryption algorithm.
+		/// The client supports the AES 256-bit encryption algorithm.
 		/// </summary>
-		/// <remarks>
-		/// This is very weak encryption and should not be used
-		/// without consent from the user.
-		/// </remarks>
-		RC264       = 1 << 1,
+		Aes256,
 
 		/// <summary>
-		/// The client supports the RC2 128-bit encryption algorithm.
+		/// The client supports the Camellia 128-bit encryption algorithm.
 		/// </summary>
-		RC2128      = 1 << 2,
+		Camellia128,
+
+		/// <summary>
+		/// The client supports the Camellia 192-bit encryption algorithm.
+		/// </summary>
+		Camellia192,
+
+		/// <summary>
+		/// The client supports the Camellia 256-bit encryption algorithm.
+		/// </summary>
+		Camellia256,
+
+		/// <summary>
+		/// The client supports the Cast-5 128-bit encryption algorithm.
+		/// </summary>
+		Cast5,
 
 		/// <summary>
 		/// The client supports the DES 56-bit encryption algorithm.
@@ -67,7 +73,7 @@ namespace MimeKit.Cryptography {
 		/// This is extremely weak encryption and should not be used
 		/// without consent from the user.
 		/// </remarks>
-		DES         = 1 << 3,
+		Des,
 
 		/// <summary>
 		/// The client supports the Triple-DES encryption algorithm.
@@ -78,46 +84,34 @@ namespace MimeKit.Cryptography {
 		/// if it is unknown what encryption algorithms are supported by
 		/// the recipient's mail client.
 		/// </remarks>
-		TripleDES   = 1 << 4,
-
-		/// <summary>
-		/// The client supports the Cast-5 128-bit encryption algorithm.
-		/// </summary>
-		Cast5       = 1 << 5,
+		TripleDes,
 
 		/// <summary>
 		/// The client supports the IDEA 128-bit encryption algorithm.
 		/// </summary>
-		Idea        = 1 << 6,
+		Idea,
 
 		/// <summary>
-		/// The client supports the AES 128-bit encryption algorithm.
+		/// The client supports the RC2 40-bit encryption algorithm.
 		/// </summary>
-		AES128      = 1 << 7,
+		/// <remarks>
+		/// This is extremely weak encryption and should not be used
+		/// without consent from the user.
+		/// </remarks>
+		RC240,
 
 		/// <summary>
-		/// The client supports the AES 192-bit encryption algorithm.
+		/// The client supports the RC2 64-bit encryption algorithm.
 		/// </summary>
-		AES192      = 1 << 8,
+		/// <remarks>
+		/// This is very weak encryption and should not be used
+		/// without consent from the user.
+		/// </remarks>
+		RC264,
 
 		/// <summary>
-		/// The client supports the AES 256-bit encryption algorithm.
+		/// The client supports the RC2 128-bit encryption algorithm.
 		/// </summary>
-		AES256      = 1 << 9,
-
-		/// <summary>
-		/// The client supports the Camellia 128-bit encryption algorithm.
-		/// </summary>
-		Camellia128 = 1 << 10,
-
-		/// <summary>
-		/// The client supports the Camellia 192-bit encryption algorithm.
-		/// </summary>
-		Camellia192 = 1 << 11,
-
-		/// <summary>
-		/// The client supports the Camellia 256-bit encryption algorithm.
-		/// </summary>
-		Camellia256 = 1 << 12,
+		RC2128,
 	}
 }

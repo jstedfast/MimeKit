@@ -111,20 +111,20 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var capabilities = ((SecureMimeDigitalSignature) signature).SecureMimeCapabilities;
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia256), "Expected Camellia-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia192), "Expected Camellia-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia128), "Expected Camellia-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES256), "Expected AES-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES192), "Expected AES-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES128), "Expected AES-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Idea), "Expected IDEA capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Cast5), "Expected Cast5 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.TripleDES), "Expected Triple-DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.DES), "Expected DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC2128), "Expected RC2-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC264), "Expected RC2-64 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC240), "Expected RC2-40 capability");
+					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[0], "Expected Camellia-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[1], "Expected AES-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[2], "Expected Camellia-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[3], "Expected AES-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[4], "Expected Camellia-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[5], "Expected AES-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[6], "Expected IDEA capability");
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[7], "Expected Cast5 capability");
+					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[8], "Expected Triple-DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -158,20 +158,20 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var capabilities = ((SecureMimeDigitalSignature) signature).SecureMimeCapabilities;
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia256), "Expected Camellia-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia192), "Expected Camellia-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia128), "Expected Camellia-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES256), "Expected AES-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES192), "Expected AES-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES128), "Expected AES-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Idea), "Expected IDEA capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Cast5), "Expected Cast5 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.TripleDES), "Expected Triple-DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.DES), "Expected DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC2128), "Expected RC2-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC264), "Expected RC2-64 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC240), "Expected RC2-40 capability");
+					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[0], "Expected Camellia-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[1], "Expected AES-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[2], "Expected Camellia-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[3], "Expected AES-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[4], "Expected Camellia-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[5], "Expected AES-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[6], "Expected IDEA capability");
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[7], "Expected Cast5 capability");
+					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[8], "Expected Triple-DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -205,20 +205,14 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var capabilities = ((SecureMimeDigitalSignature) signature).SecureMimeCapabilities;
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia256), "Expected Camellia-256 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia192), "Expected Camellia-192 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia128), "Expected Camellia-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES256), "Expected AES-256 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES192), "Expected AES-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES128), "Expected AES-128 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Idea), "Expected IDEA capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Cast5), "Expected Cast5 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.TripleDES), "Expected Triple-DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.DES), "Expected DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC2128), "Expected RC2-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC264), "Expected RC2-64 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC240), "Expected RC2-40 capability");
+					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -334,20 +328,20 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var capabilities = ((SecureMimeDigitalSignature) signature).SecureMimeCapabilities;
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia256), "Expected Camellia-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia192), "Expected Camellia-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia128), "Expected Camellia-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES256), "Expected AES-256 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES192), "Expected AES-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES128), "Expected AES-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Idea), "Expected IDEA capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Cast5), "Expected Cast5 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.TripleDES), "Expected Triple-DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.DES), "Expected DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC2128), "Expected RC2-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC264), "Expected RC2-64 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC240), "Expected RC2-40 capability");
+					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[0], "Expected Camellia-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[1], "Expected AES-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[2], "Expected Camellia-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[3], "Expected AES-192 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[4], "Expected Camellia-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[5], "Expected AES-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[6], "Expected IDEA capability");
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[7], "Expected Cast5 capability");
+					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[8], "Expected Triple-DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -411,20 +405,14 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var capabilities = ((SecureMimeDigitalSignature) signature).SecureMimeCapabilities;
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia256), "Expected Camellia-256 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia192), "Expected Camellia-192 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Camellia128), "Expected Camellia-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES256), "Expected AES-256 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES192), "Expected AES-192 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.AES128), "Expected AES-128 capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Idea), "Expected IDEA capability");
-					//Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.Cast5), "Expected Cast5 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.TripleDES), "Expected Triple-DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.DES), "Expected DES capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC2128), "Expected RC2-128 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC264), "Expected RC2-64 capability");
-					Assert.IsTrue (capabilities.HasFlag (SecureMimeCapability.RC240), "Expected RC2-40 capability");
+					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
+					Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
+					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
 				}
 			}
 		}

@@ -172,9 +172,9 @@ namespace UnitTests {
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="capabilities">The S/MIME capabilities.</param>
+		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
-		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, SecureMimeCapability capabilities, DateTime timestamp)
+		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
 			// FIXME: implement this
 		}

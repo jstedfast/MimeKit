@@ -52,7 +52,7 @@ namespace MimeKit.Cryptography {
 			else
 				RecipientIdentifierType = recipientIdentifierType;
 
-			SecureMimeCapabilities = SecureMimeCapability.TripleDES;
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 			Certificate = certificate;
 		}
 
@@ -68,8 +68,8 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
-			SecureMimeCapabilities = SecureMimeCapability.TripleDES;
 			Certificate = certificate;
 		}
 
@@ -90,10 +90,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets or sets the known S/MIME capabilities of the recipient's mail client.
+		/// Gets or sets the known S/MIME encryption capabilities of the
+		/// recipient's mail client, in their preferred order.
 		/// </summary>
-		/// <value>The client capabilities.</value>
-		public SecureMimeCapability SecureMimeCapabilities {
+		/// <value>The encryption algorithms.</value>
+		public EncryptionAlgorithm[] EncryptionAlgorithms {
 			get; set;
 		}
 	}

@@ -78,6 +78,25 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="EncryptionAlgorithms">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the known S/MIME encryption capabilities of the
+            recipient's mail client, in their preferred order.
+            </summary>
+        <value>The encryption algorithms.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="RecipientIdentifierType">
       <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SubjectIdentifierType RecipientIdentifierType { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SubjectIdentifierType RecipientIdentifierType" />
@@ -93,24 +112,6 @@
             Gets the recipient identifier type.
             </summary>
         <value>The recipient identifier type.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="SecureMimeCapabilities">
-      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets or sets the known S/MIME capabilities of the recipient's mail client.
-            </summary>
-        <value>The client capabilities.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

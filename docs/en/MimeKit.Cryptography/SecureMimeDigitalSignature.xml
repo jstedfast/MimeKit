@@ -97,6 +97,25 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="EncryptionAlgorithms">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of encryption algorithms, in preferential order,
+            that the signer's client supports.
+            </summary>
+        <value>The S/MIME encryption algorithms.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="PublicKeyAlgorithm">
       <MemberSignature Language="C#" Value="public MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm" />
@@ -112,24 +131,6 @@
             Gets the public key algorithm used for the signature.
             </summary>
         <value>The public key algorithm.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="SecureMimeCapabilities">
-      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeCapability SecureMimeCapabilities" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.Cryptography.SecureMimeCapability</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets the S/MIME capabilities advertized by the signer's mail client.
-            </summary>
-        <value>The S/MIME capabilities.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

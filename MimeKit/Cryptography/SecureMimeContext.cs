@@ -54,6 +54,48 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SecureMimeContext : CryptographyContext
 	{
+		static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
+		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank;
+		int enabled;
+
+		static SecureMimeContext ()
+		{
+			DefaultEncryptionAlgorithmRank = new EncryptionAlgorithm[] {
+				EncryptionAlgorithm.Camellia256,
+				EncryptionAlgorithm.Aes256,
+				EncryptionAlgorithm.Camellia192,
+				EncryptionAlgorithm.Aes192,
+				EncryptionAlgorithm.Camellia128,
+				EncryptionAlgorithm.Aes128,
+				EncryptionAlgorithm.Idea,
+				EncryptionAlgorithm.Cast5,
+				EncryptionAlgorithm.TripleDes,
+				EncryptionAlgorithm.RC2128,
+				EncryptionAlgorithm.RC264,
+				EncryptionAlgorithm.Des,
+				EncryptionAlgorithm.RC240
+			};
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
+		/// </summary>
+		protected SecureMimeContext ()
+		{
+			Enable (EncryptionAlgorithm.Camellia256);
+			Enable (EncryptionAlgorithm.Camellia192);
+			Enable (EncryptionAlgorithm.Camellia128);
+			Enable (EncryptionAlgorithm.Aes256);
+			Enable (EncryptionAlgorithm.Aes192);
+			Enable (EncryptionAlgorithm.Aes128);
+			Enable (EncryptionAlgorithm.Cast5);
+			Enable (EncryptionAlgorithm.Idea);
+			Enable (EncryptionAlgorithm.TripleDes);
+			Enable (EncryptionAlgorithm.RC2128);
+			Enable (EncryptionAlgorithm.RC264);
+			Enable (EncryptionAlgorithm.RC240);
+		}
+
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
@@ -160,24 +202,36 @@ namespace MimeKit.Cryptography {
 		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
 		/// </summary>
 		/// <value>The preferred encryption algorithm ranking.</value>
-		protected virtual SecureMimeCapability[] PreferredEncryptionAlgorithmRanking {
-			get {
-				return new SecureMimeCapability[] {
-					SecureMimeCapability.Camellia256,
-					SecureMimeCapability.AES256,
-					SecureMimeCapability.Camellia192,
-					SecureMimeCapability.AES192,
-					SecureMimeCapability.Camellia128,
-					SecureMimeCapability.AES128,
-					SecureMimeCapability.Idea,
-					SecureMimeCapability.Cast5,
-					SecureMimeCapability.TripleDES,
-					SecureMimeCapability.RC2128,
-					SecureMimeCapability.RC264,
-					//SecureMimeCapability.DES,
-					SecureMimeCapability.RC240
-				};
-			}
+		protected virtual EncryptionAlgorithm[] EncryptionAlgorithmRank {
+			get { return DefaultEncryptionAlgorithmRank; }
+		}
+
+		/// <summary>
+		/// Enables the encryption algorithm.
+		/// </summary>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		public void Enable (EncryptionAlgorithm algorithm)
+		{
+			enabled |= 1 << (int) algorithm;
+		}
+
+		/// <summary>
+		/// Disables the encryption algorithm.
+		/// </summary>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		public void Disable (EncryptionAlgorithm algorithm)
+		{
+			enabled &= ~(1 << (int) algorithm);
+		}
+
+		/// <summary>
+		/// Determines whether the specified encryption algorithm is enabled.
+		/// </summary>
+		/// <returns><c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
+		/// <param name="algorithm">Algorithm.</param>
+		public bool IsEnabled (EncryptionAlgorithm algorithm)
+		{
+			return (enabled & (1 << (int) algorithm)) != 0;
 		}
 
 		/// <summary>
@@ -255,9 +309,9 @@ namespace MimeKit.Cryptography {
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="capabilities">The S/MIME capabilities.</param>
+		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
-		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, SecureMimeCapability capabilities, DateTime timestamp);
+		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp);
 
 		/// <summary>
 		/// Gets the digest oid.
@@ -342,45 +396,48 @@ namespace MimeKit.Cryptography {
 		{
 			var capabilities = new SmimeCapabilityVector ();
 
-			foreach (var algorithm in PreferredEncryptionAlgorithmRanking) {
+			foreach (var algorithm in EncryptionAlgorithmRank) {
+				if (!IsEnabled (algorithm))
+					continue;
+
 				switch (algorithm) {
-				case SecureMimeCapability.Camellia256:
+				case EncryptionAlgorithm.Camellia256:
 					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia256Cbc);
 					break;
-				case SecureMimeCapability.Camellia192:
+				case EncryptionAlgorithm.Camellia192:
 					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia192Cbc);
 					break;
-				case SecureMimeCapability.Camellia128:
+				case EncryptionAlgorithm.Camellia128:
 					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia128Cbc);
 					break;
-				case SecureMimeCapability.AES256:
+				case EncryptionAlgorithm.Aes256:
 					capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
 					break;
-				case SecureMimeCapability.AES192:
+				case EncryptionAlgorithm.Aes192:
 					capabilities.AddCapability (SmimeCapabilities.Aes192Cbc);
 					break;
-				case SecureMimeCapability.AES128:
+				case EncryptionAlgorithm.Aes128:
 					capabilities.AddCapability (SmimeCapabilities.Aes128Cbc);
 					break;
-				case SecureMimeCapability.Idea:
+				case EncryptionAlgorithm.Idea:
 					capabilities.AddCapability (SmimeCapabilities.IdeaCbc);
 					break;
-				case SecureMimeCapability.Cast5:
+				case EncryptionAlgorithm.Cast5:
 					capabilities.AddCapability (SmimeCapabilities.Cast5Cbc);
 					break;
-				case SecureMimeCapability.TripleDES:
+				case EncryptionAlgorithm.TripleDes:
 					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
 					break;
-				case SecureMimeCapability.RC2128:
+				case EncryptionAlgorithm.RC2128:
 					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
 					break;
-				case SecureMimeCapability.RC264:
+				case EncryptionAlgorithm.RC264:
 					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 64);
 					break;
-				case SecureMimeCapability.RC240:
+				case EncryptionAlgorithm.RC240:
 					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 40);
 					break;
-				case SecureMimeCapability.DES:
+				case EncryptionAlgorithm.Des:
 					capabilities.AddCapability (SmimeCapabilities.DesCbc);
 					break;
 				}
@@ -397,7 +454,7 @@ namespace MimeKit.Cryptography {
 			var cms = new CmsSignedDataStreamGenerator ();
 
 			cms.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
-				signer.SignedAttributes, signer.UnsignedAttributes);
+				AddSecureMimeCapabilities (signer.SignedAttributes), signer.UnsignedAttributes);
 
 			var memory = new MemoryStream ();
 
@@ -590,46 +647,72 @@ namespace MimeKit.Cryptography {
 			return result.CertPath;
 		}
 
-		SecureMimeCapability GetSecureMimeCapability (AlgorithmIdentifier algorithm)
+		bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia256Cbc)
-				return SecureMimeCapability.Camellia256;
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia192Cbc)
-				return SecureMimeCapability.Camellia192;
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Camellia128Cbc)
-				return SecureMimeCapability.Camellia128;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc) {
+				algorithm = EncryptionAlgorithm.Aes256;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Cast5Cbc)
-				return SecureMimeCapability.Cast5;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes192Cbc) {
+				algorithm = EncryptionAlgorithm.Aes192;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc)
-				return SecureMimeCapability.AES256;
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes192Cbc)
-				return SecureMimeCapability.AES192;
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.Aes128Cbc)
-				return SecureMimeCapability.AES128;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes128Cbc) {
+				algorithm = EncryptionAlgorithm.Aes128;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.IdeaCbc)
-				return SecureMimeCapability.Idea;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia256Cbc) {
+				algorithm = EncryptionAlgorithm.Camellia256;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.DesEde3Cbc)
-				return SecureMimeCapability.TripleDES;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia192Cbc) {
+				algorithm = EncryptionAlgorithm.Camellia192;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == SmimeCapability.DesCbc.Id)
-				return SecureMimeCapability.DES;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia128Cbc) {
+				algorithm = EncryptionAlgorithm.Camellia128;
+				return true;
+			}
 
-			if (algorithm.ObjectID.Id == CmsEnvelopedGenerator.RC2Cbc) {
-				var param = (DerInteger) algorithm.Parameters;
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Cast5Cbc) {
+				algorithm = EncryptionAlgorithm.Cast5;
+				return true;
+			}
+
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.DesEde3Cbc) {
+				algorithm = EncryptionAlgorithm.TripleDes;
+				return true;
+			}
+
+			if (identifier.ObjectID.Id == SmimeCapability.DesCbc.Id) {
+				algorithm = EncryptionAlgorithm.Des;
+				return true;
+			}
+
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.IdeaCbc) {
+				algorithm = EncryptionAlgorithm.Idea;
+				return true;
+			}
+
+			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.RC2Cbc) {
+				var param = (DerInteger) identifier.Parameters;
 				int bits = param.Value.IntValue;
 
 				switch (bits) {
-				case 128: return SecureMimeCapability.RC2128;
-				case 64: return SecureMimeCapability.RC264;
-				case 40: return SecureMimeCapability.RC240;
+				case 128: algorithm = EncryptionAlgorithm.RC2128; return true;
+				case 64: algorithm = EncryptionAlgorithm.RC264; return true;
+				case 40: algorithm = EncryptionAlgorithm.RC240; return true;
 				}
 			}
 
-			return SecureMimeCapability.Unknown;
+			algorithm = EncryptionAlgorithm.RC240;
+
+			return false;
 		}
 
 		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
@@ -648,7 +731,7 @@ namespace MimeKit.Cryptography {
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo);
-				var capabilities = SecureMimeCapability.Unknown;
+				var algorithms = new List<EncryptionAlgorithm> ();
 				DateTime? signedDate = null;
 
 				if (signerInfo.SignedAttributes != null) {
@@ -664,19 +747,22 @@ namespace MimeKit.Cryptography {
 					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
 						foreach (Asn1Sequence sequence in attr.AttrValues) {
 							for (int i = 0; i < sequence.Count; i++) {
-								var algorithm = AlgorithmIdentifier.GetInstance (sequence[i]);
-								capabilities |= GetSecureMimeCapability (algorithm);
+								var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
+								EncryptionAlgorithm algorithm;
+
+								if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+									algorithms.Add (algorithm);
 							}
 						}
 					}
 
-					signature.SecureMimeCapabilities = capabilities;
+					signature.EncryptionAlgorithms = algorithms.ToArray ();
 				}
 
 				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-					if (capabilities != SecureMimeCapability.Unknown && signedDate.HasValue)
-						UpdateSecureMimeCapabilities (certificate, capabilities, signedDate.Value);
+					if (algorithms.Count > 0 && signedDate.HasValue)
+						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
 				}
 
 				var anchors = GetTrustedAnchors ();
@@ -747,16 +833,47 @@ namespace MimeKit.Cryptography {
 			return GetDigitalSignatures (parser);
 		}
 
-		SecureMimeCapability GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		class VoteComparer : IComparer<int>
 		{
-			var common = recipients.CommonCapabilities;
+			#region IComparer implementation
+			public int Compare (int x, int y)
+			{
+				return y - x;
+			}
+			#endregion
+		}
 
-			foreach (var preferred in PreferredEncryptionAlgorithmRanking) {
-				if (common.HasFlag (preferred))
-					return preferred;
+		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		{
+			var algorithms = new EncryptionAlgorithm[EncryptionAlgorithmCount];
+			var votes = new int[EncryptionAlgorithmCount];
+
+			for (int i = 0; i < algorithms.Length; i++)
+				algorithms[i] = (EncryptionAlgorithm) i;
+
+			foreach (var recipient in recipients) {
+				int cast = EncryptionAlgorithmCount;
+
+				foreach (var algorithm in recipient.EncryptionAlgorithms) {
+					votes[(int) algorithm] += cast;
+					cast--;
+				}
 			}
 
-			return SecureMimeCapability.TripleDES;
+			// sort the list of algorithms by votes
+			Array.Sort (votes, algorithms, new VoteComparer ());
+
+			for (int i = 0; i < algorithms.Length; i++) {
+				if (IsEnabled (algorithms[i]))
+					return algorithms[i];
+			}
+
+			// Starting with S/MIME v3 (published in 1999), Triple-DES is a REQUIRED algorithm.
+			// S/MIME v2.x and older only required RC2/40, but SUGGESTED Triple-DES.
+			// Considering the fact that Bruce Schneier was able to write a
+			// screensaver that could crack RC2/40 back in the late 90's, let's
+			// not default to anything weaker than Triple-DES...
+			return EncryptionAlgorithm.TripleDes;
 		}
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
@@ -776,37 +893,37 @@ namespace MimeKit.Cryptography {
 			CmsEnvelopedData envelopedData;
 
 			switch (GetPreferredEncryptionAlgorithm (recipients)) {
-			case SecureMimeCapability.Camellia256:
+			case EncryptionAlgorithm.Camellia256:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia256Cbc);
 				break;
-			case SecureMimeCapability.Camellia192:
+			case EncryptionAlgorithm.Camellia192:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia192Cbc);
 				break;
-			case SecureMimeCapability.Camellia128:
+			case EncryptionAlgorithm.Camellia128:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia128Cbc);
 				break;
-			case SecureMimeCapability.AES256:
+			case EncryptionAlgorithm.Aes256:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Cbc);
 				break;
-			case SecureMimeCapability.AES192:
+			case EncryptionAlgorithm.Aes192:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Cbc);
 				break;
-			case SecureMimeCapability.AES128:
+			case EncryptionAlgorithm.Aes128:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Cbc);
 				break;
-			case SecureMimeCapability.Cast5:
+			case EncryptionAlgorithm.Cast5:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Cast5Cbc);
 				break;
-			case SecureMimeCapability.Idea:
+			case EncryptionAlgorithm.Idea:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.IdeaCbc);
 				break;
-			case SecureMimeCapability.RC2128:
+			case EncryptionAlgorithm.RC2128:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
 				break;
-			case SecureMimeCapability.RC264:
+			case EncryptionAlgorithm.RC264:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 64);
 				break;
-			case SecureMimeCapability.RC240:
+			case EncryptionAlgorithm.RC240:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 40);
 				break;
 			default:

@@ -60,6 +60,7 @@
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
+    <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
@@ -71,7 +72,6 @@
     <Compile Include="Cryptography\PrivateKeyNotFoundException.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />
-    <Compile Include="Cryptography\SecureMimeCapability.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />

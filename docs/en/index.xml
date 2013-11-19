@@ -93,6 +93,7 @@
       <Type Name="DigestAlgorithm" Kind="Enumeration" />
       <Type Name="DigitalSignatureCollection" Kind="Class" />
       <Type Name="DigitalSignatureVerifyException" Kind="Class" />
+      <Type Name="EncryptionAlgorithm" Kind="Enumeration" />
       <Type Name="GnuPGContext" Kind="Class" />
       <Type Name="IDigitalCertificate" Kind="Interface" />
       <Type Name="IDigitalSignature" Kind="Interface" />
@@ -104,7 +105,6 @@
       <Type Name="PrivateKeyNotFoundException" Kind="Class" />
       <Type Name="PublicKeyAlgorithm" Kind="Enumeration" />
       <Type Name="PublicKeyNotFoundException" Kind="Class" />
-      <Type Name="SecureMimeCapability" Kind="Enumeration" />
       <Type Name="SecureMimeContext" Kind="Class" />
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />

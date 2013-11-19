@@ -1,6 +1,6 @@
 <Type Name="SecureMimeContext" FullName="MimeKit.Cryptography.SecureMimeContext">
   <TypeSignature Language="C#" Value="public abstract class SecureMimeContext : MimeKit.Cryptography.CryptographyContext" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit SecureMimeContext extends MimeKit.Cryptography.CryptographyContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract SecureMimeContext extends MimeKit.Cryptography.CryptographyContext" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.14.0.0</AssemblyVersion>
@@ -29,7 +29,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> class.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -116,6 +118,48 @@
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Disable">
+      <MemberSignature Language="C#" Value="public void Disable (MimeKit.Cryptography.EncryptionAlgorithm algorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Disable(valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">The encryption algorithm.</param>
+        <summary>
+            Disables the encryption algorithm.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Enable">
+      <MemberSignature Language="C#" Value="public void Enable (MimeKit.Cryptography.EncryptionAlgorithm algorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Enable(valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">The encryption algorithm.</param>
+        <summary>
+            Enables the encryption algorithm.
+            </summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="EncapsulatedSign">
@@ -273,6 +317,24 @@
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="EncryptionAlgorithmRank">
+      <MemberSignature Language="C#" Value="protected virtual MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithmRank { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithmRank" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
+            </summary>
+        <value>The preferred encryption algorithm ranking.</value>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="EncryptionProtocol">
@@ -693,6 +755,29 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="IsEnabled">
+      <MemberSignature Language="C#" Value="public bool IsEnabled (MimeKit.Cryptography.EncryptionAlgorithm algorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool IsEnabled(valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">Algorithm.</param>
+        <summary>
+            Determines whether the specified encryption algorithm is enabled.
+            </summary>
+        <returns>
+          <c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="KeyExchangeProtocol">
       <MemberSignature Language="C#" Value="public override string KeyExchangeProtocol { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string KeyExchangeProtocol" />
@@ -708,24 +793,6 @@
             Gets the key exchange protocol.
             </summary>
         <value>The key exchange protocol.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="PreferredEncryptionAlgorithmRanking">
-      <MemberSignature Language="C#" Value="protected virtual MimeKit.Cryptography.SecureMimeCapability[] PreferredEncryptionAlgorithmRanking { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeCapability[] PreferredEncryptionAlgorithmRanking" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>MimeKit.Cryptography.SecureMimeCapability[]</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
-            </summary>
-        <value>The preferred encryption algorithm ranking.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -855,8 +922,8 @@
       </Docs>
     </Member>
     <Member MemberName="UpdateSecureMimeCapabilities">
-      <MemberSignature Language="C#" Value="protected abstract void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.SecureMimeCapability capabilities, DateTime timestamp);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.SecureMimeCapability capabilities, valuetype System.DateTime timestamp) cil managed" />
+      <MemberSignature Language="C#" Value="protected abstract void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, DateTime timestamp);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, valuetype System.DateTime timestamp) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.14.0.0</AssemblyVersion>
@@ -866,12 +933,12 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
-        <Parameter Name="capabilities" Type="MimeKit.Cryptography.SecureMimeCapability" />
+        <Parameter Name="algorithms" Type="MimeKit.Cryptography.EncryptionAlgorithm[]" />
         <Parameter Name="timestamp" Type="System.DateTime" />
       </Parameters>
       <Docs>
         <param name="certificate">The certificate.</param>
-        <param name="capabilities">The S/MIME capabilities.</param>
+        <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
         <param name="timestamp">The timestamp.</param>
         <summary>
             Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.

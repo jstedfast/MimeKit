@@ -57,10 +57,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the S/MIME capabilities advertized by the signer's mail client.
+		/// Gets the list of encryption algorithms, in preferential order,
+		/// that the signer's client supports.
 		/// </summary>
-		/// <value>The S/MIME capabilities.</value>
-		public SecureMimeCapability SecureMimeCapabilities {
+		/// <value>The S/MIME encryption algorithms.</value>
+		public EncryptionAlgorithm[] EncryptionAlgorithms {
 			get; internal set;
 		}
 
