@@ -446,14 +446,14 @@ namespace MimeKit.Cryptography {
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
 		{
-			var cms = new CmsSignedDataStreamGenerator ();
+			var signedData = new CmsSignedDataStreamGenerator ();
 
-			cms.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
+			signedData.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
 				AddSecureMimeCapabilities (signer.SignedAttributes), signer.UnsignedAttributes);
 
 			var memory = new MemoryStream ();
 
-			using (var stream = cms.Open (memory, encapsulate)) {
+			using (var stream = signedData.Open (memory, encapsulate)) {
 				content.CopyTo (stream, 4096);
 			}
 
