@@ -845,16 +845,13 @@ namespace MimeKit.Cryptography {
 
 		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
 		{
-			var votes = new Dictionary<EncryptionAlgorithm, int> ();
-
-			foreach (var value in Enum.GetValues (typeof (EncryptionAlgorithm)))
-				votes.Add ((EncryptionAlgorithm) value, 0);
+			var votes = new int[EncryptionAlgorithmCount];
 
 			foreach (var recipient in recipients) {
 				int cast = EncryptionAlgorithmCount;
 
 				foreach (var algorithm in recipient.EncryptionAlgorithms) {
-					votes[algorithm] += cast;
+					votes[(int) algorithm] += cast;
 					cast--;
 				}
 			}
@@ -871,11 +868,15 @@ namespace MimeKit.Cryptography {
 			// of the algorithm with the most amount of votes (between algorithms with
 			// the same number of votes, choose the strongest of the 2 - i.e. the one
 			// that we arrive at first).
-			for (int i = 0; i < DefaultEncryptionAlgorithmRank.Length; i++) {
-				var algorithm = DefaultEncryptionAlgorithmRank[i];
+			var algorithms = EncryptionAlgorithmRank;
+			for (int i = 0; i < algorithms.Length; i++) {
+				var algorithm = algorithms[i];
 
-				if (votes[algorithm] > nvotes) {
-					nvotes = votes[algorithm];
+				if (!IsEnabled (algorithm))
+					continue;
+
+				if (votes[(int) algorithm] > nvotes) {
+					nvotes = votes[(int) algorithm];
 					chosen = algorithm;
 				}
 			}
