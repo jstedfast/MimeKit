@@ -82,18 +82,13 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		protected SecureMimeContext ()
 		{
-			Enable (EncryptionAlgorithm.Camellia256);
-			Enable (EncryptionAlgorithm.Camellia192);
-			Enable (EncryptionAlgorithm.Camellia128);
-			Enable (EncryptionAlgorithm.Aes256);
-			Enable (EncryptionAlgorithm.Aes192);
-			Enable (EncryptionAlgorithm.Aes128);
-			Enable (EncryptionAlgorithm.Cast5);
-			Enable (EncryptionAlgorithm.Idea);
-			Enable (EncryptionAlgorithm.TripleDes);
-			Enable (EncryptionAlgorithm.RC2128);
-			Enable (EncryptionAlgorithm.RC264);
-			Enable (EncryptionAlgorithm.RC240);
+			foreach (var algorithm in DefaultEncryptionAlgorithmRank) {
+				Enable (algorithm);
+
+				// Don't enable anything weaker than Triple-DES by default
+				if (algorithm == EncryptionAlgorithm.TripleDes)
+					break;
+			}
 		}
 
 		/// <summary>
