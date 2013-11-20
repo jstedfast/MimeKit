@@ -31,8 +31,9 @@ using System.Collections.Generic;
 
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkix;
-using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
@@ -315,8 +316,16 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
+			var now = DateTime.Now;
+
 			foreach (var certificate in store.Certificates) {
-				// FIXME: make sure that this certificate supports S/MIME encryption
+				if (certificate.NotBefore > now || certificate.NotAfter < now)
+					continue;
+
+				var keyUsage = certificate.GetKeyUsage ();
+				if (keyUsage != null && !keyUsage[4])
+					continue;
+
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
@@ -341,7 +350,16 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
+			var now = DateTime.Now;
+
 			foreach (var certificate in store.Certificates) {
+				if (certificate.NotBefore > now || certificate.NotAfter < now)
+					continue;
+
+				var keyUsage = certificate.GetKeyUsage ();
+				if (keyUsage != null && !keyUsage[7])
+					continue;
+
 				var key = store.GetPrivateKey (certificate);
 
 				if (key != null && certificate.GetSubjectEmailAddress () == mailbox.Address) {

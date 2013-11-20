@@ -133,7 +133,16 @@ namespace UnitTests {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
+			var now = DateTime.Now;
+
 			foreach (var certificate in certificates) {
+				if (certificate.NotBefore > now || certificate.NotAfter < now)
+					continue;
+
+				var keyUsage = certificate.GetKeyUsage ();
+				if (keyUsage != null && !keyUsage[4])
+					continue;
+
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
 					return new CmsRecipient (certificate);
 			}
@@ -152,8 +161,17 @@ namespace UnitTests {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
+			var now = DateTime.Now;
+
 			foreach (var certificate in certificates) {
 				AsymmetricKeyParameter key;
+
+				if (certificate.NotBefore > now || certificate.NotAfter < now)
+					continue;
+
+				var keyUsage = certificate.GetKeyUsage ();
+				if (keyUsage != null && !keyUsage[7])
+					continue;
 
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
