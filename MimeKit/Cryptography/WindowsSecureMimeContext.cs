@@ -195,6 +195,34 @@ namespace MimeKit.Cryptography {
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
+		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
+		{
+			var store = new X509Store (StoreName.My, StoreLocation);
+			var now = DateTime.Now;
+
+			store.Open (OpenFlags.ReadOnly);
+
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (certificate.NotBefore > now || certificate.NotAfter < now)
+						continue;
+
+					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
+					if (usage == null || (usage.KeyUsages & X509KeyUsageFlags.DataEncipherment) == 0)
+						continue;
+
+					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						continue;
+
+					return certificate;
+				}
+			} finally {
+				store.Close ();
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
 		/// <summary>
 		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
@@ -205,46 +233,14 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			var store = new X509Store (StoreName.My, StoreLocation);
-
-			store.Open (OpenFlags.ReadOnly);
-
-			try {
-				foreach (var certificate in store.Certificates) {
-					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-						continue;
-
-					var cert = DotNetUtilities.FromX509Certificate (certificate);
-
-					return new CmsRecipient (cert);
-				}
-			} finally {
-				store.Close ();
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+			var certificate = GetCmsRecipientCertificate (mailbox);
+			var cert = DotNetUtilities.FromX509Certificate (certificate);
+			return new CmsRecipient (cert);
 		}
 
 		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
 		{
-			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook };
-
-			foreach (var storeName in storeNames) {
-				var store = new X509Store (storeName, StoreLocation);
-
-				store.Open (OpenFlags.ReadOnly);
-
-				try {
-					foreach (var certificate in store.Certificates) {
-						if (certificate.GetNameInfo (X509NameType.EmailName, false) == mailbox.Address)
-							return new RealCmsRecipient (certificate);
-					}
-				} finally {
-					store.Close ();
-				}
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+			return new RealCmsRecipient (GetCmsRecipientCertificate (mailbox));
 		}
 
 		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
@@ -255,6 +251,37 @@ namespace MimeKit.Cryptography {
 				recipients.Add (GetRealCmsRecipient (mailbox));
 
 			return recipients;
+		}
+
+		X509Certificate2 GetCmsSignerCertificate (MailboxAddress mailbox)
+		{
+			var store = new X509Store (StoreName.My, StoreLocation);
+			var now = DateTime.Now;
+
+			store.Open (OpenFlags.ReadOnly);
+
+			try {
+				foreach (var certificate in store.Certificates) {
+					if (certificate.NotBefore > now || certificate.NotAfter < now)
+						continue;
+
+					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
+					if (usage == null || (usage.KeyUsages & X509KeyUsageFlags.DigitalSignature) == 0)
+						continue;
+
+					if (!certificate.HasPrivateKey)
+						continue;
+
+					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						continue;
+
+					return certificate;
+				}
+			} finally {
+				store.Close ();
+			}
+
+			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
 		/// <summary>
@@ -268,56 +295,20 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var store = new X509Store (StoreName.My, StoreLocation);
-
-			store.Open (OpenFlags.ReadOnly);
-
-			try {
-				foreach (var certificate in store.Certificates) {
-					if (!certificate.HasPrivateKey)
-						continue;
-
-					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-						continue;
-
-					var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-					var cert = DotNetUtilities.FromX509Certificate (certificate);
-					var signer = new CmsSigner (cert, pair.Private);
-					signer.DigestAlgorithm = digestAlgo;
-
-					return signer;
-				}
-			} finally {
-				store.Close ();
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			var certificate = GetCmsSignerCertificate (mailbox);
+			var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+			var cert = DotNetUtilities.FromX509Certificate (certificate);
+			var signer = new CmsSigner (cert, pair.Private);
+			signer.DigestAlgorithm = digestAlgo;
+			return signer;
 		}
 
 		RealCmsSigner GetRealCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var store = new X509Store (StoreName.My, StoreLocation);
-
-			store.Open (OpenFlags.ReadOnly);
-
-			try {
-				foreach (var certificate in store.Certificates) {
-					if (!certificate.HasPrivateKey)
-						continue;
-
-					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-						continue;
-
-					var signer = new RealCmsSigner (certificate);
-					signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
-					signer.IncludeOption = X509IncludeOption.ExcludeRoot;
-					return signer;
-				}
-			} finally {
-				store.Close ();
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			var signer = new RealCmsSigner (GetCmsSignerCertificate (mailbox));
+			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
+			signer.IncludeOption = X509IncludeOption.ExcludeRoot;
+			return signer;
 		}
 
 		/// <summary>
