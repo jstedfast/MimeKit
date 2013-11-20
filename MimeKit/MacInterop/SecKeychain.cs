@@ -374,7 +374,7 @@ namespace MimeKit.MacInterop {
 		{
 			using (var cert = SecCertificate.Create (certificate.GetEncoded ())) {
 				var status = SecCertificateAddToKeychain (cert.Handle, Handle);
-				return status == OSSTatus.Ok || status == OSStatus.DuplicateItem;
+				return status == OSStatus.Ok || status == OSStatus.DuplicateItem;
 			}
 		}
 

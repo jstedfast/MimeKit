@@ -845,27 +845,18 @@ namespace MimeKit.Cryptography {
 
 		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
 		{
-			var algorithms = new EncryptionAlgorithm[EncryptionAlgorithmCount];
-			var votes = new int[EncryptionAlgorithmCount];
+			var votes = new Dictionary<EncryptionAlgorithm, int> ();
 
-			for (int i = 0; i < algorithms.Length; i++)
-				algorithms[i] = (EncryptionAlgorithm) i;
+			foreach (var value in Enum.GetValues (typeof (EncryptionAlgorithm)))
+				votes.Add ((EncryptionAlgorithm) value, 0);
 
 			foreach (var recipient in recipients) {
 				int cast = EncryptionAlgorithmCount;
 
 				foreach (var algorithm in recipient.EncryptionAlgorithms) {
-					votes[(int) algorithm] += cast;
+					votes[algorithm] += cast;
 					cast--;
 				}
-			}
-
-			// sort the list of algorithms by votes
-			Array.Sort (votes, algorithms, new VoteComparer ());
-
-			for (int i = 0; i < algorithms.Length; i++) {
-				if (IsEnabled (algorithms[i]))
-					return algorithms[i];
 			}
 
 			// Starting with S/MIME v3 (published in 1999), Triple-DES is a REQUIRED algorithm.
@@ -873,7 +864,23 @@ namespace MimeKit.Cryptography {
 			// Considering the fact that Bruce Schneier was able to write a
 			// screensaver that could crack RC2/40 back in the late 90's, let's
 			// not default to anything weaker than Triple-DES...
-			return EncryptionAlgorithm.TripleDes;
+			EncryptionAlgorithm chosen = EncryptionAlgorithm.TripleDes;
+			int nvotes = 0;
+
+			// iterate through the algorithms, from strongest to weakest, keeping track
+			// of the algorithm with the most amount of votes (between algorithms with
+			// the same number of votes, choose the strongest of the 2 - i.e. the one
+			// that we arrive at first).
+			for (int i = 0; i < DefaultEncryptionAlgorithmRank.Length; i++) {
+				var algorithm = DefaultEncryptionAlgorithmRank[i];
+
+				if (votes[algorithm] > nvotes) {
+					nvotes = votes[algorithm];
+					chosen = algorithm;
+				}
+			}
+
+			return chosen;
 		}
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
