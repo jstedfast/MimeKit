@@ -8,7 +8,7 @@
         <owners>Jeffrey Stedfast</owners>
         <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>http://github.com/jstedfast/MimeKit</projectUrl>
-        <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+        <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/mimekit-50.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
