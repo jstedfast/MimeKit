@@ -20,12 +20,3 @@ merge-docs: $(ASSEMBLY) $(XMLDOCS)
 
 html-docs:
 	mdoc export-html --force-update --template=docs/github-pages.xslt -o ../MimeKit-docs/docs docs/en
-
-package:
-	mono ~/bin/xamarin-component.exe package
-
-validate:
-	mono ~/bin/xamarin-component.exe validate
-
-upload:
-	mono ~/bin/xamarin-component.exe upload
