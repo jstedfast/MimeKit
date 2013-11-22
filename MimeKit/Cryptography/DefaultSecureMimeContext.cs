@@ -186,17 +186,17 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (dirname))
 				Directory.CreateDirectory (dirname);
 
-			using (var file = File.Create (revokedFileName)) {
+			using (var file = File.Create (tmp)) {
 				foreach (var crl in crls) {
 					var encoded = crl.GetEncoded ();
 					file.Write (encoded, 0, encoded.Length);
 				}
 			}
 
-			if (File.Exists (addressbookFileName))
-				File.Replace (tmp, addressbookFileName, bak);
+			if (File.Exists (revokedFileName))
+				File.Replace (tmp, revokedFileName, bak);
 			else
-				File.Move (tmp, addressbookFileName);
+				File.Move (tmp, revokedFileName);
 		}
 
 		void SaveAddressBookCerts ()
