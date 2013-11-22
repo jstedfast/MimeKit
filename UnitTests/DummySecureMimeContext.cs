@@ -41,6 +41,7 @@ using Org.BouncyCastle.Pkix;
 namespace UnitTests {
 	public class DummySecureMimeContext : SecureMimeContext
 	{
+		readonly Dictionary<X509Certificate, EncryptionAlgorithm[]> capabilities = new Dictionary<X509Certificate, EncryptionAlgorithm[]> ();
 		internal readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys = new Dictionary<X509Certificate, AsymmetricKeyParameter> ();
 		internal readonly List<X509Certificate> certificates = new List<X509Certificate> ();
 		internal readonly List<X509Crl> crls = new List<X509Crl> ();
@@ -143,8 +144,15 @@ namespace UnitTests {
 				if (keyUsage != null && !keyUsage[4])
 					continue;
 
-				if (certificate.GetSubjectEmailAddress () == mailbox.Address)
-					return new CmsRecipient (certificate);
+				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {
+					var recipient = new CmsRecipient (certificate);
+					EncryptionAlgorithm[] algorithms;
+
+					if (capabilities.TryGetValue (certificate, out algorithms))
+						recipient.EncryptionAlgorithms = algorithms;
+
+					return recipient;
+				}
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -194,7 +202,7 @@ namespace UnitTests {
 		/// <param name="timestamp">The timestamp.</param>
 		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			// FIXME: implement this
+			capabilities[certificate] = algorithms;
 		}
 
 		/// <summary>
