@@ -25,10 +25,12 @@
 //
 
 using System;
+using System.Text;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -96,6 +98,50 @@ namespace MimeKit.Cryptography {
 		public static string GetSubjectEmailAddress (this X509Certificate certificate)
 		{
 			return certificate.GetSubjectNameInfo (X509Name.EmailAddress);
+		}
+
+		/// <summary>
+		/// Gets the fingerprint of the certificate.
+		/// </summary>
+		/// <returns>The fingerprint.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public static string GetFingerprint (this X509Certificate certificate)
+		{
+			var encoded = certificate.GetEncoded ();
+			var fingerprint = new StringBuilder ();
+			var sha1 = new Sha1Digest ();
+			var data = new byte[20];
+
+			sha1.BlockUpdate (encoded, 0, encoded.Length);
+			sha1.DoFinal (data, 0);
+
+			for (int i = 0; i < data.Length; i++)
+				fingerprint.Append (data[i].ToString ("X2"));
+
+			return fingerprint.ToString ();
+		}
+
+		/// <summary>
+		/// Gets the key usage flags.
+		/// </summary>
+		/// <returns>The key usage flags.</returns>
+		/// <param name="certificate">The certificate.</param>
+		public static int GetKeyUsageFlags (this X509Certificate certificate)
+		{
+			var usage = certificate.GetKeyUsage ();
+			int flags = 0;
+
+			if (usage != null) {
+				for (int i = 0; i < usage.Length && i < 8; i++) {
+					if (usage[i])
+						flags |= 1 << i;
+				}
+
+				if (usage.Length >= 9 && usage[8])
+					flags |= 1 << 15;
+			}
+
+			return flags;
 		}
 	}
 }

@@ -56,18 +56,7 @@ namespace MimeKit.Cryptography {
 			else if (pubkey is DHKeyParameters)
 				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
 
-			var encoded = certificate.GetEncoded ();
-			var fingerprint = new StringBuilder ();
-			var sha1 = new Sha1Digest ();
-			var data = new byte[20];
-
-			sha1.BlockUpdate (encoded, 0, encoded.Length);
-			sha1.DoFinal (data, 0);
-
-			for (int i = 0; i < data.Length; i++)
-				fingerprint.Append (data[i].ToString ("X2"));
-
-			Fingerprint = fingerprint.ToString ();
+			Fingerprint = certificate.GetFingerprint ();
 		}
 
 		SecureMimeDigitalCertificate ()
