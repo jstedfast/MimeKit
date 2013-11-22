@@ -30,9 +30,10 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
+using Org.BouncyCastle.X509;
+
 using MimeKit;
 using MimeKit.Cryptography;
-using Org.BouncyCastle.X509;
 
 namespace UnitTests {
 	[TestFixture]
