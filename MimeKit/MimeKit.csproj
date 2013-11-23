@@ -40,14 +40,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Security" />
-    <Reference Include="Mono.Data.Sqlite">
-      <HintPath>..\lib\Mono.Data.Sqlite.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
       <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
       <Name>BouncyCastle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj">
+      <Project>{F26434C1-BA3D-41FB-B560-C009CB72B1B6}</Project>
+      <Name>Mono.Data.Sqlite</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -168,10 +169,10 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  -->
   <Target Name="AfterBuild">
     <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
   </Target>
+  -->
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

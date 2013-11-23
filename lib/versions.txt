@@ -1,2 +1,1 @@
-Mono.Data.Sqlite.dll: v3.2.5
 sqlite3.dll: v3.8.1
