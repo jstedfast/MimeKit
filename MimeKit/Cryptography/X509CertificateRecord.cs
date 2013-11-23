@@ -37,13 +37,35 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
+	[Flags]
+	enum X509CertificateRecordFields {
+		Id                = 1 << 0,
+		Trusted           = 1 << 1,
+		KeyUsage          = 1 << 2,
+		Algorithms        = 1 << 3,
+		AlgorithmsUpdated = 1 << 4,
+		Certificate       = 1 << 5,
+		PrivateKey        = 1 << 6,
+
+		// helpers
+		TrustedAnchors    = Trusted | Certificate,
+		CmsRecipient      = KeyUsage | Algorithms | Certificate,
+		CmsSigner         = KeyUsage | Certificate | PrivateKey,
+		All               = 0x7f
+	}
+
 	/// <summary>
 	/// An X.509 Certificate record.
 	/// </summary>
 	class X509CertificateRecord
 	{
+		static readonly string[] UpdateColumnNames = {
+			"TRUSTED", "KEYUSAGE", "ALGORITHMS", "ALGORITHMSUPDATED", "PRIVATEKEY"
+		};
+
 		static readonly string[] ColumnNames = {
 			"ID",
 			"TRUSTED",
@@ -51,7 +73,6 @@ namespace MimeKit.Cryptography {
 			"NOTBEFORE",
 			"NOTAFTER",
 			"ISSUERNAME",
-			"ISSUERUID",
 			"SERIALNUMBER",
 			"SUBJECTEMAIL",
 			"FINGERPRINT",
@@ -95,13 +116,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate issuer's name.
 		/// </summary>
 		/// <value>The issuer's name.</value>
-		public string IssuerName { get { return Certificate.GetIssuerNameInfo (X509Name.CN); } }
-
-		/// <summary>
-		/// Gets the certificate issuer's unique identifier.
-		/// </summary>
-		/// <value>The issuer's unique identifier.</value>
-		public string IssuerUid { get { return Certificate.IssuerUniqueID.GetString (); } }
+		public string IssuerName { get { return Certificate.IssuerDN.ToString (); } }
 
 		/// <summary>
 		/// Gets the serial number of the certificate.
@@ -143,7 +158,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the private key.
 		/// </summary>
 		/// <value>The private key.</value>
-		public AsymmetricKeyParameter PrivateKey { get; private set; }
+		public AsymmetricKeyParameter PrivateKey { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateRecord"/> class.
@@ -208,7 +223,7 @@ namespace MimeKit.Cryptography {
 
 		static BigInteger DecodeBigInteger (byte[] buffer, ref int index)
 		{
-			int length = buffer[index++];
+			int length = DecodeInt16 (buffer, ref index);
 			int offset = index;
 
 			index += length;
@@ -219,17 +234,27 @@ namespace MimeKit.Cryptography {
 		static void EncodeBigInteger (BigInteger value, Stream stream)
 		{
 			var bytes = value.ToByteArray ();
-			stream.WriteByte ((byte) bytes.Length);
+			EncodeInt16 (bytes.Length, stream);
 			stream.Write (bytes, 0, bytes.Length);
+		}
+
+		static int DecodeInt16 (byte[] buffer, ref int index)
+		{
+			return ((int) buffer[index++] << 8) | (int) buffer[index++];
+		}
+
+		static void EncodeInt16 (int value, Stream stream)
+		{
+			stream.WriteByte ((byte) ((value >> 8) & 0xff));
+			stream.WriteByte ((byte) (value & 0xff));
 		}
 
 		static int DecodeInt32 (byte[] buffer, ref int index)
 		{
-			int value = 0;
-
-			for (int i = 0; i < 4; i++)
-				value <<= buffer[index++];
-
+			int value = ((int) buffer[index++]) << 24;
+			value |= ((int) buffer[index++]) << 16;
+			value |= ((int) buffer[index++]) << 8;
+			value |= (int) buffer[index++];
 			return value;
 		}
 
@@ -426,7 +451,7 @@ namespace MimeKit.Cryptography {
 
 		internal static SqliteCommand GetCreateTableCommand (SqliteConnection sqlite)
 		{
-			var statement = new StringBuilder ("CREATE TABLE CERTIFICATES(");
+			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
 			var command = sqlite.CreateCommand ();
 
 			for (int i = 0; i < ColumnNames.Length; i++) {
@@ -441,28 +466,58 @@ namespace MimeKit.Cryptography {
 				case "NOTBEFORE": statement.Append ("INTEGER NOT NULL"); break;
 				case "NOTAFTER": statement.Append ("INTEGER NOT NULL"); break;
 				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
-				case "ISSUERUID": statement.Append ("TEXT NOT NULL"); break;
 				case "SERIALNUMBER": statement.Append ("TEXT NOT NULL"); break;
-				case "SUBJECTEMAIL": statement.Append ("TEXT NOT NULL"); break;
+				case "SUBJECTEMAIL": statement.Append ("TEXT"); break;
 				case "FINGERPRINT": statement.Append ("TEXT NOT NULL"); break;
 				case "ALGORITHMS": statement.Append ("TEXT"); break;
 				case "ALGORITHMSUPDATED": statement.Append ("INTEGER NOT NULL"); break;
-				case "CERTIFICATE": statement.Append ("BLOB UNIQUE"); break;
+				case "CERTIFICATE": statement.Append ("BLOB UNIQUE NOT NULL"); break;
 				case "PRIVATEKEY": statement.Append ("BLOB"); break;
 				}
 			}
 
+			statement.Append (')');
+
+			command.CommandText = statement.ToString ();
+			command.CommandType = CommandType.Text;
+
 			return command;
 		}
 
-		internal static SqliteCommand GetFindCertificateCommand (SqliteConnection sqlite, X509Certificate certificate)
+		static string GetColumnNames (X509CertificateRecordFields fields)
 		{
-			var issuerName = certificate.GetIssuerNameInfo (X509Name.CN);
+			var columns = new List<string> ();
+
+			if ((fields & X509CertificateRecordFields.Id) != 0)
+				columns.Add ("ID");
+			if ((fields & X509CertificateRecordFields.Trusted) != 0)
+				columns.Add ("TRUSTED");
+			if ((fields & X509CertificateRecordFields.KeyUsage) != 0)
+				columns.Add ("KEYUSAGE");
+			if ((fields & X509CertificateRecordFields.Algorithms) != 0)
+				columns.Add ("ALGORITHMS");
+			if ((fields & X509CertificateRecordFields.AlgorithmsUpdated) != 0)
+				columns.Add ("ALGORITHMSUPDATED");
+			if ((fields & X509CertificateRecordFields.Certificate) != 0)
+				columns.Add ("CERTIFICATE");
+			if ((fields & X509CertificateRecordFields.PrivateKey) != 0)
+				columns.Add ("PRIVATEKEY");
+
+			if (columns.Count == 0)
+				return "*";
+
+			return string.Join (", ", columns);
+		}
+
+		internal static SqliteCommand GetSelectCommand (SqliteConnection sqlite, X509Certificate certificate, X509CertificateRecordFields fields)
+		{
+			var query = "SELECT " + GetColumnNames (fields) + " FROM CERTIFICATES ";
+			var issuerName = certificate.IssuerDN.ToString ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var fingerprint = certificate.GetFingerprint ();
 			var command = sqlite.CreateCommand ();
 
-			command.CommandText = "SELECT * FROM CERTIFICATES WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
+			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
 			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
 			command.Parameters.AddWithValue ("@SERIALNUMBER", serialNumber);
 			command.Parameters.AddWithValue ("@FINGERPRINT", fingerprint);
@@ -471,11 +526,12 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
-		internal static SqliteCommand GetFindCertificatesCommand (SqliteConnection sqlite, MailboxAddress mailbox, DateTime now)
+		internal static SqliteCommand GetSelectCommand (SqliteConnection sqlite, MailboxAddress mailbox, DateTime now, X509CertificateRecordFields fields)
 		{
+			var query = "SELECT " + GetColumnNames (fields) + " FROM CERTIFICATES ";
 			var command = sqlite.CreateCommand ();
 
-			command.CommandText = "SELECT * FROM CERTIFICATES WHERE SUBJECTEMAIL = @SUBJECTEMAIL AND NOTBEFORE < @NOW AND NOTAFTER > @NOW";
+			command.CommandText = query + "WHERE SUBJECTEMAIL = @SUBJECTEMAIL AND NOTBEFORE < @NOW AND NOTAFTER > @NOW";
 			command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
 			command.Parameters.AddWithValue ("@NOW", now);
 			command.CommandType = CommandType.Text;
@@ -483,11 +539,31 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
-		internal static SqliteCommand GetFindCertificatesCommand (SqliteConnection sqlite)
+		internal static SqliteCommand GetSelectCommand (SqliteConnection sqlite, IX509Selector selector, X509CertificateRecordFields fields)
 		{
+			var query = "SELECT " + GetColumnNames (fields) + " FROM CERTIFICATES";
+			var match = selector as X509CertStoreSelector;
 			var command = sqlite.CreateCommand ();
+			var constraints = string.Empty;
 
-			command.CommandText = "SELECT * FROM CERTIFICATES";
+			if (match != null && (match.Issuer != null || match.SerialNumber != null)) {
+				constraints = " WHERE ";
+
+				if (match.Issuer != null) {
+					command.Parameters.AddWithValue ("@ISSUERNAME", match.Issuer.ToString ());
+					constraints += "ISSUERNAME = @ISSUERNAME";
+				}
+
+				if (match.SerialNumber != null) {
+					if (command.Parameters.Count > 0)
+						constraints += " AND ";
+
+					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
+					constraints += "SERIALNUMBER = @SERIALNUMBER";
+				}
+			}
+
+			command.CommandText = query + constraints;
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -525,7 +601,6 @@ namespace MimeKit.Cryptography {
 				case "NOTBEFORE": value = NotBefore; break;
 				case "NOTAFTER": value = NotAfter; break;
 				case "ISSUERNAME": value = IssuerName; break;
-				case "ISSUERUID": value = IssuerUid; break;
 				case "SERIALNUMBER": value = SerialNumber; break;
 				case "SUBJECTEMAIL": value = SubjectEmail; break;
 				case "FINGERPRINT": value = Fingerprint; break;
@@ -551,27 +626,27 @@ namespace MimeKit.Cryptography {
 
 		internal SqliteCommand GetUpdateCommand (SqliteConnection sqlite)
 		{
-			var statement = new StringBuilder ("REPLACE INTO CERTIFICATES(");
-			var variables = new StringBuilder ("VALUES(");
+			var statement = new StringBuilder ("UPDATE CERTIFICATES SET ");
 			var command = sqlite.CreateCommand ();
 
-			for (int i = 0; i < ColumnNames.Length; i++) {
-				var variable = "@" + ColumnNames[i];
+			for (int i = 0; i < UpdateColumnNames.Length; i++) {
+				var variable = "@" + UpdateColumnNames[i];
 				object value = null;
 
-				if (i > 0) {
+				if (i > 0)
 					statement.Append (", ");
-					variables.Append (", ");
-				}
 
-				switch (ColumnNames[i]) {
+				statement.Append (UpdateColumnNames[i]);
+				statement.Append (" = @");
+				statement.Append (UpdateColumnNames[i]);
+
+				switch (UpdateColumnNames[i]) {
 				case "ID": value = Id; break;
 				case "TRUSTED":  value = IsTrusted; break;
 				case "KEYUSAGE": value = KeyUsage; break;
 				case "NOTBEFORE": value = NotBefore; break;
 				case "NOTAFTER": value = NotAfter; break;
 				case "ISSUERNAME": value = IssuerName; break;
-				case "ISSUERUID": value = IssuerUid; break;
 				case "SERIALNUMBER": value = SerialNumber; break;
 				case "SUBJECTEMAIL": value = SubjectEmail; break;
 				case "FINGERPRINT": value = Fingerprint; break;
@@ -582,14 +657,12 @@ namespace MimeKit.Cryptography {
 				}
 
 				command.Parameters.AddWithValue (variable, value);
-				statement.Append (ColumnNames[i]);
-				variables.Append (variable);
 			}
 
-			statement.Append (')');
-			variables.Append (')');
+			statement.Append (" WHERE ID = @ID");
+			command.Parameters.AddWithValue ("@ID", Id);
 
-			command.CommandText = statement + " " + variables;
+			command.CommandText = statement.ToString ();
 			command.CommandType = CommandType.Text;
 
 			return command;

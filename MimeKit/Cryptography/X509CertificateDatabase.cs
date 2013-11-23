@@ -53,18 +53,18 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("fileName");
 
 			var builder = new SqliteConnectionStringBuilder ();
-			builder.DateTimeFormat = SQLiteDateFormats.UnixEpoch;
+			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
 			builder.DataSource = fileName;
-			builder.Password = password;
+			//builder.Password = password;
 
-			if (!File.Exists (fileName)) {
+			if (!File.Exists (fileName))
 				SqliteConnection.CreateFile (fileName);
-				sqlite = new SqliteConnection (builder.ConnectionString);
-				using (var command = X509CertificateRecord.GetCreateTableCommand (sqlite)) {
-					command.ExecuteNonQuery ();
-				}
-			} else {
-				sqlite = new SqliteConnection (builder.ConnectionString);
+
+			sqlite = new SqliteConnection (builder.ConnectionString);
+			sqlite.Open ();
+
+			using (var command = X509CertificateRecord.GetCreateTableCommand (sqlite)) {
+				command.ExecuteNonQuery ();
 			}
 		}
 
@@ -72,12 +72,13 @@ namespace MimeKit.Cryptography {
 		/// Find the specified certificate.
 		/// </summary>
 		/// <param name="certificate">The certificate.</param>
-		public X509CertificateRecord Find (X509Certificate certificate)
+		/// <param name="fields">The desired fields.</param>
+		public X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			using (var command = X509CertificateRecord.GetFindCertificateCommand (sqlite, certificate)) {
+			using (var command = X509CertificateRecord.GetSelectCommand (sqlite, certificate, fields)) {
 				var reader = command.ExecuteReader ();
 
 				try {
@@ -96,16 +97,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the records for the specified mailboxthat is valid for the given date and time.
+		/// Find the records for the specified mailbox that is valid for the given date and time.
 		/// </summary>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
-		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now)
+		/// <param name="fields">The desired fields.</param>
+		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, X509CertificateRecordFields fields)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
 
-			using (var command = X509CertificateRecord.GetFindCertificatesCommand (sqlite, mailbox, now)) {
+			using (var command = X509CertificateRecord.GetSelectCommand (sqlite, mailbox, now, fields)) {
 				var reader = command.ExecuteReader ();
 
 				try {
@@ -114,6 +116,34 @@ namespace MimeKit.Cryptography {
 
 					while (reader.Read ())
 						yield return X509CertificateRecord.Load (reader, parser, ref buffer);
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Find the records match the specified selector.
+		/// </summary>
+		/// <param name="selector">The selector.</param>
+		/// <param name="fields">The desired fields.</param>
+		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, X509CertificateRecordFields fields)
+		{
+			using (var command = X509CertificateRecord.GetSelectCommand (sqlite, selector, fields | X509CertificateRecordFields.Certificate)) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					var parser = new X509CertificateParser ();
+					var buffer = new byte[4096];
+
+					while (reader.Read ()) {
+						var record = X509CertificateRecord.Load (reader, parser, ref buffer);
+
+						if (selector == null || selector.Match (record.Certificate))
+							yield return record;
+					}
 				} finally {
 					reader.Close ();
 				}
@@ -174,7 +204,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match criteria.</param>
 		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
 		{
-			using (var command = X509CertificateRecord.GetFindCertificatesCommand (sqlite)) {
+			using (var command = X509CertificateRecord.GetSelectCommand (sqlite, selector, X509CertificateRecordFields.Certificate)) {
 				var reader = command.ExecuteReader ();
 
 				try {
