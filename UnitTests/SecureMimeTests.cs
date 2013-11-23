@@ -30,8 +30,6 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
-using Org.BouncyCastle.X509;
-
 using MimeKit;
 using MimeKit.Cryptography;
 
@@ -45,24 +43,29 @@ namespace UnitTests {
 
 		static SecureMimeContext CreateContext ()
 		{
-			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
-			var parser = new X509CertificateParser ();
-			var ctx = new DummySecureMimeContext ();
-			string path;
+			return new DefaultSecureMimeContext ("smime.db", "no.secret");
+		}
 
-			foreach (var filename in CertificateAuthorities) {
-				path = Path.Combine (dataDir, filename);
-				var certificate = parser.ReadCertificate (File.ReadAllBytes (path));
-				ctx.certificates.Add (certificate);
+		[TestFixtureSetUp]
+		public void SetUp ()
+		{
+			using (var ctx = (DefaultSecureMimeContext) CreateContext ()) {
+				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
+				string path;
+
+				foreach (var filename in CertificateAuthorities) {
+					path = Path.Combine (dataDir, filename);
+					using (var file = File.OpenRead (path)) {
+						ctx.Import (file, true);
+					}
+				}
+
+				path = Path.Combine (dataDir, "smime.p12");
+
+				using (var file = File.OpenRead (path)) {
+					ctx.Import (file, "no.secret");
+				}
 			}
-
-			path = Path.Combine (dataDir, "smime.p12");
-
-			using (var file = File.OpenRead (path)) {
-				ctx.Import (file, "no.secret");
-			}
-
-			return ctx;
 		}
 
 		[Test]
