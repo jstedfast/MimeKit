@@ -35,6 +35,12 @@
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assembly\AssemblyInfo.cs" />
     <Compile Include="LINQ\SQLiteConnection_Linq.cs" />
     <Compile Include="LINQ\SQLiteFactory_Linq.cs" />
@@ -64,6 +70,17 @@
     <Compile Include="UnsafeNativeMethods.cs" />
     <Compile Include="SR.Designer.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\SR.resources">
+      <LogicalName>SR.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\SR.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="resources\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -72,21 +89,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="resources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\SR.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="resources\SR.resources">
-      <LogicalName>SR.resources</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>
