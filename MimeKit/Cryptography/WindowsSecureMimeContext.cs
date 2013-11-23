@@ -41,6 +41,7 @@ using Org.BouncyCastle.X509.Store;
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
+using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
 
 using MimeKit.IO;
 
@@ -208,7 +209,7 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
-					if (usage != null && (usage.KeyUsages & X509KeyUsageFlags.DataEncipherment) == 0)
+					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.DataEncipherment) == 0)
 						continue;
 
 					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
@@ -266,7 +267,7 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
-					if (usage != null && (usage.KeyUsages & X509KeyUsageFlags.DigitalSignature) == 0)
+					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.DigitalSignature) == 0)
 						continue;
 
 					if (!certificate.HasPrivateKey)

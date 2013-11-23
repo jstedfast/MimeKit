@@ -319,9 +319,6 @@ namespace MimeKit.Cryptography {
 				case "TRUSTED":
 					record.IsTrusted = reader.GetBoolean (i);
 					break;
-				case "KEYUSAGE":
-					record.KeyUsage = reader.GetInt32 (i);
-					break;
 				case "ID":
 					record.Id = reader.GetInt32 (i);
 					break;
@@ -361,6 +358,7 @@ namespace MimeKit.Cryptography {
 				statement.Append (columns[i] + " ");
 				switch (columns[i]) {
 				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
+				case "BASICCONSTRAINTS": statement.Append ("INTEGER NOT NULL"); break;
 				case "TRUSTED":  statement.Append ("INTEGER NOT NULL"); break;
 				case "KEYUSAGE": statement.Append ("INTEGER NOT NULL"); break;
 				case "NOTBEFORE": statement.Append ("INTEGER NOT NULL"); break;
@@ -441,8 +439,6 @@ namespace MimeKit.Cryptography {
 				columns.Add ("ID");
 			if ((fields & X509CertificateRecordFields.Trusted) != 0)
 				columns.Add ("TRUSTED");
-			if ((fields & X509CertificateRecordFields.KeyUsage) != 0)
-				columns.Add ("KEYUSAGE");
 			if ((fields & X509CertificateRecordFields.Algorithms) != 0)
 				columns.Add ("ALGORITHMS");
 			if ((fields & X509CertificateRecordFields.AlgorithmsUpdated) != 0)
@@ -477,7 +473,8 @@ namespace MimeKit.Cryptography {
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
 			var command = sqlite.CreateCommand ();
 
-			command.CommandText = query + "WHERE SUBJECTEMAIL = @SUBJECTEMAIL AND NOTBEFORE < @NOW AND NOTAFTER > @NOW";
+			command.CommandText = query + "WHERE BASICCONSTRAINTS = @BASICCONSTRAINTS AND SUBJECTEMAIL = @SUBJECTEMAIL AND NOTBEFORE < @NOW AND NOTAFTER > @NOW";
+			command.Parameters.AddWithValue ("@BASICCONSTRAINTS", -1);
 			command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
 			command.Parameters.AddWithValue ("@NOW", now);
 			command.CommandType = CommandType.Text;
@@ -492,10 +489,30 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 			var constraints = string.Empty;
 
-			if (match != null && (match.Issuer != null || match.SerialNumber != null)) {
+			if (match != null) {
 				constraints = " WHERE ";
 
+				if (match.BasicConstraints != -1) {
+					command.Parameters.AddWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
+					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
+				}
+
+				if (match.KeyUsage != null) {
+					var flags = X509CertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
+
+					if (flags != X509KeyUsageFlags.None) {
+						if (command.Parameters.Count > 0)
+							constraints += " AND ";
+
+						command.Parameters.AddWithValue ("@FLAGS", (int) flags);
+						constraints += "KEYUSAGE & @FLAGS";
+					}
+				}
+
 				if (match.Issuer != null) {
+					if (command.Parameters.Count > 0)
+						constraints += " AND ";
+
 					command.Parameters.AddWithValue ("@ISSUERNAME", match.Issuer.ToString ());
 					constraints += "ISSUERNAME = @ISSUERNAME";
 				}
@@ -507,6 +524,9 @@ namespace MimeKit.Cryptography {
 					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
 					constraints += "SERIALNUMBER = @SERIALNUMBER";
 				}
+
+				if (command.Parameters.Count == 0)
+					constraints = string.Empty;
 			}
 
 			command.CommandText = query + constraints;
@@ -565,6 +585,7 @@ namespace MimeKit.Cryptography {
 		{
 			switch (columnName) {
 			case "ID": return record.Id;
+			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
 			case "KEYUSAGE": return record.KeyUsage;
 			case "NOTBEFORE": return record.NotBefore;

@@ -34,7 +34,6 @@ namespace MimeKit.Cryptography {
 	enum X509CertificateRecordFields {
 		Id                = 1 << 0,
 		Trusted           = 1 << 1,
-		KeyUsage          = 1 << 2,
 		Algorithms        = 1 << 3,
 		AlgorithmsUpdated = 1 << 4,
 		Certificate       = 1 << 5,
@@ -42,8 +41,8 @@ namespace MimeKit.Cryptography {
 
 		// helpers
 		TrustedAnchors    = Trusted | Certificate,
-		CmsRecipient      = KeyUsage | Algorithms | Certificate,
-		CmsSigner         = KeyUsage | Certificate | PrivateKey,
+		CmsRecipient      = Algorithms | Certificate,
+		CmsSigner         = Certificate | PrivateKey,
 		UpdateAlgorithms  = Id | Algorithms | AlgorithmsUpdated,
 		ImportPkcs12      = UpdateAlgorithms | Trusted | PrivateKey,
 		All               = 0xff
@@ -56,6 +55,7 @@ namespace MimeKit.Cryptography {
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",
+			"BASICCONSTRAINTS",
 			"TRUSTED",
 			"KEYUSAGE",
 			"NOTBEFORE",
@@ -77,6 +77,12 @@ namespace MimeKit.Cryptography {
 		public int Id { get; internal set; }
 
 		/// <summary>
+		/// Gets the basic constraints of the certificate.
+		/// </summary>
+		/// <value>The basic constraints of the certificate.</value>
+		public int BasicConstraints { get { return Certificate.GetBasicConstraints (); } }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether the certificate is trusted.
 		/// </summary>
 		/// <value><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</value>
@@ -86,7 +92,7 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets the X.509 key usage.
 		/// </summary>
 		/// <value>The X.509 key usage.</value>
-		public int KeyUsage { get; set; }
+		public X509KeyUsageFlags KeyUsage { get { return Certificate.GetKeyUsageFlags (); } }
 
 		/// <summary>
 		/// Gets the starting date and time where the certificate is valid.
@@ -164,7 +170,6 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be private.", "key");
 
-			KeyUsage = certificate.GetKeyUsageFlags ();
 			AlgorithmsUpdated = DateTime.MinValue;
 			Certificate = certificate;
 			PrivateKey = key;
@@ -179,7 +184,6 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			KeyUsage = certificate.GetKeyUsageFlags ();
 			AlgorithmsUpdated = DateTime.MinValue;
 			Certificate = certificate;
 		}

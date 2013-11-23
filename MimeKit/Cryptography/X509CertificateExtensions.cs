@@ -121,27 +121,42 @@ namespace MimeKit.Cryptography {
 			return fingerprint.ToString ();
 		}
 
+		internal static X509KeyUsageFlags GetKeyUsageFlags (bool[] usage)
+		{
+			var flags = X509KeyUsageFlags.None;
+
+			if (usage != null) {
+				if (usage[(int) X509KeyUsageBits.DigitalSignature])
+					flags |= X509KeyUsageFlags.DigitalSignature;
+				if (usage[(int) X509KeyUsageBits.NonRepudiation])
+					flags |= X509KeyUsageFlags.NonRepudiation;
+				if (usage[(int) X509KeyUsageBits.KeyEncipherment])
+					flags |= X509KeyUsageFlags.KeyEncipherment;
+				if (usage[(int) X509KeyUsageBits.DataEncipherment])
+					flags |= X509KeyUsageFlags.DataEncipherment;
+				if (usage[(int) X509KeyUsageBits.KeyAgreement])
+					flags |= X509KeyUsageFlags.KeyAgreement;
+				if (usage[(int) X509KeyUsageBits.KeyCertSign])
+					flags |= X509KeyUsageFlags.KeyCertSign;
+				if (usage[(int) X509KeyUsageBits.CrlSign])
+					flags |= X509KeyUsageFlags.CrlSign;
+				if (usage[(int) X509KeyUsageBits.EncipherOnly])
+					flags |= X509KeyUsageFlags.EncipherOnly;
+				if (usage[(int) X509KeyUsageBits.DecipherOnly])
+					flags |= X509KeyUsageFlags.DecipherOnly;
+			}
+
+			return flags;
+		}
+
 		/// <summary>
 		/// Gets the key usage flags.
 		/// </summary>
 		/// <returns>The key usage flags.</returns>
 		/// <param name="certificate">The certificate.</param>
-		public static int GetKeyUsageFlags (this X509Certificate certificate)
+		public static X509KeyUsageFlags GetKeyUsageFlags (this X509Certificate certificate)
 		{
-			var usage = certificate.GetKeyUsage ();
-			int flags = 0;
-
-			if (usage != null) {
-				for (int i = 0; i < usage.Length && i < 8; i++) {
-					if (usage[i])
-						flags |= 1 << i;
-				}
-
-				if (usage.Length >= 9 && usage[8])
-					flags |= 1 << 15;
-			}
-
-			return flags;
+			return GetKeyUsageFlags (certificate.GetKeyUsage ());
 		}
 	}
 }
