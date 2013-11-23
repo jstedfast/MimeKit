@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Security" />
     <Reference Include="Mono.Data.Sqlite">
-      <HintPath>Library\Mono.Data.Sqlite.dll</HintPath>
+      <HintPath>..\lib\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -157,27 +157,21 @@
     <Compile Include="TextPart.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Library\sqlite3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Library\versions.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Cryptography\" />
     <Folder Include="Encodings\" />
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
     <Folder Include="Utils\" />
-    <Folder Include="Library\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <Target Name="AfterBuild">
+    <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
+  </Target>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
