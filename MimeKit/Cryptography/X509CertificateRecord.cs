@@ -25,19 +25,9 @@
 //
 
 using System;
-using System.IO;
-using System.Data;
-using System.Text;
-using System.Collections.Generic;
 
-using Mono.Data.Sqlite;
-
-using Org.BouncyCastle.Math;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
 	[Flags]
@@ -64,10 +54,6 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	class X509CertificateRecord
 	{
-		internal static readonly string[] UpdateColumnNames = {
-			"TRUSTED", "KEYUSAGE", "ALGORITHMS", "ALGORITHMSUPDATED", "PRIVATEKEY"
-		};
-
 		internal static readonly string[] ColumnNames = {
 			"ID",
 			"TRUSTED",

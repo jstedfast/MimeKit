@@ -44,7 +44,9 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Data.Sqlite" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.Android.csproj">
@@ -83,8 +85,11 @@
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
+    <Compile Include="Cryptography\X509CertificateRecord.cs" />
     <Compile Include="Cryptography\X509CertificateStore.cs" />
+    <Compile Include="Cryptography\X509CrlRecord.cs" />
     <Compile Include="Encodings\Base64Decoder.cs" />
     <Compile Include="Encodings\Base64Encoder.cs" />
     <Compile Include="Encodings\HexDecoder.cs" />

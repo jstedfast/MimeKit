@@ -70,6 +70,7 @@ namespace MimeKit.Cryptography {
 			sqlite.Open ();
 
 			CreateCertificatesTable ();
+			CreateCrlsTable ();
 		}
 
 		static int ReadBinaryBlob (SqliteDataReader reader, int column, ref byte[] buffer)
@@ -90,6 +91,15 @@ namespace MimeKit.Cryptography {
 
 			using (var memory = new MemoryStream (buffer, 0, nread, false)) {
 				return parser.ReadCertificate (memory);
+			}
+		}
+
+		static X509Crl DecodeX509Crl (SqliteDataReader reader, X509CrlParser parser, int column, ref byte[] buffer)
+		{
+			int nread = ReadBinaryBlob (reader, column, ref buffer);
+
+			using (var memory = new MemoryStream (buffer, 0, nread, false)) {
+				return parser.ReadCrl (memory);
 			}
 		}
 
@@ -321,6 +331,24 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
+		static X509CrlRecord LoadCrlRecord (SqliteDataReader reader, X509CrlParser parser, ref byte[] buffer)
+		{
+			var record = new X509CrlRecord ();
+
+			for (int i = 0; i < reader.FieldCount; i++) {
+				switch (reader.GetName (i)) {
+				case "CRL":
+					record.Crl = DecodeX509Crl (reader, parser, i, ref buffer);
+					break;
+				case "ID":
+					record.Id = reader.GetInt32 (i);
+					break;
+				}
+			}
+
+			return record;
+		}
+
 		static SqliteCommand GetCreateCertificatesTableCommand (SqliteConnection sqlite)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
@@ -365,8 +393,44 @@ namespace MimeKit.Cryptography {
 			}
 
 			// FIXME: create some indexes as well?
+		}
 
-			return;
+		static SqliteCommand GetCreateCrlsTableCommand (SqliteConnection sqlite)
+		{
+			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
+			var columns = X509CrlRecord.ColumnNames;
+
+			for (int i = 0; i < columns.Length; i++) {
+				if (i > 0)
+					statement.Append (", ");
+
+				statement.Append (columns[i] + " ");
+				switch (columns[i]) {
+				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
+				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
+				case "THISUPDATE": statement.Append ("INTEGER NOT NULL"); break;
+				case "NEXTUPDATE": statement.Append ("INTEGER NOT NULL"); break;
+				case "CRL": statement.Append ("BLOB NOT NULL"); break;
+				}
+			}
+
+			statement.Append (')');
+
+			var command = sqlite.CreateCommand ();
+
+			command.CommandText = statement.ToString ();
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		void CreateCrlsTable ()
+		{
+			using (var command = GetCreateCrlsTableCommand (sqlite)) {
+				command.ExecuteNonQuery ();
+			}
+
+			// FIXME: create some indexes as well?
 		}
 
 		static string[] GetColumnNames (X509CertificateRecordFields fields)
@@ -451,6 +515,30 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
+		SqliteCommand GetSelectCommand (X509Crl crl)
+		{
+			var query = "SELECT ID, CRL FROM CRLS ";
+			var issuerName = crl.IssuerDN.ToString ();
+			var command = sqlite.CreateCommand ();
+
+			// FIXME: can we depend on the issuer name as being unique?
+			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME LIMIT 1";
+			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		SqliteCommand GetSelectAllCrlsCommand ()
+		{
+			var command = sqlite.CreateCommand ();
+
+			command.CommandText = "SELECT ID, CRL FROM CRLS";
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
 		SqliteCommand GetDeleteCommand (X509CertificateRecord record)
 		{
 			var command = sqlite.CreateCommand ();
@@ -460,6 +548,49 @@ namespace MimeKit.Cryptography {
 			command.CommandType = CommandType.Text;
 
 			return command;
+		}
+
+		SqliteCommand GetDeleteCommand (X509CrlRecord record)
+		{
+			var command = sqlite.CreateCommand ();
+
+			command.CommandText = "DELETE FROM CRLS WHERE ID = @ID";
+			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		static object GetValue (X509CertificateRecord record, string columnName)
+		{
+			switch (columnName) {
+			case "ID": return record.Id;
+			case "TRUSTED": return record.IsTrusted;
+			case "KEYUSAGE": return record.KeyUsage;
+			case "NOTBEFORE": return record.NotBefore;
+			case "NOTAFTER": return record.NotAfter;
+			case "ISSUERNAME": return record.IssuerName;
+			case "SERIALNUMBER": return record.SerialNumber;
+			case "SUBJECTEMAIL": return record.SubjectEmail;
+			case "FINGERPRINT": return record.Fingerprint;
+			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
+			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
+			case "CERTIFICATE": return record.Certificate.GetEncoded ();
+			case "PRIVATEKEY": return EncodePrivateKey (record.PrivateKey);
+			default: throw new ArgumentOutOfRangeException ();
+			}
+		}
+
+		static object GetValue (X509CrlRecord record, string columnName)
+		{
+			switch (columnName) {
+			case "ID": return record.Id;
+			case "ISSUERNAME": return record.IssuerName;
+			case "THISUPDATE": return record.ThisUpdate;
+			case "NEXTUPDATE": return record.NextUpdate;
+			case "CRL": return record.Crl.GetEncoded ();
+			default: throw new ArgumentOutOfRangeException ();
+			}
 		}
 
 		SqliteCommand GetInsertCommand (X509CertificateRecord record)
@@ -475,23 +606,38 @@ namespace MimeKit.Cryptography {
 					variables.Append (", ");
 				}
 
+				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
-				object value = null;
 
-				switch (columns[i]) {
-				case "TRUSTED":  value = record.IsTrusted; break;
-				case "KEYUSAGE": value = record.KeyUsage; break;
-				case "NOTBEFORE": value = record.NotBefore; break;
-				case "NOTAFTER": value = record.NotAfter; break;
-				case "ISSUERNAME": value = record.IssuerName; break;
-				case "SERIALNUMBER": value = record.SerialNumber; break;
-				case "SUBJECTEMAIL": value = record.SubjectEmail; break;
-				case "FINGERPRINT": value = record.Fingerprint; break;
-				case "ALGORITHMS": value = EncodeEncryptionAlgorithms (record.Algorithms); break;
-				case "ALGORITHMSUPDATED": value = record.AlgorithmsUpdated; break;
-				case "CERTIFICATE": value = record.Certificate.GetEncoded (); break;
-				case "PRIVATEKEY": value = EncodePrivateKey (record.PrivateKey); break;
+				command.Parameters.AddWithValue (variable, value);
+				statement.Append (columns[i]);
+				variables.Append (variable);
+			}
+
+			statement.Append (')');
+			variables.Append (')');
+
+			command.CommandText = statement + " " + variables;
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		SqliteCommand GetInsertCommand (X509CrlRecord record)
+		{
+			var statement = new StringBuilder ("INSERT INTO CRLS(");
+			var variables = new StringBuilder ("VALUES(");
+			var columns = X509CrlRecord.ColumnNames;
+			var command = sqlite.CreateCommand ();
+
+			for (int i = 1; i < columns.Length; i++) {
+				if (i > 1) {
+					statement.Append (", ");
+					variables.Append (", ");
 				}
+
+				var value = GetValue (record, columns[i]);
+				var variable = "@" + columns[i];
 
 				command.Parameters.AddWithValue (variable, value);
 				statement.Append (columns[i]);
@@ -514,30 +660,44 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			for (int i = 0; i < columns.Length; i++) {
+				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
-				object value = null;
 
 				if (i > 0)
 					statement.Append (", ");
 
 				statement.Append (columns[i]);
-				statement.Append (" = @");
-				statement.Append (columns[i]);
+				statement.Append (" = ");
+				statement.Append (variable);
 
-				switch (columns[i]) {
-				case "TRUSTED":  value = record.IsTrusted; break;
-				case "KEYUSAGE": value = record.KeyUsage; break;
-				case "NOTBEFORE": value = record.NotBefore; break;
-				case "NOTAFTER": value = record.NotAfter; break;
-				case "ISSUERNAME": value = record.IssuerName; break;
-				case "SERIALNUMBER": value = record.SerialNumber; break;
-				case "SUBJECTEMAIL": value = record.SubjectEmail; break;
-				case "FINGERPRINT": value = record.Fingerprint; break;
-				case "ALGORITHMS": value = EncodeEncryptionAlgorithms (record.Algorithms); break;
-				case "ALGORITHMSUPDATED": value = record.AlgorithmsUpdated; break;
-				case "CERTIFICATE": value = record.Certificate.GetEncoded (); break;
-				case "PRIVATEKEY": value = EncodePrivateKey (record.PrivateKey); break;
-				}
+				command.Parameters.AddWithValue (variable, value);
+			}
+
+			statement.Append (" WHERE ID = @ID");
+			command.Parameters.AddWithValue ("@ID", record.Id);
+
+			command.CommandText = statement.ToString ();
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		SqliteCommand GetUpdateCommand (X509CrlRecord record)
+		{
+			var statement = new StringBuilder ("UPDATE CRLS SET ");
+			var columns = X509CrlRecord.ColumnNames;
+			var command = sqlite.CreateCommand ();
+
+			for (int i = 1; i < columns.Length; i++) {
+				var value = GetValue (record, columns[i]);
+				var variable = "@" + columns[i];
+
+				if (i > 1)
+					statement.Append (", ");
+
+				statement.Append (columns[i]);
+				statement.Append (" = ");
+				statement.Append (variable);
 
 				command.Parameters.AddWithValue (variable, value);
 			}
@@ -678,7 +838,74 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		#region IX509Store implementation
+		/// <summary>
+		/// Find the specified certificate revocation list.
+		/// </summary>
+		/// <param name="crl">The certificate revocation list.</param>
+		public X509CrlRecord Find (X509Crl crl)
+		{
+			if (crl == null)
+				throw new ArgumentNullException ("crl");
+
+			using (var command = GetSelectCommand (crl)) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					if (reader.Read ()) {
+						var parser = new X509CrlParser ();
+						var buffer = new byte[4096];
+
+						return LoadCrlRecord (reader, parser, ref buffer);
+					}
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Add the specified record.
+		/// </summary>
+		/// <param name="record">The record.</param>
+		public void Add (X509CrlRecord record)
+		{
+			if (record == null)
+				throw new ArgumentNullException ("record");
+
+			using (var command = GetInsertCommand (record)) {
+				command.ExecuteNonQuery ();
+			}
+		}
+
+		/// <summary>
+		/// Remove the specified record.
+		/// </summary>
+		/// <param name="record">The record.</param>
+		public void Remove (X509CrlRecord record)
+		{
+			if (record == null)
+				throw new ArgumentNullException ("record");
+
+			using (var command = GetDeleteCommand (record)) {
+				command.ExecuteNonQuery ();
+			}
+		}
+
+		/// <summary>
+		/// Update the specified record.
+		/// </summary>
+		/// <param name="record">The record.</param>
+		public void Update (X509CrlRecord record)
+		{
+			if (record == null)
+				throw new ArgumentNullException ("record");
+
+			using (var command = GetUpdateCommand (record)) {
+				command.ExecuteNonQuery ();
+			}
+		}
 
 		/// <summary>
 		/// Gets an enumerator of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
@@ -686,7 +913,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
+		public IEnumerable<X509Certificate> GetCertificates (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, X509CertificateRecordFields.Certificate)) {
 				var reader = command.ExecuteReader ();
@@ -709,6 +936,36 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets a certificate revocation list store.
+		/// </summary>
+		/// <returns>The certificate recovation list store.</returns>
+		public IX509Store GetCrlStore ()
+		{
+			var crls = new List<X509Crl> ();
+
+			// TODO: we could cache this...
+			using (var command = GetSelectAllCrlsCommand ()) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					var parser = new X509CrlParser ();
+					var buffer = new byte[4096];
+
+					while (reader.Read ()) {
+						var record = LoadCrlRecord (reader, parser, ref buffer);
+						crls.Add (record.Crl);
+					}
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
+		}
+
+		#region IX509Store implementation
+
+		/// <summary>
 		/// Gets a collection of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
 		/// based on the specified selector.
 		/// </summary>
@@ -716,7 +973,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match criteria.</param>
 		ICollection IX509Store.GetMatches (IX509Selector selector)
 		{
-			return new List<X509Certificate> (GetMatches (selector));
+			return new List<X509Certificate> (GetCertificates (selector));
 		}
 
 		#endregion
