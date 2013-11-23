@@ -202,6 +202,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Gets the enabled encryption algorithms in ranked order.
+		/// </summary>
+		/// <value>The enabled encryption algorithms.</value>
+		protected EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
+			get {
+				var algorithms = new List<EncryptionAlgorithm> ();
+
+				foreach (var algorithm in EncryptionAlgorithmRank) {
+					if (IsEnabled (algorithm))
+						algorithms.Add (algorithm);
+				}
+
+				return algorithms.ToArray ();
+			}
+		}
+
+		/// <summary>
 		/// Enables the encryption algorithm.
 		/// </summary>
 		/// <param name="algorithm">The encryption algorithm.</param>
