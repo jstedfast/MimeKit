@@ -37,26 +37,6 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="AllowOnlineCertificateRetrieval">
-      <MemberSignature Language="C#" Value="public bool AllowOnlineCertificateRetrieval { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance bool AllowOnlineCertificateRetrieval" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.16.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Boolean</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets or sets a value indicating whether this <see cref="T:MimeKit.Cryptography.CryptographyContext" /> allows online
-            certificate retrieval.
-            </summary>
-        <value>
-          <c>true</c> if online certificate retrieval should be allowed; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Create">
       <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.CryptographyContext Create (string protocol);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.CryptographyContext Create(string protocol) cil managed" />
@@ -330,24 +310,6 @@
             Gets the key exchange protocol.
             </summary>
         <value>The key exchange protocol.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="OnlineCertificateRetrievalTimeout">
-      <MemberSignature Language="C#" Value="public TimeSpan OnlineCertificateRetrievalTimeout { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.TimeSpan OnlineCertificateRetrievalTimeout" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.16.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.TimeSpan</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets or sets the online certificate retrieval timeout.
-            </summary>
-        <value>The online certificate retrieval timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

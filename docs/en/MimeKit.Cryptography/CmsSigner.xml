@@ -13,7 +13,11 @@
     <summary>
             An S/MIME signer.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            If the X.509 certificate is known for the signer, you may wish to use a
+            <see cref="T:MimeKit.Cryptography.CmsSigner" /> as opposed to having the <see cref="T:MimeKit.Cryptography.CryptographyContext" />
+            do its own certificate lookup for the signer's <see cref="T:MimeKit.MailboxAddress" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

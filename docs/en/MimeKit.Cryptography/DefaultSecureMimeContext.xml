@@ -31,7 +31,10 @@
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.IO.IOException">
-            An error occurred while reading one of the certificate stores.
+            An error occurred reading the database at the default location.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the database at the default location.
             </exception>
       </Docs>
     </Member>
@@ -61,7 +64,13 @@
             <paramref name="password" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.IO.IOException">
-            An error occurred while reading the file.
+            An error occurred reading the file.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
             </exception>
       </Docs>
     </Member>
@@ -77,7 +86,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The default database path for certificates and keys.
+            The default database path for certificates, private keys and CRLs.
             </summary>
         <remarks>
           <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\smime.db</c>.</para>
@@ -99,8 +108,11 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">If <c>true</c>, this method is being called by
+            <see cref="M:MimeKit.Cryptography.CryptographyContext.Dispose" />; otherwise it is being called by the finalizer.</param>
+        <summary>
+            Releases all resources used by the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> object.
+            </summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>

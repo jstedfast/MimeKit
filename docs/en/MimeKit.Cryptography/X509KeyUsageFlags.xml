@@ -17,7 +17,13 @@
     <summary>
             X.509 key usage flags.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>The X.509 Key Usage Flags can be used to determine what operations
+            a certificate can be used for.</para>
+      <para>Note: a value of <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.None" /> indicates that
+            there are no restrictions on the use of the
+            <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="CrlSign">

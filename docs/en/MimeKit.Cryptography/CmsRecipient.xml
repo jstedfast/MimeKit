@@ -13,7 +13,12 @@
     <summary>
             An S/MIME recipient.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            If the X.509 certificates are known for each of the recipients, you
+            may wish to use a <see cref="T:MimeKit.Cryptography.CmsRecipient" /> as opposed to having
+            the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> do its own certificate
+            lookups for each <see cref="T:MimeKit.MailboxAddress" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

@@ -62,6 +62,7 @@ namespace MimeKit.Cryptography {
 		/// <value>The key exchange protocol.</value>
 		public abstract string KeyExchangeProtocol { get; }
 
+		#if NOT_YET
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
 		/// certificate retrieval.
@@ -74,6 +75,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The online certificate retrieval timeout.</value>
 		public TimeSpan OnlineCertificateRetrievalTimeout { get; set; }
+		#endif
 
 		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.

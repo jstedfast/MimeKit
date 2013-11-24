@@ -37,6 +37,11 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME signer.
 	/// </summary>
+	/// <remarks>
+	/// If the X.509 certificate is known for the signer, you may wish to use a
+	/// <see cref="CmsSigner"/> as opposed to having the <see cref="CryptographyContext"/>
+	/// do its own certificate lookup for the signer's <see cref="MailboxAddress"/>.
+	/// </remarks>
 	public sealed class CmsSigner
 	{
 		/// <summary>

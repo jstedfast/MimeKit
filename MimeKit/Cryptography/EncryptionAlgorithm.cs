@@ -30,44 +30,56 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// Encryption algorithms supported by S/MIME.
 	/// </summary>
+	/// <remarks>
+	/// <para>Represents the list of available encryption algorithms for use with S/MIME.</para>
+	/// <para>RC-2/40 was required by all S/MIME v2 implementations. However, since the
+	/// mid-to-late 1990's, RC-2/40 has been considered to be extremely weak and starting with
+	/// S/MIME v3.0 (published in 1999), all S/MIME implementations are required to implement
+	/// support for Triple-DES (aka 3DES) and should no longer encrypt using RC-2/40 unless
+	/// explicitly requested to do so by the user.</para>
+	/// <para>These days, most S/MIME implementations support the AES-128 and AES-256
+	/// algorithms which are the recommended algorithms specified in S/MIME v3.2 and
+	/// should be preferred over the use of Triple-DES unless the client capabilities
+	/// of one or more of the recipients is unknown (or only supports Triple-DES).</para>
+	/// </remarks>
 	public enum EncryptionAlgorithm {
 		/// <summary>
-		/// The client supports the AES 128-bit encryption algorithm.
+		/// The AES 128-bit encryption algorithm.
 		/// </summary>
 		Aes128,
 
 		/// <summary>
-		/// The client supports the AES 192-bit encryption algorithm.
+		/// The AES 192-bit encryption algorithm.
 		/// </summary>
 		Aes192,
 
 		/// <summary>
-		/// The client supports the AES 256-bit encryption algorithm.
+		/// The AES 256-bit encryption algorithm.
 		/// </summary>
 		Aes256,
 
 		/// <summary>
-		/// The client supports the Camellia 128-bit encryption algorithm.
+		/// The Camellia 128-bit encryption algorithm.
 		/// </summary>
 		Camellia128,
 
 		/// <summary>
-		/// The client supports the Camellia 192-bit encryption algorithm.
+		/// The Camellia 192-bit encryption algorithm.
 		/// </summary>
 		Camellia192,
 
 		/// <summary>
-		/// The client supports the Camellia 256-bit encryption algorithm.
+		/// The Camellia 256-bit encryption algorithm.
 		/// </summary>
 		Camellia256,
 
 		/// <summary>
-		/// The client supports the Cast-5 128-bit encryption algorithm.
+		/// The Cast-5 128-bit encryption algorithm.
 		/// </summary>
 		Cast5,
 
 		/// <summary>
-		/// The client supports the DES 56-bit encryption algorithm.
+		/// The DES 56-bit encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// This is extremely weak encryption and should not be used
@@ -76,7 +88,7 @@ namespace MimeKit.Cryptography {
 		Des,
 
 		/// <summary>
-		/// The client supports the Triple-DES encryption algorithm.
+		/// The Triple-DES encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// This is the weakest recommended encryption algorithm for use
@@ -87,12 +99,12 @@ namespace MimeKit.Cryptography {
 		TripleDes,
 
 		/// <summary>
-		/// The client supports the IDEA 128-bit encryption algorithm.
+		/// The IDEA 128-bit encryption algorithm.
 		/// </summary>
 		Idea,
 
 		/// <summary>
-		/// The client supports the RC2 40-bit encryption algorithm.
+		/// The RC2 40-bit encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// This is extremely weak encryption and should not be used
@@ -101,7 +113,7 @@ namespace MimeKit.Cryptography {
 		RC240,
 
 		/// <summary>
-		/// The client supports the RC2 64-bit encryption algorithm.
+		/// The RC2 64-bit encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// This is very weak encryption and should not be used
@@ -110,7 +122,7 @@ namespace MimeKit.Cryptography {
 		RC264,
 
 		/// <summary>
-		/// The client supports the RC2 128-bit encryption algorithm.
+		/// The RC2 128-bit encryption algorithm.
 		/// </summary>
 		RC2128,
 	}

@@ -32,6 +32,12 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME recipient.
 	/// </summary>
+	/// <remarks>
+	/// If the X.509 certificates are known for each of the recipients, you
+	/// may wish to use a <see cref="CmsRecipient"/> as opposed to having
+	/// the <see cref="CryptographyContext"/> do its own certificate
+	/// lookups for each <see cref="MailboxAddress"/>.
+	/// </remarks>
 	public sealed class CmsRecipient
 	{
 		/// <summary>

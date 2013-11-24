@@ -60,6 +60,20 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="fileName">The file name.</param>
 		/// <param name="password">The password.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
 		public X509CertificateDatabase (string fileName, string password)
 		{
 			if (fileName == null)
@@ -720,6 +734,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The desired fields.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			if (certificate == null)
@@ -771,7 +788,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the private keys matching the specified selector.
+		/// Finds the private keys matching the specified selector.
 		/// </summary>
 		/// <param name="selector">The selector.</param>
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
@@ -798,12 +815,15 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the records for the specified mailbox that is valid for the given date and time.
+		/// Finds the certificate records for the specified mailbox.
 		/// </summary>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
 		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			if (mailbox == null)
@@ -828,7 +848,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the records matching the specified selector.
+		/// Finds the certificate records matching the specified selector.
 		/// </summary>
 		/// <param name="selector">The selector.</param>
 		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be returned.</param>
@@ -857,9 +877,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Add the specified record.
+		/// Add the specified certificate record.
 		/// </summary>
 		/// <param name="record">The record.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Add (X509CertificateRecord record)
 		{
 			if (record == null)
@@ -871,9 +894,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Remove the specified record.
+		/// Remove the specified certificate record.
 		/// </summary>
 		/// <param name="record">The record.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Remove (X509CertificateRecord record)
 		{
 			if (record == null)
@@ -885,10 +911,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Update the specified record.
+		/// Update the specified certificate record.
 		/// </summary>
 		/// <param name="record">The record.</param>
 		/// <param name="fields">The fields to update.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Update (X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
 			if (record == null)
@@ -900,10 +929,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the certificate revocation lists for the specified issuer.
+		/// Finds the CRL records for the specified issuer.
 		/// </summary>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The desired fields.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="issuer"/> is <c>null</c>.
+		/// </exception>
 		public IEnumerable<X509CrlRecord> Find (X509Name issuer, X509CrlRecordFields fields)
 		{
 			if (issuer == null)
@@ -928,10 +960,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the specified certificate revocation list.
+		/// Finds the specified certificate revocation list.
 		/// </summary>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="fields">The desired fields.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
 		public X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields)
 		{
 			if (crl == null)
@@ -956,9 +991,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Add the specified record.
+		/// Add the specified CRL record.
 		/// </summary>
 		/// <param name="record">The record.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Add (X509CrlRecord record)
 		{
 			if (record == null)
@@ -970,9 +1008,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Remove the specified record.
+		/// Remove the specified CRL record.
 		/// </summary>
 		/// <param name="record">The record.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Remove (X509CrlRecord record)
 		{
 			if (record == null)
@@ -984,9 +1025,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Update the specified record.
+		/// Update the specified CRL record.
 		/// </summary>
 		/// <param name="record">The record.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="record"/> is <c>null</c>.
+		/// </exception>
 		public void Update (X509CrlRecord record)
 		{
 			if (record == null)
@@ -1000,7 +1044,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets a certificate revocation list store.
 		/// </summary>
-		/// <returns>The certificate recovation list store.</returns>
+		/// <returns>A certificate recovation list store.</returns>
 		public IX509Store GetCrlStore ()
 		{
 			var crls = new List<X509Crl> ();
@@ -1042,6 +1086,15 @@ namespace MimeKit.Cryptography {
 
 		#region IDisposable implementation
 
+		/// <summary>
+		/// Releases all resource used by the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose"/> when you are finished using the
+		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/>. The <see cref="Dispose"/> method leaves the
+		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> in an unusable state. After calling
+		/// <see cref="Dispose"/>, you must release all references to the
+		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> so the garbage collector can reclaim the memory that
+		/// the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			if (sqlite != null) {

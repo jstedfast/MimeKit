@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
-		/// The default database path for certificates and keys.
+		/// The default database path for certificates, private keys and CRLs.
 		/// </summary>
 		/// <remarks>
 		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\smime.db</c>.</para>
@@ -83,8 +83,14 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
-		/// An error occurred while reading the file.
+		/// An error occurred reading the file.
 		/// </exception>
 		public DefaultSecureMimeContext (string fileName, string password)
 		{
@@ -110,8 +116,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the database at the default location.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
-		/// An error occurred while reading one of the certificate stores.
+		/// An error occurred reading the database at the default location.
 		/// </exception>
 		public DefaultSecureMimeContext () : this (DefaultDatabasePath, "no.secret")
 		{
@@ -393,6 +402,11 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> object.
+		/// </summary>
+		/// <param name="disposing">If <c>true</c>, this method is being called by
+		/// <see cref="CryptographyContext.Dispose()"/>; otherwise it is being called by the finalizer.</param>
 		protected override void Dispose (bool disposing)
 		{
 			dbase.Dispose ();

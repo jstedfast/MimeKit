@@ -13,7 +13,9 @@
     <summary>
             X509Certificate extension methods.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A collection of useful extension methods for an <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="GetCommonName">
@@ -57,7 +59,10 @@
             Gets the fingerprint of the certificate.
             </summary>
         <returns>The fingerprint.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A fingerprint is a SHA-1 hash of the raw certificate data and is often used
+            as a unique reference to particular certificate in a certificate store.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetIssuerNameInfo">
@@ -81,7 +86,9 @@
             Gets the issuer name info.
             </summary>
         <returns>The issuer name info.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            For a list of available identifiers, see <see cref="T:Org.BouncyCastle.Asn1.X509.X509Name" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetKeyUsageFlags">
@@ -103,7 +110,10 @@
             Gets the key usage flags.
             </summary>
         <returns>The key usage flags.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The X.509 Key Usage Flags are used to determine which operations a certificate
+            may be used for.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSubjectEmailAddress">
@@ -125,7 +135,11 @@
             Gets the subject email address of the certificate.
             </summary>
         <returns>The subject email address.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The email address component of the certificate's Subject identifier is
+            sometimes used as a way of looking up certificates for a particular
+            user if a fingerprint is not available.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSubjectName">
@@ -171,7 +185,9 @@
             Gets the issuer name info.
             </summary>
         <returns>The issuer name info.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            For a list of available identifiers, see <see cref="T:Org.BouncyCastle.Asn1.X509.X509Name" />.
+            </remarks>
       </Docs>
     </Member>
   </Members>
