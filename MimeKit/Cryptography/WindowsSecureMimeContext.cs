@@ -58,6 +58,17 @@ namespace MimeKit.Cryptography {
 		public WindowsSecureMimeContext (StoreLocation location)
 		{
 			StoreLocation = location;
+
+			// System.Security does not support Camellia...
+			Disable (EncryptionAlgorithm.Camellia256);
+			Disable (EncryptionAlgorithm.Camellia192);
+			Disable (EncryptionAlgorithm.Camellia192);
+
+			// ...or CAST5...
+			Disable (EncryptionAlgorithm.Cast5);
+
+			// ...or IDEA...
+			Disable (EncryptionAlgorithm.Idea);
 		}
 
 		/// <summary>
