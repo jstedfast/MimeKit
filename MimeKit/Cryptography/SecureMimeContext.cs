@@ -647,9 +647,8 @@ namespace MimeKit.Cryptography {
 			parameters.AddStore (localCrls);
 			parameters.AddStore (crls);
 
-			// Note: we disable revocation unless we actually have non-empty revocation lists
-			parameters.IsRevocationEnabled = localCrls.GetMatches (null).Count > 0;
 			parameters.ValidityModel = PkixParameters.ChainValidityModel;
+			parameters.IsRevocationEnabled = true;
 
 			if (signingTime.HasValue)
 				parameters.Date = new DateTimeObject (signingTime.Value);
