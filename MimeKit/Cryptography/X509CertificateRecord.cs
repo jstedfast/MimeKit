@@ -40,9 +40,9 @@ namespace MimeKit.Cryptography {
 		PrivateKey        = 1 << 6,
 
 		// helpers
-		TrustedAnchors    = Trusted | Certificate,
 		CmsRecipient      = Algorithms | Certificate,
 		CmsSigner         = Certificate | PrivateKey,
+		PrivateKeyLookup  = Certificate | PrivateKey,
 		UpdateAlgorithms  = Id | Algorithms | AlgorithmsUpdated,
 		ImportPkcs12      = UpdateAlgorithms | Trusted | PrivateKey,
 		All               = 0xff

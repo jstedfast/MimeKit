@@ -392,31 +392,47 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
-		SqliteCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, X509CertificateRecordFields fields)
+		SqliteCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
+			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var command = sqlite.CreateCommand ();
+			var constraints = " WHERE ";
 
-			command.CommandText = query + "WHERE BASICCONSTRAINTS = @BASICCONSTRAINTS AND SUBJECTEMAIL = @SUBJECTEMAIL AND NOTBEFORE < @NOW AND NOTAFTER > @NOW";
 			command.Parameters.AddWithValue ("@BASICCONSTRAINTS", -1);
-			command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
+
+			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
 			command.Parameters.AddWithValue ("@NOW", now);
+
+			if (requirePrivateKey)
+				constraints += "AND PRIVATEKEY NOT NULL ";
+
+			constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
+			command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+
+			command.CommandText = query + constraints;
 			command.CommandType = CommandType.Text;
 
 			return command;
 		}
 
-		SqliteCommand GetSelectCommand (IX509Selector selector, X509CertificateRecordFields fields)
+		SqliteCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var match = selector as X509CertStoreSelector;
 			var command = sqlite.CreateCommand ();
-			var constraints = string.Empty;
+			var constraints = " WHERE ";
+
+			if (trustedOnly) {
+				command.Parameters.AddWithValue ("@TRUSTED", true);
+				constraints += "TRUSTED = @TRUSTED";
+			}
 
 			if (match != null) {
-				constraints = " WHERE ";
-
 				if (match.BasicConstraints != -1) {
+					if (command.Parameters.Count > 0)
+						constraints += " AND ";
+
 					command.Parameters.AddWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
 					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
 				}
@@ -448,9 +464,15 @@ namespace MimeKit.Cryptography {
 					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
 					constraints += "SERIALNUMBER = @SERIALNUMBER";
 				}
+			}
 
-				if (command.Parameters.Count == 0)
-					constraints = string.Empty;
+			if (requirePrivateKey) {
+				if (command.Parameters.Count > 0)
+					constraints += " AND ";
+
+				constraints += "PRIVATEKEY NOT NULL";
+			} else if (command.Parameters.Count == 0) {
+				constraints = string.Empty;
 			}
 
 			command.CommandText = query + constraints;
@@ -722,17 +744,72 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Finds the certificates matching the specified selector.
+		/// </summary>
+		/// <returns>The matching certificates.</returns>
+		/// <param name="selector">The match criteria.</param>
+		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
+		{
+			using (var command = GetSelectCommand (selector, false, false, X509CertificateRecordFields.Certificate)) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					var parser = new X509CertificateParser ();
+					var buffer = new byte[4096];
+
+					while (reader.Read ()) {
+						var record = LoadCertificateRecord (reader, parser, ref buffer);
+						if (selector == null || selector.Match (record.Certificate))
+							yield return record.Certificate;
+					}
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Find the private keys matching the specified selector.
+		/// </summary>
+		/// <param name="selector">The selector.</param>
+		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
+		{
+			using (var command = GetSelectCommand (selector, false, true, X509CertificateRecordFields.PrivateKeyLookup)) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					var parser = new X509CertificateParser ();
+					var buffer = new byte[4096];
+
+					while (reader.Read ()) {
+						var record = LoadCertificateRecord (reader, parser, ref buffer);
+
+						if (selector == null || selector.Match (record.Certificate))
+							yield return record.PrivateKey;
+					}
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			yield break;
+		}
+
+		/// <summary>
 		/// Find the records for the specified mailbox that is valid for the given date and time.
 		/// </summary>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
 
-			using (var command = GetSelectCommand (mailbox, now, fields)) {
+			using (var command = GetSelectCommand (mailbox, now, requirePrivateKey, fields)) {
 				var reader = command.ExecuteReader ();
 
 				try {
@@ -751,13 +828,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Find the records match the specified selector.
+		/// Find the records matching the specified selector.
 		/// </summary>
 		/// <param name="selector">The selector.</param>
+		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedOnly, X509CertificateRecordFields fields)
 		{
-			using (var command = GetSelectCommand (selector, fields | X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (selector, trustedOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				var reader = command.ExecuteReader ();
 
 				try {
@@ -920,34 +998,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets an enumerator of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
-		/// based on the specified selector.
-		/// </summary>
-		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match criteria.</param>
-		public IEnumerable<X509Certificate> GetCertificates (IX509Selector selector)
-		{
-			using (var command = GetSelectCommand (selector, X509CertificateRecordFields.Certificate)) {
-				var reader = command.ExecuteReader ();
-
-				try {
-					var parser = new X509CertificateParser ();
-					var buffer = new byte[4096];
-
-					while (reader.Read ()) {
-						var record = LoadCertificateRecord (reader, parser, ref buffer);
-						if (selector == null || selector.Match (record.Certificate))
-							yield return record.Certificate;
-					}
-				} finally {
-					reader.Close ();
-				}
-			}
-
-			yield break;
-		}
-
-		/// <summary>
 		/// Gets a certificate revocation list store.
 		/// </summary>
 		/// <returns>The certificate recovation list store.</returns>
@@ -985,7 +1035,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match criteria.</param>
 		ICollection IX509Store.GetMatches (IX509Selector selector)
 		{
-			return new List<X509Certificate> (GetCertificates (selector));
+			return new List<X509Certificate> (FindCertificates (selector));
 		}
 
 		#endregion

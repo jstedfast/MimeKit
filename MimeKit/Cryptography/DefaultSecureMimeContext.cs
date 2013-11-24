@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
-			return dbase.GetCertificates (selector).FirstOrDefault ();
+			return dbase.FindCertificates (selector).FirstOrDefault ();
 		}
 
 		/// <summary>
@@ -136,12 +136,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
-			foreach (var record in dbase.Find (selector, X509CertificateRecordFields.PrivateKey)) {
-				if (record.PrivateKey != null)
-					return record.PrivateKey;
-			}
-
-			return null;
+			return dbase.FindPrivateKeys (selector).FirstOrDefault ();
 		}
 
 		/// <summary>
@@ -157,9 +152,8 @@ namespace MimeKit.Cryptography {
 			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
 			selector.KeyUsage = keyUsage;
 
-			foreach (var record in dbase.Find (selector, X509CertificateRecordFields.TrustedAnchors)) {
-				if (record.IsTrusted)
-					anchors.Add (new TrustAnchor (record.Certificate, null));
+			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate)) {
+				anchors.Add (new TrustAnchor (record.Certificate, null));
 			}
 
 			return anchors;
@@ -193,11 +187,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, X509CertificateRecordFields.CmsRecipient)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, X509CertificateRecordFields.CmsRecipient)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
-					continue;
-
-				if (record.SubjectEmail != mailbox.Address)
 					continue;
 
 				var recipient = new CmsRecipient (record.Certificate);
@@ -221,14 +212,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, X509CertificateRecordFields.CmsSigner)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, X509CertificateRecordFields.CmsSigner)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
-					continue;
-
-				if (record.PrivateKey == null)
-					continue;
-
-				if (record.SubjectEmail != mailbox.Address)
 					continue;
 
 				var signer = new CmsSigner (record.Certificate, record.PrivateKey);
