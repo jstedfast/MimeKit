@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.14.0.0">
+    <Assembly Name="MimeKit" Version="0.16.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
@@ -15,10 +15,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.14.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.16.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.14.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.16.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -37,6 +37,9 @@
         </Attribute>
         <Attribute>
           <AttributeName>System.Runtime.InteropServices.Guid("2fe79b66-d107-45da-9493-175f59c4a53c")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.0", FrameworkDisplayName="")</AttributeName>
         </Attribute>
       </Attributes>
     </Assembly>
@@ -113,6 +116,7 @@
       <Type Name="WindowsSecureMimeContext" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
       <Type Name="X509CertificateStore" Kind="Class" />
+      <Type Name="X509KeyUsageFlags" Kind="Enumeration" />
     </Namespace>
     <Namespace Name="MimeKit.Encodings">
       <Type Name="Base64Decoder" Kind="Class" />
@@ -184,6 +188,29 @@
       <Targets>
         <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
       </Targets>
+      <Member MemberName="GetFingerprint">
+        <MemberSignature Language="C#" Value="public static string GetFingerprint (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetFingerprint(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the fingerprint of the certificate.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetFingerprint(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
       <Member MemberName="GetIssuerNameInfo">
         <MemberSignature Language="C#" Value="public static string GetIssuerNameInfo (this Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
         <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIssuerNameInfo(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
@@ -203,6 +230,29 @@
             </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetIssuerNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetKeyUsageFlags">
+        <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.X509KeyUsageFlags GetKeyUsageFlags (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype MimeKit.Cryptography.X509KeyUsageFlags GetKeyUsageFlags(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the key usage flags.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetKeyUsageFlags(Org.BouncyCastle.X509.X509Certificate)" />
       </Member>
     </ExtensionMethod>
     <ExtensionMethod>

@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed EncryptionAlgorithm extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.14.0.0</AssemblyVersion>
+    <AssemblyVersion>0.16.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -20,7 +20,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Aes128 = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -36,7 +36,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Aes192 = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -52,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Aes256 = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -68,7 +68,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Camellia128 = int32(3)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -84,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Camellia192 = int32(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -100,7 +100,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Camellia256 = int32(5)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -116,7 +116,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Cast5 = int32(6)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -132,7 +132,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Des = int32(7)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -152,7 +152,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm Idea = int32(9)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -168,7 +168,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm RC2128 = int32(12)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -184,7 +184,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm RC240 = int32(10)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -204,7 +204,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm RC264 = int32(11)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -224,7 +224,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.EncryptionAlgorithm TripleDes = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>

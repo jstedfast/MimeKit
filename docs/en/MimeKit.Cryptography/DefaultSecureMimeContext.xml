@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi DefaultSecureMimeContext extends MimeKit.Cryptography.SecureMimeContext" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.14.0.0</AssemblyVersion>
+    <AssemblyVersion>0.16.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Cryptography.SecureMimeContext</BaseTypeName>
@@ -11,7 +11,8 @@
   <Interfaces />
   <Docs>
     <summary>
-            A default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> implementation that uses a pkcs12 file as a certificate and private key store.
+            A default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> implementation that uses
+            an SQLite database as a certificate and private key store.
             </summary>
     <remarks>To be added.</remarks>
   </Docs>
@@ -21,7 +22,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -35,38 +36,26 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected DefaultSecureMimeContext (string revokedFileName, string addressbookFileName, string rootFileName, string userFileName, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string revokedFileName, string addressbookFileName, string rootFileName, string userFileName, string password) cil managed" />
+      <MemberSignature Language="C#" Value="public DefaultSecureMimeContext (string fileName, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string fileName, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="revokedFileName" Type="System.String" />
-        <Parameter Name="addressbookFileName" Type="System.String" />
-        <Parameter Name="rootFileName" Type="System.String" />
-        <Parameter Name="userFileName" Type="System.String" />
+        <Parameter Name="fileName" Type="System.String" />
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="revokedFileName">The path to the revoked certificate lists.</param>
-        <param name="addressbookFileName">The path to the addressbook certificates.</param>
-        <param name="rootFileName">The path to the root certificates.</param>
-        <param name="userFileName">The path to the pkcs12-formatted user certificates.</param>
-        <param name="password">The password for the pkcs12 user certificates file.</param>
+        <param name="fileName">The path to the SQLite database.</param>
+        <param name="password">The password for SQLite database.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="addressbookFileName" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="rootFileName" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="userFileName" /> is <c>null</c>.</para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="password" /> is <c>null</c>.</para>
@@ -76,84 +65,43 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="DefaultAddressBookCertificatesPath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultAddressBookCertificatesPath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultAddressBookCertificatesPath" />
+    <Member MemberName="DefaultDatabasePath">
+      <MemberSignature Language="C#" Value="protected static readonly string DefaultDatabasePath;" />
+      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultDatabasePath" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            The default store path for certificates belonging to people in the user's addressbook.
+            The default database path for certificates and keys.
             </summary>
         <remarks>
-          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\addressbook.crt</c>.</para>
-          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/addressbook.crt</c>.</para>
+          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\smime.db</c>.</para>
+          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/smime.db</c>.</para>
         </remarks>
       </Docs>
     </Member>
-    <Member MemberName="DefaultCertificateRevocationListsPath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultCertificateRevocationListsPath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultCertificateRevocationListsPath" />
-      <MemberType>Field</MemberType>
+    <Member MemberName="Dispose">
+      <MemberSignature Language="C#" Value="protected override void Dispose (bool disposing);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Dispose(bool disposing) cil managed" />
+      <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.String</ReturnType>
+        <ReturnType>System.Void</ReturnType>
       </ReturnValue>
+      <Parameters>
+        <Parameter Name="disposing" Type="System.Boolean" />
+      </Parameters>
       <Docs>
-        <summary>
-            The default path for the Certificate Revocation Lists (CRLs).
-            </summary>
-        <remarks>
-          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\revoked.crl</c>.</para>
-          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/revoked.crl</c>.</para>
-        </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="DefaultRootCertificatesPath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultRootCertificatesPath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultRootCertificatesPath" />
-      <MemberType>Field</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            The default store path for root (CA) certificates.
-            </summary>
-        <remarks>
-          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\root.crt</c>.</para>
-          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/root.crt</c>.</para>
-        </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="DefaultUserCertificatesPath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultUserCertificatesPath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultUserCertificatesPath" />
-      <MemberType>Field</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            The default store path for user certificates and keys.
-            </summary>
-        <remarks>
-          <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\user.p12</c>.</para>
-          <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/user.p12</c>.</para>
-        </remarks>
+        <param name="disposing">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificate">
@@ -161,7 +109,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.X509Certificate GetCertificate(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -183,7 +131,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -202,7 +150,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsRecipient GetCmsRecipient(class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsRecipient</ReturnType>
@@ -227,7 +175,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsSigner GetCmsSigner(class MimeKit.MailboxAddress mailbox, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsSigner</ReturnType>
@@ -254,7 +202,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -273,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -295,7 +243,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Utilities.Collections.HashSet</ReturnType>
@@ -314,7 +262,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -338,7 +286,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Crl crl) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -358,11 +306,38 @@
       </Docs>
     </Member>
     <Member MemberName="Import">
+      <MemberSignature Language="C#" Value="public void Import (System.IO.Stream stream, bool trusted);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class System.IO.Stream stream, bool trusted) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="trusted" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The raw certificate(s).</param>
+        <param name="trusted">
+          <c>true</c> if the certificates are trusted.</param>
+        <summary>
+            Imports a DER-encoded certificate stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Import">
       <MemberSignature Language="C#" Value="public override void Import (System.IO.Stream stream, string password);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -398,7 +373,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, valuetype System.DateTime timestamp) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

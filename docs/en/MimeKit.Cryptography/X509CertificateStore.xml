@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CertificateStore extends System.Object implements class Org.BouncyCastle.X509.Store.IX509Store" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.14.0.0</AssemblyVersion>
+    <AssemblyVersion>0.16.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -25,7 +25,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -40,7 +40,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -64,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddRange(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; certificates) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -88,7 +88,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; Certificates" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
@@ -106,7 +106,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -133,7 +133,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -172,7 +172,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(class System.IO.Stream stream, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -205,7 +205,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Export(string fileName, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -250,7 +250,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
@@ -273,7 +273,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -295,7 +295,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(unsigned int8[] rawData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -319,7 +319,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -346,7 +346,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -376,7 +376,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(unsigned int8[] rawData, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -406,7 +406,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class System.IO.Stream stream, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -439,7 +439,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(string fileName, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -481,7 +481,7 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.ICollection Org.BouncyCastle.X509.Store.IX509Store.GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.ICollection</ReturnType>
@@ -504,7 +504,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Remove(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -528,7 +528,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveRange(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; certificates) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.14.0.0</AssemblyVersion>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
