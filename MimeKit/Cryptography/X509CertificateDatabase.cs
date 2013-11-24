@@ -33,12 +33,14 @@ using System.Collections.Generic;
 
 using Mono.Data.Sqlite;
 
-using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -46,7 +48,12 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	class X509CertificateDatabase : IDisposable, IX509Store
 	{
+		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
+		const int MinIterations = 1024;
+		const int SaltSize = 20;
+
 		SqliteConnection sqlite;
+		readonly char[] passwd;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> class.
@@ -69,6 +76,7 @@ namespace MimeKit.Cryptography {
 			sqlite = new SqliteConnection (builder.ConnectionString);
 			sqlite.Open ();
 
+			passwd = password.ToCharArray ();
 			CreateCertificatesTable ();
 			CreateCrlsTable ();
 		}
@@ -85,7 +93,7 @@ namespace MimeKit.Cryptography {
 			return (int) reader.GetBytes (column, 0, buffer, 0, (int) nread);
 		}
 
-		static X509Certificate DecodeX509Certificate (SqliteDataReader reader, X509CertificateParser parser, int column, ref byte[] buffer)
+		static X509Certificate DecodeCertificate (SqliteDataReader reader, X509CertificateParser parser, int column, ref byte[] buffer)
 		{
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
@@ -103,169 +111,75 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static BigInteger DecodeBigInteger (byte[] buffer, ref int index)
+		byte[] EncryptAsymmetricKeyParameter (AsymmetricKeyParameter key)
 		{
-			int length = DecodeInt16 (buffer, ref index);
-			int offset = index;
+			var cipher = PbeUtilities.CreateEngine (KeyAlgorithm.Id) as IBufferedCipher;
+			var keyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo (key);
+			var random = new SecureRandom ();
+			var salt = new byte[SaltSize];
 
-			index += length;
+			if (cipher == null)
+				throw new Exception ("Unknown encryption algorithm: " + KeyAlgorithm.Id);
 
-			return new BigInteger (buffer, offset, length);
+			random.NextBytes (salt);
+
+			var pbeParameters = PbeUtilities.GenerateAlgorithmParameters (KeyAlgorithm.Id, salt, MinIterations);
+			var algorithm = new AlgorithmIdentifier (KeyAlgorithm, pbeParameters);
+			var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
+
+			cipher.Init (true, cipherParameters);
+
+			var encoded = cipher.DoFinal (keyInfo.GetEncoded ());
+
+			var encrypted = new EncryptedPrivateKeyInfo (algorithm, encoded);
+
+			return encrypted.GetEncoded ();
 		}
 
-		static void EncodeBigInteger (BigInteger value, Stream stream)
+		AsymmetricKeyParameter DecryptAsymmetricKeyParameter (byte[] buffer, int length)
 		{
-			var bytes = value.ToByteArray ();
-			EncodeInt16 (bytes.Length, stream);
-			stream.Write (bytes, 0, bytes.Length);
-		}
+			using (var memory = new MemoryStream (buffer, 0, length, false)) {
+				using (var asn1 = new Asn1InputStream (memory)) {
+					var sequence = asn1.ReadObject () as Asn1Sequence;
+					if (sequence == null)
+						return null;
 
-		static int DecodeInt16 (byte[] buffer, ref int index)
-		{
-			return ((int) buffer[index++] << 8) | (int) buffer[index++];
-		}
+					var encrypted = EncryptedPrivateKeyInfo.GetInstance (sequence);
+					var algorithm = encrypted.EncryptionAlgorithm;
+					var encoded = encrypted.GetEncryptedData ();
 
-		static void EncodeInt16 (int value, Stream stream)
-		{
-			stream.WriteByte ((byte) ((value >> 8) & 0xff));
-			stream.WriteByte ((byte) (value & 0xff));
-		}
+					var cipher = PbeUtilities.CreateEngine (algorithm) as IBufferedCipher;
+					if (cipher == null)
+						return null;
 
-		static int DecodeInt32 (byte[] buffer, ref int index)
-		{
-			int value = ((int) buffer[index++]) << 24;
-			value |= ((int) buffer[index++]) << 16;
-			value |= ((int) buffer[index++]) << 8;
-			value |= (int) buffer[index++];
-			return value;
-		}
+					var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
 
-		static void EncodeInt32 (int value, Stream stream)
-		{
-			stream.WriteByte ((byte) ((value >> 24) & 0xff));
-			stream.WriteByte ((byte) ((value >> 16) & 0xff));
-			stream.WriteByte ((byte) ((value >> 8) & 0xff));
-			stream.WriteByte ((byte) (value & 0xff));
-		}
+					cipher.Init (false, cipherParameters);
 
-		enum PrivateKeyType : byte {
-			DiffieHellman,
-			Dsa,
-			Rsa
-		}
+					var decrypted = cipher.DoFinal (encoded);
+					var keyInfo = PrivateKeyInfo.GetInstance (decrypted);
 
-		static DHPrivateKeyParameters DecodePrivateDiffieHellmanKey (byte[] buffer, int length)
-		{
-			int index = 1;
-
-			var x = DecodeBigInteger (buffer, ref index);
-			var p = DecodeBigInteger (buffer, ref index);
-			var g = DecodeBigInteger (buffer, ref index);
-			var q = DecodeBigInteger (buffer, ref index);
-			var m = DecodeInt32 (buffer, ref index);
-			var l = DecodeInt32 (buffer, ref index);
-			var j = DecodeBigInteger (buffer, ref index);
-			var c = DecodeInt32 (buffer, ref index);
-			var s = new byte[length - index];
-
-			for (int i = 0; i < s.Length; i++)
-				s[i] = buffer[index++];
-
-			var validation = new DHValidationParameters (s, c);
-			var param = new DHParameters (p, g, q, m, l, j, validation);
-
-			return new DHPrivateKeyParameters (x, param);
-		}
-
-		static void EncodePrivateDiffieHellmanKey (DHPrivateKeyParameters key, Stream stream)
-		{
-			stream.WriteByte ((byte) PrivateKeyType.DiffieHellman);
-			EncodeBigInteger (key.X, stream);
-			EncodeBigInteger (key.Parameters.P, stream);
-			EncodeBigInteger (key.Parameters.G, stream);
-			EncodeBigInteger (key.Parameters.Q, stream);
-			EncodeInt32 (key.Parameters.M, stream);
-			EncodeInt32 (key.Parameters.L, stream);
-			EncodeBigInteger (key.Parameters.J, stream);
-			EncodeInt32 (key.Parameters.ValidationParameters.Counter, stream);
-			var seed = key.Parameters.ValidationParameters.GetSeed ();
-			stream.Write (seed, 0, seed.Length);
-		}
-
-		static DsaPrivateKeyParameters DecodePrivateDsaKey (byte[] buffer, int length)
-		{
-			int index = 1;
-
-			var x = DecodeBigInteger (buffer, ref index);
-			var p = DecodeBigInteger (buffer, ref index);
-			var q = DecodeBigInteger (buffer, ref index);
-			var g = DecodeBigInteger (buffer, ref index);
-
-			var param = new DsaParameters (p, q, g);
-
-			return new DsaPrivateKeyParameters (x, param);
-		}
-
-		static void EncodePrivateDsaKey (DsaPrivateKeyParameters key, Stream stream)
-		{
-			stream.WriteByte ((byte) PrivateKeyType.Dsa);
-			EncodeBigInteger (key.X, stream);
-			EncodeBigInteger (key.Parameters.P, stream);
-			EncodeBigInteger (key.Parameters.Q, stream);
-			EncodeBigInteger (key.Parameters.G, stream);
-		}
-
-		static RsaKeyParameters DecodePrivateRsaKey (byte[] buffer, int length)
-		{
-			int index = 1;
-
-			var m = DecodeBigInteger (buffer, ref index);
-			var e = DecodeBigInteger (buffer, ref index);
-
-			return new RsaKeyParameters (true, m, e);
-		}
-
-		static void EncodePrivateRsaKey (RsaKeyParameters key, Stream stream)
-		{
-			stream.WriteByte ((byte) PrivateKeyType.Rsa);
-			EncodeBigInteger (key.Modulus, stream);
-			EncodeBigInteger (key.Exponent, stream);
-		}
-
-		static byte[] EncodePrivateKey (AsymmetricKeyParameter key)
-		{
-			if (key == null)
-				return null;
-
-			using (var memory = new MemoryStream ()) {
-				if (key is DHPrivateKeyParameters)
-					EncodePrivateDiffieHellmanKey ((DHPrivateKeyParameters) key, memory);
-				else if (key is DsaPrivateKeyParameters)
-					EncodePrivateDsaKey ((DsaPrivateKeyParameters) key, memory);
-				else if (key is RsaKeyParameters)
-					EncodePrivateRsaKey ((RsaKeyParameters) key, memory);
-
-				return memory.ToArray ();
+					return PrivateKeyFactory.CreateKey (keyInfo);
+				}
 			}
 		}
 
-		static AsymmetricKeyParameter DecodeAsymmetricKeyParameter (SqliteDataReader reader, int column, ref byte[] buffer)
+		AsymmetricKeyParameter DecodePrivateKey (SqliteDataReader reader, int column, ref byte[] buffer)
 		{
 			if (reader.IsDBNull (column))
 				return null;
 
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
-			switch ((PrivateKeyType) buffer[0]) {
-			case PrivateKeyType.DiffieHellman:
-				return DecodePrivateDiffieHellmanKey (buffer, nread);
-			case PrivateKeyType.Dsa:
-				return DecodePrivateDsaKey (buffer, nread);
-			case PrivateKeyType.Rsa:
-				return DecodePrivateRsaKey (buffer, nread);
-			default:
-				throw new ArgumentOutOfRangeException ();
-			}
+			return DecryptAsymmetricKeyParameter (buffer, nread);
+		}
+
+		byte[] EncodePrivateKey (AsymmetricKeyParameter key)
+		{
+			if (key == null)
+				return null;
+
+			return EncryptAsymmetricKeyParameter (key);
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (SqliteDataReader reader, int column)
@@ -298,17 +212,17 @@ namespace MimeKit.Cryptography {
 			return string.Join (",", tokens);
 		}
 
-		static X509CertificateRecord LoadCertificateRecord (SqliteDataReader reader, X509CertificateParser parser, ref byte[] buffer)
+		X509CertificateRecord LoadCertificateRecord (SqliteDataReader reader, X509CertificateParser parser, ref byte[] buffer)
 		{
 			var record = new X509CertificateRecord ();
 
 			for (int i = 0; i < reader.FieldCount; i++) {
 				switch (reader.GetName (i)) {
 				case "CERTIFICATE":
-					record.Certificate = DecodeX509Certificate (reader, parser, i, ref buffer);
+					record.Certificate = DecodeCertificate (reader, parser, i, ref buffer);
 					break;
 				case "PRIVATEKEY":
-					record.PrivateKey = DecodeAsymmetricKeyParameter (reader, i, ref buffer);
+					record.PrivateKey = DecodePrivateKey (reader, i, ref buffer);
 					break;
 				case "ALGORITHMS":
 					record.Algorithms = DecodeEncryptionAlgorithms (reader, i);
@@ -328,7 +242,7 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
-		static X509CrlRecord LoadCrlRecord (SqliteDataReader reader, X509CrlParser parser, ref byte[] buffer)
+		X509CrlRecord LoadCrlRecord (SqliteDataReader reader, X509CrlParser parser, ref byte[] buffer)
 		{
 			var record = new X509CrlRecord ();
 
@@ -581,7 +495,7 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
-		static object GetValue (X509CertificateRecord record, string columnName)
+		object GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
 			case "ID": return record.Id;
