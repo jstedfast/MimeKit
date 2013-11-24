@@ -87,6 +87,10 @@
     <None Include="TestData\smime\StartComCertificationAuthority.crt" />
     <None Include="TestData\smime\StartComClass1PrimaryIntermediateClientCA.crt" />
     <None Include="TestData\smime\thunderbird-signed.txt" />
+    <None Include="..\lib\sqlite3.dll">
+      <Link>sqlite3.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestData\" />
@@ -100,8 +104,8 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  -->
   <Target Name="AfterBuild">
     <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
   </Target>
+  -->
 </Project>
