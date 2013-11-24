@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.15.0.0</version>
+        <version>0.16.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -18,9 +18,9 @@ MimeKit's parser also uses a real tokenizer when parsing the headers rather than
 
 In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added support for loading and saving CRLs.
-* Added support for parsing S/MIME Capabilities (used for determining which encryption algorithm to use)
-* Implemented logic for choosing the encryption algorithm based on the capabilities of the recipient clients.</releaseNotes>
+        <releaseNotes>* Implemented an SQLite database for storing certificates, CRLs, (encrypted) private keys, and other metdata needed for determining which clients support which sets of encryption algorithms.
+* Re-implemented the DefaultSecureMimeContext to use this database instead of a mess of files.
+* Disabled the Camellia-256/192/128, CAST-5, and IDEA algorithms for the WindowsSecureMimeContext since System.Security does not support those algorithms.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
         <tags>mime security smime openpgp pgp mbox email parser xamarin android ios</tags>
@@ -44,11 +44,11 @@ In addition to having a far superior parser implementation, MimeKit's object tre
         <file src="MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.iOS.dll" target="lib\MonoTouch\BouncyCastle.iOS.dll" />
         <file src="MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.dll" target="lib\MonoTouch\MimeKit.iOS.dll" />
         <file src="MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.xml" target="lib\MonoTouch\MimeKit.iOS.xml" />
-        <file src="MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
         <file src="MimeKit\bin\Release\lib\net40\BouncyCastle.dll" target="lib\net40\BouncyCastle.dll" />
         <file src="MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
         <file src="MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
         <file src="MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
+        <file src="MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
         <file src="lib\sqlite3.dll" target="lib\net40\sqlite3.dll" />
     </files>
 </package>
