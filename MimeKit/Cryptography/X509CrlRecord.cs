@@ -29,6 +29,20 @@ using System;
 using Org.BouncyCastle.X509;
 
 namespace MimeKit.Cryptography {
+	[Flags]
+	enum X509CrlRecordFields {
+		Id                = 1 << 0,
+		IsDelta           = 1 << 1,
+		IssuerName        = 1 << 2,
+		ThisUpdate        = 1 << 3,
+		NextUpdate        = 1 << 4,
+		Crl               = 1 << 5,
+
+		// helpers
+		AllExeptCrl       = All & ~Crl,
+		All               = 0xff
+	}
+
 	/// <summary>
 	/// An X.509 Certificate Revocation List (CRL) record.
 	/// </summary>
@@ -36,6 +50,7 @@ namespace MimeKit.Cryptography {
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",
+			"DELTA",
 			"ISSUERNAME",
 			"THISUPDATE",
 			"NEXTUPDATE",
@@ -49,29 +64,28 @@ namespace MimeKit.Cryptography {
 		public int Id { get; internal set; }
 
 		/// <summary>
+		/// Gets whether or not this certificate revocation list is a delta.
+		/// </summary>
+		/// <value><c>true</c> if th crl is delta; otherwise, <c>false</c>.</value>
+		public bool IsDelta { get; internal set; }
+
+		/// <summary>
 		/// Gets the certificate issuer's name.
 		/// </summary>
 		/// <value>The issuer's name.</value>
-		public string IssuerName { get { return Crl.IssuerDN.ToString (); } }
+		public string IssuerName { get; internal set; }
 
 		/// <summary>
 		/// Gets the date and time of the most recent update.
 		/// </summary>
 		/// <value>The date and time.</value>
-		public DateTime ThisUpdate { get { return Crl.ThisUpdate; } }
+		public DateTime ThisUpdate { get; internal set; }
 
 		/// <summary>
 		/// Gets the end date and time where the certificate is valid.
 		/// </summary>
 		/// <value>The date and time.</value>
-		public DateTime NextUpdate {
-			get {
-				if (Crl.NextUpdate == null)
-					return DateTime.MinValue;
-
-				return Crl.NextUpdate.Value;
-			}
-		}
+		public DateTime NextUpdate { get; internal set; }
 
 		/// <summary>
 		/// Gets the certificate revocation list.
@@ -88,6 +102,12 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
+			if (crl.NextUpdate != null)
+				NextUpdate = crl.NextUpdate.Value;
+
+			IssuerName = crl.IssuerDN.ToString ();
+			ThisUpdate = crl.ThisUpdate;
+			IsDelta = crl.IsDelta ();
 			Crl = crl;
 		}
 

@@ -158,5 +158,12 @@ namespace MimeKit.Cryptography {
 		{
 			return GetKeyUsageFlags (certificate.GetKeyUsage ());
 		}
+
+		internal static bool IsDelta (this X509Crl crl)
+		{
+			var critical = crl.GetCriticalExtensionOids ();
+
+			return critical.Contains (X509Extensions.DeltaCrlIndicator.Id);
+		}
 	}
 }

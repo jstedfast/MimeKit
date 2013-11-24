@@ -292,14 +292,30 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			var record = dbase.Find (crl);
-			if (record == null) {
-				record = new X509CrlRecord (crl);
-				dbase.Add (record);
-			} else if (crl.ThisUpdate > record.ThisUpdate) {
-				record.Crl = crl;
-				dbase.Update (record);
+			// check for an exact match...
+			if (dbase.Find (crl, X509CrlRecordFields.Id) != null)
+				return;
+
+			var obsolete = new List<X509CrlRecord> ();
+			var delta = crl.IsDelta ();
+
+			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
+			// older CRLs or if there are any newer CRLs that obsolete that obsolete this one.
+			foreach (var record in dbase.Find (crl.IssuerDN, X509CrlRecordFields.AllExeptCrl)) {
+				if (!record.IsDelta && record.ThisUpdate >= crl.ThisUpdate) {
+					// we have a complete CRL that obsoletes this CRL
+					return;
+				}
+
+				if (!delta)
+					obsolete.Add (record);
 			}
+
+			// remove any obsoleted CRLs
+			foreach (var record in obsolete)
+				dbase.Remove (record);
+
+			dbase.Add (new X509CrlRecord (crl));
 		}
 
 		/// <summary>

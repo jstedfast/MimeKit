@@ -251,6 +251,15 @@ namespace MimeKit.Cryptography {
 				case "CRL":
 					record.Crl = DecodeX509Crl (reader, parser, i, ref buffer);
 					break;
+				case "THISUPDATE":
+					record.ThisUpdate = reader.GetDateTime (i);
+					break;
+				case "NEXTUPDATE":
+					record.NextUpdate = reader.GetDateTime (i);
+					break;
+				case "DELTA":
+					record.IsDelta = reader.GetBoolean (i);
+					break;
 				case "ID":
 					record.Id = reader.GetInt32 (i);
 					break;
@@ -319,6 +328,7 @@ namespace MimeKit.Cryptography {
 				statement.Append (columns[i] + " ");
 				switch (columns[i]) {
 				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
+				case "DELTA" : statement.Append ("INTEGER NOT NULL"); break;
 				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
 				case "THISUPDATE": statement.Append ("INTEGER NOT NULL"); break;
 				case "NEXTUPDATE": statement.Append ("INTEGER NOT NULL"); break;
@@ -449,15 +459,51 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
-		SqliteCommand GetSelectCommand (X509Crl crl)
+		static string[] GetColumnNames (X509CrlRecordFields fields)
 		{
-			var query = "SELECT ID, CRL FROM CRLS ";
+			if (fields == X509CrlRecordFields.All)
+				return new string[] { "*" };
+
+			var columns = new List<string> ();
+
+			if ((fields & X509CrlRecordFields.Id) != 0)
+				columns.Add ("ID");
+			if ((fields & X509CrlRecordFields.IsDelta) != 0)
+				columns.Add ("DELTA");
+			if ((fields & X509CrlRecordFields.IssuerName) != 0)
+				columns.Add ("ISSUERNAME");
+			if ((fields & X509CrlRecordFields.ThisUpdate) != 0)
+				columns.Add ("THISUPDATE");
+			if ((fields & X509CrlRecordFields.NextUpdate) != 0)
+				columns.Add ("NEXTUPDATE");
+			if ((fields & X509CrlRecordFields.Crl) != 0)
+				columns.Add ("CRL");
+
+			return columns.ToArray ();
+		}
+
+		SqliteCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields)
+		{
+			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
+			var command = sqlite.CreateCommand ();
+
+			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME";
+			command.Parameters.AddWithValue ("@ISSUERNAME", issuer.ToString ());
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		SqliteCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields)
+		{
+			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
 			var issuerName = crl.IssuerDN.ToString ();
 			var command = sqlite.CreateCommand ();
 
-			// FIXME: can we depend on the issuer name as being unique?
-			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME LIMIT 1";
+			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
+			command.Parameters.AddWithValue ("@DELTA", crl.IsDelta ());
 			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
+			command.Parameters.AddWithValue ("@THISUPDATE", crl.ThisUpdate);
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -520,6 +566,7 @@ namespace MimeKit.Cryptography {
 		{
 			switch (columnName) {
 			case "ID": return record.Id;
+			case "DELTA": return record.IsDelta;
 			case "ISSUERNAME": return record.IssuerName;
 			case "THISUPDATE": return record.ThisUpdate;
 			case "NEXTUPDATE": return record.NextUpdate;
@@ -692,8 +739,9 @@ namespace MimeKit.Cryptography {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
-					while (reader.Read ())
+					while (reader.Read ()) {
 						yield return LoadCertificateRecord (reader, parser, ref buffer);
+					}
 				} finally {
 					reader.Close ();
 				}
@@ -774,15 +822,44 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Find the certificate revocation lists for the specified issuer.
+		/// </summary>
+		/// <param name="issuer">The issuer.</param>
+		/// <param name="fields">The desired fields.</param>
+		public IEnumerable<X509CrlRecord> Find (X509Name issuer, X509CrlRecordFields fields)
+		{
+			if (issuer == null)
+				throw new ArgumentNullException ("issuer");
+
+			using (var command = GetSelectCommand (issuer, fields)) {
+				var reader = command.ExecuteReader ();
+
+				try {
+					var parser = new X509CrlParser ();
+					var buffer = new byte[4096];
+
+					while (reader.Read ()) {
+						yield return LoadCrlRecord (reader, parser, ref buffer);
+					}
+				} finally {
+					reader.Close ();
+				}
+			}
+
+			yield break;
+		}
+
+		/// <summary>
 		/// Find the specified certificate revocation list.
 		/// </summary>
 		/// <param name="crl">The certificate revocation list.</param>
-		public X509CrlRecord Find (X509Crl crl)
+		/// <param name="fields">The desired fields.</param>
+		public X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields)
 		{
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			using (var command = GetSelectCommand (crl)) {
+			using (var command = GetSelectCommand (crl, fields)) {
 				var reader = command.ExecuteReader ();
 
 				try {
