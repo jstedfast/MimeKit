@@ -939,6 +939,32 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="TryGetEncryptionAlgorithm">
+      <MemberSignature Language="C#" Value="protected static bool TryGetEncryptionAlgorithm (Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier identifier, out MimeKit.Cryptography.EncryptionAlgorithm algorithm);" />
+      <MemberSignature Language="ILAsm" Value=".method familystatic hidebysig bool TryGetEncryptionAlgorithm(class Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier identifier, valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier" />
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="identifier">The algorithm identifier.</param>
+        <param name="algorithm">The encryption algorithm.</param>
+        <summary>
+            Attempts to map a <see cref="T:Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier" />
+            to a <see cref="T:MimeKit.Cryptography.EncryptionAlgorithm" />.
+            </summary>
+        <returns>
+          <c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="UpdateSecureMimeCapabilities">
       <MemberSignature Language="C#" Value="protected abstract void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, DateTime timestamp);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, valuetype System.DateTime timestamp) cil managed" />

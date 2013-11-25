@@ -31,6 +31,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
@@ -202,6 +203,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
+			// FIXME: need to keep track of CRLs
 			var crls = new List<X509Crl> ();
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
@@ -235,6 +237,29 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}
 
+		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		{
+			using (var memory = new MemoryStream (rawData, false)) {
+				using (var asn1 = new Asn1InputStream (memory)) {
+					var algorithms = new List<EncryptionAlgorithm> ();
+					var sequence = asn1.ReadObject () as Asn1Sequence;
+
+					if (sequence == null)
+						return null;
+
+					for (int i = 0; i < sequence.Count; i++) {
+						var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence[i]);
+						EncryptionAlgorithm algorithm;
+
+						if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+							algorithms.Add (algorithm);
+					}
+
+					return algorithms.ToArray ();
+				}
+			}
+		}
+
 		/// <summary>
 		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
@@ -247,7 +272,20 @@ namespace MimeKit.Cryptography {
 		{
 			var certificate = GetCmsRecipientCertificate (mailbox);
 			var cert = DotNetUtilities.FromX509Certificate (certificate);
-			return new CmsRecipient (cert);
+			var recipient = new CmsRecipient (cert);
+
+			foreach (var extension in certificate.Extensions) {
+				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
+					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
+
+					if (algorithms != null)
+						recipient.EncryptionAlgorithms = algorithms;
+
+					break;
+				}
+			}
+
+			return recipient;
 		}
 
 		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
@@ -331,7 +369,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="timestamp">The timestamp.</param>
 		protected override void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			// FIXME: implement this
+			// FIXME: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
 		byte[] ReadAllBytes (Stream stream)

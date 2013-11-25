@@ -14,7 +14,7 @@
             An exception that is thrown when an error occurrs in <see cref="M:MimeKit.Cryptography.IDigitalSignature.Verify" />.
             </summary>
     <remarks>
-            For more information about the error condition, check the <see cref="!:InnerException" /> property.
+            For more information about the error condition, check the <see cref="P:System.Exception.InnerException" /> property.
             </remarks>
   </Docs>
   <Members />

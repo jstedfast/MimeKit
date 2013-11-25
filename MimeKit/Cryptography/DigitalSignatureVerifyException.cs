@@ -31,7 +31,7 @@ namespace MimeKit.Cryptography {
 	/// An exception that is thrown when an error occurrs in <see cref="IDigitalSignature.Verify"/>.
 	/// </summary>
 	/// <remarks>
-	/// For more information about the error condition, check the <see cref="InnerException"/> property.
+	/// For more information about the error condition, check the <see cref="System.Exception.InnerException"/> property.
 	/// </remarks>
 	public class DigitalSignatureVerifyException : Exception
 	{

@@ -30,11 +30,13 @@ using System.Linq;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
@@ -186,6 +188,29 @@ namespace MimeKit.Cryptography {
 			return dbase.GetCrlStore ();
 		}
 
+		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		{
+			using (var memory = new MemoryStream (rawData, false)) {
+				using (var asn1 = new Asn1InputStream (memory)) {
+					var algorithms = new List<EncryptionAlgorithm> ();
+					var sequence = asn1.ReadObject () as Asn1Sequence;
+
+					if (sequence == null)
+						return null;
+
+					for (int i = 0; i < sequence.Count; i++) {
+						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
+						EncryptionAlgorithm algorithm;
+
+						if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+							algorithms.Add (algorithm);
+					}
+
+					return algorithms.ToArray ();
+				}
+			}
+		}
+
 		/// <summary>
 		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
@@ -201,8 +226,17 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var recipient = new CmsRecipient (record.Certificate);
-				if (record.Algorithms != null)
+				if (record.Algorithms == null) {
+					var capabilities = record.Certificate.GetExtensionValue (SmimeAttributes.SmimeCapabilities);
+					if (capabilities != null) {
+						var algorithms = DecodeEncryptionAlgorithms (capabilities.GetOctets ());
+
+						if (algorithms != null)
+							recipient.EncryptionAlgorithms = algorithms;
+					}
+				} else {
 					recipient.EncryptionAlgorithms = record.Algorithms;
+				}
 
 				return recipient;
 			}

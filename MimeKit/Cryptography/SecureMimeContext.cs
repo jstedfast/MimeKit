@@ -658,7 +658,14 @@ namespace MimeKit.Cryptography {
 			return result.CertPath;
 		}
 
-		bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
+		/// <summary>
+		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
+		/// to a <see cref="EncryptionAlgorithm"/>.
+		/// </summary>
+		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
+		/// <param name="identifier">The algorithm identifier.</param>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
 			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc) {
 				algorithm = EncryptionAlgorithm.Aes256;

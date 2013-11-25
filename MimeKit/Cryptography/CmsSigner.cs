@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			var flags = Certificate.GetKeyUsageFlags ();
+			var flags = certificate.GetKeyUsageFlags ();
 			if (flags != X509KeyUsageFlags.None && (flags & X509KeyUsageFlags.DigitalSignature) == 0)
 				throw new ArgumentException ("The certificate cannot be used for signing.", "certificate");
 
