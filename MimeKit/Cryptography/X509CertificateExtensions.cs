@@ -119,7 +119,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// A fingerprint is a SHA-1 hash of the raw certificate data and is often used
-		/// as a unique reference to particular certificate in a certificate store.
+		/// as a unique identifier for a particular certificate in a certificate store.
 		/// </remarks>
 		/// <returns>The fingerprint.</returns>
 		/// <param name="certificate">The certificate.</param>
@@ -134,7 +134,7 @@ namespace MimeKit.Cryptography {
 			sha1.DoFinal (data, 0);
 
 			for (int i = 0; i < data.Length; i++)
-				fingerprint.Append (data[i].ToString ("X2"));
+				fingerprint.Append (data[i].ToString ("x2"));
 
 			return fingerprint.ToString ();
 		}

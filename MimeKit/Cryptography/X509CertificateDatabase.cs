@@ -302,8 +302,8 @@ namespace MimeKit.Cryptography {
 				case "NOTAFTER": statement.Append ("INTEGER NOT NULL"); break;
 				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
 				case "SERIALNUMBER": statement.Append ("TEXT NOT NULL"); break;
-				case "SUBJECTEMAIL": statement.Append ("TEXT"); break;
-				case "FINGERPRINT": statement.Append ("TEXT NOT NULL"); break;
+				case "SUBJECTEMAIL": statement.Append ("TEXT COLLATE NOCASE"); break;
+				case "FINGERPRINT": statement.Append ("TEXT COLLATE NOCASE NOT NULL"); break;
 				case "ALGORITHMS": statement.Append ("TEXT"); break;
 				case "ALGORITHMSUPDATED": statement.Append ("INTEGER NOT NULL"); break;
 				case "CERTIFICATE": statement.Append ("BLOB UNIQUE NOT NULL"); break;
@@ -409,6 +409,7 @@ namespace MimeKit.Cryptography {
 		SqliteCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
+			var secure = mailbox as SecureMailboxAddress;
 			var command = sqlite.CreateCommand ();
 			var constraints = " WHERE ";
 
@@ -421,8 +422,18 @@ namespace MimeKit.Cryptography {
 			if (requirePrivateKey)
 				constraints += "AND PRIVATEKEY NOT NULL ";
 
-			constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
-			command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
+				if (secure.Fingerprint.Length < 40) {
+					constraints += "AND FINGERPRINT LIKE @FINGERPRINT";
+					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint + "%");
+				} else {
+					constraints += "AND FINGERPRINT = @FINGERPRINT";
+					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint);
+				}
+			} else {
+				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
+				command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+			}
 
 			command.CommandText = query + constraints;
 			command.CommandType = CommandType.Text;

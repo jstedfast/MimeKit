@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// <summary>
 	/// A mailbox address, as specified by rfc0822.
 	/// </summary>
-	public sealed class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
+	public class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
 	{
 		string address;
 

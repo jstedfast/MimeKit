@@ -346,9 +346,9 @@ namespace MimeKit.MacInterop {
 									continue;
 
 								var chain = pkcs12.GetCertificateChain (alias);
-								var key = pkcs12.GetKey (alias);
+								var entry = pkcs12.GetKey (alias);
 
-								signers.Add (new CmsSigner (chain, key));
+								signers.Add (new CmsSigner (chain, entry.Key));
 							}
 						}
 					} catch (Exception ex) {

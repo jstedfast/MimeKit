@@ -61,7 +61,7 @@
         <returns>The fingerprint.</returns>
         <remarks>
             A fingerprint is a SHA-1 hash of the raw certificate data and is often used
-            as a unique reference to particular certificate in a certificate store.
+            as a unique identifier for a particular certificate in a certificate store.
             </remarks>
       </Docs>
     </Member>
