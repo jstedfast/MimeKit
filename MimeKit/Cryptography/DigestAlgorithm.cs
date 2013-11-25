@@ -30,6 +30,21 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A digest algorithm.
 	/// </summary>
+	/// <remarks>
+	/// <para>Digest algorithms are secure hashing algorithms that are used
+	/// to generate unique fixed-length signatures for arbitrary data.</para>
+	/// <para>The most commonly used digest algorithms are currently MD5
+	/// and SHA-1, however, MD5 was successfully broken in 2008 and should
+	/// be avoided. In late 2013, Microsoft announced that they would be
+	/// retiring their use of SHA-1 in their products by 2016 with the
+	/// assumption that its days as an unbroken digest algorithm were
+	/// numbered. It is speculated that the SHA-1 digest algorithm will
+	/// be vulnerable to collisions, and thus no longer considered secure,
+	/// by 2018.</para>
+	/// <para>Microsoft and other vendors plan to move to the SHA-2 suite of
+	/// digest algorithms which includes the following 4 variants: SHA-224,
+	/// SHA-256, SHA-384, and SHA-512.</para>
+	/// </remarks>
 	public enum DigestAlgorithm {
 		/// <summary>
 		/// No digest algorithm specified.
@@ -42,7 +57,7 @@ namespace MimeKit.Cryptography {
 		MD5         = 1,
 
 		/// <summary>
-		/// The SHA1 digest algorithm.
+		/// The SHA-1 digest algorithm.
 		/// </summary>
 		Sha1        = 2,
 
@@ -72,22 +87,22 @@ namespace MimeKit.Cryptography {
 		Haval5160   = 7,
 
 		/// <summary>
-		/// The SHA256 digest algorithm.
+		/// The SHA-256 digest algorithm.
 		/// </summary>
 		Sha256      = 8,
 
 		/// <summary>
-		/// The SHA384 digest algorithm.
+		/// The SHA-384 digest algorithm.
 		/// </summary>
 		Sha384      = 9,
 
 		/// <summary>
-		/// The SHA512 digest algorithm.
+		/// The SHA-512 digest algorithm.
 		/// </summary>
 		Sha512      = 10,
 
 		/// <summary>
-		/// The SHA224 digest algorithm.
+		/// The SHA-224 digest algorithm.
 		/// </summary>
 		Sha224      = 11,
 

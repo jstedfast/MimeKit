@@ -12,7 +12,21 @@
     <summary>
             A digest algorithm.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Digest algorithms are secure hashing algorithms that are used
+            to generate unique fixed-length signatures for arbitrary data.</para>
+      <para>The most commonly used digest algorithms are currently MD5
+            and SHA-1, however, MD5 was successfully broken in 2008 and should
+            be avoided. In late 2013, Microsoft announced that they would be
+            retiring their use of SHA-1 in their products by 2016 with the
+            assumption that its days as an unbroken digest algorithm were
+            numbered. It is speculated that the SHA-1 digest algorithm will
+            be vulnerable to collisions, and thus no longer considered secure,
+            by 2018.</para>
+      <para>Microsoft and other vendors plan to move to the SHA-2 suite of
+            digest algorithms which includes the following 4 variants: SHA-224,
+            SHA-256, SHA-384, and SHA-512.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="DoubleSha">
@@ -139,7 +153,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The SHA1 digest algorithm.
+            The SHA-1 digest algorithm.
             </summary>
       </Docs>
     </Member>
@@ -155,7 +169,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The SHA224 digest algorithm.
+            The SHA-224 digest algorithm.
             </summary>
       </Docs>
     </Member>
@@ -171,7 +185,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The SHA256 digest algorithm.
+            The SHA-256 digest algorithm.
             </summary>
       </Docs>
     </Member>
@@ -187,7 +201,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The SHA384 digest algorithm.
+            The SHA-384 digest algorithm.
             </summary>
       </Docs>
     </Member>
@@ -203,7 +217,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The SHA512 digest algorithm.
+            The SHA-512 digest algorithm.
             </summary>
       </Docs>
     </Member>

@@ -13,7 +13,9 @@
     <summary>
             An exception that is thrown when an error occurrs in <see cref="M:MimeKit.Cryptography.IDigitalSignature.Verify" />.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            For more information about the error condition, check the <see cref="!:InnerException" /> property.
+            </remarks>
   </Docs>
   <Members />
 </Type>
