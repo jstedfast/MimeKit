@@ -43,6 +43,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
+		/// <remarks>
+		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.
+		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -65,6 +70,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.</para>
+		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
+		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
+		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
@@ -82,6 +94,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the recipient's certificate.
 		/// </summary>
+		/// <remarks>
+		/// The certificate is used for the purpose of encrypting data.
+		/// </remarks>
 		/// <value>The certificate.</value>
 		public X509Certificate Certificate {
 			get; private set;
@@ -90,6 +105,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the recipient identifier type.
 		/// </summary>
+		/// <remarks>
+		/// Specifies how the certificate should be looked up on the recipient's end.
+		/// </remarks>
 		/// <value>The recipient identifier type.</value>
 		public SubjectIdentifierType RecipientIdentifierType {
 			get; private set;
@@ -99,6 +117,12 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets the known S/MIME encryption capabilities of the
 		/// recipient's mail client, in their preferred order.
 		/// </summary>
+		/// <remarks>
+		/// Provides the <see cref="SecureMimeContext"/> with an array of
+		/// encryption algorithms that are known to be supported by the
+		/// recpipient's client software and should be in the recipient's
+		/// order of preference.
+		/// </remarks>
 		/// <value>The encryption algorithms.</value>
 		public EncryptionAlgorithm[] EncryptionAlgorithms {
 			get; set;

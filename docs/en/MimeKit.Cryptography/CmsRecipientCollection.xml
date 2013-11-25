@@ -18,9 +18,14 @@
   </Interfaces>
   <Docs>
     <summary>
-            A collection of <see cref="T:MimeKit.Cryptography.CmsRecipient" />s.
+            A collection of <see cref="T:MimeKit.Cryptography.CmsRecipient" /> objects.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            If the X.509 certificates are known for each of the recipients, you
+            may wish to use a <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> as opposed to
+            using the methods that take a list of <see cref="T:MimeKit.MailboxAddress" />
+            objects.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

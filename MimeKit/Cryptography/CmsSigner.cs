@@ -27,11 +27,11 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Asn1.Cms;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -47,7 +47,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
-		public CmsSigner ()
+		/// <remarks>
+		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
+		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
+		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
+		/// tables.</para>
+		/// </remarks>
+		CmsSigner ()
 		{
 			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
@@ -57,6 +63,12 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
+		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
+		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
+		/// tables.</para>
+		/// </remarks>
 		/// <param name="chain">The chain of certificates starting with the signer's certificate back to the root.</param>
 		/// <param name="key">The signer's private key.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -65,9 +77,13 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="key"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="chain"/> did not contain any certificates.
+		/// <para><paramref name="chain"/> did not contain any certificates.</para>
+		/// <para>-or-</para>
+		/// <para>The certificate cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (IEnumerable<X509CertificateEntry> chain, AsymmetricKeyEntry key) : this ()
+		public CmsSigner (IEnumerable<X509CertificateEntry> chain, AsymmetricKeyParameter key) : this ()
 		{
 			if (chain == null)
 				throw new ArgumentNullException ("chain");
@@ -84,6 +100,15 @@ namespace MimeKit.Cryptography {
 
 			if (CertificateChain.Count == 0)
 				throw new ArgumentException ("The certificate chain was empty.", "chain");
+
+			var flags = Certificate.GetKeyUsageFlags ();
+			if (flags != X509KeyUsageFlags.None && (flags & X509KeyUsageFlags.DigitalSignature) == 0)
+				throw new ArgumentException ("The certificate cannot be used for signing.");
+
+			if (!key.IsPrivate)
+				throw new ArgumentException ("The key must be a private key.", "key");
+
+			PrivateKey = key;
 		}
 
 		/// <summary>
@@ -96,13 +121,25 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="certificate"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="key"/> is not a private key.</para>
+		/// </exception>
 		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key) : this ()
 		{
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
+			var flags = Certificate.GetKeyUsageFlags ();
+			if (flags != X509KeyUsageFlags.None && (flags & X509KeyUsageFlags.DigitalSignature) == 0)
+				throw new ArgumentException ("The certificate cannot be used for signing.", "certificate");
+
 			if (key == null)
 				throw new ArgumentNullException ("key");
+
+			if (!key.IsPrivate)
+				throw new ArgumentException ("The key must be a private key.", "key");
 
 			CertificateChain = new List<X509Certificate> ();
 			CertificateChain.Add (certificate);
@@ -111,11 +148,15 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets or sets the signer's certificate.
+		/// Gets the signer's certificate.
 		/// </summary>
+		/// <remarks>
+		/// The signer's certificate that contains a public key that can be used for
+		/// verifying the digital signature.
+		/// </remarks>
 		/// <value>The signer's certificate.</value>
 		public X509Certificate Certificate {
-			get; set;
+			get; private set;
 		}
 
 		/// <summary>
@@ -123,28 +164,38 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The certificate chain.</value>
 		public IList<X509Certificate> CertificateChain {
-			get; set;
+			get; private set;
 		}
 
 		/// <summary>
 		/// Gets or sets the digest algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Specifies which digest algorithm to use to generate the
+		/// cryptographic hash of the content being signed.
+		/// </remarks>
 		/// <value>The digest algorithm.</value>
 		public DigestAlgorithm DigestAlgorithm {
 			get; set;
 		}
 
 		/// <summary>
-		/// Gets or sets the private key.
+		/// Gets the private key.
 		/// </summary>
+		/// <remarks>
+		/// The private key used for signing.
+		/// </remarks>
 		/// <value>The private key.</value>
 		public AsymmetricKeyParameter PrivateKey {
-			get; set;
+			get; private set;
 		}
 
 		/// <summary>
 		/// Gets or sets the signed attributes.
 		/// </summary>
+		/// <remarks>
+		/// A table of attributes that should be included in the signature.
+		/// </remarks>
 		/// <value>The signed attributes.</value>
 		public AttributeTable SignedAttributes {
 			get; set;
@@ -153,6 +204,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets or sets the unsigned attributes.
 		/// </summary>
+		/// <remarks>
+		/// A table of attributes that should not be signed in the signature,
+		/// but still included in transport.
+		/// </remarks>
 		/// <value>The unsigned attributes.</value>
 		public AttributeTable UnsignedAttributes {
 			get; set;

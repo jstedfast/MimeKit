@@ -30,8 +30,14 @@ using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A collection of <see cref="CmsRecipient"/>s.
+	/// A collection of <see cref="CmsRecipient"/> objects.
 	/// </summary>
+	/// <remarks>
+	/// If the X.509 certificates are known for each of the recipients, you
+	/// may wish to use a <see cref="CmsRecipientCollection"/> as opposed to
+	/// using the methods that take a list of <see cref="MailboxAddress"/>
+	/// objects.
+	/// </remarks>
 	public sealed class CmsRecipientCollection : ICollection<CmsRecipient>
 	{
 		readonly IList<CmsRecipient> recipients;

@@ -21,21 +21,6 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public CmsSigner ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
-      <MemberType>Constructor</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.16.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <Parameters />
-      <Docs>
-        <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsSigner" /> class.
-            </summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="public CmsSigner (Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Crypto.AsymmetricKeyParameter key);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
@@ -60,18 +45,25 @@
           <para>
             <paramref name="key" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="certificate" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="key" /> is not a private key.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public CmsSigner (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, Org.BouncyCastle.Pkcs.AsymmetricKeyEntry key);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, class Org.BouncyCastle.Pkcs.AsymmetricKeyEntry key) cil managed" />
+      <MemberSignature Language="C#" Value="public CmsSigner (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, Org.BouncyCastle.Crypto.AsymmetricKeyParameter key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.16.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="chain" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Pkcs.X509CertificateEntry&gt;" />
-        <Parameter Name="key" Type="Org.BouncyCastle.Pkcs.AsymmetricKeyEntry" />
+        <Parameter Name="key" Type="Org.BouncyCastle.Crypto.AsymmetricKeyParameter" />
       </Parameters>
       <Docs>
         <param name="chain">The chain of certificates starting with the signer's certificate back to the root.</param>
@@ -79,7 +71,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsSigner" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The initial value of the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> will be set to
+            <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" /> and both the <see cref="P:MimeKit.Cryptography.CmsSigner.SignedAttributes" />
+            and <see cref="P:MimeKit.Cryptography.CmsSigner.UnsignedAttributes" /> properties will be initialized to empty
+            tables.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="chain" /> is <c>null</c>.</para>
@@ -88,12 +85,18 @@
             <paramref name="key" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
-          <paramref name="chain" /> did not contain any certificates.
-            </exception>
+          <para>
+            <paramref name="chain" /> did not contain any certificates.</para>
+          <para>-or-</para>
+          <para>The certificate cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="key" /> is not a private key.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Certificate">
-      <MemberSignature Language="C#" Value="public Org.BouncyCastle.X509.X509Certificate Certificate { get; set; }" />
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.X509.X509Certificate Certificate { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
@@ -104,14 +107,17 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the signer's certificate.
+            Gets the signer's certificate.
             </summary>
         <value>The signer's certificate.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The signer's certificate that contains a public key that can be used for
+            verifying the digital signature.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CertificateChain">
-      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain { get; set; }" />
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
@@ -143,11 +149,14 @@
             Gets or sets the digest algorithm.
             </summary>
         <value>The digest algorithm.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Specifies which digest algorithm to use to generate the
+            cryptographic hash of the content being signed.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="PrivateKey">
-      <MemberSignature Language="C#" Value="public Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey { get; set; }" />
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
@@ -158,10 +167,12 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the private key.
+            Gets the private key.
             </summary>
         <value>The private key.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The private key used for signing.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SignedAttributes">
@@ -179,7 +190,9 @@
             Gets or sets the signed attributes.
             </summary>
         <value>The signed attributes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A table of attributes that should be included in the signature.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="UnsignedAttributes">
@@ -197,7 +210,10 @@
             Gets or sets the unsigned attributes.
             </summary>
         <value>The unsigned attributes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A table of attributes that should not be signed in the signature,
+            but still included in transport.
+            </remarks>
       </Docs>
     </Member>
   </Members>
