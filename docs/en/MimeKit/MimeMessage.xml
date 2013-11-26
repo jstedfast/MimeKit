@@ -137,6 +137,51 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public void Encrypt (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Encrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Encrypt the message to the sender and all of the recipients
+            using the specified cryptography context.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="From">
       <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList From { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList From" />
@@ -396,9 +441,12 @@
             </summary>
         <returns>To be added.</returns>
         <remarks>
-            Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
-            makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.
-            </remarks>
+          <para>Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
+            makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.</para>
+          <para>It should be noted, however, that <see cref="T:System.Net.Mail.MailMessage" />
+            cannot represent all MIME structures that can be constructed using MimeKit,
+            so the conversion may not be perfect.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="message" /> is <c>null</c>.
             </exception>
@@ -440,9 +488,9 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
-    <Member MemberName="Sender">
-      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Sender { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Sender" />
+    <Member MemberName="ResentBcc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentBcc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentBcc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.16.0.0</AssemblyVersion>
@@ -452,10 +500,364 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the list of addresses in the Sender header.
+            Gets the list of addresses in the Resent-Bcc header.
             </summary>
-        <value>The list of addresses in the Sender header.</value>
+        <value>The list of addresses in the Resent-Bcc header.</value>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentCc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentCc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentCc" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-Cc header.
+            </summary>
+        <value>The list of addresses in the Resent-Cc header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentDate">
+      <MemberSignature Language="C#" Value="public DateTimeOffset ResentDate { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset ResentDate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTimeOffset</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the Resent-Date of the message.
+            </summary>
+        <value>The Resent-Date of the message.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentFrom">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentFrom { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentFrom" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-From header.
+            </summary>
+        <value>The list of addresses in the Resent-From header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentMessageId">
+      <MemberSignature Language="C#" Value="public string ResentMessageId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string ResentMessageId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the Resent-Message-Id header.
+            </summary>
+        <value>The Resent-Message-Id.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentReplyTo">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentReplyTo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentReplyTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-Reply-To header.
+            </summary>
+        <value>The list of addresses in the Resent-Reply-To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentSender">
+      <MemberSignature Language="C#" Value="public MimeKit.MailboxAddress ResentSender { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress ResentSender" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MailboxAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the address in the Resent-Sender header.
+            </summary>
+        <value>The address in the Resent-Sender header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentTo">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentTo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-To header.
+            </summary>
+        <value>The list of addresses in the Resent-To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sender">
+      <MemberSignature Language="C#" Value="public MimeKit.MailboxAddress Sender { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress Sender" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MailboxAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the address in the Sender header.
+            </summary>
+        <value>The address in the Sender header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public void Sign (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Sign the message using the specified cryptography context using the SHA-1 digest algorithm.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or</para>
+          <para>A sender has not been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public void Sign (MimeKit.Cryptography.CryptographyContext ctx, MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Sign the message using the specified cryptography context and digest algorithm.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or</para>
+          <para>A sender has not been specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="digestAlgo" /> is not supported.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public void SignAndEncrypt (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Sign and encrypt the message to the sender and all of the recipients using
+            the specified cryptography context and the SHA-1 digest algorithm.
+            </summary>
+        <remarks>
+          <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.</para>
+          <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+            message will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or</para>
+          <para>The sender has been specified.</para>
+          <para>-or</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for the signer or one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public void SignAndEncrypt (MimeKit.Cryptography.CryptographyContext ctx, MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.16.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Sign and encrypt the message to the sender and all of the recipients using
+            the specified cryptography context and the specified digest algorithm.
+            </summary>
+        <remarks>
+          <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.</para>
+          <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+            message will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or</para>
+          <para>The sender has been specified.</para>
+          <para>-or</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="digestAlgo" /> is not supported.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for the signer or one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Subject">

@@ -31,6 +31,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Net.Mail;
 
+using MimeKit.Cryptography;
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -598,6 +599,294 @@ namespace MimeKit {
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
+		}
+
+		MailboxAddress GetMessageSigner ()
+		{
+			if (ResentSender != null)
+				return ResentSender;
+
+			if (ResentFrom.Count > 0)
+				return ResentFrom.Mailboxes.FirstOrDefault ();
+
+			if (Sender != null)
+				return Sender;
+
+			if (From.Count > 0)
+				return From.Mailboxes.FirstOrDefault ();
+
+			return null;
+		}
+
+		IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
+		{
+			var recipients = new List<MailboxAddress> ();
+
+			if (ResentSender != null || ResentFrom.Count > 0) {
+				if (includeSenders) {
+					if (ResentSender != null)
+						recipients.Add (ResentSender);
+
+					if (ResentFrom.Count > 0)
+						recipients.AddRange (ResentFrom.Mailboxes);
+				}
+
+				recipients.AddRange (ResentTo.Mailboxes);
+				recipients.AddRange (ResentCc.Mailboxes);
+				recipients.AddRange (ResentBcc.Mailboxes);
+			} else {
+				if (includeSenders) {
+					if (Sender != null)
+						recipients.Add (Sender);
+
+					if (From.Count > 0)
+						recipients.AddRange (From.Mailboxes);
+				}
+
+				recipients.AddRange (To.Mailboxes);
+				recipients.AddRange (Cc.Mailboxes);
+				recipients.AddRange (Bcc.Mailboxes);
+			}
+
+			return recipients;
+		}
+
+		/// <summary>
+		/// Sign the message using the specified cryptography context and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body);
+		}
+
+		/// <summary>
+		/// Sign the message using the specified cryptography context using the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public void Sign (CryptographyContext ctx)
+		{
+			Sign (ctx, DigestAlgorithm.Sha1);
+		}
+
+		/// <summary>
+		/// Encrypt the message to the sender and all of the recipients
+		/// using the specified cryptography context.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void Encrypt (CryptographyContext ctx)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var recipients = GetMessageRecipients (true);
+			if (recipients.Count == 0)
+				throw new InvalidOperationException ("No recipients have been set.");
+
+			if (ctx is SecureMimeContext) {
+				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
+			} else if (ctx is OpenPgpContext) {
+				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, recipients, Body);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+			}
+		}
+
+		/// <summary>
+		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the specified digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or</para>
+		/// <para>The sender has been specified.</para>
+		/// <para>-or</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			var recipients = GetMessageRecipients (true);
+			if (recipients.Count == 0)
+				throw new InvalidOperationException ("No recipients have been set.");
+
+			if (ctx is SecureMimeContext) {
+				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
+			} else if (ctx is OpenPgpContext) {
+				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+			}
+		}
+
+		/// <summary>
+		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or</para>
+		/// <para>The sender has been specified.</para>
+		/// <para>-or</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void SignAndEncrypt (CryptographyContext ctx)
+		{
+			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
 
 		IEnumerable<Header> MergeHeaders ()
