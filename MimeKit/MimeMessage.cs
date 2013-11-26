@@ -42,11 +42,16 @@ namespace MimeKit {
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly string[] StandardAddressHeaders = new string[] {
-			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
+			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
+			"From", "Reply-To", "To", "Cc", "Bcc"
 		};
 
 		readonly Dictionary<string, InternetAddressList> addresses;
 		readonly MessageIdList references;
+		MailboxAddress resentSender;
+		DateTimeOffset resentDate;
+		string resentMessageId;
+		MailboxAddress sender;
 		DateTimeOffset date;
 		string messageId;
 		string inreplyto;
@@ -190,11 +195,67 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Sender header.
+		/// Gets or sets the address in the Sender header.
 		/// </summary>
-		/// <value>The list of addresses in the Sender header.</value>
-		public InternetAddressList Sender {
-			get { return addresses["Sender"]; }
+		/// <value>The address in the Sender header.</value>
+		public MailboxAddress Sender {
+			get { return sender; }
+			set {
+				if (value == sender)
+					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll (HeaderId.Sender);
+					Headers.Changed += HeadersChanged;
+					sender = null;
+					return;
+				}
+
+				var builder = new StringBuilder ();
+				int len = "Sender: ".Length;
+
+				value.Encode (FormatOptions.Default, builder, ref len);
+				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+
+				Headers.Changed -= HeadersChanged;
+				Headers.Replace (new Header (Headers.Options, "Sender", raw));
+				Headers.Changed += HeadersChanged;
+
+				sender = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the address in the Resent-Sender header.
+		/// </summary>
+		/// <value>The address in the Resent-Sender header.</value>
+		public MailboxAddress ResentSender {
+			get { return resentSender; }
+			set {
+				if (value == resentSender)
+					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll (HeaderId.ResentSender);
+					Headers.Changed += HeadersChanged;
+					resentSender = null;
+					return;
+				}
+
+				var builder = new StringBuilder ();
+				int len = "Resent-Sender: ".Length;
+
+				value.Encode (FormatOptions.Default, builder, ref len);
+				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+
+				Headers.Changed -= HeadersChanged;
+				Headers.Replace (new Header (Headers.Options, "Resent-Sender", raw));
+				Headers.Changed += HeadersChanged;
+
+				resentSender = value;
+			}
 		}
 
 		/// <summary>
@@ -206,11 +267,27 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-From header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-From header.</value>
+		public InternetAddressList ResentFrom {
+			get { return addresses["Resent-From"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Reply-To header.
 		/// </summary>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
 			get { return addresses["Reply-To"]; }
+		}
+
+		/// <summary>
+		/// Gets the list of addresses in the Resent-Reply-To header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Reply-To header.</value>
+		public InternetAddressList ResentReplyTo {
+			get { return addresses["Resent-Reply-To"]; }
 		}
 
 		/// <summary>
@@ -222,6 +299,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-To header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-To header.</value>
+		public InternetAddressList ResentTo {
+			get { return addresses["Resent-To"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Cc header.
 		/// </summary>
 		/// <value>The list of addresses in the Cc header.</value>
@@ -230,11 +315,27 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-Cc header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Cc header.</value>
+		public InternetAddressList ResentCc {
+			get { return addresses["Resent-Cc"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Bcc header.
 		/// </summary>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
 			get { return addresses["Bcc"]; }
+		}
+
+		/// <summary>
+		/// Gets the list of addresses in the Resent-Bcc header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Bcc header.</value>
+		public InternetAddressList ResentBcc {
+			get { return addresses["Resent-Bcc"]; }
 		}
 
 		/// <summary>
@@ -266,11 +367,29 @@ namespace MimeKit {
 				if (date == value)
 					return;
 
+				Headers.Changed -= HeadersChanged;
+				Headers["Date"] = DateUtils.FormatDate (value);
+				Headers.Changed += HeadersChanged;
+
 				date = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the Resent-Date of the message.
+		/// </summary>
+		/// <value>The Resent-Date of the message.</value>
+		public DateTimeOffset ResentDate {
+			get { return resentDate; }
+			set {
+				if (resentDate == value)
+					return;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = DateUtils.FormatDate (date);
+				Headers["Resent-Date"] = DateUtils.FormatDate (value);
 				Headers.Changed += HeadersChanged;
+
+				resentDate = value;
 			}
 		}
 
@@ -297,8 +416,9 @@ namespace MimeKit {
 
 				if (value == null) {
 					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll ("In-Reply-To");
+					Headers.RemoveAll (HeaderId.InReplyTo);
 					Headers.Changed += HeadersChanged;
+					inreplyto = null;
 					return;
 				}
 
@@ -347,6 +467,40 @@ namespace MimeKit {
 
 				Headers.Changed -= HeadersChanged;
 				Headers["Message-Id"] = messageId;
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the Resent-Message-Id header.
+		/// </summary>
+		/// <value>The Resent-Message-Id.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
+		public string ResentMessageId {
+			get { return resentMessageId; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				if (resentMessageId == value)
+					return;
+
+				var buffer = Encoding.ASCII.GetBytes (value);
+				InternetAddress addr;
+				int index = 0;
+
+				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
+
+				resentMessageId = "<" + ((MailboxAddress) addr).Address + ">";
+
+				Headers.Changed -= HeadersChanged;
+				Headers["Resent-Message-Id"] = resentMessageId;
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -490,9 +644,9 @@ namespace MimeKit {
 			Headers.Changed += HeadersChanged;
 		}
 
-		void InternetAddressListChanged (object sender, EventArgs e)
+		void InternetAddressListChanged (object addrlist, EventArgs e)
 		{
-			var list = (InternetAddressList) sender;
+			var list = (InternetAddressList) addrlist;
 
 			foreach (var name in StandardAddressHeaders) {
 				if (addresses[name] == list) {
@@ -502,7 +656,7 @@ namespace MimeKit {
 			}
 		}
 
-		void ReferencesChanged (object sender, EventArgs e)
+		void ReferencesChanged (object o, EventArgs e)
 		{
 			if (references.Count > 0) {
 				int lineLength = "References".Length + 1;
@@ -532,7 +686,7 @@ namespace MimeKit {
 				Headers.Changed += HeadersChanged;
 			} else {
 				Headers.Changed -= HeadersChanged;
-				Headers.RemoveAll ("References");
+				Headers.RemoveAll (HeaderId.References);
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -552,14 +706,14 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadAddressList (string field, InternetAddressList list)
+		void ReloadAddressList (HeaderId id, InternetAddressList list)
 		{
 			// clear the address list and reload
 			list.Changed -= InternetAddressListChanged;
 			list.Clear ();
 
 			foreach (var header in Headers) {
-				if (icase.Compare (header.Field, field) != 0)
+				if (header.Id != id)
 					continue;
 
 				int length = header.RawValue.Length;
@@ -575,7 +729,7 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadHeader (HeaderId id, string field)
+		void ReloadHeader (HeaderId id)
 		{
 			if (id == HeaderId.Unknown)
 				return;
@@ -592,36 +746,64 @@ namespace MimeKit {
 				if (header.Id != id)
 					continue;
 
+				var rawValue = header.RawValue;
+				InternetAddress address;
+				int index = 0;
+
 				switch (id) {
 				case HeaderId.MimeVersion:
-					if (MimeUtils.TryParseVersion (header.RawValue, 0, header.RawValue.Length, out version))
+					if (MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version))
 						return;
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
 						references.Add (msgid);
 					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentMessageId:
+					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					if (resentMessageId != null)
+						return;
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					if (messageId != null)
 						return;
 					break;
+				case HeaderId.ResentSender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						resentSender = address as MailboxAddress;
+					if (resentSender != null)
+						return;
+					break;
+				case HeaderId.Sender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						sender = address as MailboxAddress;
+					if (sender != null)
+						return;
+					break;
+				case HeaderId.ResentDate:
+					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate))
+						return;
+					break;
 				case HeaderId.Date:
-					if (DateUtils.TryParseDateTime (header.RawValue, 0, header.RawValue.Length, out date))
+					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date))
 						return;
 					break;
 				}
 			}
 		}
 
-		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		void HeadersChanged (object o, HeaderListChangedEventArgs e)
 		{
 			InternetAddressList list;
+			InternetAddress address;
+			byte[] rawValue;
+			int index = 0;
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
@@ -630,35 +812,79 @@ namespace MimeKit {
 					break;
 				}
 
+				rawValue = e.Header.RawValue;
+
 				switch (e.Header.Id) {
 				case HeaderId.MimeVersion:
-					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
+					MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version);
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
 						references.Add (msgid);
 					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
+					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentMessageId:
+					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentSender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						resentSender = address as MailboxAddress;
+					break;
+				case HeaderId.Sender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						sender = address as MailboxAddress;
+					break;
+				case HeaderId.ResentDate:
+					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate);
 					break;
 				case HeaderId.Date:
-					DateUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
+					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date);
 					break;
 				}
 				break;
 			case HeaderListChangedAction.Changed:
-			case HeaderListChangedAction.Removed:
 				if (addresses.TryGetValue (e.Header.Field, out list)) {
-					ReloadAddressList (e.Header.Field, list);
+					ReloadAddressList (e.Header.Id, list);
 					break;
 				}
 
-				ReloadHeader (e.Header.Id, e.Header.Field);
+				ReloadHeader (e.Header.Id);
+				break;
+			case HeaderListChangedAction.Removed:
+				if (addresses.TryGetValue (e.Header.Field, out list)) {
+					ReloadAddressList (e.Header.Id, list);
+					break;
+				}
+
+				switch (e.Header.Id) {
+				case HeaderId.ResentMessageId:
+					resentMessageId = null;
+					break;
+				case HeaderId.ResentSender:
+					resentSender = null;
+					break;
+				case HeaderId.ResentDate:
+					resentDate = DateTimeOffset.MinValue;
+					break;
+				case HeaderId.MessageId:
+					messageId = null;
+					break;
+				case HeaderId.Sender:
+					sender = null;
+					break;
+				case HeaderId.Date:
+					date = DateTimeOffset.MinValue;
+					break;
+				}
+
+				ReloadHeader (e.Header.Id);
 				break;
 			case HeaderListChangedAction.Cleared:
 				foreach (var kvp in addresses) {
@@ -671,9 +897,12 @@ namespace MimeKit {
 				references.Clear ();
 				references.Changed += ReferencesChanged;
 
+				resentMessageId = null;
+				resentSender = null;
 				inreplyto = null;
 				messageId = null;
 				version = null;
+				sender = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
@@ -874,8 +1103,11 @@ namespace MimeKit {
 		/// <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
 		/// <remarks>
-		/// Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
-		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.
+		/// <para>Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
+		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.</para>
+		/// <para>It should be noted, however, that <see cref="System.Net.Mail.MailMessage"/>
+		/// cannot represent all MIME structures that can be constructed using MimeKit,
+		/// so the conversion may not be perfect.</para>
 		/// </remarks>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -886,9 +1118,9 @@ namespace MimeKit {
 			if (message == null)
 				throw new ArgumentNullException ("message");
 
-			var sender = message.Sender.Mailboxes.FirstOrDefault ();
 			var from = message.From.Mailboxes.FirstOrDefault ();
 			var msg = new MailMessage ();
+			var sender = message.Sender;
 
 			foreach (var header in message.Headers)
 				msg.Headers.Add (header.Field, header.Value);
