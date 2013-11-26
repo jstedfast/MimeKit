@@ -734,12 +734,32 @@ namespace MimeKit {
 			if (id == HeaderId.Unknown)
 				return;
 
-			if (id == HeaderId.References) {
+			switch (id) {
+			case HeaderId.ResentMessageId:
+				resentMessageId = null;
+				break;
+			case HeaderId.ResentSender:
+				resentSender = null;
+				break;
+			case HeaderId.ResentDate:
+				resentDate = DateTimeOffset.MinValue;
+				break;
+			case HeaderId.References:
 				references.Changed -= ReferencesChanged;
 				references.Clear ();
 				references.Changed += ReferencesChanged;
-			} else if (id == HeaderId.InReplyTo) {
+			case HeaderId.InReplyTo:
 				inreplyto = null;
+				break;
+			case HeaderId.MessageId:
+				messageId = null;
+				break;
+			case HeaderId.Sender:
+				sender = null;
+				break;
+			case HeaderId.Date:
+				date = DateTimeOffset.MinValue;
+				break;
 			}
 
 			foreach (var header in Headers) {
@@ -850,37 +870,9 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Changed:
-				if (addresses.TryGetValue (e.Header.Field, out list)) {
-					ReloadAddressList (e.Header.Id, list);
-					break;
-				}
-
-				ReloadHeader (e.Header.Id);
-				break;
 			case HeaderListChangedAction.Removed:
 				if (addresses.TryGetValue (e.Header.Field, out list)) {
 					ReloadAddressList (e.Header.Id, list);
-					break;
-				}
-
-				switch (e.Header.Id) {
-				case HeaderId.ResentMessageId:
-					resentMessageId = null;
-					break;
-				case HeaderId.ResentSender:
-					resentSender = null;
-					break;
-				case HeaderId.ResentDate:
-					resentDate = DateTimeOffset.MinValue;
-					break;
-				case HeaderId.MessageId:
-					messageId = null;
-					break;
-				case HeaderId.Sender:
-					sender = null;
-					break;
-				case HeaderId.Date:
-					date = DateTimeOffset.MinValue;
 					break;
 				}
 
