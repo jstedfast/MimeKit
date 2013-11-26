@@ -667,7 +667,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>A sender has not been specified.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -698,7 +698,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sign the message using the specified cryptography context using the SHA-1 digest algorithm.
+		/// Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -712,7 +712,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>A sender has not been specified.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
@@ -746,7 +746,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
@@ -804,9 +804,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>The sender has been specified.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
@@ -870,9 +870,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>The sender has been specified.</para>
-		/// <para>-or</para>
+		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
@@ -1391,6 +1391,7 @@ namespace MimeKit {
 		/// cannot represent all MIME structures that can be constructed using MimeKit,
 		/// so the conversion may not be perfect.</para>
 		/// </remarks>
+		/// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="message"/> is <c>null</c>.
