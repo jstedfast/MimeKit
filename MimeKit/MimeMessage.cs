@@ -1037,6 +1037,7 @@ namespace MimeKit {
 				references.Changed -= ReferencesChanged;
 				references.Clear ();
 				references.Changed += ReferencesChanged;
+				break;
 			case HeaderId.InReplyTo:
 				inreplyto = null;
 				break;
