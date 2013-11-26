@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.16.0.0</version>
+        <version>0.17.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -18,9 +18,13 @@ MimeKit's parser also uses a real tokenizer when parsing the headers rather than
 
 In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Implemented an SQLite database for storing certificates, CRLs, (encrypted) private keys, and other metdata needed for determining which clients support which sets of encryption algorithms.
-* Re-implemented the DefaultSecureMimeContext to use this database instead of a mess of files.
-* Disabled the Camellia-256/192/128, CAST-5, and IDEA algorithms for the WindowsSecureMimeContext since System.Security does not support those algorithms.</releaseNotes>
+        <releaseNotes>* Added fallback logic to check S/MIME certificates for the encryption capabilities (rfc4262).
+* Modified the X509CertificateDatabase to be case-insensitive when matching certificate fingerprints.
+* Added a new subclass of MailboxAddress called SecureMailboxAddress which allows specifying a certificate fingerprint.
+* Modified MimeMessage.Sender to be a MailboxAddress instead of an InternetAddressList to better enforce rfc5322.
+* Added ResentSender, ResentFrom, ResentTo, ResentCc, ResentBcc, ResentMessageId, and ResentDate properties to MimeMessage.
+* Added convenience methods on MimeMessage to Sign, Encrypt and SignAndEncrypt the message which can be used for S/MIME or OpenPGP.
+* Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
         <tags>mime security smime openpgp pgp mbox email parser xamarin android ios</tags>
