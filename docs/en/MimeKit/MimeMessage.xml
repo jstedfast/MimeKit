@@ -171,7 +171,7 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
           <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>No recipients have been specified.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
@@ -439,7 +439,7 @@
             Explicit cast to convert a <see cref="T:MimeKit.MimeMessage" /> to a
             <see cref="T:System.Net.Mail.MailMessage" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>A <see cref="T:System.Net.Mail.MailMessage" />.</returns>
         <remarks>
           <para>Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
             makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.</para>
@@ -672,7 +672,7 @@
       <Docs>
         <param name="ctx">The cryptography context.</param>
         <summary>
-            Sign the message using the specified cryptography context using the SHA-1 digest algorithm.
+            Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
             </summary>
         <remarks>
             If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -685,7 +685,7 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
           <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>A sender has not been specified.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
@@ -727,7 +727,7 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
           <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>A sender has not been specified.</para>
         </exception>
         <exception cref="T:System.ArgumentOutOfRangeException">
@@ -782,9 +782,9 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
           <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>The sender has been specified.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>No recipients have been specified.</para>
         </exception>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
@@ -841,9 +841,9 @@
             </exception>
         <exception cref="T:System.InvalidOperationException">
           <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>The sender has been specified.</para>
-          <para>-or</para>
+          <para>-or-</para>
           <para>No recipients have been specified.</para>
         </exception>
         <exception cref="T:System.NotSupportedException">

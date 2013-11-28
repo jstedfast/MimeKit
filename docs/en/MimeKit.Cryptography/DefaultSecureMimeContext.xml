@@ -14,7 +14,11 @@
             A default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> implementation that uses
             an SQLite database as a certificate and private key store.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The default S/MIME context is designed to be usable on any platform
+            where there exists a .NET runtime by storing certificates, CRLs, and
+            (encrypted) private keys in a SQLite database.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -29,12 +33,40 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Not recommended for production use as the password to unlock the private keys is hard-coded.
+            </remarks>
         <exception cref="T:System.IO.IOException">
             An error occurred reading the database at the default location.
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the database at the default location.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public DefaultSecureMimeContext (string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string password) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="password" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="password">The password used for encrypting and decrypting the private keys.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
+            </summary>
+        <remarks>
+            Allows the program to specify its own password for the default database.
+            </remarks>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the database at the default location.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An error occurred reading the database at the default location.
             </exception>
       </Docs>
     </Member>
@@ -51,11 +83,14 @@
       </Parameters>
       <Docs>
         <param name="fileName">The path to the SQLite database.</param>
-        <param name="password">The password for SQLite database.</param>
+        <param name="password">The password used for encrypting and decrypting the private keys.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Allows the program to specify its own location for the SQLite database. If the file does not exist,
+            it will be created and the necessary tables and indexes will be constructed.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="fileName" /> is <c>null</c>.</para>
@@ -75,8 +110,8 @@
       </Docs>
     </Member>
     <Member MemberName="DefaultDatabasePath">
-      <MemberSignature Language="C#" Value="protected static readonly string DefaultDatabasePath;" />
-      <MemberSignature Language="ILAsm" Value=".field family static initonly string DefaultDatabasePath" />
+      <MemberSignature Language="C#" Value="public static readonly string DefaultDatabasePath;" />
+      <MemberSignature Language="ILAsm" Value=".field public static initonly string DefaultDatabasePath" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -132,7 +167,7 @@
       <Docs>
         <param name="selector">The search criteria for the certificate.</param>
         <summary>
-            Gets the X.509 certificate based on the selector.
+            Gets the X.509 certificate matching the specified selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
@@ -154,7 +189,11 @@
             Gets the certificate revocation lists.
             </summary>
         <returns>The certificate revocation lists.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A Certificate Revocation List (CRL) is a list of certificate serial numbers issued
+            by a particular Certificate Authority (CA) that have been revoked, either by the CA
+            itself or by the owner of the revoked certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCmsRecipient">
@@ -176,7 +215,13 @@
             Gets the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> for the specified mailbox.
             </summary>
         <returns>A <see cref="T:MimeKit.Cryptography.CmsRecipient" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constructs a <see cref="T:MimeKit.Cryptography.CmsRecipient" /> with the appropriate certificate and
+            <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> for the specified mailbox.</para>
+          <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
+            <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
+            the mailbox address.</para>
+        </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
             </exception>
@@ -225,7 +270,11 @@
             Gets the intermediate certificates.
             </summary>
         <returns>The intermediate certificates.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            An intermediate certificate is any certificate that exists between the root
+            certificate issued by a Certificate Authority (CA) and the certificate at
+            the end of the chain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -244,7 +293,7 @@
       <Docs>
         <param name="selector">The search criteria for the private key.</param>
         <summary>
-            Gets the private key based on the provided selector.
+            Gets the private key for the certificate matching the specified selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
@@ -266,7 +315,10 @@
             Gets the trusted anchors.
             </summary>
         <returns>The trusted anchors.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A trusted anchor is a trusted root-level X.509 certificate,
+            generally issued by a Certificate Authority (CA).
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Import">

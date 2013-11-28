@@ -44,6 +44,11 @@ namespace MimeKit.Cryptography {
 	/// A default <see cref="SecureMimeContext"/> implementation that uses
 	/// an SQLite database as a certificate and private key store.
 	/// </summary>
+	/// <remarks>
+	/// The default S/MIME context is designed to be usable on any platform
+	/// where there exists a .NET runtime by storing certificates, CRLs, and
+	/// (encrypted) private keys in a SQLite database.
+	/// </remarks>
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
@@ -53,7 +58,7 @@ namespace MimeKit.Cryptography {
 		/// <para>On Microsoft Windows-based systems, this path will be something like <c>C:\Users\UserName\AppData\Roaming\mimekit\smime.db</c>.</para>
 		/// <para>On Unix systems such as Linux and Mac OS X, this path will be <c>~/.mimekit/smime.db</c>.</para>
 		/// </remarks>
-		protected static readonly string DefaultDatabasePath;
+		public static readonly string DefaultDatabasePath;
 
 		readonly X509CertificateDatabase dbase;
 
@@ -78,8 +83,12 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Allows the program to specify its own location for the SQLite database. If the file does not exist,
+		/// it will be created and the necessary tables and indexes will be constructed.
+		/// </remarks>
 		/// <param name="fileName">The path to the SQLite database.</param>
-		/// <param name="password">The password for SQLite database.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -118,6 +127,26 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Allows the program to specify its own password for the default database.
+		/// </remarks>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the database at the default location.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the database at the default location.
+		/// </exception>
+		public DefaultSecureMimeContext (string password) : this (DefaultDatabasePath, password)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Not recommended for production use as the password to unlock the private keys is hard-coded.
+		/// </remarks>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the database at the default location.
 		/// </exception>
@@ -131,7 +160,7 @@ namespace MimeKit.Cryptography {
 		#region implemented abstract members of SecureMimeContext
 
 		/// <summary>
-		/// Gets the X.509 certificate based on the selector.
+		/// Gets the X.509 certificate matching the specified selector.
 		/// </summary>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
@@ -141,7 +170,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the private key based on the provided selector.
+		/// Gets the private key for the certificate matching the specified selector.
 		/// </summary>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
@@ -153,6 +182,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the trusted anchors.
 		/// </summary>
+		/// <remarks>
+		/// A trusted anchor is a trusted root-level X.509 certificate,
+		/// generally issued by a Certificate Authority (CA).
+		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
@@ -173,6 +206,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the intermediate certificates.
 		/// </summary>
+		/// <remarks>
+		/// An intermediate certificate is any certificate that exists between the root
+		/// certificate issued by a Certificate Authority (CA) and the certificate at
+		/// the end of the chain.
+		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
@@ -182,6 +220,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the certificate revocation lists.
 		/// </summary>
+		/// <remarks>
+		/// A Certificate Revocation List (CRL) is a list of certificate serial numbers issued
+		/// by a particular Certificate Authority (CA) that have been revoked, either by the CA
+		/// itself or by the owner of the revoked certificate.
+		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
@@ -214,6 +257,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// <para>Constructs a <see cref="CmsRecipient"/> with the appropriate certificate and
+		/// <see cref="CmsRecipient.EncryptionAlgorithms"/> for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address.</para>
+		/// </remarks>
 		/// <returns>A <see cref="CmsRecipient"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="CertificateNotFoundException">

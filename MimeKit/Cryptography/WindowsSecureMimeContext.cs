@@ -75,6 +75,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Constructs an S/MIME context using the current user's X.509 store location.
+		/// </remarks>
 		public WindowsSecureMimeContext () : this (StoreLocation.CurrentUser)
 		{
 		}

@@ -247,14 +247,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X.509 certificate based on the selector.
+		/// Gets the X.509 certificate matching the specified selector.
 		/// </summary>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected abstract X509Certificate GetCertificate (IX509Selector selector);
 
 		/// <summary>
-		/// Gets the private key based on the provided selector.
+		/// Gets the private key for the certificate matching the specified selector.
 		/// </summary>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
@@ -263,24 +263,45 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the trusted anchors.
 		/// </summary>
+		/// <remarks>
+		/// A trusted anchor is a trusted root-level X.509 certificate,
+		/// generally issued by a certificate authority (CA).
+		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
 		protected abstract HashSet GetTrustedAnchors ();
 
 		/// <summary>
 		/// Gets the intermediate certificates.
 		/// </summary>
+		/// <remarks>
+		/// An intermediate certificate is any certificate that exists between the root
+		/// certificate issued by a Certificate Authority (CA) and the certificate at
+		/// the end of the chain.
+		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
 		protected abstract IX509Store GetIntermediateCertificates ();
 
 		/// <summary>
 		/// Gets the certificate revocation lists.
 		/// </summary>
+		/// <remarks>
+		/// A Certificate Revocation List (CRL) is a list of certificate serial numbers issued
+		/// by a particular Certificate Authority (CA) that have been revoked, either by the CA
+		/// itself or by the owner of the revoked certificate.
+		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
 		protected abstract IX509Store GetCertificateRevocationLists ();
 
 		/// <summary>
 		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// <para>Constructs a <see cref="CmsRecipient"/> with the appropriate certificate and
+		/// <see cref="CmsRecipient.EncryptionAlgorithms"/> for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address.</para>
+		/// </remarks>
 		/// <returns>A <see cref="CmsRecipient"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="CertificateNotFoundException">

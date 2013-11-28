@@ -424,7 +424,7 @@
       <Docs>
         <param name="selector">The search criteria for the certificate.</param>
         <summary>
-            Gets the X.509 certificate based on the selector.
+            Gets the X.509 certificate matching the specified selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
@@ -446,7 +446,11 @@
             Gets the certificate revocation lists.
             </summary>
         <returns>The certificate revocation lists.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A Certificate Revocation List (CRL) is a list of certificate serial numbers issued
+            by a particular Certificate Authority (CA) that have been revoked, either by the CA
+            itself or by the owner of the revoked certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCmsRecipient">
@@ -468,7 +472,13 @@
             Gets the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> for the specified mailbox.
             </summary>
         <returns>A <see cref="T:MimeKit.Cryptography.CmsRecipient" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constructs a <see cref="T:MimeKit.Cryptography.CmsRecipient" /> with the appropriate certificate and
+            <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> for the specified mailbox.</para>
+          <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
+            <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
+            the mailbox address.</para>
+        </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
             </exception>
@@ -595,7 +605,11 @@
             Gets the intermediate certificates.
             </summary>
         <returns>The intermediate certificates.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            An intermediate certificate is any certificate that exists between the root
+            certificate issued by a Certificate Authority (CA) and the certificate at
+            the end of the chain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetMicAlgorithmName">
@@ -639,7 +653,7 @@
       <Docs>
         <param name="selector">The search criteria for the private key.</param>
         <summary>
-            Gets the private key based on the provided selector.
+            Gets the private key for the certificate matching the specified selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
         <remarks>To be added.</remarks>
@@ -661,7 +675,10 @@
             Gets the trusted anchors.
             </summary>
         <returns>The trusted anchors.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A trusted anchor is a trusted root-level X.509 certificate,
+            generally issued by a certificate authority (CA).
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Import">

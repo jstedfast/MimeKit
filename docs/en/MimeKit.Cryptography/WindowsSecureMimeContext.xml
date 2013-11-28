@@ -28,7 +28,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.WindowsSecureMimeContext" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Constructs an S/MIME context using the current user's X.509 store location.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
