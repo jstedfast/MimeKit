@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 
 				// sign the cleartext content
 				var signature = ctx.Sign (signer, digestAlgo, memory);
-				var micalg = ctx.GetMicAlgorithmName (digestAlgo);
+				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
 				var signed = new MultipartSigned ();
 
 				// set the protocol and micalg Content-Type parameters
@@ -224,7 +224,7 @@ namespace MimeKit.Cryptography {
 				memory.Position = 0;
 
 				// sign the cleartext content
-				var micalg = ctx.GetMicAlgorithmName (digestAlgo);
+				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
 				var signature = ctx.Sign (signer, digestAlgo, memory);
 				var signed = new MultipartSigned ();
 
@@ -326,7 +326,7 @@ namespace MimeKit.Cryptography {
 				memory.Position = 0;
 
 				// sign the cleartext content
-				var micalg = ctx.GetMicAlgorithmName (signer.DigestAlgorithm);
+				var micalg = ctx.GetDigestAlgorithmName (signer.DigestAlgorithm);
 				var signature = ctx.Sign (signer, memory);
 				var signed = new MultipartSigned ();
 

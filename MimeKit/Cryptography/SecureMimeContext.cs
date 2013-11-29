@@ -80,6 +80,20 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Enables the following encryption algorithms by default:</para>
+		/// <list type="bullet">
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia256"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia192"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Aes256"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Aes192"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Aes128"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Idea"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.TripleDes"/></term></item>
+		/// </list>
+		/// </remarks>
 		protected SecureMimeContext ()
 		{
 			foreach (var algorithm in DefaultEncryptionAlgorithmRank) {
@@ -94,6 +108,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The signature protocol.</value>
 		public override string SignatureProtocol {
 			get { return "application/pkcs7-signature"; }
@@ -102,6 +121,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the encryption protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The encryption protocol.</value>
 		public override string EncryptionProtocol {
 			get { return "application/pkcs7-mime"; }
@@ -141,24 +165,38 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// <para>Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
+		/// as used by the micalg parameter value of a multipart/signed Content-Type
+		/// header. For example:</para>
+		/// <list type="table">
+		/// <listheader><term>Algorithm</term><description>Name</description></listheader>
+		/// <item><term><see cref="DigestAlgorithm.MD5"/></term><description>md5</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha1"/></term><description>sha-1</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha224"/></term><description>sha-224</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha256"/></term><description>sha-256</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha384"/></term><description>sha-384</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha512"/></term><description>sha-512</description></item>
+		/// </list>
+		/// </remarks>
 		/// <returns>The micalg value.</returns>
 		/// <param name="micalg">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public override string GetMicAlgorithmName (DigestAlgorithm micalg)
+		public override string GetDigestAlgorithmName (DigestAlgorithm micalg)
 		{
 			switch (micalg) {
 			case DigestAlgorithm.MD5:        return "md5";
-			case DigestAlgorithm.Sha1:       return "sha1";
+			case DigestAlgorithm.Sha1:       return "sha-1";
 			case DigestAlgorithm.RipeMD160:  return "ripemd160";
 			case DigestAlgorithm.MD2:        return "md2";
 			case DigestAlgorithm.Tiger192:   return "tiger192";
 			case DigestAlgorithm.Haval5160:  return "haval-5-160";
-			case DigestAlgorithm.Sha256:     return "sha256";
-			case DigestAlgorithm.Sha384:     return "sha384";
-			case DigestAlgorithm.Sha512:     return "sha512";
-			case DigestAlgorithm.Sha224:     return "sha224";
+			case DigestAlgorithm.Sha256:     return "sha-256";
+			case DigestAlgorithm.Sha384:     return "sha-384";
+			case DigestAlgorithm.Sha512:     return "sha-512";
+			case DigestAlgorithm.Sha224:     return "sha-224";
 			case DigestAlgorithm.MD4:        return "md4";
 			default: throw new ArgumentOutOfRangeException ("micalg");
 			}
@@ -167,6 +205,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
+		/// </remarks>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="micalg">The micalg parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -179,15 +220,15 @@ namespace MimeKit.Cryptography {
 
 			switch (micalg.ToLowerInvariant ()) {
 			case "md5":         return DigestAlgorithm.MD5;
-			case "sha1":        return DigestAlgorithm.Sha1;
+			case "sha-1":       return DigestAlgorithm.Sha1;
 			case "ripemd160":   return DigestAlgorithm.RipeMD160;
 			case "md2":         return DigestAlgorithm.MD2;
 			case "tiger192":    return DigestAlgorithm.Tiger192;
 			case "haval-5-160": return DigestAlgorithm.Haval5160;
-			case "sha256":      return DigestAlgorithm.Sha256;
-			case "sha384":      return DigestAlgorithm.Sha384;
-			case "sha512":      return DigestAlgorithm.Sha512;
-			case "sha224":      return DigestAlgorithm.Sha224;
+			case "sha-256":     return DigestAlgorithm.Sha256;
+			case "sha-384":     return DigestAlgorithm.Sha384;
+			case "sha-512":     return DigestAlgorithm.Sha512;
+			case "sha-224":     return DigestAlgorithm.Sha224;
 			case "md4":         return DigestAlgorithm.MD4;
 			default:            return DigestAlgorithm.None;
 			}

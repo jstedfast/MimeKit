@@ -32,7 +32,56 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Enables the following encryption algorithms by default:</para>
+          <list type="bullet">
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Camellia256" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Camellia192" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Camellia128" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Aes256" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Aes192" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Aes128" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Cast5" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.Idea" />
+              </term>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.EncryptionAlgorithm.TripleDes" />
+              </term>
+            </item>
+          </list>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Compress">
@@ -370,7 +419,11 @@
             Gets the encryption protocol.
             </summary>
         <value>The encryption protocol.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The encryption protocol is used by <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />
+            in order to determine what the protocol parameter of the Content-Type
+            header should be.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Export">
@@ -555,9 +608,82 @@
             Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
             </summary>
         <returns>The digest algorithm.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Maps the micalg parameter value string back to the appropriate <see cref="T:MimeKit.Cryptography.DigestAlgorithm" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="micalg" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDigestAlgorithmName">
+      <MemberSignature Language="C#" Value="public override string GetDigestAlgorithmName (MimeKit.Cryptography.DigestAlgorithm micalg);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string GetDigestAlgorithmName(valuetype MimeKit.Cryptography.DigestAlgorithm micalg) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="micalg" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="micalg">The digest algorithm.</param>
+        <summary>
+            Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+            </summary>
+        <returns>The micalg value.</returns>
+        <remarks>
+          <para>Maps the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> to the appropriate string identifier
+            as used by the micalg parameter value of a multipart/signed Content-Type
+            header. For example:</para>
+          <list type="table">
+            <listheader>
+              <term>Algorithm</term>
+              <description>Name</description>
+            </listheader>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.MD5" />
+              </term>
+              <description>md5</description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" />
+              </term>
+              <description>sha-1</description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha224" />
+              </term>
+              <description>sha-224</description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha256" />
+              </term>
+              <description>sha-256</description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha384" />
+              </term>
+              <description>sha-384</description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha512" />
+              </term>
+              <description>sha-512</description>
+            </item>
+          </list>
+        </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="micalg" /> is out of range.
             </exception>
       </Docs>
     </Member>
@@ -610,31 +736,6 @@
             certificate issued by a Certificate Authority (CA) and the certificate at
             the end of the chain.
             </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetMicAlgorithmName">
-      <MemberSignature Language="C#" Value="public override string GetMicAlgorithmName (MimeKit.Cryptography.DigestAlgorithm micalg);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string GetMicAlgorithmName(valuetype MimeKit.Cryptography.DigestAlgorithm micalg) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.17.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="micalg" Type="MimeKit.Cryptography.DigestAlgorithm" />
-      </Parameters>
-      <Docs>
-        <param name="micalg">The digest algorithm.</param>
-        <summary>
-            Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
-            </summary>
-        <returns>The micalg value.</returns>
-        <remarks>To be added.</remarks>
-        <exception cref="T:System.ArgumentOutOfRangeException">
-          <paramref name="micalg" /> is out of range.
-            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPrivateKey">
@@ -927,7 +1028,11 @@
             Gets the signature protocol.
             </summary>
         <value>The signature protocol.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The signature protocol is used by <see cref="T:MimeKit.Cryptography.MultipartSigned" />
+            in order to determine what the protocol parameter of the Content-Type
+            header should be.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Supports">

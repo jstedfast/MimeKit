@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	public abstract class OpenPgpContext : CryptographyContext
 	{
 		/// <summary>
-		/// Gets the public key ring path.
+		/// Gets the public keyring path.
 		/// </summary>
 		/// <value>The public key ring path.</value>
 		protected string PublicKeyRingPath {
@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the secret key ring path.
+		/// Gets the secret keyring path.
 		/// </summary>
 		/// <value>The secret key ring path.</value>
 		protected string SecretKeyRingPath {
@@ -79,6 +79,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The signature protocol.</value>
 		public override string SignatureProtocol {
 			get { return "application/pgp-signature"; }
@@ -87,6 +92,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the encryption protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The encryption protocol.</value>
 		public override string EncryptionProtocol {
 			get { return "application/pgp-encrypted"; }
@@ -126,12 +136,26 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// <para>Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
+		/// as used by the micalg parameter value of a multipart/signed Content-Type
+		/// header. For example:</para>
+		/// <list type="table">
+		/// <listheader><term>Algorithm</term><description>Name</description></listheader>
+		/// <item><term><see cref="DigestAlgorithm.MD5"/></term><description>pgp-md5</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha1"/></term><description>pgp-sha1</description></item>
+		/// <item><term><see cref="DigestAlgorithm.RipeMD160"/></term><description>pgp-ripemd160</description></item>
+		/// <item><term><see cref="DigestAlgorithm.MD2"/></term><description>pgp-md2</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Tiger192"/></term><description>pgp-tiger192</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Haval5160"/></term><description>pgp-haval-5-160</description></item>
+		/// </list>
+		/// </remarks>
 		/// <returns>The micalg value.</returns>
 		/// <param name="micalg">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public override string GetMicAlgorithmName (DigestAlgorithm micalg)
+		public override string GetDigestAlgorithmName (DigestAlgorithm micalg)
 		{
 			switch (micalg) {
 			case DigestAlgorithm.MD5:        return "pgp-md5";
@@ -152,6 +176,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
+		/// </remarks>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="micalg">The micalg parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -383,6 +410,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the 
 		/// specified <see cref="DigestAlgorithm"/>. 
 		/// </summary>
+		/// <remarks>
+		/// Maps a <see cref="DigestAlgorithm"/> to the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>.
+		/// </remarks>
 		/// <returns>The hash algorithm.</returns>
 		/// <param name="digestAlgo">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">

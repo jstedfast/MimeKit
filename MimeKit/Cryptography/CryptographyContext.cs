@@ -47,12 +47,22 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The signature protocol.</value>
 		public abstract string SignatureProtocol { get; }
 
 		/// <summary>
 		/// Gets the encryption protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The encryption protocol.</value>
 		public abstract string EncryptionProtocol { get; }
 
@@ -80,6 +90,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
+		/// <remarks>
+		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
+		/// or multipart/encrypted part is supported by the supplied cryptography context.
+		/// </remarks>
 		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -90,16 +104,24 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
+		/// as used by the micalg parameter value of a multipart/signed Content-Type
+		/// header.
+		/// </remarks>
 		/// <returns>The micalg value.</returns>
 		/// <param name="micalg">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
-		public abstract string GetMicAlgorithmName (DigestAlgorithm micalg);
+		public abstract string GetDigestAlgorithmName (DigestAlgorithm micalg);
 
 		/// <summary>
 		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
+		/// </remarks>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="micalg">The micalg parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -259,7 +281,7 @@ namespace MimeKit.Cryptography {
 					if (OpenPgpContextConstructor != null)
 						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
 
-					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.GnuPGContext and then registering it with MimeKit.Cryptography.CryptographyContext.Register().");
+					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.GnuPGContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
 				default:
 					throw new NotSupportedException ();
 				}
