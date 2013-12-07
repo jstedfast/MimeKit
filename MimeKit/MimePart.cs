@@ -267,6 +267,31 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Calculates the most efficient content encoding given the specified constraint.
+		/// </summary>
+		/// <remarks>
+		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// </remarks>
+		/// <returns>The most efficient content encoding.</returns>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
+		{
+			if (ContentObject == null)
+				return ContentEncoding.SevenBit;
+
+			using (var measure = new MeasuringStream ()) {
+				using (var filtered = new FilteredStream (measure)) {
+					var filter = new BestEncodingFilter ();
+
+					filtered.Add (filter);
+					ContentObject.DecodeTo (filtered);
+					filtered.Flush ();
+
+					return filter.GetBestEncoding (constraint);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Computes the md5sum of the content.
 		/// </summary>
 		/// <returns>The md5sum of the content.</returns>
@@ -284,13 +309,12 @@ namespace MimeKit {
 			byte[] checksum;
 
 			using (var filtered = new FilteredStream (stream)) {
-				if (ContentObject.Encoding > ContentEncoding.Binary)
-					filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
+				filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
 
 				if (ContentType.Matches ("text", "*"))
 					filtered.Add (new Unix2DosFilter ());
 
-				using (var md5 = MD5.Create ())
+				using (var md5 = HashAlgorithm.Create ("MD5"))
 					checksum = md5.ComputeHash (filtered);
 			}
 
@@ -313,6 +337,18 @@ namespace MimeKit {
 			return md5sum == ComputeContentMd5 ();
 		}
 
+		static bool NeedsEncoding (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.EightBit:
+			case ContentEncoding.Binary:
+			case ContentEncoding.Default:
+				return true;
+			default:
+				return false;
+			}
+		}
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified stream.
 		/// </summary>
@@ -325,38 +361,52 @@ namespace MimeKit {
 		/// </exception>
 		public override void WriteTo (FormatOptions options, Stream stream)
 		{
-			base.WriteTo (options, stream);
+			var saved = encoding;
 
-			if (ContentObject == null)
-				return;
+			if (NeedsEncoding (encoding)) {
+				var best = GetBestEncoding (options.EncodingConstraint);
 
-			if (ContentObject.Encoding != encoding) {
-				if (encoding == ContentEncoding.UUEncode) {
-					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
-					var buffer = Encoding.UTF8.GetBytes (begin);
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				}
+				if (best != ContentEncoding.SevenBit)
+					ContentTransferEncoding = best;
+			}
 
-				// transcode the content into the desired Content-Transfer-Encoding
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (encoding));
-					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.DecodeTo (filtered);
-					filtered.Flush ();
-				}
+			try {
+				base.WriteTo (options, stream);
 
-				if (encoding == ContentEncoding.UUEncode) {
-					var buffer = Encoding.ASCII.GetBytes ("end");
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (ContentObject == null)
+					return;
+
+				if (ContentObject.Encoding != encoding) {
+					if (encoding == ContentEncoding.UUEncode) {
+						var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
+						var buffer = Encoding.UTF8.GetBytes (begin);
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
+
+					// transcode the content into the desired Content-Transfer-Encoding
+					using (var filtered = new FilteredStream (stream)) {
+						filtered.Add (EncoderFilter.Create (encoding));
+						filtered.Add (options.CreateNewLineFilter ());
+						ContentObject.DecodeTo (filtered);
+						filtered.Flush ();
+					}
+
+					if (encoding == ContentEncoding.UUEncode) {
+						var buffer = Encoding.ASCII.GetBytes ("end");
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
+				} else {
+					using (var filtered = new FilteredStream (stream)) {
+						filtered.Add (options.CreateNewLineFilter ());
+						ContentObject.WriteTo (filtered);
+						filtered.Flush ();
+					}
 				}
-			} else {
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.WriteTo (filtered);
-					filtered.Flush ();
-				}
+			} finally {
+				if (saved != ContentEncoding.Default)
+					ContentTransferEncoding = saved;
 			}
 		}
 

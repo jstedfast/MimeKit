@@ -109,6 +109,11 @@ namespace MimeKit {
 		ContentLanguage,
 
 		/// <summary>
+		/// The Content-Length header field.
+		/// </summary>
+		ContentLength,
+
+		/// <summary>
 		/// The Content-Location header field.
 		/// </summary>
 		ContentLocation,

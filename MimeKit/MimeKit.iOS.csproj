@@ -105,6 +105,7 @@
     <Compile Include="IO\MeasuringStream.cs" />
     <Compile Include="IO\MemoryBlockStream.cs" />
     <Compile Include="IO\Filters\ArmoredFromFilter.cs" />
+    <Compile Include="IO\Filters\BestEncodingFilter.cs" />
     <Compile Include="IO\Filters\CharsetFilter.cs" />
     <Compile Include="IO\Filters\DecoderFilter.cs" />
     <Compile Include="IO\Filters\Dos2UnixFilter.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="ContentObject.cs" />
     <Compile Include="ContentType.cs" />
     <Compile Include="DomainList.cs" />
+    <Compile Include="EncodingConstraint.cs" />
     <Compile Include="FormatOptions.cs" />
     <Compile Include="GroupAddress.cs" />
     <Compile Include="Header.cs" />

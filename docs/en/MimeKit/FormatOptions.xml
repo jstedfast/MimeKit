@@ -65,6 +65,45 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="EncodingConstraint">
+      <MemberSignature Language="C#" Value="public MimeKit.EncodingConstraint EncodingConstraint { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.EncodingConstraint EncodingConstraint" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.EncodingConstraint</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the encoding constraint.
+            </summary>
+        <value>The encoding constraint.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HiddenHeaders">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.HashSet&lt;MimeKit.HeaderId&gt; HiddenHeaders { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.HashSet`1&lt;valuetype MimeKit.HeaderId&gt; HiddenHeaders" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.HashSet&lt;MimeKit.HeaderId&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the message headers that should be hidden.
+            </summary>
+        <value>The message headers.</value>
+        <remarks>
+            This is meant for the purposes of removing Bcc and Resent-Bcc
+            headers when sending via a transport such as SMTP.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="MaxLineLength">
       <MemberSignature Language="C#" Value="public int MaxLineLength { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 MaxLineLength" />

@@ -246,6 +246,30 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+      </Parameters>
+      <Docs>
+        <param name="constraint">To be added.</param>
+        <summary>
+            Calculates the most efficient content encoding given the specified constraint.
+            </summary>
+        <returns>The most efficient content encoding.</returns>
+        <remarks>
+            If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="IsAttachment">
       <MemberSignature Language="C#" Value="public bool IsAttachment { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance bool IsAttachment" />

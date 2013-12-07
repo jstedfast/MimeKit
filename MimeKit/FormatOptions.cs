@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 using MimeKit.IO.Filters;
 
@@ -102,6 +103,26 @@ namespace MimeKit {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the encoding constraint.
+		/// </summary>
+		/// <value>The encoding constraint.</value>
+		public EncodingConstraint EncodingConstraint {
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets the message headers that should be hidden.
+		/// </summary>
+		/// <remarks>
+		/// This is meant for the purposes of removing Bcc and Resent-Bcc
+		/// headers when sending via a transport such as SMTP.
+		/// </remarks>
+		/// <value>The message headers.</value>
+		public HashSet<HeaderId> HiddenHeaders {
+			get; private set;
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -112,6 +133,9 @@ namespace MimeKit {
 				Default.NewLineFormat = NewLineFormat.Unix;
 			else
 				Default.NewLineFormat = NewLineFormat.Dos;
+
+			Default.EncodingConstraint = EncodingConstraint.None;
+			Default.HiddenHeaders = new HashSet<HeaderId> ();
 		}
 
 		/// <summary>
@@ -122,6 +146,8 @@ namespace MimeKit {
 			var options = new FormatOptions ();
 			options.MaxLineLength = MaxLineLength;
 			options.NewLineFormat = NewLineFormat;
+			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
+			options.EncodingConstraint = EncodingConstraint;
 			options.WriteHeaders = true;
 			return options;
 		}

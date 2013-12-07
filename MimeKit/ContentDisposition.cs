@@ -31,8 +31,12 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
-	/// A class representing a Content-Type header value.
+	/// A class representing a Content-Disposition header value.
 	/// </summary>
+	/// <remarks>
+	/// The Content-Disposition header is a way for the originating client to
+	/// suggest to the receiving client how to present the part to the user.
+	/// </remarks>
 	public sealed class ContentDisposition
 	{
 		/// <summary>

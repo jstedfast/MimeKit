@@ -1,0 +1,71 @@
+<Type Name="EncodingConstraint" FullName="MimeKit.EncodingConstraint">
+  <TypeSignature Language="C#" Value="public enum EncodingConstraint" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed EncodingConstraint extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.17.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            A content encoding constraint.
+            </summary>
+    <remarks>
+            Not all message transports support binary or 8-bit data, so it becomes
+            necessary to constrain the content encoding to a subset of the possible
+            Content-Transfer-Encoding values.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="EightBit">
+      <MemberSignature Language="C#" Value="EightBit" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.EncodingConstraint EightBit = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.EncodingConstraint</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The content may contain bytes with the high bit set, but must not contain any zero-bytes.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="None">
+      <MemberSignature Language="C#" Value="None" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.EncodingConstraint None = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.EncodingConstraint</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            There are no encoding constraints, the content may contain any byte.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="SevenBit">
+      <MemberSignature Language="C#" Value="SevenBit" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.EncodingConstraint SevenBit = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.EncodingConstraint</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The content may only contain bytes within the 7-bit ASCII range.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

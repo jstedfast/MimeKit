@@ -29,6 +29,11 @@ namespace MimeKit {
 	/// An enumeration of all supported content transfer encodings.
 	/// <seealso cref="MimeKit.MimePart.ContentTransferEncoding"/>.
 	/// </summary>
+	/// <remarks>
+	/// Some older mail software is unable to properly deal with
+	/// data outside of the ASCII range, so it is sometimes
+	/// necessary to encode the content of MIME entities.
+	/// </remarks>
 	public enum ContentEncoding {
 		/// <summary>
 		/// The default encoding (aka no encoding at all).

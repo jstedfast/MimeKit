@@ -1,6 +1,6 @@
-<Type Name="MimeFilterBase" FullName="MimeKit.IO.Filters.MimeFilterBase">
-  <TypeSignature Language="C#" Value="public abstract class MimeFilterBase : MimeKit.IO.Filters.IMimeFilter" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeFilterBase extends System.Object implements class MimeKit.IO.Filters.IMimeFilter" />
+<Type Name="BestEncodingFilter" FullName="MimeKit.IO.Filters.BestEncodingFilter">
+  <TypeSignature Language="C#" Value="public class BestEncodingFilter : MimeKit.IO.Filters.IMimeFilter" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit BestEncodingFilter extends System.Object implements class MimeKit.IO.Filters.IMimeFilter" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -15,43 +15,25 @@
   </Interfaces>
   <Docs>
     <summary>
-            A base implementation for MIME filters.
+            A filter that can be used to determine the most efficient Content-Transfer-Encoding.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Keeps track of the content that gets passed through the filter in order to
+            determine the most efficient <see cref="T:MimeKit.ContentEncoding" /> to use.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected MimeFilterBase ();" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="C#" Value="public BestEncodingFilter ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="EnsureOutputSize">
-      <MemberSignature Language="C#" Value="protected void EnsureOutputSize (int size, bool keep);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void EnsureOutputSize(int32 size, bool keep) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.17.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="size" Type="System.Int32" />
-        <Parameter Name="keep" Type="System.Boolean" />
-      </Parameters>
-      <Docs>
-        <param name="size">The minimum size needed.</param>
-        <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
         <summary>
-            Ensures that the output buffer is greater than or equal to the specified size.
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.BestEncodingFilter" /> class.
             </summary>
         <remarks>To be added.</remarks>
       </Docs>
@@ -93,38 +75,6 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="Filter">
-      <MemberSignature Language="C#" Value="protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.17.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Byte[]</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="input" Type="System.Byte[]" />
-        <Parameter Name="startIndex" Type="System.Int32" />
-        <Parameter Name="length" Type="System.Int32" />
-        <Parameter Name="outputIndex" Type="System.Int32&amp;" RefType="out" />
-        <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
-        <Parameter Name="flush" Type="System.Boolean" />
-      </Parameters>
-      <Docs>
-        <param name="input">The input buffer.</param>
-        <param name="startIndex">The starting index of the input buffer.</param>
-        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
-        <param name="outputIndex">The output index.</param>
-        <param name="outputLength">The output length.</param>
-        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
-        <summary>
-            Filter the specified input.
-            </summary>
-        <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Flush">
       <MemberSignature Language="C#" Value="public byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] Flush(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength) cil managed" />
@@ -162,23 +112,30 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="output">
-      <MemberSignature Language="C#" Value="protected byte[] output;" />
-      <MemberSignature Language="ILAsm" Value=".field family unsigned int8[] output" />
-      <MemberType>Field</MemberType>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint) cil managed" />
+      <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Byte[]</ReturnType>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
       </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+      </Parameters>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="constraint">The encoding constraint.</param>
+        <summary>
+            Gets the best encoding given the specified constraints.
+            </summary>
+        <returns>The best encoding.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
-      <MemberSignature Language="C#" Value="public virtual void Reset ();" />
+      <MemberSignature Language="C#" Value="public void Reset ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
@@ -191,31 +148,6 @@
       <Docs>
         <summary>
             Resets the filter.
-            </summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="SaveRemainingInput">
-      <MemberSignature Language="C#" Value="protected void SaveRemainingInput (byte[] input, int startIndex, int length);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SaveRemainingInput(unsigned int8[] input, int32 startIndex, int32 length) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.17.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="input" Type="System.Byte[]" />
-        <Parameter Name="startIndex" Type="System.Int32" />
-        <Parameter Name="length" Type="System.Int32" />
-      </Parameters>
-      <Docs>
-        <param name="input">The input buffer.</param>
-        <param name="startIndex">The starting index of the buffer to save.</param>
-        <param name="length">The length of the buffer to save, starting at <paramref name="startIndex" />.</param>
-        <summary>
-            Saves the remaining input for the next round of processing.
             </summary>
         <remarks>To be added.</remarks>
       </Docs>

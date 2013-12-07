@@ -574,6 +574,9 @@ namespace MimeKit {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					foreach (var header in MergeHeaders ()) {
+						if (options.HiddenHeaders.Contains (header.Id))
+							continue;
+
 						var name = Encoding.ASCII.GetBytes (header.Field);
 
 						filtered.Write (name, 0, name.Length);

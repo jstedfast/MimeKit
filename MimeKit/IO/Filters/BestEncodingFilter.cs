@@ -1,9 +1,9 @@
-﻿//
-// MimeFilterBase.cs
+//
+// BestEncodingFilter.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,57 +28,127 @@ using System;
 
 namespace MimeKit.IO.Filters {
 	/// <summary>
-	/// A base implementation for MIME filters.
+	/// A filter that can be used to determine the most efficient Content-Transfer-Encoding.
 	/// </summary>
-    public abstract class MimeFilterBase : IMimeFilter
-    {
-		protected byte[] output = null;
-		byte[] preload = null;
-		byte[] inbuf = null;
-		int preloadLength;
+	/// <remarks>
+	/// Keeps track of the content that gets passed through the filter in order to
+	/// determine the most efficient <see cref="ContentEncoding"/> to use.
+	/// </remarks>
+	public class BestEncodingFilter : IMimeFilter
+	{
+		readonly byte[] marker = new byte[6];
+		bool midline, hasMarker;
+		int maxline, linelen;
+		int count0, count8;
+		int markerLength;
+		int total;
 
 		/// <summary>
-		/// Filter the specified input.
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.BestEncodingFilter"/> class.
 		/// </summary>
-		/// <returns>The filtered output.</returns>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
-		/// <param name="outputIndex">The output index.</param>
-		/// <param name="outputLength">The output length.</param>
-		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
-		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);
-
-		static int GetIdealBufferSize (int need)
+		public BestEncodingFilter ()
 		{
-			return (need + 63) & ~63;
 		}
 
-		byte[] PreFilter (byte[] input, ref int startIndex, ref int length)
+		/// <summary>
+		/// Gets the best encoding given the specified constraints.
+		/// </summary>
+		/// <returns>The best encoding.</returns>
+		/// <param name="constraint">The encoding constraint.</param>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
 		{
-			if (preloadLength == 0)
-				return input;
-			
-			// We need to preload any data from a previous filter iteration into 
-			// the input buffer, so make sure that we have room...
-			int totalLength = length + preloadLength;
-			
-			if (inbuf == null || inbuf.Length < totalLength) {
-				// NOTE: Array.Resize() copies data, we don't need that (slower)
-				inbuf = new byte[GetIdealBufferSize (totalLength)];
+			switch (constraint) {
+			case EncodingConstraint.SevenBit:
+				if (count0 > 0)
+					return ContentEncoding.Base64;
+
+				if (count8 > 0) {
+					if (count8 >= (int) (total * (17.0 / 100.0)))
+						return ContentEncoding.Base64;
+
+					return ContentEncoding.QuotedPrintable;
+				}
+
+				if (maxline > 998)
+					return ContentEncoding.QuotedPrintable;
+
+				break;
+			case EncodingConstraint.EightBit:
+				if (count0 > 0)
+					return ContentEncoding.Base64;
+
+				if (maxline > 998)
+					return ContentEncoding.QuotedPrintable;
+
+				if (count8 > 0)
+					return ContentEncoding.EightBit;
+
+				break;
+			case EncodingConstraint.None:
+				if (count0 > 0)
+					return ContentEncoding.Binary;
+
+				if (count8 > 0)
+					return ContentEncoding.EightBit;
+
+				break;
 			}
-			
-			// Copy our preload data into our internal input buffer
-			Array.Copy (preload, 0, inbuf, 0, preloadLength);
-			
-			// Copy our input to the end of our internal input buffer
-			Array.Copy (input, startIndex, inbuf, preloadLength, length);
-			
-			startIndex = preloadLength;
-			length = totalLength;
-			preloadLength = 0;
-			
-			return inbuf;
+
+			if (hasMarker)
+				return ContentEncoding.QuotedPrintable;
+
+			return ContentEncoding.SevenBit;
+		}
+
+		#region IMimeFilter implementation
+
+		static unsafe bool IsMboxMarker (byte[] marker)
+		{
+			const uint FromMask = 0xFFFFFFFF;
+			const uint From     = 0x6D6F7246;
+
+			fixed (byte* buf = marker) {
+				uint* word = (uint*) buf;
+
+				if ((*word & FromMask) != From)
+					return false;
+
+				return *(buf + 4) == (byte) ' ';
+			}
+		}
+
+		unsafe void Scan (byte* inptr, byte* inend)
+		{
+			byte c;
+
+			while (inptr < inend) {
+				if (midline) {
+					while (inptr < inend && (c = *inptr++) != (byte) '\n') {
+						if (c == 0)
+							count0++;
+						else if ((c & 0x80) != 0)
+							count8++;
+
+						if (!hasMarker && markerLength > 0 && markerLength < 5)
+							marker[markerLength++] = c;
+
+						linelen++;
+					}
+
+					if (c == (byte) '\n') {
+						maxline = Math.Max (maxline, linelen);
+						midline = false;
+						linelen = 0;
+					}
+				}
+
+				// check our from-save buffer for "From "
+				if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
+					hasMarker = true;
+
+				markerLength = 0;
+				midline = true;
+			}
 		}
 
 		static void ValidateArguments (byte[] input, int startIndex, int length)
@@ -92,7 +162,7 @@ namespace MimeKit.IO.Filters {
 			if (length < 0 || startIndex + length > input.Length)
 				throw new ArgumentOutOfRangeException ("length");
 		}
-		
+
 		/// <summary>
 		/// Filters the specified input.
 		/// </summary>
@@ -112,11 +182,21 @@ namespace MimeKit.IO.Filters {
 		{
 			ValidateArguments (input, startIndex, length);
 
-			input = PreFilter (input, ref startIndex, ref length);
-			
-			return Filter (input, startIndex, length, out outputIndex, out outputLength, false);
+			unsafe {
+				fixed (byte* inptr = input) {
+					Scan (inptr + startIndex, inptr + startIndex + length);
+				}
+			}
+
+			maxline = Math.Max (maxline, linelen);
+			total += length;
+
+			outputIndex = startIndex;
+			outputLength = length;
+
+			return input;
 		}
-		
+
 		/// <summary>
 		/// Filters the specified input, flushing all internally buffered data to the output.
 		/// </summary>
@@ -134,58 +214,25 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public byte[] Flush (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
-			ValidateArguments (input, startIndex, length);
-
-			input = PreFilter (input, ref startIndex, ref length);
-
-			return Filter (input, startIndex, length, out outputIndex, out outputLength, true);
+			return Filter (input, startIndex, length, out outputIndex, out outputLength);
 		}
 
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
-		public virtual void Reset ()
+		public void Reset ()
 		{
-			preloadLength = 0;
+			hasMarker = false;
+			markerLength = 0;
+			midline = false;
+			linelen = 0;
+			maxline = 0;
+			count0 = 0;
+			count8 = 0;
+			total = 0;
 		}
 
-		/// <summary>
-		/// Saves the remaining input for the next round of processing.
-		/// </summary>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the buffer to save.</param>
-		/// <param name="length">The length of the buffer to save, starting at <paramref name="startIndex"/>.</param>
-		protected void SaveRemainingInput (byte[] input, int startIndex, int length)
-		{
-			if (length == 0)
-				return;
-
-			if (preload == null || preload.Length < length)
-				preload = new byte[GetIdealBufferSize (length)];
-
-			Array.Copy (input, startIndex, preload, 0, length);
-			preloadLength = length;
-		}
-
-		/// <summary>
-		/// Ensures that the output buffer is greater than or equal to the specified size.
-		/// </summary>
-		/// <param name="size">The minimum size needed.</param>
-		/// <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
-		protected void EnsureOutputSize (int size, bool keep)
-		{
-			if (size == 0)
-				return;
-
-			int outputSize = output != null ? output.Length : 0;
-
-			if (outputSize >= size)
-				return;
-
-			if (keep)
-				Array.Resize<byte> (ref output, GetIdealBufferSize (size));
-			else
-				output = new byte[GetIdealBufferSize (size)];
-		}
+		#endregion
 	}
 }
+

@@ -11,9 +11,12 @@
   <Interfaces />
   <Docs>
     <summary>
-            A class representing a Content-Type header value.
+            A class representing a Content-Disposition header value.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The Content-Disposition header is a way for the originating client to
+            suggest to the receiving client how to present the part to the user.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

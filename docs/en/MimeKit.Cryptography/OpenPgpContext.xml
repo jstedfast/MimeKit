@@ -453,7 +453,9 @@
             specified <see cref="T:MimeKit.Cryptography.DigestAlgorithm" />.
             </summary>
         <returns>The hash algorithm.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Maps a <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> to the equivalent <see cref="T:Org.BouncyCastle.Bcpg.HashAlgorithmTag" />.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="digestAlgo" /> is out of range.
             </exception>
@@ -763,7 +765,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the public key ring path.
+            Gets the public keyring path.
             </summary>
         <value>The public key ring path.</value>
         <remarks>To be added.</remarks>
@@ -841,7 +843,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the secret key ring path.
+            Gets the secret keyring path.
             </summary>
         <value>The secret key ring path.</value>
         <remarks>To be added.</remarks>
