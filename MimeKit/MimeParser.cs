@@ -108,7 +108,7 @@ namespace MimeKit {
 
 		// I/O buffering
 		readonly byte[] input = new byte[ReadAheadSize + BlockSize + PadSize];
-		readonly int inputStart = ReadAheadSize;
+		const int inputStart = ReadAheadSize;
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
 
@@ -542,7 +542,7 @@ namespace MimeKit {
 
 			left += save;
 
-			// attempt to align the end of the remaining input with BackBufferSize
+			// attempt to align the end of the remaining input with ReadAheadSize
 			if (index >= start) {
 				start -= left < ReadAheadSize ? left : ReadAheadSize;
 				MemMove (inbuf, index, start, left);

@@ -196,7 +196,8 @@
       <Parameters />
       <Docs>
         <summary>
-            Flushes any internal output buffers.
+            Clears all buffers for this stream and causes any buffered data to be written
+            to the underlying device.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
@@ -204,6 +205,9 @@
             </exception>
         <exception cref="T:System.NotSupportedException">
             The stream does not support writing.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
             </exception>
       </Docs>
     </Member>
@@ -219,12 +223,16 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the length of the stream.
+            Gets the length in bytes of the stream.
             </summary>
+        <value>A long value representing the length of the stream in bytes.</value>
         <value>The length of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.NotSupportedException">
-            The stream does not support setting the length.
+            The stream does not support seeking.
+            </exception>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
             </exception>
       </Docs>
     </Member>
@@ -240,12 +248,19 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the position of the stream.
+            Gets or sets the position within the current stream.
             </summary>
+        <value>The current position within the stream.</value>
         <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.NotSupportedException">
             The stream does not support seeking.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
             </exception>
       </Docs>
     </Member>
@@ -269,15 +284,30 @@
         <param name="offset">The offset into the buffer to start reading data.</param>
         <param name="count">The number of bytes to read.</param>
         <summary>
-            Reads data into the specified buffer.
+            Reads a sequence of bytes from the stream and advances the position
+            within the stream by the number of bytes read.
             </summary>
-        <returns>The number of bytes read.</returns>
+        <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+            bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
         <exception cref="T:System.NotSupportedException">
             The stream does not support reading.
+            </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
+          <para>-or-</para>
+          <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes strting
+            at the specified <paramref name="offet" />.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
             </exception>
       </Docs>
     </Member>
@@ -293,8 +323,9 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the read timeout.
+            Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -339,12 +370,12 @@
         <Parameter Name="origin" Type="System.IO.SeekOrigin" />
       </Parameters>
       <Docs>
-        <param name="offset">The offset from the specified origin.</param>
-        <param name="origin">The origin from which to seek.</param>
+        <param name="offset">The offset into the stream relative to the <paramref name="origin" />.</param>
+        <param name="origin">The origin to seek from.</param>
         <summary>
-            Seeks to the specified offset.
+            Sets the position within the current stream.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The new position within the stream.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.NotSupportedException">
             The stream does not support seeking.
@@ -365,9 +396,9 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="value">The new length.</param>
+        <param name="value">The desired length of the stream in bytes.</param>
         <summary>
-            Sets the length.
+            Sets the length of the stream.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
@@ -416,7 +447,8 @@
         <param name="offset">The offset of the first byte to write.</param>
         <param name="count">The number of bytes to write.</param>
         <summary>
-            Writes the specified buffer.
+            Writes a sequence of bytes to the stream and advances the current
+            position within this stream by the number of bytes written.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
@@ -424,6 +456,19 @@
             </exception>
         <exception cref="T:System.NotSupportedException">
             The stream does not support writing.
+            </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
+          <para>-or-</para>
+          <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes strting
+            at the specified <paramref name="offet" />.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
             </exception>
       </Docs>
     </Member>
@@ -439,8 +484,9 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the write timeout.
+            Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
