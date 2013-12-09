@@ -166,9 +166,13 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length of the stream.
+		/// Gets the length in bytes of the stream.
 		/// </summary>
+		/// <returns>A long value representing the length of the stream in bytes.</returns>
 		/// <value>The length of the stream.</value>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -187,14 +191,18 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position of the stream.
+		/// Gets or sets the position within the current stream.
 		/// </summary>
+		/// <returns>The current position within the stream.</returns>
 		/// <value>The position of the stream.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The stream has been disposed.
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
 		/// </exception>
 		public override long Position {
 			get { return position; }
@@ -202,8 +210,9 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the read timeout.
+		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
 		/// </summary>
+		/// <returns>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</returns>
 		/// <value>The read timeout.</value>
 		public override int ReadTimeout {
 			get { return BaseStream.ReadTimeout; }
@@ -211,8 +220,9 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the write timeout.
+		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
 		/// </summary>
+		/// <returns>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</returns>
 		/// <value>The write timeout.</value>
 		public override int WriteTimeout {
 			get { return BaseStream.WriteTimeout; }
@@ -232,17 +242,31 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Reads data into the specified buffer.
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
 		/// </summary>
-		/// <returns>The number of bytes read.</returns>
-		/// <param name='buffer'>The buffer to read data into.</param>
-		/// <param name='offset'>The offset into the buffer to start reading data.</param>
-		/// <param name='count'>The number of bytes to read.</param>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offet"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
@@ -273,16 +297,29 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Writes the specified buffer.
+		/// Writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <param name='buffer'>The buffer to write.</param>
 		/// <param name='offset'>The offset of the first byte to write.</param>
 		/// <param name='count'>The number of bytes to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offet"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
@@ -309,18 +346,19 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Seeks to the specified offset.
+		/// Sets the position within the current stream.
 		/// </summary>
-		/// <param name='offset'>The offset from the specified origin.</param>
-		/// <param name='origin'>The origin from which to seek.</param>
+		/// <returns>The new position within the stream.</returns>
+		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
+		/// <param name="origin">The origin to seek from.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -381,13 +419,17 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Flushes any internal output buffers.
+		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
 		/// </summary>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override void Flush ()
 		{
@@ -398,9 +440,9 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Sets the length.
+		/// Sets the length of the stream.
 		/// </summary>
-		/// <param name='value'>The new length.</param>
+		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
