@@ -119,10 +119,10 @@ namespace MimeKit.IO.Filters {
 
 		unsafe void Scan (byte* inptr, byte* inend)
 		{
-			byte c;
-
 			while (inptr < inend) {
 				if (midline) {
+					byte c = 0;
+
 					while (inptr < inend && (c = *inptr++) != (byte) '\n') {
 						if (c == 0)
 							count0++;
