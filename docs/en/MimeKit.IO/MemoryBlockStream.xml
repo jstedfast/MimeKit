@@ -170,7 +170,6 @@
         <summary>
             Gets the length in bytes of the stream.
             </summary>
-        <value>The length of the stream.</value>
         <value>The length of the stream in bytes.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
