@@ -49,7 +49,6 @@ namespace MimeKit.IO {
 		int filteredIndex;
 		byte[] filtered;
 		byte[] readbuf;
-		long position;
 		bool disposed;
 		bool flushed;
 
@@ -65,7 +64,6 @@ namespace MimeKit.IO {
 			if (source == null)
 				throw new ArgumentNullException ("source");
 
-			position = source.Position;
 			Source = source;
 		}
 
@@ -204,7 +202,7 @@ namespace MimeKit.IO {
 		/// The stream has been disposed.
 		/// </exception>
 		public override long Position {
-			get { return position; }
+			get { throw new NotSupportedException ("The stream does not support seeking"); }
 			set { throw new NotSupportedException ("The stream does not support seeking"); }
 		}
 
@@ -302,7 +300,6 @@ namespace MimeKit.IO {
 				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
 				filteredLength -= nread;
 				filteredIndex += nread;
-				position += nread;
 			}
 
 			return nread;
@@ -351,7 +348,6 @@ namespace MimeKit.IO {
 				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
 			Source.Write (filtered, filteredIndex, filteredLength);
-			position += count;
 		}
 
 		/// <summary>

@@ -281,7 +281,7 @@ namespace MimeKit {
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (options, stream);
+			base.WriteTo (options, stream, token);
 
 			if (RawPreamble != null && RawPreamble.Length > 0) {
 				token.ThrowIfCancellationRequested ();
