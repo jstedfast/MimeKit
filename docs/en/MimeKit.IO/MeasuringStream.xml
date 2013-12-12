@@ -170,6 +170,9 @@
         <value>The length of the stream.</value>
         <value>A long value representing the length of the stream in bytes.</value>
         <value>The length of the stream.</value>
+        <value>A long value representing the length of the stream in bytes.</value>
+        <value>The length of the stream.</value>
+        <value>The length of the stream in bytes.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -192,6 +195,9 @@
             </summary>
         <value>The position of the stream.</value>
         <value>The current position within the stream.</value>
+        <value>The position of the stream.</value>
+        <value>The current position within the stream.</value>
+        <value>The position of the stream.</value>
         <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">

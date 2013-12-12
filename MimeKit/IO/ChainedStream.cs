@@ -143,8 +143,7 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length in bytes of the stream.
 		/// </summary>
-		/// <returns>A long value representing the length of the stream in bytes.</returns>
-		/// <value>The length of the stream.</value>
+		/// <value>The length of the stream in bytes.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
 		/// </exception>
@@ -167,7 +166,6 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position within the current stream.
 		/// </summary>
-		/// <returns>The current position within the stream.</returns>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.

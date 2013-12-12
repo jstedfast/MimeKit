@@ -274,8 +274,8 @@
       </Docs>
     </Member>
     <Member MemberName="GetBestEncoding">
-      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, System.Threading.CancellationToken token);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -285,11 +285,11 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
-        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="constraint">The encoding constraint.</param>
-        <param name="token">A cancellation token.</param>
+        <param name="cancellationToken">A cancellation token.</param>
         <summary>
             Calculates the most efficient content encoding given the specified constraint.
             </summary>
@@ -368,8 +368,8 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken token);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -380,12 +380,12 @@
       <Parameters>
         <Parameter Name="options" Type="MimeKit.FormatOptions" />
         <Parameter Name="stream" Type="System.IO.Stream" />
-        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="options">The formatting options.</param>
         <param name="stream">The output stream.</param>
-        <param name="token">A cancellation token.</param>
+        <param name="cancellationToken">A cancellation token.</param>
         <summary>
             Writes the <see cref="T:MimeKit.MimePart" /> to the specified output stream.
             </summary>

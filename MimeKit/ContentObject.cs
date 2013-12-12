@@ -89,7 +89,7 @@ namespace MimeKit {
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -99,12 +99,12 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken token)
+		public void WriteTo (Stream stream, CancellationToken cancellationToken)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			token.ThrowIfCancellationRequested ();
+			cancellationToken.ThrowIfCancellationRequested ();
 
 			byte[] buf = new byte[4096];
 			int nread;
@@ -113,11 +113,11 @@ namespace MimeKit {
 
 			try {
 				do {
-					token.ThrowIfCancellationRequested ();
+					cancellationToken.ThrowIfCancellationRequested ();
 					if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
 						break;
 
-					token.ThrowIfCancellationRequested ();
+					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (buf, 0, nread);
 				} while (true);
 
@@ -153,7 +153,7 @@ namespace MimeKit {
 		/// Decodes the content stream into another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -163,14 +163,14 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void DecodeTo (Stream stream, CancellationToken token)
+		public void DecodeTo (Stream stream, CancellationToken cancellationToken)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (Encoding));
-				WriteTo (filtered, token);
+				WriteTo (filtered, cancellationToken);
 				filtered.Flush ();
 			}
 		}

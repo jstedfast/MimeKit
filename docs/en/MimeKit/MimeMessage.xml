@@ -262,6 +262,9 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -297,7 +300,7 @@
             The user does not have access to read the specified file.
             </exception>
         <exception cref="T:System.IO.IOException">
-            An error occurred reading the file.
+            An I/O error occurred.
             </exception>
       </Docs>
     </Member>
@@ -330,6 +333,9 @@
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -371,7 +377,169 @@
             The user does not have access to read the specified file.
             </exception>
         <exception cref="T:System.IO.IOException">
-            An error occurred reading the file.
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (string fileName, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="fileName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, string fileName, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
             </exception>
       </Docs>
     </Member>
@@ -960,8 +1128,8 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken token);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -971,11 +1139,11 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
-        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="stream">The output stream.</param>
-        <param name="token">A cancellation token.</param>
+        <param name="cancellationToken">A cancellation token.</param>
         <summary>
             Writes the message to the specified output stream.
             </summary>
@@ -992,8 +1160,8 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken token);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -1004,12 +1172,12 @@
       <Parameters>
         <Parameter Name="options" Type="MimeKit.FormatOptions" />
         <Parameter Name="stream" Type="System.IO.Stream" />
-        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="options">The formatting options.</param>
         <param name="stream">The output stream.</param>
-        <param name="token">A cancellation token.</param>
+        <param name="cancellationToken">A cancellation token.</param>
         <summary>
             Writes the message to the specified output stream.
             </summary>

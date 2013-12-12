@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -129,6 +130,7 @@ namespace MimeKit {
 		MimeFormat format;
 		bool persistent;
 
+		CancellationToken token = CancellationToken.None;
 		ParserOptions options;
 		Stream stream;
 		long offset;
@@ -568,6 +570,8 @@ namespace MimeKit {
 			// reset.
 			if (persistent && stream.Position != offset)
 				stream.Seek (offset, SeekOrigin.Begin);
+
+			token.ThrowIfCancellationRequested ();
 
 			if ((nread = stream.Read (input, start, end - start)) > 0) {
 				inputEnd += nread;
@@ -1349,13 +1353,34 @@ namespace MimeKit {
 		/// Parses an entity from the stream.
 		/// </summary>
 		/// <returns>The parsed entity.</returns>
-		public MimeEntity ParseEntity ()
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public MimeEntity ParseEntity (CancellationToken cancellationToken)
 		{
+			token = cancellationToken;
+
 			unsafe {
 				fixed (byte* inbuf = input) {
 					return ParseEntity (inbuf);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Parses an entity from the stream.
+		/// </summary>
+		/// <returns>The parsed entity.</returns>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public MimeEntity ParseEntity ()
+		{
+			return ParseEntity (CancellationToken.None);
 		}
 
 		unsafe MimeMessage ParseMessage (byte* inbuf)
@@ -1427,13 +1452,34 @@ namespace MimeKit {
 		/// Parses a message from the stream.
 		/// </summary>
 		/// <returns>The parsed message.</returns>
-		public MimeMessage ParseMessage ()
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public MimeMessage ParseMessage (CancellationToken cancellationToken)
 		{
+			token = cancellationToken;
+
 			unsafe {
 				fixed (byte* inbuf = input) {
 					return ParseMessage (inbuf);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Parses a message from the stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public MimeMessage ParseMessage ()
+		{
+			return ParseMessage (CancellationToken.None);
 		}
 	}
 }

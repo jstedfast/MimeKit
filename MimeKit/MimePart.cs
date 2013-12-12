@@ -275,14 +275,14 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The most efficient content encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken token)
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken)
 		{
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
@@ -292,7 +292,7 @@ namespace MimeKit {
 					var filter = new BestEncodingFilter ();
 
 					filtered.Add (filter);
-					ContentObject.DecodeTo (filtered, token);
+					ContentObject.DecodeTo (filtered, cancellationToken);
 					filtered.Flush ();
 
 					return filter.GetBestEncoding (constraint);
@@ -379,7 +379,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -391,7 +391,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			var saved = encoding;
 
@@ -403,13 +403,15 @@ namespace MimeKit {
 			}
 
 			try {
-				base.WriteTo (options, stream, token);
+				base.WriteTo (options, stream, cancellationToken);
 
 				if (ContentObject == null)
 					return;
 
 				if (ContentObject.Encoding != encoding) {
 					if (encoding == ContentEncoding.UUEncode) {
+						cancellationToken.ThrowIfCancellationRequested ();
+
 						var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 						var buffer = Encoding.UTF8.GetBytes (begin);
 						stream.Write (buffer, 0, buffer.Length);
@@ -423,11 +425,13 @@ namespace MimeKit {
 						if (encoding != ContentEncoding.Binary)
 							filtered.Add (options.CreateNewLineFilter ());
 
-						ContentObject.DecodeTo (filtered, token);
+						ContentObject.DecodeTo (filtered, cancellationToken);
 						filtered.Flush ();
 					}
 
 					if (encoding == ContentEncoding.UUEncode) {
+						cancellationToken.ThrowIfCancellationRequested ();
+
 						var buffer = Encoding.ASCII.GetBytes ("end");
 						stream.Write (buffer, 0, buffer.Length);
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
@@ -435,11 +439,11 @@ namespace MimeKit {
 				} else if (encoding != ContentEncoding.Binary) {
 					using (var filtered = new FilteredStream (stream)) {
 						filtered.Add (options.CreateNewLineFilter ());
-						ContentObject.WriteTo (filtered, token);
+						ContentObject.WriteTo (filtered, cancellationToken);
 						filtered.Flush ();
 					}
 				} else {
-					ContentObject.WriteTo (stream, token);
+					ContentObject.WriteTo (stream, cancellationToken);
 				}
 			} finally {
 				if (saved != ContentEncoding.Default)

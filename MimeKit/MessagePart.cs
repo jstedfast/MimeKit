@@ -119,7 +119,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -131,12 +131,12 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
-			base.WriteTo (options, stream, token);
+			base.WriteTo (options, stream, cancellationToken);
 
 			if (Message != null)
-				Message.WriteTo (options, stream, token);
+				Message.WriteTo (options, stream, cancellationToken);
 		}
 	}
 }

@@ -204,7 +204,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -216,10 +216,10 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
+		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			if (options.WriteHeaders)
-				Headers.WriteTo (options, stream, token);
+				Headers.WriteTo (options, stream, cancellationToken);
 			else
 				options.WriteHeaders = true;
 
@@ -248,7 +248,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -258,9 +258,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken token)
+		public void WriteTo (Stream stream, CancellationToken cancellationToken)
 		{
-			WriteTo (FormatOptions.Default, stream, token);
+			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
 		/// <summary>
@@ -420,12 +420,19 @@ namespace MimeKit {
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -435,7 +442,46 @@ namespace MimeKit {
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity);
 
-			return parser.ParseEntity ();
+			return parser.ParseEntity (cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (Stream stream, CancellationToken cancellationToken)
+		{
+			return Load (ParserOptions.Default, stream, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, Stream stream)
+		{
+			return Load (options, stream, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -446,14 +492,81 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public static MimeEntity Load (Stream stream)
 		{
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
+			return Load (ParserOptions.Default, stream, CancellationToken.None);
+		}
 
-			var parser = new MimeParser (stream, MimeFormat.Entity);
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed entity.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
 
-			return parser.ParseEntity ();
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName)) {
+				return Load (options, stream, cancellationToken);
+			}
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed entity.</returns>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (string fileName, CancellationToken cancellationToken)
+		{
+			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}
 
 		/// <summary>
@@ -477,19 +590,11 @@ namespace MimeKit {
 		/// The user does not have access to read the specified file.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
-		/// An error occurred reading the file.
+		/// An I/O error occurred.
 		/// </exception>
 		public static MimeEntity Load (ParserOptions options, string fileName)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
-
-			using (var stream = File.OpenRead (fileName)) {
-				return Load (options, stream);
-			}
+			return Load (options, fileName, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -510,16 +615,11 @@ namespace MimeKit {
 		/// The user does not have access to read the specified file.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
-		/// An error occurred reading the file.
+		/// An I/O error occurred.
 		/// </exception>
 		public static MimeEntity Load (string fileName)
 		{
-			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
-
-			using (var stream = File.OpenRead (fileName)) {
-				return Load (stream);
-			}
+			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
 
 		/// <summary>

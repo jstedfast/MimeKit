@@ -50,7 +50,7 @@ namespace MimeKit {
 		/// Decodes the content stream into another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -60,7 +60,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void DecodeTo (Stream stream, CancellationToken token);
+		void DecodeTo (Stream stream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Decodes the content stream into another stream.
@@ -78,7 +78,7 @@ namespace MimeKit {
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -88,7 +88,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void WriteTo (Stream stream, CancellationToken token);
+		void WriteTo (Stream stream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Copies the content stream to the specified output stream.

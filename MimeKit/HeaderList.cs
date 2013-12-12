@@ -436,7 +436,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -448,7 +448,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -456,13 +456,13 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			token.ThrowIfCancellationRequested ();
+			cancellationToken.ThrowIfCancellationRequested ();
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					token.ThrowIfCancellationRequested ();
+					cancellationToken.ThrowIfCancellationRequested ();
 
 					var name = Encoding.ASCII.GetBytes (header.Field);
 
@@ -497,7 +497,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -507,9 +507,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken token)
+		public void WriteTo (Stream stream, CancellationToken cancellationToken)
 		{
-			WriteTo (FormatOptions.Default, stream, token);
+			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
 		/// <summary>
