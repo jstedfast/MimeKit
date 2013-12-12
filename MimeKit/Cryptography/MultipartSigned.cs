@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 

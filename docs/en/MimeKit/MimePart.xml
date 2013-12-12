@@ -260,7 +260,7 @@
         <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
       </Parameters>
       <Docs>
-        <param name="constraint">To be added.</param>
+        <param name="constraint">The encoding constraint.</param>
         <summary>
             Calculates the most efficient content encoding given the specified constraint.
             </summary>
@@ -268,6 +268,41 @@
         <remarks>
             If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
             </remarks>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, System.Threading.CancellationToken token);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.17.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="constraint">The encoding constraint.</param>
+        <param name="token">A cancellation token.</param>
+        <summary>
+            Calculates the most efficient content encoding given the specified constraint.
+            </summary>
+        <returns>The most efficient content encoding.</returns>
+        <remarks>
+            If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
+            </remarks>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsAttachment">
@@ -333,8 +368,8 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken token);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken token) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.17.0.0</AssemblyVersion>
@@ -345,12 +380,14 @@
       <Parameters>
         <Parameter Name="options" Type="MimeKit.FormatOptions" />
         <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="token" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="options">The formatting options.</param>
-        <param name="stream">The stream.</param>
+        <param name="stream">The output stream.</param>
+        <param name="token">A cancellation token.</param>
         <summary>
-            Writes the <see cref="T:MimeKit.MimePart" /> to the specified stream.
+            Writes the <see cref="T:MimeKit.MimePart" /> to the specified output stream.
             </summary>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
@@ -360,6 +397,12 @@
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
         </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
   </Members>

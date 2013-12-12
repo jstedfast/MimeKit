@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -259,39 +260,52 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.Multipart"/> to the specified stream.
+		/// Writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
 			base.WriteTo (options, stream);
 
-			if (RawPreamble != null && RawPreamble.Length > 0)
+			if (RawPreamble != null && RawPreamble.Length > 0) {
+				token.ThrowIfCancellationRequested ();
 				WriteBytes (options, stream, RawPreamble);
+			}
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
 			foreach (var part in children) {
+				token.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length - 2);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				part.WriteTo (options, stream);
+				part.WriteTo (options, stream, token);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
+			token.ThrowIfCancellationRequested ();
 			stream.Write (boundary, 0, boundary.Length);
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
-			if (RawEpilogue != null && RawEpilogue.Length > 0)
+			if (RawEpilogue != null && RawEpilogue.Length > 0) {
+				token.ThrowIfCancellationRequested ();
 				WriteBytes (options, stream, RawEpilogue);
+			}
 		}
 
 		#region ICollection implementation

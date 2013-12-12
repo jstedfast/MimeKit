@@ -167,6 +167,7 @@
         <summary>
             Gets the length in bytes of the stream.
             </summary>
+        <value>The length of the stream.</value>
         <value>A long value representing the length of the stream in bytes.</value>
         <value>The length of the stream.</value>
         <remarks>To be added.</remarks>
@@ -189,6 +190,7 @@
         <summary>
             Gets or sets the position within the current stream.
             </summary>
+        <value>The position of the stream.</value>
         <value>The current position within the stream.</value>
         <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
@@ -335,7 +337,7 @@
             <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
           <para>-or-</para>
           <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes strting
-            at the specified <paramref name="offet" />.</para>
+            at the specified <paramref name="offset" />.</para>
         </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.

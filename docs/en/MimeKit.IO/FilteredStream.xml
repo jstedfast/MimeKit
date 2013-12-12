@@ -225,6 +225,7 @@
         <summary>
             Gets the length in bytes of the stream.
             </summary>
+        <value>The length of the stream.</value>
         <value>A long value representing the length of the stream in bytes.</value>
         <value>The length of the stream.</value>
         <remarks>To be added.</remarks>
@@ -250,6 +251,7 @@
         <summary>
             Gets or sets the position within the current stream.
             </summary>
+        <value>The position of the stream.</value>
         <value>The current position within the stream.</value>
         <value>The position of the stream.</value>
         <remarks>To be added.</remarks>
@@ -304,7 +306,7 @@
             <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
           <para>-or-</para>
           <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes strting
-            at the specified <paramref name="offet" />.</para>
+            at the specified <paramref name="offset" />.</para>
         </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
@@ -325,6 +327,7 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
+        <value>The read timeout.</value>
         <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
         <remarks>To be added.</remarks>
@@ -465,7 +468,7 @@
             <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
           <para>-or-</para>
           <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes strting
-            at the specified <paramref name="offet" />.</para>
+            at the specified <paramref name="offset" />.</para>
         </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
@@ -486,6 +489,7 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
+        <value>The write timeout.</value>
         <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
         <remarks>To be added.</remarks>

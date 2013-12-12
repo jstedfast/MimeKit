@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 namespace MimeKit {
 	/// <summary>
@@ -49,17 +50,55 @@ namespace MimeKit {
 		/// Decodes the content stream into another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		void DecodeTo (Stream stream);
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		void DecodeTo (Stream stream, CancellationToken token);
 
 		/// <summary>
-		/// Writes the raw content stream, in its existing encoding, to another stream.
+		/// Decodes the content stream into another stream.
 		/// </summary>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		void DecodeTo (Stream stream);
+
+		/// <summary>
+		/// Copies the content stream to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		void WriteTo (Stream stream, CancellationToken token);
+
+		/// <summary>
+		/// Copies the content stream to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		void WriteTo (Stream stream);
 	}

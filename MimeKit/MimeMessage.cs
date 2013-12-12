@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
 using System.Net.Mail;
 
@@ -539,16 +540,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the message to the specified stream.
+		/// Writes the message to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -566,16 +574,21 @@ namespace MimeKit {
 				MimeVersion = new Version (1, 0);
 
 			if (Body == null) {
-				Headers.WriteTo (stream);
+				Headers.WriteTo (options, stream, token);
 
+				token.ThrowIfCancellationRequested ();
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			} else {
+				token.ThrowIfCancellationRequested ();
+
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					foreach (var header in MergeHeaders ()) {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
+
+						token.ThrowIfCancellationRequested ();
 
 						var name = Encoding.ASCII.GetBytes (header.Field);
 
@@ -588,16 +601,56 @@ namespace MimeKit {
 				}
 
 				options.WriteHeaders = false;
-				Body.WriteTo (options, stream);
+				Body.WriteTo (options, stream, token);
 			}
 		}
 
 		/// <summary>
-		/// Writes the message to the specified stream.
+		/// Writes the message to the specified output stream.
 		/// </summary>
-		/// <param name="stream">The stream.</param>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream)
+		{
+			WriteTo (options, stream, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (Stream stream, CancellationToken token)
+		{
+			WriteTo (FormatOptions.Default, stream, token);
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public void WriteTo (Stream stream)
 		{

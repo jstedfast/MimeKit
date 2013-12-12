@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 namespace MimeKit {
 	/// <summary>
@@ -114,21 +115,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.MessagePart"/> to the stream.
+		/// Writes the <see cref="MimeKit.MessagePart"/> to the output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
 		{
-			base.WriteTo (options, stream);
+			base.WriteTo (options, stream, token);
 
 			if (Message != null)
-				Message.WriteTo (options, stream);
+				Message.WriteTo (options, stream, token);
 		}
 	}
 }

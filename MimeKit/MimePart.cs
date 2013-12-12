@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Security.Cryptography;
 
 using MimeKit.IO;
@@ -273,7 +274,15 @@ namespace MimeKit {
 		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
 		/// </remarks>
 		/// <returns>The most efficient content encoding.</returns>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <param name="token">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken token)
 		{
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
@@ -283,12 +292,28 @@ namespace MimeKit {
 					var filter = new BestEncodingFilter ();
 
 					filtered.Add (filter);
-					ContentObject.DecodeTo (filtered);
+					ContentObject.DecodeTo (filtered, token);
 					filtered.Flush ();
 
 					return filter.GetBestEncoding (constraint);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Calculates the most efficient content encoding given the specified constraint.
+		/// </summary>
+		/// <remarks>
+		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// </remarks>
+		/// <returns>The most efficient content encoding.</returns>
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
+		{
+			return GetBestEncoding (constraint, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -350,16 +375,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.MimePart"/> to the specified stream.
+		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
 		{
 			var saved = encoding;
 
@@ -371,7 +403,7 @@ namespace MimeKit {
 			}
 
 			try {
-				base.WriteTo (options, stream);
+				base.WriteTo (options, stream, token);
 
 				if (ContentObject == null)
 					return;
@@ -391,7 +423,7 @@ namespace MimeKit {
 						if (encoding != ContentEncoding.Binary)
 							filtered.Add (options.CreateNewLineFilter ());
 
-						ContentObject.DecodeTo (filtered);
+						ContentObject.DecodeTo (filtered, token);
 						filtered.Flush ();
 					}
 
@@ -403,11 +435,11 @@ namespace MimeKit {
 				} else if (encoding != ContentEncoding.Binary) {
 					using (var filtered = new FilteredStream (stream)) {
 						filtered.Add (options.CreateNewLineFilter ());
-						ContentObject.WriteTo (filtered);
+						ContentObject.WriteTo (filtered, token);
 						filtered.Flush ();
 					}
 				} else {
-					ContentObject.WriteTo (stream);
+					ContentObject.WriteTo (stream, token);
 				}
 			} finally {
 				if (saved != ContentEncoding.Default)
