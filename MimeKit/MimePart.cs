@@ -387,7 +387,10 @@ namespace MimeKit {
 					// transcode the content into the desired Content-Transfer-Encoding
 					using (var filtered = new FilteredStream (stream)) {
 						filtered.Add (EncoderFilter.Create (encoding));
-						filtered.Add (options.CreateNewLineFilter ());
+
+						if (encoding != ContentEncoding.Binary)
+							filtered.Add (options.CreateNewLineFilter ());
+
 						ContentObject.DecodeTo (filtered);
 						filtered.Flush ();
 					}
@@ -397,12 +400,14 @@ namespace MimeKit {
 						stream.Write (buffer, 0, buffer.Length);
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
-				} else {
+				} else if (encoding != ContentEncoding.Binary) {
 					using (var filtered = new FilteredStream (stream)) {
 						filtered.Add (options.CreateNewLineFilter ());
 						ContentObject.WriteTo (filtered);
 						filtered.Flush ();
 					}
+				} else {
+					ContentObject.WriteTo (stream);
 				}
 			} finally {
 				if (saved != ContentEncoding.Default)
