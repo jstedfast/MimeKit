@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.17.0.0</version>
+        <version>0.18.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -12,18 +12,19 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers.
+Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and about 75x faster than SharpMimeTools).
 
 MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
 
-In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.</description>
+In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.
+
+API documentation can be found on the web at http://jstedfast.github.io/MimeKit/docs
+
+For those that need SMTP or POP3 support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added fallback logic to check S/MIME certificates for the encryption capabilities (rfc4262).
-* Modified the X509CertificateDatabase to be case-insensitive when matching certificate fingerprints.
-* Added a new subclass of MailboxAddress called SecureMailboxAddress which allows specifying a certificate fingerprint.
-* Modified MimeMessage.Sender to be a MailboxAddress instead of an InternetAddressList to better enforce rfc5322.
-* Added ResentSender, ResentFrom, ResentTo, ResentCc, ResentBcc, ResentMessageId, and ResentDate properties to MimeMessage.
-* Added convenience methods on MimeMessage to Sign, Encrypt and SignAndEncrypt the message which can be used for S/MIME or OpenPGP.
+        <releaseNotes>* Added support for cancelling serialization and parsing of messages and other MIME entities.
+* Added MimeKit.IO.Filters.BestEncodingFilter which can be used to calculate the most efficient Content-Transfer-Encoding to use for a given MIME part with a specified constraint.
+* Fixed serialization of MIME parts with a Content-Transfer-Encoding set to "binary".
 * Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
