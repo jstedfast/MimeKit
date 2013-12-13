@@ -25,6 +25,7 @@ For those that need SMTP or POP3 support, check out https://github.com/jstedfast
         <releaseNotes>* Added support for cancelling serialization and parsing of messages and other MIME entities.
 * Added MimeKit.IO.Filters.BestEncodingFilter which can be used to calculate the most efficient Content-Transfer-Encoding to use for a given MIME part with a specified constraint.
 * Fixed serialization of MIME parts with a Content-Transfer-Encoding set to "binary".
+* Fixed S/MIME signing to use the correct OIDs for some of the digest algorithms.
 * Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
