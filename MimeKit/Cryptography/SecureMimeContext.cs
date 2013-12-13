@@ -42,6 +42,7 @@ using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
+using Org.BouncyCastle.Asn1.Nist;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -402,12 +403,12 @@ namespace MimeKit.Cryptography {
 		{
 			switch (digestAlgo) {
 			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;
-			case DigestAlgorithm.Sha1:       return PkcsObjectIdentifiers.Sha1WithRsaEncryption.Id;
+			case DigestAlgorithm.Sha1:       return X509ObjectIdentifiers.IdSha1.Id;
 			case DigestAlgorithm.MD2:        return PkcsObjectIdentifiers.MD2.Id;
-			case DigestAlgorithm.Sha256:     return PkcsObjectIdentifiers.Sha256WithRsaEncryption.Id;
-			case DigestAlgorithm.Sha384:     return PkcsObjectIdentifiers.Sha384WithRsaEncryption.Id;
-			case DigestAlgorithm.Sha512:     return PkcsObjectIdentifiers.Sha512WithRsaEncryption.Id;
-			case DigestAlgorithm.Sha224:     return PkcsObjectIdentifiers.Sha224WithRsaEncryption.Id;
+			case DigestAlgorithm.Sha256:     return NistObjectIdentifiers.IdSha256.Id;
+			case DigestAlgorithm.Sha384:     return NistObjectIdentifiers.IdSha384.Id;
+			case DigestAlgorithm.Sha512:     return NistObjectIdentifiers.IdSha512.Id;
+			case DigestAlgorithm.Sha224:     return NistObjectIdentifiers.IdSha224.Id;
 			case DigestAlgorithm.MD4:        return PkcsObjectIdentifiers.MD4.Id;
 			case DigestAlgorithm.RipeMD160:
 			case DigestAlgorithm.DoubleSha:
