@@ -176,11 +176,14 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <param name="disposing">If set to <c>true</c>, the stream is being disposed
+            via the <see cref="M:System.IO.Stream.Dispose" /> method.</param>
         <summary>
-            Dispose the specified disposing.
+            Disposes the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the internal disposed state to <c>true</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -323,6 +326,7 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -483,6 +487,7 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>

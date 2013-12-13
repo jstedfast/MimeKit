@@ -385,9 +385,13 @@ namespace MimeKit.IO
 		#endregion
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Disposes the stream.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <remarks>
+		/// Sets the internal disposed state to <c>true</c>.
+		/// </remarks>
+		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
+		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

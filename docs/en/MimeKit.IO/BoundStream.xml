@@ -13,7 +13,12 @@
     <summary>
             A bounded stream, confined to reading and writing data to a limited subset of the overall source stream.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Wraps an arbitrary stream, limiting I/O operations to a subset of the source stream.
+            If the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" /> is <c>-1</c>, then it the end of the stream is unbound.</para>
+      <para>When a <see cref="T:MimeKit.MimeParser" /> is set to parse a persistent stream, it will construct
+            <see cref="T:MimeKit.ContentObject" />s using bounded streams instead of loading the content into memory.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -39,7 +44,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.BoundStream" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the <paramref name="endBoundary" /> is less than <c>0</c>, then the end of the stream
+            is unbounded.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="baseStream" /> is <c>null</c>.
             </exception>
@@ -68,7 +76,9 @@
             Gets the underlying stream.
             </summary>
         <value>The underlying stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            All I/O is performed on the base stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanRead">
@@ -87,7 +97,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.BoundStream" /> will only support reading if the
+            <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> supports it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanSeek">
@@ -106,7 +119,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.BoundStream" /> will only support seeking if the
+            <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> supports it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanTimeout">
@@ -125,7 +141,10 @@
             </summary>
         <value>
           <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.BoundStream" /> will only support timing out if the
+            <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> supports it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanWrite">
@@ -144,7 +163,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.BoundStream" /> will only support writing if the
+            <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> supports it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -161,11 +183,15 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <param name="disposing">If set to <c>true</c>, the stream is being disposed
+            via the <see cref="M:System.IO.Stream.Dispose" /> method.</param>
         <summary>
-            Dispose the specified disposing.
+            Disposes the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the <see cref="P:MimeKit.IO.BoundStream.LeaveOpen" /> property is <c>false</c>, then
+            the <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> is also disposed.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EndBoundary">
@@ -183,7 +209,11 @@
             Gets the end boundary offset of the underlying stream.
             </summary>
         <value>The end boundary offset of the underlying stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The end boundary is the byte offset into the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />
+            that marks the end of the substream. If the value is less than 0,
+            then the end of the stream is treated as unbound.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -202,7 +232,9 @@
             Clears all buffers for this stream and causes any buffered data to be written
             to the underlying device.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Flushes the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -229,7 +261,13 @@
             Gets the length in bytes of the stream.
             </summary>
         <value>The length of the stream in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" /> property is greater than or equal to <c>0</c>,
+            then the length will be calculated by subtracting the <see cref="P:MimeKit.IO.BoundStream.StartBoundary" />
+            from the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" />. If the end of the stream is unbound, then the
+            <see cref="P:MimeKit.IO.BoundStream.StartBoundary" /> will be subtracted from the length of the
+            <see cref="P:MimeKit.IO.BoundStream.BaseStream" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -253,7 +291,10 @@
             Gets or sets the position within the current stream.
             </summary>
         <value>The position of the stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Setting the <see cref="P:MimeKit.IO.BoundStream.Position" /> will seek both the <see cref="T:MimeKit.IO.BoundStream" />
+            and its <see cref="P:MimeKit.IO.BoundStream.BaseStream" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -290,7 +331,10 @@
             </summary>
         <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
             bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Reads data from the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />, not allowing it to
+            read beyond the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -326,8 +370,11 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />'s read timeout.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Seek">
@@ -351,7 +398,9 @@
             Sets the position within the current stream.
             </summary>
         <returns>The new position within the stream.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Seeks within the confines of the <see cref="P:MimeKit.IO.BoundStream.StartBoundary" /> and the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -384,7 +433,12 @@
         <summary>
             Sets the length of the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Updates the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" /> to be <see cref="P:MimeKit.IO.BoundStream.StartBoundary" /> plus
+            the specified new length. If the <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> needs to be grown
+            to allow this, then the length of the <see cref="P:MimeKit.IO.BoundStream.BaseStream" /> will also be
+            updated.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -411,7 +465,10 @@
             Gets the start boundary offset of the underlying stream.
             </summary>
         <value>The start boundary offset of the underlying stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The start boundary is the byte offset into the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />
+            that marks the beginning of the substream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -437,7 +494,10 @@
             Writes a sequence of bytes to the stream and advances the current
             position within this stream by the number of bytes written.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes data to the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />, not allowing it to
+            write beyond the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" />.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -473,8 +533,11 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
+        <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />'s write timeout.
+            </remarks>
       </Docs>
     </Member>
   </Members>

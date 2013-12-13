@@ -31,6 +31,12 @@ namespace MimeKit.IO {
 	/// <summary>
 	/// A stream useful for measuring the amount of data written.
 	/// </summary>
+	/// <remarks>
+	/// A <see cref="MeasuringStream"/> keeps track of the number of bytes
+	/// that have been written to it. This is useful, for example, when you
+	/// need to know how large a <see cref="MimeMessage"/> is without
+	/// actually writing it to disk or into a memory buffer.
+	/// </remarks>
 	public class MeasuringStream : Stream
 	{
 		bool disposed;
@@ -55,6 +61,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="MeasuringStream"/> is not readable.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return false; }
@@ -63,8 +72,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <remarks>
+		/// A <see cref="MeasuringStream"/> is always writable.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -72,6 +83,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="MeasuringStream"/> is always seekable.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return true; }
@@ -80,6 +94,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not reading and writing to the stream can timeout.
 		/// </summary>
+		/// <remarks>
+		/// Writing to a <see cref="MeasuringStream"/> cannot timeout.
+		/// </remarks>
 		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
@@ -88,6 +105,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length in bytes of the stream.
 		/// </summary>
+		/// <remarks>
+		/// The length of a <see cref="MeasuringStream"/> indicates the
+		/// number of bytes that have been written to it.
+		/// </remarks>
 		/// <value>The length of the stream in bytes.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
@@ -103,6 +124,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Since it is possible to seek within a <see cref="MeasuringStream"/>,
+		/// it is possible that the position will not always be identical to the
+		/// length of the stream, but typically it will be.
+		/// </remarks>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -134,6 +160,9 @@ namespace MimeKit.IO {
 		/// Reads a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
+		/// <remarks>
+		/// Reading from a <see cref="MeasuringStream"/> is not supported.
+		/// </remarks>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
 		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
@@ -156,6 +185,12 @@ namespace MimeKit.IO {
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
+		/// <remarks>
+		/// Increments the <see cref="Position"/> property by the number of bytes written.
+		/// If the updated position is greater than the current length of the stream, then
+		/// the <see cref="Length"/> property will be updated to be identical to the
+		/// position.
+		/// </remarks>
 		/// <param name='buffer'>The buffer to write.</param>
 		/// <param name='offset'>The offset of the first byte to write.</param>
 		/// <param name='count'>The number of bytes to write.</param>
@@ -191,6 +226,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Allows seeking to a position between <c>0</c> and the <see cref="Length"/> of the stream.
+		/// </remarks>
 		/// <returns>The new position within the stream.</returns>
 		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
 		/// <param name="origin">The origin to seek from.</param>
@@ -240,6 +278,10 @@ namespace MimeKit.IO {
 		/// Clears all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
+		/// <remarks>
+		/// Since a <see cref="MeasuringStream"/> does not actually do anything other than
+		/// count bytes, this method is a no-op.
+		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -253,6 +295,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the length of the stream.
 		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="Length"/> to the specified value and updates
+		/// <see cref="Position"/> to the specified value if (and only if)
+		/// the current position is greater than the new length value.
+		/// </remarks>
 		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is out of range.
@@ -274,9 +321,13 @@ namespace MimeKit.IO {
 		#endregion
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Disposes the stream.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <remarks>
+		/// Sets the internal disposed state to <c>true</c>.
+		/// </remarks>
+		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
+		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

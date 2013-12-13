@@ -13,7 +13,12 @@
     <summary>
             A stream useful for measuring the amount of data written.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A <see cref="T:MimeKit.IO.MeasuringStream" /> keeps track of the number of bytes
+            that have been written to it. This is useful, for example, when you
+            need to know how large a <see cref="T:MimeKit.MimeMessage" /> is without
+            actually writing it to disk or into a memory buffer.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -47,7 +52,9 @@
             </summary>
         <value>
           <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.IO.MeasuringStream" /> is not readable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanSeek">
@@ -66,7 +73,9 @@
             </summary>
         <value>
           <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.IO.MeasuringStream" /> is always seekable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanTimeout">
@@ -85,7 +94,9 @@
             </summary>
         <value>
           <c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writing to a <see cref="T:MimeKit.IO.MeasuringStream" /> cannot timeout.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanWrite">
@@ -104,7 +115,9 @@
             </summary>
         <value>
           <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.IO.MeasuringStream" /> is always writable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -121,11 +134,14 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">If set to <c>true</c> disposing.</param>
+        <param name="disposing">If set to <c>true</c>, the stream is being disposed
+            via the <see cref="M:System.IO.Stream.Dispose" /> method.</param>
         <summary>
-            Dispose the specified disposing.
+            Disposes the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the internal disposed state to <c>true</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -144,7 +160,10 @@
             Clears all buffers for this stream and causes any buffered data to be written
             to the underlying device.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Since a <see cref="T:MimeKit.IO.MeasuringStream" /> does not actually do anything other than
+            count bytes, this method is a no-op.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -168,7 +187,10 @@
             Gets the length in bytes of the stream.
             </summary>
         <value>The length of the stream in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The length of a <see cref="T:MimeKit.IO.MeasuringStream" /> indicates the
+            number of bytes that have been written to it.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -189,7 +211,11 @@
             Gets or sets the position within the current stream.
             </summary>
         <value>The position of the stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Since it is possible to seek within a <see cref="T:MimeKit.IO.MeasuringStream" />,
+            it is possible that the position will not always be identical to the
+            length of the stream, but typically it will be.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -226,7 +252,9 @@
             </summary>
         <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
             bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Reading from a <see cref="T:MimeKit.IO.MeasuringStream" /> is not supported.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -256,7 +284,9 @@
             Sets the position within the current stream.
             </summary>
         <returns>The new position within the stream.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Allows seeking to a position between <c>0</c> and the <see cref="P:MimeKit.IO.MeasuringStream.Length" /> of the stream.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -286,7 +316,11 @@
         <summary>
             Sets the length of the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the <see cref="P:MimeKit.IO.MeasuringStream.Length" /> to the specified value and updates
+            <see cref="P:MimeKit.IO.MeasuringStream.Position" /> to the specified value if (and only if)
+            the current position is greater than the new length value.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="value" /> is out of range.
             </exception>
@@ -318,7 +352,12 @@
             Writes a sequence of bytes to the stream and advances the current
             position within this stream by the number of bytes written.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Increments the <see cref="P:MimeKit.IO.MeasuringStream.Position" /> property by the number of bytes written.
+            If the updated position is greater than the current length of the stream, then
+            the <see cref="P:MimeKit.IO.MeasuringStream.Length" /> property will be updated to be identical to the
+            position.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
