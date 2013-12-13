@@ -285,7 +285,7 @@
             </summary>
         <returns>The new position within the stream.</returns>
         <remarks>
-            Allows seeking to a position between <c>0</c> and the <see cref="P:MimeKit.IO.MeasuringStream.Length" /> of the stream.
+            Updates the <see cref="P:MimeKit.IO.MeasuringStream.Position" /> within the stream.
             </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.

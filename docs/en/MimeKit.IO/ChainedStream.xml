@@ -13,7 +13,11 @@
     <summary>
             A chained stream.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Chains multiple streams together such that reading or writing beyond the end
+            of one stream spills over into the next stream in the chain. The idea is to
+            make it appear is if the chain of streams is all one continuous stream.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -49,7 +53,9 @@
         <summary>
             Add the specified stream to the chained stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the stream to the end of the chain.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -71,7 +77,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.ChainedStream" /> only supports reading if all of its
+            streams support it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanSeek">
@@ -90,7 +99,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.ChainedStream" /> only supports seeking if all of its
+            streams support it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanTimeout">
@@ -109,7 +121,10 @@
             </summary>
         <value>
           <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.ChainedStream" /> only supports timeouts if all of its
+            streams support them.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanWrite">
@@ -128,7 +143,10 @@
             </summary>
         <value>
           <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.ChainedStream" /> only supports writing if all of its
+            streams support it.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -171,7 +189,10 @@
             Clears all buffers for this stream and causes any buffered data to be written
             to the underlying device.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If all of the child streams support writing, then the current child stream
+            will be flushed.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -198,7 +219,10 @@
             Gets the length in bytes of the stream.
             </summary>
         <value>The length of the stream in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The length of a <see cref="T:MimeKit.IO.ChainedStream" /> is the combined lenths of all
+            of its chained streams.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -222,7 +246,10 @@
             Gets or sets the position within the current stream.
             </summary>
         <value>The position of the stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            It is always possible to get the position of a <see cref="T:MimeKit.IO.ChainedStream" />,
+            but setting the position is only possible if all of its streams are seekable.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -259,7 +286,12 @@
             </summary>
         <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
             bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Reads up to the requested number of bytes if reading is supported. If the
+            current child stream does not have enough remaining data to complete the
+            read, the read will progress into the next stream in the chain in order
+            to complete the read.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -302,7 +334,10 @@
             Sets the position within the current stream.
             </summary>
         <returns>The new position within the stream.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Seeks to the specified position within the stream if all child streams
+            support seeking.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -335,7 +370,9 @@
         <summary>
             Sets the length of the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Setting the length of a <see cref="T:MimeKit.IO.ChainedStream" /> is not supported.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -367,7 +404,12 @@
             Writes a sequence of bytes to the stream and advances the current
             position within this stream by the number of bytes written.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the requested number of bytes if writing is supported. If the
+            current child stream does not have enough remaining space to fit the
+            complete buffer, the data will spill over into the next stream in the
+            chain in order to complete the write.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>

@@ -15,7 +15,7 @@
             </summary>
     <remarks>
       <para>Wraps an arbitrary stream, limiting I/O operations to a subset of the source stream.
-            If the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" /> is <c>-1</c>, then it the end of the stream is unbound.</para>
+            If the <see cref="P:MimeKit.IO.BoundStream.EndBoundary" /> is <c>-1</c>, then the end of the stream is unbound.</para>
       <para>When a <see cref="T:MimeKit.MimeParser" /> is set to parse a persistent stream, it will construct
             <see cref="T:MimeKit.ContentObject" />s using bounded streams instead of loading the content into memory.</para>
     </remarks>
@@ -292,8 +292,7 @@
             </summary>
         <value>The position of the stream.</value>
         <remarks>
-            Setting the <see cref="P:MimeKit.IO.BoundStream.Position" /> will seek both the <see cref="T:MimeKit.IO.BoundStream" />
-            and its <see cref="P:MimeKit.IO.BoundStream.BaseStream" />.
+            The <see cref="P:MimeKit.IO.BoundStream.Position" /> is relative to the <see cref="P:MimeKit.IO.BoundStream.StartBoundary" />.
             </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -370,7 +369,6 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
-        <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
         <remarks>
             Gets or sets the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />'s read timeout.
@@ -533,7 +531,6 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
-        <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
         <remarks>
             Gets or sets the <see cref="P:MimeKit.IO.BoundStream.BaseStream" />'s write timeout.

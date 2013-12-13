@@ -32,6 +32,11 @@ namespace MimeKit.IO {
 	/// <summary>
 	/// A chained stream.
 	/// </summary>
+	/// <remarks>
+	/// Chains multiple streams together such that reading or writing beyond the end
+	/// of one stream spills over into the next stream in the chain. The idea is to
+	/// make it appear is if the chain of streams is all one continuous stream.
+	/// </remarks>
 	public class ChainedStream : Stream
 	{
 		readonly List<Stream> streams = new List<Stream> ();
@@ -41,15 +46,11 @@ namespace MimeKit.IO {
 		bool eos;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
-		/// </summary>
-		public ChainedStream ()
-		{
-		}
-
-		/// <summary>
 		/// Add the specified stream to the chained stream.
 		/// </summary>
+		/// <remarks>
+		/// Adds the stream to the end of the chain.
+		/// </remarks>
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -90,6 +91,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="ChainedStream"/> only supports reading if all of its
+		/// streams support it.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get {
@@ -105,6 +110,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="ChainedStream"/> only supports writing if all of its
+		/// streams support it.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get {
@@ -120,6 +129,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="ChainedStream"/> only supports seeking if all of its
+		/// streams support it.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get {
@@ -135,6 +148,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="ChainedStream"/> only supports timeouts if all of its
+		/// streams support them.
+		/// </remarks>
 		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
@@ -143,6 +160,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length in bytes of the stream.
 		/// </summary>
+		/// <remarks>
+		/// The length of a <see cref="ChainedStream"/> is the combined lenths of all
+		/// of its chained streams.
+		/// </remarks>
 		/// <value>The length of the stream in bytes.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
@@ -166,6 +187,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// It is always possible to get the position of a <see cref="ChainedStream"/>,
+		/// but setting the position is only possible if all of its streams are seekable.
+		/// </remarks>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -197,6 +222,12 @@ namespace MimeKit.IO {
 		/// Reads a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
+		/// <remarks>
+		/// Reads up to the requested number of bytes if reading is supported. If the
+		/// current child stream does not have enough remaining data to complete the
+		/// read, the read will progress into the next stream in the chain in order
+		/// to complete the read.
+		/// </remarks>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
 		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
@@ -251,6 +282,12 @@ namespace MimeKit.IO {
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
+		/// <remarks>
+		/// Writes the requested number of bytes if writing is supported. If the
+		/// current child stream does not have enough remaining space to fit the
+		/// complete buffer, the data will spill over into the next stream in the
+		/// chain in order to complete the write.
+		/// </remarks>
 		/// <param name='buffer'>The buffer to write.</param>
 		/// <param name='offset'>The offset of the first byte to write.</param>
 		/// <param name='count'>The number of bytes to write.</param>
@@ -308,6 +345,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Seeks to the specified position within the stream if all child streams
+		/// support seeking.
+		/// </remarks>
 		/// <returns>The new position within the stream.</returns>
 		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
 		/// <param name="origin">The origin to seek from.</param>
@@ -401,6 +442,10 @@ namespace MimeKit.IO {
 		/// Clears all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
+		/// <remarks>
+		/// If all of the child streams support writing, then the current child stream
+		/// will be flushed.
+		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -422,6 +467,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the length of the stream.
 		/// </summary>
+		/// <remarks>
+		/// Setting the length of a <see cref="ChainedStream"/> is not supported.
+		/// </remarks>
 		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.

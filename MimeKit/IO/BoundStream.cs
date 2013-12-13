@@ -33,7 +33,7 @@ namespace MimeKit.IO {
 	/// </summary>
 	/// <remarks>
 	/// <para>Wraps an arbitrary stream, limiting I/O operations to a subset of the source stream.
-	/// If the <see cref="EndBoundary"/> is <c>-1</c>, then it the end of the stream is unbound.</para>
+	/// If the <see cref="EndBoundary"/> is <c>-1</c>, then the end of the stream is unbound.</para>
 	/// <para>When a <see cref="MimeParser"/> is set to parse a persistent stream, it will construct
 	/// <see cref="ContentObject"/>s using bounded streams instead of loading the content into memory.</para>
 	/// </remarks>
@@ -238,8 +238,7 @@ namespace MimeKit.IO {
 		/// Gets or sets the position within the current stream.
 		/// </summary>
 		/// <remarks>
-		/// Setting the <see cref="Position"/> will seek both the <see cref="BoundStream"/>
-		/// and its <see cref="BaseStream"/>.
+		/// The <see cref="Position"/> is relative to the <see cref="StartBoundary"/>.
 		/// </remarks>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.IO.IOException">

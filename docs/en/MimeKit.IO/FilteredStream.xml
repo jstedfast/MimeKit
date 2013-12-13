@@ -326,7 +326,6 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
             </summary>
-        <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
         <value>The read timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -487,7 +486,6 @@
         <summary>
             Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
             </summary>
-        <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
         <value>The write timeout.</value>
         <remarks>To be added.</remarks>
       </Docs>

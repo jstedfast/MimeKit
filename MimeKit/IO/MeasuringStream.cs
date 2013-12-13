@@ -43,13 +43,6 @@ namespace MimeKit.IO {
 		long position;
 		long length;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.MeasuringStream"/> class.
-		/// </summary>
-		public MeasuringStream ()
-		{
-		}
-
 		void CheckDisposed ()
 		{
 			if (disposed)
@@ -227,7 +220,7 @@ namespace MimeKit.IO {
 		/// Sets the position within the current stream.
 		/// </summary>
 		/// <remarks>
-		/// Allows seeking to a position between <c>0</c> and the <see cref="Length"/> of the stream.
+		/// Updates the <see cref="Position"/> within the stream.
 		/// </remarks>
 		/// <returns>The new position within the stream.</returns>
 		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
