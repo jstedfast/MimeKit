@@ -284,32 +284,6 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static void PrepareEntity (MimeEntity entity)
-		{
-			if (entity is Multipart) {
-				// Note: we do not want to modify multipart/signed parts
-				if (entity is MultipartSigned)
-					return;
-
-				var multipart = (Multipart) entity;
-
-				foreach (var subpart in multipart)
-					PrepareEntity (subpart);
-			} else if (entity is MessagePart) {
-				var mpart = (MessagePart) entity;
-
-				if (mpart.Message != null && mpart.Message.Body != null)
-					PrepareEntity (mpart.Message.Body);
-			} else {
-				var part = (MimePart) entity;
-
-				if (part.ContentTransferEncoding == ContentEncoding.Binary)
-					part.ContentTransferEncoding = ContentEncoding.Base64;
-				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
-					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
-			}
-		}
-
 		/// <summary>
 		/// Compress the specified entity.
 		/// </summary>
@@ -339,7 +313,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -402,7 +375,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -473,7 +445,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -550,7 +521,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -631,7 +601,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntity (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
