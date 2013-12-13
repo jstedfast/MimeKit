@@ -159,6 +159,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
+		/// <remarks>
+		/// Seeking is not supported by the <see cref="FilteredStream"/>.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return false; }
@@ -175,6 +178,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the length in bytes of the stream.
 		/// </summary>
+		/// <remarks>
+		/// Getting the length of a <see cref="FilteredStream"/> is not supported.
+		/// </remarks>
 		/// <value>The length of the stream in bytes.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
@@ -186,6 +192,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Getting and setting the position of a <see cref="FilteredStream"/> is not supported.
+		/// </remarks>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
@@ -198,8 +207,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
 		/// </summary>
-		/// <returns>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</returns>
-		/// <value>The read timeout.</value>
+		/// <remarks>
+		/// Gets or sets the read timeout on the <see cref="Source"/> stream.
+		/// </remarks>
+		/// <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
 		public override int ReadTimeout
 		{
 			get { return Source.ReadTimeout; }
@@ -209,8 +220,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
 		/// </summary>
-		/// <returns>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</returns>
-		/// <value>The write timeout.</value>
+		/// <remarks>
+		/// Gets or sets the write timeout on the <see cref="Source"/> stream.
+		/// </remarks>
+		/// <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
 		public override int WriteTimeout
 		{
 			get { return Source.WriteTimeout; }
