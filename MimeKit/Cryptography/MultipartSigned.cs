@@ -73,10 +73,18 @@ namespace MimeKit.Cryptography {
 			} else {
 				var part = (MimePart) entity;
 
-				if (part.ContentTransferEncoding == ContentEncoding.Binary)
-					part.ContentTransferEncoding = ContentEncoding.Base64;
-				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
+				switch (part.ContentTransferEncoding) {
+				case ContentEncoding.SevenBit:
+					// need to make sure that "From "-lines are properly armored
+					part.ContentTransferEncoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
+					break;
+				case ContentEncoding.EightBit:
 					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+					break;
+				case ContentEncoding.Binary:
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+					break;
+				}
 			}
 		}
 
