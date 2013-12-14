@@ -129,6 +129,7 @@ namespace MimeKit {
 		MimeParserState state;
 		MimeFormat format;
 		bool persistent;
+		bool eos;
 
 		CancellationToken token = CancellationToken.None;
 		ParserOptions options;
@@ -360,6 +361,7 @@ namespace MimeKit {
 			headers.Clear ();
 			headerOffset = 0;
 			headerIndex = 0;
+			eos = false;
 
 			bounds.Clear ();
 			if (format == MimeFormat.Mbox) {
@@ -534,7 +536,7 @@ namespace MimeKit {
 		{
 			int left = inputEnd - inputIndex;
 
-			if (left >= atleast)
+			if (left >= atleast || eos)
 				return left;
 
 			int index = inputIndex - save;
@@ -576,6 +578,8 @@ namespace MimeKit {
 			if ((nread = stream.Read (input, start, end - start)) > 0) {
 				inputEnd += nread;
 				offset += nread;
+			} else {
+				eos = true;
 			}
 
 			return inputEnd - inputIndex;
