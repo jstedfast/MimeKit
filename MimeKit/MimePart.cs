@@ -393,61 +393,47 @@ namespace MimeKit {
 		/// </exception>
 		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
-			var saved = encoding;
+			base.WriteTo (options, stream, cancellationToken);
 
-			if (NeedsEncoding (encoding)) {
-				var best = GetBestEncoding (options.EncodingConstraint);
+			if (ContentObject == null)
+				return;
 
-				if (best != ContentEncoding.SevenBit)
-					ContentTransferEncoding = best;
-			}
+			if (ContentObject.Encoding != encoding) {
+				if (encoding == ContentEncoding.UUEncode) {
+					cancellationToken.ThrowIfCancellationRequested ();
 
-			try {
-				base.WriteTo (options, stream, cancellationToken);
-
-				if (ContentObject == null)
-					return;
-
-				if (ContentObject.Encoding != encoding) {
-					if (encoding == ContentEncoding.UUEncode) {
-						cancellationToken.ThrowIfCancellationRequested ();
-
-						var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
-						var buffer = Encoding.UTF8.GetBytes (begin);
-						stream.Write (buffer, 0, buffer.Length);
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					}
-
-					// transcode the content into the desired Content-Transfer-Encoding
-					using (var filtered = new FilteredStream (stream)) {
-						filtered.Add (EncoderFilter.Create (encoding));
-
-						if (encoding != ContentEncoding.Binary)
-							filtered.Add (options.CreateNewLineFilter ());
-
-						ContentObject.DecodeTo (filtered, cancellationToken);
-						filtered.Flush ();
-					}
-
-					if (encoding == ContentEncoding.UUEncode) {
-						cancellationToken.ThrowIfCancellationRequested ();
-
-						var buffer = Encoding.ASCII.GetBytes ("end");
-						stream.Write (buffer, 0, buffer.Length);
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					}
-				} else if (encoding != ContentEncoding.Binary) {
-					using (var filtered = new FilteredStream (stream)) {
-						filtered.Add (options.CreateNewLineFilter ());
-						ContentObject.WriteTo (filtered, cancellationToken);
-						filtered.Flush ();
-					}
-				} else {
-					ContentObject.WriteTo (stream, cancellationToken);
+					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
+					var buffer = Encoding.UTF8.GetBytes (begin);
+					stream.Write (buffer, 0, buffer.Length);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
-			} finally {
-				if (saved != ContentEncoding.Default)
-					ContentTransferEncoding = saved;
+
+				// transcode the content into the desired Content-Transfer-Encoding
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (EncoderFilter.Create (encoding));
+
+					if (encoding != ContentEncoding.Binary)
+						filtered.Add (options.CreateNewLineFilter ());
+
+					ContentObject.DecodeTo (filtered, cancellationToken);
+					filtered.Flush ();
+				}
+
+				if (encoding == ContentEncoding.UUEncode) {
+					cancellationToken.ThrowIfCancellationRequested ();
+
+					var buffer = Encoding.ASCII.GetBytes ("end");
+					stream.Write (buffer, 0, buffer.Length);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+			} else if (encoding != ContentEncoding.Binary) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+					ContentObject.WriteTo (filtered, cancellationToken);
+					filtered.Flush ();
+				}
+			} else {
+				ContentObject.WriteTo (stream, cancellationToken);
 			}
 		}
 

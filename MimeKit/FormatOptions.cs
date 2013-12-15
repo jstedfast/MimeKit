@@ -104,14 +104,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the encoding constraint.
-		/// </summary>
-		/// <value>The encoding constraint.</value>
-		public EncodingConstraint EncodingConstraint {
-			get; set;
-		}
-
-		/// <summary>
 		/// Gets the message headers that should be hidden.
 		/// </summary>
 		/// <remarks>
@@ -134,7 +126,6 @@ namespace MimeKit {
 			else
 				Default.NewLineFormat = NewLineFormat.Dos;
 
-			Default.EncodingConstraint = EncodingConstraint.None;
 			Default.HiddenHeaders = new HashSet<HeaderId> ();
 		}
 
@@ -147,7 +138,6 @@ namespace MimeKit {
 			options.MaxLineLength = MaxLineLength;
 			options.NewLineFormat = NewLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
-			options.EncodingConstraint = EncodingConstraint;
 			options.WriteHeaders = true;
 			return options;
 		}
