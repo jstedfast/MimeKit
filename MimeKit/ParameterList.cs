@@ -786,8 +786,8 @@ namespace MimeKit {
 							bool flush = i + 1 >= parts.Count || !parts[i+1].Encoded;
 							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
 						} else if (length >= 2 && text[startIndex] == (byte) '"') {
-							// FIXME: use Rfc2047.Unquote()??
-							value += CharsetUtils.ConvertToUnicode (options, text, startIndex + 1, length - 2);
+							var quoted = CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
+							value += MimeUtils.Unquote (quoted);
 							hex.Reset ();
 						} else if (length > 0) {
 							value += CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
@@ -799,8 +799,8 @@ namespace MimeKit {
 					value = DecodeRfc2184 (ref decoder, hex, text, startIndex, length, true);
 					hex.Reset ();
 				} else if (length >= 2 && text[startIndex] == (byte) '"') {
-					// FIXME: use Rfc2047.Unquote()??
-					value = Rfc2047.DecodeText (options, text, startIndex + 1, length - 2);
+					var quoted = Rfc2047.DecodeText (options, text, startIndex, length);
+					value = MimeUtils.Unquote (quoted);
 				} else if (length > 0) {
 					value = Rfc2047.DecodeText (options, text, startIndex, length);
 				} else {
