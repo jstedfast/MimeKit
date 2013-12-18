@@ -17,7 +17,10 @@
     <summary>
             Encapsulates a content stream used by <see cref="T:MimeKit.MimePart" />.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A <see cref="T:MimeKit.ContentObject" /> represents the content of a <see cref="T:MimeKit.MimePart" />.
+            The content has both a stream and an encoding (typically <see cref="F:MimeKit.ContentEncoding.Default" />).
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -72,7 +75,9 @@
         <summary>
             Decodes the content stream into another stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Uses the <see cref="P:MimeKit.ContentObject.Encoding" /> to decode the content stream to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -101,7 +106,9 @@
         <summary>
             Decodes the content stream into another stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Uses the <see cref="P:MimeKit.ContentObject.Encoding" /> to decode the content stream to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -128,7 +135,11 @@
             Gets or sets the content encoding.
             </summary>
         <value>The content encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the <see cref="T:MimeKit.MimePart" /> was parsed from an existing stream, the
+            encoding will be identical to the <see cref="P:MimeKit.MimePart.ContentTransferEncoding" />,
+            otherwise it will typically be <see cref="F:MimeKit.ContentEncoding.Default" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Stream">
@@ -167,7 +178,10 @@
         <summary>
             Copies the content stream to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This is functionally equivalent to using <see cref="M:System.IO.Stream.CopyTo(System.IO.Stream)" />
+            to copy the raw content stream to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -196,7 +210,11 @@
         <summary>
             Copies the content stream to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This is equivalent to simply using <see cref="M:System.IO.Stream.CopyTo(System.IO.Stream)" /> to
+            copy the content stream to the output stream except that this method is
+            cancellable.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>

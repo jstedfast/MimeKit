@@ -13,7 +13,11 @@
     <summary>
             A class representing a Content-Type header value.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The Content-Type header is a way for the originating client to
+            suggest to the receiving client the mime-type of the content and,
+            depending on that mime-type, presentation options such as charset.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +37,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.ContentType" /> based on the media type and subtype provided.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="mediaType" /> is <c>null</c>.</para>
@@ -65,7 +71,10 @@
             Gets or sets the boundary parameter.
             </summary>
         <value>The boundary.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This is a special parameter on <see cref="T:MimeKit.Multipart" /> entities, designating to the
+            parser a unique string that should be considered the boundary marker for each sub-part.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Charset">
@@ -83,7 +92,10 @@
             Gets or sets the charset parameter.
             </summary>
         <value>The charset.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Text-based <see cref="T:MimeKit.MimePart" /> entities will often include a charset parameter
+            so that the receiving client can properly render the text.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Matches">
@@ -105,11 +117,13 @@
         <param name="mediaSubtype">The media subtype.</param>
         <summary>
             Checks if the this instance of <see cref="T:MimeKit.ContentType" /> matches
-            the specified mediaType and mediaSubtype.
-            Note: If the specified mediaType or mediaSubtype are "*", they match anything.
+            the specified media type and subtype.
             </summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the specified <paramref name="mediaType" /> or <paramref name="mediaSubtype" />
+            are <c>"*"</c>, they match anything.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="mediaType" /> is <c>null</c>.</para>
@@ -134,7 +148,11 @@
             Gets or sets the media subtype.
             </summary>
         <value>The media subtype.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the media subtype of the <see cref="T:MimeKit.MimeEntity" />. Examples include
+            <c>"html"</c>, <c>"jpeg"</c>, and <c>"octet-stream"</c>. This string should
+            always be treated as case-insensitive.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -158,7 +176,11 @@
             Gets or sets the type of the media.
             </summary>
         <value>The type of the media.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the media type of the <see cref="T:MimeKit.MimeEntity" />. Examples include
+            <c>"text"</c>, <c>"image"</c>, and <c>"application"</c>. This string should
+            always be treated as case-insensitive.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -182,7 +204,12 @@
             Gets or sets the name parameter.
             </summary>
         <value>The name.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The name parameter is a way for the originiating client to suggest
+            to the receiving client a display-name for the content, which may
+            be used by the receiving client if it cannot display the actual
+            content to the user.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parameters">
@@ -200,7 +227,11 @@
             Gets the parameters.
             </summary>
         <value>The parameters.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            In addition to the media type and subtype, the Content-Type header may also
+            contain parameters to provide further hints to the receiving client as to
+            how to process or display the content.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -461,7 +492,9 @@
             </summary>
         <returns>A <see cref="T:System.String" /> that represents the current
             <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a string-representation of the <see cref="T:MimeKit.ContentType" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -486,7 +519,10 @@
             optionally encoding the parameters.
             </summary>
         <returns>The serialized string.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a string-representation of the <see cref="T:MimeKit.ContentType" />, optionally encoding
+            the parameters as they would be encoded for transport.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="charset" /> is <c>null</c>.
             </exception>
