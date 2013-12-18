@@ -34,6 +34,9 @@ namespace MimeKit.IO {
 	/// <summary>
 	/// A stream which filters data as it is read or written.
 	/// </summary>
+	/// <remarks>
+	/// Passes data through each <see cref="IMimeFilter"/> as the data is read or written.
+	/// </remarks>
 	public class FilteredStream : Stream
 	{
 		const int ReadBufferSize = 4096;
@@ -55,6 +58,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.FilteredStream"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a filtered stream using the specified source stream.
+		/// </remarks>
 		/// <param name='source'>The underlying stream to filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="source"/> is <c>null</c>.
@@ -70,6 +76,12 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the underlying source stream.
 		/// </summary>
+		/// <remarks>
+		/// In general, it is not a good idea to manipulate the underlying
+		/// source stream because most <see cref="IMimeFilter"/>s store
+		/// important state about previous bytes read from or written to
+		/// the source stream.
+		/// </remarks>
 		/// <value>The underlying source stream.</value>
 		public Stream Source {
 			get; private set;
@@ -78,6 +90,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Adds the specified filter.
 		/// </summary>
+		/// <remarks>
+		/// Adds the <paramref name="filter"/> to the end of the list of filters
+		/// that data will pass through as data is read from or written to the
+		/// underlying source stream.
+		/// </remarks>
 		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
@@ -93,6 +110,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Contains the specified filter.
 		/// </summary>
+		/// <remarks>
+		/// Checks for the specified filter, by reference, in the list of
+		/// filters that have been added.
+		/// </remarks>
 		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
@@ -108,6 +129,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Remove the specified filter.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified filter from the list if it exists.
+		/// </remarks>
 		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
@@ -143,6 +167,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="FilteredStream"/> will only support reading if the
+		/// <see cref="Source"/> supports it.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return Source.CanRead; }
@@ -151,6 +179,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="FilteredStream"/> will only support writing if the
+		/// <see cref="Source"/> supports it.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return Source.CanWrite; }
@@ -170,6 +202,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="FilteredStream"/> will only support timing out if the
+		/// <see cref="Source"/> supports it.
+		/// </remarks>
 		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
@@ -246,6 +282,10 @@ namespace MimeKit.IO {
 		/// Reads a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
+		/// <remarks>
+		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
+		/// through each of the filters before finally copying the result into the provided buffer.
+		/// </remarks>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
 		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
@@ -311,6 +351,10 @@ namespace MimeKit.IO {
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
+		/// <remarks>
+		/// Filters the provided buffer through each of the filters before finally writing
+		/// the result to the underlying <see cref="Source"/> stream.
+		/// </remarks>
 		/// <param name='buffer'>The buffer to write.</param>
 		/// <param name='offset'>The offset of the first byte to write.</param>
 		/// <param name='count'>The number of bytes to write.</param>
@@ -355,6 +399,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Seeking is not supported by the <see cref="FilteredStream"/>.
+		/// </remarks>
 		/// <returns>The new position within the stream.</returns>
 		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
 		/// <param name="origin">The origin to seek from.</param>
@@ -370,6 +417,10 @@ namespace MimeKit.IO {
 		/// Clears all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
+		/// <remarks>
+		/// Flushes the state of all filters, writing any output to the underlying <see cref="Source"/>
+		/// stream and then calling <see cref="System.IO.Stream.Flush"/> on the <see cref="Source"/>.
+		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -410,6 +461,9 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Sets the length of the stream.
 		/// </summary>
+		/// <remarks>
+		/// Setting the length of a <see cref="FilteredStream"/> is not supported.
+		/// </remarks>
 		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.

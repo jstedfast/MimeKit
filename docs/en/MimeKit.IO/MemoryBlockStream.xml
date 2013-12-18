@@ -15,7 +15,12 @@
             get access to the internal byte buffer in order to drastically improve
             performance.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Instead of resizing an internal byte array, the <see cref="T:MimeKit.IO.MemoryBlockStream" />
+            chains blocks of non-contiguous memory. This helps improve performance by avoiding
+            unneeded copying of data from the old array to the newly allocated array as well
+            as the zeroing of the newly allocated array.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -30,7 +35,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.MemoryBlockStream" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.MemoryBlockStream" /> with an initial memory block
+            of 2048 bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanRead">
@@ -49,7 +57,9 @@
             </summary>
         <value>
           <c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.MemoryBlockStream" /> is always readable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanSeek">
@@ -68,7 +78,9 @@
             </summary>
         <value>
           <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.MemoryBlockStream" /> is always seekable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanTimeout">
@@ -87,7 +99,9 @@
             </summary>
         <value>
           <c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The <see cref="T:MimeKit.IO.MemoryBlockStream" /> does not support timing out.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanWrite">
@@ -105,9 +119,10 @@
             Checks whether or not the stream supports writing.
             </summary>
         <value>
-          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-            </value>
-        <remarks>To be added.</remarks>
+          <c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+        <remarks>
+            The <see cref="T:MimeKit.IO.MemoryBlockStream" /> is always writable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -171,9 +186,9 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the length in bytes of the stream.
+            Gets the length of the stream, in bytes.
             </summary>
-        <value>The length of the stream in bytes.</value>
+        <value>The length of the stream, in bytes.</value>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
@@ -327,7 +342,9 @@
             Copies the memory stream into a byte array.
             </summary>
         <returns>The array.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the stream data into a newly allocated byte array.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -353,7 +370,9 @@
             Writes a sequence of bytes to the stream and advances the current
             position within this stream by the number of bytes written.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the entire buffer to the buffer, adding memory blocks as needed.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>

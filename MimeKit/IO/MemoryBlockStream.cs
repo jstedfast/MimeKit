@@ -35,6 +35,12 @@ namespace MimeKit.IO
 	/// get access to the internal byte buffer in order to drastically improve
 	/// performance.
 	/// </summary>
+	/// <remarks>
+	/// Instead of resizing an internal byte array, the <see cref="MemoryBlockStream"/>
+	/// chains blocks of non-contiguous memory. This helps improve performance by avoiding
+	/// unneeded copying of data from the old array to the newly allocated array as well
+	/// as the zeroing of the newly allocated array.
+	/// </remarks>
 	public class MemoryBlockStream : Stream
 	{
 		const long MaxCapacity = int.MaxValue * BlockSize;
@@ -47,6 +53,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.MemoryBlockStream"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block
+		/// of 2048 bytes.
+		/// </remarks>
 		public MemoryBlockStream ()
 		{
 			blocks.Add (new byte[BlockSize]);
@@ -55,6 +65,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Copies the memory stream into a byte array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the stream data into a newly allocated byte array.
+		/// </remarks>
 		/// <returns>The array.</returns>
 		public byte[] ToArray ()
 		{
@@ -87,6 +100,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always readable.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return true; }
@@ -95,9 +111,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always writable.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -105,6 +122,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always seekable.
+		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return true; }
@@ -113,15 +133,18 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not reading and writing to the stream can timeout.
 		/// </summary>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> does not support timing out.
+		/// </remarks>
 		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
-		/// <value>The length of the stream in bytes.</value>
+		/// <value>The length of the stream, in bytes.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -218,6 +241,9 @@ namespace MimeKit.IO
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
+		/// <remarks>
+		/// Writes the entire buffer to the buffer, adding memory blocks as needed.
+		/// </remarks>
 		/// <param name='buffer'>The buffer to write.</param>
 		/// <param name='offset'>The offset of the first byte to write.</param>
 		/// <param name='count'>The number of bytes to write.</param>
