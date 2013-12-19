@@ -17,7 +17,10 @@
     <summary>
             A mailbox address, as specified by rfc0822.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Represents a mailbox address (commonly referred to as an email address)
+            for a single recipient.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -37,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name and address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -62,7 +67,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name, address and route.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="route" /> is <c>null</c>.</para>
@@ -91,7 +98,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name and address. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="encoding" /> is <c>null</c>.</para>
@@ -122,7 +132,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name, address and route. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="encoding" /> is <c>null</c>.</para>
@@ -150,7 +163,9 @@
             Gets or sets the mailbox address.
             </summary>
         <value>The mailbox address.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the actual email address and is in the form of <c>"name@example.com"</c>.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -177,7 +192,9 @@
         <returns>
           <c>true</c> if the specified <see cref="T:MimeKit.MailboxAddress" /> is equal to the current
             <see cref="T:MimeKit.MailboxAddress" />; otherwise, <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Compares two mailbox addresses to determine if they are identical or not.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="op_Explicit">
@@ -200,7 +217,10 @@
             <see cref="T:System.Net.Mail.MailAddress" />.
             </summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Casts a <see cref="T:MimeKit.MailboxAddress" /> to a <see cref="T:System.Net.Mail.MailAddress" />
+            in cases where you might want to make use of the System.Net.Mail APIs.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="mailbox" /> is <c>null</c>.
             </exception>
@@ -221,7 +241,10 @@
             Gets the mailbox route.
             </summary>
         <value>The mailbox route.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A route is convention that is rarely seen in modern email systems, but is supported
+            for compatibility with email archives.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">

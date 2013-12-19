@@ -35,7 +35,8 @@ namespace MimeKit {
 	/// </summary>
 	/// <remarks>
 	/// The Content-Disposition header is a way for the originating client to
-	/// suggest to the receiving client how to present the part to the user.
+	/// suggest to the receiving client whether to present the part to the user
+	/// as an attachment or as part of the content (inline).
 	/// </remarks>
 	public sealed class ContentDisposition
 	{
@@ -139,7 +140,7 @@ namespace MimeKit {
 		/// Gets the parameters.
 		/// </summary>
 		/// <remarks>
-		/// In addition to the specifying whether the entity should be treated as an
+		/// In addition to specifying whether the entity should be treated as an
 		/// attachment vs displayed inline, the Content-Disposition header may also
 		/// contain parameters to provide further information to the receiving client
 		/// such as the file attributes.

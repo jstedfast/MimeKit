@@ -140,7 +140,9 @@
         <returns>
           <c>true</c> if the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current
             <see cref="T:MimeKit.GroupAddress" />; otherwise, <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Compares two group addresses to determine if they are identical or not.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Members">

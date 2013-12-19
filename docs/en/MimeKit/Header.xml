@@ -13,7 +13,9 @@
     <summary>
             A class representing a Message or MIME header.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Represents a single header field and value pair.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +35,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -59,7 +64,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -92,7 +100,11 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair. The encoding is used to determine which charset to use
+            when encoding the value according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -125,7 +137,11 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair. The encoding is used to determine which charset to use
+            when encoding the value according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -156,7 +172,9 @@
             Gets the name of the header field.
             </summary>
         <value>The name of the header field.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the field name of the header.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Id">
@@ -174,7 +192,9 @@
             Gets the header identifier.
             </summary>
         <value>The header identifier.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This property is mainly used for switch-statements for performance reasons.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Offset">
@@ -190,10 +210,12 @@
       <Docs>
         <summary>
             Gets the stream offset of the beginning of the header.
-            Note: This will only be set if the header was parsed from a stream.
             </summary>
         <value>The stream offset.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the offset is set, it refers to the byte offset where it
+            was found in the stream it was parsed from.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="RawValue">
@@ -211,7 +233,9 @@
             Gets the raw value of the header.
             </summary>
         <value>The raw value of the header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Contains the raw value of the header, before any decoding or charset conversion.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetValue">
@@ -234,7 +258,11 @@
         <summary>
             Sets the header value using the specified charset.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            When a particular charset is desired for encoding the header value
+            according to the rules of rfc2047, this method should be used
+            instead of the <see cref="P:MimeKit.Header.Value" /> setter.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -260,7 +288,9 @@
             Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.
             </summary>
         <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Formats the header field and value in a way that is suitable for display.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -556,7 +586,11 @@
             Unfold the specified header text.
             </summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Unfolds the header value so that it becomes suitable for display.
+            Since <see cref="P:MimeKit.Header.Value" /> is already unfolded, this method is really
+            only needed when working with raw header strings.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Value">
@@ -574,7 +608,9 @@
             Gets or sets the header value.
             </summary>
         <value>The header value.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the decoded header value and is suitable for displaying to the user.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>

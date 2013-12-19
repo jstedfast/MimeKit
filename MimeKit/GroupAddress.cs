@@ -195,6 +195,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Determines whether the specified <see cref="MimeKit.GroupAddress"/> is equal to the current <see cref="MimeKit.GroupAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Compares two group addresses to determine if they are identical or not.
+		/// </remarks>
 		/// <param name="other">The <see cref="MimeKit.GroupAddress"/> to compare with the current <see cref="MimeKit.GroupAddress"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.GroupAddress"/> is equal to the current
 		/// <see cref="MimeKit.GroupAddress"/>; otherwise, <c>false</c>.</returns>

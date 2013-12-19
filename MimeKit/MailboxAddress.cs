@@ -35,6 +35,10 @@ namespace MimeKit {
 	/// <summary>
 	/// A mailbox address, as specified by rfc0822.
 	/// </summary>
+	/// <remarks>
+	/// Represents a mailbox address (commonly referred to as an email address)
+	/// for a single recipient.
+	/// </remarks>
 	public class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
 	{
 		string address;
@@ -42,6 +46,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name, address and route. The
+		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
@@ -66,6 +74,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name, address and route.
+		/// </remarks>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
@@ -81,6 +92,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name and address. The
+		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
@@ -100,6 +115,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name and address.
+		/// </remarks>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -112,6 +130,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the mailbox route.
 		/// </summary>
+		/// <remarks>
+		/// A route is convention that is rarely seen in modern email systems, but is supported
+		/// for compatibility with email archives.
+		/// </remarks>
 		/// <value>The mailbox route.</value>
 		public DomainList Route {
 			get; private set;
@@ -120,6 +142,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the mailbox address.
 		/// </summary>
+		/// <remarks>
+		/// Represents the actual email address and is in the form of <c>"name@example.com"</c>.
+		/// </remarks>
 		/// <value>The mailbox address.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -254,6 +279,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Determines whether the specified <see cref="MimeKit.MailboxAddress"/> is equal to the current <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Compares two mailbox addresses to determine if they are identical or not.
+		/// </remarks>
 		/// <param name="other">The <see cref="MimeKit.MailboxAddress"/> to compare with the current <see cref="MimeKit.MailboxAddress"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.MailboxAddress"/> is equal to the current
 		/// <see cref="MimeKit.MailboxAddress"/>; otherwise, <c>false</c>.</returns>
@@ -276,6 +304,10 @@ namespace MimeKit {
 		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
 		/// <see cref="System.Net.Mail.MailAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
+		/// in cases where you might want to make use of the System.Net.Mail APIs.
+		/// </remarks>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="mailbox"/> is <c>null</c>.
