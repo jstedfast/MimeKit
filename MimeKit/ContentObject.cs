@@ -98,7 +98,7 @@ namespace MimeKit {
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// This is equivalent to simply using <see cref="System.IO.Stream.CopyTo"/> to
+		/// This is equivalent to simply using <see cref="Stream.CopyTo(Stream)"/> to
 		/// copy the content stream to the output stream except that this method is
 		/// cancellable.
 		/// </remarks>
@@ -152,7 +152,7 @@ namespace MimeKit {
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// This is functionally equivalent to using <see cref="System.IO.Stream.CopyTo"/>
+		/// This is functionally equivalent to using <see cref="Stream.CopyTo(Stream)"/>
 		/// to copy the raw content stream to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>

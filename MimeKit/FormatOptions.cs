@@ -33,9 +33,10 @@ namespace MimeKit {
 	/// <summary>
 	/// A New-Line format.
 	/// </summary>
+	/// <remarks></remarks>
 	public enum NewLineFormat {
 		/// <summary>
-		/// The Unix New-Line format (<c>"\n"</c>)
+		/// The Unix New-Line format (<c>"\n"</c>).
 		/// </summary>
 		Unix,
 
@@ -48,6 +49,10 @@ namespace MimeKit {
 	/// <summary>
 	/// Format options for serializing various MimeKit objects.
 	/// </summary>
+	/// <remarks>
+	/// Represents the available options for formatting MIME messages
+	/// and entities when writing them to a stream.
+	/// </remarks>
 	public sealed class FormatOptions
 	{
 		static readonly byte[][] NewLineFormats = new byte[][] {
@@ -57,12 +62,20 @@ namespace MimeKit {
 		/// <summary>
 		/// The default formatting options.
 		/// </summary>
+		/// <remarks>
+		/// If a custom <see cref="FormatOptions"/> is not passed to methods such as
+		/// <see cref="MimeMessage.WriteTo(FormatOptions,System.IO.Stream)"/>, the default options
+		/// will be used.
+		/// </remarks>
 		public static readonly FormatOptions Default;
 
 		/// <summary>
 		/// Gets or sets the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
+		/// <remarks>
+		/// Specifies the maximum line length to use when line-wrapping headers.
+		/// </remarks>
 		/// <value>The maximum line length.</value>
 		public int MaxLineLength {
 			get; private set;
@@ -71,6 +84,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the new-line format.
 		/// </summary>
+		/// <remarks>
+		/// Specifies the new-line encoding to use when writing the message
+		/// or entity to a stream.
+		/// </remarks>
 		/// <value>The new-line format.</value>
 		public NewLineFormat NewLineFormat {
 			get; set;
@@ -107,8 +124,11 @@ namespace MimeKit {
 		/// Gets the message headers that should be hidden.
 		/// </summary>
 		/// <remarks>
-		/// This is meant for the purposes of removing Bcc and Resent-Bcc
-		/// headers when sending via a transport such as SMTP.
+		/// <para>Specifies the set of headers that should be removed when
+		/// writing a <see cref="MimeMessage"/> to a stream.</para>
+		/// <para>This is primarily meant for the purposes of removing Bcc
+		/// and Resent-Bcc headers when sending via a transport such as
+		/// SMTP.</para>
 		/// </remarks>
 		/// <value>The message headers.</value>
 		public HashSet<HeaderId> HiddenHeaders {
@@ -132,6 +152,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Clones an instance of <see cref="MimeKit.FormatOptions"/>.
 		/// </summary>
+		/// <remarks>
+		/// Clones the formatting options.
+		/// </remarks>
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();

@@ -13,7 +13,10 @@
     <summary>
             Format options for serializing various MimeKit objects.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Represents the available options for formatting MIME messages
+            and entities when writing them to a stream.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -45,7 +48,9 @@
             Clones an instance of <see cref="T:MimeKit.FormatOptions" />.
             </summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Clones the formatting options.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Default">
@@ -62,7 +67,11 @@
         <summary>
             The default formatting options.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If a custom <see cref="T:MimeKit.FormatOptions" /> is not passed to methods such as
+            <see cref="M:MimeKit.MimeMessage.WriteTo(MimeKit.FormatOptions,System.IO.Stream)" />, the default options
+            will be used.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="HiddenHeaders">
@@ -81,9 +90,12 @@
             </summary>
         <value>The message headers.</value>
         <remarks>
-            This is meant for the purposes of removing Bcc and Resent-Bcc
-            headers when sending via a transport such as SMTP.
-            </remarks>
+          <para>Specifies the set of headers that should be removed when
+            writing a <see cref="T:MimeKit.MimeMessage" /> to a stream.</para>
+          <para>This is primarily meant for the purposes of removing Bcc
+            and Resent-Bcc headers when sending via a transport such as
+            SMTP.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxLineLength">
@@ -102,7 +114,9 @@
             use this value to determine where to place line breaks.
             </summary>
         <value>The maximum line length.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Specifies the maximum line length to use when line-wrapping headers.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="NewLineFormat">
@@ -120,7 +134,10 @@
             Gets or sets the new-line format.
             </summary>
         <value>The new-line format.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Specifies the new-line encoding to use when writing the message
+            or entity to a stream.
+            </remarks>
       </Docs>
     </Member>
   </Members>

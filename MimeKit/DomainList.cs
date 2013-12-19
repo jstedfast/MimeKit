@@ -35,6 +35,9 @@ namespace MimeKit {
 	/// <summary>
 	/// A domain list.
 	/// </summary>
+	/// <remarks>
+	/// Represents a list of domains, such as those that an email was routed through.
+	/// </remarks>
 	public sealed class DomainList : IList<string>
 	{
 		readonly List<string> domains;
@@ -42,6 +45,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DomainList"/> based on the domains provided.
+		/// </remarks>
 		/// <param name="domains">A domain list.</param>
 		public DomainList (IEnumerable<string> domains)
 		{
@@ -51,6 +57,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DomainList"/>.
+		/// </remarks>
 		public DomainList ()
 		{
 			domains = new List<string> ();
@@ -61,6 +70,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested domain, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified domain, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested domain; otherwise <value>-1</value>.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -77,6 +89,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Insert the domain at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Inerts the domain at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the domain.</param>
 		/// <param name="domain">The domain to insert.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -97,6 +112,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the domain at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Removed the domain at the specified index.
+		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -138,6 +156,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Add the specified domain.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified domain to the end of the list.
+		/// </remarks>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <c>null</c>.
@@ -154,6 +175,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Clears the domain list.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the domains in the list.
+		/// </remarks>
 		public void Clear ()
 		{
 			domains.Clear ();
@@ -163,6 +187,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="DomainList"/> contains the specified domain.
 		/// </summary>
+		/// <remarks>
+		/// Checks if the specified domain is contained with in the <see cref="DomainList"/>.
+		/// </remarks>
 		/// <returns><value>true</value> if the specified domain is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="domain">The domain.</param>
@@ -180,6 +207,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies all of the domains in the <see cref="MimeKit.DomainList"/> to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the domains within the <see cref="DomainList"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the domains to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -196,6 +227,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified domain.
 		/// </summary>
+		/// <remarks>
+		/// Removes the first instance of the specified domain from the list.
+		/// </remarks>
 		/// <returns><value>true</value> if the specified domain was removed;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="domain">The domain.</param>
@@ -218,6 +252,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the number of domains in the <see cref="MimeKit.DomainList"/>.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of domains in the list.
+		/// </remarks>
 		/// <value>The number of domains.</value>
 		public int Count {
 			get { return domains.Count; }
@@ -226,6 +263,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this instance is read only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="DomainList"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
@@ -258,6 +298,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Serializes the <see cref="MimeKit.DomainList"/> to a string.
 		/// </summary>
+		/// <remarks>
+		/// Returns a newly allocated string containing the list of domains separated by commas.
+		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.DomainList"/>.</returns>
 		public override string ToString ()
 		{
@@ -288,10 +331,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Parses a list of domains.
+		/// </summary>
+		/// <remarks>
 		/// Attempts to parse a <see cref="DomainList"/> from the text buffer starting at the
 		/// specified index. The index will only be updated if a <see cref="DomainList"/> was
 		/// successfully parsed.
-		/// </summary>
+		/// </remarks>
 		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
 		/// <c>false</c> otherwise.</returns>
 		/// <param name="text">The text buffer to parse.</param>

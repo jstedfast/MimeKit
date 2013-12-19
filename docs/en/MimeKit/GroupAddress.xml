@@ -17,7 +17,10 @@
     <summary>
             An address group, as specified by rfc0822.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Group addresses are rarely used anymore. Typically, if you see a group address,
+            it will be of the form: <c>"undisclosed-recipients: ;"</c>.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -35,7 +38,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -55,7 +60,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name and list of addresses.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -75,7 +82,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name. The specified
+            text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encoding" /> is <c>null</c>.
             </exception>
@@ -100,7 +110,10 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name and list of addresses. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encoding" /> is <c>null</c>.
             </exception>
@@ -145,7 +158,11 @@
             Gets the members of the group.
             </summary>
         <value>The list of members.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the member addresses of the group. Typically the member addresses
+            will be of the <see cref="T:MimeKit.MailboxAddress" /> variety, but it is possible
+            for groups to contain other groups.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -167,7 +184,11 @@
             Serializes the <see cref="T:MimeKit.GroupAddress" /> to a string, optionally encoding it for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.GroupAddress" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Returns a newly allocated string containing the formatted group of addresses. If the
+            <paramref name="encode" /> parameter is <c>true</c>,  then the names of each address
+            will be encoded according to the rules of rfc2047.
+            </remarks>
       </Docs>
     </Member>
   </Members>

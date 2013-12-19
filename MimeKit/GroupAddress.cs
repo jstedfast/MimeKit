@@ -34,11 +34,19 @@ namespace MimeKit {
 	/// <summary>
 	/// An address group, as specified by rfc0822.
 	/// </summary>
+	/// <remarks>
+	/// Group addresses are rarely used anymore. Typically, if you see a group address,
+	/// it will be of the form: <c>"undisclosed-recipients: ;"</c>.
+	/// </remarks>
 	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name and list of addresses. The
+		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
@@ -54,6 +62,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name and list of addresses.
+		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
 		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
@@ -63,6 +74,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name. The specified
+		/// text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -77,6 +92,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name.
+		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		public GroupAddress (string name) : this (Encoding.UTF8, name)
 		{
@@ -85,6 +103,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the members of the group.
 		/// </summary>
+		/// <remarks>
+		/// Represents the member addresses of the group. Typically the member addresses
+		/// will be of the <see cref="MailboxAddress"/> variety, but it is possible
+		/// for groups to contain other groups.
+		/// </remarks>
 		/// <value>The list of members.</value>
 		public InternetAddressList Members {
 			get; private set;
@@ -134,6 +157,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Serializes the <see cref="MimeKit.GroupAddress"/> to a string, optionally encoding it for transport.
 		/// </summary>
+		/// <remarks>
+		/// Returns a newly allocated string containing the formatted group of addresses. If the
+		/// <paramref name="encode"/> parameter is <c>true</c>,  then the names of each address
+		/// will be encoded according to the rules of rfc2047.
+		/// </remarks>
 		/// <returns>A string representing the <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.GroupAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)

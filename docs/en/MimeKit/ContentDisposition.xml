@@ -98,7 +98,11 @@
             Gets or sets the creation-date parameter.
             </summary>
         <value>The creation date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Refers to the date and time that the content file was created on the
+            originating system. This parameter serves little purpose and is
+            typically not used by mail clients.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Disposition">
@@ -116,7 +120,9 @@
             Gets or sets the disposition.
             </summary>
         <value>The disposition.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The disposition is typically either <c>"attachment"</c> or <c>"inline"</c>.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -140,7 +146,10 @@
             Gets or sets the name of the file.
             </summary>
         <value>The name of the file.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            When set, this can provide a useful hint for a default file name for the
+            content when the user decides to save it to disk.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Inline">
@@ -178,7 +187,9 @@
             </summary>
         <value>
           <c>true</c> if the <see cref="T:MimeKit.MimePart" /> is an attachment; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A convenience property to determine if the entity should be considered an attachment or not.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ModificationDate">
@@ -196,7 +207,11 @@
             Gets or sets the modification-date parameter.
             </summary>
         <value>The modification date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Refers to the date and time that the content file was last modified on
+            the originating system. This parameter serves little purpose and is
+            typically not used by mail clients.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parameters">
@@ -214,7 +229,12 @@
             Gets the parameters.
             </summary>
         <value>The parameters.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            In addition to the specifying whether the entity should be treated as an
+            attachment vs displayed inline, the Content-Disposition header may also
+            contain parameters to provide further information to the receiving client
+            such as the file attributes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -472,7 +492,11 @@
             Gets or sets the read-date parameter.
             </summary>
         <value>The read date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Refers to the date and time that the content file was last read on the
+            originating system. This parameter serves little purpose and is typically
+            not used by mail clients.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Size">
@@ -490,7 +514,11 @@
             Gets or sets the size parameter.
             </summary>
         <value>The size.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            When set, the size parameter typically refers to the original size of the
+            content on disk. This parameter is rarely used by mail clients as it serves
+            little purpose.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -511,7 +539,9 @@
             </summary>
         <returns>A <see cref="T:System.String" /> that represents the current
             <see cref="T:MimeKit.ContentDisposition" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a string-representation of the <see cref="T:MimeKit.ContentDisposition" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -536,7 +566,10 @@
             optionally encoding the parameters.
             </summary>
         <returns>The serialized string.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a string-representation of the <see cref="T:MimeKit.ContentDisposition" />,
+            optionally encoding the parameters as they would be encoded for trabsport.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TryParse">

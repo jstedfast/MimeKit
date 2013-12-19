@@ -12,7 +12,7 @@
     <summary>
             A New-Line format.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks />
   </Docs>
   <Members>
     <Member MemberName="Dos">
@@ -43,7 +43,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The Unix New-Line format (<c>"\n"</c>)
+            The Unix New-Line format (<c>"\n"</c>).
             </summary>
       </Docs>
     </Member>

@@ -93,6 +93,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the disposition.
 		/// </summary>
+		/// <remarks>
+		/// The disposition is typically either <c>"attachment"</c> or <c>"inline"</c>.
+		/// </remarks>
 		/// <value>The disposition.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -123,6 +126,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets a value indicating whether the <see cref="MimePart"/> is an attachment.
 		/// </summary>
+		/// <remarks>
+		/// A convenience property to determine if the entity should be considered an attachment or not.
+		/// </remarks>
 		/// <value><c>true</c> if the <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
 		public bool IsAttachment {
 			get { return icase.Compare (disposition, Attachment) == 0; }
@@ -132,6 +138,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the parameters.
 		/// </summary>
+		/// <remarks>
+		/// In addition to the specifying whether the entity should be treated as an
+		/// attachment vs displayed inline, the Content-Disposition header may also
+		/// contain parameters to provide further information to the receiving client
+		/// such as the file attributes.
+		/// </remarks>
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
@@ -147,6 +159,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the name of the file.
 		/// </summary>
+		/// <remarks>
+		/// When set, this can provide a useful hint for a default file name for the
+		/// content when the user decides to save it to disk.
+		/// </remarks>
 		/// <value>The name of the file.</value>
 		public string FileName {
 			get { return Parameters["filename"]; }
@@ -161,6 +177,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the creation-date parameter.
 		/// </summary>
+		/// <remarks>
+		/// Refers to the date and time that the content file was created on the
+		/// originating system. This parameter serves little purpose and is
+		/// typically not used by mail clients.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		public DateTimeOffset? CreationDate {
 			get {
@@ -187,6 +208,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the modification-date parameter.
 		/// </summary>
+		/// <remarks>
+		/// Refers to the date and time that the content file was last modified on
+		/// the originating system. This parameter serves little purpose and is
+		/// typically not used by mail clients.
+		/// </remarks>
 		/// <value>The modification date.</value>
 		public DateTimeOffset? ModificationDate {
 			get {
@@ -213,6 +239,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the read-date parameter.
 		/// </summary>
+		/// <remarks>
+		/// Refers to the date and time that the content file was last read on the
+		/// originating system. This parameter serves little purpose and is typically
+		/// not used by mail clients.
+		/// </remarks>
 		/// <value>The read date.</value>
 		public DateTimeOffset? ReadDate {
 			get {
@@ -239,6 +270,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the size parameter.
 		/// </summary>
+		/// <remarks>
+		/// When set, the size parameter typically refers to the original size of the
+		/// content on disk. This parameter is rarely used by mail clients as it serves
+		/// little purpose.
+		/// </remarks>
 		/// <value>The size.</value>
 		public long? Size {
 			get {
@@ -276,6 +312,10 @@ namespace MimeKit {
 		/// Serializes the <see cref="MimeKit.ContentDisposition"/> to a string,
 		/// optionally encoding the parameters.
 		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentDisposition"/>,
+		/// optionally encoding the parameters as they would be encoded for trabsport.
+		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
 		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
@@ -302,6 +342,9 @@ namespace MimeKit {
 		/// Returns a <see cref="System.String"/> that represents the current
 		/// <see cref="MimeKit.ContentDisposition"/>.
 		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentDisposition"/>.
+		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current
 		/// <see cref="MimeKit.ContentDisposition"/>.</returns>
 		public override string ToString ()

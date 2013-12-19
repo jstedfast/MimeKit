@@ -218,6 +218,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Serializes the <see cref="MimeKit.MailboxAddress"/> to a string, optionally encoding it for transport.
 		/// </summary>
+		/// <remarks>
+		/// Returns a newly allocated string containing the formatted mailbox address. If the
+		/// <paramref name="encode"/> parameter is <c>true</c>,  then the mailbox name will be
+		/// encoded according to the rules of rfc2047.
+		/// </remarks>
 		/// <returns>A string representing the <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.MailboxAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)

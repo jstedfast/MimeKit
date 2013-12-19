@@ -23,7 +23,9 @@
     <summary>
             A domain list.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Represents a list of domains, such as those that an email was routed through.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -38,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.DomainList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.DomainList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -56,7 +60,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.DomainList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.DomainList" /> based on the domains provided.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -77,7 +83,9 @@
         <summary>
             Add the specified domain.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified domain to the end of the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -98,7 +106,9 @@
         <summary>
             Clears the domain list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the domains in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -122,7 +132,9 @@
         <returns>
           <value>true</value> if the specified domain is contained;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Checks if the specified domain is contained with in the <see cref="T:MimeKit.DomainList" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -148,7 +160,10 @@
         <summary>
             Copies all of the domains in the <see cref="T:MimeKit.DomainList" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the domains within the <see cref="T:MimeKit.DomainList" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -172,7 +187,9 @@
             Gets the number of domains in the <see cref="T:MimeKit.DomainList" />.
             </summary>
         <value>The number of domains.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of domains in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -213,7 +230,9 @@
             Gets the index of the requested domain, if it exists.
             </summary>
         <returns>The index of the requested domain; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified domain, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -239,7 +258,9 @@
         <summary>
             Insert the domain at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inerts the domain at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -264,7 +285,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.DomainList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -316,7 +339,9 @@
         <returns>
           <value>true</value> if the specified domain was removed;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the first instance of the specified domain from the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -340,7 +365,9 @@
         <summary>
             Removes the domain at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removed the domain at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -379,7 +406,9 @@
             Serializes the <see cref="T:MimeKit.DomainList" /> to a string.
             </summary>
         <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.DomainList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Returns a newly allocated string containing the list of domains separated by commas.
+            </remarks>
       </Docs>
     </Member>
   </Members>
