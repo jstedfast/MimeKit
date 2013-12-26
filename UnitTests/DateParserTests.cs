@@ -28,14 +28,13 @@ using System;
 using System.Text;
 using NUnit.Framework;
 
-using MimeKit;
 using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
 	public class DateParserTests
 	{
-		static readonly string[] dates = new string[] {
+		static readonly string[] dates = {
 			"8 Dec 1991 09:11 (Sunday)",
 			"26 Dec 1991 20:45 (Thursday)",
 			"Tue, 9 Jun 92 03:45:24 JST",
@@ -49,7 +48,7 @@ namespace UnitTests {
 			"FRI, 30 NOV 2012 02:09:10 +0100"
 		};
 
-		static readonly string[] expected = new string[] {
+		static readonly string[] expected = {
 			"Sun, 08 Dec 1991 09:11:00 +0000",
 			"Thu, 26 Dec 1991 20:45:00 +0000",
 			"Tue, 09 Jun 1992 03:45:24 +0000",

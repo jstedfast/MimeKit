@@ -27,7 +27,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace MimeKit.Utils {
 	[Flags]
@@ -98,12 +97,12 @@ namespace MimeKit.Utils {
 		const string NumericCharacters = "0123456789";
 		const string TimeCharacters = "0123456789:";
 
-		static readonly string[] Months = new string[] {
+		static readonly string[] Months = {
 			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 		};
 
-		static readonly string[] WeekDays = new string[] {
+		static readonly string[] WeekDays = {
 			"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 		};
 
@@ -113,7 +112,7 @@ namespace MimeKit.Utils {
 
 		static DateUtils ()
 		{
-			timezones = new Dictionary<string, int> () {
+			timezones = new Dictionary<string, int> {
 				{ "UT",       0 }, { "UTC",      0 }, { "GMT",      0 },
 				{ "EDT",   -400 }, { "EST",   -500 },
 				{ "CDT",   -500 }, { "CST",   -600 },
@@ -243,10 +242,7 @@ namespace MimeKit.Utils {
 			if (year < 100)
 				year += (year < 70) ? 2000 : 1900;
 
-			if (year < 1969)
-				return false;
-
-			return true;
+			return year >= 1969;
 		}
 
 		static bool TryGetTimeOfDay (DateToken token, byte[] text, out int hour, out int minute, out int second)
@@ -275,10 +271,7 @@ namespace MimeKit.Utils {
 			if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out second) || second > 59)
 				return false;
 
-			if (index < endIndex)
-				return false;
-
-			return true;
+			return index == endIndex;
 		}
 
 		static bool TryGetTimeZone (DateToken token, byte[] text, out int tzone)
@@ -362,10 +355,8 @@ namespace MimeKit.Utils {
 		{
 			int day, month, year, tzone;
 			int hour, minute, second;
-			#pragma warning disable 0219
-			bool haveWeekday = false;
-			#pragma warning restore 0219
 			DayOfWeek weekday;
+			//bool haveWeekday;
 			int n = 0;
 
 			date = new DateTimeOffset ();
@@ -379,7 +370,7 @@ namespace MimeKit.Utils {
 				if (tokens.Count < 6)
 					return false;
 
-				haveWeekday = true;
+				//haveWeekday = true;
 				n++;
 			}
 
@@ -401,7 +392,7 @@ namespace MimeKit.Utils {
 			int minutes = tzone % 100;
 			int hours = tzone / 100;
 
-			TimeSpan offset = new TimeSpan (hours, minutes, 0);
+			var offset = new TimeSpan (hours, minutes, 0);
 
 			date = new DateTimeOffset (year, month, day, hour, minute, second, offset);
 
