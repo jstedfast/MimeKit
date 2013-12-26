@@ -188,5 +188,15 @@ namespace UnitTests {
 			encoded = type.ToString (Encoding.UTF8, true);
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
 		}
+
+		[Test]
+		public void TestMultipleParametersWithIdenticalNames ()
+		{
+			const string text = "inline;\n filename=\"Filename.doc\";\n filename*0*=ISO-8859-2''Html_Encoded_Text_Part1;\n filename*1*=Html_Encoded_Text_Part2";
+			ContentDisposition disposition;
+
+			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("Filename.doc", disposition.FileName, "The filename value does not match.");
+		}
 	}
 }
