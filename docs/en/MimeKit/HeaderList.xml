@@ -23,7 +23,10 @@
     <summary>
             A list of <see cref="T:MimeKit.Header" />s.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Represents a list of headers as found in a <see cref="T:MimeKit.MimeMessage" />
+            or <see cref="T:MimeKit.MimeEntity" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -38,7 +41,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.HeaderList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new empty header list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -85,7 +90,9 @@
         <summary>
             Adds a header with the specified field and value.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a new header for the specified field and value pair.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -114,7 +121,9 @@
         <summary>
             Adds a header with the specified field and value.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a new header for the specified field and value pair.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -193,7 +202,9 @@
         <returns>
           <value>true</value> if the requested header exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the specified header is contained within the header list.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
             </exception>
@@ -220,7 +231,9 @@
         <returns>
           <value>true</value> if the requested header exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the specified header is contained within the header list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="field" /> is <c>null</c>.
             </exception>

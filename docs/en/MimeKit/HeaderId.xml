@@ -12,7 +12,10 @@
     <summary>
             An enumeration of common header fields.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Comparing enum  values is not only faster, but less error prone than
+            comparing strings.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="AdHoc">

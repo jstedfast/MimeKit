@@ -37,6 +37,10 @@ namespace MimeKit {
 	/// <summary>
 	/// A list of <see cref="MimeKit.Header"/>s.
 	/// </summary>
+	/// <remarks>
+	/// Represents a list of headers as found in a <see cref="MimeMessage"/>
+	/// or <see cref="MimeEntity"/>.
+	/// </remarks>
 	public sealed class HeaderList : IList<Header>
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
@@ -56,6 +60,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.HeaderList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new empty header list.
+		/// </remarks>
 		public HeaderList () : this (ParserOptions.Default.Clone ())
 		{
 		}
@@ -63,6 +70,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds a header with the specified field and value.
 		/// </summary>
+		/// <remarks>
+		/// Adds a new header for the specified field and value pair.
+		/// </remarks>
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -79,6 +89,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds a header with the specified field and value.
 		/// </summary>
+		/// <remarks>
+		/// Adds a new header for the specified field and value pair.
+		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -97,6 +110,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="MimeKit.HeaderList"/> contains a header with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the specified header is contained within the header list.
+		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="id">The header identifier.</param>
@@ -114,6 +130,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="MimeKit.HeaderList"/> contains a header with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the specified header is contained within the header list.
+		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
