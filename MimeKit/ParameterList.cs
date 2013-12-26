@@ -773,6 +773,9 @@ namespace MimeKit {
 				Decoder decoder = null;
 				string value;
 
+				if (paramList.Contains (param.Name))
+					continue;
+
 				if (param.Id.HasValue) {
 					parts = rfc2184[param.Name];
 					parts.Sort ();
@@ -807,8 +810,7 @@ namespace MimeKit {
 					value = string.Empty;
 				}
 
-				if (!paramList.Contains (param.Name))
-					paramList.Add (param.Name, value);
+				paramList.Add (param.Name, value);
 			}
 
 			return true;
