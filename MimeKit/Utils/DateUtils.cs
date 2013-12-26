@@ -134,16 +134,26 @@ namespace MimeKit.Utils {
 			};
 
 			datetok = new DateTokenFlags[256];
+			var any = new char[2];
+
 			for (int c = 0; c < 256; c++) {
+				if (c >= 0x41 && c <= 0x5a) {
+					any[1] = (char) (c + 0x20);
+					any[0] = (char) c;
+				} else if (c >= 0x61 && c <= 0x7a) {
+					any[0] = (char) (c - 0x20);
+					any[1] = (char) c;
+				}
+
 				if (NumericZoneCharacters.IndexOf ((char) c) == -1)
 					datetok[c] |= DateTokenFlags.NonNumericZone;
 				if (AlphaZoneCharacters.IndexOf ((char) c) == -1)
 					datetok[c] |= DateTokenFlags.NonAlphaZone;
-				if (WeekdayCharacters.IndexOf ((char) c) == -1)
+				if (WeekdayCharacters.IndexOfAny (any) == -1)
 					datetok[c] |= DateTokenFlags.NonWeekday;
 				if (NumericCharacters.IndexOf ((char) c) == -1)
 					datetok[c] |= DateTokenFlags.NonNumeric;
-				if (MonthCharacters.IndexOf ((char) c) == -1)
+				if (MonthCharacters.IndexOfAny (any) == -1)
 					datetok[c] |= DateTokenFlags.NonMonth;
 				if (TimeCharacters.IndexOf ((char) c) == -1)
 					datetok[c] |= DateTokenFlags.NonTime;
