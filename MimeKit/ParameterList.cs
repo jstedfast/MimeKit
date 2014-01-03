@@ -773,9 +773,6 @@ namespace MimeKit {
 				Decoder decoder = null;
 				string value;
 
-				if (paramList.Contains (param.Name))
-					continue;
-
 				if (param.Id.HasValue) {
 					parts = rfc2184[param.Name];
 					parts.Sort ();
@@ -801,16 +798,29 @@ namespace MimeKit {
 				} else if (param.Encoded) {
 					value = DecodeRfc2184 (ref decoder, hex, text, startIndex, length, true);
 					hex.Reset ();
-				} else if (length >= 2 && text[startIndex] == (byte) '"') {
-					var quoted = Rfc2047.DecodeText (options, text, startIndex, length);
-					value = MimeUtils.Unquote (quoted);
-				} else if (length > 0) {
-					value = Rfc2047.DecodeText (options, text, startIndex, length);
+				} else if (!paramList.Contains (param.Name)) {
+					// Note: If we've got an rfc2184-encoded version of the same parameter, then
+					// we'll want to choose that one as opposed to the ASCII variant (i.e. this one).
+					//
+					// While most mail clients that I know of do not send multiple parameters of the
+					// same name, rfc6266 suggests that HTTP servers are using this approach to work
+					// around HTTP clients that do not (yet) implement support for the rfc2184/2231
+					// encoding of parameter values. Since none of the MIME specifications provide
+					// any suggestions for dealing with this, following rfc6266 seems to make the
+					// most sense, even though it is meant for HTTP clients and servers.
+					if (length >= 2 && text[startIndex] == (byte) '"') {
+						var quoted = Rfc2047.DecodeText (options, text, startIndex, length);
+						value = MimeUtils.Unquote (quoted);
+					} else if (length > 0) {
+						value = Rfc2047.DecodeText (options, text, startIndex, length);
+					} else {
+						value = string.Empty;
+					}
 				} else {
-					value = string.Empty;
+					continue;
 				}
 
-				paramList.Add (param.Name, value);
+				paramList[param.Name] = value;
 			}
 
 			return true;

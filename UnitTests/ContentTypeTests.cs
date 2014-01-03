@@ -192,11 +192,19 @@ namespace UnitTests {
 		[Test]
 		public void TestMultipleParametersWithIdenticalNames ()
 		{
-			const string text = "inline;\n filename=\"Filename.doc\";\n filename*0*=ISO-8859-2''Html_Encoded_Text_Part1;\n filename*1*=Html_Encoded_Text_Part2";
 			ContentDisposition disposition;
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("Filename.doc", disposition.FileName, "The filename value does not match.");
+			const string text1 = "inline;\n filename=\"Filename.doc\";\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc";
+			Assert.IsTrue (ContentDisposition.TryParse (text1, out disposition), "Failed to parse first Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The first filename value does not match.");
+
+			const string text2 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc;\n filename=\"Filename.doc\"";
+			Assert.IsTrue (ContentDisposition.TryParse (text2, out disposition), "Failed to parse second Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The second filename value does not match.");
+
+			const string text3 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename=\"Filename.doc\";\n filename*1*=name.doc";
+			Assert.IsTrue (ContentDisposition.TryParse (text3, out disposition), "Failed to parse third Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The third filename value does not match.");
 		}
 	}
 }
