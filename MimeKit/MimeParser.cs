@@ -1208,7 +1208,7 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers);
 			var type = GetContentType (null);
 
-			var entity = MimeEntity.Create (options, type, headers, true);
+			var entity = options.CreateEntity (type, headers, true);
 			message.Body = entity;
 
 			if (entity is Multipart)
@@ -1259,7 +1259,7 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = MimeEntity.Create (options, type, headers, false);
+				var entity = options.CreateEntity (type, headers, false);
 
 				if (entity is Multipart)
 					found = ConstructMultipart ((Multipart) entity, inbuf);
@@ -1337,7 +1337,7 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all of the headers.
-			var entity = MimeEntity.Create (options, type, headers, false);
+			var entity = options.CreateEntity (type, headers, false);
 			if (entity is Multipart)
 				found = ConstructMultipart ((Multipart) entity, inbuf);
 			else if (entity is MessagePart)
@@ -1430,7 +1430,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = MimeEntity.Create (options, type, headers, true);
+			var entity = options.CreateEntity (type, headers, true);
 			message.Body = entity;
 
 			if (entity is Multipart)

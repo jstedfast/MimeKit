@@ -26,6 +26,10 @@
 
 using System;
 using System.Text;
+using System.Reflection;
+using System.Collections.Generic;
+
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -33,6 +37,9 @@ namespace MimeKit {
 	/// </summary>
 	public sealed class ParserOptions
 	{
+		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
+		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
+
 		/// <summary>
 		/// The default parser options.
 		/// </summary>
@@ -104,7 +111,109 @@ namespace MimeKit {
 			options.RespectContentLength = RespectContentLength;
 			options.CharsetEncoding = CharsetEncoding;
 
+			foreach (var mimeType in mimeTypes)
+				options.mimeTypes.Add (mimeType.Key, mimeType.Value);
+
 			return options;
+		}
+
+		/// <summary>
+		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
+		/// </summary>
+		/// <param name="mimeType">The MIME type.</param>
+		/// <param name="type">A custom subclass of <see cref="MimeEntity"/>.</param>
+		/// <remarks>
+		/// Your custom <see cref="MimeEntity"/> class should not subclass
+		/// <see cref="MimeEntity"/> directly, but rather it should subclass
+		/// <see cref="Multipart"/>, <see cref="MimePart"/>,
+		/// <see cref="MessagePart"/>, or one of their derivatives.
+		/// </remarks>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mimeType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="type"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="type"/> is not a subclass of <see cref="Multipart"/>,
+		/// <see cref="MimePart"/>, or <see cref="MessagePart"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="type"/> does not have a constructor that takes
+		/// only a <see cref="MimeEntityConstructorInfo"/> argument.</para>
+		/// </exception>
+		public void RegisterMimeType (string mimeType, Type type)
+		{
+			if (mimeType == null)
+				throw new ArgumentNullException ("mimeType");
+
+			if (type == null)
+				throw new ArgumentNullException ("type");
+
+			mimeType = mimeType.ToLowerInvariant ();
+
+			if (!type.IsSubclassOf (typeof (MessagePart)) &&
+				!type.IsSubclassOf (typeof (Multipart)) &&
+				!type.IsSubclassOf (typeof (MimePart)))
+				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
+
+			var ctor = type.GetConstructor (ConstructorArgTypes);
+			if (ctor == null)
+				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
+
+			mimeTypes[mimeType] = ctor;
+		}
+
+		internal MimeEntity CreateEntity (ContentType contentType, IEnumerable<Header> headers, bool toplevel)
+		{
+			var entity = new MimeEntityConstructorInfo (this, contentType, headers, toplevel);
+			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
+			var type = contentType.MediaType.ToLowerInvariant ();
+
+			if (mimeTypes.Count > 0) {
+				var mimeType = string.Format ("{0}/{1}", type, subtype);
+				ConstructorInfo ctor;
+
+				if (mimeTypes.TryGetValue (mimeType, out ctor))
+					return (MimeEntity) ctor.Invoke (new object[] { entity });
+			}
+
+			if (type == "message") {
+				if (subtype == "partial")
+					return new MessagePartial (entity);
+
+				return new MessagePart (entity);
+			}
+
+			if (type == "multipart") {
+				if (subtype == "encrypted")
+					return new MultipartEncrypted (entity);
+
+				if (subtype == "signed")
+					return new MultipartSigned (entity);
+
+				return new Multipart (entity);
+			}
+
+			if (type == "application") {
+				switch (subtype) {
+				case "x-pkcs7-signature":
+				case "pkcs7-signature":
+					return new ApplicationPkcs7Signature (entity);
+				case "x-pgp-encrypted":
+				case "pgp-encrypted":
+					return new ApplicationPgpEncrypted (entity);
+				case "x-pgp-signature":
+				case "pgp-signature":
+					return new ApplicationPgpSignature (entity);
+				case "x-pkcs7-mime":
+				case "pkcs7-mime":
+					return new ApplicationPkcs7Mime (entity);
+				}
+			}
+
+			if (type == "text")
+				return new TextPart (entity);
+
+			return new MimePart (entity);
 		}
 	}
 }

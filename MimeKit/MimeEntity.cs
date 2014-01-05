@@ -29,10 +29,8 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
-using System.Reflection;
 using System.Collections.Generic;
 
-using MimeKit.Cryptography;
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -42,8 +40,6 @@ namespace MimeKit {
 	/// </summary>
 	public abstract class MimeEntity
 	{
-		static readonly Dictionary<string, ConstructorInfo> CustomMimeTypes = new Dictionary<string, ConstructorInfo> ();
-		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
 		ContentDisposition disposition;
 		string contentId;
 
@@ -54,7 +50,7 @@ namespace MimeKit {
 		/// <param name="entity">Information used by the constructor.</param>
 		/// <remarks>
 		/// Custom <see cref="MimeEntity"/> subclasses MUST implement this constructor
-		/// in order to register it using <see cref="MimeEntity.Register"/>.
+		/// in order to register it using <see cref="ParserOptions.RegisterMimeType"/>.
 		/// </remarks>
 		protected MimeEntity (MimeEntityConstructorInfo entity)
 		{
@@ -309,7 +305,7 @@ namespace MimeKit {
 		/// <param name="rawValue">The raw value of the header.</param>
 		protected void SetHeader (string name, byte[] rawValue)
 		{
-			Header header = new Header (Headers.Options, name, rawValue);
+			var header = new Header (Headers.Options, name, rawValue);
 
 			Headers.Changed -= HeadersChanged;
 			Headers.Replace (header);
@@ -711,111 +707,6 @@ namespace MimeKit {
 		public static MimeEntity Load (System.Net.WebResponse response)
 		{
 			return Load (ParserOptions.Default, response, CancellationToken.None);
-		}
-
-		/// <summary>
-		/// Registers the custom MIME entity. Once registered, all <see cref="MimeKit.MimeParser"/>
-		/// instances will instantiate your custom <see cref="MimeEntity"/> when the specified
-		/// mime-type is encountered.
-		/// </summary>
-		/// <param name="mimeType">The MIME type.</param>
-		/// <param name="type">A custom subclass of <see cref="MimeEntity"/>.</param>
-		/// <remarks>
-		/// Your custom <see cref="MimeEntity"/> class should not subclass
-		/// <see cref="MimeEntity"/> directly, but rather it should subclass
-		/// <see cref="Multipart"/>, <see cref="MimePart"/>,
-		/// <see cref="MessagePart"/>, or one of their derivatives.
-		/// </remarks>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mimeType"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="type"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="type"/> is not a subclass of <see cref="Multipart"/>,
-		/// <see cref="MimePart"/>, or <see cref="MessagePart"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="type"/> does not have a constructor that takes
-		/// only a <see cref="MimeEntityConstructorInfo"/> argument.</para>
-		/// </exception>
-		public static void Register (string mimeType, Type type)
-		{
-			if (mimeType == null)
-				throw new ArgumentNullException ("mimeType");
-
-			if (type == null)
-				throw new ArgumentNullException ("type");
-
-			mimeType = mimeType.ToLowerInvariant ();
-
-			if (!type.IsSubclassOf (typeof (MessagePart)) &&
-				!type.IsSubclassOf (typeof (Multipart)) &&
-				!type.IsSubclassOf (typeof (MimePart)))
-				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
-
-			var ctor = type.GetConstructor (ConstructorArgTypes);
-			if (ctor == null)
-				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
-
-			lock (CustomMimeTypes) {
-				CustomMimeTypes[mimeType] = ctor;
-			}
-		}
-
-		internal static MimeEntity Create (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel)
-		{
-			var entity = new MimeEntityConstructorInfo (options, ctype, headers, toplevel);
-			var subtype = ctype.MediaSubtype.ToLowerInvariant ();
-			var type = ctype.MediaType.ToLowerInvariant ();
-
-			if (CustomMimeTypes.Count > 0) {
-				var mimeType = string.Format ("{0}/{1}", type, subtype);
-				lock (CustomMimeTypes) {
-					ConstructorInfo ctor;
-
-					if (CustomMimeTypes.TryGetValue (mimeType, out ctor))
-						return (MimeEntity) ctor.Invoke (new object[] { entity });
-				}
-			}
-
-			if (type == "message") {
-				if (subtype == "partial")
-					return new MessagePartial (entity);
-
-				return new MessagePart (entity);
-			}
-
-			if (type == "multipart") {
-				if (subtype == "encrypted")
-					return new MultipartEncrypted (entity);
-
-				if (subtype == "signed")
-					return new MultipartSigned (entity);
-
-				return new Multipart (entity);
-			}
-
-			if (type == "application") {
-				switch (subtype) {
-				case "x-pkcs7-signature":
-				case "pkcs7-signature":
-					return new ApplicationPkcs7Signature (entity);
-				case "x-pgp-encrypted":
-				case "pgp-encrypted":
-					return new ApplicationPgpEncrypted (entity);
-				case "x-pgp-signature":
-				case "pgp-signature":
-					return new ApplicationPgpSignature (entity);
-				case "x-pkcs7-mime":
-				case "pkcs7-mime":
-					return new ApplicationPkcs7Mime (entity);
-				}
-			}
-
-			if (type == "text")
-				return new TextPart (entity);
-
-			return new MimePart (entity);
 		}
 	}
 }
