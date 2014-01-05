@@ -125,7 +125,31 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
-		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
+		public MimePart (string mediaType, string mediaSubtype) : base (new ContentType (mediaType, mediaSubtype))
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified content type.
+		/// </summary>
+		/// <param name="contentType">The content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// </exception>
+		public MimePart (ContentType contentType) : base (contentType)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified content type.
+		/// </summary>
+		/// <param name="contentType">The content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// </exception>
+		public MimePart (string contentType) : base (ContentType.Parse(contentType))
 		{
 		}
 

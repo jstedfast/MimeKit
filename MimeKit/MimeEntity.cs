@@ -87,8 +87,20 @@ namespace MimeKit {
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
 		protected MimeEntity (string mediaType, string mediaSubtype)
+			: this(new ContentType (mediaType, mediaSubtype))
 		{
-			ContentType = new ContentType (mediaType, mediaSubtype);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
+		/// </summary>
+		/// <param name="contentType">The content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// </exception>
+		protected MimeEntity (ContentType contentType)
+		{
+			ContentType = contentType;
 			Headers = new HeaderList ();
 
 			ContentType.Changed += ContentTypeChanged;
