@@ -1,6 +1,6 @@
 <Type Name="ParserOptions" FullName="MimeKit.ParserOptions">
   <TypeSignature Language="C#" Value="public sealed class ParserOptions" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed ParserOptions extends System.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ParserOptions extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.18.0.0</AssemblyVersion>
@@ -28,7 +28,11 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ParserOptions" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            By default, new instances of <see cref="T:MimeKit.ParserOptions" /> enable rfc2047 work-arounds
+            (which are needed for maximum interoperability with mail software used in the wild)
+            and do not respect the Content-Length header value.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CharsetEncoding">
@@ -115,6 +119,50 @@
             allows maximum interoperability with existing (broken) mail clients and other mail
             software such as sloppily written perl scripts (aka spambots).
             </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RegisterMimeType">
+      <MemberSignature Language="C#" Value="public void RegisterMimeType (string mimeType, Type type);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RegisterMimeType(string mimeType, class System.Type type) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mimeType" Type="System.String" />
+        <Parameter Name="type" Type="System.Type" />
+      </Parameters>
+      <Docs>
+        <param name="mimeType">The MIME type.</param>
+        <param name="type">A custom subclass of <see cref="T:MimeKit.MimeEntity" />.</param>
+        <summary>
+            Registers the <see cref="T:MimeKit.MimeEntity" /> subclass for the specified mime-type.
+            </summary>
+        <remarks>
+            Your custom <see cref="T:MimeKit.MimeEntity" /> class should not subclass
+            <see cref="T:MimeKit.MimeEntity" /> directly, but rather it should subclass
+            <see cref="T:MimeKit.Multipart" />, <see cref="T:MimeKit.MimePart" />,
+            <see cref="T:MimeKit.MessagePart" />, or one of their derivatives.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mimeType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="type" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="type" /> is not a subclass of <see cref="T:MimeKit.Multipart" />,
+            <see cref="T:MimeKit.MimePart" />, or <see cref="T:MimeKit.MessagePart" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="type" /> does not have a constructor that takes
+            only a <see cref="T:MimeKit.MimeEntityConstructorInfo" /> argument.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="RespectContentLength">

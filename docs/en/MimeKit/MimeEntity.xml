@@ -17,6 +17,27 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected MimeEntity (MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The content type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="contentType" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="protected MimeEntity (MimeKit.MimeEntityConstructorInfo entity);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
@@ -34,7 +55,7 @@
             </summary>
         <remarks>
             Custom <see cref="T:MimeKit.MimeEntity" /> subclasses MUST implement this constructor
-            in order to register it using <see cref="M:MimeKit.MimeEntity.Register(System.String,System.Type)" />.
+            in order to register it using <see cref="M:MimeKit.ParserOptions.RegisterMimeType(System.String,System.Type)" />.
             </remarks>
       </Docs>
     </Member>
@@ -222,6 +243,43 @@
       </Docs>
     </Member>
     <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ContentType contentType, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The Content-Type of the stream.</param>
+        <param name="content">The content stream.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeEntity" /> from the specified content stream.
+            </summary>
+        <returns>The parsed MIME entity.</returns>
+        <remarks>
+            This method is mostly meant for use with APIs such as <see cref="T:System.Net.HttpWebResponse" />
+            where the headers are parsed separately from the content.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
       <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ParserOptions options, System.IO.Stream stream);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
@@ -374,6 +432,90 @@
       </Docs>
     </Member>
     <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ContentType contentType, System.IO.Stream content, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The Content-Type of the stream.</param>
+        <param name="content">The content stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeEntity" /> from the specified content stream.
+            </summary>
+        <returns>The parsed MIME entity.</returns>
+        <remarks>
+            This method is mostly meant for use with APIs such as <see cref="T:System.Net.HttpWebResponse" />
+            where the headers are parsed separately from the content.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ParserOptions options, MimeKit.ContentType contentType, System.IO.Stream content);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="contentType">The Content-Type of the stream.</param>
+        <param name="content">The content stream.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeEntity" /> from the specified content stream.
+            </summary>
+        <returns>The parsed MIME entity.</returns>
+        <remarks>
+            This method is mostly meant for use with APIs such as <see cref="T:System.Net.HttpWebResponse" />
+            where the headers are parsed separately from the content.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
       <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ParserOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
@@ -460,6 +602,53 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (MimeKit.ParserOptions options, MimeKit.ContentType contentType, System.IO.Stream content, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+        <Parameter Name="content" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="contentType">The Content-Type of the stream.</param>
+        <param name="content">The content stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeEntity" /> from the specified content stream.
+            </summary>
+        <returns>The parsed MIME entity.</returns>
+        <remarks>
+            This method is mostly meant for use with APIs such as <see cref="T:System.Net.HttpWebResponse" />
+            where the headers are parsed separately from the content.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="content" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="OnChanged">
       <MemberSignature Language="C#" Value="protected void OnChanged ();" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void OnChanged() cil managed" />
@@ -499,52 +688,6 @@
             Called when the headers change in some way.
             </summary>
         <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="Register">
-      <MemberSignature Language="C#" Value="public static void Register (string mimeType, Type type);" />
-      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void Register(string mimeType, class System.Type type) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.18.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="mimeType" Type="System.String" />
-        <Parameter Name="type" Type="System.Type" />
-      </Parameters>
-      <Docs>
-        <param name="mimeType">The MIME type.</param>
-        <param name="type">A custom subclass of <see cref="T:MimeKit.MimeEntity" />.</param>
-        <summary>
-            Registers the custom MIME entity. Once registered, all <see cref="T:MimeKit.MimeParser" />
-            instances will instantiate your custom <see cref="T:MimeKit.MimeEntity" /> when the specified
-            mime-type is encountered.
-            </summary>
-        <remarks>
-            Your custom <see cref="T:MimeKit.MimeEntity" /> class should not subclass
-            <see cref="T:MimeKit.MimeEntity" /> directly, but rather it should subclass
-            <see cref="T:MimeKit.Multipart" />, <see cref="T:MimeKit.MimePart" />,
-            <see cref="T:MimeKit.MessagePart" />, or one of their derivatives.
-            </remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="mimeType" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="type" /> is <c>null</c>.</para>
-        </exception>
-        <exception cref="T:System.ArgumentException">
-          <para>
-            <paramref name="type" /> is not a subclass of <see cref="T:MimeKit.Multipart" />,
-            <see cref="T:MimeKit.MimePart" />, or <see cref="T:MimeKit.MessagePart" />.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="type" /> does not have a constructor that takes
-            only a <see cref="T:MimeKit.MimeEntityConstructorInfo" /> argument.</para>
-        </exception>
       </Docs>
     </Member>
     <Member MemberName="RemoveHeader">

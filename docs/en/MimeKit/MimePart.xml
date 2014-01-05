@@ -33,6 +33,28 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The content type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified content type.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="contentType" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="public MimePart (MimeKit.MimeEntityConstructorInfo entity);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
@@ -49,6 +71,31 @@
             based on the <see cref="T:MimeKit.MimeEntityConstructorInfo" />.
             </summary>
         <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (string contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string contentType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.18.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="contentType" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The content type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified content type.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="contentType" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="contentType" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
