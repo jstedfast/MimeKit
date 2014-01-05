@@ -135,7 +135,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <paramref name="contentType"/> is <c>null</c>.
 		/// </exception>
 		public MimePart (ContentType contentType) : base (contentType)
 		{
@@ -147,9 +147,12 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <paramref name="contentType"/> is <c>null</c>.
 		/// </exception>
-		public MimePart (string contentType) : base (ContentType.Parse(contentType))
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="contentType"/> could not be parsed.
+		/// </exception>
+		public MimePart (string contentType) : base (ContentType.Parse (contentType))
 		{
 		}
 

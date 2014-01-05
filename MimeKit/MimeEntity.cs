@@ -83,8 +83,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
-		protected MimeEntity (string mediaType, string mediaSubtype)
-			: this(new ContentType (mediaType, mediaSubtype))
+		protected MimeEntity (string mediaType, string mediaSubtype) : this (new ContentType (mediaType, mediaSubtype))
 		{
 		}
 
@@ -93,12 +92,15 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <paramref name="contentType"/> is <c>null</c>.
 		/// </exception>
 		protected MimeEntity (ContentType contentType)
 		{
-			ContentType = contentType;
+			if (contentType == null)
+				throw new ArgumentNullException ("contentType");
+
 			Headers = new HeaderList ();
+			ContentType = contentType;
 
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
