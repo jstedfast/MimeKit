@@ -55,6 +55,6 @@ For those that need SMTP or POP3 support, check out https://github.com/jstedfast
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
-        <file src="sqlite3.dll" target="content\net40\sqlite3.dll" />
+        <file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
     </files>
 </package>
