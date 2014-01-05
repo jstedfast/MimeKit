@@ -34,6 +34,7 @@ using System.Collections.Generic;
 
 using MimeKit.Cryptography;
 using MimeKit.Utils;
+using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
@@ -42,7 +43,7 @@ namespace MimeKit {
 	public abstract class MimeEntity
 	{
 		static readonly Dictionary<string, ConstructorInfo> CustomMimeTypes = new Dictionary<string, ConstructorInfo> ();
-		static readonly Type[] ConstructorArgTypes = new Type[] { typeof (MimeEntityConstructorInfo) };
+		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
 		ContentDisposition disposition;
 		string contentId;
 
@@ -620,6 +621,96 @@ namespace MimeKit {
 		public static MimeEntity Load (string fileName)
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="response">The web response.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="response"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, System.Net.WebResponse response, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (response == null)
+				throw new ArgumentNullException ("response");
+
+			var contentType = string.Format ("Content-Type: {0}\r\n\r\n", response.ContentType);
+			var chained = new ChainedStream ();
+
+			chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (contentType), false));
+			chained.Add (response.GetResponseStream ());
+
+			return Load (options, chained, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="response">The web response.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="response"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (System.Net.WebResponse response, CancellationToken cancellationToken)
+		{
+			return Load (ParserOptions.Default, response, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="response">The web response.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="response"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, System.Net.WebResponse response)
+		{
+			return Load (options, response, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// </summary>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="response">The web response.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="response"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (System.Net.WebResponse response)
+		{
+			return Load (ParserOptions.Default, response, CancellationToken.None);
 		}
 
 		/// <summary>
