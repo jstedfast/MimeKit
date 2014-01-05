@@ -634,16 +634,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// Load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
+		/// <remarks>
+		/// This method is mostly meant for use with APIs such as <see cref="System.Net.HttpWebResponse"/>
+		/// where the headers are parsed separately from the content.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
-		/// <param name="response">The web response.</param>
+		/// <param name="contentType">The Content-Type of the stream.</param>
+		/// <param name="content">The content stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="response"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -651,31 +658,45 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, System.Net.WebResponse response, CancellationToken cancellationToken)
+		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
 
-			if (response == null)
-				throw new ArgumentNullException ("response");
+			if (contentType == null)
+				throw new ArgumentNullException ("contentType");
 
-			var contentType = string.Format ("Content-Type: {0}\r\n\r\n", response.ContentType);
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var format = FormatOptions.Default.Clone ();
+			format.NewLineFormat = NewLineFormat.Dos;
+
+			var encoded = contentType.Encode (format, Encoding.UTF8);
+			var header = string.Format ("Content-Type:{0}\r\n", encoded);
 			var chained = new ChainedStream ();
 
-			chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (contentType), false));
-			chained.Add (response.GetResponseStream ());
+			chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
+			chained.Add (content);
 
 			return Load (options, chained, cancellationToken);
 		}
 
 		/// <summary>
-		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// Load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
+		/// <remarks>
+		/// This method is mostly meant for use with APIs such as <see cref="System.Net.HttpWebResponse"/>
+		/// where the headers are parsed separately from the content.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
-		/// <param name="response">The web response.</param>
+		/// <param name="contentType">The Content-Type of the stream.</param>
+		/// <param name="content">The content stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="response"/> is <c>null</c>.
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -683,44 +704,58 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (System.Net.WebResponse response, CancellationToken cancellationToken)
+		public static MimeEntity Load (ContentType contentType, Stream content, CancellationToken cancellationToken)
 		{
-			return Load (ParserOptions.Default, response, cancellationToken);
+			return Load (ParserOptions.Default, contentType, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// Load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
+		/// <remarks>
+		/// This method is mostly meant for use with APIs such as <see cref="System.Net.HttpWebResponse"/>
+		/// where the headers are parsed separately from the content.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
-		/// <param name="response">The web response.</param>
+		/// <param name="contentType">The Content-Type of the stream.</param>
+		/// <param name="content">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="response"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, System.Net.WebResponse response)
+		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content)
 		{
-			return Load (options, response, CancellationToken.None);
+			return Load (options, contentType, content, CancellationToken.None);
 		}
 
 		/// <summary>
-		/// Load a <see cref="MimeEntity"/> from the specified web response.
+		/// Load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
+		/// <remarks>
+		/// This method is mostly meant for use with APIs such as <see cref="System.Net.HttpWebResponse"/>
+		/// where the headers are parsed separately from the content.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
-		/// <param name="response">The web response.</param>
+		/// <param name="contentType">The Content-Type of the stream.</param>
+		/// <param name="content">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="response"/> is <c>null</c>.
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (System.Net.WebResponse response)
+		public static MimeEntity Load (ContentType contentType, Stream content)
 		{
-			return Load (ParserOptions.Default, response, CancellationToken.None);
+			return Load (ParserOptions.Default, contentType, content, CancellationToken.None);
 		}
 	}
 }
