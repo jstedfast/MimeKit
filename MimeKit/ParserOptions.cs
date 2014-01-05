@@ -47,7 +47,7 @@ namespace MimeKit {
 		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="MimeParser"/> or other Parse and TryParse
 		/// methods throughout MimeKit, <see cref="ParserOptions.Default"/> will be used.
 		/// </remarks>
-		public static readonly ParserOptions Default;
+		public static readonly ParserOptions Default = new ParserOptions ();
 
 		/// <summary>
 		/// Gets or sets a value indicating whether rfc2047 workarounds should be used.
@@ -85,19 +85,19 @@ namespace MimeKit {
 		/// <value>The charset encoding.</value>
 		public Encoding CharsetEncoding { get; set; }
 
-		static ParserOptions ()
-		{
-			Default = new ParserOptions ();
-			Default.EnableRfc2047Workarounds = true;
-			Default.RespectContentLength = false;
-			Default.CharsetEncoding = Encoding.Default;
-		}
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParserOptions"/> class.
 		/// </summary>
+		/// <remarks>
+		/// By default, new instances of <see cref="ParserOptions"/> enable rfc2047 work-arounds
+		/// (which are needed for maximum interoperability with mail software used in the wild)
+		/// and do not respect the Content-Length header value.
+		/// </remarks>
 		public ParserOptions ()
 		{
+			CharsetEncoding = Encoding.Default;
+			EnableRfc2047Workarounds = true;
+			RespectContentLength = false;
 		}
 
 		/// <summary>
