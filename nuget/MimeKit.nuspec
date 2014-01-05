@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.18.0.0</version>
+        <version>0.19.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,9 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP or POP3 support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added support for cancelling serialization and parsing of messages and other MIME entities.
-* Added MimeKit.IO.Filters.BestEncodingFilter which can be used to calculate the most efficient Content-Transfer-Encoding to use for a given MIME part with a specified constraint.
-* Fixed serialization of MIME parts with a Content-Transfer-Encoding set to "binary".
-* Fixed S/MIME signing to use the correct OIDs for some of the digest algorithms.
+        <releaseNotes>* Fixed to properly handle multiple Content-Type and Content-Disposition parameters with the same name.
+* Added special MimeEntity.Load() methods that can be used when the headers are split from the content stream.
+* Added support for parsing date headers in all CAPS.
 * Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
