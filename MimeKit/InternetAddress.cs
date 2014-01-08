@@ -308,6 +308,15 @@ namespace MimeKit {
 			return true;
 		}
 
+		public static bool TryParse (string address, out InternetAddress internetAddress)
+		{
+			var buffer = Encoding.ASCII.GetBytes (address);
+			int index = 0;
+
+			bool result = InternetAddress.TryParse(ParserOptions.Default, buffer, ref index, buffer.Length, false, out internetAddress);
+			return result;
+		}
+
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
 		{
 			address = null;
