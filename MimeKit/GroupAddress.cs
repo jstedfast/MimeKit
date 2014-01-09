@@ -220,7 +220,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -239,22 +240,13 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out GroupAddress group)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
-
-			if (length < 0 || startIndex + length >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("length");
-
 			InternetAddress address;
-			int index = startIndex;
 
-			InternetAddress.TryParse (options, buffer, ref index, startIndex + length, false, out address);
+			if (!InternetAddress.TryParse (options, buffer, startIndex, length, out address)) {
+				group = null;
+				return false;
+			}
+
 			group = address as GroupAddress;
 
 			return group != null;
@@ -264,7 +256,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -287,7 +280,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -304,19 +298,13 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out GroupAddress group)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
-
 			InternetAddress address;
-			int index = startIndex;
 
-			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			if (!InternetAddress.TryParse (options, buffer, startIndex, out address)) {
+				group = null;
+				return false;
+			}
+
 			group = address as GroupAddress;
 
 			return group != null;
@@ -326,7 +314,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -347,7 +336,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -360,16 +350,13 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out GroupAddress group)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
 			InternetAddress address;
-			int index = 0;
 
-			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			if (!InternetAddress.TryParse (options, buffer, out address)) {
+				group = null;
+				return false;
+			}
+
 			group = address as GroupAddress;
 
 			return group != null;
@@ -379,7 +366,8 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the buffer and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -396,7 +384,8 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the text and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -407,17 +396,13 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var buffer = Encoding.UTF8.GetBytes (text);
 			InternetAddress address;
-			int index = 0;
 
-			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			if (!InternetAddress.TryParse (options, text, out address)) {
+				group = null;
+				return false;
+			}
+
 			group = address as GroupAddress;
 
 			return group != null;
@@ -427,7 +412,8 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses only the first address in the text and ignores the rest.
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text.</param>
