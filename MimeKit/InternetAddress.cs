@@ -308,15 +308,6 @@ namespace MimeKit {
 			return true;
 		}
 
-		public static bool TryParse (string address, out InternetAddress internetAddress)
-		{
-			var buffer = Encoding.ASCII.GetBytes (address);
-			int index = 0;
-
-			bool result = InternetAddress.TryParse(ParserOptions.Default, buffer, ref index, buffer.Length, false, out internetAddress);
-			return result;
-		}
-
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out InternetAddress address)
 		{
 			address = null;
@@ -453,6 +444,452 @@ namespace MimeKit {
 				throw new ParseException (string.Format ("Invalid address token at offset {0}", startIndex), startIndex, index);
 
 			return false;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out InternetAddress address)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			int index = startIndex;
+
+			return TryParse (options, buffer, ref index, startIndex + length, false, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out InternetAddress address)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out InternetAddress address)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int index = startIndex;
+
+			return TryParse (options, buffer, ref index, buffer.Length, false, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, out InternetAddress address)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, out InternetAddress address)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			int index = 0;
+
+			return TryParse (options, buffer, ref index, buffer.Length, false, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, out InternetAddress address)
+		{
+			return TryParse (ParserOptions.Default, buffer, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, string text, out InternetAddress address)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (options, buffer, ref index, buffer.Length, false, out address);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text.</param>
+		/// <param name="address">The parsed address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (string text, out InternetAddress address)
+		{
+			return TryParse (ParserOptions.Default, text, out address);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
+		{
+			InternetAddress address;
+			int index = startIndex;
+
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			TryParse (options, buffer, ref index, startIndex + length, true, out address);
+
+			return address;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (byte[] buffer, int startIndex, int length)
+		{
+			return Parse (ParserOptions.Default, buffer, startIndex, length);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/>is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (ParserOptions options, byte[] buffer, int startIndex)
+		{
+			InternetAddress address;
+			int index = startIndex;
+
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			TryParse (options, buffer, ref index, buffer.Length, true, out address);
+
+			return address;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (byte[] buffer, int startIndex)
+		{
+			return Parse (ParserOptions.Default, buffer, startIndex);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (ParserOptions options, byte[] buffer)
+		{
+			InternetAddress address;
+			int index = 0;
+
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			TryParse (options, buffer, ref index, buffer.Length, true, out address);
+
+			return address;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (byte[] buffer)
+		{
+			return Parse (ParserOptions.Default, buffer);
+		}
+
+		/// <summary>
+		/// Parses the given text into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="text"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (ParserOptions options, string text)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			InternetAddress address;
+			int index = 0;
+
+			TryParse (options, buffer, ref index, buffer.Length, true, out address);
+
+			return address;
+		}
+
+		/// <summary>
+		/// Parses the given text into a new <see cref="MimeKit.InternetAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="text"/> could not be parsed.
+		/// </exception>
+		public static InternetAddress Parse (string text)
+		{
+			return Parse (ParserOptions.Default, text);
 		}
 	}
 }

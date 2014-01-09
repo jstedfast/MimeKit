@@ -274,17 +274,6 @@ namespace MimeKit {
 			return Address;
 		}
 
-		public static bool TryParse (string address, out MailboxAddress mailboxAddress)
-		{
-			var buffer = Encoding.ASCII.GetBytes (address);
-			int index = 0;
-
-			InternetAddress internetAddress;
-			bool result = InternetAddress.TryParse(ParserOptions.Default, buffer, ref index, buffer.Length, false, out internetAddress);
-			mailboxAddress = internetAddress as MailboxAddress;
-			return result && mailboxAddress != null;
-		}
-
 		#region IEquatable implementation
 
 		/// <summary>
@@ -329,6 +318,230 @@ namespace MimeKit {
 				throw new ArgumentNullException ("mailbox");
 
 			return new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out MailboxAddress mailbox)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("length");
+
+			InternetAddress address;
+			int index = startIndex;
+
+			InternetAddress.TryParse (options, buffer, ref index, startIndex + length, false, out address);
+			mailbox = address as MailboxAddress;
+
+			return mailbox != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out MailboxAddress mailbox)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out mailbox);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out MailboxAddress mailbox)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			InternetAddress address;
+			int index = startIndex;
+
+			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			mailbox = address as MailboxAddress;
+
+			return mailbox != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, out MailboxAddress mailbox)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, out mailbox);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, out MailboxAddress mailbox)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			InternetAddress address;
+			int index = 0;
+
+			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			mailbox = address as MailboxAddress;
+
+			return mailbox != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the buffer and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, out MailboxAddress mailbox)
+		{
+			return TryParse (ParserOptions.Default, buffer, out mailbox);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, string text, out MailboxAddress mailbox)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			InternetAddress address;
+			int index = 0;
+
+			InternetAddress.TryParse (options, buffer, ref index, buffer.Length, false, out address);
+			mailbox = address as MailboxAddress;
+
+			return mailbox != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses only the first address in the text and ignores the rest.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text.</param>
+		/// <param name="mailbox">The parsed mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (string text, out MailboxAddress mailbox)
+		{
+			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
 	}
 }
