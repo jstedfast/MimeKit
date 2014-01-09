@@ -274,6 +274,17 @@ namespace MimeKit {
 			return Address;
 		}
 
+		public static bool TryParse (string address, out MailboxAddress mailboxAddress)
+		{
+			var buffer = Encoding.ASCII.GetBytes (address);
+			int index = 0;
+
+			InternetAddress internetAddress;
+			bool result = InternetAddress.TryParse(ParserOptions.Default, buffer, ref index, buffer.Length, false, out internetAddress);
+			mailboxAddress = internetAddress as MailboxAddress;
+			return result && mailboxAddress != null;
+		}
+
 		#region IEquatable implementation
 
 		/// <summary>
