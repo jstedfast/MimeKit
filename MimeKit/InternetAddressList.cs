@@ -338,8 +338,12 @@ namespace MimeKit {
 
 		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
-			foreach (var addr in list)
-				addr.Encode (options, builder, ref lineLength);
+			for (int i = 0; i < list.Count; i++) {
+				if (i > 0)
+					builder.Append (", ");
+
+				list[i].Encode (options, builder, ref lineLength);
+			}
 		}
 
 		/// <summary>

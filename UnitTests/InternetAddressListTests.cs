@@ -384,6 +384,27 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodingSimpleAddressList ()
+		{
+			const string expectedEncoded = "Kristoffer =?iso-8859-1?q?Br=E5nemyr?= <ztion@swipenet.se>,\n Jeffrey Stedfast <fejj@gnome.org>";
+			const string expectedDisplay = "\"Kristoffer Brånemyr\" <ztion@swipenet.se>, \"Jeffrey Stedfast\" <fejj@gnome.org>";
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
+			var options = FormatOptions.Default.Clone ();
+			var list = new InternetAddressList ();
+
+			list.Add (new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se"));
+			list.Add (new MailboxAddress ("Jeffrey Stedfast", "fejj@gnome.org"));
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var display = list.ToString (options, false);
+			Assert.AreEqual (expectedDisplay, display, "Display value does not match the expected result: {0}", display);
+
+			var encoded = list.ToString (options, true);
+			Assert.AreEqual (expectedEncoded, encoded, "Encoded value does not match the expected result: {0}", display);
+		}
+
+		[Test]
 		public void TestDecodedMailboxHasCorrectCharsetEncoding ()
 		{
 			var latin1 = Encoding.GetEncoding ("iso-8859-1");
