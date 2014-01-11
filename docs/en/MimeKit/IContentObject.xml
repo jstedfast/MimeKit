@@ -10,7 +10,9 @@
     <summary>
             An interface for content stream encapsulation as used by <see cref="T:MimeKit.MimePart" />.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Implemented by <see cref="T:MimeKit.ContentObject" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="DecodeTo">
@@ -31,7 +33,10 @@
         <summary>
             Decodes the content stream into another stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the content stream is encoded, this method will decode it into the
+            output stream using a suitable decoder.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -60,7 +65,10 @@
         <summary>
             Decodes the content stream into another stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the content stream is encoded, this method will decode it into the
+            output stream using a suitable decoder.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -87,7 +95,11 @@
             Gets the content encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the <see cref="T:System.IO.Stream" /> is not encoded, this value will be
+            <see cref="F:MimeKit.ContentEncoding.Default" />. Otherwise, it will be
+            set to the raw content encoding of the stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Stream">
@@ -105,7 +117,9 @@
             Gets the content stream.
             </summary>
         <value>The stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the stream containing the content.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -126,7 +140,9 @@
         <summary>
             Copies the content stream to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies the data from <see cref="T:System.IO.Stream" /> into <paramref name="stream" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -155,7 +171,9 @@
         <summary>
             Copies the content stream to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies the data from <see cref="T:System.IO.Stream" /> into <paramref name="stream" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>

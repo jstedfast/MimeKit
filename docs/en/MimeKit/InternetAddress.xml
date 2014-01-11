@@ -13,7 +13,9 @@
     <summary>
             An internet address, as specified by rfc0822.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Serves as the base class for <see cref="T:MimeKit.MailboxAddress" /> and <see cref="T:MimeKit.GroupAddress" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Initializes the <see cref="T:System.Text.Encoding" /> and <see cref="P:MimeKit.InternetAddress.Name" /> properties of the internet address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encoding" /> is <c>null</c>.
             </exception>
@@ -54,7 +58,10 @@
             Gets or sets the character encoding to use when encoding the name of the address.
             </summary>
         <value>The character encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The character encoding is used to convert the <see cref="P:MimeKit.InternetAddress.Name" /> property, if it is set,
+            to a stream of bytes when encoding the internet address for transport.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -72,10 +79,13 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the name of the address.
+            Gets or sets the display name of the address.
             </summary>
         <value>The name of the address.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A name is optional and is typically set to the name of the person
+            or group that own the internet address.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnChanged">
@@ -93,7 +103,307 @@
         <summary>
             Raises the internal changed event used by <see cref="T:MimeKit.MimeMessage" /> to keep headers in sync.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This method is called whenever a property of the internet address is changed.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (byte[] buffer);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text.</param>
+        <summary>
+            Parses the given text into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the text contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="text" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (MimeKit.ParserOptions options, byte[] buffer);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (MimeKit.ParserOptions options, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <summary>
+            Parses the given text into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the text contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="text" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (byte[] buffer, int startIndex);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer, int32 startIndex) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (MimeKit.ParserOptions options, byte[] buffer, int startIndex);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" />is out of range.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (byte[] buffer, int startIndex, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddress Parse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <summary>
+            Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.InternetAddress" />.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="buffer" /> could not be parsed.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -112,7 +422,9 @@
             Serializes the <see cref="T:MimeKit.InternetAddress" /> to a string suitable for display.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.InternetAddress" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The string returned by this method is suitable only for display purposes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -134,7 +446,306 @@
             Serializes the <see cref="T:MimeKit.InternetAddress" /> to a string, optionally encoding it for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.InternetAddress" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>If the <paramref name="encode" /> parameter is <c>true</c>, then this method will return
+            an encoded version of the internet address according to the rules described in rfc2047.</para>
+          <para>However, if the <paramref name="encode" /> parameter is <c>false</c>, then this method will
+            return a string suitable only for display purposes.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (string text, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the text contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, string text, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the text contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, int length, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, int length, out MimeKit.InternetAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.19.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="address" Type="MimeKit.InternetAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="address">The parsed address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.InternetAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" /> or <see cref="T:MimeKit.GroupAddress" />. If the buffer contains
+            more data, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
       </Docs>
     </Member>
   </Members>

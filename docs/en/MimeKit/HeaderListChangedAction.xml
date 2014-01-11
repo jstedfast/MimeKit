@@ -12,7 +12,9 @@
     <summary>
             Header list changed action.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Specifies the way that a <see cref="T:MimeKit.HeaderList" /> was changed.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Added">

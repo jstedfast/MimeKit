@@ -63,6 +63,9 @@
         <remarks>
             Creates a new <see cref="T:MimeKit.DomainList" /> based on the domains provided.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domains" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
