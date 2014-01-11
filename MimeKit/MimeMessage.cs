@@ -218,6 +218,8 @@ namespace MimeKit {
 				int len = "Sender: ".Length;
 
 				value.Encode (FormatOptions.Default, builder, ref len);
+				builder.Append (FormatOptions.Default.NewLine);
+
 				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
 				Headers.Changed -= HeadersChanged;
@@ -250,6 +252,8 @@ namespace MimeKit {
 				int len = "Resent-Sender: ".Length;
 
 				value.Encode (FormatOptions.Default, builder, ref len);
+				builder.Append (FormatOptions.Default.NewLine);
+
 				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
 				Headers.Changed -= HeadersChanged;
