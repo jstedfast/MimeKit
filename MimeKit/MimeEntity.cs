@@ -38,6 +38,10 @@ namespace MimeKit {
 	/// <summary>
 	/// An abstract MIME entity.
 	/// </summary>
+	/// <remarks>
+	/// There are 3 basic types of entities: <see cref="MimePart"/>, <see cref="Multipart"/>,
+	/// and <see cref="MessagePart"/>. All other types are derivatives of one of those.
+	/// </remarks>
 	public abstract class MimeEntity
 	{
 		ContentDisposition disposition;
@@ -47,11 +51,11 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
 		/// based on the <see cref="MimeEntityConstructorInfo"/>.
 		/// </summary>
-		/// <param name="entity">Information used by the constructor.</param>
 		/// <remarks>
 		/// Custom <see cref="MimeEntity"/> subclasses MUST implement this constructor
 		/// in order to register it using <see cref="ParserOptions.RegisterMimeType"/>.
 		/// </remarks>
+		/// <param name="entity">Information used by the constructor.</param>
 		protected MimeEntity (MimeEntityConstructorInfo entity)
 		{
 			if (entity == null)
@@ -76,6 +80,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Initializes the <see cref="ContentType"/> based on the provided media type and subtype.
+		/// </remarks>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -90,6 +97,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Initializes the <see cref="ContentType"/> to the one provided.
+		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="contentType"/> is <c>null</c>.
@@ -109,8 +119,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Try to use given object to initialize itself.
+		/// Tries to use the given object to initialize the appropriate property.
 		/// </summary>
+		/// <remarks>
+		/// Initializes the appropriate property based on the type of the object.
+		/// </remarks>
 		/// <param name="obj">The object.</param>
 		/// <returns><c>true</c> if the object was recognized and used; <c>false</c> otherwise.</returns>
 		protected bool TryInit (object obj)
@@ -143,6 +156,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
+		/// <remarks>
+		/// Represents the list of headers for a MIME part. Typically, the headers of
+		/// a MIME part will be various Content-* headers such as Content-Type or
+		/// Content-Disposition, but may include just about anything.
+		/// </remarks>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
@@ -151,6 +169,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the content disposition.
 		/// </summary>
+		/// <remarks>
+		/// Represents the pre-parsed Content-Disposition header value, if present.
+		/// If the Content-Disposition header is not set, then this property will
+		/// be <c>null</c>.
+		/// </remarks>
 		/// <value>The content disposition.</value>
 		public ContentDisposition ContentDisposition {
 			get { return disposition; }
@@ -176,6 +199,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the type of the content.
 		/// </summary>
+		/// <remarks>
+		/// Represents the pre-parsed Content-Type header.
+		/// </remarks>
 		/// <value>The type of the content.</value>
 		public ContentType ContentType {
 			get; private set;
@@ -184,6 +210,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the content identifier.
 		/// </summary>
+		/// <remarks>
+		/// Represents the pre-parsed Content-Id header.
+		/// </remarks>
 		/// <value>The content identifier.</value>
 		public string ContentId {
 			get { return contentId; }
@@ -213,6 +242,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the headers to the output stream, followed by a blank line.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -240,6 +272,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the headers to the output stream, followed by a blank line.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -258,6 +293,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the headers to the output stream, followed by a blank line.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -277,6 +315,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the headers to the output stream, followed by a blank line.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -292,6 +333,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the header.
 		/// </summary>
+		/// <remarks>
+		/// Removes all headers matching the specified name without
+		/// calling <see cref="OnHeadersChanged"/>.
+		/// </remarks>
 		/// <param name="name">The name of the header.</param>
 		protected void RemoveHeader (string name)
 		{
@@ -303,6 +348,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the header.
 		/// </summary>
+		/// <remarks>
+		/// Sets the header to the specified value without
+		/// calling <see cref="OnHeadersChanged"/>.
+		/// </remarks>
 		/// <param name="name">The name of the header.</param>
 		/// <param name="value">The value of the header.</param>
 		protected void SetHeader (string name, string value)
@@ -315,6 +364,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the header using the raw value.
 		/// </summary>
+		/// <remarks>
+		/// Sets the header to the specified value without
+		/// calling <see cref="OnHeadersChanged"/>.
+		/// </remarks>
 		/// <param name="name">The name of the header.</param>
 		/// <param name="rawValue">The raw value of the header.</param>
 		protected void SetHeader (string name, byte[] rawValue)
@@ -363,6 +416,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Called when the headers change in some way.
 		/// </summary>
+		/// <remarks>
+		/// Whenever a header is changed, this method will be called in order to allow
+		/// custom <see cref="MimeEntity"/> subclasses to update their state.
+		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
@@ -417,7 +474,7 @@ namespace MimeKit {
 		internal event EventHandler Changed;
 
 		/// <summary>
-		/// Raises the changed event.
+		/// Raises the internal changed event.
 		/// </summary>
 		protected void OnChanged ()
 		{

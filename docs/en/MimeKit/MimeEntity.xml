@@ -13,7 +13,10 @@
     <summary>
             An abstract MIME entity.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            There are 3 basic types of entities: <see cref="T:MimeKit.MimePart" />, <see cref="T:MimeKit.Multipart" />,
+            and <see cref="T:MimeKit.MessagePart" />. All other types are derivatives of one of those.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -31,7 +34,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Initializes the <see cref="T:MimeKit.ContentType" /> to the one provided.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="contentType" /> is <c>null</c>.
             </exception>
@@ -76,7 +81,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeEntity" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Initializes the <see cref="T:MimeKit.ContentType" /> based on the provided media type and subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="mediaType" /> is <c>null</c>.</para>
@@ -101,7 +108,11 @@
             Gets or sets the content disposition.
             </summary>
         <value>The content disposition.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the pre-parsed Content-Disposition header value, if present.
+            If the Content-Disposition header is not set, then this property will
+            be <c>null</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentId">
@@ -119,7 +130,9 @@
             Gets or sets the content identifier.
             </summary>
         <value>The content identifier.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the pre-parsed Content-Id header.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentType">
@@ -137,7 +150,9 @@
             Gets the type of the content.
             </summary>
         <value>The type of the content.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the pre-parsed Content-Type header.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Headers">
@@ -155,7 +170,11 @@
             Gets the list of headers.
             </summary>
         <value>The list of headers.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the list of headers for a MIME part. Typically, the headers of
+            a MIME part will be various Content-* headers such as Content-Type or
+            Content-Disposition, but may include just about anything.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsInitializing">
@@ -662,7 +681,7 @@
       <Parameters />
       <Docs>
         <summary>
-            Raises the changed event.
+            Raises the internal changed event.
             </summary>
         <remarks>To be added.</remarks>
       </Docs>
@@ -687,7 +706,10 @@
         <summary>
             Called when the headers change in some way.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Whenever a header is changed, this method will be called in order to allow
+            custom <see cref="T:MimeKit.MimeEntity" /> subclasses to update their state.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveHeader">
@@ -708,7 +730,10 @@
         <summary>
             Removes the header.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all headers matching the specified name without
+            calling <see cref="M:MimeKit.MimeEntity.OnHeadersChanged(MimeKit.HeaderListChangedAction,MimeKit.Header)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetHeader">
@@ -731,7 +756,10 @@
         <summary>
             Sets the header using the raw value.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the header to the specified value without
+            calling <see cref="M:MimeKit.MimeEntity.OnHeadersChanged(MimeKit.HeaderListChangedAction,MimeKit.Header)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetHeader">
@@ -754,7 +782,10 @@
         <summary>
             Sets the header.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the header to the specified value without
+            calling <see cref="M:MimeKit.MimeEntity.OnHeadersChanged(MimeKit.HeaderListChangedAction,MimeKit.Header)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TryInit">
@@ -773,11 +804,13 @@
       <Docs>
         <param name="obj">The object.</param>
         <summary>
-            Try to use given object to initialize itself.
+            Tries to use the given object to initialize the appropriate property.
             </summary>
         <returns>
           <c>true</c> if the object was recognized and used; <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Initializes the appropriate property based on the type of the object.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -798,7 +831,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the headers to the output stream, followed by a blank line.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -827,7 +862,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the headers to the output stream, followed by a blank line.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -860,7 +897,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the headers to the output stream, followed by a blank line.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -894,7 +933,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the headers to the output stream, followed by a blank line.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
