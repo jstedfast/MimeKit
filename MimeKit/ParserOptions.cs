@@ -29,7 +29,9 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
+#if !__MIMEKIT_LITE__
 using MimeKit.Cryptography;
+#endif
 
 namespace MimeKit {
 	/// <summary>
@@ -184,15 +186,18 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
+				#if !__MIMEKIT_LITE__
 				if (subtype == "encrypted")
 					return new MultipartEncrypted (entity);
 
 				if (subtype == "signed")
 					return new MultipartSigned (entity);
+				#endif
 
 				return new Multipart (entity);
 			}
 
+			#if !__MIMEKIT_LITE__
 			if (type == "application") {
 				switch (subtype) {
 				case "x-pkcs7-signature":
@@ -209,6 +214,7 @@ namespace MimeKit {
 					return new ApplicationPkcs7Mime (entity);
 				}
 			}
+			#endif
 
 			if (type == "text")
 				return new TextPart (entity);

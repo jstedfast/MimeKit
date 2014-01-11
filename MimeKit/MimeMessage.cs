@@ -32,7 +32,10 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Net.Mail;
 
+#if !__MIMEKIT_LITE__
 using MimeKit.Cryptography;
+#endif
+
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -711,6 +714,7 @@ namespace MimeKit {
 			return recipients;
 		}
 
+		#if !__MIMEKIT_LITE__
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
@@ -948,6 +952,7 @@ namespace MimeKit {
 		{
 			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
+		#endif // __MIMEKIT_LITE__
 
 		IEnumerable<Header> MergeHeaders ()
 		{
