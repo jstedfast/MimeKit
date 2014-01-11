@@ -49,8 +49,14 @@ namespace MimeKit {
 		/// Creates a new <see cref="DomainList"/> based on the domains provided.
 		/// </remarks>
 		/// <param name="domains">A domain list.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <paramref name="domains"/> is <c>null</c>.
+        /// </exception>
 		public DomainList (IEnumerable<string> domains)
 		{
+            if (domains == null)
+                throw new ArgumentNullException ("domains");
+
 			this.domains = new List<string> (domains);
 		}
 

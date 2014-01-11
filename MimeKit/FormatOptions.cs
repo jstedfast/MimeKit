@@ -33,7 +33,13 @@ namespace MimeKit {
 	/// <summary>
 	/// A New-Line format.
 	/// </summary>
-	/// <remarks></remarks>
+	/// <remarks>
+    /// There are two commonly used line-endings used by modern Operating Systems.
+    /// Unix-based systems such as Linux and Mac OS use a single character (<c>'\n'</c> aka LF)
+    /// to represent the end of line where-as Windows (or DOS) uses a sequence of two
+    /// characters (<c>"\r\n"</c> aka CRLF). Most text-based network protocols such as SMTP,
+    /// POP3, and IMAP use the CRLF sequence as well.
+    /// </remarks>
 	public enum NewLineFormat {
 		/// <summary>
 		/// The Unix New-Line format (<c>"\n"</c>).
