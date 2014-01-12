@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2014 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -73,6 +73,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("0.19.0")]
-[assembly: AssemblyFileVersion ("0.19.0.0")]
-[assembly: AssemblyVersion ("0.19.0.0")]
+[assembly: AssemblyInformationalVersion ("0.20.0")]
+[assembly: AssemblyFileVersion ("0.20.0.0")]
+[assembly: AssemblyVersion ("0.20.0.0")]
