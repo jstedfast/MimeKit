@@ -98,7 +98,7 @@ files that I've added (to replace the Visual Studio 2003 project files). To swit
     cd bc-csharp
     git checkout -b visual-studio-2010 origin/visual-studio-2010
 
-In the top-level MimeKit source directory, there are three solution files: MimeKit.sln, MimeKit.Net40.sln and MimeKit.Mobile.sln.
+In the top-level MimeKit source directory, there are several solution files:
 
 * MimeKit.Mobile.sln just includes the Xamarin.iOS and Xamarin.Android projects.
 * MimeKit.Net40.sln just includes the .NET Framework 4.0 C# project (MimeKit/MimeKit.csproj) and the UnitTests

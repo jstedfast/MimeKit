@@ -234,13 +234,37 @@ namespace MimeKit {
 		public string Value {
 			get {
 				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (RawValue));
+					textValue = Unfold (Rfc2047.DecodeText (Options, RawValue));
 
 				return textValue;
 			}
 			set {
 				SetValue (Encoding.UTF8, value);
 			}
+		}
+
+		/// <summary>
+		/// Gets the header value using the specified charset.
+		/// </summary>
+		/// <remarks>
+		/// <para>If the raw header value does not properly encode non-ASCII text, the decoder
+		/// will fall back to a default charset encoding. Sometimes, however, this
+		/// default charset fallback is wrong and the mail client may wish to override
+		/// that default charset on a per-header basis.</para>
+		/// <para>By using this method, the client is able to override the fallback charset
+		/// on a per-header basis.</para>
+		/// </remarks>
+		/// <returns>The value.</returns>
+		/// <param name="charset">Charset.</param>
+		public string GetValue (Encoding charset)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			var options = Options.Clone ();
+			options.CharsetEncoding = charset;
+
+			return Unfold (Rfc2047.DecodeText (options, RawValue));
 		}
 
 		/// <summary>
