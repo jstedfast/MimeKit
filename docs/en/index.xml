@@ -1,0 +1,330 @@
+<Overview>
+  <Assemblies>
+    <Assembly Name="MimeKit" Version="0.20.0.0">
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyConfiguration("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2014 Jeffrey Stedfast")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.20.0.0")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.20.0")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyTitle("MimeKit")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyTrademark("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.InteropServices.ComVisible(false)</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.InteropServices.Guid("2fe79b66-d107-45da-9493-175f59c4a53c")</AttributeName>
+        </Attribute>
+      </Attributes>
+    </Assembly>
+  </Assemblies>
+  <Remarks>
+    <para>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP/MIME messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.</para>
+  </Remarks>
+  <Copyright>Copyright (c) 2013 Jeffrey Stedfast</Copyright>
+  <Types>
+    <Namespace Name="MimeKit">
+      <Type Name="ContentDisposition" Kind="Class" />
+      <Type Name="ContentEncoding" Kind="Enumeration" />
+      <Type Name="ContentObject" Kind="Class" />
+      <Type Name="ContentType" Kind="Class" />
+      <Type Name="DomainList" Kind="Class" />
+      <Type Name="EncodingConstraint" Kind="Enumeration" />
+      <Type Name="FormatOptions" Kind="Class" />
+      <Type Name="GroupAddress" Kind="Class" />
+      <Type Name="Header" Kind="Class" />
+      <Type Name="HeaderId" Kind="Enumeration" />
+      <Type Name="HeaderList" Kind="Class" />
+      <Type Name="HeaderListChangedAction" Kind="Enumeration" />
+      <Type Name="IContentObject" Kind="Interface" />
+      <Type Name="InternetAddress" Kind="Class" />
+      <Type Name="InternetAddressList" Kind="Class" />
+      <Type Name="MailboxAddress" Kind="Class" />
+      <Type Name="MessageIdList" Kind="Class" />
+      <Type Name="MessagePart" Kind="Class" />
+      <Type Name="MessagePartial" Kind="Class" />
+      <Type Name="MimeEntity" Kind="Class" />
+      <Type Name="MimeEntityConstructorInfo" Kind="Class" />
+      <Type Name="MimeFormat" Kind="Enumeration" />
+      <Type Name="MimeMessage" Kind="Class" />
+      <Type Name="MimeParser" Kind="Class" />
+      <Type Name="MimePart" Kind="Class" />
+      <Type Name="Multipart" Kind="Class" />
+      <Type Name="NewLineFormat" Kind="Enumeration" />
+      <Type Name="Parameter" Kind="Class" />
+      <Type Name="ParameterList" Kind="Class" />
+      <Type Name="ParseException" Kind="Class" />
+      <Type Name="ParserOptions" Kind="Class" />
+      <Type Name="TextPart" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.Cryptography">
+      <Type Name="ApplicationPgpEncrypted" Kind="Class" />
+      <Type Name="ApplicationPgpSignature" Kind="Class" />
+      <Type Name="ApplicationPkcs7Mime" Kind="Class" />
+      <Type Name="ApplicationPkcs7Signature" Kind="Class" />
+      <Type Name="CertificateNotFoundException" Kind="Class" />
+      <Type Name="CmsRecipient" Kind="Class" />
+      <Type Name="CmsRecipientCollection" Kind="Class" />
+      <Type Name="CmsSigner" Kind="Class" />
+      <Type Name="CryptographyContext" Kind="Class" />
+      <Type Name="DefaultSecureMimeContext" Kind="Class" />
+      <Type Name="DigestAlgorithm" Kind="Enumeration" />
+      <Type Name="DigitalSignatureCollection" Kind="Class" />
+      <Type Name="DigitalSignatureVerifyException" Kind="Class" />
+      <Type Name="EncryptionAlgorithm" Kind="Enumeration" />
+      <Type Name="GnuPGContext" Kind="Class" />
+      <Type Name="IDigitalCertificate" Kind="Interface" />
+      <Type Name="IDigitalSignature" Kind="Interface" />
+      <Type Name="MultipartEncrypted" Kind="Class" />
+      <Type Name="MultipartSigned" Kind="Class" />
+      <Type Name="OpenPgpContext" Kind="Class" />
+      <Type Name="OpenPgpDigitalCertificate" Kind="Class" />
+      <Type Name="OpenPgpDigitalSignature" Kind="Class" />
+      <Type Name="PrivateKeyNotFoundException" Kind="Class" />
+      <Type Name="PublicKeyAlgorithm" Kind="Enumeration" />
+      <Type Name="PublicKeyNotFoundException" Kind="Class" />
+      <Type Name="SecureMailboxAddress" Kind="Class" />
+      <Type Name="SecureMimeContext" Kind="Class" />
+      <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
+      <Type Name="SecureMimeDigitalSignature" Kind="Class" />
+      <Type Name="SecureMimeType" Kind="Enumeration" />
+      <Type Name="SubjectIdentifierType" Kind="Enumeration" />
+      <Type Name="WindowsSecureMimeContext" Kind="Class" />
+      <Type Name="X509CertificateExtensions" Kind="Class" />
+      <Type Name="X509CertificateStore" Kind="Class" />
+      <Type Name="X509KeyUsageFlags" Kind="Enumeration" />
+    </Namespace>
+    <Namespace Name="MimeKit.Encodings">
+      <Type Name="Base64Decoder" Kind="Class" />
+      <Type Name="Base64Encoder" Kind="Class" />
+      <Type Name="HexDecoder" Kind="Class" />
+      <Type Name="HexEncoder" Kind="Class" />
+      <Type Name="IMimeDecoder" Kind="Interface" />
+      <Type Name="IMimeEncoder" Kind="Interface" />
+      <Type Name="PassThroughDecoder" Kind="Class" />
+      <Type Name="PassThroughEncoder" Kind="Class" />
+      <Type Name="QEncodeMode" Kind="Enumeration" />
+      <Type Name="QEncoder" Kind="Class" />
+      <Type Name="QuotedPrintableDecoder" Kind="Class" />
+      <Type Name="QuotedPrintableEncoder" Kind="Class" />
+      <Type Name="UUDecoder" Kind="Class" />
+      <Type Name="UUEncoder" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.IO">
+      <Type Name="BoundStream" Kind="Class" />
+      <Type Name="ChainedStream" Kind="Class" />
+      <Type Name="FilteredStream" Kind="Class" />
+      <Type Name="MeasuringStream" Kind="Class" />
+      <Type Name="MemoryBlockStream" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.IO.Filters">
+      <Type Name="ArmoredFromFilter" Kind="Class" />
+      <Type Name="BestEncodingFilter" Kind="Class" />
+      <Type Name="CharsetFilter" Kind="Class" />
+      <Type Name="DecoderFilter" Kind="Class" />
+      <Type Name="Dos2UnixFilter" Kind="Class" />
+      <Type Name="EncoderFilter" Kind="Class" />
+      <Type Name="IMimeFilter" Kind="Interface" />
+      <Type Name="MimeFilterBase" Kind="Class" />
+      <Type Name="PassThroughFilter" Kind="Class" />
+      <Type Name="TrailingWhitespaceFilter" Kind="Class" />
+      <Type Name="Unix2DosFilter" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.Utils">
+      <Type Name="DateUtils" Kind="Class" />
+      <Type Name="MimeUtils" Kind="Class" />
+      <Type Name="Rfc2047" Kind="Class" />
+    </Namespace>
+  </Types>
+  <Title>MimeKit</Title>
+  <ExtensionMethods>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetCommonName">
+        <MemberSignature Language="C#" Value="public static string GetCommonName (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetCommonName(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the common name of the certificate.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetCommonName(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetFingerprint">
+        <MemberSignature Language="C#" Value="public static string GetFingerprint (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetFingerprint(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the fingerprint of the certificate.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetFingerprint(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetIssuerNameInfo">
+        <MemberSignature Language="C#" Value="public static string GetIssuerNameInfo (this Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIssuerNameInfo(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <param name="identifier">The name identifier.</param>
+          <summary>
+            Gets the issuer name info.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetIssuerNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetKeyUsageFlags">
+        <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.X509KeyUsageFlags GetKeyUsageFlags (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype MimeKit.Cryptography.X509KeyUsageFlags GetKeyUsageFlags(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the key usage flags.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetKeyUsageFlags(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetSubjectEmailAddress">
+        <MemberSignature Language="C#" Value="public static string GetSubjectEmailAddress (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectEmailAddress(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the subject email address of the certificate.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectEmailAddress(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetSubjectName">
+        <MemberSignature Language="C#" Value="public static string GetSubjectName (this Org.BouncyCastle.X509.X509Certificate certificate);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectName(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <summary>
+            Gets the subject name of the certificate.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectName(Org.BouncyCastle.X509.X509Certificate)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:Org.BouncyCastle.X509.X509Certificate" />
+      </Targets>
+      <Member MemberName="GetSubjectNameInfo">
+        <MemberSignature Language="C#" Value="public static string GetSubjectNameInfo (this Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Asn1.DerObjectIdentifier identifier);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetSubjectNameInfo(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Asn1.DerObjectIdentifier identifier) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" RefType="this" />
+          <Parameter Name="identifier" Type="Org.BouncyCastle.Asn1.DerObjectIdentifier" />
+        </Parameters>
+        <Docs>
+          <param name="certificate">The certificate.</param>
+          <param name="identifier">The name identifier.</param>
+          <summary>
+            Gets the issuer name info.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
+      </Member>
+    </ExtensionMethod>
+  </ExtensionMethods>
+</Overview>

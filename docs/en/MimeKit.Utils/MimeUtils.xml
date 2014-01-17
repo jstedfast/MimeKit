@@ -1,0 +1,238 @@
+<Type Name="MimeUtils" FullName="MimeKit.Utils.MimeUtils">
+  <TypeSignature Language="C#" Value="public static class MimeUtils" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit MimeUtils extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            MIME utility methods.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="EnumerateReferences">
+      <MemberSignature Language="C#" Value="public static System.Collections.Generic.IEnumerable&lt;string&gt; EnumerateReferences (string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text to parse.</param>
+        <summary>
+            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            </summary>
+        <returns>The references.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="EnumerateReferences">
+      <MemberSignature Language="C#" Value="public static System.Collections.Generic.IEnumerable&lt;string&gt; EnumerateReferences (byte[] buffer, int startIndex, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The raw byte buffer to parse.</param>
+        <param name="startIndex">The index into the buffer to start parsing.</param>
+        <param name="length">The length of the buffer to parse.</param>
+        <summary>
+            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            </summary>
+        <returns>The references.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GenerateMessageId">
+      <MemberSignature Language="C#" Value="public static string GenerateMessageId ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Generates a token suitable for a Message-Id.
+            </summary>
+        <returns>The message identifier.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GenerateMessageId">
+      <MemberSignature Language="C#" Value="public static string GenerateMessageId (string domain);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId(string domain) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="domain" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="domain">A domain to use.</param>
+        <summary>
+            Generates a token suitable for a Message-Id.
+            </summary>
+        <returns>The message identifier.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="domain" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Quote">
+      <MemberSignature Language="C#" Value="public static string Quote (string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Quote(string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text to quote.</param>
+        <summary>
+            Quotes the specified text, enclosing it in double-quotes and escaping
+            any backslashes and double-quotes within.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParseVersion">
+      <MemberSignature Language="C#" Value="public static bool TryParseVersion (string text, out Version version);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(string text, class System.Version version) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="version" Type="System.Version&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text to parse.</param>
+        <param name="version">The parsed version.</param>
+        <summary>
+            Tries to parse a version from a header such as Mime-Version.
+            </summary>
+        <returns>
+          <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParseVersion">
+      <MemberSignature Language="C#" Value="public static bool TryParseVersion (byte[] buffer, int startIndex, int length, out Version version);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(unsigned int8[] buffer, int32 startIndex, int32 length, class System.Version version) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="version" Type="System.Version&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The raw byte buffer to parse.</param>
+        <param name="startIndex">The index into the buffer to start parsing.</param>
+        <param name="length">The length of the buffer to parse.</param>
+        <param name="version">The parsed version.</param>
+        <summary>
+            Tries to parse a version from a header such as Mime-Version.
+            </summary>
+        <returns>
+          <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Unquote">
+      <MemberSignature Language="C#" Value="public static string Unquote (string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Unquote(string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text to unquote.</param>
+        <summary>
+            Unquotes the specified text, removing any escaped backslashes and
+            double-quotes within.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

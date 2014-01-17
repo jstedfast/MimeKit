@@ -58,7 +58,7 @@ namespace MimeKit.Utils {
 		internal const string TokenSpecials = "()<>@,;:\\\"/[]?=";
 		const string Whitespace = " \t\r\n";
 
-		static CharType[] table = new CharType[256];
+		static readonly CharType[] table = new CharType[256];
 
 		static void RemoveFlags (string values, CharType bit)
 		{

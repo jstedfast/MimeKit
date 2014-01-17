@@ -96,21 +96,11 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input.
 		/// </summary>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The number of bytes of the input to filter.
-		/// </param>
-		/// <param name='outputIndex'>
-		/// The starting index of the output in the returned buffer.
-		/// </param>
-		/// <param name='outputLength'>
-		/// The length of the output buffer.
-		/// </param>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The number of bytes of the input to filter.</param>
+		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
+		/// <param name='outputLength'>The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>
@@ -130,21 +120,11 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input, flushing all internally buffered data to the output.
 		/// </summary>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The number of bytes of the input to filter.
-		/// </param>
-		/// <param name='outputIndex'>
-		/// The starting index of the output in the returned buffer.
-		/// </param>
-		/// <param name='outputLength'>
-		/// The length of the output buffer.
-		/// </param>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The number of bytes of the input to filter.</param>
+		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
+		/// <param name='outputLength'>The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>

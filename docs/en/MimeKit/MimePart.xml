@@ -1,0 +1,456 @@
+<Type Name="MimePart" FullName="MimeKit.MimePart">
+  <TypeSignature Language="C#" Value="public class MimePart : MimeKit.MimeEntity" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimePart extends MimeKit.MimeEntity" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.MimeEntity</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A basic leaf-node MIME part that contains content such as the message body or an attachment.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the default Content-Type of application/octet-stream.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The content type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified content type.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="contentType" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            based on the <see cref="T:MimeKit.MimeEntityConstructorInfo" />.
+            </summary>
+        <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (string contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string contentType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="contentType" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="contentType">The content type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified content type.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="contentType" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.ParseException">
+          <paramref name="contentType" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (string mediaType, string mediaSubtype);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="mediaType" Type="System.String" />
+        <Parameter Name="mediaSubtype" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified media type and subtype.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimePart (string mediaType, string mediaSubtype, object[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype, object[] args) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="mediaType" Type="System.String" />
+        <Parameter Name="mediaSubtype" Type="System.String" />
+        <Parameter Name="args" Type="System.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName>System.ParamArray</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="mediaType">The media type.</param>
+        <param name="mediaSubtype">The media subtype.</param>
+        <param name="args">An array of initialization parameters: headers and part content.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
+            with the specified media type and subtype.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="mediaType" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="mediaSubtype" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:MimeKit.IContentObject" /> or
+            <see cref="T:System.IO.Stream" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ComputeContentMd5">
+      <MemberSignature Language="C#" Value="public string ComputeContentMd5 ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ComputeContentMd5() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Computes the md5sum of the content.
+            </summary>
+        <returns>The md5sum of the content.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The <see cref="T:MimeKit.ContentObject" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentDuration">
+      <MemberSignature Language="C#" Value="public Nullable&lt;int&gt; ContentDuration { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int32&gt; ContentDuration" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the duration of the content if available.
+            </summary>
+        <value>The duration of the content.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="value" /> is negative.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentMd5">
+      <MemberSignature Language="C#" Value="public string ContentMd5 { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string ContentMd5" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the md5sum of the content.
+            </summary>
+        <value>The md5sum of the content.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentObject">
+      <MemberSignature Language="C#" Value="public MimeKit.IContentObject ContentObject { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.IContentObject ContentObject" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.IContentObject</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the content of the mime part.
+            </summary>
+        <value>The content of the mime part.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentTransferEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding ContentTransferEncoding { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding ContentTransferEncoding" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the content transfer encoding.
+            </summary>
+        <value>The content transfer encoding.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FileName">
+      <MemberSignature Language="C#" Value="public string FileName { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string FileName" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the name of the file.
+            </summary>
+        <value>The name of the file.</value>
+        <remarks>
+          <para>First checks for the "filename" parameter on the Content-Disposition header. If
+            that does not exist, then the "name" parameter on the Content-Type header is used.</para>
+          <para>When setting the filename, both the "filename" parameter on the Content-Disposition
+            header and the "name" parameter on the Content-Type header are set.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+      </Parameters>
+      <Docs>
+        <param name="constraint">The encoding constraint.</param>
+        <summary>
+            Calculates the most efficient content encoding given the specified constraint.
+            </summary>
+        <returns>The most efficient content encoding.</returns>
+        <remarks>
+            If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
+            </remarks>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="constraint">The encoding constraint.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Calculates the most efficient content encoding given the specified constraint.
+            </summary>
+        <returns>The most efficient content encoding.</returns>
+        <remarks>
+            If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
+            </remarks>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IsAttachment">
+      <MemberSignature Language="C#" Value="public bool IsAttachment { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsAttachment" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether this <see cref="T:MimeKit.MimePart" /> is an attachment.
+            </summary>
+        <value>
+          <c>true</c> if this <see cref="T:MimeKit.MimePart" /> is an attachment; otherwise, <c>false</c>.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnHeadersChanged">
+      <MemberSignature Language="C#" Value="protected override void OnHeadersChanged (MimeKit.HeaderListChangedAction action, MimeKit.Header header);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="action" Type="MimeKit.HeaderListChangedAction" />
+        <Parameter Name="header" Type="MimeKit.Header" />
+      </Parameters>
+      <Docs>
+        <param name="action">The type of change.</param>
+        <param name="header">The header being added, changed or removed.</param>
+        <summary>
+            Called when the headers change in some way.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="VerifyContentMd5">
+      <MemberSignature Language="C#" Value="public bool VerifyContentMd5 ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool VerifyContentMd5() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Verifies the Content-Md5 value against an independently computed md5sum.
+            </summary>
+        <returns>
+          <c>true</c>, if content md5sum was verified, <c>false</c> otherwise.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The output stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.MimePart" /> to the specified output stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

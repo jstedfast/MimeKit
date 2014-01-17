@@ -1,0 +1,492 @@
+<Type Name="GroupAddress" FullName="MimeKit.GroupAddress">
+  <TypeSignature Language="C#" Value="public sealed class GroupAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.GroupAddress&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit GroupAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.GroupAddress&gt;" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.InternetAddress</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.IEquatable&lt;MimeKit.GroupAddress&gt;</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            An address group, as specified by rfc0822.
+            </summary>
+    <remarks>
+            Group addresses are rarely used anymore. Typically, if you see a group address,
+            it will be of the form: <c>"undisclosed-recipients: ;"</c>.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public GroupAddress (string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">The name of the group.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public GroupAddress (string name, System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt; addresses);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; addresses) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="name">The name of the group.</param>
+        <param name="addresses">A list of addresses.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name and list of addresses.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public GroupAddress (System.Text.Encoding encoding, string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the group.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name. The specified
+            text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encoding" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public GroupAddress (System.Text.Encoding encoding, string name, System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt; addresses);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; addresses) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the group.</param>
+        <param name="addresses">A list of addresses.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.GroupAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.GroupAddress" /> with the specified name and list of addresses. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encoding" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Equals">
+      <MemberSignature Language="C#" Value="public bool Equals (MimeKit.GroupAddress other);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(class MimeKit.GroupAddress other) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="other" Type="MimeKit.GroupAddress" />
+      </Parameters>
+      <Docs>
+        <param name="other">The <see cref="T:MimeKit.GroupAddress" /> to compare with the current <see cref="T:MimeKit.GroupAddress" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current <see cref="T:MimeKit.GroupAddress" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current
+            <see cref="T:MimeKit.GroupAddress" />; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Compares two group addresses to determine if they are identical or not.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Members">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Members { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Members" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the members of the group.
+            </summary>
+        <value>The list of members.</value>
+        <remarks>
+            Represents the member addresses of the group. Typically the member addresses
+            will be of the <see cref="T:MimeKit.MailboxAddress" /> variety, but it is possible
+            for groups to contain other groups.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ToString">
+      <MemberSignature Language="C#" Value="public override string ToString (bool encode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString(bool encode) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="encode" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.GroupAddress" /> will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.GroupAddress" /> to a string, optionally encoding it for transport.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.GroupAddress" />.</returns>
+        <remarks>
+            Returns a string containing the formatted group of addresses. If the <paramref name="encode" />
+            parameter is <c>true</c>, then the name of the group and all member addresses will be encoded
+            according to the rules defined in rfc2047, otherwise the names will not be encoded at all and
+            will therefor only be suitable for display purposes.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (string text, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, string text, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, int length, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, int length, out MimeKit.GroupAddress group);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.GroupAddress group) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="group" Type="MimeKit.GroupAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="group">The parsed group address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.GroupAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.GroupAddress" />. If the the address is not a group address or
+            there is more than a single group address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

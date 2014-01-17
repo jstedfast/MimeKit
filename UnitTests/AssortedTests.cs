@@ -26,6 +26,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -89,6 +90,70 @@ namespace UnitTests {
 
 			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
 			Assert.AreEqual ("<some.message.id.2@some.domain>", msgid, "The parsed msgid does not match");
+		}
+
+		[Test]
+		public void TestSimpleRfc2047QEncodedPhrase ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = "=?iso-8859-1?q?hola?=";
+			string actual;
+
+			options.EnableRfc2047Workarounds = false;
+			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual);
+
+			options.EnableRfc2047Workarounds = true;
+			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
+		}
+
+		[Test]
+		public void TestSimpleRfc2047BEcnodedPhrase ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = "=?iso-8859-1?B?aG9sYQ==?=";
+			string actual;
+
+			options.EnableRfc2047Workarounds = false;
+			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual);
+
+			options.EnableRfc2047Workarounds = true;
+			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
+		}
+
+		[Test]
+		public void TestSimpleRfc2047QEncodedText ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = "=?iso-8859-1?q?hola?=";
+			string actual;
+
+			options.EnableRfc2047Workarounds = false;
+			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual);
+
+			options.EnableRfc2047Workarounds = true;
+			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
+		}
+
+		[Test]
+		public void TestSimpleRfc2047BEcnodedText ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = "=?iso-8859-1?B?aG9sYQ==?=";
+			string actual;
+
+			options.EnableRfc2047Workarounds = false;
+			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual);
+
+			options.EnableRfc2047Workarounds = true;
+			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
+			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}
 	}
 }

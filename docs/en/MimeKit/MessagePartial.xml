@@ -1,0 +1,213 @@
+<Type Name="MessagePartial" FullName="MimeKit.MessagePartial">
+  <TypeSignature Language="C#" Value="public class MessagePartial : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MessagePartial extends MimeKit.MimePart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.MimePart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A MIME part containing a partial message as its content.
+            </summary>
+    <remarks>
+            Represents a MIME part with a Content-Type of message/partial.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MessagePartial (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePartial" /> class.
+            </summary>
+        <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MessagePartial (string id, int number, int total);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string id, int32 number, int32 total) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="id" Type="System.String" />
+        <Parameter Name="number" Type="System.Int32" />
+        <Parameter Name="total" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="id">The id value shared among the partial message parts.</param>
+        <param name="number">The part number for this partial message part.</param>
+        <param name="total">The total number of partial message parts.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MessagePartial" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="id" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="number" /> is negative.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="total" /> is less than <paramref name="number" />.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public string Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the identifier.
+            </summary>
+        <value>The identifier.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Join">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Join (System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt; partials);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Join(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MessagePartial&gt; partials) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="partials" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="partials">The list of partial message parts.</param>
+        <summary>
+            Join the specified message/partial parts into the complete message.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="partials" />is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Join">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Join (MimeKit.ParserOptions options, System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt; partials);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Join(class MimeKit.ParserOptions options, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MessagePartial&gt; partials) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="partials" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MessagePartial&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="partials">The list of partial message parts.</param>
+        <summary>
+            Join the specified message/partial parts into the complete message.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="partials" />is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Number">
+      <MemberSignature Language="C#" Value="public Nullable&lt;int&gt; Number { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int32&gt; Number" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the part number for this partial message part.
+            </summary>
+        <value>The part number.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Split">
+      <MemberSignature Language="C#" Value="public static System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt; Split (MimeKit.MimeMessage message, int maxSize);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeMessage&gt; Split(class MimeKit.MimeMessage message, int32 maxSize) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="message" Type="MimeKit.MimeMessage" />
+        <Parameter Name="maxSize" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="message">The message.</param>
+        <param name="maxSize">The maximum size for each message body.</param>
+        <summary>
+            Split the specified message into multiple messages, each with a
+            message/partial body no larger than the max size specified.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="message" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="maxSize" /> is less than <c>1</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Total">
+      <MemberSignature Language="C#" Value="public Nullable&lt;int&gt; Total { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int32&gt; Total" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the total number of parts.
+            </summary>
+        <value>The total number of parts.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

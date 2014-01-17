@@ -43,9 +43,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the mailbox that a certificate could not be found for.
+		/// Gets the mailbox address that could not be resolved to a certificate.
 		/// </summary>
-		/// <value>The mailbox.</value>
+		/// <value>The mailbox address.</value>
 		public MailboxAddress Mailbox {
 			get; private set;
 		}

@@ -1,0 +1,143 @@
+<Type Name="CmsRecipient" FullName="MimeKit.Cryptography.CmsRecipient">
+  <TypeSignature Language="C#" Value="public sealed class CmsRecipient" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipient extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            An S/MIME recipient.
+            </summary>
+    <remarks>
+            If the X.509 certificates are known for each of the recipients, you
+            may wish to use a <see cref="T:MimeKit.Cryptography.CmsRecipient" /> as opposed to having
+            the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> do its own certificate
+            lookups for each <see cref="T:MimeKit.MailboxAddress" />.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public CmsRecipient (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The recipient's certificate.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> class.
+            </summary>
+        <remarks>
+          <para>The initial value of the <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> property will be set to
+            the Triple-DES encryption algorith, which should be safe to assume for all modern
+            S/MIME v3.x client implementations.</para>
+          <para>The <see cref="P:MimeKit.Cryptography.CmsRecipient.RecipientIdentifierType" /> will be initialized to
+            <see cref="F:MimeKit.Cryptography.SubjectIdentifierType.IssuerAndSerialNumber" />.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public CmsRecipient (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.SubjectIdentifierType recipientIdentifierType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.SubjectIdentifierType recipientIdentifierType) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+        <Parameter Name="recipientIdentifierType" Type="MimeKit.Cryptography.SubjectIdentifierType" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The recipient's certificate.</param>
+        <param name="recipientIdentifierType">The recipient identifier type.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipient" /> class.
+            </summary>
+        <remarks>
+            The initial value of the <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> property will be set to
+            the Triple-DES encryption algorith, which should be safe to assume for all modern
+            S/MIME v3.x client implementations.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Certificate">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.X509.X509Certificate Certificate { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the recipient's certificate.
+            </summary>
+        <value>The certificate.</value>
+        <remarks>
+            The certificate is used for the purpose of encrypting data.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncryptionAlgorithms">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] EncryptionAlgorithms" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the known S/MIME encryption capabilities of the
+            recipient's mail client, in their preferred order.
+            </summary>
+        <value>The encryption algorithms.</value>
+        <remarks>
+            Provides the <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> with an array of
+            encryption algorithms that are known to be supported by the
+            recpipient's client software and should be in the recipient's
+            order of preference.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RecipientIdentifierType">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.SubjectIdentifierType RecipientIdentifierType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SubjectIdentifierType RecipientIdentifierType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.SubjectIdentifierType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the recipient identifier type.
+            </summary>
+        <value>The recipient identifier type.</value>
+        <remarks>
+            Specifies how the certificate should be looked up on the recipient's end.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

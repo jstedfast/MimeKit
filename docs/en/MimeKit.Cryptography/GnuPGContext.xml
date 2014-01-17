@@ -1,0 +1,35 @@
+<Type Name="GnuPGContext" FullName="MimeKit.Cryptography.GnuPGContext">
+  <TypeSignature Language="C#" Value="public abstract class GnuPGContext : MimeKit.Cryptography.OpenPgpContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract GnuPGContext extends MimeKit.Cryptography.OpenPgpContext" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.Cryptography.OpenPgpContext</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> that uses the GnuPG keyrings.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected GnuPGContext ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.GnuPGContext" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

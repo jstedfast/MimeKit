@@ -34,11 +34,19 @@ namespace MimeKit {
 	/// <summary>
 	/// An address group, as specified by rfc0822.
 	/// </summary>
+	/// <remarks>
+	/// Group addresses are rarely used anymore. Typically, if you see a group address,
+	/// it will be of the form: <c>"undisclosed-recipients: ;"</c>.
+	/// </remarks>
 	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name and list of addresses. The
+		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
@@ -54,6 +62,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name and list of addresses.
+		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
 		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
@@ -63,6 +74,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name. The specified
+		/// text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the group.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -77,6 +92,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GroupAddress"/> with the specified name.
+		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		public GroupAddress (string name) : this (Encoding.UTF8, name)
 		{
@@ -85,6 +103,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the members of the group.
 		/// </summary>
+		/// <remarks>
+		/// Represents the member addresses of the group. Typically the member addresses
+		/// will be of the <see cref="MailboxAddress"/> variety, but it is possible
+		/// for groups to contain other groups.
+		/// </remarks>
 		/// <value>The list of members.</value>
 		public InternetAddressList Members {
 			get; private set;
@@ -134,6 +157,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Serializes the <see cref="MimeKit.GroupAddress"/> to a string, optionally encoding it for transport.
 		/// </summary>
+        /// <remarks>
+        /// Returns a string containing the formatted group of addresses. If the <paramref name="encode"/>
+        /// parameter is <c>true</c>, then the name of the group and all member addresses will be encoded
+        /// according to the rules defined in rfc2047, otherwise the names will not be encoded at all and
+        /// will therefor only be suitable for display purposes.
+        /// </remarks>
 		/// <returns>A string representing the <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.GroupAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)
@@ -167,6 +196,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Determines whether the specified <see cref="MimeKit.GroupAddress"/> is equal to the current <see cref="MimeKit.GroupAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Compares two group addresses to determine if they are identical or not.
+		/// </remarks>
 		/// <param name="other">The <see cref="MimeKit.GroupAddress"/> to compare with the current <see cref="MimeKit.GroupAddress"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.GroupAddress"/> is equal to the current
 		/// <see cref="MimeKit.GroupAddress"/>; otherwise, <c>false</c>.</returns>
@@ -183,6 +215,216 @@ namespace MimeKit {
 		void MembersChanged (object sender, EventArgs e)
 		{
 			OnChanged ();
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out GroupAddress group)
+		{
+			InternetAddress address;
+
+			if (!InternetAddress.TryParse (options, buffer, startIndex, length, out address)) {
+				group = null;
+				return false;
+			}
+
+			group = address as GroupAddress;
+
+			return group != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out GroupAddress group)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, length, out group);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out GroupAddress group)
+		{
+			InternetAddress address;
+
+			if (!InternetAddress.TryParse (options, buffer, startIndex, out address)) {
+				group = null;
+				return false;
+			}
+
+			group = address as GroupAddress;
+
+			return group != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, int startIndex, out GroupAddress group)
+		{
+			return TryParse (ParserOptions.Default, buffer, startIndex, out group);
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		public static bool TryParse (ParserOptions options, byte[] buffer, out GroupAddress group)
+		{
+			InternetAddress address;
+
+			if (!InternetAddress.TryParse (options, buffer, out address)) {
+				group = null;
+				return false;
+			}
+
+			group = address as GroupAddress;
+
+			return group != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (byte[] buffer, out GroupAddress group)
+		{
+			return TryParse (ParserOptions.Default, buffer, out group);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
+		{
+			InternetAddress address;
+
+			if (!InternetAddress.TryParse (options, text, out address)) {
+				group = null;
+				return false;
+			}
+
+			group = address as GroupAddress;
+
+			return group != null;
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
+		/// </remarks>
+		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="text">The text.</param>
+		/// <param name="group">The parsed group address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (string text, out GroupAddress group)
+		{
+			return TryParse (ParserOptions.Default, text, out group);
 		}
 	}
 }

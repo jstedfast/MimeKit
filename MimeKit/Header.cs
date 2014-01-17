@@ -33,6 +33,9 @@ namespace MimeKit {
 	/// <summary>
 	/// A class representing a Message or MIME header.
 	/// </summary>
+	/// <remarks>
+	/// Represents a single header field and value pair.
+	/// </remarks>
 	public sealed class Header
 	{
 		internal readonly ParserOptions Options;
@@ -41,6 +44,68 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair. The encoding is used to determine which charset to use
+		/// when encoding the value according to the rules of rfc2047.
+		/// </remarks>
+		/// <param name="charset">The charset that should be used to encode the
+		/// header value.</param>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public Header (Encoding charset, HeaderId id, string value)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (id == HeaderId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Options = ParserOptions.Default.Clone ();
+			Field = id.ToHeaderName ();
+			Id = id;
+
+			SetValue (charset, value);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair.
+		/// </remarks>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public Header (HeaderId id, string value) : this (Encoding.UTF8, id, value)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair. The encoding is used to determine which charset to use
+		/// when encoding the value according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="charset">The charset that should be used to encode the
 		/// header value.</param>
 		/// <param name="field">The name of the header field.</param>
@@ -75,6 +140,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("value");
 
 			Options = ParserOptions.Default.Clone ();
+			Id = field.ToHeaderId ();
 			Field = field;
 
 			SetValue (charset, value);
@@ -83,6 +149,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair.
+		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -100,6 +170,7 @@ namespace MimeKit {
 		// Note: this ctor is only used by the parser
 		internal Header (ParserOptions options, string field, byte[] value)
 		{
+			Id = field.ToHeaderId ();
 			Options = options;
 			RawValue = value;
 			Field = field;
@@ -107,9 +178,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Gets the stream offset of the beginning of the header.
-		/// 
-		/// Note: This will only be set if the header was parsed from a stream.
 		/// </summary>
+		/// <remarks>
+		/// If the offset is set, it refers to the byte offset where it
+		/// was found in the stream it was parsed from.
+		/// </remarks>
 		/// <value>The stream offset.</value>
 		public long? Offset {
 			get; internal set;
@@ -118,14 +191,31 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the name of the header field.
 		/// </summary>
+		/// <remarks>
+		/// Represents the field name of the header.
+		/// </remarks>
 		/// <value>The name of the header field.</value>
 		public string Field {
 			get; private set;
 		}
 
 		/// <summary>
+		/// Gets the header identifier.
+		/// </summary>
+		/// <remarks>
+		/// This property is mainly used for switch-statements for performance reasons.
+		/// </remarks>
+		/// <value>The header identifier.</value>
+		public HeaderId Id {
+			get; private set;
+		}
+
+		/// <summary>
 		/// Gets the raw value of the header.
 		/// </summary>
+		/// <remarks>
+		/// Contains the raw value of the header, before any decoding or charset conversion.
+		/// </remarks>
 		/// <value>The raw value of the header.</value>
 		public byte[] RawValue {
 			get; internal set;
@@ -134,6 +224,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the header value.
 		/// </summary>
+		/// <remarks>
+		/// Represents the decoded header value and is suitable for displaying to the user.
+		/// </remarks>
 		/// <value>The header value.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -141,7 +234,7 @@ namespace MimeKit {
 		public string Value {
 			get {
 				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (RawValue));
+					textValue = Unfold (Rfc2047.DecodeText (Options, RawValue));
 
 				return textValue;
 			}
@@ -151,8 +244,37 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the header value using the specified charset.
+		/// </summary>
+		/// <remarks>
+		/// <para>If the raw header value does not properly encode non-ASCII text, the decoder
+		/// will fall back to a default charset encoding. Sometimes, however, this
+		/// default charset fallback is wrong and the mail client may wish to override
+		/// that default charset on a per-header basis.</para>
+		/// <para>By using this method, the client is able to override the fallback charset
+		/// on a per-header basis.</para>
+		/// </remarks>
+		/// <returns>The value.</returns>
+		/// <param name="charset">Charset.</param>
+		public string GetValue (Encoding charset)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			var options = Options.Clone ();
+			options.CharsetEncoding = charset;
+
+			return Unfold (Rfc2047.DecodeText (options, RawValue));
+		}
+
+		/// <summary>
 		/// Sets the header value using the specified charset.
 		/// </summary>
+		/// <remarks>
+		/// When a particular charset is desired for encoding the header value
+		/// according to the rules of rfc2047, this method should be used
+		/// instead of the <see cref="Value"/> setter.
+		/// </remarks>
 		/// <param name="charset">A charset encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -187,6 +309,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.
 		/// </summary>
+		/// <remarks>
+		/// Formats the header field and value in a way that is suitable for display.
+		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.</returns>
 		public override string ToString ()
 		{
@@ -196,6 +321,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Unfold the specified header text.
 		/// </summary>
+		/// <remarks>
+		/// Unfolds the header value so that it becomes suitable for display.
+		/// Since <see cref="Value"/> is already unfolded, this method is really
+		/// only needed when working with raw header strings.
+		/// </remarks>
 		/// <param name="text">The header text.</param>
 		public static unsafe string Unfold (string text)
 		{

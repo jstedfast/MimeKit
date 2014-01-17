@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -32,19 +33,36 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract cryptography context.
 	/// </summary>
+	/// <remarks>
+	/// Generally speaking, applications should not use a <see cref="CryptographyContext"/>
+	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>,
+	/// <see cref="MultipartEncrypted"/> and <see cref="ApplicationPkcs7Mime"/>.
+	/// </remarks>
 	public abstract class CryptographyContext : IDisposable
 	{
-		static readonly Dictionary<string, ConstructorInfo> CustomContexts = new Dictionary<string, ConstructorInfo> ();
+		static ConstructorInfo SecureMimeContextConstructor;
+		static ConstructorInfo OpenPgpContextConstructor;
+		static readonly object mutex = new object ();
 
 		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The signature protocol.</value>
 		public abstract string SignatureProtocol { get; }
 
 		/// <summary>
 		/// Gets the encryption protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
+		/// in order to determine what the protocol parameter of the Content-Type
+		/// header should be.</para>
+		/// </remarks>
 		/// <value>The encryption protocol.</value>
 		public abstract string EncryptionProtocol { get; }
 
@@ -54,9 +72,28 @@ namespace MimeKit.Cryptography {
 		/// <value>The key exchange protocol.</value>
 		public abstract string KeyExchangeProtocol { get; }
 
+		#if NOT_YET
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
+		/// certificate retrieval.
+		/// </summary>
+		/// <value><c>true</c> if online certificate retrieval should be allowed; otherwise, <c>false</c>.</value>
+		public bool AllowOnlineCertificateRetrieval { get; set; }
+
+		/// <summary>
+		/// Gets or sets the online certificate retrieval timeout.
+		/// </summary>
+		/// <value>The online certificate retrieval timeout.</value>
+		public TimeSpan OnlineCertificateRetrievalTimeout { get; set; }
+		#endif
+
 		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
+		/// <remarks>
+		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
+		/// or multipart/encrypted part is supported by the supplied cryptography context.
+		/// </remarks>
 		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -65,24 +102,69 @@ namespace MimeKit.Cryptography {
 		public abstract bool Supports (string protocol);
 
 		/// <summary>
+		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// </summary>
+		/// <remarks>
+		/// Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
+		/// as used by the micalg parameter value of a multipart/signed Content-Type
+		/// header.
+		/// </remarks>
+		/// <returns>The micalg value.</returns>
+		/// <param name="micalg">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="micalg"/> is out of range.
+		/// </exception>
+		public abstract string GetDigestAlgorithmName (DigestAlgorithm micalg);
+
+		/// <summary>
+		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// </summary>
+		/// <remarks>
+		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
+		/// </remarks>
+		/// <returns>The digest algorithm.</returns>
+		/// <param name="micalg">The micalg parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="micalg"/> is <c>null</c>.
+		/// </exception>
+		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
+
+		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
-		/// <param name="digestAlgo">The digest algorithm used.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public abstract MimePart Sign (MailboxAddress signer, byte[] content, out string digestAlgo);
+		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content);
 
-		// FIXME: come up with a generic Verify() API that will work for PGP/MIME as well as S/MIME
+		/// <summary>
+		/// Verify the specified content and signatureData.
+		/// </summary>
+		/// <returns>A list of digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The signature data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		public abstract DigitalSignatureCollection Verify (Stream content, Stream signatureData);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -99,48 +181,34 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, byte[] content);
+		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
-		/// Signs and encrypts the specified content for the specified recipients.
+		/// Decrypt the specified encryptedData.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
-		/// <para>-or-</para>
-		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
-		/// </exception>
-		public abstract MimePart SignAndEncrypt (MailboxAddress signer, IEnumerable<MailboxAddress> recipients, byte[] content);
-
-		// FIXME: come up with a generic Decrypt() API that will work for PGP/MIME as well as S/MIME
+		public abstract MimeEntity Decrypt (Stream encryptedData);
 
 		/// <summary>
-		/// Imports keys (or certificates).
+		/// Imports the public certificates or keys from the specified stream.
 		/// </summary>
-		/// <param name="rawData">The raw key data.</param>
+		/// <param name="stream">The raw certificate or key data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract void ImportKeys (byte[] rawData);
+		public abstract void Import (Stream stream);
 
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
 		/// </summary>
-		/// <returns>The mailboxes.</returns>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
@@ -151,12 +219,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Exporting keys is not supported by this cryptography context.
 		/// </exception>
-		public abstract MimePart ExportKeys (IEnumerable<MailboxAddress> mailboxes);
+		public abstract MimePart Export (IEnumerable<MailboxAddress> mailboxes);
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <param name="disposing">If <c>true</c>, this method is being called by
+		/// <see cref="Dispose()"/>; otherwise it is being called by the finalizer.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 		}
@@ -191,60 +260,67 @@ namespace MimeKit.Cryptography {
 
 			protocol = protocol.ToLowerInvariant ();
 
-			lock (CustomContexts) {
-				ConstructorInfo ctor;
+			lock (mutex) {
+				switch (protocol) {
+				case "application/x-pkcs7-signature":
+				case "application/pkcs7-signature":
+				case "application/x-pkcs7-mime":
+				case "application/pkcs7-mime":
+				case "application/x-pkcs7-keys":
+				case "application/pkcs7-keys":
+					if (SecureMimeContextConstructor != null)
+						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
 
-				if (CustomContexts.TryGetValue (protocol, out ctor))
-					return (CryptographyContext) ctor.Invoke (new object[0]);
-			}
+					return new DefaultSecureMimeContext ();
+				case "application/x-pgp-signature":
+				case "application/pgp-signature":
+				case "application/x-pgp-encrypted":
+				case "application/pgp-encrypted":
+				case "application/x-pgp-keys":
+				case "application/pgp-keys":
+					if (OpenPgpContextConstructor != null)
+						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
 
-			switch (protocol) {
-			case "application/x-pkcs7-signature":
-			case "application/pkcs7-signature":
-			case "application/x-pkcs7-mime":
-			case "application/pkcs7-mime":
-			case "application/x-pkcs7-keys":
-			case "application/pkcs7-keys":
-				return new SecureMimeContext ();
-			default:
-				throw new NotSupportedException ();
+					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.GnuPGContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
+				default:
+					throw new NotSupportedException ();
+				}
 			}
 		}
 
 		/// <summary>
-		/// Registers the custom cryptography context.
+		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
 		/// </summary>
-		/// <param name="protocol">The cryptography protocol.</param>
-		/// <param name="type">A custom subclass of <see cref="CryptographyContext"/>.</param>
+		/// <param name="type">A custom subclass of <see cref="SecureMimeContext"/> or
+		/// <see cref="OpenPgpContext"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="protocol"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="type"/> is <c>null</c>.</para>
+		/// <paramref name="type"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="type"/> is not a subclass of <see cref="CryptographyContext"/>.</para>
+		/// <para><paramref name="type"/> is not a subclass of
+		/// <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="type"/> does not have a parameterless constructor.</para>
 		/// </exception>
-		public static void Register (string protocol, Type type)
+		public static void Register (Type type)
 		{
-			if (protocol == null)
-				throw new ArgumentNullException ("protocol");
-
 			if (type == null)
 				throw new ArgumentNullException ("type");
-
-			protocol = protocol.ToLowerInvariant ();
-
-			if (!type.IsSubclassOf (typeof (CryptographyContext)))
-				throw new ArgumentException ("The specified type must be a subclass of CryptographyContext.", "type");
 
 			var ctor = type.GetConstructor (new Type[0]);
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", "type");
 
-			lock (CustomContexts) {
-				CustomContexts[protocol] = ctor;
+			if (type.IsSubclassOf (typeof (SecureMimeContext))) {
+				lock (mutex) {
+					SecureMimeContextConstructor = ctor;
+				}
+			} else if (type.IsSubclassOf (typeof (OpenPgpContext))) {
+				lock (mutex) {
+					OpenPgpContextConstructor = ctor;
+				}
+			} else {
+				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", "type");
 			}
 		}
 	}

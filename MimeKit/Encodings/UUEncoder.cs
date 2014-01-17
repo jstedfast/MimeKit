@@ -42,7 +42,7 @@ namespace MimeKit.Encodings {
 		const int MaxInputPerLine = 45;
 		const int MaxOutputPerLine = ((MaxInputPerLine / 3) * 4) + 2;
 
-		byte[] uubuf = new byte[60];
+		readonly byte[] uubuf = new byte[60];
 		uint saved;
 		byte nsaved;
 		byte uulen;
@@ -56,22 +56,25 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the encoder.
+		/// Clone the <see cref="UUEncoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		/// <returns>A new <see cref="UUEncoder"/> with identical state.</returns>
+		public IMimeEncoder Clone ()
 		{
-			var encoder = (UUEncoder) MemberwiseClone ();
-			encoder.uubuf = new byte[uubuf.Length];
+			var encoder = new UUEncoder ();
+
 			Array.Copy (uubuf, encoder.uubuf, uubuf.Length);
+			encoder.nsaved = nsaved;
+			encoder.saved = saved;
+			encoder.uulen = uulen;
+
 			return encoder;
 		}
 
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding
 		{
 			get { return ContentEncoding.UUEncode; }
@@ -80,12 +83,8 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
-		/// <returns>
-		/// The estimated output length.
-		/// </returns>
-		/// <param name='inputLength'>
-		/// The input length.
-		/// </param>
+		/// <returns>The estimated output length.</returns>
+		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			return (((inputLength + 2) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2;
@@ -216,21 +215,25 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// The output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
+		/// </exception>
 		public int Encode (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);
@@ -300,21 +303,25 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// The output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="input"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
+		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);

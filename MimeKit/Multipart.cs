@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -45,6 +46,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public Multipart (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -247,43 +249,62 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
+		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes)
+		{
+			var filter = options.CreateNewLineFilter ();
+			int index, length;
+
+			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
+
+			stream.Write (output, index, length);
+		}
+
 		/// <summary>
-		/// Writes the <see cref="MimeKit.Multipart"/> to the specified stream.
+		/// Writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="token">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (options, stream);
+			base.WriteTo (options, stream, token);
 
 			if (RawPreamble != null && RawPreamble.Length > 0) {
-				stream.Write (RawPreamble, 0, RawPreamble.Length);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				token.ThrowIfCancellationRequested ();
+				WriteBytes (options, stream, RawPreamble);
 			}
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
 			foreach (var part in children) {
+				token.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length - 2);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				part.WriteTo (options, stream);
+				part.WriteTo (options, stream, token);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
+			token.ThrowIfCancellationRequested ();
 			stream.Write (boundary, 0, boundary.Length);
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0) {
-				stream.Write (RawEpilogue, 0, RawEpilogue.Length);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				token.ThrowIfCancellationRequested ();
+				WriteBytes (options, stream, RawEpilogue);
 			}
 		}
 

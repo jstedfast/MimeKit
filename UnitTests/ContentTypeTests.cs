@@ -46,6 +46,17 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSimpleContentTypeWithVendorExtension ()
+		{
+			string text = "application/x-vnd.msdoc";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "x-vnd.msdoc", "Media subtype does not match: {0}", text);
+		}
+
+		[Test]
 		public void TestSimpleContentTypeWithParameter ()
 		{
 			string text = "multipart/mixed; boundary=\"boundary-text\"";
@@ -176,6 +187,24 @@ namespace UnitTests {
 			type.Parameters.Add ("name", new string ('å', 40));
 			encoded = type.ToString (Encoding.UTF8, true);
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+		}
+
+		[Test]
+		public void TestMultipleParametersWithIdenticalNames ()
+		{
+			ContentDisposition disposition;
+
+			const string text1 = "inline;\n filename=\"Filename.doc\";\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc";
+			Assert.IsTrue (ContentDisposition.TryParse (text1, out disposition), "Failed to parse first Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The first filename value does not match.");
+
+			const string text2 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc;\n filename=\"Filename.doc\"";
+			Assert.IsTrue (ContentDisposition.TryParse (text2, out disposition), "Failed to parse second Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The second filename value does not match.");
+
+			const string text3 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename=\"Filename.doc\";\n filename*1*=name.doc";
+			Assert.IsTrue (ContentDisposition.TryParse (text3, out disposition), "Failed to parse third Content-Disposition");
+			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The third filename value does not match.");
 		}
 	}
 }

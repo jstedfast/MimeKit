@@ -32,6 +32,10 @@ namespace MimeKit {
 	/// <summary>
 	/// An enumeration of common header fields.
 	/// </summary>
+	/// <remarks>
+	/// Comparing enum  values is not only faster, but less error prone than
+	/// comparing strings.
+	/// </remarks>
 	public enum HeaderId {
 		/// <summary>
 		/// The Ad-Hoc header field.
@@ -107,6 +111,11 @@ namespace MimeKit {
 		/// The Content-Language header field.
 		/// </summary>
 		ContentLanguage,
+
+		/// <summary>
+		/// The Content-Length header field.
+		/// </summary>
+		ContentLength,
 
 		/// <summary>
 		/// The Content-Location header field.

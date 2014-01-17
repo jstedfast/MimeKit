@@ -100,6 +100,25 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmptyMultipartAlternative ()
+		{
+			string expected = @"Content-Type: multipart/mixed
+   Content-Type: multipart/alternative
+   Content-Type: text/plain
+";
+
+			using (var stream = File.OpenRead ("../../TestData/messages/empty-multipart.txt")) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+				var builder = new StringBuilder ();
+
+				DumpMimeTree (builder, message.Body, 0);
+
+				Assert.AreEqual (expected, builder.ToString (), "Unexpected MIME tree structure.");
+			}
+		}
+
+		[Test]
 		public void TestJwzMbox ()
 		{
 			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt");

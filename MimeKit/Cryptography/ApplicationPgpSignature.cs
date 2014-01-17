@@ -31,11 +31,19 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A MIME part with a Content-Type of application/pgp-signature.
 	/// </summary>
-	public class ApplicationPgpSignature : MimePart
+	/// <remarks>
+	/// <para>An application/pgp-signature part contains detatched pgp signature data
+	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
+	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
+	/// method on the parent multipart/signed part.</para>
+	/// </remarks>
+	public sealed class ApplicationPgpSignature : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>
+		/// class based on the <see cref="MimeKit.MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPgpSignature (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -45,6 +53,10 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>
 		/// class with a Content-Type of application/pgp-signature.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME part with a Content-Type of application/pgp-signature
+		/// and the <paramref name="stream"/> as its content.
+		/// </remarks>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.

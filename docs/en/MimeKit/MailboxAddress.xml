@@ -1,0 +1,572 @@
+<Type Name="MailboxAddress" FullName="MimeKit.MailboxAddress">
+  <TypeSignature Language="C#" Value="public class MailboxAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.MailboxAddress&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MailboxAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.MailboxAddress&gt;" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.InternetAddress</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.IEquatable&lt;MimeKit.MailboxAddress&gt;</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            A mailbox address, as specified by rfc0822.
+            </summary>
+    <remarks>
+            Represents a mailbox address (commonly referred to as an email address)
+            for a single recipient.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MailboxAddress (string name, string address);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, string address) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="address" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">The name of the mailbox.</param>
+        <param name="address">The address of the mailbox.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name and address.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="address" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MailboxAddress (string name, System.Collections.Generic.IEnumerable&lt;string&gt; route, string address);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="route" Type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
+        <Parameter Name="address" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">The name of the mailbox.</param>
+        <param name="route">The route of the mailbox.</param>
+        <param name="address">The address of the mailbox.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name, address and route.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="route" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="address" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MailboxAddress (System.Text.Encoding encoding, string name, string address);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, string address) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="address" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the mailbox.</param>
+        <param name="address">The address of the mailbox.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name and address. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="address" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MailboxAddress (System.Text.Encoding encoding, string name, System.Collections.Generic.IEnumerable&lt;string&gt; route, string address);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="route" Type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
+        <Parameter Name="address" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding to be used for encoding the name.</param>
+        <param name="name">The name of the mailbox.</param>
+        <param name="route">The route of the mailbox.</param>
+        <param name="address">The address of the mailbox.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MailboxAddress" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MailboxAddress" /> with the specified name, address and route. The
+            specified text encoding is used when encoding the name according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="route" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="address" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Address">
+      <MemberSignature Language="C#" Value="public string Address { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Address" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the mailbox address.
+            </summary>
+        <value>The mailbox address.</value>
+        <remarks>
+            Represents the actual email address and is in the form of <c>"name@example.com"</c>.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Equals">
+      <MemberSignature Language="C#" Value="public bool Equals (MimeKit.MailboxAddress other);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(class MimeKit.MailboxAddress other) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="other" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="other">The <see cref="T:MimeKit.MailboxAddress" /> to compare with the current <see cref="T:MimeKit.MailboxAddress" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.MailboxAddress" /> is equal to the current <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.MailboxAddress" /> is equal to the current
+            <see cref="T:MimeKit.MailboxAddress" />; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Compares two mailbox addresses to determine if they are identical or not.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailAddress op_Explicit (MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailAddress op_Explicit(class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Net.Mail.MailAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
+      </Parameters>
+      <Docs>
+        <param name="mailbox">The mailbox.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:MimeKit.MailboxAddress" /> to a
+            <see cref="T:System.Net.Mail.MailAddress" />.
+            </summary>
+        <returns>To be added.</returns>
+        <remarks>
+            Casts a <see cref="T:MimeKit.MailboxAddress" /> to a <see cref="T:System.Net.Mail.MailAddress" />
+            in cases where you might want to make use of the System.Net.Mail APIs.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="mailbox" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Route">
+      <MemberSignature Language="C#" Value="public MimeKit.DomainList Route { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.DomainList Route" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.DomainList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the mailbox route.
+            </summary>
+        <value>The mailbox route.</value>
+        <remarks>
+            A route is convention that is rarely seen in modern email systems, but is supported
+            for compatibility with email archives.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ToString">
+      <MemberSignature Language="C#" Value="public override string ToString (bool encode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString(bool encode) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="encode" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.MailboxAddress" /> will be encoded.</param>
+        <summary>
+            Serializes the <see cref="T:MimeKit.MailboxAddress" /> to a string, optionally encoding it for transport.
+            </summary>
+        <returns>A string representing the <see cref="T:MimeKit.MailboxAddress" />.</returns>
+        <remarks>
+            Returns a string containing the formatted mailbox address. If the <paramref name="encode" />
+            parameter is <c>true</c>, then the mailbox name will be encoded according to the rules defined
+            in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
+            for display purposes.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (string text, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="text">The text.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, string text, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="text">The text.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given text into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="text" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (byte[] buffer, int startIndex, int length, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TryParse">
+      <MemberSignature Language="C#" Value="public static bool TryParse (MimeKit.ParserOptions options, byte[] buffer, int startIndex, int length, out MimeKit.MailboxAddress mailbox);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.MailboxAddress mailbox) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options to use.</param>
+        <param name="buffer">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes in the input buffer to parse.</param>
+        <param name="mailbox">The parsed mailbox address.</param>
+        <summary>
+            Tries to parse the given input buffer into a new <see cref="T:MimeKit.MailboxAddress" /> instance.
+            </summary>
+        <returns>
+          <c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+        <remarks>
+            Parses a single <see cref="T:MimeKit.MailboxAddress" />. If the the address is not a mailbox address or
+            there is more than a single mailbox address, then parsing will fail.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="buffer" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the byte array.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

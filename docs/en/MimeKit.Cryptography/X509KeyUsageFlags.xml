@@ -1,0 +1,207 @@
+<Type Name="X509KeyUsageFlags" FullName="MimeKit.Cryptography.X509KeyUsageFlags">
+  <TypeSignature Language="C#" Value="public enum X509KeyUsageFlags" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed X509KeyUsageFlags extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Attributes>
+    <Attribute>
+      <AttributeName>System.Flags</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>
+            X.509 key usage flags.
+            </summary>
+    <remarks>
+      <para>The X.509 Key Usage Flags can be used to determine what operations
+            a certificate can be used for.</para>
+      <para>Note: a value of <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.None" /> indicates that
+            there are no restrictions on the use of the
+            <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.</para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="CrlSign">
+      <MemberSignature Language="C#" Value="CrlSign" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags CrlSign = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may be used for verifying signatures on
+            certificate revocation lists (CRLs).
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DataEncipherment">
+      <MemberSignature Language="C#" Value="DataEncipherment" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DataEncipherment = int32(16)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may be used for data encipherment.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DecipherOnly">
+      <MemberSignature Language="C#" Value="DecipherOnly" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DecipherOnly = int32(32768)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may only be used for deciphering data during key agreement.
+            </summary>
+        <remarks>
+            When both the <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.DecipherOnly" /> bit and the
+            <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.KeyAgreement" /> bit are both set, the key
+            may be used only for deciphering data while
+            performing key agreement.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DigitalSignature">
+      <MemberSignature Language="C#" Value="DigitalSignature" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DigitalSignature = int32(128)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may be used for digitally signing data.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="EncipherOnly">
+      <MemberSignature Language="C#" Value="EncipherOnly" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags EncipherOnly = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may only be used for enciphering data during key agreement.
+            </summary>
+        <remarks>
+            When both the <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.EncipherOnly" /> bit and the
+            <see cref="F:MimeKit.Cryptography.X509KeyUsageFlags.KeyAgreement" /> bit are both set, the key
+            may be used only for enciphering data while
+            performing key agreement.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyAgreement">
+      <MemberSignature Language="C#" Value="KeyAgreement" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyAgreement = int32(8)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key is meant to be used for key agreement.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyCertSign">
+      <MemberSignature Language="C#" Value="KeyCertSign" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyCertSign = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may be used for verifying signatures on certificates.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyEncipherment">
+      <MemberSignature Language="C#" Value="KeyEncipherment" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyEncipherment = int32(32)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key is meant to be used for key encipherment.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="None">
+      <MemberSignature Language="C#" Value="None" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags None = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            No limitations for the key usage are set.
+            </summary>
+        <remarks>
+            The key may be used for anything.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NonRepudiation">
+      <MemberSignature Language="C#" Value="NonRepudiation" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags NonRepudiation = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The key may be used to verify digital signatures used to
+            provide a non-repudiation service.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

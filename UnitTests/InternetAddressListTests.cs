@@ -338,13 +338,29 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodingMailboxWithReallyLongWord ()
+		{
+			var name = "reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllllllllllllllllllllllllllllllllllllllllllllllly long word";
+			var mailbox = new MailboxAddress (name, "really.long.word@example.com");
+			var list = new InternetAddressList ();
+			list.Add (mailbox);
+
+			var expected = "=?us-ascii?q?reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllll?=\n =?us-ascii?q?llllllllllllllllllllllllllllllllllllllllllllllllly?= long\n word <really.long.word@example.com>";
+			var actual = list.ToString (UnixFormatOptions, true);
+
+			Assert.AreEqual (expected, actual, "Encoding really long mailbox did not match expected result: {0}", expected);
+			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse really long mailbox");
+			Assert.AreEqual (mailbox.Name, list[0].Name);
+		}
+
+		[Test]
 		public void TestEncodingMailboxWithArabicName ()
 		{
 			var mailbox = new MailboxAddress ("هل تتكلم اللغة الإنجليزية /العربية؟", "do.you.speak@arabic.com");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "=?utf-8?b?2YfZhCDYqtiq2YPZhNmFINin2YTZhNi62Kk=?=\n =?utf-8?b?INin2YTYpdmG2KzZhNmK2LLZitip?=\n =?utf-8?b?IC/Yp9mE2LnYsdio2YrYqdif?= <do.you.speak@arabic.com>";
+			var expected = "=?utf-8?b?2YfZhCDYqtiq2YPZhNmFINin2YTZhNi62Kk=?=\n =?utf-8?b?INin2YTYpdmG2KzZhNmK2LLZitipIC/Yp9mE2LnYsdio2YrYqdif?=\n\t<do.you.speak@arabic.com>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding arabic mailbox did not match expected result: {0}", expected);
@@ -359,12 +375,33 @@ namespace UnitTests {
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "=?utf-8?b?54uC44Gj44Gf44GT44Gu5LiW44Gn54uC44GG44Gq44KJ5rCX?=\n =?utf-8?b?44Gv56K644GL44Gg44CC?= <famous@quotes.ja>";
+			var expected = "=?utf-8?b?54uC44Gj44Gf44GT44Gu5LiW44Gn54uC44GG44Gq44KJ5rCX44Gv56K6?=\n =?utf-8?b?44GL44Gg44CC?= <famous@quotes.ja>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding japanese mailbox did not match expected result: {0}", expected);
 			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse japanese mailbox");
 			Assert.AreEqual (mailbox.Name, list[0].Name);
+		}
+
+		[Test]
+		public void TestEncodingSimpleAddressList ()
+		{
+			const string expectedEncoded = "Kristoffer =?iso-8859-1?q?Br=E5nemyr?= <ztion@swipenet.se>,\n Jeffrey Stedfast <fejj@gnome.org>";
+			const string expectedDisplay = "\"Kristoffer Brånemyr\" <ztion@swipenet.se>, \"Jeffrey Stedfast\" <fejj@gnome.org>";
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
+			var options = FormatOptions.Default.Clone ();
+			var list = new InternetAddressList ();
+
+			list.Add (new MailboxAddress (latin1, "Kristoffer Brånemyr", "ztion@swipenet.se"));
+			list.Add (new MailboxAddress ("Jeffrey Stedfast", "fejj@gnome.org"));
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var display = list.ToString (options, false);
+			Assert.AreEqual (expectedDisplay, display, "Display value does not match the expected result: {0}", display);
+
+			var encoded = list.ToString (options, true);
+			Assert.AreEqual (expectedEncoded, encoded, "Encoded value does not match the expected result: {0}", display);
 		}
 
 		[Test]

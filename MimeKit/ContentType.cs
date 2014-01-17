@@ -33,6 +33,11 @@ namespace MimeKit {
 	/// <summary>
 	/// A class representing a Content-Type header value.
 	/// </summary>
+	/// <remarks>
+	/// The Content-Type header is a way for the originating client to
+	/// suggest to the receiving client the mime-type of the content and,
+	/// depending on that mime-type, presentation options such as charset.
+	/// </remarks>
 	public sealed class ContentType
 	{
 		ParameterList parameters;
@@ -41,6 +46,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentType"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ContentType"/> based on the media type and subtype provided.
+		/// </remarks>
 		/// <param name="mediaType">Media type.</param>
 		/// <param name="mediaSubtype">Media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -73,13 +81,18 @@ namespace MimeKit {
 				throw new ArgumentException ("The subtype is not allowed to be empty.", "mediaSubtype");
 
 			for (int i = 0; i < mediaSubtype.Length; i++) {
-				if (mediaSubtype[i] >= 127 || !IsAtom ((byte) mediaSubtype[i]))
+				if (mediaSubtype[i] >= 127 || !IsToken ((byte) mediaSubtype[i]))
 					throw new ArgumentException ("Illegal characters in subtype.", "mediaSubtype");
 			}
 
 			Parameters = new ParameterList ();
 			subtype = mediaSubtype;
 			type = mediaType;
+		}
+
+		static bool IsToken (byte c)
+		{
+			return c.IsToken ();
 		}
 
 		static bool IsAtom (byte c)
@@ -90,6 +103,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the type of the media.
 		/// </summary>
+		/// <remarks>
+		/// Represents the media type of the <see cref="MimeEntity"/>. Examples include
+		/// <c>"text"</c>, <c>"image"</c>, and <c>"application"</c>. This string should
+		/// always be treated as case-insensitive.
+		/// </remarks>
 		/// <value>The type of the media.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -123,6 +141,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the media subtype.
 		/// </summary>
+		/// <remarks>
+		/// Represents the media subtype of the <see cref="MimeEntity"/>. Examples include
+		/// <c>"html"</c>, <c>"jpeg"</c>, and <c>"octet-stream"</c>. This string should
+		/// always be treated as case-insensitive.
+		/// </remarks>
 		/// <value>The media subtype.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -140,7 +163,7 @@ namespace MimeKit {
 					throw new ArgumentException ("MediaSubtype is not allowed to be empty.", "value");
 
 				for (int i = 0; i < value.Length; i++) {
-					if (value[i] > 127 || !IsAtom ((byte) value[i]))
+					if (value[i] > 127 || !IsToken ((byte) value[i]))
 						throw new ArgumentException ("Illegal characters in media subtype.", "value");
 				}
 
@@ -156,6 +179,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the parameters.
 		/// </summary>
+		/// <remarks>
+		/// In addition to the media type and subtype, the Content-Type header may also
+		/// contain parameters to provide further hints to the receiving client as to
+		/// how to process or display the content.
+		/// </remarks>
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
@@ -171,6 +199,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the boundary parameter.
 		/// </summary>
+		/// <remarks>
+		/// This is a special parameter on <see cref="Multipart"/> entities, designating to the
+		/// parser a unique string that should be considered the boundary marker for each sub-part.
+		/// </remarks>
 		/// <value>The boundary.</value>
 		public string Boundary {
 			get { return Parameters["boundary"]; }
@@ -185,6 +217,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the charset parameter.
 		/// </summary>
+		/// <remarks>
+		/// Text-based <see cref="MimePart"/> entities will often include a charset parameter
+		/// so that the receiving client can properly render the text.
+		/// </remarks>
 		/// <value>The charset.</value>
 		public string Charset {
 			get { return Parameters["charset"]; }
@@ -199,6 +235,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the name parameter.
 		/// </summary>
+		/// <remarks>
+		/// The name parameter is a way for the originiating client to suggest
+		/// to the receiving client a display-name for the content, which may
+		/// be used by the receiving client if it cannot display the actual
+		/// content to the user.
+		/// </remarks>
 		/// <value>The name.</value>
 		public string Name {
 			get { return Parameters["name"]; }
@@ -212,10 +254,12 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Checks if the this instance of <see cref="MimeKit.ContentType"/> matches
-		/// the specified mediaType and mediaSubtype.
-		/// 
-		/// Note: If the specified mediaType or mediaSubtype are "*", they match anything.
+		/// the specified media type and subtype.
 		/// </summary>
+		/// <remarks>
+		/// If the specified <paramref name="mediaType"/> or <paramref name="mediaSubtype"/>
+		/// are <c>"*"</c>, they match anything.
+		/// </remarks>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -254,9 +298,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.ContentType"/> to a string,
+		/// Serializes the <see cref="ContentType"/> to a string,
 		/// optionally encoding the parameters.
 		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentType"/>, optionally encoding
+		/// the parameters as they would be encoded for transport.
+		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
 		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
@@ -288,6 +336,9 @@ namespace MimeKit {
 		/// Returns a <see cref="System.String"/> that represents the current
 		/// <see cref="MimeKit.ContentType"/>.
 		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentType"/>.
+		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current
 		/// <see cref="MimeKit.ContentType"/>.</returns>
 		public override string ToString ()
@@ -355,7 +406,7 @@ namespace MimeKit {
 				return false;
 
 			start = index;
-			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+			if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Invalid atom token at position {0}", start), start, index);
 

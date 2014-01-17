@@ -20,6 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <NoWarn>612</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -35,37 +36,76 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Security" />
+    <Reference Include="System.Core" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ContentTypeTests.cs" />
-    <Compile Include="InternetAddressListTests.cs" />
-    <Compile Include="DateParserTests.cs" />
-    <Compile Include="MimeParserTests.cs" />
-    <Compile Include="HeaderTests.cs" />
-    <Compile Include="ChainedStreamTests.cs" />
-    <Compile Include="MessagePartialTests.cs" />
-    <Compile Include="AssortedTests.cs" />
-    <Compile Include="MemoryBlockStreamTests.cs" />
-    <Compile Include="ConstructorTests.cs" />
-    <Compile Include="MimeMessageTests.cs" />
-    <Compile Include="SecureMimeTests.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
       <Project>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</Project>
       <Name>MimeKit</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
+      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
+      <Name>BouncyCastle</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssortedTests.cs" />
+    <Compile Include="ChainedStreamTests.cs" />
+    <Compile Include="ConstructorTests.cs" />
+    <Compile Include="ContentTypeTests.cs" />
+    <Compile Include="DateParserTests.cs" />
+    <Compile Include="DummyOpenPgpContext.cs" />
+    <Compile Include="DummySecureMimeContext.cs" />
+    <Compile Include="HeaderTests.cs" />
+    <Compile Include="InternetAddressListTests.cs" />
+    <Compile Include="MemoryBlockStreamTests.cs" />
+    <Compile Include="MessagePartialTests.cs" />
+    <Compile Include="MimeMessageTests.cs" />
+    <Compile Include="MimeParserTests.cs" />
+    <Compile Include="PgpMimeTests.cs" />
+    <Compile Include="SecureMimeTests.cs" />
+    <Compile Include="X509CertificateStoreTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\mbox\jwz.mbox.txt" />
+    <None Include="TestData\mbox\jwz-summary.txt" />
+    <None Include="TestData\mbox\simple.mbox.txt" />
+    <None Include="TestData\messages\empty-multipart.txt" />
+    <None Include="TestData\messages\multipart-digest.txt" />
+    <None Include="TestData\messages\rfc2060.txt" />
+    <None Include="TestData\openpgp\mimekit.gpg.pub" />
+    <None Include="TestData\openpgp\mimekit.gpg.sec" />
+    <None Include="TestData\partial\message-partial.1.msg.txt" />
+    <None Include="TestData\partial\message-partial.2.msg.txt" />
+    <None Include="TestData\smime\certificate-authority.crt" />
+    <None Include="TestData\smime\certificate-authority.key" />
+    <None Include="TestData\smime\gencerts.sh" />
+    <None Include="TestData\smime\smime.crt" />
+    <None Include="TestData\smime\smime.csr" />
+    <None Include="TestData\smime\smime.key" />
+    <None Include="TestData\smime\smime.p12" />
+    <None Include="TestData\smime\StartComCertificationAuthority.crt" />
+    <None Include="TestData\smime\StartComClass1PrimaryIntermediateClientCA.crt" />
+    <None Include="TestData\smime\thunderbird-signed.txt" />
+    <None Include="..\lib\sqlite3.dll">
+      <Link>sqlite3.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestData\" />
     <Folder Include="TestData\mbox\" />
+    <Folder Include="TestData\messages\" />
+    <Folder Include="TestData\openpgp\" />
+    <Folder Include="TestData\smime\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="TestData\mbox\simple.mbox.txt" />
-    <None Include="TestData\partial\message-partial.1.msg.txt" />
-    <None Include="TestData\partial\message-partial.2.msg.txt" />
-    <None Include="TestData\mbox\jwz.mbox.txt" />
-    <None Include="TestData\mbox\jwz-summary.txt" />
-  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+    <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
+  </Target>
+  -->
 </Project>

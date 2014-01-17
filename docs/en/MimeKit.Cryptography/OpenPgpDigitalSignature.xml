@@ -1,0 +1,119 @@
+<Type Name="OpenPgpDigitalSignature" FullName="MimeKit.Cryptography.OpenPgpDigitalSignature">
+  <TypeSignature Language="C#" Value="public class OpenPgpDigitalSignature : MimeKit.Cryptography.IDigitalSignature" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit OpenPgpDigitalSignature extends System.Object implements class MimeKit.Cryptography.IDigitalSignature" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>MimeKit.Cryptography.IDigitalSignature</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            An OpenPGP digital signature.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="CreationDate">
+      <MemberSignature Language="C#" Value="public DateTime CreationDate { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime CreationDate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTime</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the creation date of the digital signature.
+            </summary>
+        <value>The creation date.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DigestAlgorithm">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.DigestAlgorithm DigestAlgorithm { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.DigestAlgorithm DigestAlgorithm" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the digest algorithm used for the signature.
+            </summary>
+        <value>The digest algorithm.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PublicKeyAlgorithm">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the public key algorithm used for the signature.
+            </summary>
+        <value>The public key algorithm.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SignerCertificate">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.IDigitalCertificate SignerCertificate { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Cryptography.IDigitalCertificate SignerCertificate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.IDigitalCertificate</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets certificate used by the signer.
+            </summary>
+        <value>The signer's certificate.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Verify">
+      <MemberSignature Language="C#" Value="public bool Verify ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Verify() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Verify the digital signature.
+            </summary>
+        <returns>
+          <c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException">
+            An error verifying the signature has occurred.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -35,6 +35,12 @@ namespace MimeKit.IO
 	/// get access to the internal byte buffer in order to drastically improve
 	/// performance.
 	/// </summary>
+	/// <remarks>
+	/// Instead of resizing an internal byte array, the <see cref="MemoryBlockStream"/>
+	/// chains blocks of non-contiguous memory. This helps improve performance by avoiding
+	/// unneeded copying of data from the old array to the newly allocated array as well
+	/// as the zeroing of the newly allocated array.
+	/// </remarks>
 	public class MemoryBlockStream : Stream
 	{
 		const long MaxCapacity = int.MaxValue * BlockSize;
@@ -47,6 +53,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.MemoryBlockStream"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block
+		/// of 2048 bytes.
+		/// </remarks>
 		public MemoryBlockStream ()
 		{
 			blocks.Add (new byte[BlockSize]);
@@ -55,6 +65,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Copies the memory stream into a byte array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the stream data into a newly allocated byte array.
+		/// </remarks>
 		/// <returns>The array.</returns>
 		public byte[] ToArray ()
 		{
@@ -87,9 +100,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always readable.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return true; }
 		}
@@ -97,9 +111,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always writable.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -107,9 +122,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> is always seekable.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return true; }
 		}
@@ -117,19 +133,18 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Checks whether or not reading and writing to the stream can timeout.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="MemoryBlockStream"/> does not support timing out.
+		/// </remarks>
+		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
 
 		/// <summary>
-		/// Gets the length of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
-		/// <value>
-		/// The length of the stream.
-		/// </value>
+		/// <value>The length of the stream, in bytes.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -142,16 +157,17 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Gets or sets the position of the stream.
+		/// Gets or sets the position within the current stream.
 		/// </summary>
-		/// <value>
-		/// The position of the stream.
-		/// </value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The stream has been disposed.
+		/// <value>The position of the stream.</value>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
 		/// </exception>
 		public override long Position {
 			get { return position; }
@@ -171,19 +187,28 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Reads data into the specified buffer.
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset into the buffer to start reading data.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
@@ -213,22 +238,32 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Writes the specified buffer.
+		/// Writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset of the first byte to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
+		/// <remarks>
+		/// Writes the entire buffer to the buffer, adding memory blocks as needed.
+		/// </remarks>
+		/// <param name='buffer'>The buffer to write.</param>
+		/// <param name='offset'>The offset of the first byte to write.</param>
+		/// <param name='count'>The number of bytes to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
@@ -263,19 +298,16 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Seeks to the specified offset.
+		/// Sets the position within the current stream.
 		/// </summary>
-		/// <param name='offset'>
-		/// The offset from the specified origin.
-		/// </param>
-		/// <param name='origin'>
-		/// The origin from which to seek.
-		/// </param>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The stream has been disposed.
-		/// </exception>
+		/// <returns>The new position within the stream.</returns>
+		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
+		/// <param name="origin">The origin to seek from.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -320,13 +352,11 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Flushes any internal output buffers.
+		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
 		/// </summary>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The stream does not support writing.
 		/// </exception>
 		public override void Flush ()
 		{
@@ -336,11 +366,9 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Sets the length.
+		/// Sets the length of the stream.
 		/// </summary>
-		/// <param name='value'>
-		/// The new length.
-		/// </param>
+		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is out of range.
 		/// </exception>
@@ -383,9 +411,13 @@ namespace MimeKit.IO
 		#endregion
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Disposes the stream.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <remarks>
+		/// Sets the internal disposed state to <c>true</c>.
+		/// </remarks>
+		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
+		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

@@ -1,0 +1,211 @@
+<Type Name="QuotedPrintableDecoder" FullName="MimeKit.Encodings.QuotedPrintableDecoder">
+  <TypeSignature Language="C#" Value="public class QuotedPrintableDecoder : MimeKit.Encodings.IMimeDecoder" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit QuotedPrintableDecoder extends System.Object implements class MimeKit.Encodings.IMimeDecoder" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>MimeKit.Encodings.IMimeDecoder</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            Incrementally decodes content encoded with the quoted-printable encoding.
+            </summary>
+    <remarks>
+            Quoted-Printable is an encoding often used in MIME to textual content outside
+            of the ASCII range in order to ensure that the text remains intact when sent
+            via 7bit transports such as SMTP.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public QuotedPrintableDecoder ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.QuotedPrintableDecoder" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public QuotedPrintableDecoder (bool rfc2047);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(bool rfc2047) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="rfc2047" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="rfc2047">
+          <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.QuotedPrintableDecoder" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public MimeKit.Encodings.IMimeDecoder Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Encodings.IMimeDecoder Clone() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Encodings.IMimeDecoder</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Clone the <see cref="T:MimeKit.Encodings.QuotedPrintableDecoder" /> with its current state.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Encodings.QuotedPrintableDecoder" /> with identical state.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decode">
+      <MemberSignature Language="C#" Value="public int Decode (byte* input, int length, byte* output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Decode(unsigned int8* input, int32 length, unsigned int8* output) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte*" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="output" Type="System.Byte*" />
+      </Parameters>
+      <Docs>
+        <param name="input">A pointer to the beginning of the input buffer.</param>
+        <param name="length">The length of the input buffer.</param>
+        <param name="output">A pointer to the beginning of the output buffer.</param>
+        <summary>
+            Decodes the specified input into the output buffer.
+            </summary>
+        <returns>The number of bytes written to the output buffer.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Decode">
+      <MemberSignature Language="C#" Value="public int Decode (byte[] input, int startIndex, int length, byte[] output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Decode(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="output" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer.</param>
+        <param name="output">The output buffer.</param>
+        <summary>
+            Decodes the specified input into the output buffer.
+            </summary>
+        <returns>The number of bytes written to the output buffer.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="input" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="output" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="startIndex" /> and <paramref name="length" /> do not specify
+            a valid range in the <paramref name="input" /> byte array.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="output" /> is not large enough to contain the encoded content.</para>
+          <para>Use the <see cref="M:MimeKit.Encodings.QuotedPrintableDecoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+            necessary length of the <paramref name="output" /> byte array.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding Encoding { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the encoding.
+            </summary>
+        <value>The encoding.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EstimateOutputLength">
+      <MemberSignature Language="C#" Value="public int EstimateOutputLength (int inputLength);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 EstimateOutputLength(int32 inputLength) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="inputLength" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="inputLength">The input length.</param>
+        <summary>
+            Estimates the length of the output.
+            </summary>
+        <returns>The estimated output length.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reset">
+      <MemberSignature Language="C#" Value="public void Reset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Resets the decoder.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

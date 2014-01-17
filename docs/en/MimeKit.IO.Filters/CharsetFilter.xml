@@ -1,0 +1,214 @@
+<Type Name="CharsetFilter" FullName="MimeKit.IO.Filters.CharsetFilter">
+  <TypeSignature Language="C#" Value="public class CharsetFilter : MimeKit.IO.Filters.MimeFilterBase" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CharsetFilter extends MimeKit.IO.Filters.MimeFilterBase" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A charset filter for incrementally converting text streams from
+            one charset encoding to another.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public CharsetFilter (int sourceCodePage, int targetCodePage);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 sourceCodePage, int32 targetCodePage) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="sourceCodePage" Type="System.Int32" />
+        <Parameter Name="targetCodePage" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="sourceCodePage">
+            Source code page.
+            </param>
+        <param name="targetCodePage">
+            Target code page.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="sourceCodePage" /> is less than zero or greater than 65535.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetCodePage" /> is less than zero or greater than 65535.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>The <paramref name="sourceCodePage" /> is not supported by the system.</para>
+          <para>-or-</para>
+          <para>The <paramref name="targetCodePage" /> is not supported by the system.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public CharsetFilter (string sourceEncodingName, string targetEncodingName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string sourceEncodingName, string targetEncodingName) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="sourceEncodingName" Type="System.String" />
+        <Parameter Name="targetEncodingName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="sourceEncodingName">
+            Source encoding name.
+            </param>
+        <param name="targetEncodingName">
+            Target encoding name.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="sourceEncodingName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetEncodingName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>The <paramref name="sourceEncodingName" /> is not supported by the system.</para>
+          <para>-or-</para>
+          <para>The <paramref name="targetEncodingName" /> is not supported by the system.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public CharsetFilter (System.Text.Encoding sourceEncoding, System.Text.Encoding targetEncoding);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding sourceEncoding, class System.Text.Encoding targetEncoding) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="sourceEncoding" Type="System.Text.Encoding" />
+        <Parameter Name="targetEncoding" Type="System.Text.Encoding" />
+      </Parameters>
+      <Docs>
+        <param name="sourceEncoding">
+            Source encoding.
+            </param>
+        <param name="targetEncoding">
+            Target encoding.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="sourceEncoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="targetEncoding" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Filter">
+      <MemberSignature Language="C#" Value="protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="System.Byte[]" />
+        <Parameter Name="startIndex" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+        <Parameter Name="outputIndex" Type="System.Int32&amp;" RefType="out" />
+        <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
+        <Parameter Name="flush" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The length of the input buffer, starting at <paramref name="startIndex" />.</param>
+        <param name="outputIndex">The output index.</param>
+        <param name="outputLength">The output length.</param>
+        <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+        <summary>
+            Filter the specified input.
+            </summary>
+        <returns>The filtered output.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reset">
+      <MemberSignature Language="C#" Value="public override void Reset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Reset() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Resets the filter.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SourceEncoding">
+      <MemberSignature Language="C#" Value="public System.Text.Encoding SourceEncoding { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding SourceEncoding" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Text.Encoding</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the source encoding.
+            </summary>
+        <value>
+            The source encoding.
+            </value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TargetEncoding">
+      <MemberSignature Language="C#" Value="public System.Text.Encoding TargetEncoding { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding TargetEncoding" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Text.Encoding</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the target encoding.
+            </summary>
+        <value>
+            The target encoding.
+            </value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -28,7 +28,13 @@ using System;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
+using System.Net.Mail;
+
+#if !__MIMEKIT_LITE__
+using MimeKit.Cryptography;
+#endif
 
 using MimeKit.Utils;
 using MimeKit.IO;
@@ -41,11 +47,16 @@ namespace MimeKit {
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly string[] StandardAddressHeaders = new string[] {
-			"Sender", "From", "Reply-To", "To", "Cc", "Bcc"
+			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
+			"From", "Reply-To", "To", "Cc", "Bcc"
 		};
 
 		readonly Dictionary<string, InternetAddressList> addresses;
 		readonly MessageIdList references;
+		MailboxAddress resentSender;
+		DateTimeOffset resentDate;
+		string resentMessageId;
+		MailboxAddress sender;
 		DateTimeOffset date;
 		string messageId;
 		string inreplyto;
@@ -189,11 +200,71 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Sender header.
+		/// Gets or sets the address in the Sender header.
 		/// </summary>
-		/// <value>The list of addresses in the Sender header.</value>
-		public InternetAddressList Sender {
-			get { return addresses["Sender"]; }
+		/// <value>The address in the Sender header.</value>
+		public MailboxAddress Sender {
+			get { return sender; }
+			set {
+				if (value == sender)
+					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll (HeaderId.Sender);
+					Headers.Changed += HeadersChanged;
+					sender = null;
+					return;
+				}
+
+				var builder = new StringBuilder ();
+				int len = "Sender: ".Length;
+
+				value.Encode (FormatOptions.Default, builder, ref len);
+				builder.Append (FormatOptions.Default.NewLine);
+
+				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+
+				Headers.Changed -= HeadersChanged;
+				Headers.Replace (new Header (Headers.Options, "Sender", raw));
+				Headers.Changed += HeadersChanged;
+
+				sender = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the address in the Resent-Sender header.
+		/// </summary>
+		/// <value>The address in the Resent-Sender header.</value>
+		public MailboxAddress ResentSender {
+			get { return resentSender; }
+			set {
+				if (value == resentSender)
+					return;
+
+				if (value == null) {
+					Headers.Changed -= HeadersChanged;
+					Headers.RemoveAll (HeaderId.ResentSender);
+					Headers.Changed += HeadersChanged;
+					resentSender = null;
+					return;
+				}
+
+				var builder = new StringBuilder ();
+				int len = "Resent-Sender: ".Length;
+
+				value.Encode (FormatOptions.Default, builder, ref len);
+				builder.Append (FormatOptions.Default.NewLine);
+
+				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+
+				Headers.Changed -= HeadersChanged;
+				Headers.Replace (new Header (Headers.Options, "Resent-Sender", raw));
+				Headers.Changed += HeadersChanged;
+
+				resentSender = value;
+			}
 		}
 
 		/// <summary>
@@ -205,11 +276,27 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-From header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-From header.</value>
+		public InternetAddressList ResentFrom {
+			get { return addresses["Resent-From"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Reply-To header.
 		/// </summary>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
 			get { return addresses["Reply-To"]; }
+		}
+
+		/// <summary>
+		/// Gets the list of addresses in the Resent-Reply-To header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Reply-To header.</value>
+		public InternetAddressList ResentReplyTo {
+			get { return addresses["Resent-Reply-To"]; }
 		}
 
 		/// <summary>
@@ -221,6 +308,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-To header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-To header.</value>
+		public InternetAddressList ResentTo {
+			get { return addresses["Resent-To"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Cc header.
 		/// </summary>
 		/// <value>The list of addresses in the Cc header.</value>
@@ -229,11 +324,27 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the list of addresses in the Resent-Cc header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Cc header.</value>
+		public InternetAddressList ResentCc {
+			get { return addresses["Resent-Cc"]; }
+		}
+
+		/// <summary>
 		/// Gets the list of addresses in the Bcc header.
 		/// </summary>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
 			get { return addresses["Bcc"]; }
+		}
+
+		/// <summary>
+		/// Gets the list of addresses in the Resent-Bcc header.
+		/// </summary>
+		/// <value>The list of addresses in the Resent-Bcc header.</value>
+		public InternetAddressList ResentBcc {
+			get { return addresses["Resent-Bcc"]; }
 		}
 
 		/// <summary>
@@ -265,11 +376,29 @@ namespace MimeKit {
 				if (date == value)
 					return;
 
+				Headers.Changed -= HeadersChanged;
+				Headers["Date"] = DateUtils.FormatDate (value);
+				Headers.Changed += HeadersChanged;
+
 				date = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the Resent-Date of the message.
+		/// </summary>
+		/// <value>The Resent-Date of the message.</value>
+		public DateTimeOffset ResentDate {
+			get { return resentDate; }
+			set {
+				if (resentDate == value)
+					return;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = DateUtils.FormatDate (date);
+				Headers["Resent-Date"] = DateUtils.FormatDate (value);
 				Headers.Changed += HeadersChanged;
+
+				resentDate = value;
 			}
 		}
 
@@ -296,8 +425,9 @@ namespace MimeKit {
 
 				if (value == null) {
 					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll ("In-Reply-To");
+					Headers.RemoveAll (HeaderId.InReplyTo);
 					Headers.Changed += HeadersChanged;
+					inreplyto = null;
 					return;
 				}
 
@@ -351,6 +481,40 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the Resent-Message-Id header.
+		/// </summary>
+		/// <value>The Resent-Message-Id.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
+		public string ResentMessageId {
+			get { return resentMessageId; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				if (resentMessageId == value)
+					return;
+
+				var buffer = Encoding.ASCII.GetBytes (value);
+				InternetAddress addr;
+				int index = 0;
+
+				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
+
+				resentMessageId = "<" + ((MailboxAddress) addr).Address + ">";
+
+				Headers.Changed -= HeadersChanged;
+				Headers["Resent-Message-Id"] = resentMessageId;
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the MIME-Version.
 		/// </summary>
 		/// <value>The MIME version.</value>
@@ -383,16 +547,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the message to the specified stream.
+		/// Writes the message to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -410,14 +581,22 @@ namespace MimeKit {
 				MimeVersion = new Version (1, 0);
 
 			if (Body == null) {
-				Headers.WriteTo (stream);
+				Headers.WriteTo (options, stream, cancellationToken);
 
+				cancellationToken.ThrowIfCancellationRequested ();
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			} else {
+				cancellationToken.ThrowIfCancellationRequested ();
+
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					foreach (var header in MergeHeaders ()) {
+						if (options.HiddenHeaders.Contains (header.Id))
+							continue;
+
+						cancellationToken.ThrowIfCancellationRequested ();
+
 						var name = Encoding.ASCII.GetBytes (header.Field);
 
 						filtered.Write (name, 0, name.Length);
@@ -429,21 +608,351 @@ namespace MimeKit {
 				}
 
 				options.WriteHeaders = false;
-				Body.WriteTo (options, stream);
+				Body.WriteTo (options, stream, cancellationToken);
 			}
 		}
 
 		/// <summary>
-		/// Writes the message to the specified stream.
+		/// Writes the message to the specified output stream.
 		/// </summary>
-		/// <param name="stream">The stream.</param>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream)
+		{
+			WriteTo (options, stream, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (Stream stream, CancellationToken cancellationToken)
+		{
+			WriteTo (FormatOptions.Default, stream, cancellationToken);
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public void WriteTo (Stream stream)
 		{
 			WriteTo (FormatOptions.Default, stream);
 		}
+
+		MailboxAddress GetMessageSigner ()
+		{
+			if (ResentSender != null)
+				return ResentSender;
+
+			if (ResentFrom.Count > 0)
+				return ResentFrom.Mailboxes.FirstOrDefault ();
+
+			if (Sender != null)
+				return Sender;
+
+			if (From.Count > 0)
+				return From.Mailboxes.FirstOrDefault ();
+
+			return null;
+		}
+
+		IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
+		{
+			var recipients = new List<MailboxAddress> ();
+
+			if (ResentSender != null || ResentFrom.Count > 0) {
+				if (includeSenders) {
+					if (ResentSender != null)
+						recipients.Add (ResentSender);
+
+					if (ResentFrom.Count > 0)
+						recipients.AddRange (ResentFrom.Mailboxes);
+				}
+
+				recipients.AddRange (ResentTo.Mailboxes);
+				recipients.AddRange (ResentCc.Mailboxes);
+				recipients.AddRange (ResentBcc.Mailboxes);
+			} else {
+				if (includeSenders) {
+					if (Sender != null)
+						recipients.Add (Sender);
+
+					if (From.Count > 0)
+						recipients.AddRange (From.Mailboxes);
+				}
+
+				recipients.AddRange (To.Mailboxes);
+				recipients.AddRange (Cc.Mailboxes);
+				recipients.AddRange (Bcc.Mailboxes);
+			}
+
+			return recipients;
+		}
+
+		#if !__MIMEKIT_LITE__
+		/// <summary>
+		/// Sign the message using the specified cryptography context and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body);
+		}
+
+		/// <summary>
+		/// Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public void Sign (CryptographyContext ctx)
+		{
+			Sign (ctx, DigestAlgorithm.Sha1);
+		}
+
+		/// <summary>
+		/// Encrypt the message to the sender and all of the recipients
+		/// using the specified cryptography context.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void Encrypt (CryptographyContext ctx)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var recipients = GetMessageRecipients (true);
+			if (recipients.Count == 0)
+				throw new InvalidOperationException ("No recipients have been set.");
+
+			if (ctx is SecureMimeContext) {
+				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
+			} else if (ctx is OpenPgpContext) {
+				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, recipients, Body);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+			}
+		}
+
+		/// <summary>
+		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the specified digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>The sender has been specified.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			var recipients = GetMessageRecipients (true);
+			if (recipients.Count == 0)
+				throw new InvalidOperationException ("No recipients have been set.");
+
+			if (ctx is SecureMimeContext) {
+				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
+			} else if (ctx is OpenPgpContext) {
+				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+			}
+		}
+
+		/// <summary>
+		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>The sender has been specified.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public void SignAndEncrypt (CryptographyContext ctx)
+		{
+			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
+		}
+		#endif // __MIMEKIT_LITE__
 
 		IEnumerable<Header> MergeHeaders ()
 		{
@@ -489,9 +998,9 @@ namespace MimeKit {
 			Headers.Changed += HeadersChanged;
 		}
 
-		void InternetAddressListChanged (object sender, EventArgs e)
+		void InternetAddressListChanged (object addrlist, EventArgs e)
 		{
-			var list = (InternetAddressList) sender;
+			var list = (InternetAddressList) addrlist;
 
 			foreach (var name in StandardAddressHeaders) {
 				if (addresses[name] == list) {
@@ -501,7 +1010,7 @@ namespace MimeKit {
 			}
 		}
 
-		void ReferencesChanged (object sender, EventArgs e)
+		void ReferencesChanged (object o, EventArgs e)
 		{
 			if (references.Count > 0) {
 				int lineLength = "References".Length + 1;
@@ -531,7 +1040,7 @@ namespace MimeKit {
 				Headers.Changed += HeadersChanged;
 			} else {
 				Headers.Changed -= HeadersChanged;
-				Headers.RemoveAll ("References");
+				Headers.RemoveAll (HeaderId.References);
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -551,14 +1060,14 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadAddressList (string field, InternetAddressList list)
+		void ReloadAddressList (HeaderId id, InternetAddressList list)
 		{
 			// clear the address list and reload
 			list.Changed -= InternetAddressListChanged;
 			list.Clear ();
 
 			foreach (var header in Headers) {
-				if (icase.Compare (header.Field, field) != 0)
+				if (header.Id != id)
 					continue;
 
 				int length = header.RawValue.Length;
@@ -574,53 +1083,102 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadHeader (HeaderId type, string field)
+		void ReloadHeader (HeaderId id)
 		{
-			if (type == HeaderId.Unknown)
+			if (id == HeaderId.Unknown)
 				return;
 
-			if (type == HeaderId.References) {
+			switch (id) {
+			case HeaderId.ResentMessageId:
+				resentMessageId = null;
+				break;
+			case HeaderId.ResentSender:
+				resentSender = null;
+				break;
+			case HeaderId.ResentDate:
+				resentDate = DateTimeOffset.MinValue;
+				break;
+			case HeaderId.References:
 				references.Changed -= ReferencesChanged;
 				references.Clear ();
 				references.Changed += ReferencesChanged;
-			} else if (type == HeaderId.InReplyTo)
+				break;
+			case HeaderId.InReplyTo:
 				inreplyto = null;
+				break;
+			case HeaderId.MessageId:
+				messageId = null;
+				break;
+			case HeaderId.Sender:
+				sender = null;
+				break;
+			case HeaderId.Date:
+				date = DateTimeOffset.MinValue;
+				break;
+			}
 
 			foreach (var header in Headers) {
-				if (icase.Compare (header.Field, field) != 0)
+				if (header.Id != id)
 					continue;
 
-				switch (type) {
+				var rawValue = header.RawValue;
+				InternetAddress address;
+				int index = 0;
+
+				switch (id) {
 				case HeaderId.MimeVersion:
-					if (MimeUtils.TryParseVersion (header.RawValue, 0, header.RawValue.Length, out version))
+					if (MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version))
 						return;
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
 						references.Add (msgid);
 					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentMessageId:
+					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					if (resentMessageId != null)
+						return;
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					if (messageId != null)
 						return;
 					break;
+				case HeaderId.ResentSender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						resentSender = address as MailboxAddress;
+					if (resentSender != null)
+						return;
+					break;
+				case HeaderId.Sender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						sender = address as MailboxAddress;
+					if (sender != null)
+						return;
+					break;
+				case HeaderId.ResentDate:
+					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate))
+						return;
+					break;
 				case HeaderId.Date:
-					if (DateUtils.TryParseDateTime (header.RawValue, 0, header.RawValue.Length, out date))
+					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date))
 						return;
 					break;
 				}
 			}
 		}
 
-		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		void HeadersChanged (object o, HeaderListChangedEventArgs e)
 		{
-			var type = e.Header.Field.ToHeaderId ();
 			InternetAddressList list;
+			InternetAddress address;
+			byte[] rawValue;
+			int index = 0;
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
@@ -629,35 +1187,51 @@ namespace MimeKit {
 					break;
 				}
 
-				switch (type) {
+				rawValue = e.Header.RawValue;
+
+				switch (e.Header.Id) {
 				case HeaderId.MimeVersion:
-					MimeUtils.TryParseVersion (e.Header.RawValue, 0, e.Header.RawValue.Length, out version);
+					MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version);
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length))
+					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
 						references.Add (msgid);
 					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
+					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentMessageId:
+					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (e.Header.RawValue, 0, e.Header.RawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					break;
+				case HeaderId.ResentSender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						resentSender = address as MailboxAddress;
+					break;
+				case HeaderId.Sender:
+					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
+						sender = address as MailboxAddress;
+					break;
+				case HeaderId.ResentDate:
+					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate);
 					break;
 				case HeaderId.Date:
-					DateUtils.TryParseDateTime (e.Header.RawValue, 0, e.Header.RawValue.Length, out date);
+					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date);
 					break;
 				}
 				break;
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
 				if (addresses.TryGetValue (e.Header.Field, out list)) {
-					ReloadAddressList (e.Header.Field, list);
+					ReloadAddressList (e.Header.Id, list);
 					break;
 				}
 
-				ReloadHeader (type, e.Header.Field);
+				ReloadHeader (e.Header.Id);
 				break;
 			case HeaderListChangedAction.Cleared:
 				foreach (var kvp in addresses) {
@@ -670,13 +1244,361 @@ namespace MimeKit {
 				references.Clear ();
 				references.Changed += ReferencesChanged;
 
+				resentMessageId = null;
+				resentSender = null;
 				inreplyto = null;
 				messageId = null;
 				version = null;
+				sender = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ();
 			}
 		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, Stream stream, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new MimeParser (options, stream, MimeFormat.Entity);
+
+			return parser.ParseMessage (cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (Stream stream, CancellationToken cancellationToken)
+		{
+			return Load (ParserOptions.Default, stream, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, Stream stream)
+		{
+			return Load (options, stream, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (Stream stream)
+		{
+			return Load (ParserOptions.Default, stream, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, string fileName, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName)) {
+				return Load (options, stream, cancellationToken);
+			}
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (string fileName, CancellationToken cancellationToken)
+		{
+			return Load (ParserOptions.Default, fileName, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, string fileName)
+		{
+			return Load (options, fileName, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified file.
+		/// </summary>
+		/// <returns>The parsed message.</returns>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (string fileName)
+		{
+			return Load (ParserOptions.Default, fileName, CancellationToken.None);
+		}
+
+		#region System.Net.Mail support
+
+		static System.Net.Mime.ContentType GetContentType (ContentType contentType)
+		{
+			var ctype = new System.Net.Mime.ContentType ();
+			ctype.MediaType = string.Format ("{0}/{1}", contentType.MediaType, contentType.MediaSubtype);
+
+			foreach (var param in contentType.Parameters)
+				ctype.Parameters.Add (param.Name, param.Value);
+
+			return ctype;
+		}
+
+		static System.Net.Mime.TransferEncoding GetTransferEncoding (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.QuotedPrintable:
+			case ContentEncoding.EightBit:
+				return System.Net.Mime.TransferEncoding.QuotedPrintable;
+			case ContentEncoding.SevenBit:
+				return System.Net.Mime.TransferEncoding.SevenBit;
+			default:
+				return System.Net.Mime.TransferEncoding.Base64;
+			}
+		}
+
+		static void AddBodyPart (MailMessage message, MimeEntity entity)
+		{
+			if (entity is MessagePart) {
+				// FIXME: how should this be converted into a MailMessage?
+			} else if (entity is Multipart) {
+				var multipart = (Multipart) entity;
+
+				if (multipart.ContentType.Matches ("multipart", "alternative")) {
+					foreach (var part in multipart.OfType<MimePart> ()) {
+						// clone the content
+						var content = new MemoryStream ();
+						part.ContentObject.DecodeTo (content);
+						content.Position = 0;
+
+						var view = new AlternateView (content, GetContentType (part.ContentType));
+						view.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
+						if (!string.IsNullOrEmpty (part.ContentId))
+							view.ContentId = part.ContentId;
+
+						message.AlternateViews.Add (view);
+					}
+				} else {
+					foreach (var part in multipart)
+						AddBodyPart (message, part);
+				}
+			} else {
+				var part = (MimePart) entity;
+
+				if (part.IsAttachment || !string.IsNullOrEmpty (message.Body) || !(part is TextPart)) {
+					// clone the content
+					var content = new MemoryStream ();
+					part.ContentObject.DecodeTo (content);
+					content.Position = 0;
+
+					var attachment = new Attachment (content, GetContentType (part.ContentType));
+
+					if (part.ContentDisposition != null) {
+						attachment.ContentDisposition.DispositionType = part.ContentDisposition.Disposition;
+						foreach (var param in part.ContentDisposition.Parameters)
+							attachment.ContentDisposition.Parameters.Add (param.Name, param.Value);
+					}
+
+					attachment.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
+
+					if (!string.IsNullOrEmpty (part.ContentId))
+						attachment.ContentId = part.ContentId;
+
+					message.Attachments.Add (attachment);
+				} else {
+					message.IsBodyHtml = part.ContentType.Matches ("text", "html");
+					message.Body = ((TextPart) part).Text;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="MimeMessage"/> to a
+		/// <see cref="System.Net.Mail.MailMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// <para>Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
+		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.</para>
+		/// <para>It should be noted, however, that <see cref="System.Net.Mail.MailMessage"/>
+		/// cannot represent all MIME structures that can be constructed using MimeKit,
+		/// so the conversion may not be perfect.</para>
+		/// </remarks>
+		/// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
+		/// <param name="message">The message.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="message"/> is <c>null</c>.
+		/// </exception>
+		public static explicit operator MailMessage (MimeMessage message)
+		{
+			if (message == null)
+				throw new ArgumentNullException ("message");
+
+			var from = message.From.Mailboxes.FirstOrDefault ();
+			var msg = new MailMessage ();
+			var sender = message.Sender;
+
+			foreach (var header in message.Headers)
+				msg.Headers.Add (header.Field, header.Value);
+
+			if (sender != null)
+				msg.Sender = (MailAddress) sender;
+
+			if (from != null)
+				msg.From = (MailAddress) from;
+
+			foreach (var mailbox in message.ReplyTo.Mailboxes)
+				msg.ReplyToList.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.To.Mailboxes)
+				msg.To.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.Cc.Mailboxes)
+				msg.CC.Add ((MailAddress) mailbox);
+
+			foreach (var mailbox in message.Bcc.Mailboxes)
+				msg.Bcc.Add ((MailAddress) mailbox);
+
+			msg.Subject = message.Subject;
+
+			if (message.Body != null)
+				AddBodyPart (msg, message.Body);
+
+			return msg;
+		}
+
+		#endregion
 	}
 }

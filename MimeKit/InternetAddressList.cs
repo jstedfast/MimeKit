@@ -58,6 +58,31 @@ namespace MimeKit {
 		{
 		}
 
+		/// <summary>
+		/// Recursively gets all of the mailboxes contained within the <see cref="MimeKit.InternetAddressList"/>.
+		/// </summary>
+		/// <remarks>
+		/// This API is useful for collecting a flattened list of <see cref="MimeKit.MailboxAddress"/>
+		/// recipients for use with sending via SMTP or for encrypting via S/MIME or PGP/MIME.
+		/// </remarks>
+		/// <value>The mailboxes.</value>
+		public IEnumerable<MailboxAddress> Mailboxes {
+			get {
+				foreach (var address in list) {
+					var group = address as GroupAddress;
+
+					if (group != null) {
+						foreach (var mailbox in group.Members.Mailboxes)
+							yield return mailbox;
+					} else {
+						yield return (MailboxAddress) address;
+					}
+				}
+
+				yield break;
+			}
+		}
+
 		#region IList implementation
 
 		/// <summary>
@@ -313,8 +338,12 @@ namespace MimeKit {
 
 		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
-			foreach (var addr in list)
-				addr.Encode (options, builder, ref lineLength);
+			for (int i = 0; i < list.Count; i++) {
+				if (i > 0)
+					builder.Append (", ");
+
+				list[i].Encode (options, builder, ref lineLength);
+			}
 		}
 
 		/// <summary>

@@ -69,19 +69,24 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="Base64Decoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		/// <returns>A new <see cref="Base64Decoder"/> with identical state.</returns>
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			var decoder = new Base64Decoder ();
+
+			decoder.saved = saved;
+			decoder.bytes = bytes;
+			decoder.npad = npad;
+
+			return decoder;
 		}
 
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.Base64; }
 		}
@@ -89,12 +94,8 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
-		/// <returns>
-		/// The estimated output length.
-		/// </returns>
-		/// <param name='inputLength'>
-		/// The input length.
-		/// </param>
+		/// <returns>The estimated output length.</returns>
+		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// may require up to 3 padding bytes
@@ -122,18 +123,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// A pointer to the beginning of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// A pointer to the beginning of the output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -189,21 +182,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// The output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -214,9 +197,9 @@ namespace MimeKit.Encodings {
 		/// a valid range in the <paramref name="input"/> byte array.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="output"/> is not large enough to contain the decoded content.
-		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
 		public int Decode (byte[] input, int startIndex, int length, byte[] output)
 		{

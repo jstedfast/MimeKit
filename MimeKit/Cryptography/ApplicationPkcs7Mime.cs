@@ -27,17 +27,17 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography.Pkcs;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
 	/// </summary>
-	public class ApplicationPkcs7Mime : MimePart
+	public sealed class ApplicationPkcs7Mime : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPkcs7Mime (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -46,6 +46,15 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new MIME part with a Content-Type of application/pkcs7-mime
+		/// and the <paramref name="stream"/> as its content.</para>
+		/// <para>Unless you are writing your own pkcs7 implementation, you'll probably
+		/// want to use the <see cref="Compress(MimeEntity)"/>,
+		/// <see cref="Encrypt(CmsRecipientCollection, MimeEntity)"/>, and/or
+		/// <see cref="Sign(CmsSigner, MimeEntity)"/> method to create new instances
+		/// of this class.</para>
+		/// </remarks>
 		/// <param name="type">The S/MIME type.</param>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -113,81 +122,68 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// Decompress using the specified <see cref="SecureMimeContext"/>.
 		/// </summary>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
-		/// <param name="recipients">The list of recipients that can decrypt this application/pkcs7-mime part.</param>
-		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
+		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx, out RecipientInfoCollection recipients, out SignerInfoCollection signers)
+		public MimeEntity Decompress (SecureMimeContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
+			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				ContentObject.WriteTo (memory);
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
 
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+				return ctx.Decompress (memory);
 			}
 		}
 
 		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// Decompress using the specified <see cref="SecureMimeContext"/>.
 		/// </summary>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
-		/// <param name="signers">The list of signers that signed this application/pkcs7-mime part.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
+		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx, out SignerInfoCollection signers)
+		public MimeEntity Decompress ()
 		{
-			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
-
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
+			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-
-				ContentObject.WriteTo (memory);
-
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Decompress (ctx);
 			}
 		}
 
 		/// <summary>
-		/// Decrypt using the specified <see cref="SecureMimeContext"/>.
+		/// Decrypt using the specified <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
@@ -198,12 +194,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-				SignerInfoCollection signers;
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
 
-				ContentObject.WriteTo (memory);
-
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+				return ctx.Decrypt (memory);
 			}
 		}
 
@@ -212,37 +206,27 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while decrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public MimeEntity Decrypt ()
 		{
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
-				throw new InvalidOperationException ();
-
-			var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime");
-
-			using (var memory = new MemoryStream ()) {
-				RecipientInfoCollection recipients;
-				SignerInfoCollection signers;
-
-				ContentObject.WriteTo (memory);
-
-				return ctx.Decrypt (memory.ToArray (), out recipients, out signers);
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Decrypt (ctx);
 			}
 		}
 
 		/// <summary>
 		/// Import the certificates contained in the content.
 		/// </summary>
-		/// <param name="ctx">The S/MIME context.</param>
+		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <exception cref="System.InvalidOperationException">
-		/// The "smime-type" parameter on the Content-Type header does not support decryption.
+		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while importing.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public void Import (SecureMimeContext ctx)
 		{
@@ -250,27 +234,131 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryStream ()) {
-				ContentObject.WriteTo (memory);
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
 
-				ctx.ImportKeys (memory.ToArray ());
+				ctx.Import (memory);
+			}
+		}
+
+		/// <summary>
+		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// </summary>
+		/// <returns>The list of digital signatures.</returns>
+		/// <param name="ctx">The S/MIME context to use for verifying the signature.</param>
+		/// <param name="entity">The unencapsulated entity.</param>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
+		{
+			if (SecureMimeType != SecureMimeType.SignedData)
+				throw new InvalidOperationException ();
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+				memory.Position = 0;
+
+				return ctx.Verify (memory, out entity);
+			}
+		}
+
+		/// <summary>
+		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// </summary>
+		/// <returns>The list of digital signatures.</returns>
+		/// <param name="entity">The unencapsulated entity.</param>
+		/// <exception cref="System.InvalidOperationException">
+		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public DigitalSignatureCollection Verify (out MimeEntity entity)
+		{
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Verify (ctx, out entity);
+			}
+		}
+
+		/// <summary>
+		/// Compress the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// It should be noted that this feature is not supported by most mail clients,
+		/// even among those that support S/MIME.
+		/// </remarks>
+		/// <param name="ctx">The S/MIME context to use for compressing.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Compress (SecureMimeContext ctx, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
+				memory.Position = 0;
+
+				return ctx.Compress (memory);
+			}
+		}
+
+		/// <summary>
+		/// Compress the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// It should be noted that this feature is not supported by most mail clients,
+		/// even among those that support S/MIME.
+		/// </remarks>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="entity"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Compress (MimeEntity entity)
+		{
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Compress (ctx, entity);
 			}
 		}
 
 		/// <summary>
 		/// Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for encrypting.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity)
 		{
@@ -288,23 +376,50 @@ namespace MimeKit.Cryptography {
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return ctx.Encrypt (recipients, memory.ToArray ());
+				return ctx.Encrypt (recipients, memory);
 			}
 		}
 
 		/// <summary>
 		/// Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, MimeEntity entity)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Encrypt (ctx, recipients, entity);
+			}
+		}
+
+		/// <summary>
+		/// Encrypt the specified entity.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context to use for encrypting.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -312,8 +427,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while encrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
@@ -331,87 +446,349 @@ namespace MimeKit.Cryptography {
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
+				memory.Position = 0;
 
-				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory.ToArray ());
+				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory);
+			}
+		}
+
+		/// <summary>
+		/// Encrypt the specified entity.
+		/// </summary>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Encrypt (ctx, recipients, entity);
+			}
+		}
+
+		/// <summary>
+		/// Sign the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// For better interoperability with other mail clients, you should use
+		/// <see cref="MultipartSigned.Create(SecureMimeContext, CmsSigner, MimeEntity)"/>
+		/// instead as the multipart/signed format is supported among a much larger
+		/// subset of mail client software.
+		/// </remarks>
+		/// <param name="ctx">The S/MIME context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Sign (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
+				memory.Position = 0;
+
+				return ctx.EncapsulatedSign (signer, memory);
+			}
+		}
+
+		/// <summary>
+		/// Sign the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// For better interoperability with other mail clients, you should use
+		/// <see cref="MultipartSigned.Create(SecureMimeContext, CmsSigner, MimeEntity)"/>
+		/// instead as the multipart/signed format is supported among a much larger
+		/// subset of mail client software.
+		/// </remarks>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Sign (CmsSigner signer, MimeEntity entity)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Sign (ctx, signer, entity);
+			}
+		}
+
+		/// <summary>
+		/// Sign the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// For better interoperability with other mail clients, you should use
+		/// <see cref="MultipartSigned.Create(CryptographyContext, MailboxAddress, DigestAlgorithm, MimeEntity)"/>
+		/// instead as the multipart/signed format is supported among a much larger
+		/// subset of mail client software.
+		/// </remarks>
+		/// <param name="ctx">The S/MIME context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Sign (SecureMimeContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				entity.WriteTo (options, memory);
+				memory.Position = 0;
+
+				return ctx.EncapsulatedSign (signer, digestAlgo, memory);
+			}
+		}
+
+		/// <summary>
+		/// Sign the specified entity.
+		/// </summary>
+		/// <remarks>
+		/// For better interoperability with other mail clients, you should use
+		/// <see cref="MultipartSigned.Create(CryptographyContext, MailboxAddress, DigestAlgorithm, MimeEntity)"/>
+		/// instead as the multipart/signed format is supported among a much larger
+		/// subset of mail client software.
+		/// </remarks>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return Sign (ctx, signer, digestAlgo, entity);
 			}
 		}
 
 		/// <summary>
 		/// Sign and Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
+			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, entity));
+		}
 
-				entity.WriteTo (options, memory);
+		/// <summary>
+		/// Sign and Encrypt the specified entity.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
 
-				return ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return SignAndEncrypt (ctx, signer, recipients, entity);
 			}
 		}
 
 		/// <summary>
 		/// Sign and Encrypt the specified entity.
 		/// </summary>
-		/// <param name="ctx">The context.</param>
+		/// <param name="ctx">The S/MIME context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="entity">The entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is<c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is<c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is<c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
 		/// <para>-or-</para>
 		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing or encrypting.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
 
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
+			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, digestAlgo, entity));
+		}
 
-				entity.WriteTo (options, memory);
+		/// <summary>
+		/// Sign and Encrypt the specified entity.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="entity">The entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// <para>A signing certificate could not be found for <paramref name="signer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>A certificate could not be found for one or more of the <paramref name="recipients"/>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static ApplicationPkcs7Mime SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
 
-				return (ApplicationPkcs7Mime) ctx.SignAndEncrypt (signer, recipients, memory.ToArray ());
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
 			}
 		}
 	}

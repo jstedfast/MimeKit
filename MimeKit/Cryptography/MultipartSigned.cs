@@ -26,7 +26,8 @@
 
 using System;
 using System.IO;
-using System.Security.Cryptography.Pkcs;
+
+using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -40,6 +41,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public MultipartSigned (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -71,8 +73,18 @@ namespace MimeKit.Cryptography {
 			} else {
 				var part = (MimePart) entity;
 
-				if (part.ContentTransferEncoding != ContentEncoding.Base64)
+				switch (part.ContentTransferEncoding) {
+				case ContentEncoding.SevenBit:
+					// need to make sure that "From "-lines are properly armored
+					part.ContentTransferEncoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
+					break;
+				case ContentEncoding.EightBit:
 					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+					break;
+				case ContentEncoding.Binary:
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+					break;
+				}
 			}
 		}
 
@@ -80,8 +92,9 @@ namespace MimeKit.Cryptography {
 		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
 		/// </summary>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance.</returns>
-		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="ctx">The cryptography context to use for signing.</param>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
@@ -90,13 +103,22 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, MimeEntity entity)
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -105,10 +127,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			PrepareEntityForSigning (entity);
-
-			MimeEntity parsed;
-			byte[] cleartext;
-			string micalg;
 
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -129,82 +147,12 @@ namespace MimeKit.Cryptography {
 
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
-				parsed = parser.ParseEntity ();
-
-				cleartext = memory.ToArray ();
-			}
-
-			// sign the cleartext content
-			var signature = ctx.Sign (signer, cleartext, out micalg);
-			var signed = new MultipartSigned ();
-
-			// set the protocol and micalg Content-Type parameters
-			signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
-			signed.ContentType.Parameters["micalg"] = micalg;
-
-			// add the modified/parsed entity as our first part
-			signed.Add (parsed);
-
-			// add the detached signature as the second part
-			signed.Add (signature);
-
-			return signed;
-		}
-
-		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
-		/// </summary>
-		/// <param name="signer">The signer.</param>
-		/// <param name="entity">The entity to sign.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while signing.
-		/// </exception>
-		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
-		{
-			if (signer == null)
-				throw new ArgumentNullException ("signer");
-
-			if (entity == null)
-				throw new ArgumentNullException ("entity");
-
-			PrepareEntityForSigning (entity);
-
-			using (var ctx = new SecureMimeContext ()) {
-				MimeEntity parsed;
-				byte[] cleartext;
-
-				using (var memory = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (memory)) {
-						// Note: see rfc3156, section 3 - second note
-						filtered.Add (new ArmoredFromFilter ());
-
-						// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
-						filtered.Add (new TrailingWhitespaceFilter ());
-
-						// Note: see rfc2015 or rfc3156, section 5.1
-						filtered.Add (new Unix2DosFilter ());
-
-						entity.WriteTo (filtered);
-						filtered.Flush ();
-					}
-
-					memory.Position = 0;
-
-					// Note: we need to parse the modified entity structure to preserve any modifications
-					var parser = new MimeParser (memory, MimeFormat.Entity);
-					parsed = parser.ParseEntity ();
-
-					cleartext = memory.ToArray ();
-				}
+				var parsed = parser.ParseEntity ();
+				memory.Position = 0;
 
 				// sign the cleartext content
-				var micalg = signer.DigestAlgorithm.FriendlyName;
-				var signature = ctx.Sign (signer, cleartext);
+				var signature = ctx.Sign (signer, digestAlgo, memory);
+				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
 				var signed = new MultipartSigned ();
 
 				// set the protocol and micalg Content-Type parameters
@@ -222,6 +170,211 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="ctx">The OpenPGP context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			PrepareEntityForSigning (entity);
+
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					// Note: see rfc3156, section 3 - second note
+					filtered.Add (new ArmoredFromFilter ());
+
+					// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+					filtered.Add (new TrailingWhitespaceFilter ());
+
+					// Note: see rfc2015 or rfc3156, section 5.1
+					filtered.Add (new Unix2DosFilter ());
+
+					entity.WriteTo (filtered);
+					filtered.Flush ();
+				}
+
+				memory.Position = 0;
+
+				// Note: we need to parse the modified entity structure to preserve any modifications
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parsed = parser.ParseEntity ();
+				memory.Position = 0;
+
+				// sign the cleartext content
+				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
+				var signature = ctx.Sign (signer, digestAlgo, memory);
+				var signed = new MultipartSigned ();
+
+				// set the protocol and micalg Content-Type parameters
+				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+				signed.ContentType.Parameters["micalg"] = micalg;
+
+				// add the modified/parsed entity as our first part
+				signed.Add (parsed);
+
+				// add the detached signature as the second part
+				signed.Add (signature);
+
+				return signed;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <para>A cryptography context suitable for signing could not be found.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		{
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature")) {
+				return Create (ctx, signer, digestAlgo, entity);
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="ctx">The S/MIME context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+
+			PrepareEntityForSigning (entity);
+
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					// Note: see rfc3156, section 3 - second note
+					filtered.Add (new ArmoredFromFilter ());
+
+					// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+					filtered.Add (new TrailingWhitespaceFilter ());
+
+					// Note: see rfc2015 or rfc3156, section 5.1
+					filtered.Add (new Unix2DosFilter ());
+
+					entity.WriteTo (filtered);
+					filtered.Flush ();
+				}
+
+				memory.Position = 0;
+
+				// Note: we need to parse the modified entity structure to preserve any modifications
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parsed = parser.ParseEntity ();
+				memory.Position = 0;
+
+				// sign the cleartext content
+				var micalg = ctx.GetDigestAlgorithmName (signer.DigestAlgorithm);
+				var signature = ctx.Sign (signer, memory);
+				var signed = new MultipartSigned ();
+
+				// set the protocol and micalg Content-Type parameters
+				signed.ContentType.Parameters["protocol"] = ctx.SignatureProtocol;
+				signed.ContentType.Parameters["micalg"] = micalg;
+
+				// add the modified/parsed entity as our first part
+				signed.Add (parsed);
+
+				// add the detached signature as the second part
+				signed.Add (signature);
+
+				return signed;
+			}
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// </summary>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A cryptography context suitable for signing could not be found.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
+		{
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature")) {
+				return Create (ctx, signer, entity);
+			}
+		}
+
+		/// <summary>
 		/// Verify the multipart/signed content.
 		/// </summary>
 		/// <returns>A signer info collection.</returns>
@@ -235,10 +388,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public SignerInfoCollection Verify (CryptographyContext ctx)
+		public DigitalSignatureCollection Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -262,29 +415,21 @@ namespace MimeKit.Cryptography {
 			if (!ctx.Supports (value))
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
-			byte[] cleartext, signatureData;
+			using (var signatureData = new MemoryStream ()) {
+				signature.ContentObject.DecodeTo (signatureData);
+				signatureData.Position = 0;
 
-			using (var memory = new MemoryStream ()) {
-				// Note: see rfc2015 or rfc3156, section 5.1
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
+				using (var cleartext = new MemoryStream ()) {
+					// Note: see rfc2015 or rfc3156, section 5.1
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
 
-				this[0].WriteTo (options, memory);
+					this[0].WriteTo (options, cleartext);
+					cleartext.Position = 0;
 
-				cleartext = memory.ToArray ();
+					return ctx.Verify (cleartext, signatureData);
+				}
 			}
-
-			using (var memory = new MemoryStream ()) {
-				signature.ContentObject.DecodeTo (memory);
-				signatureData = memory.ToArray ();
-			}
-
-			var smime = ctx as SecureMimeContext;
-
-			if (smime == null)
-				throw new NotSupportedException ();
-
-			return smime.Verify (cleartext, signatureData);
 		}
 
 		/// <summary>
@@ -297,13 +442,12 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
-		/// verifying could not be found.
+		/// A cryptography context suitable for verifying the signature could not be found.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred while verifying.
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public SignerInfoCollection Verify ()
+		public DigitalSignatureCollection Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

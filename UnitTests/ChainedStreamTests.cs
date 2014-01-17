@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -35,6 +36,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class ChainedStreamTests
 	{
+		readonly List<int> lengths = new List<int> ();
 		ChainedStream chained;
 		MemoryStream master;
 		byte[] cbuf, mbuf;
@@ -55,13 +57,14 @@ namespace UnitTests {
 			cbuf = new byte[4096];
 			mbuf = new byte[4096];
 
-			// make a handful of smaller streams absed on master to chain together
+			// make a handful of smaller streams based on master to chain together
 			chained = new ChainedStream ();
 			while (position < bytes.Length) {
 				int n = Math.Min (bytes.Length - position, random.Next () % 4096);
 
 				var segment = new byte[n];
 				Array.Copy (bytes, position, segment, 0, n);
+				lengths.Add (n);
 				position += n;
 
 				chained.Add (new MemoryStream (segment));
@@ -91,8 +94,21 @@ namespace UnitTests {
 			} while (master.Position < master.Length);
 		}
 
+		void AssertSeekResults (string operation)
+		{
+			int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
+			int nread = chained.Read (cbuf, 0, n);
+			int mread = master.Read (mbuf, 0, n);
+
+			Assert.AreEqual (mread, nread, "Did not read the expected number of bytes from the chained stream after {0}", operation);
+			Assert.AreEqual (master.Position, chained.Position, "The chained stream's position did not match after {0}", operation);
+
+			for (int i = 0; i < n; i++)
+				Assert.AreEqual (mbuf[i], cbuf[i], "The bytes read do not match after {0}", operation);
+		}
+
 		[Test]
-		public void TestSeeking ()
+		public void TestRandomSeeking ()
 		{
 			for (int attempt = 0; attempt < 10; attempt++) {
 				long offset = random.Next () % master.Length;
@@ -102,16 +118,38 @@ namespace UnitTests {
 
 				Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
 
-				int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
-				int nread = chained.Read (cbuf, 0, n);
-				int mread = master.Read (mbuf, 0, n);
-
-				Assert.AreEqual (mread, nread, "Did not read the expected number of bytes from the chained stream");
-				Assert.AreEqual (master.Position, chained.Position, "The chained stream's position did not match");
-
-				for (int i = 0; i < n; i++)
-					Assert.AreEqual (mbuf[i], cbuf[i], "The bytes read do not match");
+				AssertSeekResults ("seeking to random position");
 			}
+		}
+
+		[Test]
+		public void TestSeekingToStreamBoundaries ()
+		{
+			long expected, actual;
+
+			// first, seek to the beginning
+			expected = master.Seek (0, SeekOrigin.Begin);
+			actual = chained.Seek (0, SeekOrigin.Begin);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to the beginning");
+
+			// now seek to the second boundary
+			expected = master.Seek (lengths[1], SeekOrigin.Begin);
+			actual = chained.Seek (lengths[1], SeekOrigin.Begin);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to the second boundary");
+
+			// now seek to the first boundary
+			expected = master.Seek (lengths[0], SeekOrigin.Begin);
+			actual = chained.Seek (lengths[0], SeekOrigin.Begin);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to the first boundary");
 		}
 	}
 }

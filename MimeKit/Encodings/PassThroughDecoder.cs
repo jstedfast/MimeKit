@@ -38,28 +38,25 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughDecoder"/> class.
 		/// </summary>
-		/// <param name='encoding'>
-		/// Encoding.
-		/// </param>
+		/// <param name='encoding'>The encoding to return in the <see cref="Encoding"/> property.</param>
 		public PassThroughDecoder (ContentEncoding encoding)
 		{
 			Encoding = encoding;
 		}
 
 		/// <summary>
-		/// Clones the decoder.
+		/// Clone the <see cref="PassThroughDecoder"/> with its current state.
 		/// </summary>
-		public object Clone ()
+		/// <returns>A new <see cref="PassThroughDecoder"/> with identical state.</returns>
+		public IMimeDecoder Clone ()
 		{
-			return MemberwiseClone ();
+			return new PassThroughDecoder (Encoding);
 		}
 
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get; private set;
 		}
@@ -67,12 +64,8 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
-		/// <returns>
-		/// The estimated output length.
-		/// </returns>
-		/// <param name='inputLength'>
-		/// The input length.
-		/// </param>
+		/// <returns>The estimated output length.</returns>
+		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			return inputLength;
@@ -99,18 +92,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// A pointer to the beginning of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// A pointer to the beginning of the output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -126,21 +111,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
-		/// <returns>
-		/// The number of bytes written to the output buffer.
-		/// </returns>
-		/// <param name='input'>
-		/// The input buffer.
-		/// </param>
-		/// <param name='startIndex'>
-		/// The starting index of the input buffer.
-		/// </param>
-		/// <param name='length'>
-		/// The length of the input buffer.
-		/// </param>
-		/// <param name='output'>
-		/// The output buffer.
-		/// </param>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name='input'>The input buffer.</param>
+		/// <param name='startIndex'>The starting index of the input buffer.</param>
+		/// <param name='length'>The length of the input buffer.</param>
+		/// <param name='output'>The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -151,9 +126,9 @@ namespace MimeKit.Encodings {
 		/// a valid range in the <paramref name="input"/> byte array.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="output"/> is not large enough to contain the decoded content.
-		/// Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.
+		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
+		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
+		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
 		public int Decode (byte[] input, int startIndex, int length, byte[] output)
 		{

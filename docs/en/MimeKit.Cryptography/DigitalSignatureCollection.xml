@@ -1,0 +1,47 @@
+<Type Name="DigitalSignatureCollection" FullName="MimeKit.Cryptography.DigitalSignatureCollection">
+  <TypeSignature Language="C#" Value="public class DigitalSignatureCollection : System.Collections.ObjectModel.ReadOnlyCollection&lt;MimeKit.Cryptography.IDigitalSignature&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DigitalSignatureCollection extends System.Collections.ObjectModel.ReadOnlyCollection`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt;" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Collections.ObjectModel.ReadOnlyCollection&lt;MimeKit.Cryptography.IDigitalSignature&gt;</BaseTypeName>
+    <BaseTypeArguments>
+      <BaseTypeArgument TypeParamName="!0">MimeKit.Cryptography.IDigitalSignature</BaseTypeArgument>
+    </BaseTypeArguments>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A collection of digital signatures.
+            </summary>
+    <remarks>
+      <para>When verifying a digitally signed MIME part such as a <see cref="T:MimeKit.Cryptography.MultipartSigned" />
+            or a <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" />, you will get back a collection of
+            digital signatures. Typically, a signed message will only have a single signature
+            (created by the sender of the message), but it is possible for there to be
+            multiple signatures.</para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public DigitalSignatureCollection (System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt; signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="signatures">The signatures.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureCollection" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

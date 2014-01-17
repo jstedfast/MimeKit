@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Security.Cryptography;
 
 using MimeKit.IO;
@@ -47,8 +48,10 @@ namespace MimeKit {
 		int? duration;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// based on the <see cref="MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public MimePart (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -122,7 +125,34 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
-		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
+		public MimePart (string mediaType, string mediaSubtype) : base (new ContentType (mediaType, mediaSubtype))
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified content type.
+		/// </summary>
+		/// <param name="contentType">The content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="contentType"/> is <c>null</c>.
+		/// </exception>
+		public MimePart (ContentType contentType) : base (contentType)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// with the specified content type.
+		/// </summary>
+		/// <param name="contentType">The content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="contentType"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="contentType"/> could not be parsed.
+		/// </exception>
+		public MimePart (string contentType) : base (ContentType.Parse (contentType))
 		{
 		}
 
@@ -201,8 +231,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the name of the file.
+		/// Gets or sets the name of the file.
 		/// </summary>
+		/// <remarks>
+		/// <para>First checks for the "filename" parameter on the Content-Disposition header. If
+		/// that does not exist, then the "name" parameter on the Content-Type header is used.</para>
+		/// <para>When setting the filename, both the "filename" parameter on the Content-Disposition
+		/// header and the "name" parameter on the Content-Type header are set.</para>
+		/// </remarks>
 		/// <value>The name of the file.</value>
 		public string FileName {
 			get {
@@ -219,6 +255,17 @@ namespace MimeKit {
 
 				return filename.Trim ();
 			}
+			set {
+				if (value != null) {
+					if (ContentDisposition == null)
+						ContentDisposition = new ContentDisposition ();
+					ContentDisposition.FileName = value;
+				} else if (ContentDisposition != null) {
+					ContentDisposition.FileName = value;
+				}
+
+				ContentType.Name = value;
+			}
 		}
 
 		/// <summary>
@@ -227,6 +274,73 @@ namespace MimeKit {
 		/// <value>The content of the mime part.</value>
 		public IContentObject ContentObject {
 			get; set;
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this <see cref="MimePart"/> is an attachment.
+		/// </summary>
+		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		public bool IsAttachment {
+			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
+			set {
+				if (value) {
+					if (ContentDisposition == null)
+						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+					else if (!ContentDisposition.IsAttachment)
+						ContentDisposition.Disposition = ContentDisposition.Attachment;
+				} else if (ContentDisposition != null && ContentDisposition.IsAttachment) {
+					ContentDisposition.Disposition = ContentDisposition.Inline;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Calculates the most efficient content encoding given the specified constraint.
+		/// </summary>
+		/// <remarks>
+		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// </remarks>
+		/// <returns>The most efficient content encoding.</returns>
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken)
+		{
+			if (ContentObject == null)
+				return ContentEncoding.SevenBit;
+
+			using (var measure = new MeasuringStream ()) {
+				using (var filtered = new FilteredStream (measure)) {
+					var filter = new BestEncodingFilter ();
+
+					filtered.Add (filter);
+					ContentObject.DecodeTo (filtered, cancellationToken);
+					filtered.Flush ();
+
+					return filter.GetBestEncoding (constraint);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Calculates the most efficient content encoding given the specified constraint.
+		/// </summary>
+		/// <remarks>
+		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// </remarks>
+		/// <returns>The most efficient content encoding.</returns>
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
+		{
+			return GetBestEncoding (constraint, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -247,13 +361,12 @@ namespace MimeKit {
 			byte[] checksum;
 
 			using (var filtered = new FilteredStream (stream)) {
-				if (ContentObject.Encoding > ContentEncoding.Binary)
-					filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
+				filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
 
 				if (ContentType.Matches ("text", "*"))
 					filtered.Add (new Unix2DosFilter ());
 
-				using (var md5 = MD5.Create ())
+				using (var md5 = HashAlgorithm.Create ("MD5"))
 					checksum = md5.ComputeHash (filtered);
 			}
 
@@ -276,25 +389,46 @@ namespace MimeKit {
 			return md5sum == ComputeContentMd5 ();
 		}
 
+		static bool NeedsEncoding (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.EightBit:
+			case ContentEncoding.Binary:
+			case ContentEncoding.Default:
+				return true;
+			default:
+				return false;
+			}
+		}
+
 		/// <summary>
-		/// Writes the <see cref="MimeKit.MimePart"/> to the specified stream.
+		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The stream.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
-			base.WriteTo (options, stream);
+			base.WriteTo (options, stream, cancellationToken);
 
 			if (ContentObject == null)
 				return;
 
 			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
+					cancellationToken.ThrowIfCancellationRequested ();
+
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 					stream.Write (buffer, 0, buffer.Length);
@@ -304,22 +438,29 @@ namespace MimeKit {
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (EncoderFilter.Create (encoding));
-					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.DecodeTo (filtered);
+
+					if (encoding != ContentEncoding.Binary)
+						filtered.Add (options.CreateNewLineFilter ());
+
+					ContentObject.DecodeTo (filtered, cancellationToken);
 					filtered.Flush ();
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
+					cancellationToken.ThrowIfCancellationRequested ();
+
 					var buffer = Encoding.ASCII.GetBytes ("end");
 					stream.Write (buffer, 0, buffer.Length);
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
-			} else {
+			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.WriteTo (filtered);
+					ContentObject.WriteTo (filtered, cancellationToken);
 					filtered.Flush ();
 				}
+			} else {
+				ContentObject.WriteTo (stream, cancellationToken);
 			}
 		}
 
@@ -327,19 +468,18 @@ namespace MimeKit {
 		/// Called when the headers change in some way.
 		/// </summary>
 		/// <param name="action">The type of change.</param>
-		/// <param name="id">Identifier.</param>
-		/// <param name="header">Header.</param>
-		protected override void OnHeadersChanged (HeaderListChangedAction action, HeaderId id, Header header)
+		/// <param name="header">The header being added, changed or removed.</param>
+		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
 			string text;
 			int value;
 
-			base.OnHeadersChanged (action, id, header);
+			base.OnHeadersChanged (action, header);
 
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
 					text = header.Value.Trim ().ToLowerInvariant ();
 					encoding = ContentEncoding.Default;
@@ -362,7 +502,7 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Removed:
-				switch (id) {
+				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
 					encoding = ContentEncoding.Default;
 					break;

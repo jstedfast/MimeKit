@@ -627,7 +627,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '"')
 				ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError);
 			else
-				ParseUtils.SkipTToken (text, ref index, endIndex);
+				ParseUtils.SkipToken (text, ref index, endIndex);
 
 			pair = new NameValuePair () {
 				ValueLength = index - valueIndex,
@@ -743,7 +743,7 @@ namespace MimeKit {
 						parts.Add (pair);
 					} else {
 						parts = new List<NameValuePair> ();
-						rfc2184.Add (pair.Name, parts);
+						rfc2184[pair.Name] = parts;
 						@params.Add (pair);
 						parts.Add (pair);
 					}
@@ -786,8 +786,8 @@ namespace MimeKit {
 							bool flush = i + 1 >= parts.Count || !parts[i+1].Encoded;
 							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
 						} else if (length >= 2 && text[startIndex] == (byte) '"') {
-							// FIXME: use Rfc2047.Unquote()??
-							value += CharsetUtils.ConvertToUnicode (options, text, startIndex + 1, length - 2);
+							var quoted = CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
+							value += MimeUtils.Unquote (quoted);
 							hex.Reset ();
 						} else if (length > 0) {
 							value += CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
@@ -798,16 +798,29 @@ namespace MimeKit {
 				} else if (param.Encoded) {
 					value = DecodeRfc2184 (ref decoder, hex, text, startIndex, length, true);
 					hex.Reset ();
-				} else if (length >= 2 && text[startIndex] == (byte) '"') {
-					// FIXME: use Rfc2047.Unquote()??
-					value = Rfc2047.DecodeText (options, text, startIndex + 1, length - 2);
-				} else if (length > 0) {
-					value = Rfc2047.DecodeText (options, text, startIndex, length);
+				} else if (!paramList.Contains (param.Name)) {
+					// Note: If we've got an rfc2184-encoded version of the same parameter, then
+					// we'll want to choose that one as opposed to the ASCII variant (i.e. this one).
+					//
+					// While most mail clients that I know of do not send multiple parameters of the
+					// same name, rfc6266 suggests that HTTP servers are using this approach to work
+					// around HTTP clients that do not (yet) implement support for the rfc2184/2231
+					// encoding of parameter values. Since none of the MIME specifications provide
+					// any suggestions for dealing with this, following rfc6266 seems to make the
+					// most sense, even though it is meant for HTTP clients and servers.
+					if (length >= 2 && text[startIndex] == (byte) '"') {
+						var quoted = Rfc2047.DecodeText (options, text, startIndex, length);
+						value = MimeUtils.Unquote (quoted);
+					} else if (length > 0) {
+						value = Rfc2047.DecodeText (options, text, startIndex, length);
+					} else {
+						value = string.Empty;
+					}
 				} else {
-					value = string.Empty;
+					continue;
 				}
 
-				paramList.Add (new Parameter (param.Name, value));
+				paramList[param.Name] = value;
 			}
 
 			return true;

@@ -1,0 +1,56 @@
+<Type Name="ParseException" FullName="MimeKit.ParseException">
+  <TypeSignature Language="C#" Value="public class ParseException : Exception" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ParseException extends System.Exception" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Exception</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A Parse exception as thrown by the various Parse methods in MimeKit.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="ErrorIndex">
+      <MemberSignature Language="C#" Value="public int ErrorIndex { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 ErrorIndex" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the index of the byte that caused the error.
+            </summary>
+        <value>The index of the byte that caused error.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TokenIndex">
+      <MemberSignature Language="C#" Value="public int TokenIndex { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 TokenIndex" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the byte index of the token that was malformed.
+            </summary>
+        <value>The byte index of the token.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

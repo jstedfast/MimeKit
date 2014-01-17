@@ -1,0 +1,1201 @@
+<Type Name="MimeMessage" FullName="MimeKit.MimeMessage">
+  <TypeSignature Language="C#" Value="public sealed class MimeMessage" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeMessage extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A MIME message.
+            </summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeMessage ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeMessage (object[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(object[] args) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="args" Type="System.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName>System.ParamArray</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="args">To be added.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
+            <param name="args">An array of initialization parameters: headers and message parts.</param></summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="args" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="args" /> contains more than one <see cref="T:MimeKit.MimeEntity" />.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="args" /> contains one or more arguments of an unknown type.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Bcc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Bcc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Bcc" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Bcc header.
+            </summary>
+        <value>The list of addresses in the Bcc header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Body">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Body { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Body" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the body of the message.
+            </summary>
+        <value>The body of the message.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Cc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Cc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Cc" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Cc header.
+            </summary>
+        <value>The list of addresses in the Cc header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Date">
+      <MemberSignature Language="C#" Value="public DateTimeOffset Date { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset Date" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTimeOffset</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the date of the message.
+            </summary>
+        <value>The date of the message.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public void Encrypt (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Encrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Encrypt the message to the sender and all of the recipients
+            using the specified cryptography context.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or-</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="From">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList From { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList From" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the From header.
+            </summary>
+        <value>The list of addresses in the From header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Headers">
+      <MemberSignature Language="C#" Value="public MimeKit.HeaderList Headers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of headers.
+            </summary>
+        <value>The list of headers.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InReplyTo">
+      <MemberSignature Language="C#" Value="public string InReplyTo { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string InReplyTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the message-id that this message is in reply to.
+            </summary>
+        <value>The message id that this message is in reply to.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (string fileName);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file to load.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="fileName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, string fileName);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="fileName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="fileName">The name of the file to load.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (string fileName, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="fileName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, string fileName, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="MessageId">
+      <MemberSignature Language="C#" Value="public string MessageId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string MessageId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the message identifier.
+            </summary>
+        <value>The message identifier.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="MimeVersion">
+      <MemberSignature Language="C#" Value="public Version MimeVersion { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Version MimeVersion" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Version</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the MIME-Version.
+            </summary>
+        <value>The MIME version.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailMessage op_Explicit (MimeKit.MimeMessage message);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailMessage op_Explicit(class MimeKit.MimeMessage message) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Net.Mail.MailMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="message" Type="MimeKit.MimeMessage" />
+      </Parameters>
+      <Docs>
+        <param name="message">The message.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:MimeKit.MimeMessage" /> to a
+            <see cref="T:System.Net.Mail.MailMessage" />.
+            </summary>
+        <returns>A <see cref="T:System.Net.Mail.MailMessage" />.</returns>
+        <remarks>
+          <para>Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
+            makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.</para>
+          <para>It should be noted, however, that <see cref="T:System.Net.Mail.MailMessage" />
+            cannot represent all MIME structures that can be constructed using MimeKit,
+            so the conversion may not be perfect.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+            The <paramref name="message" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="References">
+      <MemberSignature Language="C#" Value="public MimeKit.MessageIdList References { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MessageIdList References" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MessageIdList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the list of references to other messages.
+            </summary>
+        <value>The references.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReplyTo">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ReplyTo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ReplyTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Reply-To header.
+            </summary>
+        <value>The list of addresses in the Reply-To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentBcc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentBcc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentBcc" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-Bcc header.
+            </summary>
+        <value>The list of addresses in the Resent-Bcc header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentCc">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentCc { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentCc" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-Cc header.
+            </summary>
+        <value>The list of addresses in the Resent-Cc header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentDate">
+      <MemberSignature Language="C#" Value="public DateTimeOffset ResentDate { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset ResentDate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTimeOffset</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the Resent-Date of the message.
+            </summary>
+        <value>The Resent-Date of the message.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentFrom">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentFrom { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentFrom" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-From header.
+            </summary>
+        <value>The list of addresses in the Resent-From header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentMessageId">
+      <MemberSignature Language="C#" Value="public string ResentMessageId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string ResentMessageId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the Resent-Message-Id header.
+            </summary>
+        <value>The Resent-Message-Id.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is improperly formatted.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentReplyTo">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentReplyTo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentReplyTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-Reply-To header.
+            </summary>
+        <value>The list of addresses in the Resent-Reply-To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentSender">
+      <MemberSignature Language="C#" Value="public MimeKit.MailboxAddress ResentSender { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress ResentSender" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MailboxAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the address in the Resent-Sender header.
+            </summary>
+        <value>The address in the Resent-Sender header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResentTo">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList ResentTo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentTo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the Resent-To header.
+            </summary>
+        <value>The list of addresses in the Resent-To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sender">
+      <MemberSignature Language="C#" Value="public MimeKit.MailboxAddress Sender { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress Sender" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MailboxAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the address in the Sender header.
+            </summary>
+        <value>The address in the Sender header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public void Sign (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or-</para>
+          <para>A sender has not been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Sign">
+      <MemberSignature Language="C#" Value="public void Sign (MimeKit.Cryptography.CryptographyContext ctx, MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Sign the message using the specified cryptography context and digest algorithm.
+            </summary>
+        <remarks>
+            If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or-</para>
+          <para>A sender has not been specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="digestAlgo" /> is not supported.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A signing certificate could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public void SignAndEncrypt (MimeKit.Cryptography.CryptographyContext ctx);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <summary>
+            Sign and encrypt the message to the sender and all of the recipients using
+            the specified cryptography context and the SHA-1 digest algorithm.
+            </summary>
+        <remarks>
+          <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.</para>
+          <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+            message will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or-</para>
+          <para>The sender has been specified.</para>
+          <para>-or-</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for the signer or one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public void SignAndEncrypt (MimeKit.Cryptography.CryptographyContext ctx, MimeKit.Cryptography.DigestAlgorithm digestAlgo);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.CryptographyContext" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The cryptography context.</param>
+        <param name="digestAlgo">The digest algorithm.</param>
+        <summary>
+            Sign and encrypt the message to the sender and all of the recipients using
+            the specified cryptography context and the specified digest algorithm.
+            </summary>
+        <remarks>
+          <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+            will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+            address as the signer address, otherwise the Sender or From address will be
+            used instead.</para>
+          <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+            message will be encrypted to all of the addresses specified in the Resent headers
+            (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+            otherwise the message will be encrypted to all of the addresses specified in
+            the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+            An unknown type of cryptography context was used.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The <see cref="P:MimeKit.MimeMessage.Body" /> has not been set.</para>
+          <para>-or-</para>
+          <para>The sender has been specified.</para>
+          <para>-or-</para>
+          <para>No recipients have been specified.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="digestAlgo" /> is not supported.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
+            A certificate could not be found for the signer or one or more of the recipients.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found for the sender.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            The public key could not be found for one or more of the recipients.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Subject">
+      <MemberSignature Language="C#" Value="public string Subject { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Subject" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the subject of the message.
+            </summary>
+        <value>The subject of the message.</value>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="To">
+      <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList To { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList To" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the list of addresses in the To header.
+            </summary>
+        <value>The list of addresses in the To header.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the message to the specified output stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The output stream.</param>
+        <summary>
+            Writes the message to the specified output stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The output stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Writes the message to the specified output stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The formatting options.</param>
+        <param name="stream">The output stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Writes the message to the specified output stream.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

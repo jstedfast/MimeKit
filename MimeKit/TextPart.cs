@@ -36,11 +36,18 @@ namespace MimeKit {
 	/// <summary>
 	/// A Textual MIME part.
 	/// </summary>
+	/// <remarks>
+	/// <para>Unless overridden, all textual parts parsed by the <see cref="MimeParser"/>,
+	/// such as text/plain or text/html, will be represented by a <see cref="TextPart"/>.</para>
+	/// <para>For more information about text media types, see section 4.1 of
+	/// http://www.ietf.org/rfc/rfc2046.txt</para>
+	/// </remarks>
 	public class TextPart : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/> class.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public TextPart (MimeEntityConstructorInfo entity) : base (entity)
 		{
@@ -60,6 +67,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="args"/> contains more than one <see cref="System.Text.Encoding"/>.</para>
 		/// <para>-or-</para>
+		/// <para><paramref name="args"/> contains more than one <see cref="System.String"/>.</para>
+		/// <para>-or-</para>
 		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
 		/// </exception>
 		public TextPart (string subtype, params object[] args) : this (subtype)
@@ -69,9 +78,7 @@ namespace MimeKit {
 
 			// Default to UTF8 if not given.
 			Encoding encoding = null;
-
-			// Used only in case some text is provided.
-			StringBuilder builder = null;
+			string text = null;
 
 			foreach (object obj in args) {
 				if (obj == null || TryInit (obj))
@@ -80,26 +87,26 @@ namespace MimeKit {
 				var enc = obj as Encoding;
 				if (enc != null) {
 					if (encoding != null)
-						throw new ArgumentException ("Encoding should not be specified more than once.");
+						throw new ArgumentException ("An encoding should not be specified more than once.");
 
 					encoding = enc;
 					continue;
 				}
 
-				var text = obj as string;
-				if (text != null) {
-					if (builder == null)
-						builder = new StringBuilder ();
+				var str = obj as string;
+				if (str != null) {
+					if (text != null)
+						throw new ArgumentException ("The text should not be specified more than once.");
 
-					builder.Append (text);
+					text = str;
 					continue;
 				}
 
 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
-			if (builder != null)
-				SetText (encoding ?? Encoding.UTF8, builder.ToString ());
+			if (text != null)
+				SetText (encoding ?? Encoding.UTF8, text);
 		}
 
 		/// <summary>
@@ -125,6 +132,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the decoded text content.
 		/// </summary>
+		/// <remarks>
+		/// <para>If the charset parameter on the <see cref="MimeEntity.ContentType"/>
+		/// is set, it will be used in order to convert the raw content into unicode.
+		/// If that fails or if the charset parameter is not set, iso-8859-1 will be
+		/// used instead.</para>
+		/// <para>For more control, use the <see cref="GetText"/> method.</para>
+		/// </remarks>
 		/// <value>The text.</value>
 		public string Text {
 			get {

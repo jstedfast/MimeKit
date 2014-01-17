@@ -1,0 +1,6 @@
+<Namespace Name="MimeKit.Cryptography">
+  <Docs>
+    <summary>Cryptography classes necessary for dealing with S/MIME and PGP/MIME.</summary>
+    <remarks>Cryptography classes necessary for dealing with S/MIME and PGP/MIME.</remarks>
+  </Docs>
+</Namespace>

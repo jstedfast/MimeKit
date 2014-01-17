@@ -26,6 +26,12 @@
 
 using System;
 using System.Text;
+using System.Reflection;
+using System.Collections.Generic;
+
+#if !__MIMEKIT_LITE__
+using MimeKit.Cryptography;
+#endif
 
 namespace MimeKit {
 	/// <summary>
@@ -33,14 +39,26 @@ namespace MimeKit {
 	/// </summary>
 	public sealed class ParserOptions
 	{
+		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
+		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
+
 		/// <summary>
 		/// The default parser options.
 		/// </summary>
-		public static readonly ParserOptions Default;
+		/// <remarks>
+		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="MimeParser"/> or other Parse and TryParse
+		/// methods throughout MimeKit, <see cref="ParserOptions.Default"/> will be used.
+		/// </remarks>
+		public static readonly ParserOptions Default = new ParserOptions ();
 
 		/// <summary>
 		/// Gets or sets a value indicating whether rfc2047 workarounds should be used.
 		/// </summary>
+		/// <remarks>
+		/// In general, you'll probably want this value to be <c>true</c> (the default) as it
+		/// allows maximum interoperability with existing (broken) mail clients and other mail
+		/// software such as sloppily written perl scripts (aka spambots).
+		/// </remarks>
 		/// <value><c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
 		public bool EnableRfc2047Workarounds { get; set; }
 
@@ -51,7 +69,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if the Content-Length value should be respected;
 		/// otherwise, <c>false</c>.</value>
 		/// <remarks>
-		/// For more information about why this may be useful, you can find more information
+		/// For more details about why this may be useful, you can find more information
 		/// at http://www.jwz.org/doc/content-length.html
 		/// </remarks>
 		public bool RespectContentLength { get; set; }
@@ -69,17 +87,25 @@ namespace MimeKit {
 		/// <value>The charset encoding.</value>
 		public Encoding CharsetEncoding { get; set; }
 
-		static ParserOptions ()
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParserOptions"/> class.
+		/// </summary>
+		/// <remarks>
+		/// By default, new instances of <see cref="ParserOptions"/> enable rfc2047 work-arounds
+		/// (which are needed for maximum interoperability with mail software used in the wild)
+		/// and do not respect the Content-Length header value.
+		/// </remarks>
+		public ParserOptions ()
 		{
-			Default = new ParserOptions ();
-			Default.EnableRfc2047Workarounds = true;
-			Default.RespectContentLength = false;
-			Default.CharsetEncoding = Encoding.Default;
+			CharsetEncoding = Encoding.Default;
+			EnableRfc2047Workarounds = true;
+			RespectContentLength = false;
 		}
 
 		/// <summary>
 		/// Clones an instance of <see cref="MimeKit.ParserOptions"/>.
 		/// </summary>
+		/// <returns>An identical copy of the current instance.</returns>
 		public ParserOptions Clone ()
 		{
 			var options = new ParserOptions ();
@@ -87,7 +113,113 @@ namespace MimeKit {
 			options.RespectContentLength = RespectContentLength;
 			options.CharsetEncoding = CharsetEncoding;
 
+			foreach (var mimeType in mimeTypes)
+				options.mimeTypes.Add (mimeType.Key, mimeType.Value);
+
 			return options;
+		}
+
+		/// <summary>
+		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
+		/// </summary>
+		/// <param name="mimeType">The MIME type.</param>
+		/// <param name="type">A custom subclass of <see cref="MimeEntity"/>.</param>
+		/// <remarks>
+		/// Your custom <see cref="MimeEntity"/> class should not subclass
+		/// <see cref="MimeEntity"/> directly, but rather it should subclass
+		/// <see cref="Multipart"/>, <see cref="MimePart"/>,
+		/// <see cref="MessagePart"/>, or one of their derivatives.
+		/// </remarks>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mimeType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="type"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="type"/> is not a subclass of <see cref="Multipart"/>,
+		/// <see cref="MimePart"/>, or <see cref="MessagePart"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="type"/> does not have a constructor that takes
+		/// only a <see cref="MimeEntityConstructorInfo"/> argument.</para>
+		/// </exception>
+		public void RegisterMimeType (string mimeType, Type type)
+		{
+			if (mimeType == null)
+				throw new ArgumentNullException ("mimeType");
+
+			if (type == null)
+				throw new ArgumentNullException ("type");
+
+			mimeType = mimeType.ToLowerInvariant ();
+
+			if (!type.IsSubclassOf (typeof (MessagePart)) &&
+				!type.IsSubclassOf (typeof (Multipart)) &&
+				!type.IsSubclassOf (typeof (MimePart)))
+				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
+
+			var ctor = type.GetConstructor (ConstructorArgTypes);
+			if (ctor == null)
+				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
+
+			mimeTypes[mimeType] = ctor;
+		}
+
+		internal MimeEntity CreateEntity (ContentType contentType, IEnumerable<Header> headers, bool toplevel)
+		{
+			var entity = new MimeEntityConstructorInfo (this, contentType, headers, toplevel);
+			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
+			var type = contentType.MediaType.ToLowerInvariant ();
+
+			if (mimeTypes.Count > 0) {
+				var mimeType = string.Format ("{0}/{1}", type, subtype);
+				ConstructorInfo ctor;
+
+				if (mimeTypes.TryGetValue (mimeType, out ctor))
+					return (MimeEntity) ctor.Invoke (new object[] { entity });
+			}
+
+			if (type == "message") {
+				if (subtype == "partial")
+					return new MessagePartial (entity);
+
+				return new MessagePart (entity);
+			}
+
+			if (type == "multipart") {
+				#if !__MIMEKIT_LITE__
+				if (subtype == "encrypted")
+					return new MultipartEncrypted (entity);
+
+				if (subtype == "signed")
+					return new MultipartSigned (entity);
+				#endif
+
+				return new Multipart (entity);
+			}
+
+			#if !__MIMEKIT_LITE__
+			if (type == "application") {
+				switch (subtype) {
+				case "x-pkcs7-signature":
+				case "pkcs7-signature":
+					return new ApplicationPkcs7Signature (entity);
+				case "x-pgp-encrypted":
+				case "pgp-encrypted":
+					return new ApplicationPgpEncrypted (entity);
+				case "x-pgp-signature":
+				case "pgp-signature":
+					return new ApplicationPgpSignature (entity);
+				case "x-pkcs7-mime":
+				case "pkcs7-mime":
+					return new ApplicationPkcs7Mime (entity);
+				}
+			}
+			#endif
+
+			if (type == "text")
+				return new TextPart (entity);
+
+			return new MimePart (entity);
 		}
 	}
 }

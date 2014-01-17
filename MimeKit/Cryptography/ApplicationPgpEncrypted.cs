@@ -23,6 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
 using System;
 using System.IO;
 using System.Text;
@@ -31,31 +32,38 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A MIME part with a Content-Type of application/pgp-encrypted.
 	/// </summary>
-	public class ApplicationPgpEncrypted : MimePart
+	/// <remarks>
+	/// An application/pgp-encrypted part will typically be the first child of
+	/// a <see cref="MultipartEncrypted"/> part and contains only a Version
+	/// header.
+	/// </remarks>
+	public sealed class ApplicationPgpEncrypted : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
+		/// class based on the <see cref="MimeKit.MimeEntityConstructorInfo"/>.
 		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
 		/// <param name="entity">Information used by the constructor.</param>
 		public ApplicationPgpEncrypted (MimeEntityConstructorInfo entity) : base (entity)
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>
-		/// class with a Content-Type of application/pgp-encrypted and content matching "Version: 1\n".
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME part with a Content-Type of application/pgp-encrypted
+		/// and content matching <c>"Version: 1\n"</c>.
+		/// </remarks>
 		public ApplicationPgpEncrypted () : base ("application", "pgp-encrypted")
 		{
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.SevenBit;
-			ContentDisposition.FileName = "smime.p7s";
-			ContentType.Name = "smime.p7s";
 
-			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"));
+			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"), false);
 
 			ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 	}
 }
-

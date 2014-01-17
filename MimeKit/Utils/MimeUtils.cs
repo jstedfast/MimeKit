@@ -265,9 +265,11 @@ namespace MimeKit.Utils {
 				switch (text[i]) {
 				case '\r':
 				case '\n':
+					escaped = false;
 					break;
 				case '\t':
 					builder.Append (' ');
+					escaped = false;
 					break;
 				case '\\':
 					if (escaped)
@@ -284,6 +286,7 @@ namespace MimeKit.Utils {
 					break;
 				default:
 					builder.Append (text[i]);
+					escaped = false;
 					break;
 				}
 			}

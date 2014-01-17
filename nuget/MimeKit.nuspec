@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MimeKit</id>
+        <version>0.20.0.0</version>
+        <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
+        <authors>Jeffrey Stedfast</authors>
+        <owners>Jeffrey Stedfast</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>http://github.com/jstedfast/MimeKit</projectUrl>
+        <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
+
+Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and about 75x faster than SharpMimeTools).
+
+MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
+
+In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.
+
+API documentation can be found on the web at http://jstedfast.github.io/MimeKit/docs
+
+For those that need SMTP or POP3 support, check out https://github.com/jstedfast/MailKit</description>
+        <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
+        <releaseNotes>* Added a new convenience method for getting a header value in a different character encoding.
+* Added public TryParse() methods to InternetAddress, MailboxAddress, and GroupAddress.
+* Fixed an embarrassing bug in the InternetAddressList.ToString(true) implementation where I forgot to properly separate addresses with commas.
+* Fixed writing of the Sender: header to end with a new-line (also embarrassing).
+* Improved API documentation.</releaseNotes>
+        <copyright>Jeffrey Stedfast</copyright>
+        <language>en-US</language>
+        <tags>mime security smime openpgp pgp mbox email parser xamarin android ios</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="MonoTouch0.0" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.Android.dll" target="lib\MonoAndroid\BouncyCastle.Android.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.dll" target="lib\MonoAndroid\MimeKit.Android.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.xml" target="lib\MonoAndroid\MimeKit.Android.xml" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.iOS.dll" target="lib\MonoTouch\BouncyCastle.iOS.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.dll" target="lib\MonoTouch\MimeKit.iOS.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.xml" target="lib\MonoTouch\MimeKit.iOS.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.dll" target="lib\net40\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
+        <file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
+    </files>
+</package>

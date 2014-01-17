@@ -31,6 +31,12 @@ namespace MimeKit.IO {
 	/// <summary>
 	/// A bounded stream, confined to reading and writing data to a limited subset of the overall source stream.
 	/// </summary>
+	/// <remarks>
+	/// <para>Wraps an arbitrary stream, limiting I/O operations to a subset of the source stream.
+	/// If the <see cref="EndBoundary"/> is <c>-1</c>, then the end of the stream is unbound.</para>
+	/// <para>When a <see cref="MimeParser"/> is set to parse a persistent stream, it will construct
+	/// <see cref="ContentObject"/>s using bounded streams instead of loading the content into memory.</para>
+	/// </remarks>
 	public class BoundStream : Stream
 	{
 		long position;
@@ -40,20 +46,15 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.BoundStream"/> class.
 		/// </summary>
-		/// <param name='baseStream'>
-		/// The underlying stream.
-		/// </param>
-		/// <param name='startBoundary'>
-		/// The offset in the base stream that will mark the start of this substream.
-		/// </param>
-		/// <param name='endBoundary'>
-		/// The offset in the base stream that will mark the end of this substream.
-		/// </param>
-		/// <param name='leaveOpen'>
-		/// <c>true</c> to leave the baseStream open after the
-		/// <see cref="MimeKit.IO.BoundStream"/> is disposed;
-		/// otherwise, <c>false</c>.
-		/// </param>
+		/// <remarks>
+		/// If the <paramref name="endBoundary"/> is less than <c>0</c>, then the end of the stream
+		/// is unbounded.
+		/// </remarks>
+		/// <param name='baseStream'>The underlying stream.</param>
+		/// <param name='startBoundary'>The offset in the base stream that will mark the start of this substream.</param>
+		/// <param name='endBoundary'>The offset in the base stream that will mark the end of this substream.</param>
+		/// <param name='leaveOpen'><c>true</c> to leave the baseStream open after the
+		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="baseStream"/> is <c>null</c>.
 		/// </exception>
@@ -85,9 +86,10 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The underlying stream.
-		/// </value>
+		/// <remarks>
+		/// All I/O is performed on the base stream.
+		/// </remarks>
+		/// <value>The underlying stream.</value>
 		public Stream BaseStream {
 			get; private set;
 		}
@@ -95,9 +97,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the start boundary offset of the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The start boundary offset of the underlying stream.
-		/// </value>
+		/// <remarks>
+		/// The start boundary is the byte offset into the <see cref="BaseStream"/>
+		/// that marks the beginning of the substream.
+		/// </remarks>
+		/// <value>The start boundary offset of the underlying stream.</value>
 		public long StartBoundary {
 			get; private set;
 		}
@@ -105,9 +109,12 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Gets the end boundary offset of the underlying stream.
 		/// </summary>
-		/// <value>
-		/// The end boundary offset of the underlying stream.
-		/// </value>
+		/// <remarks>
+		/// The end boundary is the byte offset into the <see cref="BaseStream"/>
+		/// that marks the end of the substream. If the value is less than 0,
+		/// then the end of the stream is treated as unbound.
+		/// </remarks>
+		/// <value>The end boundary offset of the underlying stream.</value>
 		public long EndBoundary {
 			get; private set;
 		}
@@ -116,10 +123,8 @@ namespace MimeKit.IO {
 		/// Checks whether or not the underlying stream will remain open after
 		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the underlying stream should remain open after the
-		/// <see cref="MimeKit.IO.BoundStream"/> is disposed; otherwise, <c>false</c>.
-		/// </value>
+		/// <value><c>true</c> if the underlying stream should remain open after the
+		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</value>
 		bool LeaveOpen {
 			get; set;
 		}
@@ -153,9 +158,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports reading.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="BoundStream"/> will only support reading if the
+		/// <see cref="BaseStream"/> supports it.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
 		public override bool CanRead {
 			get { return BaseStream.CanRead; }
 		}
@@ -163,9 +170,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports writing.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="BoundStream"/> will only support writing if the
+		/// <see cref="BaseStream"/> supports it.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
 		public override bool CanWrite {
 			get { return BaseStream.CanWrite; }
 		}
@@ -173,9 +182,11 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not the stream supports seeking.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="BoundStream"/> will only support seeking if the
+		/// <see cref="BaseStream"/> supports it.
+		/// </remarks>
+		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
 		public override bool CanSeek {
 			get { return BaseStream.CanSeek; }
 		}
@@ -183,19 +194,29 @@ namespace MimeKit.IO {
 		/// <summary>
 		/// Checks whether or not I/O operations can timeout.
 		/// </summary>
-		/// <value>
-		/// <c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.
-		/// </value>
+		/// <remarks>
+		/// The <see cref="BoundStream"/> will only support timing out if the
+		/// <see cref="BaseStream"/> supports it.
+		/// </remarks>
+		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return BaseStream.CanTimeout; }
 		}
 
 		/// <summary>
-		/// Gets the length of the stream.
+		/// Gets the length in bytes of the stream.
 		/// </summary>
-		/// <value>
-		/// The length of the stream.
-		/// </value>
+		/// <remarks>
+		/// If the <see cref="EndBoundary"/> property is greater than or equal to <c>0</c>,
+		/// then the length will be calculated by subtracting the <see cref="StartBoundary"/>
+		/// from the <see cref="EndBoundary"/>. If the end of the stream is unbound, then the
+		/// <see cref="StartBoundary"/> will be subtracted from the length of the
+		/// <see cref="BaseStream"/>.
+		/// </remarks>
+		/// <value>The length of the stream in bytes.</value>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support seeking.
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -214,16 +235,20 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position of the stream.
+		/// Gets or sets the position within the current stream.
 		/// </summary>
-		/// <value>
-		/// The position of the stream.
-		/// </value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The stream has been disposed.
+		/// <remarks>
+		/// The <see cref="Position"/> is relative to the <see cref="StartBoundary"/>.
+		/// </remarks>
+		/// <value>The position of the stream.</value>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
 		/// </exception>
 		public override long Position {
 			get { return position; }
@@ -231,22 +256,24 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the read timeout.
+		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
 		/// </summary>
-		/// <value>
-		/// The read timeout.
-		/// </value>
+		/// <remarks>
+		/// Gets or sets the <see cref="BaseStream"/>'s read timeout.
+		/// </remarks>
+		/// <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
 		public override int ReadTimeout {
 			get { return BaseStream.ReadTimeout; }
 			set { BaseStream.ReadTimeout = value; }
 		}
 
 		/// <summary>
-		/// Gets or sets the write timeout.
+		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
 		/// </summary>
-		/// <value>
-		/// The write timeout.
-		/// </value>
+		/// <remarks>
+		/// Gets or sets the <see cref="BaseStream"/>'s write timeout.
+		/// </remarks>
+		/// <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
 		public override int WriteTimeout {
 			get { return BaseStream.WriteTimeout; }
 			set { BaseStream.WriteTimeout = value; }
@@ -265,22 +292,35 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Reads data into the specified buffer.
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to read data into.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset into the buffer to start reading data.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to read.
-		/// </param>
+		/// <remarks>
+		/// Reads data from the <see cref="BaseStream"/>, not allowing it to
+		/// read beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
@@ -311,22 +351,33 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Writes the specified buffer.
+		/// Writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
 		/// </summary>
-		/// <param name='buffer'>
-		/// The buffer to write.
-		/// </param>
-		/// <param name='offset'>
-		/// The offset of the first byte to write.
-		/// </param>
-		/// <param name='count'>
-		/// The number of bytes to write.
-		/// </param>
+		/// <remarks>
+		/// Writes data to the <see cref="BaseStream"/>, not allowing it to
+		/// write beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <param name='buffer'>The buffer to write.</param>
+		/// <param name='offset'>The offset of the first byte to write.</param>
+		/// <param name='count'>The number of bytes to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
@@ -353,22 +404,22 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Seeks to the specified offset.
+		/// Sets the position within the current stream.
 		/// </summary>
-		/// <param name='offset'>
-		/// The offset from the specified origin.
-		/// </param>
-		/// <param name='origin'>
-		/// The origin from which to seek.
-		/// </param>
+		/// <remarks>
+		/// Seeks within the confines of the <see cref="StartBoundary"/> and the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <returns>The new position within the stream.</returns>
+		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
+		/// <param name="origin">The origin to seek from.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support seeking.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="origin"/> is not a valid <see cref="System.IO.SeekOrigin"/>. 
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -429,13 +480,20 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Flushes any internal output buffers.
+		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
 		/// </summary>
+		/// <remarks>
+		/// Flushes the <see cref="BaseStream"/>.
+		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public override void Flush ()
 		{
@@ -446,11 +504,15 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Sets the length.
+		/// Sets the length of the stream.
 		/// </summary>
-		/// <param name='value'>
-		/// The new length.
-		/// </param>
+		/// <remarks>
+		/// Updates the <see cref="EndBoundary"/> to be <see cref="StartBoundary"/> plus
+		/// the specified new length. If the <see cref="BaseStream"/> needs to be grown
+		/// to allow this, then the length of the <see cref="BaseStream"/> will also be
+		/// updated.
+		/// </remarks>
+		/// <param name='value'>The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -477,9 +539,14 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Dispose the specified disposing.
+		/// Disposes the stream.
 		/// </summary>
-		/// <param name="disposing">If set to <c>true</c> disposing.</param>
+		/// <remarks>
+		/// If the <see cref="LeaveOpen"/> property is <c>false</c>, then
+		/// the <see cref="BaseStream"/> is also disposed.
+		/// </remarks>
+		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
+		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !LeaveOpen)
