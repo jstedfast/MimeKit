@@ -253,10 +253,8 @@ namespace MimeKit {
 						throw new ArgumentException ("partials");
 
 					var content = parts[i].ContentObject;
-					content.Stream.Seek (0, SeekOrigin.Begin);
-					var filtered = new FilteredStream (content.Stream);
-					filtered.Add (DecoderFilter.Create (content.Encoding));
-					chained.Add (filtered);
+
+					chained.Add (content.Open ());
 				}
 
 				var parser = new MimeParser (options, chained);

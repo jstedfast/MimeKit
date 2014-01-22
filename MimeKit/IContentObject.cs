@@ -49,13 +49,14 @@ namespace MimeKit {
 		ContentEncoding Encoding { get; }
 
 		/// <summary>
-		/// Gets the content stream.
+		/// Opens the decoded content stream.
 		/// </summary>
-        /// <remarks>
-        /// Represents the stream containing the content.
-        /// </remarks>
-		/// <value>The stream.</value>
-		Stream Stream { get; }
+		/// <remarks>
+		/// Provides a means of reading the decoded content without having to first
+		/// write it to another stream using <see cref="DecodeTo(Stream)"/>.
+		/// </remarks>
+		/// <returns>The decoded content stream.</returns>
+		Stream Open ();
 
 		/// <summary>
 		/// Decodes the content stream into another stream.

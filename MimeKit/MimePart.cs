@@ -355,26 +355,23 @@ namespace MimeKit {
 			if (ContentObject == null)
 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
 
-			var stream = ContentObject.Stream;
-			stream.Seek (0, SeekOrigin.Begin);
+			using (var stream = ContentObject.Open ()) {
+				byte[] checksum;
 
-			byte[] checksum;
+				using (var filtered = new FilteredStream (stream)) {
+					if (ContentType.Matches ("text", "*"))
+						filtered.Add (new Unix2DosFilter ());
 
-			using (var filtered = new FilteredStream (stream)) {
-				filtered.Add (DecoderFilter.Create (ContentObject.Encoding));
+					using (var md5 = HashAlgorithm.Create ("MD5"))
+						checksum = md5.ComputeHash (filtered);
+				}
 
-				if (ContentType.Matches ("text", "*"))
-					filtered.Add (new Unix2DosFilter ());
+				var base64 = new Base64Encoder (true);
+				var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
+				int n = base64.Flush (checksum, 0, checksum.Length, digest);
 
-				using (var md5 = HashAlgorithm.Create ("MD5"))
-					checksum = md5.ComputeHash (filtered);
+				return Encoding.ASCII.GetString (digest, 0, n);
 			}
-
-			var base64 = new Base64Encoder (true);
-			var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
-			int n = base64.Flush (checksum, 0, checksum.Length, digest);
-
-			return Encoding.ASCII.GetString (digest, 0, n);
 		}
 
 		/// <summary>

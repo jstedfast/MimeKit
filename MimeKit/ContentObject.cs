@@ -41,6 +41,8 @@ namespace MimeKit {
 	/// </remarks>
 	public sealed class ContentObject : IContentObject
 	{
+		readonly Stream content;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
 		/// </summary>
@@ -68,7 +70,7 @@ namespace MimeKit {
 				throw new ArgumentException ("stream");
 
 			Encoding = encoding;
-			Stream = stream;
+			content = stream;
 		}
 
 		#region IContentObject implementation
@@ -87,11 +89,21 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content stream.
+		/// Opens the decoded content stream.
 		/// </summary>
-		/// <value>The content stream.</value>
-		public Stream Stream {
-			get; private set;
+		/// <remarks>
+		/// Provides a means of reading the decoded content without having to first
+		/// write it to another stream using <see cref="DecodeTo(Stream)"/>.
+		/// </remarks>
+		/// <returns>The decoded content stream.</returns>
+		public Stream Open ()
+		{
+			content.Seek (0, SeekOrigin.Begin);
+
+			var filtered = new FilteredStream (content);
+			filtered.Add (DecoderFilter.Create (Encoding));
+
+			return filtered;
 		}
 
 		/// <summary>
@@ -120,27 +132,27 @@ namespace MimeKit {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			byte[] buf = new byte[4096];
+			var buf = new byte[4096];
 			int nread;
 
-			Stream.Seek (0, SeekOrigin.Begin);
+			content.Seek (0, SeekOrigin.Begin);
 
 			try {
 				do {
 					cancellationToken.ThrowIfCancellationRequested ();
-					if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
+					if ((nread = content.Read (buf, 0, buf.Length)) <= 0)
 						break;
 
 					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (buf, 0, nread);
 				} while (true);
 
-				Stream.Seek (0, SeekOrigin.Begin);
+				content.Seek (0, SeekOrigin.Begin);
 			} catch (OperationCanceledException) {
 				// try and reset the stream
 
 				try {
-					Stream.Seek (0, SeekOrigin.Begin);
+					content.Seek (0, SeekOrigin.Begin);
 				} catch (IOException) {
 				}
 
