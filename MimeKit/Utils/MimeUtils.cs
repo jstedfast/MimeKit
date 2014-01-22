@@ -105,7 +105,7 @@ namespace MimeKit.Utils {
 					if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
 						break;
 
-					yield return "<" + ((MailboxAddress) addr).Address + ">";
+					yield return ((MailboxAddress) addr).Address;
 				} else if (!ParseUtils.Skip8bitWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}

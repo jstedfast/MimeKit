@@ -233,9 +233,9 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Content-Id format.");
 
-				contentId = "<" + ((MailboxAddress) addr).Address + ">";
+				contentId = ((MailboxAddress) addr).Address;
 
-				SetHeader ("Content-Id", contentId);
+				SetHeader ("Content-Id", "<" + contentId + ">");
 			}
 		}
 

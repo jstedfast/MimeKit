@@ -438,10 +438,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				inreplyto = "<" + ((MailboxAddress) addr).Address + ">";
+				inreplyto = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["In-Reply-To"] = inreplyto;
+				Headers["In-Reply-To"] = "<" + inreplyto + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -472,10 +472,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				messageId = "<" + ((MailboxAddress) addr).Address + ">";
+				messageId = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Message-Id"] = messageId;
+				Headers["Message-Id"] = "<" + messageId + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -506,10 +506,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
 
-				resentMessageId = "<" + ((MailboxAddress) addr).Address + ">";
+				resentMessageId = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Message-Id"] = resentMessageId;
+				Headers["Resent-Message-Id"] = "<" + resentMessageId + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
