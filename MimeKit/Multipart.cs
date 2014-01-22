@@ -30,6 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
@@ -109,12 +110,14 @@ namespace MimeKit {
 		static string GenerateBoundary ()
 		{
 			var base64 = new Base64Encoder (true);
-			var rand = new Random ();
 			var digest = new byte[16];
 			var b64buf = new byte[24];
 			int length;
 
-			rand.NextBytes (digest);
+			using (var rand = new RNGCryptoServiceProvider ()) {
+				rand.GetBytes (digest);
+			}
+
 			length = base64.Flush (digest, 0, 16, b64buf);
 
 			return "=-" + Encoding.ASCII.GetString (b64buf, 0, length);
