@@ -36,7 +36,7 @@ namespace MimeKit.Utils {
 	/// </summary>
 	public static class MimeUtils
 	{
-		static int MessageIdCounter = 0;
+		static int MessageIdCounter;
 
 		/// <summary>
 		/// Generates a token suitable for a Message-Id.
@@ -252,12 +252,12 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '\\', '"' });
+			int index = text.IndexOfAny (new [] { '\r', '\n', '\t', '\\', '"' });
 
 			if (index == -1)
 				return text;
 
-			StringBuilder builder = new StringBuilder ();
+			var builder = new StringBuilder ();
 			bool escaped = false;
 			bool quoted = false;
 
