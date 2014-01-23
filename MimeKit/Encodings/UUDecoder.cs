@@ -159,19 +159,19 @@ namespace MimeKit.Encodings {
 		{
 			while (inptr < inend) {
 				if (state == UUDecoderState.ExpectBegin) {
-					if (nsaved != (byte) '\n') {
+					if (nsaved != 0 && nsaved != (byte) '\n') {
 						while (inptr < inend && *inptr != (byte) '\n')
 							inptr++;
-					}
 
-					if (inptr == inend) {
-						nsaved = *(inptr - 1);
-						return inptr;
-					}
+						if (inptr == inend) {
+							nsaved = *(inptr - 1);
+							return inptr;
+						}
 
-					nsaved = *inptr++;
-					if (inptr == inend)
-						return inptr;
+						nsaved = *inptr++;
+						if (inptr == inend)
+							return inptr;
+					}
 
 					nsaved = *inptr++;
 					if (nsaved != (byte) 'b')
