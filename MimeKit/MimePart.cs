@@ -479,12 +479,16 @@ namespace MimeKit {
 				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
 					text = header.Value.Trim ().ToLowerInvariant ();
-					encoding = ContentEncoding.Default;
-					for (int i = 1; i < ContentTransferEncodings.Length; i++) {
-						if (ContentTransferEncodings[i] == text) {
-							encoding = (ContentEncoding) i;
-							break;
-						}
+
+					switch (text) {
+					case "7bit":             encoding = ContentEncoding.SevenBit; break;
+					case "8bit":             encoding = ContentEncoding.EightBit; break;
+					case "binary":           encoding = ContentEncoding.Binary; break;
+					case "base64":           encoding = ContentEncoding.Base64; break;
+					case "quoted-printable": encoding = ContentEncoding.QuotedPrintable; break;
+					case "x-uuencode":       encoding = ContentEncoding.UUEncode; break;
+					case "uuencode":         encoding = ContentEncoding.UUEncode; break;
+					default:                 encoding = ContentEncoding.Default; break;
 					}
 					break;
 				case HeaderId.ContentDuration:
