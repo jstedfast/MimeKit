@@ -202,6 +202,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the address in the Sender header.
 		/// </summary>
+		/// <remarks>
+		/// The sender may differ from the addresses in <see cref="From"/> if
+		/// the message was sent by someone on behalf of someone else.
+		/// </remarks>
 		/// <value>The address in the Sender header.</value>
 		public MailboxAddress Sender {
 			get { return sender; }
@@ -236,6 +240,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the address in the Resent-Sender header.
 		/// </summary>
+		/// <remarks>
+		/// The resent sender may differ from the addresses in <see cref="Resent-From"/> if
+		/// the message was sent by someone on behalf of someone else.
+		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
 		public MailboxAddress ResentSender {
 			get { return resentSender; }
@@ -334,6 +342,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Bcc header.
 		/// </summary>
+		/// <remarks>
+		/// Recipients in the Blind-Carpbon-Copy list will not be visible to
+		/// the other recipients of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
 			get { return addresses["Bcc"]; }
@@ -342,6 +354,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Bcc header.
 		/// </summary>
+		/// <remarks>
+		/// Recipients in the Resent Blind-Carpbon-Copy list will not be visible to
+		/// the other recipients of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Bcc header.</value>
 		public InternetAddressList ResentBcc {
 			get { return addresses["Resent-Bcc"]; }
@@ -369,6 +385,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the date of the message.
 		/// </summary>
+		/// <remarks>
+		/// If the date is not explicitly set before the message is written to a stream,
+		/// the date will default to the exact moment when it is written to said stream.
+		/// </remarks>
 		/// <value>The date of the message.</value>
 		public DateTimeOffset Date {
 			get { return date; }
@@ -405,6 +425,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the list of references to other messages.
 		/// </summary>
+		/// <remarks>
+		/// The References header contains a chain of Message-Ids back to the
+		/// original message that started the thread.
+		/// </remarks>
 		/// <value>The references.</value>
 		public MessageIdList References {
 			get { return references; }
