@@ -83,13 +83,13 @@ namespace UnitTests {
 			var msgid = MimeUtils.EnumerateReferences (obsolete).FirstOrDefault ();
 
 			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
-			Assert.AreEqual ("<some.message.id.1@some.domain>", msgid, "The parsed msgid does not match");
+			Assert.AreEqual ("some.message.id.1@some.domain", msgid, "The parsed msgid does not match");
 
 			obsolete = "<some.message.id.2@some.domain> as sent on Mon, 17 Jan 1994 11:14:55 -0500";
 			msgid = MimeUtils.EnumerateReferences (obsolete).FirstOrDefault ();
 
 			Assert.IsNotNull (msgid, "The parsed msgid token should not be null");
-			Assert.AreEqual ("<some.message.id.2@some.domain>", msgid, "The parsed msgid does not match");
+			Assert.AreEqual ("some.message.id.2@some.domain", msgid, "The parsed msgid does not match");
 		}
 
 		[Test]
