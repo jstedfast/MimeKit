@@ -416,6 +416,13 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
+			if (index == endIndex) {
+				if (throwOnError)
+					throw new ParseException ("No addresses found.", index, index);
+
+				return false;
+			}
+
 			while (index < endIndex) {
 				if (isGroup && text[index] == (byte) ';')
 					break;

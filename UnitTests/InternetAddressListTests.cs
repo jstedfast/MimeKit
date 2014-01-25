@@ -57,6 +57,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestTryParseWhiteSpace ()
+		{
+			try {
+				InternetAddress address;
+
+				Assert.IsFalse (InternetAddress.TryParse ("   ", out address), "InternetAddress.TryParse() should fail to parse whitespace.");
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddress.TryParse() should not throw an exception: {0}", ex);
+			}
+
+			try {
+				InternetAddressList list;
+
+				Assert.IsFalse (InternetAddressList.TryParse ("   ", out list), "InternetAddressList.TryParse() should fail to parse whitespace.");
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+			}
+		}
+
+		[Test]
 		public void TestSimpleAddrSpec ()
 		{
 			InternetAddressList expected = new InternetAddressList ();

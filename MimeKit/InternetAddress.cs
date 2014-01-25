@@ -341,6 +341,13 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
+			if (index == endIndex) {
+				if (throwOnError)
+					throw new ParseException ("No address found.", index, index);
+
+				return false;
+			}
+
 			// keep track of the start & length of the phrase
 			int startIndex = index;
 			int length = 0;
