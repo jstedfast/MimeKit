@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
@@ -100,7 +101,7 @@ namespace MimeKit {
 	/// A MIME parser which can be used to parse <see cref="MimeKit.MimeMessage"/>s and
 	/// <see cref="MimeKit.MimeEntity"/>s from arbitrary streams.
 	/// </summary>
-	public sealed class MimeParser
+	public sealed class MimeParser : IEnumerable<MimeMessage>
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
@@ -1485,5 +1486,40 @@ namespace MimeKit {
 		{
 			return ParseMessage (CancellationToken.None);
 		}
+
+		#region IEnumerable implementation
+
+		/// <summary>
+		/// Enumerates the messages in the stream.
+		/// </summary>
+		/// <remarks>
+		/// This is mostly useful when parsing mbox-formatted streams.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
+		public IEnumerator<MimeMessage> GetEnumerator ()
+		{
+			while (!IsEndOfStream)
+				yield return ParseMessage ();
+
+			yield break;
+		}
+
+		#endregion
+
+		#region IEnumerable implementation
+
+		/// <summary>
+		/// Enumerates the messages in the stream.
+		/// </summary>
+		/// <remarks>
+		/// This is mostly useful when parsing mbox-formatted streams.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
+		IEnumerator IEnumerable.GetEnumerator ()
+		{
+			return GetEnumerator ();
+		}
+
+		#endregion
 	}
 }
