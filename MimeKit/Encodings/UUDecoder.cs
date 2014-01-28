@@ -79,6 +79,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new Unix-to-Unix decoder.
+		/// </remarks>
 		/// <param name="payloadOnly">
 		/// If <c>true</c>, decoding begins immediately rather than after finding a begin-line.
 		/// </param>
@@ -91,7 +94,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
 		/// </summary>
-		/// <returns>A new <see cref="UUDecoder"/> with identical state.</returns>
+		/// <remarks>
+		/// Creates a new Unix-to-Unix decoder.
+		/// </remarks>
 		public UUDecoder () : this (false)
 		{
 		}
@@ -390,6 +395,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			state = initial;

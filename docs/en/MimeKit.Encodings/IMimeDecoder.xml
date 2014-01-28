@@ -162,7 +162,9 @@
         <summary>
             Resets the decoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the decoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

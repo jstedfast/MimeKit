@@ -50,6 +50,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUEncoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new Unix-to-Unix encoder.
+		/// </remarks>
 		public UUEncoder ()
 		{
 			Reset ();
@@ -342,6 +345,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			nsaved = 0;

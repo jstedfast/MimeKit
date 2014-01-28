@@ -108,6 +108,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		void Reset ();
 	}
 }

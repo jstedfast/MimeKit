@@ -63,6 +63,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Decoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new base64 decoder.
+		/// </remarks>
 		public Base64Decoder ()
 		{
 			Reset ();
@@ -221,6 +224,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			saved = 0;

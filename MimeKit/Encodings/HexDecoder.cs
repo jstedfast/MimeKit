@@ -50,6 +50,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.HexDecoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new hex decoder.
+		/// </remarks>
 		public HexDecoder ()
 		{
 		}
@@ -202,6 +205,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			state = HexDecoderState.PassThrough;

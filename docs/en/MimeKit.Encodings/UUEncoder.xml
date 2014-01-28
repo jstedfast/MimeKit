@@ -38,7 +38,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.UUEncoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new Unix-to-Unix encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -209,7 +211,9 @@
         <summary>
             Resets the encoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the encoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

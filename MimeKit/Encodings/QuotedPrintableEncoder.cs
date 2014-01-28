@@ -54,6 +54,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableEncoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new quoted-printable encoder.
+		/// </remarks>
 		public QuotedPrintableEncoder ()
 		{
 			Reset ();
@@ -289,6 +292,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			currentLineLength = 0;

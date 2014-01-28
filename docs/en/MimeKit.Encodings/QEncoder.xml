@@ -36,11 +36,13 @@
         <Parameter Name="mode" Type="MimeKit.Encodings.QEncodeMode" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
+        <param name="mode">The rfc2047 encoding mode.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.QEncoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new rfc2047 quoted-printable encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -211,7 +213,9 @@
         <summary>
             Resets the encoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the encoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

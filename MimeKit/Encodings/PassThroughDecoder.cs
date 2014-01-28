@@ -39,6 +39,9 @@ namespace MimeKit.Encodings {
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughDecoder"/> class.
 		/// </summary>
 		/// <param name='encoding'>The encoding to return in the <see cref="Encoding"/> property.</param>
+		/// <remarks>
+		/// Creates a new pass-through decoder.
+		/// </remarks>
 		public PassThroughDecoder (ContentEncoding encoding)
 		{
 			Encoding = encoding;
@@ -147,6 +150,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 		}

@@ -65,6 +65,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QEncoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new rfc2047 quoted-printable encoder.
+		/// </remarks>
+		/// <param name="mode">The rfc2047 encoding mode.</param>
 		public QEncoder (QEncodeMode mode)
 		{
 			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
@@ -229,6 +233,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 		}

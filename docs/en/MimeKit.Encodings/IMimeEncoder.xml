@@ -181,7 +181,9 @@
         <summary>
             Resets the encoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the encoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

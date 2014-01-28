@@ -36,7 +36,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.Base64Encoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new base64 encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -207,7 +209,9 @@
         <summary>
             Resets the encoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the encoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

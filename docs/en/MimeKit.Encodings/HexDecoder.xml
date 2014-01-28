@@ -35,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.HexDecoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new hex decoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -187,7 +189,9 @@
         <summary>
             Resets the decoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the decoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

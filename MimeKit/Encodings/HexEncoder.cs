@@ -46,6 +46,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.HexEncoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new hex encoder.
+		/// </remarks>
 		public HexEncoder ()
 		{
 		}
@@ -194,6 +197,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 		}

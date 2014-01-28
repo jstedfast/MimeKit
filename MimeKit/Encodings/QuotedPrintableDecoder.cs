@@ -52,6 +52,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new quoted-printable decoder.
+		/// </remarks>
 		/// <param name='rfc2047'>
 		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
 		/// </param>
@@ -225,6 +228,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			state = QpDecoderState.PassThrough;

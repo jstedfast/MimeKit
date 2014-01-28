@@ -241,7 +241,7 @@ namespace MimeKit {
 		/// Gets or sets the address in the Resent-Sender header.
 		/// </summary>
 		/// <remarks>
-		/// The resent sender may differ from the addresses in <see cref="Resent-From"/> if
+		/// The resent sender may differ from the addresses in <see cref="ResentFrom"/> if
 		/// the message was sent by someone on behalf of someone else.
 		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
