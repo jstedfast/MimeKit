@@ -49,7 +49,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The public key ring path.</value>
 		protected string PublicKeyRingPath {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -57,7 +57,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The secret key ring path.</value>
 		protected string SecretKeyRingPath {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -247,6 +247,18 @@ namespace MimeKit.Cryptography {
 			} else {
 				SecretKeyRingBundle = new PgpSecretKeyRingBundle (new byte[0]);
 			}
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
+		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
+		/// <see cref="SecretKeyRingBundle"/> properties themselves.
+		/// </remarks>
+		protected OpenPgpContext ()
+		{
 		}
 
 		/// <summary>
@@ -1097,6 +1109,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Saves the public key-ring bundle.
 		/// </summary>
+		/// <remarks>
+		/// <para>Atomically saves the public key-ring bundle to the path specified by <see cref="PublicKeyRingPath"/>.</para>
+		/// <para>Called by <see cref="Import"/> if any public keys were successfully imported.</para>
+		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring bundle.
 		/// </exception>
@@ -1124,6 +1140,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Saves the secret key-ring bundle.
 		/// </summary>
+		/// <remarks>
+		/// <para>Atomically saves the secret key-ring bundle to the path specified by <see cref="SecretKeyRingPath"/>.</para>
+		/// <para>Called by <see cref="ImportSecretKeys"/> if any secret keys were successfully imported.</para>
+		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring bundle.
 		/// </exception>
