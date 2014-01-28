@@ -123,7 +123,7 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			var type = protocol.ToLowerInvariant ().Split (new char[] { '/' });
+			var type = protocol.ToLowerInvariant ().Split ('/');
 			if (type.Length != 2 || type[0] != "application")
 				return false;
 
@@ -721,7 +721,7 @@ namespace MimeKit.Cryptography {
 			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
-		Stream Compress (Stream content)
+		static Stream Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryStream ();
@@ -742,7 +742,7 @@ namespace MimeKit.Cryptography {
 			return memory;
 		}
 
-		Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
+		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
 		{
 			var memory = new MemoryStream ();
 
@@ -944,7 +944,7 @@ namespace MimeKit.Cryptography {
 
 					var literalGenerator = new PgpLiteralDataGenerator ();
 					using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
-						byte[] buf = new byte[4096];
+						var buf = new byte[4096];
 						int nread;
 
 						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
