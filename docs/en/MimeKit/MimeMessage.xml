@@ -80,7 +80,10 @@
             Gets the list of addresses in the Bcc header.
             </summary>
         <value>The list of addresses in the Bcc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Recipients in the Blind-Carpbon-Copy list will not be visible to
+            the other recipients of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Body">
@@ -134,7 +137,10 @@
             Gets or sets the date of the message.
             </summary>
         <value>The date of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the date is not explicitly set before the message is written to a stream,
+            the date will default to the exact moment when it is written to said stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -635,7 +641,10 @@
             Gets or sets the list of references to other messages.
             </summary>
         <value>The references.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The References header contains a chain of Message-Ids back to the
+            original message that started the thread.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReplyTo">
@@ -671,7 +680,10 @@
             Gets the list of addresses in the Resent-Bcc header.
             </summary>
         <value>The list of addresses in the Resent-Bcc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Recipients in the Resent Blind-Carpbon-Copy list will not be visible to
+            the other recipients of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentCc">
@@ -785,7 +797,10 @@
             Gets or sets the address in the Resent-Sender header.
             </summary>
         <value>The address in the Resent-Sender header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The resent sender may differ from the addresses in <see cref="!:Resent-From" /> if
+            the message was sent by someone on behalf of someone else.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentTo">
@@ -821,7 +836,10 @@
             Gets or sets the address in the Sender header.
             </summary>
         <value>The address in the Sender header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The sender may differ from the addresses in <see cref="P:MimeKit.MimeMessage.From" /> if
+            the message was sent by someone on behalf of someone else.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sign">

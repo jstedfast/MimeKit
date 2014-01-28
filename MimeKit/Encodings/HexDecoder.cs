@@ -57,6 +57,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="HexDecoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HexDecoder"/> with exactly the same state as the current decoder.
+		/// </remarks>
 		/// <returns>A new <see cref="HexDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
@@ -79,6 +82,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)

@@ -142,22 +142,26 @@
             </remarks>
       </Docs>
     </Member>
-    <Member MemberName="Stream">
-      <MemberSignature Language="C#" Value="public System.IO.Stream Stream { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class System.IO.Stream Stream" />
-      <MemberType>Property</MemberType>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public System.IO.Stream Open ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.IO.Stream Open() cil managed" />
+      <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.20.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.IO.Stream</ReturnType>
       </ReturnValue>
+      <Parameters />
       <Docs>
         <summary>
-            Gets or sets the content stream.
+            Opens the decoded content stream.
             </summary>
-        <value>The content stream.</value>
-        <remarks>To be added.</remarks>
+        <returns>The decoded content stream.</returns>
+        <remarks>
+            Provides a means of reading the decoded content without having to first
+            write it to another stream using <see cref="M:MimeKit.ContentObject.DecodeTo(System.IO.Stream)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">

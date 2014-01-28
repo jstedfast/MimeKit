@@ -1,6 +1,6 @@
 <Type Name="MimeParser" FullName="MimeKit.MimeParser">
-  <TypeSignature Language="C#" Value="public sealed class MimeParser" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object" />
+  <TypeSignature Language="C#" Value="public sealed class MimeParser : System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object implements class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeMessage&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.20.0.0</AssemblyVersion>
@@ -8,7 +8,11 @@
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
-  <Interfaces />
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt;</InterfaceName>
+    </Interface>
+  </Interfaces>
   <Docs>
     <summary>
             A MIME parser which can be used to parse <see cref="T:MimeKit.MimeMessage" />s and
@@ -277,6 +281,27 @@
             </summary>
         <value>The stream offset.</value>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEnumerator">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerator&lt;MimeKit.MimeMessage&gt; GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.MimeMessage&gt; GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.MimeMessage&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Enumerates the messages in the stream.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            This is mostly useful when parsing mbox-formatted streams.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsEndOfStream">
@@ -701,6 +726,27 @@
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
         </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
+      <MemberSignature Language="C#" Value="System.Collections.IEnumerator IEnumerable.GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.IEnumerator</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Enumerates the messages in the stream.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            This is mostly useful when parsing mbox-formatted streams.
+            </remarks>
       </Docs>
     </Member>
   </Members>

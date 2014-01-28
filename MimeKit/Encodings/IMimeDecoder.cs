@@ -41,12 +41,18 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="IMimeDecoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="IMimeDecoder"/> with exactly the same state as the current decoder.
+		/// </remarks>
 		/// <returns>A new <see cref="IMimeDecoder"/> with identical state.</returns>
 		IMimeDecoder Clone ();
 
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name='inputLength'>The input length.</param>
 		int EstimateOutputLength (int inputLength);

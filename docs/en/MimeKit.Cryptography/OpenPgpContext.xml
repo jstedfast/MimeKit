@@ -21,6 +21,25 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected OpenPgpContext ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> class.
+            </summary>
+        <remarks>
+            Subclasses choosing to use this constructor MUST set the <see cref="P:MimeKit.Cryptography.OpenPgpContext.PublicKeyRingPath" />,
+            <see cref="P:MimeKit.Cryptography.OpenPgpContext.SecretKeyRingPath" />, <see cref="P:MimeKit.Cryptography.OpenPgpContext.PublicKeyRingBundle" />, and the
+            <see cref="P:MimeKit.Cryptography.OpenPgpContext.SecretKeyRingBundle" /> properties themselves.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="protected OpenPgpContext (string pubring, string secring);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string pubring, string secring) cil managed" />
       <MemberType>Constructor</MemberType>
@@ -754,7 +773,7 @@
       </Docs>
     </Member>
     <Member MemberName="PublicKeyRingPath">
-      <MemberSignature Language="C#" Value="protected string PublicKeyRingPath { get; }" />
+      <MemberSignature Language="C#" Value="protected string PublicKeyRingPath { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string PublicKeyRingPath" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
@@ -786,7 +805,10 @@
         <summary>
             Saves the public key-ring bundle.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Atomically saves the public key-ring bundle to the path specified by <see cref="P:MimeKit.Cryptography.OpenPgpContext.PublicKeyRingPath" />.</para>
+          <para>Called by <see cref="M:MimeKit.Cryptography.OpenPgpContext.Import(System.IO.Stream)" /> if any public keys were successfully imported.</para>
+        </remarks>
         <exception cref="T:System.IO.IOException">
             An error occured while saving the public key-ring bundle.
             </exception>
@@ -807,7 +829,10 @@
         <summary>
             Saves the secret key-ring bundle.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Atomically saves the secret key-ring bundle to the path specified by <see cref="P:MimeKit.Cryptography.OpenPgpContext.SecretKeyRingPath" />.</para>
+          <para>Called by <see cref="M:MimeKit.Cryptography.OpenPgpContext.ImportSecretKeys(System.IO.Stream)" /> if any secret keys were successfully imported.</para>
+        </remarks>
         <exception cref="T:System.IO.IOException">
             An error occured while saving the secret key-ring bundle.
             </exception>
@@ -832,7 +857,7 @@
       </Docs>
     </Member>
     <Member MemberName="SecretKeyRingPath">
-      <MemberSignature Language="C#" Value="protected string SecretKeyRingPath { get; }" />
+      <MemberSignature Language="C#" Value="protected string SecretKeyRingPath { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string SecretKeyRingPath" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>

@@ -56,7 +56,9 @@
             Clone the <see cref="T:MimeKit.Encodings.PassThroughDecoder" /> with its current state.
             </summary>
         <returns>A new <see cref="T:MimeKit.Encodings.PassThroughDecoder" /> with identical state.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Encodings.PassThroughDecoder" /> with exactly the same state as the current decoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Decode">
@@ -167,7 +169,9 @@
             Estimates the length of the output.
             </summary>
         <returns>The estimated output length.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Estimates the number of bytes needed to decode the specified number of input bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
