@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.20.0.0</version>
+        <version>0.21.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -20,12 +20,16 @@ In addition to having a far superior parser implementation, MimeKit's object tre
 
 API documentation can be found on the web at http://jstedfast.github.io/MimeKit/docs
 
-For those that need SMTP or POP3 support, check out https://github.com/jstedfast/MailKit</description>
+For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added a new convenience method for getting a header value in a different character encoding.
-* Added public TryParse() methods to InternetAddress, MailboxAddress, and GroupAddress.
-* Fixed an embarrassing bug in the InternetAddressList.ToString(true) implementation where I forgot to properly separate addresses with commas.
-* Fixed writing of the Sender: header to end with a new-line (also embarrassing).
+        <releaseNotes>* The Multipart boundary generator now uses the cryptographic RNG to make reduce likelyhood of inner multiparts sharing the same boundary as their parents.
+* The MessageId and ContentId properties on MimeMessage and MimeEntity no longer include the &lt;&gt;'s. This is to make it easier to construct cid: URLs in html messages.
+* Replaced IContentObject.Stream with IContentObject.Open() - this makes it easier for developers to get a decoder stream instead of having to create their own based on the raw content stream.
+* Fixed MimePart to recognize Content-Transfer-Encoding: uuencode (previously only recognized x-uuencode).
+* Fixed a bug in the UUDecoder's logic for finding the 'begin' line.
+* Fixed the InternetAddress parser to properly handle address fields with nothing but whitespace.
+* MimeParser now implements the IEnumerable&lt;MimeMessage&gt; interface.
+* Modified OpenPgpContent to be easier to subclass.
 * Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
@@ -44,6 +48,7 @@ For those that need SMTP or POP3 support, check out https://github.com/jstedfast
         </frameworkAssemblies>
     </metadata>
     <files>
+        <file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.Android.dll" target="lib\MonoAndroid\BouncyCastle.Android.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.dll" target="lib\MonoAndroid\MimeKit.Android.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.xml" target="lib\MonoAndroid\MimeKit.Android.xml" />
@@ -55,6 +60,5 @@ For those that need SMTP or POP3 support, check out https://github.com/jstedfast
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
-        <file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
     </files>
 </package>
