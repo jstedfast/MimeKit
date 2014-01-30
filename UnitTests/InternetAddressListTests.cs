@@ -167,11 +167,11 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
-//			mailbox.Name = "Jeffrey Stedfast";
-//			mailbox.Address = "fejj@helixcode.com";
-//			text = "fejj@helixcode.com (Jeffrey Stedfast)";
-//			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
-//			AssertInternetAddressListsEqual (text, expected, result);
+			mailbox.Name = "Jeffrey Stedfast";
+			mailbox.Address = "fejj@helixcode.com";
+			text = "fejj@helixcode.com (Jeffrey Stedfast)";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
 
 			mailbox.Name = "Jeffrey Stedfast";
 			mailbox.Address = "fejj@helixcode.com";

@@ -155,5 +155,40 @@ namespace UnitTests {
 			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}
+
+		[Test]
+		public void TestRfc2047DecodeInvalidMultibyteBreak ()
+		{
+			const string japanese = "狂ったこの世で狂うなら気は確かだ。";
+			var utf8 = Encoding.UTF8.GetBytes (japanese);
+			var builder = new StringBuilder ();
+
+			for (int wordBreak = (utf8.Length / 2) - 5; wordBreak < (utf8.Length / 2) + 5; wordBreak++) {
+				builder.Append ("=?utf-8?b?").Append (Convert.ToBase64String (utf8, 0, wordBreak)).Append ("?= ");
+				builder.Append ("=?utf-8?b?").Append (Convert.ToBase64String (utf8, wordBreak, utf8.Length - wordBreak)).Append ("?=");
+
+				var decoded = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (builder.ToString ()));
+
+				Assert.AreEqual (japanese, decoded, "Decoded text did not match the original.");
+
+				builder.Clear ();
+			}
+		}
+
+		[Test]
+		public void TestRfc2047DecodeInvalidPayloadBreak ()
+		{
+			const string japanese = "狂ったこの世で狂うなら気は確かだ。";
+			var utf8 = Encoding.UTF8.GetBytes (japanese);
+			var base64 = Convert.ToBase64String (utf8);
+			var builder = new StringBuilder ();
+
+			builder.Append ("=?utf-8?b?").Append (base64.Substring (0, base64.Length - 6)).Append ("?= ");
+			builder.Append ("=?utf-8?b?").Append (base64.Substring (base64.Length - 6)).Append ("?=");
+
+			var decoded = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (builder.ToString ()));
+
+			Assert.AreEqual (japanese, decoded, "Decoded text did not match the original.");
+		}
 	}
 }
