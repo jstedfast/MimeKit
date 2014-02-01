@@ -13,7 +13,10 @@
     <summary>
             Parser options as used by <see cref="T:MimeKit.MimeParser" /> as well as various Parse and TryParse methods in MimeKit.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <see cref="T:MimeKit.ParserOptions" /> allows you to change and/or override default parsing options
+            used by methods such as <see cref="!:MimeMessage.Load(Stream)" /> and others.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -75,7 +78,10 @@
             Clones an instance of <see cref="T:MimeKit.ParserOptions" />.
             </summary>
         <returns>An identical copy of the current instance.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Clones a set of options, allowing you to change a specific option
+            without requiring you to change the original.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Default">

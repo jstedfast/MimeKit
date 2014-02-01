@@ -37,6 +37,10 @@ namespace MimeKit {
 	/// <summary>
 	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
+	/// <remarks>
+	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
+	/// used by methods such as <see cref="MimeMessage.Load(Stream)"/> and others.
+	/// </remarks>
 	public sealed class ParserOptions
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
@@ -66,12 +70,12 @@ namespace MimeKit {
 		/// Gets or sets a value indicating whether the Content-Length value should be
 		/// respected when parsing mbox streams.
 		/// </summary>
-		/// <value><c>true</c> if the Content-Length value should be respected;
-		/// otherwise, <c>false</c>.</value>
 		/// <remarks>
 		/// For more details about why this may be useful, you can find more information
 		/// at http://www.jwz.org/doc/content-length.html
 		/// </remarks>
+		/// <value><c>true</c> if the Content-Length value should be respected;
+		/// otherwise, <c>false</c>.</value>
 		public bool RespectContentLength { get; set; }
 
 		/// <summary>
@@ -105,6 +109,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Clones an instance of <see cref="MimeKit.ParserOptions"/>.
 		/// </summary>
+		/// <remarks>
+		/// Clones a set of options, allowing you to change a specific option
+		/// without requiring you to change the original.
+		/// </remarks>
 		/// <returns>An identical copy of the current instance.</returns>
 		public ParserOptions Clone ()
 		{

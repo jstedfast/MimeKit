@@ -113,6 +113,10 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
 		/// class with the specified text subtype.
 		/// </summary>
+		/// <remarks>
+		/// Creates a <see cref="TextPart"/> with a textual mime-type of the
+		/// specified subtype.
+		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
@@ -125,6 +129,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
 		/// class with a Content-Type of text/plain.
 		/// </summary>
+		/// <remarks>
+		/// Creates a default <see cref="TextPart"/> with a mime-type of text/plain.
+		/// </remarks>
 		public TextPart () : base ("text", "plain")
 		{
 		}
@@ -172,6 +179,11 @@ namespace MimeKit {
 		/// Gets the decoded text content using the provided charset to override
 		/// the charset specified in the Content-Type parameters.
 		/// </summary>
+		/// <remarks>
+		/// Uses the provided charset encoding to convert the raw text content
+		/// into a unicode string, overriding any charset specified in the
+		/// Content-Type header.
+		/// </remarks>
 		/// <returns>The decoded text.</returns>
 		/// <param name="charset">The charset encoding to use.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -197,6 +209,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the text content and the charset parameter in the Content-Type header.
 		/// </summary>
+		/// <remarks>
+		/// This method is similar to setting the <see cref="Text"/> property, but allows
+		/// specifying a charset encoding to use. Also updates the
+		/// <see cref="ContentType.Charset"/> property.
+		/// </remarks>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text content.</param>
 		/// <exception cref="System.ArgumentNullException">
