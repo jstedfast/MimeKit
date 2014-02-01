@@ -30,6 +30,13 @@ namespace MimeKit {
 	/// <summary>
 	/// A Parse exception as thrown by the various Parse methods in MimeKit.
 	/// </summary>
+	/// <remarks>
+	/// A <see cref="ParseException"/> can be thrown by any of the Parse() methods
+	/// in MimeKit. Each exception instance will have a <see cref="TokenIndex"/>
+	/// which marks the byte offset of the token that failed to parse as well
+	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
+	/// occurred.
+	/// </remarks>
 	public class ParseException : Exception
 	{
 		internal ParseException (string message, int tokenIndex, int errorIndex) : base (message)
@@ -41,6 +48,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the byte index of the token that was malformed.
 		/// </summary>
+		/// <remarks>
+		/// The token index is the byte offset at which the token started.
+		/// </remarks>
 		/// <value>The byte index of the token.</value>
 		public int TokenIndex {
 			get; private set;
@@ -49,6 +59,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the byte that caused the error.
 		/// </summary>
+		/// <remarks>
+		/// The error index is the byte offset at which the parser encountered an error.
+		/// </remarks>
 		/// <value>The index of the byte that caused error.</value>
 		public int ErrorIndex {
 			get; private set;

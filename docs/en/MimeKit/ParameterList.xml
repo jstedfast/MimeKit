@@ -23,7 +23,9 @@
     <summary>
             A list of parameters, as found in the Content-Type and Content-Disposition headers.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Parameters are used by both <see cref="T:MimeKit.ContentType" /> and <see cref="T:MimeKit.ContentDisposition" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -38,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ParameterList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new parameter list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">

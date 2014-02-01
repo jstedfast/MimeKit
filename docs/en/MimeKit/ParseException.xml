@@ -13,7 +13,13 @@
     <summary>
             A Parse exception as thrown by the various Parse methods in MimeKit.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A <see cref="T:MimeKit.ParseException" /> can be thrown by any of the Parse() methods
+            in MimeKit. Each exception instance will have a <see cref="P:MimeKit.ParseException.TokenIndex" />
+            which marks the byte offset of the token that failed to parse as well
+            as a <see cref="P:MimeKit.ParseException.ErrorIndex" /> which marks the byte offset where the error
+            occurred.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="ErrorIndex">
@@ -31,7 +37,9 @@
             Gets the index of the byte that caused the error.
             </summary>
         <value>The index of the byte that caused error.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The error index is the byte offset at which the parser encountered an error.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TokenIndex">
@@ -49,7 +57,9 @@
             Gets the byte index of the token that was malformed.
             </summary>
         <value>The byte index of the token.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The token index is the byte offset at which the token started.
+            </remarks>
       </Docs>
     </Member>
   </Members>

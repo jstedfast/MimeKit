@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// </summary>
 	/// <remarks>
 	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
-	/// used by methods such as <see cref="MimeMessage.Load(Stream)"/> and others.
+	/// used by methods such as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream)"/> and others.
 	/// </remarks>
 	public sealed class ParserOptions
 	{

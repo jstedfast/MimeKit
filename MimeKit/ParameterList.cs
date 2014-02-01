@@ -36,6 +36,9 @@ namespace MimeKit {
 	/// <summary>
 	/// A list of parameters, as found in the Content-Type and Content-Disposition headers.
 	/// </summary>
+	/// <remarks>
+	/// Parameters are used by both <see cref="ContentType"/> and <see cref="ContentDisposition"/>.
+	/// </remarks>
 	public sealed class ParameterList : IList<Parameter>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
@@ -46,6 +49,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParameterList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new parameter list.
+		/// </remarks>
 		public ParameterList ()
 		{
 			table = new Dictionary<string, Parameter> (icase);

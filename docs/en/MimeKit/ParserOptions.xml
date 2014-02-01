@@ -15,7 +15,7 @@
             </summary>
     <remarks>
       <see cref="T:MimeKit.ParserOptions" /> allows you to change and/or override default parsing options
-            used by methods such as <see cref="!:MimeMessage.Load(Stream)" /> and others.
+            used by methods such as <see cref="M:MimeKit.MimeMessage.Load(MimeKit.ParserOptions,System.IO.Stream)" /> and others.
             </remarks>
   </Docs>
   <Members>
