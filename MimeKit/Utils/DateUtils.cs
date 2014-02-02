@@ -50,27 +50,27 @@ namespace MimeKit.Utils {
 		public int Length { get; private set; }
 
 		public bool IsNumeric {
-			get { return !Flags.HasFlag (DateTokenFlags.NonNumeric); }
+			get { return (Flags & DateTokenFlags.NonNumeric) == 0; }
 		}
 
 		public bool IsWeekday {
-			get { return !Flags.HasFlag (DateTokenFlags.NonWeekday); }
+			get { return (Flags & DateTokenFlags.NonWeekday) == 0; }
 		}
 
 		public bool IsMonth {
-			get { return !Flags.HasFlag (DateTokenFlags.NonMonth); }
+			get { return (Flags & DateTokenFlags.NonMonth) == 0; }
 		}
 
 		public bool IsTimeOfDay {
-			get { return !Flags.HasFlag (DateTokenFlags.NonTime) && Flags.HasFlag (DateTokenFlags.HasColon); }
+			get { return (Flags & DateTokenFlags.NonTime) == 0 && (Flags & DateTokenFlags.HasColon) != 0; }
 		}
 
 		public bool IsNumericZone {
-			get { return !Flags.HasFlag (DateTokenFlags.NonNumericZone) && Flags.HasFlag (DateTokenFlags.HasSign); }
+			get { return (Flags & DateTokenFlags.NonNumericZone) == 0 && (Flags & DateTokenFlags.HasSign) != 0; }
 		}
 
 		public bool IsAlphaZone {
-			get { return !Flags.HasFlag (DateTokenFlags.NonAlphaZone); }
+			get { return (Flags & DateTokenFlags.NonAlphaZone) == 0; }
 		}
 
 		public bool IsTimeZone {
@@ -279,7 +279,7 @@ namespace MimeKit.Utils {
 			tzone = 0;
 
 			if (token.IsNumericZone) {
-				if (!token.Flags.HasFlag (DateTokenFlags.HasSign))
+				if ((token.Flags & DateTokenFlags.HasSign) == 0)
 					return false;
 
 				int endIndex = token.StartIndex + token.Length;

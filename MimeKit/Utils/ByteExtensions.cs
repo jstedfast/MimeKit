@@ -79,7 +79,7 @@ namespace MimeKit.Utils {
 
 				if (bitcopy != CharType.None) {
 					for (i = 0; i < 256; i++) {
-						if (table[i].HasFlag (bitcopy))
+						if ((table[i] & bitcopy) != 0)
 							table[i] &= ~bit;
 					}
 				}
@@ -89,7 +89,7 @@ namespace MimeKit.Utils {
 
 				if (bitcopy != CharType.None) {
 					for (i = 0; i < 256; i++) {
-						if (table[i].HasFlag (bitcopy))
+						if ((table[i] & bitcopy) != 0)
 							table[i] |= bit;
 					}
 				}
