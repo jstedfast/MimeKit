@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.21.0.0</version>
+        <version>0.22.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,18 +22,11 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* The Multipart boundary generator now uses the cryptographic RNG to make reduce likelyhood of inner multiparts sharing the same boundary as their parents.
-* The MessageId and ContentId properties on MimeMessage and MimeEntity no longer include the &lt;&gt;'s. This is to make it easier to construct cid: URLs in html messages.
-* Replaced IContentObject.Stream with IContentObject.Open() - this makes it easier for developers to get a decoder stream instead of having to create their own based on the raw content stream.
-* Fixed MimePart to recognize Content-Transfer-Encoding: uuencode (previously only recognized x-uuencode).
-* Fixed a bug in the UUDecoder's logic for finding the 'begin' line.
-* Fixed the InternetAddress parser to properly handle address fields with nothing but whitespace.
-* MimeParser now implements the IEnumerable&lt;MimeMessage&gt; interface.
-* Modified OpenPgpContent to be easier to subclass.
+        <releaseNotes>* Optimized the parser, making MimeKit as fast as native parsers.
 * Improved API documentation.</releaseNotes>
         <copyright>Jeffrey Stedfast</copyright>
         <language>en-US</language>
-        <tags>mime security smime openpgp pgp mbox email parser xamarin android ios</tags>
+        <tags>mime security smime openpgp pgp mbox email parser xamarin android ios monodroid monotouch</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
