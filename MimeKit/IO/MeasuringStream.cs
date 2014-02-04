@@ -137,7 +137,7 @@ namespace MimeKit.IO {
 			set { Seek (value, SeekOrigin.Begin); }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");

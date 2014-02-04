@@ -61,6 +61,18 @@ namespace MimeKit.IO.Filters {
 			return true;
 		}
 
+		static void ValidateArguments (byte[] input, int startIndex, int length)
+		{
+			if (input == null)
+				throw new ArgumentNullException ("input");
+
+			if (startIndex < 0 || startIndex > input.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || startIndex + length > input.Length)
+				throw new ArgumentOutOfRangeException ("length");
+		}
+
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
@@ -73,6 +85,8 @@ namespace MimeKit.IO.Filters {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
+			ValidateArguments (input, startIndex, length);
+
 			List<int> fromOffsets = new List<int> ();
 			int endIndex = startIndex + length;
 			int index = startIndex;

@@ -929,7 +929,7 @@ namespace MimeKit {
 			case MimeParserState.Eos:
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new ArgumentOutOfRangeException ("state");
 			}
 
 			return state;

@@ -356,11 +356,17 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The <see cref="CmsRecipient"/>s.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
 		/// </exception>
 		protected CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
+			if (mailboxes == null)
+				throw new ArgumentNullException ("mailboxes");
+
 			var recipients = new CmsRecipientCollection ();
 
 			foreach (var mailbox in mailboxes)
@@ -728,8 +734,14 @@ namespace MimeKit.Cryptography {
 		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="identifier"/> is <c>null</c>.
+		/// </exception>
 		protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
+			if (identifier == null)
+				throw new ArgumentNullException ("identifier");
+
 			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc) {
 				algorithm = EncryptionAlgorithm.Aes256;
 				return true;

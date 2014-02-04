@@ -406,6 +406,9 @@ namespace MimeKit {
 				if (index < 0 || index > Count)
 					throw new ArgumentOutOfRangeException ("index");
 
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
 				var param = parameters[index];
 
 				if (param == value)

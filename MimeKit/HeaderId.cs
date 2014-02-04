@@ -374,7 +374,7 @@ namespace MimeKit {
 	}
 
 	[AttributeUsage (AttributeTargets.Field)]
-	class HeaderNameAttribute : Attribute
+	sealed class HeaderNameAttribute : Attribute
 	{
 		public HeaderNameAttribute (string name)
 		{

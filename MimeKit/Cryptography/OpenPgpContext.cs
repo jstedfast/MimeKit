@@ -266,11 +266,17 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The encryption key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// The public key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
+			if (mailbox == null)
+				throw new ArgumentNullException ("mailbox");
+
 			// FIXME: do the mailbox comparisons ourselves?
 			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
@@ -296,11 +302,17 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
 		protected virtual IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
+			if (mailboxes == null)
+				throw new ArgumentNullException ("mailboxes");
+
 			var recipients = new List<PgpPublicKey> ();
 
 			foreach (var mailbox in mailboxes)
@@ -314,11 +326,17 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The signing key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// A private key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{
+			if (mailbox == null)
+				throw new ArgumentNullException ("mailbox");
+
 			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
 					if (!key.IsSigningKey)

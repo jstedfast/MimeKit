@@ -109,7 +109,7 @@ namespace MimeKit.Cryptography {
 				try {
 					foreach (var certificate in store.Certificates) {
 						var cert = DotNetUtilities.FromX509Certificate (certificate);
-						if (selector.Match (cert))
+						if (selector == null || selector.Match (cert))
 							return cert;
 					}
 				} finally {
@@ -138,7 +138,7 @@ namespace MimeKit.Cryptography {
 
 					var cert = DotNetUtilities.FromX509Certificate (certificate);
 
-					if (selector.Match (cert)) {
+					if (selector == null || selector.Match (cert)) {
 						var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
 						return pair.Private;
 					}
@@ -514,6 +514,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			var store = new X509Store (StoreName.AddressBook, StoreLocation);
 
 			store.Open (OpenFlags.ReadWrite);

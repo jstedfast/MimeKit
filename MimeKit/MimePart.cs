@@ -521,7 +521,7 @@ namespace MimeKit {
 				md5sum = null;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new ArgumentOutOfRangeException ("action");
 			}
 		}
 	}

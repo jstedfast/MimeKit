@@ -247,6 +247,9 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="ctx">The S/MIME context to use for verifying the signature.</param>
 		/// <param name="entity">The unencapsulated entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>
@@ -255,6 +258,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
 		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
 			if (SecureMimeType != SecureMimeType.SignedData)
 				throw new InvalidOperationException ();
 

@@ -37,8 +37,14 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="mailbox">The mailbox that could not be resolved to a valid private key.</param>
 		/// <param name="message">A message explaining the error.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
 		public PrivateKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
 		{
+			if (mailbox == null)
+				throw new ArgumentNullException ("mailbox");
+
 			KeyId = mailbox.Address;
 		}
 
@@ -47,8 +53,14 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
 		/// <param name="message">A message explaining the error.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyid"/> is <c>null</c>.
+		/// </exception>
 		public PrivateKeyNotFoundException (string keyid, string message) : base (message)
 		{
+			if (keyid == null)
+				throw new ArgumentNullException ("keyid");
+
 			KeyId = keyid;
 		}
 

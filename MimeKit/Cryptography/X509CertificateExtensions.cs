@@ -50,8 +50,14 @@ namespace MimeKit.Cryptography {
 		/// <returns>The issuer name info.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="identifier">The name identifier.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetIssuerNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			// FIXME: this should be fixed to return IList<string>
 			var list = certificate.IssuerDN.GetValueList (identifier);
 			if (list.Count == 0)
@@ -69,8 +75,14 @@ namespace MimeKit.Cryptography {
 		/// <returns>The issuer name info.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="identifier">The name identifier.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetSubjectNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			// FIXME: this should be fixed to return IList<string>
 			var list = certificate.SubjectDN.GetValueList (identifier);
 			if (list.Count == 0)
@@ -84,6 +96,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The common name.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetCommonName (this X509Certificate certificate)
 		{
 			return certificate.GetSubjectNameInfo (X509Name.CN);
@@ -94,6 +109,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <returns>The subject name.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetSubjectName (this X509Certificate certificate)
 		{
 			return certificate.GetSubjectNameInfo (X509Name.Name);
@@ -109,6 +127,9 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The subject email address.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetSubjectEmailAddress (this X509Certificate certificate)
 		{
 			return certificate.GetSubjectNameInfo (X509Name.EmailAddress);
@@ -123,8 +144,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The fingerprint.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static string GetFingerprint (this X509Certificate certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			var encoded = certificate.GetEncoded ();
 			var fingerprint = new StringBuilder ();
 			var sha1 = new Sha1Digest ();
@@ -176,8 +203,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The key usage flags.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static X509KeyUsageFlags GetKeyUsageFlags (this X509Certificate certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			return GetKeyUsageFlags (certificate.GetKeyUsage ());
 		}
 

@@ -43,8 +43,14 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddressList"/> class.
 		/// </summary>
 		/// <param name="addresses">An initial list of addresses.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="addresses"/> is <c>null</c>.
+		/// </exception>
 		public InternetAddressList (IEnumerable<InternetAddress> addresses)
 		{
+			if (addresses == null)
+				throw new ArgumentNullException ("addresses");
+
 			foreach (var address in addresses) {
 				address.Changed += AddressChanged;
 				list.Add (address);

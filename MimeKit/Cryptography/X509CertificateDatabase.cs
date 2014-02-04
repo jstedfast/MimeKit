@@ -605,7 +605,7 @@ namespace MimeKit.Cryptography {
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
 			case "CERTIFICATE": return record.Certificate.GetEncoded ();
 			case "PRIVATEKEY": return EncodePrivateKey (record.PrivateKey);
-			default: throw new ArgumentOutOfRangeException ();
+			default: throw new ArgumentOutOfRangeException ("columnName");
 			}
 		}
 
@@ -618,7 +618,7 @@ namespace MimeKit.Cryptography {
 			case "THISUPDATE": return record.ThisUpdate;
 			case "NEXTUPDATE": return record.NextUpdate;
 			case "CRL": return record.Crl.GetEncoded ();
-			default: throw new ArgumentOutOfRangeException ();
+			default: throw new ArgumentOutOfRangeException ("columnName");
 			}
 		}
 

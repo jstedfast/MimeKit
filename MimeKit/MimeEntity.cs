@@ -261,6 +261,12 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
 			if (options.WriteHeaders)
 				Headers.WriteTo (options, stream, cancellationToken);
 			else
@@ -461,7 +467,7 @@ namespace MimeKit {
 				contentId = null;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new ArgumentOutOfRangeException ("action");
 			}
 		}
 

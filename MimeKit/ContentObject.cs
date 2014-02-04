@@ -66,8 +66,11 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (!stream.CanRead || !stream.CanSeek)
-				throw new ArgumentException ("stream");
+			if (!stream.CanRead)
+				throw new ArgumentException ("The stream does not support reading.", "stream");
+
+			if (!stream.CanSeek)
+				throw new ArgumentException ("The stream does not support seeking.", "stream");
 
 			Encoding = encoding;
 			content = stream;

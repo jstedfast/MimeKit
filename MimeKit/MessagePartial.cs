@@ -220,6 +220,13 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="partials"/>is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The last partial does not have a Total.</para>
+		/// <para>-or-</para>
+		/// <para>The number of partials provided does not match the expected count.</para>
+		/// <para>-or-</para>
+		/// <para>One or more partials is missing.</para>
+		/// </exception>
 		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
 			if (options == null)
@@ -236,11 +243,11 @@ namespace MimeKit {
 			parts.Sort (PartialCompare);
 
 			if (!parts[parts.Count - 1].Total.HasValue)
-				throw new ArgumentException ("partials");
+				throw new ArgumentException ("The last partial does not have a Total.", "partials");
 
 			int total = parts[parts.Count - 1].Total.Value;
 			if (parts.Count != total)
-				throw new ArgumentException ("partials");
+				throw new ArgumentException ("The number of partials provided does not match the expected count.", "partials");
 
 			string id = parts[0].Id;
 
@@ -250,7 +257,7 @@ namespace MimeKit {
 					int number = parts[i].Number.Value;
 
 					if (number != i + 1)
-						throw new ArgumentException ("partials");
+						throw new ArgumentException ("One or more partials is missing.", "partials");
 
 					var content = parts[i].ContentObject;
 
