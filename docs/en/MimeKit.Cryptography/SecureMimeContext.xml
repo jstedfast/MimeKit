@@ -560,6 +560,9 @@
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for one or more of the specified <paramref name="mailboxes" /> could not be found.
             </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailboxes" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetCmsSigner">
@@ -1085,6 +1088,9 @@
         <returns>
           <c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="identifier" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="UpdateSecureMimeCapabilities">

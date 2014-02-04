@@ -594,6 +594,9 @@
         <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
             The public key for the specified <paramref name="mailbox" /> could not be found.
             </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailbox" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetPublicKeyAlgorithm">
@@ -648,6 +651,9 @@
         <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
             A public key for one or more of the <paramref name="mailboxes" /> could not be found.
             </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailboxes" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetSigningKey">
@@ -675,6 +681,9 @@
             </exception>
         <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
             A private key for the specified <paramref name="mailbox" /> could not be found.
+            </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailbox" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>

@@ -34,6 +34,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" /> class.
             </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailbox" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -54,6 +57,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
             </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="keyid" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="KeyId">

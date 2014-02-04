@@ -870,6 +870,9 @@
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
             </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

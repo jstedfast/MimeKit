@@ -38,6 +38,9 @@
             </summary>
         <returns>The common name.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetFingerprint">
@@ -63,6 +66,9 @@
             A fingerprint is a SHA-1 hash of the raw certificate data and is often used
             as a unique identifier for a particular certificate in a certificate store.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetIssuerNameInfo">
@@ -89,6 +95,9 @@
         <remarks>
             For a list of available identifiers, see <see cref="T:Org.BouncyCastle.Asn1.X509.X509Name" />.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetKeyUsageFlags">
@@ -114,6 +123,9 @@
             The X.509 Key Usage Flags are used to determine which operations a certificate
             may be used for.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetSubjectEmailAddress">
@@ -140,6 +152,9 @@
             sometimes used as a way of looking up certificates for a particular
             user if a fingerprint is not available.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetSubjectName">
@@ -162,6 +177,9 @@
             </summary>
         <returns>The subject name.</returns>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="GetSubjectNameInfo">
@@ -188,6 +206,9 @@
         <remarks>
             For a list of available identifiers, see <see cref="T:Org.BouncyCastle.Asn1.X509.X509Name" />.
             </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
   </Members>

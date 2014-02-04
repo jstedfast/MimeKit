@@ -140,6 +140,13 @@
           <para>
             <paramref name="partials" />is <c>null</c>.</para>
         </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>The last partial does not have a Total.</para>
+          <para>-or-</para>
+          <para>The number of partials provided does not match the expected count.</para>
+          <para>-or-</para>
+          <para>One or more partials is missing.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Number">

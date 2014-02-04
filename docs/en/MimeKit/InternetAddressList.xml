@@ -60,6 +60,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
             </summary>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="addresses" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
