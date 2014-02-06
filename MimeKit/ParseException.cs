@@ -46,8 +46,16 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
 		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			TokenIndex = info.GetInt32 ("TokenIndex");
+			ErrorIndex = info.GetInt32 ("ErrorIndex");
 		}
 
 		/// <summary>
@@ -60,6 +68,26 @@ namespace MimeKit {
 		{
 			TokenIndex = tokenIndex;
 			ErrorIndex = errorIndex;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			info.AddValue ("TokenIndex", TokenIndex);
+			info.AddValue ("ErrorIndex", ErrorIndex);
+
+			base.GetObjectData (info, context);
 		}
 
 		/// <summary>
