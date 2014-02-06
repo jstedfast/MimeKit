@@ -1330,7 +1330,7 @@ namespace MimeKit {
 			state = MimeParserState.Headers;
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
-					throw new Exception ("Failed to parse entity headers.");
+					throw new FormatException ("Failed to parse entity headers.");
 			}
 
 			var type = GetContentType (null);
@@ -1362,6 +1362,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1380,6 +1383,9 @@ namespace MimeKit {
 		/// Parses an entity from the stream.
 		/// </summary>
 		/// <returns>The parsed entity.</returns>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1396,16 +1402,16 @@ namespace MimeKit {
 			while (state != MimeParserState.MessageHeaders) {
 				switch (Step (inbuf)) {
 				case MimeParserState.Error:
-					throw new Exception ("Failed to find mbox From marker.");
+					throw new FormatException ("Failed to find mbox From marker.");
 				case MimeParserState.Eos:
-					throw new Exception ("End of stream.");
+					throw new FormatException ("End of stream.");
 				}
 			}
 
 			// parse the headers
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
-					throw new Exception ("Failed to parse message headers.");
+					throw new FormatException ("Failed to parse message headers.");
 			}
 
 			var message = new MimeMessage (options, headers);
@@ -1461,6 +1467,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the message.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1479,6 +1488,9 @@ namespace MimeKit {
 		/// Parses a message from the stream.
 		/// </summary>
 		/// <returns>The parsed message.</returns>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the message.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>

@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Runtime.Serialization;
 
 namespace MimeKit {
 	/// <summary>
@@ -37,9 +38,25 @@ namespace MimeKit {
 	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
 	/// occurred.
 	/// </remarks>
+	[Serializable]
 	public class ParseException : Exception
 	{
-		internal ParseException (string message, int tokenIndex, int errorIndex) : base (message)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The stream context.</param>
+		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <param name="message">The error message.</param>
+		/// <param name="tokenIndex">The byte offset of the token.</param>
+		/// <param name="errorIndex">The byte offset of the error.</param>
+		public ParseException (string message, int tokenIndex, int errorIndex) : base (message)
 		{
 			TokenIndex = tokenIndex;
 			ErrorIndex = errorIndex;

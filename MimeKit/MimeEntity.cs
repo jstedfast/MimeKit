@@ -503,6 +503,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -531,6 +534,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -550,6 +556,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -565,6 +574,9 @@ namespace MimeKit {
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -597,6 +609,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -635,6 +650,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -663,6 +681,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -687,6 +708,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -717,6 +741,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -764,6 +791,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -790,6 +820,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -812,6 +845,9 @@ namespace MimeKit {
 		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
