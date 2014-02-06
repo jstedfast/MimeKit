@@ -1,9 +1,9 @@
 <Type Name="ParseException" FullName="MimeKit.ParseException">
   <TypeSignature Language="C#" Value="public class ParseException : Exception" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ParseException extends System.Exception" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi serializable beforefieldinit ParseException extends System.Exception" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.22.0.0</AssemblyVersion>
+    <AssemblyVersion>0.23.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -22,12 +22,57 @@
             </remarks>
   </Docs>
   <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected ParseException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class System.Runtime.Serialization.SerializationInfo info, valuetype System.Runtime.Serialization.StreamingContext context) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.23.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
+        <Parameter Name="context" Type="System.Runtime.Serialization.StreamingContext" />
+      </Parameters>
+      <Docs>
+        <param name="info">The serialization info.</param>
+        <param name="context">The stream context.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ParseException" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="info" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ParseException (string message, int tokenIndex, int errorIndex);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string message, int32 tokenIndex, int32 errorIndex) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.23.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="message" Type="System.String" />
+        <Parameter Name="tokenIndex" Type="System.Int32" />
+        <Parameter Name="errorIndex" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="message">The error message.</param>
+        <param name="tokenIndex">The byte offset of the token.</param>
+        <param name="errorIndex">The byte offset of the error.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ParseException" /> class.
+            </summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ErrorIndex">
       <MemberSignature Language="C#" Value="public int ErrorIndex { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 ErrorIndex" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.22.0.0</AssemblyVersion>
+        <AssemblyVersion>0.23.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -42,12 +87,39 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetObjectData">
+      <MemberSignature Language="C#" Value="public override void GetObjectData (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void GetObjectData(class System.Runtime.Serialization.SerializationInfo info, valuetype System.Runtime.Serialization.StreamingContext context) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.23.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
+        <Parameter Name="context" Type="System.Runtime.Serialization.StreamingContext" />
+      </Parameters>
+      <Docs>
+        <param name="info">The serialization info.</param>
+        <param name="context">The streaming context.</param>
+        <summary>
+            When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" />
+            with information about the exception.
+            </summary>
+        <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="info" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="TokenIndex">
       <MemberSignature Language="C#" Value="public int TokenIndex { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 TokenIndex" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.22.0.0</AssemblyVersion>
+        <AssemblyVersion>0.23.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
