@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("MimeKit")]
 [assembly: AssemblyDescription ("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
+[assembly: AssemblyCompany ("Xamarin Inc.")]
 [assembly: AssemblyProduct ("MimeKit")]
-[assembly: AssemblyCopyright ("Copyright © 2014 Jeffrey Stedfast")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

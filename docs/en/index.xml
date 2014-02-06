@@ -3,13 +3,13 @@
     <Assembly Name="MimeKit" Version="0.23.0.0">
       <Attributes>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyCompany("Xamarin Inc.")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyConfiguration("")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2014 Jeffrey Stedfast")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
@@ -44,7 +44,7 @@
   <Remarks>
     <para>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP/MIME messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.</para>
   </Remarks>
-  <Copyright>Copyright (c) 2013, 2014 Jeffrey Stedfast</Copyright>
+  <Copyright>Copyright (c) 2013, 2014 Xamarin Inc. (www.xamarin.com)</Copyright>
   <Types>
     <Namespace Name="MimeKit">
       <Type Name="ContentDisposition" Kind="Class" />
