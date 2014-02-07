@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// occurred.
 	/// </remarks>
 	[Serializable]
-	public class ParseException : Exception
+	public class ParseException : FormatException
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
