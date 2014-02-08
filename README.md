@@ -86,6 +86,15 @@ Now that I typically find myself working in C# rather than lower level languages
 begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
 flexibility in that I'd be able use Generics and create a more .NET-compliant API.
 
+## Installing via NuGet
+
+The easiest way to install MimeKit is via [NuGet](https://www.nuget.org/packages/MimeKit/).
+
+In Visual Studio's [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console),
+simply enter the following command:
+
+    Install-Package MimeKit
+
 ## Building
 
 First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
