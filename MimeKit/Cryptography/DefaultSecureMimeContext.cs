@@ -487,10 +487,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> object.
+		/// Releases the unmanaged resources used by the <see cref="DefaultSecureMimeContext"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
-		/// <param name="disposing">If <c>true</c>, this method is being called by
-		/// <see cref="CryptographyContext.Dispose()"/>; otherwise it is being called by the finalizer.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			dbase.Dispose ();

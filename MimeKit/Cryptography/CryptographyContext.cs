@@ -222,10 +222,11 @@ namespace MimeKit.Cryptography {
 		public abstract MimePart Export (IEnumerable<MailboxAddress> mailboxes);
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
+		/// Releases the unmanaged resources used by the <see cref="CryptographyContext"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
-		/// <param name="disposing">If <c>true</c>, this method is being called by
-		/// <see cref="Dispose()"/>; otherwise it is being called by the finalizer.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 		}

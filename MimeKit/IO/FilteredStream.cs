@@ -479,13 +479,11 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Disposes the stream.
+		/// Releases the unmanaged resources used by the <see cref="FilteredStream"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
-		/// <remarks>
-		/// Sets the internal disposed state to <c>true</c>.
-		/// </remarks>
-		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
-		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {
