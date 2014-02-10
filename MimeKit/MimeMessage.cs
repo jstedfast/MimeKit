@@ -601,11 +601,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the body parts of the message.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating all  of the <see cref="MimePart"/> objects.
+		/// </remarks>
+		/// <value>The body parts.</value>
+		public IEnumerable<MimePart> BodyParts {
+			get { return EnumerateMimeParts (Body); }
+		}
+
+		/// <summary>
 		/// Gets the attachments.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating the <see cref="MimePart"/> objects that
-		/// have a Content-Disposition header set to <c>attachment</c>.
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects that
+		/// have a Content-Disposition header set to <c>"attachment"</c>.
 		/// </remarks>
 		/// <value>The attachments.</value>
 		public IEnumerable<MimePart> Attachments {
