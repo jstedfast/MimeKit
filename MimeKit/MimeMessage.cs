@@ -570,6 +570,48 @@ namespace MimeKit {
 			get; set;
 		}
 
+		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
+		{
+			if (entity == null)
+				yield break;
+
+			var multipart = entity as Multipart;
+
+			if (multipart != null) {
+				foreach (var subpart in multipart) {
+					foreach (var part in EnumerateMimeParts (subpart))
+						yield return part;
+				}
+
+				yield break;
+			}
+
+			var msgpart = entity as MessagePart;
+
+			if (msgpart != null) {
+				var message = msgpart.Message;
+
+				foreach (var part in EnumerateMimeParts (message.Body))
+					yield return part;
+
+				yield break;
+			}
+
+			yield return (MimePart) entity;
+		}
+
+		/// <summary>
+		/// Gets the attachments.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating the <see cref="MimePart"/> objects that
+		/// have a Content-Disposition header set to <c>attachment</c>.
+		/// </remarks>
+		/// <value>The attachments.</value>
+		public IEnumerable<MimePart> Attachments {
+			get { return EnumerateMimeParts (Body).Where (part => part.IsAttachment); }
+		}
+
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
