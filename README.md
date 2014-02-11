@@ -235,26 +235,17 @@ using (var stream = File.Create (fileName)) {
 }
 ```
 
-You can also get access to the original encoded content and its encoding by poking at the Stream and
-Encoding properties of the ContentObject. This might be useful if you want to pass the content off
-to a UI control that can do its own loading from a stream.
+You can also get access to the original encoded content and its encoding by "opening" the ContentObject.
+This might be useful if you want to pass the content off to a UI control that can do its own loading
+from a stream.
 
 ```csharp
-var filtered = new FilteredStream (part.ContentObject.Stream);
-
-// Note: if the MimePart was parsed by a MimeParser (or loaded using MimeMessage.Load
-// or MimeEntity.Load), the ContentObject.Encoding will match the part.Encoding.
-
-// Create an IMimeFilter that can decode the ContentEncoding.
-var decoder = DecoderFilter.Create (part.ContentObject.Encoding);
-
-// Add the filter to our filtered stream.
-filtered.Add (decoder);
-
-// At this point, you can now read from the 'filtered' stream as if it were the
-// original, raw content. Assuming you have an image UI control that could load
-// from a stream, you could do something like this:
-imageControl.Load (filtered);
+using (var stream = part.ContentObject.Open ()) {
+    // At this point, you can now read from the stream as if it were the original,
+    // raw content. Assuming you have an image UI control that could load from a
+    // stream, you could do something like this:
+    imageControl.Load (stream);
+}
 ```
 
 There are a number of useful filters that can be applied to a FilteredStream, so if you find this type of
