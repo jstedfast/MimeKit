@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// <summary>
 	/// A list of <see cref="MimeKit.InternetAddress"/>es. 
 	/// </summary>
-	public sealed class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
+	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
 	{
 		readonly List<InternetAddress> list = new List<InternetAddress> ();
 

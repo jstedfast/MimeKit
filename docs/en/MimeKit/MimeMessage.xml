@@ -1,6 +1,6 @@
 <Type Name="MimeMessage" FullName="MimeKit.MimeMessage">
-  <TypeSignature Language="C#" Value="public sealed class MimeMessage" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeMessage extends System.Object" />
+  <TypeSignature Language="C#" Value="public class MimeMessage" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimeMessage extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>
@@ -65,6 +65,27 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="Attachments">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; Attachments { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; Attachments" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the attachments.
+            </summary>
+        <value>The attachments.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all of the <see cref="T:MimeKit.MimePart" /> objects that
+            have a Content-Disposition header set to <c>"attachment"</c>.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Bcc">
       <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Bcc { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Bcc" />
@@ -102,6 +123,26 @@
             </summary>
         <value>The body of the message.</value>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BodyParts">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; BodyParts { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; BodyParts" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the body parts of the message.
+            </summary>
+        <value>The body parts.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all  of the <see cref="T:MimeKit.MimePart" /> objects.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Cc">

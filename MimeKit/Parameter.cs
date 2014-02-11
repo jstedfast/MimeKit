@@ -34,7 +34,7 @@ namespace MimeKit {
 	/// <summary>
 	/// A header parameter as found in the Content-Type and Content-Disposition headers.
 	/// </summary>
-	public sealed class Parameter
+	public class Parameter
 	{
 		string text;
 

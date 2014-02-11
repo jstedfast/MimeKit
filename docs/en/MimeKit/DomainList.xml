@@ -1,6 +1,6 @@
 <Type Name="DomainList" FullName="MimeKit.DomainList">
-  <TypeSignature Language="C#" Value="public sealed class DomainList : System.Collections.Generic.ICollection&lt;string&gt;, System.Collections.Generic.IEnumerable&lt;string&gt;, System.Collections.Generic.IList&lt;string&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit DomainList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;string&gt;, class System.Collections.Generic.IEnumerable`1&lt;string&gt;, class System.Collections.Generic.IList`1&lt;string&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public class DomainList : System.Collections.Generic.ICollection&lt;string&gt;, System.Collections.Generic.IEnumerable&lt;string&gt;, System.Collections.Generic.IList&lt;string&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DomainList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;string&gt;, class System.Collections.Generic.IEnumerable`1&lt;string&gt;, class System.Collections.Generic.IList`1&lt;string&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

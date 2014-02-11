@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// A <see cref="ContentObject"/> represents the content of a <see cref="MimePart"/>.
 	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
 	/// </remarks>
-	public sealed class ContentObject : IContentObject
+	public class ContentObject : IContentObject
 	{
 		readonly Stream content;
 

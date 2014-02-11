@@ -43,7 +43,7 @@ namespace MimeKit {
 	/// <summary>
 	/// A MIME message.
 	/// </summary>
-	public sealed class MimeMessage
+	public class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly string[] StandardAddressHeaders = new string[] {

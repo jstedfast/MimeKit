@@ -1,6 +1,6 @@
 <Type Name="FormatOptions" FullName="MimeKit.FormatOptions">
-  <TypeSignature Language="C#" Value="public sealed class FormatOptions" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed FormatOptions extends System.Object" />
+  <TypeSignature Language="C#" Value="public class FormatOptions" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi FormatOptions extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

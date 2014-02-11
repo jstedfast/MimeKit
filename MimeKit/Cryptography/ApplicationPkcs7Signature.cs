@@ -37,7 +37,7 @@ namespace MimeKit.Cryptography {
 	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
 	/// method on the parent multipart/signed part.</para>
 	/// </remarks>
-	public sealed class ApplicationPkcs7Signature : MimePart
+	public class ApplicationPkcs7Signature : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> class.

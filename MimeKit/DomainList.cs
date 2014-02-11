@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents a list of domains, such as those that an email was routed through.
 	/// </remarks>
-	public sealed class DomainList : IList<string>
+	public class DomainList : IList<string>
 	{
 		readonly List<string> domains;
 

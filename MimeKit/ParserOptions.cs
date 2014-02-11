@@ -41,7 +41,7 @@ namespace MimeKit {
 	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
 	/// used by methods such as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream)"/> and others.
 	/// </remarks>
-	public sealed class ParserOptions
+	public class ParserOptions
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };

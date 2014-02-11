@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// suggest to the receiving client the mime-type of the content and,
 	/// depending on that mime-type, presentation options such as charset.
 	/// </remarks>
-	public sealed class ContentType
+	public class ContentType
 	{
 		ParameterList parameters;
 		string type, subtype;

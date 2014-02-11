@@ -59,7 +59,7 @@ namespace MimeKit {
 	/// Represents the available options for formatting MIME messages
 	/// and entities when writing them to a stream.
 	/// </remarks>
-	public sealed class FormatOptions
+	public class FormatOptions
 	{
 		static readonly byte[][] NewLineFormats = new byte[][] {
 			new byte[] { 0x0A }, new byte[] { 0x0D, 0x0A }

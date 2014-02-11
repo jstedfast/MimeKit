@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 	/// the <see cref="CryptographyContext"/> do its own certificate
 	/// lookups for each <see cref="MailboxAddress"/>.
 	/// </remarks>
-	public sealed class CmsRecipient
+	public class CmsRecipient
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.

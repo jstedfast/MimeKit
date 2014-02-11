@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// suggest to the receiving client whether to present the part to the user
 	/// as an attachment or as part of the content (inline).
 	/// </remarks>
-	public sealed class ContentDisposition
+	public class ContentDisposition
 	{
 		/// <summary>
 		/// The attachment disposition.

@@ -1,6 +1,6 @@
 <Type Name="ContentObject" FullName="MimeKit.ContentObject">
-  <TypeSignature Language="C#" Value="public sealed class ContentObject : MimeKit.IContentObject" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ContentObject extends System.Object implements class MimeKit.IContentObject" />
+  <TypeSignature Language="C#" Value="public class ContentObject : MimeKit.IContentObject" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ContentObject extends System.Object implements class MimeKit.IContentObject" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

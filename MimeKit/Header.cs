@@ -36,7 +36,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents a single header field and value pair.
 	/// </remarks>
-	public sealed class Header
+	public class Header
 	{
 		internal readonly ParserOptions Options;
 		string textValue;

@@ -1,6 +1,6 @@
 <Type Name="GroupAddress" FullName="MimeKit.GroupAddress">
-  <TypeSignature Language="C#" Value="public sealed class GroupAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.GroupAddress&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit GroupAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.GroupAddress&gt;" />
+  <TypeSignature Language="C#" Value="public class GroupAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.GroupAddress&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit GroupAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.GroupAddress&gt;" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

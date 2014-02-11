@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 	/// using the methods that take a list of <see cref="MailboxAddress"/>
 	/// objects.
 	/// </remarks>
-	public sealed class CmsRecipientCollection : ICollection<CmsRecipient>
+	public class CmsRecipientCollection : ICollection<CmsRecipient>
 	{
 		readonly IList<CmsRecipient> recipients;
 

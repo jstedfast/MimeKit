@@ -1,6 +1,6 @@
 <Type Name="CmsRecipientCollection" FullName="MimeKit.Cryptography.CmsRecipientCollection">
-  <TypeSignature Language="C#" Value="public sealed class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

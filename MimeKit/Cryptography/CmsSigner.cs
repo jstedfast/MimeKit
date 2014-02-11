@@ -42,7 +42,7 @@ namespace MimeKit.Cryptography {
 	/// <see cref="CmsSigner"/> as opposed to having the <see cref="CryptographyContext"/>
 	/// do its own certificate lookup for the signer's <see cref="MailboxAddress"/>.
 	/// </remarks>
-	public sealed class CmsSigner
+	public class CmsSigner
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.

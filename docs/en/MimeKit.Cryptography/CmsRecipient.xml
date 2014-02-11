@@ -1,6 +1,6 @@
 <Type Name="CmsRecipient" FullName="MimeKit.Cryptography.CmsRecipient">
-  <TypeSignature Language="C#" Value="public sealed class CmsRecipient" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipient extends System.Object" />
+  <TypeSignature Language="C#" Value="public class CmsRecipient" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsRecipient extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.24.0.0</AssemblyVersion>

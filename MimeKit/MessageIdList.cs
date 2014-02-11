@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// <summary>
 	/// A list of Message-Ids, as found in the References header.
 	/// </summary>
-	public sealed class MessageIdList : IList<string>
+	public class MessageIdList : IList<string>
 	{
 		readonly List<string> references;
 

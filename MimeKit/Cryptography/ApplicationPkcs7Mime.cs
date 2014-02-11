@@ -32,7 +32,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
 	/// </summary>
-	public sealed class ApplicationPkcs7Mime : MimePart
+	public class ApplicationPkcs7Mime : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> class.

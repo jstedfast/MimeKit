@@ -101,7 +101,7 @@ namespace MimeKit {
 	/// A MIME parser which can be used to parse <see cref="MimeKit.MimeMessage"/>s and
 	/// <see cref="MimeKit.MimeEntity"/>s from arbitrary streams.
 	/// </summary>
-	public sealed class MimeParser : IEnumerable<MimeMessage>
+	public class MimeParser : IEnumerable<MimeMessage>
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;

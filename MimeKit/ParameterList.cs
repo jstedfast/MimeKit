@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Parameters are used by both <see cref="ContentType"/> and <see cref="ContentDisposition"/>.
 	/// </remarks>
-	public sealed class ParameterList : IList<Parameter>
+	public class ParameterList : IList<Parameter>
 	{
 		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 

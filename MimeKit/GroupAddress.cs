@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// Group addresses are rarely used anymore. Typically, if you see a group address,
 	/// it will be of the form: <c>"undisclosed-recipients: ;"</c>.
 	/// </remarks>
-	public sealed class GroupAddress : InternetAddress, IEquatable<GroupAddress>
+	public class GroupAddress : InternetAddress, IEquatable<GroupAddress>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
