@@ -45,7 +45,8 @@ namespace UnitTests {
 			"Sat, 24 Mar 2007 21:23:03 EDT",
 			"Sat, 24 Mar 2007 21:23:03 GMT",
 			"17-6-2008 17:10:08",
-			"FRI, 30 NOV 2012 02:09:10 +0100"
+			"FRI, 30 NOV 2012 02:09:10 +0100",
+			"Tue, 11 Feb 2014 22:27:10 +0100 (CET)",
 		};
 
 		static readonly string[] expected = {
@@ -59,7 +60,8 @@ namespace UnitTests {
 			"Sat, 24 Mar 2007 21:23:03 -0400",
 			"Sat, 24 Mar 2007 21:23:03 +0000",
 			"Tue, 17 Jun 2008 17:10:08 +0000",
-			"Fri, 30 Nov 2012 02:09:10 +0100"
+			"Fri, 30 Nov 2012 02:09:10 +0100",
+			"Tue, 11 Feb 2014 22:27:10 +0100",
 		};
 
 		[Test]
