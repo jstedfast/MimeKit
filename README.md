@@ -206,11 +206,9 @@ void RenderMimeEntity (MimeEntity entity)
             else
                 RenderText (text.Text);
         } else if (entity.ContentType.Matches ("image", "*")) {
-            using (var content = new MemoryStream ()) {
-                // If the content is base64 encoded (which it probably is), decode it.
-                part.ContentObject.DecodeTo (memory);
-
-                RenderImage (memory);
+            using (var content = part.ContentObject.Open ()) {
+                // render the raw image content
+                RenderImage (content);
             }
         }
     }
