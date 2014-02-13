@@ -190,10 +190,7 @@ namespace MimeKit.Cryptography {
 
 		byte[] EncodePrivateKey (AsymmetricKeyParameter key)
 		{
-			if (key == null)
-				return null;
-
-			return EncryptAsymmetricKeyParameter (key);
+			return key != null ? EncryptAsymmetricKeyParameter (key) : null;
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (SqliteDataReader reader, int column)
@@ -204,7 +201,7 @@ namespace MimeKit.Cryptography {
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var values = reader.GetString (column);
 
-			foreach (var token in values.Split (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
+			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
 				EncryptionAlgorithm algorithm;
 
 				if (Enum.TryParse (token.Trim (), out algorithm))
@@ -509,7 +506,7 @@ namespace MimeKit.Cryptography {
 		static string[] GetColumnNames (X509CrlRecordFields fields)
 		{
 			if (fields == X509CrlRecordFields.All)
-				return new string[] { "*" };
+				return new [] { "*" };
 
 			var columns = new List<string> ();
 
