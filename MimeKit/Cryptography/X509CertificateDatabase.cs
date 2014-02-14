@@ -46,14 +46,15 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database.
 	/// </summary>
-	class X509CertificateDatabase : IDisposable, IX509Store
+	class X509CertificateDatabase : IX509CertificateDatabase
 	{
 		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
 		const int MinIterations = 1024;
 		const int SaltSize = 20;
 
-		SqliteConnection sqlite;
+		readonly SqliteConnection sqlite;
 		readonly char[] passwd;
+		bool disposed;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> class.
@@ -93,6 +94,11 @@ namespace MimeKit.Cryptography {
 			passwd = password.ToCharArray ();
 			CreateCertificatesTable ();
 			CreateCrlsTable ();
+		}
+
+		~X509CertificateDatabase ()
+		{
+			Dispose (false);
 		}
 
 		static int ReadBinaryBlob (SqliteDataReader reader, int column, ref byte[] buffer)
@@ -887,7 +893,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Add the specified certificate record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
 		/// </exception>
@@ -904,7 +910,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Remove the specified certificate record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
 		/// </exception>
@@ -921,7 +927,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Update the specified certificate record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -1001,7 +1007,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Add the specified CRL record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
 		/// </exception>
@@ -1018,7 +1024,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Remove the specified CRL record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
 		/// </exception>
@@ -1035,7 +1041,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Update the specified CRL record.
 		/// </summary>
-		/// <param name="record">The record.</param>
+		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
 		/// </exception>
@@ -1095,6 +1101,20 @@ namespace MimeKit.Cryptography {
 		#region IDisposable implementation
 
 		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
+		protected virtual void Dispose (bool disposing)
+		{
+			if (disposing && !disposed)
+				sqlite.Dispose ();
+
+			disposed = true;
+		}
+
+		/// <summary>
 		/// Releases all resource used by the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose"/> when you are finished using the
@@ -1105,10 +1125,8 @@ namespace MimeKit.Cryptography {
 		/// the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> was occupying.</remarks>
 		public void Dispose ()
 		{
-			if (sqlite != null) {
-				sqlite.Dispose ();
-				sqlite = null;
-			}
+			Dispose (true);
+			GC.SuppressFinalize (this);
 		}
 
 		#endregion

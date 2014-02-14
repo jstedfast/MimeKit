@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public static readonly string DefaultDatabasePath;
 
-		readonly X509CertificateDatabase dbase;
+		readonly IX509CertificateDatabase dbase;
 
 		static DefaultSecureMimeContext ()
 		{
