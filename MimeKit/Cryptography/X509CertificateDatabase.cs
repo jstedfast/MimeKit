@@ -27,11 +27,8 @@
 using System;
 using System.IO;
 using System.Data;
-using System.Text;
 using System.Collections;
 using System.Collections.Generic;
-
-using Mono.Data.Sqlite;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
@@ -46,54 +43,27 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database.
 	/// </summary>
-	class X509CertificateDatabase : IX509CertificateDatabase
+	abstract class X509CertificateDatabase : IX509CertificateDatabase
 	{
 		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
 		const int MinIterations = 1024;
 		const int SaltSize = 20;
 
-		readonly SqliteConnection sqlite;
 		readonly char[] passwd;
-		bool disposed;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> class.
 		/// </summary>
-		/// <param name="fileName">The file name.</param>
-		/// <param name="password">The password.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <paramref name="password"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// The user does not have access to read the specified file.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An error occurred reading the file.
-		/// </exception>
-		public X509CertificateDatabase (string fileName, string password)
+		protected X509CertificateDatabase (string password)
 		{
-			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
-
-			var builder = new SqliteConnectionStringBuilder ();
-			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
-			builder.DataSource = fileName;
-			//builder.Password = password;
-
-			if (!File.Exists (fileName))
-				SqliteConnection.CreateFile (fileName);
-
-			sqlite = new SqliteConnection (builder.ConnectionString);
-			sqlite.Open ();
+			if (password == null)
+				throw new ArgumentNullException ("password");
 
 			passwd = password.ToCharArray ();
-			CreateCertificatesTable ();
-			CreateCrlsTable ();
 		}
 
 		~X509CertificateDatabase ()
@@ -101,7 +71,7 @@ namespace MimeKit.Cryptography {
 			Dispose (false);
 		}
 
-		static int ReadBinaryBlob (SqliteDataReader reader, int column, ref byte[] buffer)
+		static int ReadBinaryBlob (IDataRecord reader, int column, ref byte[] buffer)
 		{
 			long nread;
 
@@ -113,7 +83,7 @@ namespace MimeKit.Cryptography {
 			return (int) reader.GetBytes (column, 0, buffer, 0, (int) nread);
 		}
 
-		static X509Certificate DecodeCertificate (SqliteDataReader reader, X509CertificateParser parser, int column, ref byte[] buffer)
+		static X509Certificate DecodeCertificate (IDataRecord reader, X509CertificateParser parser, int column, ref byte[] buffer)
 		{
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
@@ -122,7 +92,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static X509Crl DecodeX509Crl (SqliteDataReader reader, X509CrlParser parser, int column, ref byte[] buffer)
+		static X509Crl DecodeX509Crl (IDataRecord reader, X509CrlParser parser, int column, ref byte[] buffer)
 		{
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
@@ -184,7 +154,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		AsymmetricKeyParameter DecodePrivateKey (SqliteDataReader reader, int column, ref byte[] buffer)
+		AsymmetricKeyParameter DecodePrivateKey (IDataRecord reader, int column, ref byte[] buffer)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -199,7 +169,7 @@ namespace MimeKit.Cryptography {
 			return key != null ? EncryptAsymmetricKeyParameter (key) : null;
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (SqliteDataReader reader, int column)
+		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (IDataRecord reader, int column)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -229,7 +199,7 @@ namespace MimeKit.Cryptography {
 			return string.Join (",", tokens);
 		}
 
-		X509CertificateRecord LoadCertificateRecord (SqliteDataReader reader, X509CertificateParser parser, ref byte[] buffer)
+		X509CertificateRecord LoadCertificateRecord (IDataRecord reader, X509CertificateParser parser, ref byte[] buffer)
 		{
 			var record = new X509CertificateRecord ();
 
@@ -259,7 +229,7 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
-		X509CrlRecord LoadCrlRecord (SqliteDataReader reader, X509CrlParser parser, ref byte[] buffer)
+		X509CrlRecord LoadCrlRecord (IDataRecord reader, X509CrlParser parser, ref byte[] buffer)
 		{
 			var record = new X509CrlRecord ();
 
@@ -286,93 +256,12 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
-		static SqliteCommand GetCreateCertificatesTableCommand (SqliteConnection sqlite)
-		{
-			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
-			var columns = X509CertificateRecord.ColumnNames;
-
-			for (int i = 0; i < columns.Length; i++) {
-				if (i > 0)
-					statement.Append (", ");
-
-				statement.Append (columns[i] + " ");
-				switch (columns[i]) {
-				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
-				case "BASICCONSTRAINTS": statement.Append ("INTEGER NOT NULL"); break;
-				case "TRUSTED":  statement.Append ("INTEGER NOT NULL"); break;
-				case "KEYUSAGE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NOTBEFORE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NOTAFTER": statement.Append ("INTEGER NOT NULL"); break;
-				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
-				case "SERIALNUMBER": statement.Append ("TEXT NOT NULL"); break;
-				case "SUBJECTEMAIL": statement.Append ("TEXT COLLATE NOCASE"); break;
-				case "FINGERPRINT": statement.Append ("TEXT COLLATE NOCASE NOT NULL"); break;
-				case "ALGORITHMS": statement.Append ("TEXT"); break;
-				case "ALGORITHMSUPDATED": statement.Append ("INTEGER NOT NULL"); break;
-				case "CERTIFICATE": statement.Append ("BLOB UNIQUE NOT NULL"); break;
-				case "PRIVATEKEY": statement.Append ("BLOB"); break;
-				}
-			}
-
-			statement.Append (')');
-
-			var command = sqlite.CreateCommand ();
-
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		void CreateCertificatesTable ()
-		{
-			using (var command = GetCreateCertificatesTableCommand (sqlite)) {
-				command.ExecuteNonQuery ();
-			}
-
-			// FIXME: create some indexes as well?
-		}
-
-		static SqliteCommand GetCreateCrlsTableCommand (SqliteConnection sqlite)
-		{
-			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
-			var columns = X509CrlRecord.ColumnNames;
-
-			for (int i = 0; i < columns.Length; i++) {
-				if (i > 0)
-					statement.Append (", ");
-
-				statement.Append (columns[i] + " ");
-				switch (columns[i]) {
-				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
-				case "DELTA" : statement.Append ("INTEGER NOT NULL"); break;
-				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
-				case "THISUPDATE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NEXTUPDATE": statement.Append ("INTEGER NOT NULL"); break;
-				case "CRL": statement.Append ("BLOB NOT NULL"); break;
-				}
-			}
-
-			statement.Append (')');
-
-			var command = sqlite.CreateCommand ();
-
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		void CreateCrlsTable ()
-		{
-			using (var command = GetCreateCrlsTableCommand (sqlite)) {
-				command.ExecuteNonQuery ();
-			}
-
-			// FIXME: create some indexes as well?
-		}
-
-		static string[] GetColumnNames (X509CertificateRecordFields fields)
+		/// <summary>
+		/// Gets the column names for the specified fields.
+		/// </summary>
+		/// <returns>The column names.</returns>
+		/// <param name="fields">The fields.</param>
+		protected static string[] GetColumnNames (X509CertificateRecordFields fields)
 		{
 			var columns = new List<string> ();
 
@@ -392,124 +281,40 @@ namespace MimeKit.Cryptography {
 			return columns.ToArray ();
 		}
 
-		SqliteCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
-		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
-			var issuerName = certificate.IssuerDN.ToString ();
-			var serialNumber = certificate.SerialNumber.ToString ();
-			var fingerprint = certificate.GetFingerprint ();
-			var command = sqlite.CreateCommand ();
+		/// <summary>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected abstract IDbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields);
 
-			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@SERIALNUMBER", serialNumber);
-			command.Parameters.AddWithValue ("@FINGERPRINT", fingerprint);
-			command.CommandType = CommandType.Text;
+		/// <summary>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="now">The date and time for which the certificate should be valid.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected abstract IDbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
-			return command;
-		}
+		/// <summary>
+		/// Gets the database command to select certificate records matching the specified selector.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="selector">Selector.</param>
+		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected abstract IDbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
-		SqliteCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
-		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
-			var secure = mailbox as SecureMailboxAddress;
-			var command = sqlite.CreateCommand ();
-			var constraints = " WHERE ";
-
-			command.Parameters.AddWithValue ("@BASICCONSTRAINTS", -1);
-			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
-
-			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
-			command.Parameters.AddWithValue ("@NOW", now);
-
-			if (requirePrivateKey)
-				constraints += "AND PRIVATEKEY NOT NULL ";
-
-			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				if (secure.Fingerprint.Length < 40) {
-					constraints += "AND FINGERPRINT LIKE @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint + "%");
-				} else {
-					constraints += "AND FINGERPRINT = @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint);
-				}
-			} else {
-				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
-				command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
-			}
-
-			command.CommandText = query + constraints;
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
-		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
-			var match = selector as X509CertStoreSelector;
-			var command = sqlite.CreateCommand ();
-			var constraints = " WHERE ";
-
-			if (trustedOnly) {
-				command.Parameters.AddWithValue ("@TRUSTED", true);
-				constraints += "TRUSTED = @TRUSTED";
-			}
-
-			if (match != null) {
-				if (match.BasicConstraints != -1) {
-					if (command.Parameters.Count > 0)
-						constraints += " AND ";
-
-					command.Parameters.AddWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
-					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
-				}
-
-				if (match.KeyUsage != null) {
-					var flags = X509CertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
-
-					if (flags != X509KeyUsageFlags.None) {
-						if (command.Parameters.Count > 0)
-							constraints += " AND ";
-
-						command.Parameters.AddWithValue ("@FLAGS", (int) flags);
-						constraints += "KEYUSAGE & @FLAGS";
-					}
-				}
-
-				if (match.Issuer != null) {
-					if (command.Parameters.Count > 0)
-						constraints += " AND ";
-
-					command.Parameters.AddWithValue ("@ISSUERNAME", match.Issuer.ToString ());
-					constraints += "ISSUERNAME = @ISSUERNAME";
-				}
-
-				if (match.SerialNumber != null) {
-					if (command.Parameters.Count > 0)
-						constraints += " AND ";
-
-					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
-					constraints += "SERIALNUMBER = @SERIALNUMBER";
-				}
-			}
-
-			if (requirePrivateKey) {
-				if (command.Parameters.Count > 0)
-					constraints += " AND ";
-
-				constraints += "PRIVATEKEY NOT NULL";
-			} else if (command.Parameters.Count == 0) {
-				constraints = string.Empty;
-			}
-
-			command.CommandText = query + constraints;
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		static string[] GetColumnNames (X509CrlRecordFields fields)
+		/// <summary>
+		/// Gets the column names for the specified fields.
+		/// </summary>
+		/// <returns>The column names.</returns>
+		/// <param name="fields">The fields.</param>
+		protected static string[] GetColumnNames (X509CrlRecordFields fields)
 		{
 			if (fields == X509CrlRecordFields.All)
 				return new [] { "*" };
@@ -532,66 +337,49 @@ namespace MimeKit.Cryptography {
 			return columns.ToArray ();
 		}
 
-		SqliteCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields)
-		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
-			var command = sqlite.CreateCommand ();
+		/// <summary>
+		/// Gets the database command to select the CRL records matching the specified issuer.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="issuer">The issuer.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected abstract IDbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields);
 
-			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuer.ToString ());
-			command.CommandType = CommandType.Text;
+		/// <summary>
+		/// Gets the database command to select the record for the specified CRL.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="crl">The X.509 CRL.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected abstract IDbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields);
 
-			return command;
-		}
+		/// <summary>
+		/// Gets the database command to select all CRLs in the table.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		protected abstract IDbCommand GetSelectAllCrlsCommand ();
 
-		SqliteCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields)
-		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
-			var issuerName = crl.IssuerDN.ToString ();
-			var command = sqlite.CreateCommand ();
+		/// <summary>
+		/// Gets the database command to delete the specified certificate record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The certificate record.</param>
+		protected abstract IDbCommand GetDeleteCommand (X509CertificateRecord record);
 
-			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
-			command.Parameters.AddWithValue ("@DELTA", crl.IsDelta ());
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@THISUPDATE", crl.ThisUpdate);
-			command.CommandType = CommandType.Text;
+		/// <summary>
+		/// Gets the database command to delete the specified CRL record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The record.</param>
+		protected abstract IDbCommand GetDeleteCommand (X509CrlRecord record);
 
-			return command;
-		}
-
-		SqliteCommand GetSelectAllCrlsCommand ()
-		{
-			var command = sqlite.CreateCommand ();
-
-			command.CommandText = "SELECT ID, CRL FROM CRLS";
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetDeleteCommand (X509CertificateRecord record)
-		{
-			var command = sqlite.CreateCommand ();
-
-			command.CommandText = "DELETE FROM CERTIFICATES WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetDeleteCommand (X509CrlRecord record)
-		{
-			var command = sqlite.CreateCommand ();
-
-			command.CommandText = "DELETE FROM CRLS WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		object GetValue (X509CertificateRecord record, string columnName)
+		/// <summary>
+		/// Gets the value for the specified column.
+		/// </summary>
+		/// <returns>The value.</returns>
+		/// <param name="record">The certificate record.</param>
+		/// <param name="columnName">The column name.</param>
+		protected object GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
 			case "ID": return record.Id;
@@ -612,7 +400,13 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static object GetValue (X509CrlRecord record, string columnName)
+		/// <summary>
+		/// Gets the value for the specified column.
+		/// </summary>
+		/// <returns>The value.</returns>
+		/// <param name="record">The CRL record.</param>
+		/// <param name="columnName">The column name.</param>
+		protected static object GetValue (X509CrlRecord record, string columnName)
 		{
 			switch (columnName) {
 			case "ID": return record.Id;
@@ -625,123 +419,34 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		SqliteCommand GetInsertCommand (X509CertificateRecord record)
-		{
-			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
-			var columns = X509CertificateRecord.ColumnNames;
-			var variables = new StringBuilder ("VALUES(");
-			var command = sqlite.CreateCommand ();
+		/// <summary>
+		/// Gets the database command to insert the specified certificate record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The certificate record.</param>
+		protected abstract IDbCommand GetInsertCommand (X509CertificateRecord record);
 
-			for (int i = 1; i < columns.Length; i++) {
-				if (i > 1) {
-					statement.Append (", ");
-					variables.Append (", ");
-				}
+		/// <summary>
+		/// Gets the database command to insert the specified CRL record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The CRL record.</param>
+		protected abstract IDbCommand GetInsertCommand (X509CrlRecord record);
 
-				var value = GetValue (record, columns[i]);
-				var variable = "@" + columns[i];
+		/// <summary>
+		/// Gets the database command to update the specified record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The certificate record.</param>
+		/// <param name="fields">The fields to update.</param>
+		protected abstract IDbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields);
 
-				command.Parameters.AddWithValue (variable, value);
-				statement.Append (columns[i]);
-				variables.Append (variable);
-			}
-
-			statement.Append (')');
-			variables.Append (')');
-
-			command.CommandText = statement + " " + variables;
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetInsertCommand (X509CrlRecord record)
-		{
-			var statement = new StringBuilder ("INSERT INTO CRLS(");
-			var variables = new StringBuilder ("VALUES(");
-			var columns = X509CrlRecord.ColumnNames;
-			var command = sqlite.CreateCommand ();
-
-			for (int i = 1; i < columns.Length; i++) {
-				if (i > 1) {
-					statement.Append (", ");
-					variables.Append (", ");
-				}
-
-				var value = GetValue (record, columns[i]);
-				var variable = "@" + columns[i];
-
-				command.Parameters.AddWithValue (variable, value);
-				statement.Append (columns[i]);
-				variables.Append (variable);
-			}
-
-			statement.Append (')');
-			variables.Append (')');
-
-			command.CommandText = statement + " " + variables;
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields)
-		{
-			var statement = new StringBuilder ("UPDATE CERTIFICATES SET ");
-			var columns = GetColumnNames (fields & ~X509CertificateRecordFields.Id);
-			var command = sqlite.CreateCommand ();
-
-			for (int i = 0; i < columns.Length; i++) {
-				var value = GetValue (record, columns[i]);
-				var variable = "@" + columns[i];
-
-				if (i > 0)
-					statement.Append (", ");
-
-				statement.Append (columns[i]);
-				statement.Append (" = ");
-				statement.Append (variable);
-
-				command.Parameters.AddWithValue (variable, value);
-			}
-
-			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
-
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		SqliteCommand GetUpdateCommand (X509CrlRecord record)
-		{
-			var statement = new StringBuilder ("UPDATE CRLS SET ");
-			var columns = X509CrlRecord.ColumnNames;
-			var command = sqlite.CreateCommand ();
-
-			for (int i = 1; i < columns.Length; i++) {
-				var value = GetValue (record, columns[i]);
-				var variable = "@" + columns[i];
-
-				if (i > 1)
-					statement.Append (", ");
-
-				statement.Append (columns[i]);
-				statement.Append (" = ");
-				statement.Append (variable);
-
-				command.Parameters.AddWithValue (variable, value);
-			}
-
-			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
-
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
+		/// <summary>
+		/// Gets the database command to update the specified CRL record.
+		/// </summary>
+		/// <returns>The database command.</returns>
+		/// <param name="record">The CRL record.</param>
+		protected abstract IDbCommand GetUpdateCommand (X509CrlRecord record);
 
 		/// <summary>
 		/// Find the specified certificate.
@@ -832,7 +537,7 @@ namespace MimeKit.Cryptography {
 		/// Finds the certificate records for the specified mailbox.
 		/// </summary>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="now">The date and time.</param>
+		/// <param name="now">The date and time for which the certificate should be valid.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1108,10 +813,6 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (disposing && !disposed)
-				sqlite.Dispose ();
-
-			disposed = true;
 		}
 
 		/// <summary>
