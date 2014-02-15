@@ -169,9 +169,6 @@ namespace MimeKit.Utils {
 			if (text[index].IsAtom () || text[index] >= 127)
 				return Skip8bitAtom (text, ref index, endIndex);
 
-			if (throwOnError)
-				throw new ParseException (string.Format ("Invalid word token at offset {0}", index), index, index);
-
 			return false;
 		}
 

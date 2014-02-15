@@ -532,7 +532,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
+		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
