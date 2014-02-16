@@ -1667,7 +1667,10 @@ namespace MimeKit {
 						part.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
 
 					if (view.LinkedResources.Count > 0) {
+						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
 						var related = new Multipart ("related");
+
+						related.ContentType.Parameters.Add ("type", type);
 
 						if (view.BaseUri != null)
 							related.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
