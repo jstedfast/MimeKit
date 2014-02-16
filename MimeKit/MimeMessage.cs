@@ -1776,6 +1776,9 @@ namespace MimeKit {
 			if (message.AlternateViews.Count > 0) {
 				var alternative = new Multipart ("alternative");
 
+				if (body != null)
+					alternative.Add (body);
+
 				foreach (var view in message.AlternateViews) {
 					var part = GetMimePart (view);
 
