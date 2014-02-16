@@ -29,7 +29,6 @@ using System.Text;
 using NUnit.Framework;
 
 using MimeKit;
-using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -79,8 +78,8 @@ namespace UnitTests {
 		[Test]
 		public void TestSimpleAddrSpec ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
-			MailboxAddress mailbox = new MailboxAddress ("", "");
+			var expected = new InternetAddressList ();
+			var mailbox = new MailboxAddress ("", "");
 			InternetAddressList result;
 			string text;
 
@@ -91,16 +90,22 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
 			text = "fejj";
 			mailbox.Address = "fejj";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestExampleAddrSpecWithQuotedLocalPartAndCommentsFromRfc822 ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -111,12 +116,15 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestExampleMailboxWithCommentsFromRfc5322 ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -125,13 +133,16 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestSimpleMailboxes ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
-			MailboxAddress mailbox = new MailboxAddress ("", "");
+			var expected = new InternetAddressList ();
+			var mailbox = new MailboxAddress ("", "");
 			InternetAddressList result;
 			string text;
 
@@ -143,10 +154,16 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
 			mailbox.Name = "this is a folded name";
 			mailbox.Address = "folded@name.com";
 			text = "this is\n\ta folded name <folded@name.com>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
 			mailbox.Name = "Jeffrey fejj Stedfast";
@@ -155,10 +172,16 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
 			mailbox.Name = "Jeffrey \"fejj\" Stedfast";
 			mailbox.Address = "fejj@helixcode.com";
 			text = "\"Jeffrey \\\"fejj\\\" Stedfast\" <fejj@helixcode.com>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
 			mailbox.Name = "Stedfast, Jeffrey";
@@ -167,10 +190,16 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
 			mailbox.Name = "Jeffrey Stedfast";
 			mailbox.Address = "fejj@helixcode.com";
 			text = "fejj@helixcode.com (Jeffrey Stedfast)";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
 			mailbox.Name = "Jeffrey Stedfast";
@@ -178,13 +207,16 @@ namespace UnitTests {
 			text = "Jeffrey Stedfast <fejj(recursive (comment) block)@helixcode.(and a comment here)com>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestMailboxesWithRfc2047EncodedNames ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
-			MailboxAddress mailbox = new MailboxAddress ("", "");
+			var expected = new InternetAddressList ();
+			var mailbox = new MailboxAddress ("", "");
 			InternetAddressList result;
 			string text;
 
@@ -196,17 +228,23 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
 			mailbox.Name = "François Pons";
 			mailbox.Address = "fpons@mandrakesoft.com";
 			text = "=?iso-8859-1?q?Fran=E7ois?= Pons <fpons@mandrakesoft.com>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestListWithGroupAndAddrspec ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -220,12 +258,15 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestLocalGroupWithoutSemicolon ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -240,12 +281,15 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestExampleGroupWithCommentsFromRfc5322 ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -259,12 +303,15 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestMailboxWithDotsInTheName ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -274,12 +321,15 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestMailboxWith8bitName ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
@@ -289,35 +339,44 @@ namespace UnitTests {
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestObsoleteMailboxRoutingSyntax ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
 			text = "Routed Address <@route:user@domain.com>";
 
-			expected.Add (new MailboxAddress ("Routed Address", new string[] { "route" }, "user@domain.com"));
+			expected.Add (new MailboxAddress ("Routed Address", new [] { "route" }, "user@domain.com"));
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
 		[Test]
 		public void TestObsoleteMailboxRoutingSyntaxWithEmptyDomains ()
 		{
-			InternetAddressList expected = new InternetAddressList ();
+			var expected = new InternetAddressList ();
 			InternetAddressList result;
 			string text;
 
 			text = "Routed Address <@route1,,@route2,,,@route3:user@domain.com>";
 
-			expected.Add (new MailboxAddress ("Routed Address", new string[] { "route1", "route2", "route3" }, "user@domain.com"));
+			expected.Add (new MailboxAddress ("Routed Address", new [] { "route1", "route2", "route3" }, "user@domain.com"));
 
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
 			AssertInternetAddressListsEqual (text, expected, result);
 		}
 
