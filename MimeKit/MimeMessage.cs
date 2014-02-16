@@ -1622,7 +1622,7 @@ namespace MimeKit {
 					headers.Add (new Header (field, value));
 			}
 
-			var msg = new MimeMessage (headers);
+			var msg = new MimeMessage (ParserOptions.Default, headers);
 			MimeEntity body = null;
 
 			if (message.Sender != null)
