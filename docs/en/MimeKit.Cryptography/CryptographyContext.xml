@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit CryptographyContext extends System.Object implements class System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.25.0.0</AssemblyVersion>
+    <AssemblyVersion>0.26.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -29,7 +29,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -42,7 +42,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.CryptographyContext Create(string protocol) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CryptographyContext</ReturnType>
@@ -71,7 +71,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.MimeEntity Decrypt(class System.IO.Stream encryptedData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -96,7 +96,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Dispose() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -117,7 +117,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void Dispose(bool disposing) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -141,7 +141,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.MimePart Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -176,7 +176,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string EncryptionProtocol" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -198,7 +198,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.MimePart Export(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; mailboxes) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -229,7 +229,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm(string micalg) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
@@ -256,7 +256,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string GetDigestAlgorithmName(valuetype MimeKit.Cryptography.DigestAlgorithm micalg) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -285,7 +285,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Import(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -312,7 +312,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string KeyExchangeProtocol" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -330,7 +330,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig void Register(class System.Type type) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -363,7 +363,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.MimePart Sign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -406,7 +406,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string SignatureProtocol" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -428,7 +428,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Supports(string protocol) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -457,7 +457,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class System.IO.Stream content, class System.IO.Stream signatureData) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>

@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed MimeFormat extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.25.0.0</AssemblyVersion>
+    <AssemblyVersion>0.26.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -20,7 +20,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.MimeFormat Default = unsigned int8(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeFormat</ReturnType>
@@ -36,7 +36,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.MimeFormat Entity = unsigned int8(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeFormat</ReturnType>
@@ -52,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.MimeFormat Mbox = unsigned int8(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+        <AssemblyVersion>0.26.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeFormat</ReturnType>
