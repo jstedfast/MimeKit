@@ -1604,18 +1604,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Explicit cast to convert a <see cref="System.Net.Mail.MailMessage"/> to a
-		/// <see cref="MimeMessage"/>.
+		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
-		/// <remarks>
-		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
-		/// </remarks>
-		/// <returns>A <see cref="MimeMessage"/>.</returns>
+		/// <returns>The message.</returns>
 		/// <param name="message">The message.</param>
-		public static explicit operator MimeMessage (MailMessage message)
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="message"/> is <c>null</c>.
+		/// </exception>
+		public static MimeMessage CreateFromMailMessage (MailMessage message)
 		{
 			if (message == null)
-				return null;
+				throw new ArgumentNullException ("message");
 
 			var headers = new List<Header> ();
 			foreach (var field in message.Headers.AllKeys) {
@@ -1651,17 +1650,22 @@ namespace MimeKit {
 				foreach (var view in message.AlternateViews) {
 					var part = GetMimePart (view);
 
-					// FIXME: I think view.BaseUri is the Content-Base header value?
+					if (view.BaseUri != null)
+						part.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
 
 					if (view.LinkedResources.Count > 0) {
 						var related = new Multipart ("related");
+
+						if (view.BaseUri != null)
+							related.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
 
 						related.Add (part);
 
 						foreach (var resource in view.LinkedResources) {
 							part = GetMimePart (resource);
 
-							// FIXME: wtf is ContentLink?
+							if (resource.ContentLink != null)
+								part.Headers.Add (HeaderId.ContentLocation, resource.ContentLink.ToString ());
 
 							related.Add (part);
 						}
@@ -1690,6 +1694,20 @@ namespace MimeKit {
 			msg.Body = body;
 
 			return msg;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailMessage"/> to a
+		/// <see cref="MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
+		/// </remarks>
+		/// <returns>A <see cref="MimeMessage"/>.</returns>
+		/// <param name="message">The message.</param>
+		public static explicit operator MimeMessage (MailMessage message)
+		{
+			return message != null ? CreateFromMailMessage (message) : null;
 		}
 
 		#endregion
