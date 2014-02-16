@@ -1635,6 +1635,19 @@ namespace MimeKit {
 			msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
 			msg.Subject = message.Subject ?? string.Empty;
 
+			switch (message.Priority) {
+			case MailPriority.High:
+				msg.Headers.Add (HeaderId.Priority, "urgent");
+				msg.Headers.Add (HeaderId.Importance, "high");
+				msg.Headers.Add ("X-Priority", "1");
+				break;
+			case MailPriority.Low:
+				msg.Headers.Add (HeaderId.Priority, "non-urgent");
+				msg.Headers.Add (HeaderId.Importance, "low");
+				msg.Headers.Add ("X-Priority", "5");
+				break;
+			}
+
 			if (message.Body != null) {
 				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
 				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
