@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+
 using System.Net.Mail;
 
 #if !__MIMEKIT_LITE__
@@ -1656,16 +1657,14 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that <see cref="System.Net.Mail.MailMessage"/>
 		/// cannot represent all MIME structures that can be constructed using MimeKit,
 		/// so the conversion may not be perfect.</para>
+		/// <para>A better approach would be to use MailKit's SmtpClient instead.</para>
 		/// </remarks>
 		/// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
 		/// <param name="message">The message.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="message"/> is <c>null</c>.
-		/// </exception>
 		public static explicit operator MailMessage (MimeMessage message)
 		{
 			if (message == null)
-				throw new ArgumentNullException ("message");
+				return null;
 
 			var from = message.From.Mailboxes.FirstOrDefault ();
 			var msg = new MailMessage ();
@@ -1696,6 +1695,127 @@ namespace MimeKit {
 
 			if (message.Body != null)
 				AddBodyPart (msg, message.Body);
+
+			return msg;
+		}
+
+		static MimePart GetMimePart (AttachmentBase item)
+		{
+			var mimeType = item.ContentType.ToString ();
+			var part = new MimePart (ContentType.Parse (mimeType));
+			var attachment = item as Attachment;
+
+			if (attachment != null) {
+				var disposition = attachment.ContentDisposition.ToString ();
+				part.ContentDisposition = ContentDisposition.Parse (disposition);
+			}
+
+			switch (item.TransferEncoding) {
+			case System.Net.Mime.TransferEncoding.QuotedPrintable:
+				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+				break;
+			case System.Net.Mime.TransferEncoding.Base64:
+				part.ContentTransferEncoding = ContentEncoding.Base64;
+				break;
+			case System.Net.Mime.TransferEncoding.SevenBit:
+				part.ContentTransferEncoding = ContentEncoding.SevenBit;
+				break;
+			}
+
+			if (item.ContentId != null)
+				part.ContentId = item.ContentId;
+
+			var stream = new MemoryStream ();
+			item.ContentStream.CopyTo (stream);
+			stream.Position = 0;
+
+			part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+
+			return part;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailMessage"/> to a
+		/// <see cref="MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
+		/// </remarks>
+		/// <returns>A <see cref="MimeMessage"/>.</returns>
+		/// <param name="message">The message.</param>
+		public static explicit operator MimeMessage (MailMessage message)
+		{
+			if (message == null)
+				return null;
+
+			var headers = new List<Header> ();
+			foreach (var field in message.Headers.AllKeys) {
+				foreach (var value in message.Headers.GetValues (field))
+					headers.Add (new Header (field, value));
+			}
+
+			var msg = new MimeMessage (headers);
+			MimeEntity body = null;
+
+			if (message.Sender != null)
+				msg.Sender = (MailboxAddress) message.Sender;
+			if (message.From != null)
+				msg.From.Add ((MailboxAddress) message.From);
+			msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			msg.To.AddRange ((InternetAddressList) message.To);
+			msg.Cc.AddRange ((InternetAddressList) message.CC);
+			msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+			msg.Subject = message.Subject ?? string.Empty;
+
+			if (message.Body != null) {
+				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
+				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
+				body = text;
+			}
+
+			if (message.AlternateViews.Count > 0) {
+				var alternative = new Multipart ("alternative");
+
+				foreach (var view in message.AlternateViews) {
+					var part = GetMimePart (view);
+
+					// FIXME: I think view.BaseUri is the Content-Base header value?
+
+					if (view.LinkedResources.Count > 0) {
+						var related = new Multipart ("related");
+
+						related.Add (part);
+
+						foreach (var resource in view.LinkedResources) {
+							part = GetMimePart (resource);
+
+							// FIXME: wtf is ContentLink?
+
+							related.Add (part);
+						}
+
+						alternative.Add (related);
+					} else {
+						alternative.Add (part);
+					}
+				}
+
+				body = alternative;
+			}
+
+			if (message.Attachments.Count > 0) {
+				var mixed = new Multipart ("mixed");
+
+				if (body != null)
+					mixed.Add (body);
+
+				foreach (var attachment in message.Attachments)
+					mixed.Add (GetMimePart (attachment));
+
+				body = mixed;
+			}
+
+			msg.Body = body;
 
 			return msg;
 		}

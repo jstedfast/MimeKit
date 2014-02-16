@@ -29,6 +29,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+using System.Net.Mail;
+
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -888,6 +890,57 @@ namespace MimeKit {
 		public static InternetAddressList Parse (string text)
 		{
 			return Parse (ParserOptions.Default, text);
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="InternetAddressList"/> to a
+		/// <see cref="System.Net.Mail.MailAddressCollection"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="InternetAddressList"/> to a <see cref="System.Net.Mail.MailAddressCollection"/>
+		/// in cases where you might want to make use of the System.Net.Mail APIs.
+		/// </remarks>
+		/// <param name="addresses">The addresses.</param>
+		/// <exception cref="System.InvalidCastException">
+		/// <paramref name="addresses"/> contains one or more group addresses and cannot be converted.
+		/// </exception>
+		public static explicit operator MailAddressCollection (InternetAddressList addresses)
+		{
+			if (addresses == null)
+				return null;
+
+			var collection = new MailAddressCollection ();
+			for (int i = 0; i < addresses.Count; i++) {
+				if (addresses[i] is GroupAddress)
+					throw new InvalidCastException ("Cannot cast a MailKit.GroupAddress to a System.Net.Mail.MailAddress.");
+
+				var mailbox = (MailboxAddress) addresses[i];
+
+				collection.Add ((MailAddress) mailbox);
+			}
+
+			return collection;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailAddressCollection"/>
+		/// to a <see cref="InternetAddressList"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="System.Net.Mail.MailAddressCollection"/> to a <see cref="InternetAddressList"/>
+		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// </remarks>
+		/// <param name="addresses">The mail address.</param>
+		public static explicit operator InternetAddressList (MailAddressCollection addresses)
+		{
+			if (addresses == null)
+				return null;
+
+			var list = new InternetAddressList ();
+			foreach (var address in addresses)
+				list.Add ((MailboxAddress) address);
+
+			return list;
 		}
 	}
 }

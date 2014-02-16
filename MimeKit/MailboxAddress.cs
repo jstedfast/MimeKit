@@ -310,15 +310,23 @@ namespace MimeKit {
 		/// in cases where you might want to make use of the System.Net.Mail APIs.
 		/// </remarks>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="mailbox"/> is <c>null</c>.
-		/// </exception>
 		public static explicit operator MailAddress (MailboxAddress mailbox)
 		{
-			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
+			return mailbox != null ? new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding) : null;
+		}
 
-			return new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding);
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailAddress"/>
+		/// to a <see cref="MailboxAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
+		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// </remarks>
+		/// <param name="address">The mail address.</param>
+		public static explicit operator MailboxAddress (MailAddress address)
+		{
+			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
 		}
 
 		/// <summary>
