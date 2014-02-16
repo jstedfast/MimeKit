@@ -277,7 +277,9 @@ namespace MimeKit {
 				if (builder.Length > 0)
 					builder.Append (' ');
 
+				builder.Append ('<');
 				builder.Append (references[i]);
+				builder.Append ('>');
 			}
 
 			return builder.ToString ();
