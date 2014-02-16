@@ -29,8 +29,6 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
-using MimeKit.Utils;
-
 namespace MimeKit {
 	/// <summary>
 	/// A list of Message-Ids, as found in the References header.
@@ -74,7 +72,7 @@ namespace MimeKit {
 			if (!InternetAddress.TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 				throw new ArgumentException ("Invalid Message-Id format.", "messageId");
 
-			return "<" + ((MailboxAddress) addr).Address + ">";
+			return ((MailboxAddress) addr).Address;
 		}
 
 		/// <summary>
