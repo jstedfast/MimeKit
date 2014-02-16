@@ -282,8 +282,7 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
-			result = InternetAddressList.Parse (text);
-			AssertInternetAddressListsEqual (text, expected, result);
+			Assert.Throws<ParseException> (() => InternetAddressList.Parse (text), "Parsing should have failed.");
 		}
 
 		[Test]
