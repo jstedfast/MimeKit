@@ -45,6 +45,19 @@ namespace MimeKit {
 			references = new List<string> ();
 		}
 
+		/// <summary>
+		/// Clones the <see cref="MessageIdList"/>.
+		/// </summary>
+		public MessageIdList Clone ()
+		{
+			var clone = new MessageIdList ();
+
+			for (int i = 0; i < references.Count; i++)
+				clone.references.Add (references[i]);
+
+			return clone;
+		}
+
 		#region IList implementation
 
 		/// <summary>
