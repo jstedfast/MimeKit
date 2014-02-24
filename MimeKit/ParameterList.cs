@@ -504,7 +504,8 @@ namespace MimeKit {
 			return index > startIndex;
 		}
 
-		class NameValuePair : IComparable<NameValuePair> {
+		class NameValuePair : IComparable<NameValuePair>
+		{
 			public int ValueLength;
 			public int ValueStart;
 			public bool Encoded;
@@ -638,7 +639,7 @@ namespace MimeKit {
 			else
 				ParseUtils.SkipToken (text, ref index, endIndex);
 
-			pair = new NameValuePair () {
+			pair = new NameValuePair {
 				ValueLength = index - valueIndex,
 				ValueStart = valueIndex,
 				Encoded = encoded,
@@ -712,7 +713,7 @@ namespace MimeKit {
 			length = hex.Decode (text, index, length, decoded);
 
 			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
-			char[] output = new char[outLength];
+			var output = new char[outLength];
 
 			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
 
