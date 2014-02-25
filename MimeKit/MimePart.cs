@@ -40,7 +40,7 @@ namespace MimeKit {
 	/// </summary>
 	public class MimePart : MimeEntity
 	{
-		static readonly string[] ContentTransferEncodings = new string[] {
+		static readonly string[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
 		ContentEncoding encoding;
