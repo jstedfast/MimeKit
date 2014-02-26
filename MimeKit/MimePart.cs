@@ -28,7 +28,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Security.Cryptography;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -343,6 +342,26 @@ namespace MimeKit {
 			return GetBestEncoding (constraint, CancellationToken.None);
 		}
 
+		static byte[] ComputeMd5Checksum (Stream stream)
+		{
+			#if ENABLE_CRYPTO
+			var md5 = new Org.BouncyCastle.Crypto.Digests.MD5Digest ();
+			var checksum = new byte[md5.GetByteLength ()];
+			var buf = new byte[4096];
+			int nread;
+
+			while ((nread = stream.Read (buf, 0, buf.Length)) > 0)
+				md5.BlockUpdate (buf, 0, nread);
+
+			md5.DoFinal (checksum, 0);
+
+			return checksum;
+			#else
+			using (var md5 = System.Security.Cryptography.HashAlgorithm.Create ("MD5"))
+				return md5.ComputeHash (stream);
+			#endif
+		}
+
 		/// <summary>
 		/// Computes the md5sum of the content.
 		/// </summary>
@@ -362,8 +381,7 @@ namespace MimeKit {
 					if (ContentType.Matches ("text", "*"))
 						filtered.Add (new Unix2DosFilter ());
 
-					using (var md5 = HashAlgorithm.Create ("MD5"))
-						checksum = md5.ComputeHash (filtered);
+					checksum = ComputeMd5Checksum (filtered);
 				}
 
 				var base64 = new Base64Encoder (true);
