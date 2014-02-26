@@ -27,7 +27,10 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+
+#if ENABLE_SNM
 using System.Net.Mail;
+#endif
 
 using MimeKit.Utils;
 
@@ -302,34 +305,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
-		/// <see cref="System.Net.Mail.MailAddress"/>.
-		/// </summary>
-		/// <remarks>
-		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
-		/// in cases where you might want to make use of the System.Net.Mail APIs.
-		/// </remarks>
-		/// <param name="mailbox">The mailbox.</param>
-		public static explicit operator MailAddress (MailboxAddress mailbox)
-		{
-			return mailbox != null ? new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding) : null;
-		}
-
-		/// <summary>
-		/// Explicit cast to convert a <see cref="System.Net.Mail.MailAddress"/>
-		/// to a <see cref="MailboxAddress"/>.
-		/// </summary>
-		/// <remarks>
-		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
-		/// in cases where you might want to make use of the the superior MimeKit APIs.
-		/// </remarks>
-		/// <param name="address">The mail address.</param>
-		public static explicit operator MailboxAddress (MailAddress address)
-		{
-			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
-		}
-
-		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
@@ -538,5 +513,35 @@ namespace MimeKit {
 		{
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
+
+		#if ENABLE_SNM
+		/// <summary>
+		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
+		/// <see cref="System.Net.Mail.MailAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
+		/// in cases where you might want to make use of the System.Net.Mail APIs.
+		/// </remarks>
+		/// <param name="mailbox">The mailbox.</param>
+		public static explicit operator MailAddress (MailboxAddress mailbox)
+		{
+			return mailbox != null ? new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding) : null;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailAddress"/>
+		/// to a <see cref="MailboxAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
+		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// </remarks>
+		/// <param name="address">The mail address.</param>
+		public static explicit operator MailboxAddress (MailAddress address)
+		{
+			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
+		}
+		#endif
 	}
 }

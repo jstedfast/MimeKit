@@ -31,9 +31,11 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
+#if ENABLE_SNM
 using System.Net.Mail;
+#endif
 
-#if !__MIMEKIT_LITE__
+#if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif
 
@@ -792,7 +794,7 @@ namespace MimeKit {
 			return recipients;
 		}
 
-		#if !__MIMEKIT_LITE__
+		#if ENABLE_CRYPTO
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
@@ -1030,7 +1032,7 @@ namespace MimeKit {
 		{
 			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
-		#endif // __MIMEKIT_LITE__
+		#endif // ENABLE_CRYPTO
 
 		IEnumerable<Header> MergeHeaders ()
 		{
@@ -1566,6 +1568,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
 
+		#if ENABLE_SNM
 		#region System.Net.Mail support
 
 		static MimePart GetMimePart (AttachmentBase item)
@@ -1727,5 +1730,6 @@ namespace MimeKit {
 		}
 
 		#endregion
+		#endif
 	}
 }

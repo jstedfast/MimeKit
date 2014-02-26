@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\MonoAndroid</OutputPath>
-    <DefineConstants>DEBUG;__MOBILE__;__ANDROID__</DefineConstants>
+    <DefineConstants>DEBUG;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidLinkMode>None</AndroidLinkMode>
@@ -37,7 +37,7 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>__MOBILE__;__ANDROID__</DefineConstants>
+    <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
     <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>

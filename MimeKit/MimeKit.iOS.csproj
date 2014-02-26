@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\MonoTouch</OutputPath>
-    <DefineConstants>DEBUG;__MOBILE__;__IOS__</DefineConstants>
+    <DefineConstants>DEBUG;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -30,7 +30,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>__MOBILE__;__IOS__</DefineConstants>
+    <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <GenerateDocumentation>True</GenerateDocumentation>
     <DocumentationFile>bin\Release\lib\MonoTouch\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
