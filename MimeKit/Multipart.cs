@@ -109,12 +109,17 @@ namespace MimeKit {
 
 		static string GenerateBoundary ()
 		{
+			var base64 = new Base64Encoder (true);
 			var random = new Random (seed++);
 			var digest = new byte[16];
+			var buf = new byte[24];
+			int length;
 
 			random.NextBytes (digest);
 
-			return "=-" + Convert.ToBase64String (digest);
+			length = base64.Flush (digest, 0, digest.Length, buf);
+
+			return "=-" + Encoding.ASCII.GetString (buf, 0, length);
 		}
 
 		/// <summary>
