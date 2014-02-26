@@ -30,7 +30,6 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
@@ -41,6 +40,7 @@ namespace MimeKit {
 	/// </summary>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
+		static int seed = (int) DateTime.Now.Ticks;
 		readonly List<MimeEntity> children;
 		string preamble, epilogue;
 
@@ -109,18 +109,12 @@ namespace MimeKit {
 
 		static string GenerateBoundary ()
 		{
-			var base64 = new Base64Encoder (true);
+			var random = new Random (seed++);
 			var digest = new byte[16];
-			var b64buf = new byte[24];
-			int length;
 
-			using (var rand = new RNGCryptoServiceProvider ()) {
-				rand.GetBytes (digest);
-			}
+			random.NextBytes (digest);
 
-			length = base64.Flush (digest, 0, 16, b64buf);
-
-			return "=-" + Encoding.ASCII.GetString (b64buf, 0, length);
+			return "=-" + Convert.ToBase64String (digest);
 		}
 
 		/// <summary>
