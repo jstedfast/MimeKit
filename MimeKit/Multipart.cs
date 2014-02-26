@@ -261,7 +261,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="token">A cancellation token.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -273,34 +273,34 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken token)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (options, stream, token);
+			base.WriteTo (options, stream, cancellationToken);
 
 			if (RawPreamble != null && RawPreamble.Length > 0) {
-				token.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
 				WriteBytes (options, stream, RawPreamble);
 			}
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
 			foreach (var part in children) {
-				token.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length - 2);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				part.WriteTo (options, stream, token);
+				part.WriteTo (options, stream, cancellationToken);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
-			token.ThrowIfCancellationRequested ();
+			cancellationToken.ThrowIfCancellationRequested ();
 			stream.Write (boundary, 0, boundary.Length);
 			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0) {
-				token.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
 				WriteBytes (options, stream, RawEpilogue);
 			}
 		}
