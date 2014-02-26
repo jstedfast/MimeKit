@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +34,7 @@
     <OutputPath>bin\Release\lib\mac</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\lib\mac\MimeKit.Mac.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\mac\MimeKit.xml</DocumentationFile>
     <EnableCodeSigning>false</EnableCodeSigning>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>

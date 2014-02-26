@@ -14,7 +14,7 @@
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AssemblyName>MimeKit.Android</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <TargetFrameworkVersion>v2.3</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -38,7 +38,7 @@
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>__MOBILE__;__ANDROID__</DefineConstants>
-    <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.Android.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

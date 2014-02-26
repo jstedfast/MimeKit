@@ -43,17 +43,17 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.Android.dll" target="lib\MonoAndroid\BouncyCastle.Android.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.dll" target="lib\MonoAndroid\MimeKit.Android.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.Android.xml" target="lib\MonoAndroid\MimeKit.Android.xml" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.iOS.dll" target="lib\MonoTouch\BouncyCastle.iOS.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.dll" target="lib\MonoTouch\MimeKit.iOS.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.iOS.xml" target="lib\MonoTouch\MimeKit.iOS.xml" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.dll" target="lib\MonoTouch\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.dll" target="lib\MonoTouch\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.xml" target="lib\MonoTouch\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.dll" target="lib\net40\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\Mono.Data.Sqlite.dll" target="lib\net40\Mono.Data.Sqlite.dll" />
+	<file src="..\lib\sqlite3.dll" target="content\net40\sqlite3.dll" />
     </files>
 </package>
