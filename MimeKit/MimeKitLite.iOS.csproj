@@ -10,14 +10,14 @@
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>MimeKitLite.iOS</AssemblyName>
+    <AssemblyName>MimeKitLite</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\MonoTouch</OutputPath>
-    <DefineConstants>DEBUG;__MOBILE__;__IOS__;__MIMEKIT_LITE__</DefineConstants>
+    <DefineConstants>DEBUG;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -30,9 +30,9 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>__MOBILE__;__IOS__;__MIMEKIT_LITE__</DefineConstants>
+    <DefineConstants>ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <GenerateDocumentation>True</GenerateDocumentation>
-    <DocumentationFile>bin\Release\lib\MonoTouch\MimeKitLite.iOS.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\MonoTouch\MimeKitLite.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
