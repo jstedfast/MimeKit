@@ -142,7 +142,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the first occurance of the specified parameter.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
+		/// <returns><value>true</value> if the first occurance of the specified
 		/// parameter was removed; otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">

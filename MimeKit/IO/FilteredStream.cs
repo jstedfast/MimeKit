@@ -132,6 +132,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Removes the specified filter from the list if it exists.
 		/// </remarks>
+		/// <returns><value>true</value> if the filter was removed; otherwise <value>false</value>.</returns>
 		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.

@@ -239,7 +239,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the first occurance of the specified header field.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
+		/// <returns><value>true</value> if the first occurance of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -260,7 +260,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the first occurance of the specified header field.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
+		/// <returns><value>true</value> if the first occurance of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">

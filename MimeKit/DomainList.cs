@@ -236,8 +236,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first instance of the specified domain from the list.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified domain was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><value>true</value> if the domain was removed; otherwise <value>false</value>.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <c>null</c>.

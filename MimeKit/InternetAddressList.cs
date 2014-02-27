@@ -262,6 +262,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified address.
 		/// </summary>
+		/// <returns><value>true</value> if the address was removed; otherwise <value>false</value>.</returns>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <c>null</c>.

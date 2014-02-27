@@ -387,7 +387,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Remove the specified part.
 		/// </summary>
-		/// <returns><c>true</c> if the part was removed; otherwise <c>false</c>.</returns>
+		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
 		/// <param name="part">The part to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.

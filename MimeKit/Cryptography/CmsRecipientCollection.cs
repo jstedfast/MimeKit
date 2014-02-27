@@ -131,6 +131,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Remove the specified recipient.
 		/// </summary>
+		/// <returns><value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="recipient"/> is <c>null</c>.
