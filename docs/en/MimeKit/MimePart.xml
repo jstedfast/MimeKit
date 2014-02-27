@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimePart extends MimeKit.MimeEntity" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.26.0.0</AssemblyVersion>
+    <AssemblyVersion>0.27.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimeEntity</BaseTypeName>
@@ -21,7 +21,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -37,7 +37,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="contentType" Type="MimeKit.ContentType" />
@@ -59,7 +59,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -78,7 +78,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string contentType) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="contentType" Type="System.String" />
@@ -103,7 +103,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mediaType" Type="System.String" />
@@ -131,7 +131,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype, object[] args) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mediaType" Type="System.String" />
@@ -178,7 +178,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ComputeContentMd5() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -200,7 +200,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int32&gt; ContentDuration" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
@@ -216,12 +216,38 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="ContentLocation">
+      <MemberSignature Language="C#" Value="public Uri ContentLocation { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the content location.
+            </summary>
+        <value>The content location.</value>
+        <remarks>
+          <para>The Content-Location header specifies the URI for the <see cref="T:MimeKit.MimePart" />
+            and can be either absolute or relative.</para>
+          <para>Setting a Content-Location URI allows other <see cref="T:MimeKit.MimePart" /> objects
+            within the same multipart/related container to reference this part by URI. This
+            can be useful, for example, when constructing an HTML message body that needs to
+            reference image attachments.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ContentMd5">
       <MemberSignature Language="C#" Value="public string ContentMd5 { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string ContentMd5" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -231,7 +257,11 @@
             Gets or sets the md5sum of the content.
             </summary>
         <value>The md5sum of the content.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The Content-MD5 header specifies the base64-encoded MD5 checksum of the content
+            in its canonical format.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc1864.txt</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentObject">
@@ -239,7 +269,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.IContentObject ContentObject" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.IContentObject</ReturnType>
@@ -257,7 +287,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding ContentTransferEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -267,7 +297,15 @@
             Gets or sets the content transfer encoding.
             </summary>
         <value>The content transfer encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The Content-Transfer-Encoding header specifies an auxiliary encoding
+            that was applied to the content in order to allow it to pass through
+            mail transport mechanisms (such as SMTP) which may have limitations
+            in the byte ranges that it accepts. For example, many SMTP servers
+            do not accept data outside of the 7-bit ASCII range and so sending
+            binary attachments or even non-English text is not possible without
+            applying an encoding such as base64 or quoted-printable.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="FileName">
@@ -275,7 +313,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string FileName" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -298,7 +336,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -325,7 +363,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -357,7 +395,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsAttachment" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -368,7 +406,11 @@
             </summary>
         <value>
           <c>true</c> if this <see cref="T:MimeKit.MimePart" /> is an attachment; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
+            then this property returns <c>true</c>. Otherwise it is assumed that the
+            <see cref="T:MimeKit.MimePart" /> is not meant to be treated as an attachment.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnHeadersChanged">
@@ -376,7 +418,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -399,7 +441,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool VerifyContentMd5() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -419,7 +461,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
