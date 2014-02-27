@@ -190,6 +190,15 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the content location.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Location header specifies the URI for the <see cref="MimePart"/>
+		/// and can be either absolute or relative.</para>
+		/// <para>Setting a Content-Location URI allows other <see cref="MimePart"/> objects
+		/// within the same multipart/related container to reference this part by URI. This
+		/// can be useful, for example, when constructing an HTML message body that needs to
+		/// reference image attachments.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// </remarks>
 		/// <value>The content location.</value>
 		public Uri ContentLocation {
 			get { return location; }
@@ -209,6 +218,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the md5sum of the content.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Content-MD5 header specifies the base64-encoded MD5 checksum of the content
+		/// in its canonical format.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc1864.txt</para>
+		/// </remarks>
 		/// <value>The md5sum of the content.</value>
 		public string ContentMd5 {
 			get { return md5sum; }
@@ -231,6 +245,15 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the content transfer encoding.
 		/// </summary>
+		/// <remarks>
+		/// The Content-Transfer-Encoding header specifies an auxiliary encoding
+		/// that was applied to the content in order to allow it to pass through
+		/// mail transport mechanisms (such as SMTP) which may have limitations
+		/// in the byte ranges that it accepts. For example, many SMTP servers
+		/// do not accept data outside of the 7-bit ASCII range and so sending
+		/// binary attachments or even non-English text is not possible without
+		/// applying an encoding such as base64 or quoted-printable.
+		/// </remarks>
 		/// <value>The content transfer encoding.</value>
 		public ContentEncoding ContentTransferEncoding {
 			get { return encoding; }
@@ -298,6 +321,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this <see cref="MimePart"/> is an attachment.
 		/// </summary>
+		/// <remarks>
+		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
+		/// then this property returns <c>true</c>. Otherwise it is assumed that the
+		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
+		/// </remarks>
 		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
 		public bool IsAttachment {
 			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
