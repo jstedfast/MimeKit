@@ -45,6 +45,7 @@ namespace MimeKit {
 		ContentEncoding encoding;
 		string md5sum;
 		int? duration;
+		Uri location;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
@@ -183,6 +184,25 @@ namespace MimeKit {
 					SetHeader ("Content-Duration", value.Value.ToString ());
 				else
 					RemoveHeader ("Content-Duration");
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the content location.
+		/// </summary>
+		/// <value>The content location.</value>
+		public Uri ContentLocation {
+			get { return location; }
+			set {
+				if (location == value)
+					return;
+
+				location = value;
+
+				if (value != null)
+					SetHeader ("Content-Location", value.ToString ());
+				else
+					RemoveHeader ("Content-Location");
 			}
 		}
 
@@ -515,6 +535,16 @@ namespace MimeKit {
 					else
 						duration = null;
 					break;
+				case HeaderId.ContentLocation:
+					text = header.Value.Trim ();
+
+					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
+						location = new Uri (text, UriKind.Absolute);
+					else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
+						location = new Uri (text, UriKind.Relative);
+					else
+						location = null;
+					break;
 				case HeaderId.ContentMd5:
 					md5sum = header.Value.Trim ();
 					break;
@@ -528,6 +558,9 @@ namespace MimeKit {
 				case HeaderId.ContentDuration:
 					duration = null;
 					break;
+				case HeaderId.ContentLocation:
+					location = null;
+					break;
 				case HeaderId.ContentMd5:
 					md5sum = null;
 					break;
@@ -536,6 +569,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Cleared:
 				encoding = ContentEncoding.Default;
 				duration = null;
+				location = null;
 				md5sum = null;
 				break;
 			default:

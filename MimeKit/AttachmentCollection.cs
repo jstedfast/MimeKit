@@ -42,13 +42,23 @@ namespace MimeKit {
 	public class AttachmentCollection : ICollection<MimePart>
 	{
 		readonly List<MimePart> attachments;
+		readonly bool linked;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
 		/// </summary>
-		public AttachmentCollection ()
+		/// <param name="linkedResources">If set to <c>true</c>; the attachments are treated as linked resources.</param>
+		public AttachmentCollection (bool linkedResources)
 		{
 			attachments = new List<MimePart> ();
+			linked = linkedResources;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
+		/// </summary>
+		public AttachmentCollection () : this (false)
+		{
 		}
 
 		#region ICollection implementation
@@ -69,7 +79,7 @@ namespace MimeKit {
 			get { return false; }
 		}
 
-		static void LoadContent (MimePart attachment, string fileName)
+		void LoadContent (MimePart attachment, string fileName)
 		{
 			var content = new MemoryBlockStream ();
 			var filter = new BestEncodingFilter ();
@@ -88,6 +98,9 @@ namespace MimeKit {
 			}
 
 			content.Position = 0;
+
+			if (linked)
+				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
 
 			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 			attachment.ContentObject = new ContentObject (content, ContentEncoding.Default);

@@ -38,7 +38,7 @@ namespace MimeKit {
 		/// </summary>
 		public BodyBuilder ()
 		{
-			LinkedResources = new AttachmentCollection ();
+			LinkedResources = new AttachmentCollection (true);
 			Attachments = new AttachmentCollection ();
 		}
 
