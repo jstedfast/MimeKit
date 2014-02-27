@@ -315,6 +315,7 @@ Will you be my +1?
 var attachment = new MimePart ("image", "gif") {
     ContentObject = new ContentObject (File.OpenRead (path), ContentEncoding.Default),
     ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
+    ContentTransferEncoding = ContentEncoding.Base64,
     FileName = Path.GetFileName (path)
 };
 
@@ -354,6 +355,51 @@ multipart.Add (attachment);
 // now set the multipart/mixed as the message body
 message.Body = multipart;
 ```
+
+### Creating a Message Using a BodyBuilder (not Arnold Schwarzenegger)
+
+If you are used to System.Net.Mail's API for creating messages, you will probably find using a BodyBuilder
+much more friendly than manually creating the tree of MIME parts. Here's how you could create a message body
+using a BodyBuilder:
+
+```csharp
+var message = new MimeMessage ();
+message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
+message.Subject = "How you doin?";
+
+var builder = new BodyBuilder ();
+
+// Set the plain-text version of the message text
+builder.TextBody = @"Hey Alice,
+
+What are you up to this weekend? Monica is throwing one of her parties on
+Saturday and I was hoping you could make it.
+
+Will you be my +1?
+
+-- Joey
+";
+
+// Set the html version of the message text
+builder.HtmlBody = @"<p>Hey Alice,<br>
+<p>What are you up to this weekend? Monica is throwing one of her parties on
+Saturday and I was hoping you could make it.<br>
+<p>Will you be my +1?<br>
+<p>-- Joey<br>
+<center><img src=""sexy-pose.jpg""></center>";
+
+// Since sexy-pose.jpg is referenced from the html text, we'll need to add it
+// to builder.LinkedResources
+builder.LinkedResources.Add ("C:\\Users\\Joey\\Documents\\SexySelfies\\sexy-pose.jpg");
+
+// We may also want to attach a calendar event for Monica's party...
+builder.Attachments.Add ("C:\\Users\Joey\\Documents\\party.ics");
+
+// Now we just need to set the message body and we're done
+message.Body = builder.ToMessageBody ();
+```
+
 
 ### Digitally Signing Messages with S/MIME or PGP/MIME
 
