@@ -1667,7 +1667,7 @@ namespace MimeKit {
 					var part = GetMimePart (view);
 
 					if (view.BaseUri != null)
-						part.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
+						part.ContentLocation = view.BaseUri;
 
 					if (view.LinkedResources.Count > 0) {
 						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
@@ -1676,7 +1676,7 @@ namespace MimeKit {
 						related.ContentType.Parameters.Add ("type", type);
 
 						if (view.BaseUri != null)
-							related.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
+							related.ContentLocation = view.BaseUri;
 
 						related.Add (part);
 
@@ -1684,7 +1684,7 @@ namespace MimeKit {
 							part = GetMimePart (resource);
 
 							if (resource.ContentLink != null)
-								part.Headers.Add (HeaderId.ContentLocation, resource.ContentLink.ToString ());
+								part.ContentLocation = resource.ContentLink;
 
 							related.Add (part);
 						}

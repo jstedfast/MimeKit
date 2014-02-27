@@ -46,6 +46,8 @@ namespace MimeKit {
 	{
 		ContentDisposition disposition;
 		string contentId;
+		Uri location;
+		Uri baseUri;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
@@ -205,6 +207,65 @@ namespace MimeKit {
 		/// <value>The type of the content.</value>
 		public ContentType ContentType {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Gets or sets the base content URI.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Base header specifies the base URI for the <see cref="MimeEntity"/>
+		/// in cases where the <see cref="ContentLocation"/> is a relative URI.</para>
+		/// <para>The Content-Base URI must be an absolute URI.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// </remarks>
+		/// <value>The base content URI or <c>null</c>.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is not an absolute URI.
+		/// </exception>
+		public Uri ContentBase {
+			get { return baseUri; }
+			set {
+				if (baseUri == value)
+					return;
+
+				if (value != null && !value.IsAbsoluteUri)
+					throw new ArgumentException ("The Content-Base URI may only be set to an absolute URI.", "value");
+
+				baseUri = value;
+
+				if (value != null)
+					SetHeader ("Content-Base", value.ToString ());
+				else
+					RemoveHeader ("Content-Base");
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the content location.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Location header specifies the URI for the <see cref="MimeEntity"/>
+		/// and can be either absolute or relative.</para>
+		/// <para>Setting a Content-Location URI allows other <see cref="MimePart"/> objects
+		/// within the same multipart/related container to reference this part by URI. This
+		/// can be useful, for example, when constructing an HTML message body that needs to
+		/// reference image attachments.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// </remarks>
+		/// <value>The content location or <c>null</c>.</value>
+		public Uri ContentLocation {
+			get { return location; }
+			set {
+				if (location == value)
+					return;
+
+				location = value;
+
+				if (value != null)
+					SetHeader ("Content-Location", value.ToString ());
+				else
+					RemoveHeader ("Content-Location");
+			}
 		}
 
 		/// <summary>
@@ -430,6 +491,8 @@ namespace MimeKit {
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
+			string text;
+
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
@@ -440,6 +503,24 @@ namespace MimeKit {
 
 					if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
 						disposition.Changed += ContentDispositionChanged;
+					break;
+				case HeaderId.ContentLocation:
+					text = header.Value.Trim ();
+
+					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
+						location = new Uri (text, UriKind.Absolute);
+					else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
+						location = new Uri (text, UriKind.Relative);
+					else
+						location = null;
+					break;
+				case HeaderId.ContentBase:
+					text = header.Value.Trim ();
+
+					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
+						baseUri = new Uri (text, UriKind.Absolute);
+					else
+						baseUri = null;
 					break;
 				case HeaderId.ContentId:
 					contentId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
@@ -454,6 +535,12 @@ namespace MimeKit {
 
 					disposition = null;
 					break;
+				case HeaderId.ContentLocation:
+					location = null;
+					break;
+				case HeaderId.ContentBase:
+					baseUri = null;
+					break;
 				case HeaderId.ContentId:
 					contentId = null;
 					break;
@@ -465,6 +552,8 @@ namespace MimeKit {
 
 				disposition = null;
 				contentId = null;
+				location = null;
+				baseUri = null;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException ("action");
