@@ -341,7 +341,6 @@ namespace MimeKit {
 				throw new ArgumentNullException ("part");
 
 			children.Add (part);
-			OnChanged ();
 		}
 
 		/// <summary>
@@ -350,7 +349,6 @@ namespace MimeKit {
 		public void Clear ()
 		{
 			children.Clear ();
-			OnChanged ();
 		}
 
 		/// <summary>
@@ -397,12 +395,7 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			if (children.Remove (part)) {
-				OnChanged ();
-				return true;
-			}
-
-			return false;
+			return children.Remove (part);
 		}
 
 		#endregion
@@ -445,7 +438,6 @@ namespace MimeKit {
 				throw new ArgumentNullException ("part");
 
 			children.Insert (index, part);
-			OnChanged ();
 		}
 
 		/// <summary>
@@ -458,7 +450,6 @@ namespace MimeKit {
 		public void RemoveAt (int index)
 		{
 			children.RemoveAt (index);
-			OnChanged ();
 		}
 
 		/// <summary>

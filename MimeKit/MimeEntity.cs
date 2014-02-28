@@ -193,8 +193,6 @@ namespace MimeKit {
 					disposition.Changed += ContentDispositionChanged;
 					SerializeContentDisposition ();
 				}
-
-				OnChanged ();
 			}
 		}
 
@@ -467,8 +465,6 @@ namespace MimeKit {
 			Headers.Changed -= HeadersChanged;
 			SerializeContentDisposition ();
 			Headers.Changed += HeadersChanged;
-
-			OnChanged ();
 		}
 
 		void ContentTypeChanged (object sender, EventArgs e)
@@ -476,8 +472,6 @@ namespace MimeKit {
 			Headers.Changed -= HeadersChanged;
 			SerializeContentType ();
 			Headers.Changed += HeadersChanged;
-
-			OnChanged ();
 		}
 
 		/// <summary>
@@ -563,18 +557,6 @@ namespace MimeKit {
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
 			OnHeadersChanged (e.Action, e.Header);
-			OnChanged ();
-		}
-
-		internal event EventHandler Changed;
-
-		/// <summary>
-		/// Raises the internal changed event.
-		/// </summary>
-		protected void OnChanged ()
-		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
 		}
 
 		/// <summary>
