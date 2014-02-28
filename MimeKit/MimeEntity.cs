@@ -39,8 +39,11 @@ namespace MimeKit {
 	/// An abstract MIME entity.
 	/// </summary>
 	/// <remarks>
-	/// There are 3 basic types of entities: <see cref="MimePart"/>, <see cref="Multipart"/>,
-	/// and <see cref="MessagePart"/>. All other types are derivatives of one of those.
+	/// <para>A MIME entity is really just a node in a tree structure of MIME parts in a MIME message.</para>
+	/// <para>There are 3 basic types of entities: <see cref="MimePart"/>, <see cref="Multipart"/>,
+	/// and <see cref="MessagePart"/> (which is actually just a special variation of
+	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
+	/// derivatives of one of those.</para>
 	/// </remarks>
 	public abstract class MimeEntity
 	{
@@ -200,7 +203,8 @@ namespace MimeKit {
 		/// Gets the type of the content.
 		/// </summary>
 		/// <remarks>
-		/// Represents the pre-parsed Content-Type header.
+		/// <para>The Content-Type header specifies information about the type of content contained
+		/// within the MIME entity.</para>
 		/// </remarks>
 		/// <value>The type of the content.</value>
 		public ContentType ContentType {
@@ -242,8 +246,8 @@ namespace MimeKit {
 		/// Gets or sets the content location.
 		/// </summary>
 		/// <remarks>
-		/// <para>The Content-Location header specifies the URI for the <see cref="MimeEntity"/>
-		/// and can be either absolute or relative.</para>
+		/// <para>The Content-Location header specifies the URI for a MIME entity and can be
+		/// either absolute or relative.</para>
 		/// <para>Setting a Content-Location URI allows other <see cref="MimePart"/> objects
 		/// within the same multipart/related container to reference this part by URI. This
 		/// can be useful, for example, when constructing an HTML message body that needs to
@@ -270,7 +274,12 @@ namespace MimeKit {
 		/// Gets or sets the content identifier.
 		/// </summary>
 		/// <remarks>
-		/// Represents the pre-parsed Content-Id header.
+		/// <para>The Content-Id header is used for uniquely identifying a particular entity and
+		/// uses the same syntax as the Message-Id header on MIME messages.</para>
+		/// <para>Setting a Content-Id allows other <see cref="MimePart"/> objects within the same
+		/// multipart/related container to reference this part by its unique identifier, typically
+		/// by using a "cid:" URI in an HTML-formatted message body. This can be useful, for example,
+		/// when the HTML-formatted message body needs to reference image attachments.</para>
 		/// </remarks>
 		/// <value>The content identifier.</value>
 		public string ContentId {
@@ -302,7 +311,8 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Subclasses should override this method to write the content of the entity.</para>
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -338,7 +348,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -359,7 +369,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -381,7 +391,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
