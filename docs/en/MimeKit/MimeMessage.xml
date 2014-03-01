@@ -198,7 +198,7 @@
         <summary>
             Creates a new <see cref="T:MimeKit.MimeMessage" /> from a <see cref="T:System.Net.Mail.MailMessage" />.
             </summary>
-        <returns>The message.</returns>
+        <returns>The equivalent <see cref="T:MimeKit.MimeMessage" />.</returns>
         <remarks>To be added.</remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="message" /> is <c>null</c>.
@@ -362,7 +362,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -393,7 +396,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -435,7 +441,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -472,7 +481,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -518,7 +530,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -554,7 +569,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -601,7 +619,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -643,7 +664,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -744,7 +768,7 @@
             Explicit cast to convert a <see cref="T:System.Net.Mail.MailMessage" /> to a
             <see cref="T:MimeKit.MimeMessage" />.
             </summary>
-        <returns>A <see cref="T:MimeKit.MimeMessage" />.</returns>
+        <returns>The equivalent <see cref="T:MimeKit.MimeMessage" />.</returns>
         <remarks>
             Allows creation of messages using Microsoft's System.Net.Mail APIs.
             </remarks>

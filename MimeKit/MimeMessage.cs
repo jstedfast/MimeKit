@@ -1447,6 +1447,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -1481,6 +1485,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -1504,6 +1512,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -1526,6 +1538,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1545,6 +1561,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -1588,6 +1608,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -1620,6 +1644,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -1651,6 +1679,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1717,7 +1749,7 @@ namespace MimeKit {
 		/// <summary>
 		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
-		/// <returns>The message.</returns>
+		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="message"/> is <c>null</c>.
@@ -1830,7 +1862,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
 		/// </remarks>
-		/// <returns>A <see cref="MimeMessage"/>.</returns>
+		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
 		public static explicit operator MimeMessage (MailMessage message)
 		{
