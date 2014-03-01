@@ -170,7 +170,7 @@
             Checks if the <see cref="T:MimeKit.InternetAddressList" /> contains the specified address.
             </summary>
         <returns>
-          <value>true</value> if the requested address exists;
+          <value>true</value> if the specified address exists;
             otherwise <value>false</value>.</returns>
         <remarks>
             Determines whether or not the address list contains the specified address.

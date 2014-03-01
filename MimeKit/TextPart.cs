@@ -114,8 +114,7 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <remarks>
-		/// Creates a <see cref="TextPart"/> with a textual mime-type of the
-		/// specified subtype.
+		/// Creates a new <see cref="TextPart"/> with the specified subtype.
 		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">

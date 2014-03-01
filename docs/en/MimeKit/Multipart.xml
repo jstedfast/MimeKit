@@ -157,7 +157,9 @@
         <summary>
             Adds the specified part.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified part to the multipart.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -178,7 +180,9 @@
             Gets or sets the boundary.
             </summary>
         <value>The boundary.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the boundary parameter on the Content-Type header.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -197,9 +201,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Removes all of the children.
+            Clears the multipart.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the parts within the multipart.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -220,8 +226,12 @@
         <summary>
             Checks if the <see cref="T:MimeKit.Multipart" /> contains the specified part.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the specified part exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the multipart contains the specified part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -247,7 +257,10 @@
         <summary>
             Copies all of the entities in the <see cref="T:MimeKit.Multipart" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the entities within the <see cref="T:MimeKit.Multipart" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -268,10 +281,12 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the number of child parts.
+            Gets the number of parts in the multipart.
             </summary>
-        <value>The number of child parts.</value>
-        <remarks>To be added.</remarks>
+        <value>The number of parts in the multipart.</value>
+        <remarks>
+            Indicates the number of parts in the multipart.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Epilogue">
@@ -289,7 +304,10 @@
             Gets or sets the epilogue.
             </summary>
         <value>The epilogue.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A multipart epiloque is the text that ppears after the last
+            child of the multipart and is rarely ever used.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -308,7 +326,9 @@
             Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -330,7 +350,9 @@
             Gets the index of the specified part.
             </summary>
         <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified address, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -354,9 +376,11 @@
         <param name="index">The index.</param>
         <param name="part">The part.</param>
         <summary>
-            Insert the part atthe specified index.
+            Inserts the part at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the part into the multipart at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -381,7 +405,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.Multipart" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -402,8 +428,10 @@
         <summary>
             Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The entity at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -427,7 +455,13 @@
             Gets or sets the preamble.
             </summary>
         <value>The preamble.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A multipart preamble appears before the first child entity of the
+            multipart and is typically used only in the top-level multipart
+            of the message to specify that the message is in MIME format and
+            therefore requires a MIME compliant email application to render
+            it correctly.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -446,11 +480,13 @@
       <Docs>
         <param name="part">The part to remove.</param>
         <summary>
-            Remove the specified part.
+            Removes the specified part.
             </summary>
         <returns>
           <value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified part, if it exists within the multipart.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -474,7 +510,9 @@
         <summary>
             Removes the part at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the part at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -492,9 +530,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">

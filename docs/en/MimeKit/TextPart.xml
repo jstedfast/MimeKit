@@ -74,8 +74,7 @@
             class with the specified text subtype.
             </summary>
         <remarks>
-            Creates a <see cref="T:MimeKit.TextPart" /> with a textual mime-type of the
-            specified subtype.
+            Creates a new <see cref="T:MimeKit.TextPart" /> with the specified subtype.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="subtype" /> is <c>null</c>.

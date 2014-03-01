@@ -208,6 +208,28 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
+		/// Gets the number of addresses in the <see cref="MimeKit.InternetAddressList"/>.
+		/// </summary>
+		/// <remarks>
+		/// Indicates the number of addresses in the list.
+		/// </remarks>
+		/// <value>The number of addresses.</value>
+		public int Count {
+			get { return list.Count; }
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <remarks>
+		/// A <see cref="InternetAddressList"/> is never read-only.
+		/// </remarks>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		public bool IsReadOnly {
+			get { return false; }
+		}
+
+		/// <summary>
 		/// Adds the specified address.
 		/// </summary>
 		/// <remarks>
@@ -271,7 +293,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether or not the address list contains the specified address.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested address exists;
+		/// <returns><value>true</value> if the specified address exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -328,28 +350,6 @@ namespace MimeKit {
 			}
 
 			return false;
-		}
-
-		/// <summary>
-		/// Gets the number of addresses in the <see cref="MimeKit.InternetAddressList"/>.
-		/// </summary>
-		/// <remarks>
-		/// Indicates the number of addresses in the list.
-		/// </remarks>
-		/// <value>The number of addresses.</value>
-		public int Count {
-			get { return list.Count; }
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
-		/// </summary>
-		/// <remarks>
-		/// A <see cref="InternetAddressList"/> is never read-only.
-		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
 		}
 
 		#endregion

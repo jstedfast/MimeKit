@@ -150,6 +150,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the boundary.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the boundary parameter on the Content-Type header.
+		/// </remarks>
 		/// <value>The boundary.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -174,6 +177,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the preamble.
 		/// </summary>
+		/// <remarks>
+		/// A multipart preamble appears before the first child entity of the
+		/// multipart and is typically used only in the top-level multipart
+		/// of the message to specify that the message is in MIME format and
+		/// therefore requires a MIME compliant email application to render
+		/// it correctly.
+		/// </remarks>
 		/// <value>The preamble.</value>
 		public string Preamble {
 			get {
@@ -204,6 +214,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the epilogue.
 		/// </summary>
+		/// <remarks>
+		/// A multipart epiloque is the text that ppears after the last
+		/// child of the multipart and is rarely ever used.
+		/// </remarks>
 		/// <value>The epilogue.</value>
 		public string Epilogue {
 			get {
@@ -341,9 +355,12 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets the number of child parts.
+		/// Gets the number of parts in the multipart.
 		/// </summary>
-		/// <value>The number of child parts.</value>
+		/// <remarks>
+		/// Indicates the number of parts in the multipart.
+		/// </remarks>
+		/// <value>The number of parts in the multipart.</value>
 		public int Count {
 			get { return children.Count; }
 		}
@@ -351,6 +368,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this instance is read only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="Multipart"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
@@ -359,6 +379,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds the specified part.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified part to the multipart.
+		/// </remarks>
 		/// <param name="part">The part to add.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
@@ -372,16 +395,24 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes all of the children.
+		/// Clears the multipart.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the parts within the multipart.
+		/// </remarks>
 		public void Clear ()
 		{
 			children.Clear ();
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="MimeKit.Multipart"/> contains the specified part.
+		/// Checks if the <see cref="Multipart"/> contains the specified part.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the multipart contains the specified part.
+		/// </remarks>
+		/// <returns><value>true</value> if the specified part exists;
+		/// otherwise <value>false</value>.</returns>
 		/// <param name="part">The part to check for.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
@@ -395,8 +426,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the entities in the <see cref="MimeKit.Multipart"/> to the specified array.
+		/// Copies all of the entities in the <see cref="Multipart"/> to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the entities within the <see cref="Multipart"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -411,8 +446,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the specified part.
+		/// Removes the specified part.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified part, if it exists within the multipart.
+		/// </remarks>
 		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
 		/// <param name="part">The part to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -433,6 +471,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the specified part.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified address, if it exists.
+		/// </remarks>
 		/// <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
 		/// <param name="part">The part.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -447,8 +488,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Insert the part atthe specified index.
+		/// Inserts the part at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the part into the multipart at the specified index.
+		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <param name="part">The part.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -471,6 +515,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the part at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Removes the part at the specified index.
+		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -481,8 +528,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
+		/// </remarks>
+		/// <value>The entity at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -505,8 +556,11 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets the enumerator for the children of the <see cref="MimeKit.Multipart"/>.
+		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
 		/// </summary>
+		/// <remarks>
+		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
@@ -517,6 +571,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+		/// </summary>
+		/// <remarks>
+		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return children.GetEnumerator ();
