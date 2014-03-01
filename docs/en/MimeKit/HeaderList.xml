@@ -64,7 +64,9 @@
         <summary>
             Adds the specified header.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified header to the end of the header list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -149,9 +151,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Removes all headers from the <see cref="T:MimeKit.HeaderList" />.
+            Clears the header list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the headers from the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -175,7 +179,9 @@
         <returns>
           <value>true</value> if the specified header is contained;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the header list contains the specified header.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -203,7 +209,7 @@
           <value>true</value> if the requested header exists;
             otherwise <value>false</value>.</returns>
         <remarks>
-            Determines whether or not the specified header is contained within the header list.
+            Determines whether or not the header list contains the specified header.
             </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
@@ -232,7 +238,7 @@
           <value>true</value> if the requested header exists;
             otherwise <value>false</value>.</returns>
         <remarks>
-            Determines whether or not the specified header is contained within the header list.
+            Determines whether or not the header list contains the specified header.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="field" /> is <c>null</c>.
@@ -259,7 +265,10 @@
         <summary>
             Copies all of the headers in the <see cref="T:MimeKit.HeaderList" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the headers within the <see cref="T:MimeKit.HeaderList" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -283,7 +292,9 @@
             Gets the number of headers in the <see cref="T:MimeKit.HeaderList" />.
             </summary>
         <value>The number of headers.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of headers in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -324,7 +335,9 @@
             Gets the index of the requested header, if it exists.
             </summary>
         <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified header, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -349,7 +362,9 @@
             Gets the index of the requested header, if it exists.
             </summary>
         <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the first index of the specified header, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
             </exception>
@@ -374,7 +389,9 @@
             Gets the index of the requested header, if it exists.
             </summary>
         <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the first index of the specified header, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="field" /> is <c>null</c>.
             </exception>
@@ -400,7 +417,9 @@
         <summary>
             Inserts the specified header at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the header at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -431,7 +450,9 @@
         <summary>
             Inserts a header with the specified field and value at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the header at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -466,7 +487,9 @@
         <summary>
             Inserts a header with the specified field and value at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the header at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -498,7 +521,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.HeaderList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -606,7 +631,9 @@
         <returns>
           <c>true</c> if the specified header was removed;
             otherwise <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified header from the list if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -633,7 +660,9 @@
         <returns>
           <value>true</value> if the first occurance of the specified
             header was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the first occurance of the specified header field, if any exist.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is is not a valid <see cref="T:MimeKit.HeaderId" />.
             </exception>
@@ -660,7 +689,9 @@
         <returns>
           <value>true</value> if the first occurance of the specified
             header was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the first occurance of the specified header field, if any exist.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="field" /> is <c>null</c>.
             </exception>
@@ -684,7 +715,9 @@
         <summary>
             Removes all of the headers matching the specified field name.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the headers matching the specified field name.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
             </exception>
@@ -708,7 +741,9 @@
         <summary>
             Removes all of the headers matching the specified field name.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the headers matching the specified field name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="field" /> is <c>null</c>.
             </exception>
@@ -732,7 +767,9 @@
         <summary>
             Removes the header at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the header at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -755,9 +792,11 @@
         <param name="header">The header.</param>
         <summary>
             Replaces all headers with identical field names with the single specified header.
-            If no headers with the specified header's field name exist, it is simply added.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="header" /> is <c>null</c>.
             </exception>
@@ -782,9 +821,11 @@
         <param name="value">The header value.</param>
         <summary>
             Replaces all headers with identical field names with the single specified header.
-            If no headers with the specified field name exist, it is simply added.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -812,9 +853,11 @@
         <param name="value">The header value.</param>
         <summary>
             Replaces all headers with identical field names with the single specified header.
-            If no headers with the specified field name exist, it is simply added.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -862,7 +905,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes all of the headers to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -891,7 +936,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes all of the headers to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -924,7 +971,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes all of the headers to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -958,7 +1007,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes all of the headers to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

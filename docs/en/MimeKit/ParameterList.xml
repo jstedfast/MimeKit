@@ -63,7 +63,9 @@
         <summary>
             Adds the specified parameter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified parameter to the end of the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -93,7 +95,9 @@
         <summary>
             Adds a parameter with the specified name and value.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a new parameter to the list with the specified name and value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -119,9 +123,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Removes all parameters from the <see cref="T:MimeKit.ParameterList" />.
+            Clears the parameter list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the parameters from the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -145,7 +151,9 @@
         <returns>
           <value>true</value> if the specified parameter is contained;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the parameter list contains the specified parameter.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -172,7 +180,9 @@
         <returns>
           <value>true</value> if the requested parameter exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the parameter list contains a parameter with the specified name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -198,7 +208,10 @@
         <summary>
             Copies all of the contained parameters to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the parameters within the <see cref="T:MimeKit.ParameterList" /> into the array,
+            starting at the specified array index.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -216,7 +229,9 @@
             Gets the number of parameters in the <see cref="T:MimeKit.ParameterList" />.
             </summary>
         <value>The number of parameters.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of parameters in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -257,7 +272,9 @@
             Gets the index of the requested parameter, if it exists.
             </summary>
         <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified parameter, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -282,7 +299,9 @@
             Gets the index of the requested parameter, if it exists.
             </summary>
         <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the parameter with the specified name, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -308,7 +327,9 @@
         <summary>
             Inserts the specified parameter at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the parameter at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -343,7 +364,9 @@
         <summary>
             Inserts a parameter with the specified name and value at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts a new parameter with the given name and value at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -375,7 +398,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.ParameterList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -464,7 +489,9 @@
         <returns>
           <value>true</value> if the specified parameter was removed;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified parameter from the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -486,12 +513,14 @@
       <Docs>
         <param name="name">The parameter name.</param>
         <summary>
-            Removes the first occurance of the specified parameter.
+            Removes the specified parameter.
             </summary>
         <returns>
-          <value>true</value> if the first occurance of the specified
-            parameter was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+          <value>true</value> if the specified parameter was removed;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the parameter with the specified name from the list, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -515,7 +544,9 @@
         <summary>
             Removes the parameter at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the parameter at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
             The <paramref name="index" /> is out of range.
             </exception>

@@ -14,8 +14,16 @@
             An internet address, as specified by rfc0822.
             </summary>
     <remarks>
-            Serves as the base class for <see cref="T:MimeKit.MailboxAddress" /> and <see cref="T:MimeKit.GroupAddress" />.
-            </remarks>
+      <para>An <see cref="T:MimeKit.InternetAddress" /> can be any type of address defined by the
+            original Internet Message specification.</para>
+      <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
+      <para>Mailbox addresses are what are most commonly known as email addresses and are
+            represented by the <see cref="T:MimeKit.MailboxAddress" /> class.</para>
+      <para>Group addresses are themselves lists of addresses and are represented by the
+            <see cref="T:MimeKit.GroupAddress" /> class. While rare, it is still important to handle these
+            types of addresses. They typically only contain mailbox addresses, but may also
+            contain other group addresses.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

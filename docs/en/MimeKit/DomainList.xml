@@ -136,7 +136,7 @@
           <value>true</value> if the specified domain is contained;
             otherwise <value>false</value>.</returns>
         <remarks>
-            Checks if the specified domain is contained with in the <see cref="T:MimeKit.DomainList" />.
+            Determines whether or not the domain list contains the specified domain.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
@@ -262,7 +262,7 @@
             Insert the domain at the specified index.
             </summary>
         <remarks>
-            Inerts the domain at the specified index in the list.
+            Inserts the domain at the specified index in the list.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.

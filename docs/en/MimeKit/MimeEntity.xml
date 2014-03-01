@@ -276,7 +276,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -307,7 +310,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -389,7 +395,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -426,7 +435,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -472,7 +484,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -508,7 +523,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -645,7 +663,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -687,7 +708,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -786,9 +810,12 @@
             Called when the headers change in some way.
             </summary>
         <remarks>
-            Whenever a header is changed, this method will be called in order to allow
-            custom <see cref="T:MimeKit.MimeEntity" /> subclasses to update their state.
-            </remarks>
+          <para>Whenever a header is added, changed, or removed, this method will
+            be called in order to allow custom <see cref="T:MimeKit.MimeEntity" /> subclasses
+            to update their state.</para>
+          <para>Overrides of this method should call the base method so that their
+            superclass may also update its own state.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveHeader">

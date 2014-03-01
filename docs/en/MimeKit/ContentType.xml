@@ -253,7 +253,9 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -281,7 +283,9 @@
             Parse the specified text into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -311,7 +315,9 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -345,7 +351,9 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -380,7 +388,9 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -419,7 +429,10 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -457,7 +470,10 @@
             Parse the specified input buffer into a new instance of the <see cref="T:MimeKit.ContentType" /> class.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.ContentType" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -550,7 +566,9 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -578,7 +596,9 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -608,7 +628,9 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -642,7 +664,9 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -677,7 +701,9 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -716,7 +742,10 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -754,7 +783,10 @@
             </summary>
         <returns>
           <c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a Content-Type value from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

@@ -11,7 +11,7 @@
   <Interfaces />
   <Docs>
     <summary>
-            A basic leaf-node MIME part that contains content such as the message body or an attachment.
+            A leaf-node MIME part that contains content such as the message body text or an attachment.
             </summary>
     <remarks>To be added.</remarks>
   </Docs>
@@ -29,7 +29,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
             with the default Content-Type of application/octet-stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME entity with a Content-Type of application/octet-stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -48,7 +50,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
             with the specified content type.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME entity with the specified Content-Type value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="contentType" /> is <c>null</c>.
             </exception>
@@ -89,7 +93,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
             with the specified content type.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME entity with the specified Content-Type value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="contentType" /> is <c>null</c>.
             </exception>
@@ -116,7 +122,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimePart" /> class
             with the specified media type and subtype.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME entity with the specified media type and subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="mediaType" /> is <c>null</c>.</para>
@@ -186,10 +194,13 @@
       <Parameters />
       <Docs>
         <summary>
-            Computes the md5sum of the content.
+            Computes the MD5 checksum of the content.
             </summary>
         <returns>The md5sum of the content.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Computes the MD5 checksum of the MIME content in its canonical
+            format and then base64-encodes the result.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The <see cref="T:MimeKit.ContentObject" /> is <c>null</c>.
             </exception>
@@ -210,7 +221,10 @@
             Gets or sets the duration of the content if available.
             </summary>
         <value>The duration of the content.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The Content-Duration header specifies duration of timed media,
+            such as audio or video, in seconds.</para>
+        </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="value" /> is negative.
             </exception>
@@ -407,7 +421,10 @@
         <summary>
             Called when the headers change in some way.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Updates the <see cref="P:MimeKit.MimePart.ContentTransferEncoding" />, <see cref="P:MimeKit.MimePart.ContentDuration" />,
+            and <see cref="P:MimeKit.MimePart.ContentMd5" /> properties if the corresponding headers have changed.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="VerifyContentMd5">
@@ -426,8 +443,12 @@
             Verifies the Content-Md5 value against an independently computed md5sum.
             </summary>
         <returns>
-          <c>true</c>, if content md5sum was verified, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+          <c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
+        <remarks>
+            Computes the MD5 checksum of the MIME content and compares it with the
+            value in the Content-MD5 header, returning <c>true</c> if and only if
+            the values match.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -452,7 +473,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MimePart" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the MIME part to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

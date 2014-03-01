@@ -24,9 +24,19 @@
   </Interfaces>
   <Docs>
     <summary>
-            A list of <see cref="T:MimeKit.InternetAddress" />es.
+            A list of email addresses.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>An <see cref="T:MimeKit.InternetAddressList" /> may contain any number of addresses of any type
+            defined by the original Internet Message specification.</para>
+      <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
+      <para>Mailbox addresses are what are most commonly known as email addresses and are
+            represented by the <see cref="T:MimeKit.MailboxAddress" /> class.</para>
+      <para>Group addresses are themselves lists of addresses and are represented by the
+            <see cref="T:MimeKit.GroupAddress" /> class. While rare, it is still important to handle these
+            types of addresses. They typically only contain mailbox addresses, but may also
+            contain other group addresses.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -41,7 +51,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new, empty, <see cref="T:MimeKit.InternetAddressList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -59,7 +71,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.InternetAddressList" /> containing the supplied addresses.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="addresses" /> is <c>null</c>.
             </exception>
@@ -83,7 +97,9 @@
         <summary>
             Adds the specified address.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified address to the end of the address list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -107,7 +123,9 @@
         <summary>
             Adds a collection of addresses.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a range of addresses to the end of the address list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="addresses" /> is <c>null</c>.
             </exception>
@@ -126,9 +144,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Clears the <see cref="T:MimeKit.InternetAddressList" />.
+            Clears the address list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the addresses from the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -152,7 +172,9 @@
         <returns>
           <value>true</value> if the requested address exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the address list contains the specified address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -178,7 +200,10 @@
         <summary>
             Copies all of the addresses in the <see cref="T:MimeKit.InternetAddressList" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the addresses within the <see cref="T:MimeKit.InternetAddressList" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -202,7 +227,9 @@
             Gets the number of addresses in the <see cref="T:MimeKit.InternetAddressList" />.
             </summary>
         <value>The number of addresses.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of addresses in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -267,7 +294,9 @@
             Gets the index of the specified address.
             </summary>
         <returns>The index of the specified address if found; otherwise <c>-1</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified address, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -293,7 +322,9 @@
         <summary>
             Inserts the address at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the address at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -318,7 +349,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.InternetAddressList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -444,7 +477,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -472,7 +507,9 @@
             Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -502,7 +539,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -536,7 +575,9 @@
             Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -570,7 +611,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -605,7 +648,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -644,7 +689,10 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -682,7 +730,10 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -719,7 +770,9 @@
             </summary>
         <returns>
           <value>true</value> if the address was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -743,7 +796,9 @@
         <summary>
             Removes the address at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the address at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -853,7 +908,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -911,7 +968,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -945,7 +1004,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -979,7 +1040,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -1014,7 +1077,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -1053,7 +1118,10 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -1091,7 +1159,10 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
