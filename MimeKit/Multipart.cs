@@ -289,6 +289,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the multipart MIME entity and its subparts to the output stream.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
