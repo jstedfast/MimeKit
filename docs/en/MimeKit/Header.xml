@@ -314,9 +314,9 @@
       <Parameters />
       <Docs>
         <summary>
-            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.
+            Returns a string representation of the header.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.</returns>
+        <returns>A string representing the <see cref="T:MimeKit.Header" />.</returns>
         <remarks>
             Formats the header field and value in a way that is suitable for display.
             </remarks>
@@ -344,7 +344,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -372,7 +374,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -402,7 +406,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -436,7 +442,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -470,7 +478,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -505,7 +515,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -544,7 +556,10 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -582,7 +597,10 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -612,9 +630,9 @@
       <Docs>
         <param name="text">The header text.</param>
         <summary>
-            Unfold the specified header text.
+            Unfold the specified header value.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The unfolded header value.</returns>
         <remarks>
             Unfolds the header value so that it becomes suitable for display.
             Since <see cref="P:MimeKit.Header.Value" /> is already unfolded, this method is really

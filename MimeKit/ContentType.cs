@@ -260,6 +260,8 @@ namespace MimeKit {
 		/// If the specified <paramref name="mediaType"/> or <paramref name="mediaSubtype"/>
 		/// are <c>"*"</c>, they match anything.
 		/// </remarks>
+		/// <returns><c>true</c> if the <see cref="ContentType"/> matches the
+		/// provided media type and subtype.</returns>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">

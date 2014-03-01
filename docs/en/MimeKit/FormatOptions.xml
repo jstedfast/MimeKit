@@ -28,8 +28,13 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.FormatOptions" /> class.
+            </summary>
+        <remarks>
+            Creates a new set of formatting options for use with methods such as
+            <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream)" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -47,7 +52,7 @@
         <summary>
             Clones an instance of <see cref="T:MimeKit.FormatOptions" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>An exact copy of the <see cref="T:MimeKit.FormatOptions" />.</returns>
         <remarks>
             Clones the formatting options.
             </remarks>

@@ -13,7 +13,10 @@
     <summary>
             A header parameter as found in the Content-Type and Content-Disposition headers.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Content-Type and Content-Disposition headers often have parameters that specify
+            further information about how to interpret the content.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +36,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Parameter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new parameter with the specified name and value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -61,7 +66,9 @@
             Gets the parameter name.
             </summary>
         <value>The parameter name.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the parameter name.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -77,12 +84,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Returns a <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.Parameter" />.
+            Returns a string representation of the <see cref="T:MimeKit.Parameter" />.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.Parameter" />.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A string representation of the <see cref="T:MimeKit.Parameter" />.</returns>
+        <remarks>
+            Formats the parameter name and value in the form <c>name="value"</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Value">
@@ -100,7 +107,9 @@
             Gets or sets the parameter value.
             </summary>
         <value>The parameter value.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the parameter value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>

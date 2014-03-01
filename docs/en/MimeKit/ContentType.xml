@@ -119,7 +119,9 @@
             Checks if the this instance of <see cref="T:MimeKit.ContentType" /> matches
             the specified media type and subtype.
             </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <c>true</c> if the <see cref="T:MimeKit.ContentType" /> matches the
+            provided media type and subtype.</returns>
         <remarks>
             If the specified <paramref name="mediaType" /> or <paramref name="mediaSubtype" />
             are <c>"*"</c>, they match anything.
