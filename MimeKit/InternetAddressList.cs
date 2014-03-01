@@ -37,8 +37,19 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
-	/// A list of <see cref="MimeKit.InternetAddress"/>es. 
+	/// A list of email addresses. 
 	/// </summary>
+	/// <remarks>
+	/// <para>An <see cref="InternetAddressList"/> may contain any number of addresses of any type
+	/// defined by the original Internet Message specification.</para>
+	/// <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
+	/// <para>Mailbox addresses are what are most commonly known as email addresses and are
+	/// represented by the <see cref="MailboxAddress"/> class.</para>
+	/// <para>Group addresses are themselves lists of addresses and are represented by the
+	/// <see cref="GroupAddress"/> class. While rare, it is still important to handle these
+	/// types of addresses. They typically only contain mailbox addresses, but may also
+	/// contain other group addresses.</para>
+	/// </remarks>
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
 	{
 		readonly List<InternetAddress> list = new List<InternetAddress> ();
@@ -46,6 +57,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddressList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="InternetAddressList"/> containing the supplied addresses.
+		/// </remarks>
 		/// <param name="addresses">An initial list of addresses.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="addresses"/> is <c>null</c>.
@@ -64,6 +78,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddressList"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new, empty, <see cref="InternetAddressList"/>.
+		/// </remarks>
 		public InternetAddressList ()
 		{
 		}
@@ -98,6 +115,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the specified address.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified address, if it exists.
+		/// </remarks>
 		/// <returns>The index of the specified address if found; otherwise <c>-1</c>.</returns>
 		/// <param name="address">The address to get the index of.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -114,6 +134,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts the address at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the address at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the address.</param>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -135,6 +158,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the address at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Removes the address at the specified index.
+		/// </remarks>
 		/// <param name="index">The index of the address to remove.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -180,6 +206,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds the specified address.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified address to the end of the address list.
+		/// </remarks>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <c>null</c>.
@@ -197,6 +226,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds a collection of addresses.
 		/// </summary>
+		/// <remarks>
+		/// Adds a range of addresses to the end of the address list.
+		/// </remarks>
 		/// <param name="addresses">A colelction of addresses.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="addresses"/> is <c>null</c>.
@@ -215,8 +247,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the <see cref="MimeKit.InternetAddressList"/>.
+		/// Clears the address list.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the addresses from the list.
+		/// </remarks>
 		public void Clear ()
 		{
 			foreach (var address in list)
@@ -229,6 +264,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="MimeKit.InternetAddressList"/> contains the specified address.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the address list contains the specified address.
+		/// </remarks>
 		/// <returns><value>true</value> if the requested address exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="address">The address.</param>
@@ -246,6 +284,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies all of the addresses in the <see cref="MimeKit.InternetAddressList"/> to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the addresses within the <see cref="InternetAddressList"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the addresses to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -262,6 +304,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified address.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified address.
+		/// </remarks>
 		/// <returns><value>true</value> if the address was removed; otherwise <value>false</value>.</returns>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -284,6 +329,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the number of addresses in the <see cref="MimeKit.InternetAddressList"/>.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of addresses in the list.
+		/// </remarks>
 		/// <value>The number of addresses.</value>
 		public int Count {
 			get { return list.Count; }
@@ -292,6 +340,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this instance is read only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="InternetAddressList"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }

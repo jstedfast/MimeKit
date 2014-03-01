@@ -96,7 +96,7 @@ namespace MimeKit {
 		/// Insert the domain at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Inerts the domain at the specified index in the list.
+		/// Inserts the domain at the specified index in the list.
 		/// </remarks>
 		/// <param name="index">The index to insert the domain.</param>
 		/// <param name="domain">The domain to insert.</param>
@@ -194,7 +194,7 @@ namespace MimeKit {
 		/// Checks if the <see cref="DomainList"/> contains the specified domain.
 		/// </summary>
 		/// <remarks>
-		/// Checks if the specified domain is contained with in the <see cref="DomainList"/>.
+		/// Determines whether or not the domain list contains the specified domain.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified domain is contained;
 		/// otherwise <value>false</value>.</returns>
