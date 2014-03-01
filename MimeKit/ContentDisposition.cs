@@ -423,7 +423,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the given index
+		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
@@ -464,7 +464,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the given index
+		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
@@ -488,7 +488,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the specified index.
+		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options.</param>
@@ -523,7 +523,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the specified index.
+		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -544,7 +544,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer.
+		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options.</param>
@@ -572,7 +572,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.ContentDisposition"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer.
+		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -612,7 +612,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the given index
+		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
@@ -658,7 +658,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the given index
+		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
@@ -684,7 +684,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the specified index.
+		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="options">The parser options.</param>
@@ -724,7 +724,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer starting at the specified index.
+		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -747,7 +747,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer.
+		/// Parses a Content-Disposition value from the supplied buffer.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="options">The parser options.</param>
@@ -780,7 +780,7 @@ namespace MimeKit {
 		/// Parse the specified input buffer into a new instance of the <see cref="MimeKit.ContentDisposition"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Parses a Content-Disposition value that exists in the supplied buffer.
+		/// Parses a Content-Disposition value from the supplied buffer.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentDisposition"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
