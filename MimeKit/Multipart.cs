@@ -36,8 +36,28 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
-	/// A Multipart MIME part which may contain a collection of MIME parts.
+	/// A multipart MIME entity which may contain a collection of MIME entities.
 	/// </summary>
+	/// <remarks>
+	/// <para>All multipart MIME entities will have a Content-Type with a media type of <c>"multipart"</c>.
+	/// The most common multipart MIME entity used in email is the <c>"multipart/mixed"</c> entity.</para>
+	/// <para>Four (4) initial subtypes were defined in the original MIME specifications: mixed, alternative,
+	/// digest, and parallel.</para>
+	/// <para>The "multipart/mixed" type is a sort of general-purpose container. When used in email, the
+	/// first entity is typically the "body" of the message while additional entities are most often
+	/// file attachments.</para>
+	/// <para>Speaking of message "bodies", the "multipart/alternative" type is used to offer a list of
+	/// alternative formats for the main body of the message (usually they will be "text/plain" and
+	/// "text/html"). These alternatives are in order of increasing faithfulness to the original document
+	/// (in other words, the last entity will be in a format that, when rendered, will most closely match
+	/// what the sending client's WYSISYG editor produced).</para>
+	/// <para>The "multipart/digest" type will typically contain a digest of MIME messages and is most
+	/// commonly used by mailing-list software.</para>
+	/// <para>The "multipart/parallel" type contains entities that are all meant to be shown (or heard)
+	/// in parallel.</para>
+	/// <para>Another commonly used type is the "multipart/related" type which contains, as one might expect,
+	/// inter-related MIME parts.</para>
+	/// </remarks>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
 		static int seed = (int) DateTime.Now.Ticks;
@@ -89,6 +109,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new multipart MIME entity with the specified subtype.
+		/// </remarks>
 		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
@@ -100,9 +123,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class
-		/// with a default Content-Type of multipart/mixed.
+		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new multipart/mixed entity.
+		/// </remarks>
 		public Multipart () : this ("mixed")
 		{
 		}
