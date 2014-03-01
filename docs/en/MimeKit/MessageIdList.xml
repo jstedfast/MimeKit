@@ -21,9 +21,11 @@
   </Interfaces>
   <Docs>
     <summary>
-            A list of Message-Ids, as found in the References header.
+            A list of Message-Ids.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Used by the <see cref="P:MimeKit.MimeMessage.References" /> property.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -38,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MessageIdList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new, empty, <see cref="T:MimeKit.MessageIdList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -59,7 +63,9 @@
         <summary>
             Add the specified Message-Id.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified Message-Id to the end of the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="messageId" /> is <c>null</c>.
             </exception>
@@ -83,7 +89,9 @@
         <summary>
             Clears the Message-Id list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the Message-Ids in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -101,8 +109,10 @@
         <summary>
             Clones the <see cref="T:MimeKit.MessageIdList" />.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>An exact copy of the <see cref="T:MimeKit.MessageIdList" />.</returns>
+        <remarks>
+            Creates an exact copy of the <see cref="T:MimeKit.MessageIdList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -126,7 +136,9 @@
         <returns>
           <value>true</value> if the specified Message-Id is contained;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the list contains the specified Message-Id.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="messageId" /> is <c>null</c>.
             </exception>
@@ -152,7 +164,10 @@
         <summary>
             Copies all of the Message-Ids in the <see cref="T:MimeKit.MessageIdList" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the Message-Ids within the <see cref="T:MimeKit.MessageIdList" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -176,7 +191,9 @@
             Gets the number of Message-Ids in the <see cref="T:MimeKit.MessageIdList" />.
             </summary>
         <value>The number of Message-Ids.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of Message-Ids in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -195,7 +212,9 @@
             Gets an enumerator for the list of Message-Ids.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of Message-Ids.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -217,7 +236,9 @@
             Gets the index of the requested Message-Id, if it exists.
             </summary>
         <returns>The index of the requested Message-Id; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified Message-Id, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="messageId" /> is <c>null</c>.
             </exception>
@@ -243,7 +264,9 @@
         <summary>
             Insert the Message-Id at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the Message-Id at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="messageId" /> is <c>null</c>.
             </exception>
@@ -271,7 +294,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.MessageIdList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -292,8 +317,10 @@
         <summary>
             Gets or sets the <see cref="T:MimeKit.MessageIdList" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The Message-Id at the specified index.</value>
+        <remarks>
+            Gets or sets the Message-Id at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -326,7 +353,9 @@
         <returns>
           <value>true</value> if the specified Message-Id was removed;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the first instance of the specified Message-Id from the list if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="messageId" /> is <c>null</c>.
             </exception>
@@ -350,7 +379,9 @@
         <summary>
             Removes the Message-Id at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the Message-Id at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -368,9 +399,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of Message-Ids.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of Message-Ids.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -386,10 +421,13 @@
       <Parameters />
       <Docs>
         <summary>
-            Serializes the <see cref="T:MimeKit.MessageIdList" /> to a string.
+            Returns a string representation of the list of Message-Ids.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MessageIdList" />.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A string representing the <see cref="T:MimeKit.MessageIdList" />.</returns>
+        <remarks>
+          <para>Each Message-Id will be surrounded by angle brackets.</para>
+          <para>If there are multiple Message-Ids in the list, they will be separated by whitespace.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -211,7 +211,9 @@
             Gets an enumerator for the list of domains.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of domains.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -309,10 +311,12 @@
       <Docs>
         <param name="index">The index.</param>
         <summary>
-            Gets or sets the <see cref="T:MimeKit.DomainList" /> at the specified index.
+            Gets or sets the domain at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The domain at the specified index.</value>
+        <remarks>
+            Gets or sets the domain at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -342,7 +346,7 @@
         <returns>
           <value>true</value> if the domain was removed; otherwise <value>false</value>.</returns>
         <remarks>
-            Removes the first instance of the specified domain from the list.
+            Removes the first instance of the specified domain from the list if it exists.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
@@ -368,7 +372,7 @@
             Removes the domain at the specified index.
             </summary>
         <remarks>
-            Removed the domain at the specified index.
+            Removes the domain at the specified index.
             </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
@@ -387,9 +391,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of domains.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of domains.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -405,12 +413,13 @@
       <Parameters />
       <Docs>
         <summary>
-            Serializes the <see cref="T:MimeKit.DomainList" /> to a string.
+            Returns a string representation of the list of domains.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.DomainList" />.</returns>
+        <returns>A string representing the <see cref="T:MimeKit.DomainList" />.</returns>
         <remarks>
-            Returns a newly allocated string containing the list of domains separated by commas.
-            </remarks>
+          <para>Each non-empty domain string will be prepended by an '@'.</para>
+          <para>If there are multiple domains in the list, they will be separated by a comma.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

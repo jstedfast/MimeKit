@@ -176,9 +176,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the value of the first occurance of a parameter
-		/// with the specified name.
+		/// Gets or sets the value of a parameter with the specified name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of a parameter with the specified name.
+		/// </remarks>
+		/// <value>The value of the specified parameter if it exists; otherwise <c>null</c>.</value>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="name"/> is <c>null</c>.</para>
@@ -433,6 +436,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
+		/// </remarks>
+		/// <value>The parameter at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="value"/> is <c>null</c>.
@@ -486,6 +493,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of parameters.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of parameters.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<Parameter> GetEnumerator ()
 		{
@@ -496,6 +506,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of parameters.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of parameters.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return parameters.GetEnumerator ();
@@ -510,11 +527,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.ParameterList"/>.
+		/// Returns a string representation of the parameters in the <see cref="ParameterList"/>.
 		/// </summary>
-		/// <returns>A <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.ParameterList"/>.</returns>
+		/// <remarks>
+		/// If there are multiple parameters in the list, they will be separated by a semicolon.
+		/// </remarks>
+		/// <returns>A string representing the <see cref="ParameterList"/>.</returns>
 		public override string ToString ()
 		{
 			var values = new StringBuilder ();

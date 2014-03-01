@@ -216,7 +216,7 @@
             Explicit cast to convert a <see cref="T:MimeKit.MailboxAddress" /> to a
             <see cref="T:System.Net.Mail.MailAddress" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The equivalent <see cref="T:System.Net.Mail.MailAddress" />.</returns>
         <remarks>
             Casts a <see cref="T:MimeKit.MailboxAddress" /> to a <see cref="T:System.Net.Mail.MailAddress" />
             in cases where you might want to make use of the System.Net.Mail APIs.
@@ -245,7 +245,7 @@
             Explicit cast to convert a <see cref="T:System.Net.Mail.MailAddress" />
             to a <see cref="T:MimeKit.MailboxAddress" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The equivalent <see cref="T:MimeKit.MailboxAddress" />.</returns>
         <remarks>
             Casts a <see cref="T:System.Net.Mail.MailAddress" /> to a <see cref="T:MimeKit.MailboxAddress" />
             in cases where you might want to make use of the the superior MimeKit APIs.

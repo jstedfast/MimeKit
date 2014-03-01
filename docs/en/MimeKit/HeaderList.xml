@@ -313,7 +313,9 @@
             Gets an enumerator for the list of headers.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of headers.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -545,8 +547,11 @@
             Gets or sets the value of the first occurance of a header
             with the specified field name.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
+        <remarks>
+            Gets or sets the value of the first occurance of a header
+            with the specified field name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -570,8 +575,10 @@
         <summary>
             Gets or sets the <see cref="T:MimeKit.Header" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The header at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.Header" /> at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -599,8 +606,11 @@
             Gets or sets the value of the first occurance of a header
             with the specified field name.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
+        <remarks>
+            Gets or sets the value of the first occurance of a header
+            with the specified field name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -882,9 +892,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of headers.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of headers.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">

@@ -176,9 +176,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeKit.InternetAddressList"/> at the specified index.
+		/// Gets or sets the <see cref="MimeKit.InternetAddress"/> at the specified index.
 		/// </summary>
-		/// <param name="index">The idnex of the addres to get or set.</param>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.InternetAddress"/> at the specified index.
+		/// </remarks>
+		/// <value>The internet address at the specified index.</value>
+		/// <param name="index">The index of the address to get or set.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
@@ -355,6 +359,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of addresses.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of addresses.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<InternetAddress> GetEnumerator ()
 		{
@@ -365,6 +372,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of addresses.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of addresses.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return list.GetEnumerator ();
@@ -377,6 +391,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Determines whether the specified <see cref="MimeKit.InternetAddressList"/> is equal to the current <see cref="MimeKit.InternetAddressList"/>.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="MimeKit.InternetAddressList"/> is equal to the current <see cref="MimeKit.InternetAddressList"/>.
+		/// </remarks>
 		/// <param name="other">The <see cref="MimeKit.InternetAddressList"/> to compare with the current <see cref="MimeKit.InternetAddressList"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.InternetAddressList"/> is equal to the current
 		/// <see cref="MimeKit.InternetAddressList"/>; otherwise, <c>false</c>.</returns>
@@ -409,11 +426,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the email addresses in the <see cref="InternetAddressList"/>,
+		/// optionally encoding them for transport.
 		/// </summary>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
+		/// <remarks>
+		/// <para>If <paramref name="encode"/> is <c>true</c>, each address in the list will be encoded
+		/// according to the rules defined in rfc2047.</para>
+		/// <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
+		/// </remarks>
+		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddressList"/> will be encoded.</param>
+		/// <param name="encode">If set to <c>true</c>, each <see cref="InternetAddress"/> in the list will be encoded.</param>
 		public string ToString (FormatOptions options, bool encode)
 		{
 			var builder = new StringBuilder ();
@@ -437,19 +460,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the email addresses in the <see cref="InternetAddressList"/>,
+		/// optionally encoding them for transport.
 		/// </summary>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddressList"/> will be encoded.</param>
+		/// <remarks>
+		/// <para>If <paramref name="encode"/> is <c>true</c>, each address in the list will be encoded
+		/// according to the rules defined in rfc2047.</para>
+		/// <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
+		/// </remarks>
+		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, each <see cref="InternetAddress"/> in the list will be encoded.</param>
 		public string ToString (bool encode)
 		{
 			return ToString (FormatOptions.Default, encode);
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddressList"/> to a string suitable for display.
+		/// Returns a string representation of the email addresses in the <see cref="InternetAddressList"/>.
 		/// </summary>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddressList"/>.</returns>
+		/// <remarks>
+		/// If there are multiple addresses in the list, they will be separated by a comma.
+		/// </remarks>
+		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
 		public override string ToString ()
 		{
 			return ToString (FormatOptions.Default, false);
@@ -744,6 +776,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given text into a new <see cref="MimeKit.InternetAddressList"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a list of addresses from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="addresses">The parsed addresses.</param>
@@ -1004,6 +1039,7 @@ namespace MimeKit {
 		/// Casts a <see cref="InternetAddressList"/> to a <see cref="System.Net.Mail.MailAddressCollection"/>
 		/// in cases where you might want to make use of the System.Net.Mail APIs.
 		/// </remarks>
+		/// <returns>The equivalent <see cref="System.Net.Mail.MailAddressCollection"/>.</returns>
 		/// <param name="addresses">The addresses.</param>
 		/// <exception cref="System.InvalidCastException">
 		/// <paramref name="addresses"/> contains one or more group addresses and cannot be converted.
@@ -1034,6 +1070,7 @@ namespace MimeKit {
 		/// Casts a <see cref="System.Net.Mail.MailAddressCollection"/> to a <see cref="InternetAddressList"/>
 		/// in cases where you might want to make use of the the superior MimeKit APIs.
 		/// </remarks>
+		/// <returns>The equivalent <see cref="InternetAddressList"/>.</returns>
 		/// <param name="addresses">The mail address.</param>
 		public static explicit operator InternetAddressList (MailAddressCollection addresses)
 		{

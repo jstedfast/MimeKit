@@ -523,6 +523,7 @@ namespace MimeKit {
 		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
 		/// in cases where you might want to make use of the System.Net.Mail APIs.
 		/// </remarks>
+		/// <returns>The equivalent <see cref="System.Net.Mail.MailAddress"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		public static explicit operator MailAddress (MailboxAddress mailbox)
 		{
@@ -537,6 +538,7 @@ namespace MimeKit {
 		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
 		/// in cases where you might want to make use of the the superior MimeKit APIs.
 		/// </remarks>
+		/// <returns>The equivalent <see cref="MailboxAddress"/>.</returns>
 		/// <param name="address">The mail address.</param>
 		public static explicit operator MailboxAddress (MailAddress address)
 		{

@@ -410,6 +410,11 @@ namespace MimeKit {
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the first occurance of a header
+		/// with the specified field name.
+		/// </remarks>
+		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -445,6 +450,11 @@ namespace MimeKit {
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the first occurance of a header
+		/// with the specified field name.
+		/// </remarks>
+		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="field"/> is <c>null</c>.</para>
@@ -880,6 +890,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
+		/// </remarks>
+		/// <value>The header at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -949,6 +963,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of headers.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of headers.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<Header> GetEnumerator ()
 		{
@@ -959,6 +976,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of headers.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of headers.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return headers.GetEnumerator ();
