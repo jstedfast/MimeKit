@@ -488,8 +488,11 @@ namespace MimeKit {
 		/// Called when the headers change in some way.
 		/// </summary>
 		/// <remarks>
-		/// Whenever a header is changed, this method will be called in order to allow
-		/// custom <see cref="MimeEntity"/> subclasses to update their state.
+		/// <para>Whenever a header is added, changed, or removed, this method will
+		/// be called in order to allow custom <see cref="MimeEntity"/> subclasses
+		/// to update their state.</para>
+		/// <para>Overrides of this method should call the base method so that their
+		/// superclass may also update its own state.</para>
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
@@ -572,6 +575,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -606,6 +613,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -629,6 +640,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -651,6 +666,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -670,6 +689,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -713,6 +736,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -745,6 +772,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -776,6 +807,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <exception cref="System.ArgumentNullException">

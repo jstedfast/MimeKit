@@ -35,7 +35,7 @@ using MimeKit.Encodings;
 
 namespace MimeKit {
 	/// <summary>
-	/// A basic leaf-node MIME part that contains content such as the message body or an attachment.
+	/// A leaf-node MIME part that contains content such as the message body text or an attachment.
 	/// </summary>
 	public class MimePart : MimeEntity
 	{
@@ -87,7 +87,7 @@ namespace MimeKit {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				IContentObject co = obj as IContentObject;
+				var co = obj as IContentObject;
 				if (co != null) {
 					if (content != null)
 						throw new ArgumentException ("ContentObject should not be specified more than once.");
@@ -96,13 +96,13 @@ namespace MimeKit {
 					continue;
 				}
 
-				Stream s = obj as Stream;
-				if (s != null) {
+				var stream = obj as Stream;
+				if (stream != null) {
 					if (content != null)
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
 					// Use default as specified by ContentObject ctor when building a new MimePart.
-					content = new ContentObject (s, ContentEncoding.Default);
+					content = new ContentObject (stream, ContentEncoding.Default);
 					continue;
 				}
 
@@ -117,6 +117,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// with the specified media type and subtype.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME entity with the specified media type and subtype.
+		/// </remarks>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -132,6 +135,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// with the specified content type.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME entity with the specified Content-Type value.
+		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="contentType"/> is <c>null</c>.
@@ -144,6 +150,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// with the specified content type.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME entity with the specified Content-Type value.
+		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="contentType"/> is <c>null</c>.
@@ -159,6 +168,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// with the default Content-Type of application/octet-stream.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME entity with a Content-Type of application/octet-stream.
+		/// </remarks>
 		public MimePart () : base ("application", "octet-stream")
 		{
 		}
@@ -166,6 +178,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the duration of the content if available.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Duration header specifies duration of timed media,
+		/// such as audio or video, in seconds.</para>
+		/// </remarks>
 		/// <value>The duration of the content.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is negative.
@@ -382,8 +398,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Computes the md5sum of the content.
+		/// Computes the MD5 checksum of the content.
 		/// </summary>
+		/// <remarks>
+		/// Computes the MD5 checksum of the MIME content in its canonical
+		/// format and then base64-encodes the result.
+		/// </remarks>
 		/// <returns>The md5sum of the content.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="ContentObject"/> is <c>null</c>.
@@ -414,7 +434,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Verifies the Content-Md5 value against an independently computed md5sum.
 		/// </summary>
-		/// <returns><c>true</c>, if content md5sum was verified, <c>false</c> otherwise.</returns>
+		/// <remarks>
+		/// Computes the MD5 checksum of the MIME content and compares it with the
+		/// value in the Content-MD5 header, returning <c>true</c> if and only if
+		/// the values match.
+		/// </remarks>
+		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
 		public bool VerifyContentMd5 ()
 		{
 			if (string.IsNullOrWhiteSpace (md5sum) || ContentObject == null)
@@ -438,6 +463,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the MIME part to the output stream.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -501,6 +529,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Called when the headers change in some way.
 		/// </summary>
+		/// <remarks>
+		/// Updates the <see cref="ContentTransferEncoding"/>, <see cref="ContentDuration"/>,
+		/// and <see cref="ContentMd5"/> properties if the corresponding headers have changed.
+		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
