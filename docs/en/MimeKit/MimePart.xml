@@ -216,32 +216,6 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="ContentLocation">
-      <MemberSignature Language="C#" Value="public Uri ContentLocation { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Uri</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets or sets the content location.
-            </summary>
-        <value>The content location.</value>
-        <remarks>
-          <para>The Content-Location header specifies the URI for the <see cref="T:MimeKit.MimePart" />
-            and can be either absolute or relative.</para>
-          <para>Setting a Content-Location URI allows other <see cref="T:MimeKit.MimePart" /> objects
-            within the same multipart/related container to reference this part by URI. This
-            can be useful, for example, when constructing an HTML message body that needs to
-            reference image attachments.</para>
-          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
-        </remarks>
-      </Docs>
-    </Member>
     <Member MemberName="ContentMd5">
       <MemberSignature Language="C#" Value="public string ContentMd5 { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string ContentMd5" />

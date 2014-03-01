@@ -59,13 +59,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Creates a new message/partial entity.</para>
 		/// <para>Three (3) parameters must be specified in the Content-Type header
-		/// of a message/partial:
-		/// <list type="number">
-		/// <item>The "id" parameter is a unique identifier used to match the parts together.</item>
-		/// <item>The "number" parameter is the sequential (1-based) index of the partial message fragment.</item>
-		/// <item>The "total" parameter is the total number of pieces that make up the complete message.</item>
-		/// </list>
-		/// </para>
+		/// of a message/partial: id, number, and total.</para>
+		/// <para>The "id" parameter is a unique identifier used to match the parts together.</para>
+		/// <para>The "number" parameter is the sequential (1-based) index of the partial message fragment.</para>
+		/// <para>The "total" parameter is the total number of pieces that make up the complete message.</para>
 		/// </remarks>
 		/// <param name="id">The id value shared among the partial message parts.</param>
 		/// <param name="number">The (1-based) part number for this partial message part.</param>

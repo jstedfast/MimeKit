@@ -14,7 +14,7 @@
             A MIME part containing a <see cref="T:MimeKit.MimeMessage" /> as its content.
             </summary>
     <remarks>
-            Represents MIME parts such as those with a Content-Type of message/rfc822 or message/news.
+            Represents MIME entities such as those with a Content-Type of message/rfc822 or message/news.
             </remarks>
   </Docs>
   <Members>
@@ -30,7 +30,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new message/rfc822 MIME entity.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -66,7 +68,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME message entity with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="subtype" /> is <c>null</c>.
             </exception>
@@ -152,7 +156,9 @@
         <summary>
             Writes the <see cref="T:MimeKit.MessagePart" /> to the output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the MIME entity and its message to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

@@ -14,9 +14,12 @@
             An abstract MIME entity.
             </summary>
     <remarks>
-            There are 3 basic types of entities: <see cref="T:MimeKit.MimePart" />, <see cref="T:MimeKit.Multipart" />,
-            and <see cref="T:MimeKit.MessagePart" />. All other types are derivatives of one of those.
-            </remarks>
+      <para>A MIME entity is really just a node in a tree structure of MIME parts in a MIME message.</para>
+      <para>There are 3 basic types of entities: <see cref="T:MimeKit.MimePart" />, <see cref="T:MimeKit.Multipart" />,
+            and <see cref="T:MimeKit.MessagePart" /> (which is actually just a special variation of
+            <see cref="T:MimeKit.MimePart" /> who's content is another MIME message/document). All other types are
+            derivatives of one of those.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -93,6 +96,32 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="ContentBase">
+      <MemberSignature Language="C#" Value="public Uri ContentBase { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentBase" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the base content URI.
+            </summary>
+        <value>The base content URI or <c>null</c>.</value>
+        <remarks>
+          <para>The Content-Base header specifies the base URI for the <see cref="T:MimeKit.MimeEntity" />
+            in cases where the <see cref="P:MimeKit.MimeEntity.ContentLocation" /> is a relative URI.</para>
+          <para>The Content-Base URI must be an absolute URI.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+        </remarks>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is not an absolute URI.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="ContentDisposition">
       <MemberSignature Language="C#" Value="public MimeKit.ContentDisposition ContentDisposition { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentDisposition ContentDisposition" />
@@ -131,8 +160,39 @@
             </summary>
         <value>The content identifier.</value>
         <remarks>
-            Represents the pre-parsed Content-Id header.
-            </remarks>
+          <para>The Content-Id header is used for uniquely identifying a particular entity and
+            uses the same syntax as the Message-Id header on MIME messages.</para>
+          <para>Setting a Content-Id allows other <see cref="T:MimeKit.MimePart" /> objects within the same
+            multipart/related container to reference this part by its unique identifier, typically
+            by using a "cid:" URI in an HTML-formatted message body. This can be useful, for example,
+            when the HTML-formatted message body needs to reference image attachments.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentLocation">
+      <MemberSignature Language="C#" Value="public Uri ContentLocation { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the content location.
+            </summary>
+        <value>The content location or <c>null</c>.</value>
+        <remarks>
+          <para>The Content-Location header specifies the URI for a MIME entity and can be
+            either absolute or relative.</para>
+          <para>Setting a Content-Location URI allows other <see cref="T:MimeKit.MimePart" /> objects
+            within the same multipart/related container to reference this part by URI. This
+            can be useful, for example, when constructing an HTML message body that needs to
+            reference image attachments.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentType">
@@ -151,8 +211,9 @@
             </summary>
         <value>The type of the content.</value>
         <remarks>
-            Represents the pre-parsed Content-Type header.
-            </remarks>
+          <para>The Content-Type header specifies information about the type of content contained
+            within the MIME entity.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Headers">
@@ -704,24 +765,6 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="OnChanged">
-      <MemberSignature Language="C#" Value="protected void OnChanged ();" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void OnChanged() cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters />
-      <Docs>
-        <summary>
-            Raises the internal changed event.
-            </summary>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="OnHeadersChanged">
       <MemberSignature Language="C#" Value="protected virtual void OnHeadersChanged (MimeKit.HeaderListChangedAction action, MimeKit.Header header);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
@@ -868,7 +911,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
@@ -899,7 +942,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -934,7 +977,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
@@ -970,8 +1013,9 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
-            </remarks>
+          <para>Writes the headers to the output stream, followed by a blank line.</para>
+          <para>Subclasses should override this method to write the content of the entity.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
