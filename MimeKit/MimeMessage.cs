@@ -359,6 +359,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the To header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the To header are the primary recipients of
+		/// the message.
+		/// </remarks>
 		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
 			get { return addresses["To"]; }
@@ -367,6 +371,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-To header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Resent-To header are the primary recipients of
+		/// the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-To header.</value>
 		public InternetAddressList ResentTo {
 			get { return addresses["Resent-To"]; }
@@ -375,6 +383,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Cc header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Cc header are secondary recipients of the message
+		/// and are usually not the individuals being directly addressed in the
+		/// content of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Cc header.</value>
 		public InternetAddressList Cc {
 			get { return addresses["Cc"]; }
@@ -383,6 +396,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Cc header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Resent-Cc header are secondary recipients of the message
+		/// and are usually not the individuals being directly addressed in the
+		/// content of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Cc header.</value>
 		public InternetAddressList ResentCc {
 			get { return addresses["Resent-Cc"]; }
@@ -404,7 +422,7 @@ namespace MimeKit {
 		/// Gets the list of addresses in the Resent-Bcc header.
 		/// </summary>
 		/// <remarks>
-		/// Recipients in the Resent Blind-Carpbon-Copy list will not be visible to
+		/// Recipients in the Resent-Bcc list will not be visible to
 		/// the other recipients of the message.
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Bcc header.</value>
@@ -415,6 +433,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the subject of the message.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Subject is typically a short string denoting the topic of the message.</para>
+		/// <para>Replies will often use <c>"Re: "</c> followed by the Subject of the original message.</para>
+		/// </remarks>
 		/// <value>The subject of the message.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -484,8 +506,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the message-id that this message is in reply to.
+		/// Gets or sets the Message-Id that this message is in reply to.
 		/// </summary>
+		/// <remarks>
+		/// If the message is a reply to another message, it will typically
+		/// use the In-Reply-To header to specify the Message-Id of the
+		/// original message being replied to.
+		/// </remarks>
 		/// <value>The message id that this message is in reply to.</value>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
@@ -522,6 +549,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the message identifier.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Message-Id is meant to be a globally unique identifier for
+		/// a message.</para>
+		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// to generate this value.</para>
+		/// </remarks>
 		/// <value>The message identifier.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -556,6 +589,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the Resent-Message-Id header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Resent-Message-Id is meant to be a globally unique identifier for
+		/// a message.</para>
+		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// to generate this value.</para>
+		/// </remarks>
 		/// <value>The Resent-Message-Id.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -590,6 +629,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the MIME-Version.
 		/// </summary>
+		/// <remarks>
+		/// The MIME-Version header specifies the version of the MIME specification
+		/// that the message was created for.
+		/// </remarks>
 		/// <value>The MIME version.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -614,6 +657,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the body of the message.
 		/// </summary>
+		/// <remarks>
+		/// <para>The body of the message can either be plain text or it can be a
+		/// tree of MIME entities such as a text/plain MIME part and a collection
+		/// of file attachments.</para>
+		/// <para>For a convenient way of constructing message bodies, see the
+		/// <see cref="BodyBuilder"/> class.</para>
+		/// </remarks>
 		/// <value>The body of the message.</value>
 		public MimeEntity Body {
 			get; set;
@@ -675,6 +725,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -741,6 +794,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -759,6 +815,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -778,6 +837,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
