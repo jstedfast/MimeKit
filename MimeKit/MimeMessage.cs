@@ -46,6 +46,12 @@ namespace MimeKit {
 	/// <summary>
 	/// A MIME message.
 	/// </summary>
+	/// <remarks>
+	/// <para>A message consists of header fields and, optionally, a body.</para>
+	/// <para>The body of the message can either be plain text or it can be a
+	/// tree of MIME entities such as a text/plain MIME part and a collection
+	/// of file attachments.</para>
+	/// </remarks>
 	public class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
@@ -186,6 +192,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME message.
+		/// </remarks>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
 			Headers["From"] = string.Empty;
@@ -197,6 +206,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
+		/// <remarks>
+		/// Represents the list of headers for a message. Typically, the headers of
+		/// a message will contain transmission headers such as From and To along
+		/// with metadata headers such as Subject and Date, but may include just
+		/// about anything.
+		/// </remarks>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
@@ -281,6 +296,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the From header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The "From" header specifies the author(s) of the message.</para>
+		/// <para>If more than one <see cref="MailboxAddress"/> is added to the
+		/// list of "From" addresses, the <see cref="Sender"/> should be set to the
+		/// single <see cref="MailboxAddress"/> of the personal actually sending
+		/// the message.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the From header.</value>
 		public InternetAddressList From {
 			get { return addresses["From"]; }
@@ -289,6 +311,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-From header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The "Resent-From" header specifies the author(s) of the messagebeing
+		/// resent.</para>
+		/// <para>If more than one <see cref="MailboxAddress"/> is added to the
+		/// list of "Resent-From" addresses, the <see cref="ResentSender"/> should
+		/// be set to the single <see cref="MailboxAddress"/> of the personal actually
+		/// sending the message.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-From header.</value>
 		public InternetAddressList ResentFrom {
 			get { return addresses["Resent-From"]; }
@@ -297,6 +327,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Reply-To header.
 		/// </summary>
+		/// <remarks>
+		/// <para>When the list of addresses in the Reply-To header is not empty,
+		/// it contains the address(es) where the author(s) of the message prefer
+		/// that replies be sent.</para>
+		/// <para>When the list of addresses in the Reply-To header is empty,
+		/// replies should be sent to the mailbox(es) specified in the From
+		/// header.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
 			get { return addresses["Reply-To"]; }
@@ -305,6 +343,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Reply-To header.
 		/// </summary>
+		/// <remarks>
+		/// <para>When the list of addresses in the Resent-Reply-To header is not empty,
+		/// it contains the address(es) where the author(s) of the resent message prefer
+		/// that replies be sent.</para>
+		/// <para>When the list of addresses in the Resent-Reply-To header is empty,
+		/// replies should be sent to the mailbox(es) specified in the Resent-From
+		/// header.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Reply-To header.</value>
 		public InternetAddressList ResentReplyTo {
 			get { return addresses["Resent-Reply-To"]; }

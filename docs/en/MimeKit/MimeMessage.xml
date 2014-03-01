@@ -13,7 +13,12 @@
     <summary>
             A MIME message.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>A message consists of header fields and, optionally, a body.</para>
+      <para>The body of the message can either be plain text or it can be a
+            tree of MIME entities such as a text/plain MIME part and a collection
+            of file attachments.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -28,7 +33,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -269,7 +276,13 @@
             Gets the list of addresses in the From header.
             </summary>
         <value>The list of addresses in the From header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The "From" header specifies the author(s) of the message.</para>
+          <para>If more than one <see cref="T:MimeKit.MailboxAddress" /> is added to the
+            list of "From" addresses, the <see cref="P:MimeKit.MimeMessage.Sender" /> should be set to the
+            single <see cref="T:MimeKit.MailboxAddress" /> of the personal actually sending
+            the message.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Headers">
@@ -287,7 +300,12 @@
             Gets the list of headers.
             </summary>
         <value>The list of headers.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the list of headers for a message. Typically, the headers of
+            a message will contain transmission headers such as From and To along
+            with metadata headers such as Subject and Date, but may include just
+            about anything.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="InReplyTo">
@@ -745,7 +763,14 @@
             Gets the list of addresses in the Reply-To header.
             </summary>
         <value>The list of addresses in the Reply-To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When the list of addresses in the Reply-To header is not empty,
+            it contains the address(es) where the author(s) of the message prefer
+            that replies be sent.</para>
+          <para>When the list of addresses in the Reply-To header is empty,
+            replies should be sent to the mailbox(es) specified in the From
+            header.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentBcc">
@@ -820,7 +845,14 @@
             Gets the list of addresses in the Resent-From header.
             </summary>
         <value>The list of addresses in the Resent-From header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The "Resent-From" header specifies the author(s) of the messagebeing
+            resent.</para>
+          <para>If more than one <see cref="T:MimeKit.MailboxAddress" /> is added to the
+            list of "Resent-From" addresses, the <see cref="P:MimeKit.MimeMessage.ResentSender" /> should
+            be set to the single <see cref="T:MimeKit.MailboxAddress" /> of the personal actually
+            sending the message.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentMessageId">
@@ -862,7 +894,14 @@
             Gets the list of addresses in the Resent-Reply-To header.
             </summary>
         <value>The list of addresses in the Resent-Reply-To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When the list of addresses in the Resent-Reply-To header is not empty,
+            it contains the address(es) where the author(s) of the resent message prefer
+            that replies be sent.</para>
+          <para>When the list of addresses in the Resent-Reply-To header is empty,
+            replies should be sent to the mailbox(es) specified in the Resent-From
+            header.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentSender">
