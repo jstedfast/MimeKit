@@ -86,8 +86,11 @@ namespace MimeKit.Utils {
 	}
 
 	/// <summary>
-	/// Utility methods to parse and format rfc0822 date strings.
+	/// Utility methods to parse and format rfc822 date strings.
 	/// </summary>
+	/// <remarks>
+	/// Utility methods to parse and format rfc822 date strings.
+	/// </remarks>
 	public static class DateUtils
 	{
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";
@@ -507,6 +510,10 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -546,6 +553,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -581,6 +591,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the specified buffer.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
@@ -608,6 +621,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
@@ -634,8 +650,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc0822 date string.
+		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc822 date string.
 		/// </summary>
+		/// <remarks>
+		/// Formats the date and time in the format specified by rfc822, suitable for use
+		/// in the Date header of MIME messages.
+		/// </remarks>
 		/// <returns>The formatted string.</returns>
 		/// <param name="date">The date.</param>
 		public static string FormatDate (DateTimeOffset date)

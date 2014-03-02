@@ -11,9 +11,11 @@
   <Interfaces />
   <Docs>
     <summary>
-            Utility methods to parse and format rfc0822 date strings.
+            Utility methods to parse and format rfc822 date strings.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Utility methods to parse and format rfc822 date strings.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="FormatDate">
@@ -32,10 +34,13 @@
       <Docs>
         <param name="date">The date.</param>
         <summary>
-            Formats the <see cref="T:System.DateTimeOffset" /> as an rfc0822 date string.
+            Formats the <see cref="T:System.DateTimeOffset" /> as an rfc822 date string.
             </summary>
         <returns>The formatted string.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Formats the date and time in the format specified by rfc822, suitable for use
+            in the Date header of MIME messages.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TryParseDateTime">
@@ -60,7 +65,9 @@
             </summary>
         <returns>
           <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an rfc822 date and time from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -88,7 +95,9 @@
             </summary>
         <returns>
           <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an rfc822 date and time from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -118,7 +127,9 @@
             </summary>
         <returns>
           <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an rfc822 date and time from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -153,7 +164,10 @@
             </summary>
         <returns>
           <c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an rfc822 date and time from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>

@@ -13,7 +13,9 @@
     <summary>
             Utility methods for encoding and decoding rfc2047 encoded-word tokens.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Utility methods for encoding and decoding rfc2047 encoded-word tokens.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="DecodePhrase">
@@ -32,10 +34,12 @@
       <Docs>
         <param name="phrase">The phrase to decode.</param>
         <summary>
-            Decodes the specified phrase.
+            Decodes the phrase.
             </summary>
         <returns>The decoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the phrase(s) within the specified buffer using the default parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="phrase" /> is <c>null</c>.
             </exception>
@@ -59,10 +63,12 @@
         <param name="options">The parser options to use.</param>
         <param name="phrase">The phrase to decode.</param>
         <summary>
-            Decodes the specified phrase.
+            Decodes the phrase.
             </summary>
         <returns>The decoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the phrase(s) within the specified buffer using the supplied parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -92,11 +98,13 @@
         <param name="startIndex">The starting index.</param>
         <param name="count">The number of bytes to decode.</param>
         <summary>
-            Decodes the specified number of bytes of the phrase starting
-            at the specified starting index.
+            Decodes the phrase.
             </summary>
         <returns>The decoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the phrase(s) starting at the given index and spanning across
+            the specified number of bytes using the default parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="phrase" /> is <c>null</c>.
             </exception>
@@ -128,11 +136,13 @@
         <param name="startIndex">The starting index.</param>
         <param name="count">The number of bytes to decode.</param>
         <summary>
-            Decodes the specified number of bytes of the phrase starting
-            at the specified starting index.
+            Decodes the phrase.
             </summary>
         <returns>The decoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the phrase(s) starting at the given index and spanning across
+            the specified number of bytes using the supplied parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -162,10 +172,12 @@
       <Docs>
         <param name="text">The text to decode.</param>
         <summary>
-            Decodes the unstructured text.
+            Decodes unstructured text.
             </summary>
         <returns>The decoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the unstructured text buffer using the default parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -189,10 +201,12 @@
         <param name="options">The parser options to use.</param>
         <param name="text">The text to decode.</param>
         <summary>
-            Decodes the unstructured text.
+            Decodes unstructured text.
             </summary>
         <returns>The decoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the unstructured text buffer using the specified parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -222,11 +236,13 @@
         <param name="startIndex">The starting index.</param>
         <param name="count">The number of bytes to decode.</param>
         <summary>
-            Decodes the specified number of bytes of unstructured text starting
-            at the specified starting index.
+            Decodes unstructured text.
             </summary>
         <returns>The decoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the unstructured text buffer starting at the given index and spanning
+            across the specified number of bytes using the default parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -258,11 +274,13 @@
         <param name="startIndex">The starting index.</param>
         <param name="count">The number of bytes to decode.</param>
         <summary>
-            Decodes the specified number of bytes of unstructured text starting
-            at the specified starting index.
+            Decodes unstructured text.
             </summary>
         <returns>The decoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decodes the unstructured text buffer starting at the given index and spanning
+            across the specified number of bytes using the supplied parser options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -294,11 +312,13 @@
         <param name="charset">The charset encoding.</param>
         <param name="phrase">The phrase to encode.</param>
         <summary>
-            Encodes the phrase using the specified charset encoding according
-            to the rules of RFC 2047.
+            Encodes the phrase.
             </summary>
         <returns>The encoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encodes the phrase according to the rules of rfc2047 using
+            the specified charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -328,11 +348,13 @@
         <param name="charset">The charset encoding.</param>
         <param name="phrase">The phrase to encode.</param>
         <summary>
-            Encodes the phrase using the specified charset encoding according
-            to the rules of RFC 2047.
+            Encodes the phrase.
             </summary>
         <returns>The encoded phrase.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encodes the phrase according to the rules of rfc2047 using
+            the specified charset encoding and formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -363,11 +385,13 @@
         <param name="charset">The charset encoding.</param>
         <param name="text">The text to encode.</param>
         <summary>
-            Encodes the unstructured text using the specified charset encoding
-            according to the rules of RFC 2047.
+            Encodes the unstructured text.
             </summary>
         <returns>The encoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encodes the unstructured text according to the rules of rfc2047
+            using the specified charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -397,11 +421,13 @@
         <param name="charset">The charset encoding.</param>
         <param name="text">The text to encode.</param>
         <summary>
-            Encodes the unstructured text using the specified charset encoding
-            according to the rules of RFC 2047.
+            Encodes the unstructured text.
             </summary>
         <returns>The encoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encodes the unstructured text according to the rules of rfc2047
+            using the specified charset encoding and formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
