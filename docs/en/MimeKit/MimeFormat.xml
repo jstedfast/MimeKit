@@ -12,7 +12,9 @@
     <summary>
             The format of the MIME stream.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The format of the MIME stream.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Default">

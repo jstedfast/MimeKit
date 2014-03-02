@@ -115,6 +115,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the message content.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the message content.
+		/// </remarks>
 		/// <value>The message content.</value>
 		public MimeMessage Message {
 			get; set;

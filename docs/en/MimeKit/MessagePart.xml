@@ -131,7 +131,9 @@
             Gets or sets the message content.
             </summary>
         <value>The message content.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the message content.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">

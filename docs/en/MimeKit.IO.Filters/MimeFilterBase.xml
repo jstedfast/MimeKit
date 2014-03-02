@@ -179,9 +179,9 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="Output">
-      <MemberSignature Language="C#" Value="protected byte[] Output { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] Output" />
+    <Member MemberName="OutputBuffer">
+      <MemberSignature Language="C#" Value="protected byte[] OutputBuffer { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] OutputBuffer" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.27.0.0</AssemblyVersion>

@@ -158,6 +158,7 @@ namespace MimeKit {
 		/// Splits the specified message into multiple messages, each with a
 		/// message/partial body no larger than the max size specified.
 		/// </remarks>
+		/// <returns>An enumeration of partial messages.</returns>
 		/// <param name="message">The message.</param>
 		/// <param name="maxSize">The maximum size for each message body.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -239,6 +240,7 @@ namespace MimeKit {
 		/// Combines all of the message/partial fragments into its original,
 		/// complete, message.
 		/// </remarks>
+		/// <returns>The re-combined message.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -303,6 +305,7 @@ namespace MimeKit {
 		/// Combines all of the message/partial fragments into its original,
 		/// complete, message.
 		/// </remarks>
+		/// <returns>The re-combined message.</returns>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="partials"/>is <c>null</c>.
