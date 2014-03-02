@@ -24,12 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A filter that will convert from Unix line endings to Windows/DOS line endings.
 	/// </summary>
+	/// <remarks>
+	/// Converts from Unix line endings to Windows/DOS line endings.
+	/// </remarks>
 	public class Unix2DosFilter : MimeFilterBase
 	{
 		byte pc;
@@ -37,6 +38,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.Unix2DosFilter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="Unix2DosFilter"/>.
+		/// </remarks>
 		public Unix2DosFilter ()
 		{
 		}
@@ -67,6 +71,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -81,17 +89,20 @@ namespace MimeKit.IO.Filters {
 			outputIndex = 0;
 
 			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
+				fixed (byte* inptr = input, outptr = OutputBuffer) {
 					outputLength = Filter (inptr + startIndex, length, outptr);
 				}
 			}
 
-			return output;
+			return OutputBuffer;
 		}
 
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			pc = 0;

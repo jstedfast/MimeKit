@@ -24,14 +24,15 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 using MimeKit.Utils;
 
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A filter for stripping trailing whitespace from lines in a textual stream.
 	/// </summary>
+	/// <remarks>
+	/// Strips trailing whitespace from lines in a textual stream.
+	/// </remarks>
 	public class TrailingWhitespaceFilter : MimeFilterBase
 	{
 		readonly PackedByteArray lwsp = new PackedByteArray ();
@@ -39,6 +40,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.TrailingWhitespaceFilter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TrailingWhitespaceFilter"/>.
+		/// </remarks>
 		public TrailingWhitespaceFilter ()
 		{
 		}
@@ -63,7 +67,7 @@ namespace MimeKit.IO.Filters {
 					count++;
 				} else {
 					if (lwsp.Count > 0) {
-						lwsp.CopyTo (output, count);
+						lwsp.CopyTo (OutputBuffer, count);
 						outptr += lwsp.Count;
 						count += lwsp.Count;
 						lwsp.Clear ();
@@ -82,6 +86,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -104,7 +112,7 @@ namespace MimeKit.IO.Filters {
 			EnsureOutputSize (length + lwsp.Count, false);
 
 			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
+				fixed (byte* inptr = input, outptr = OutputBuffer) {
 					outputLength = Filter (inptr + startIndex, length, outptr);
 				}
 			}
@@ -114,12 +122,15 @@ namespace MimeKit.IO.Filters {
 
 			outputIndex = 0;
 
-			return output;
+			return OutputBuffer;
 		}
 
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			lwsp.Clear ();

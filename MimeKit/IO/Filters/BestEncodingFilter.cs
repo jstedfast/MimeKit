@@ -44,8 +44,11 @@ namespace MimeKit.IO.Filters {
 		int total;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.BestEncodingFilter"/> class.
+		/// Initializes a new instance of the <see cref="BestEncodingFilter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="BestEncodingFilter"/>.
+		/// </remarks>
 		public BestEncodingFilter ()
 		{
 		}
@@ -53,6 +56,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Gets the best encoding given the specified constraints.
 		/// </summary>
+		/// <remarks>
+		/// Gets the best encoding given the specified constraints.
+		/// </remarks>
 		/// <returns>The best encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
@@ -166,11 +172,16 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input.
 		/// </summary>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The number of bytes of the input to filter.</param>
-		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
-		/// <param name='outputLength'>The length of the output buffer.</param>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes of the input to filter.</param>
+		/// <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+		/// <param name="outputLength">The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>
@@ -200,11 +211,16 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input, flushing all internally buffered data to the output.
 		/// </summary>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The number of bytes of the input to filter.</param>
-		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
-		/// <param name='outputLength'>The length of the output buffer.</param>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes of the input to filter.</param>
+		/// <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+		/// <param name="outputLength">The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>
@@ -220,6 +236,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public void Reset ()
 		{
 			hasMarker = false;

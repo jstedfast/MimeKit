@@ -256,9 +256,9 @@ namespace MimeKit.IO
 		/// within the stream by the number of bytes written, adding memory blocks as
 		/// needed in order to contain the newly written bytes.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -389,7 +389,7 @@ namespace MimeKit.IO
 		/// <remarks>
 		/// Sets the length of the stream.
 		/// </remarks>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is out of range.
 		/// </exception>

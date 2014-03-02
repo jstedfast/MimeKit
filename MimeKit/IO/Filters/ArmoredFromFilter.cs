@@ -45,8 +45,11 @@ namespace MimeKit.IO.Filters {
 		bool midline;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.ArmoredFromFilter"/> class.
+		/// Initializes a new instance of the <see cref="ArmoredFromFilter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArmoredFromFilter"/>.
+		/// </remarks>
 		public ArmoredFromFilter ()
 		{
 		}
@@ -76,6 +79,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -87,7 +94,7 @@ namespace MimeKit.IO.Filters {
 		{
 			ValidateArguments (input, startIndex, length);
 
-			List<int> fromOffsets = new List<int> ();
+			var fromOffsets = new List<int> ();
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			int left;
@@ -136,22 +143,22 @@ namespace MimeKit.IO.Filters {
 				index = startIndex;
 				foreach (var offset in fromOffsets) {
 					if (index < offset) {
-						Array.Copy (input, index, output, outputLength, offset - index);
+						Buffer.BlockCopy (input, index, OutputBuffer, outputLength, offset - index);
 						outputLength += offset - index;
 						index = offset;
 					}
 
 					// encode the F using quoted-printable
-					output[outputLength++] = (byte) '=';
-					output[outputLength++] = (byte) '4';
-					output[outputLength++] = (byte) '6';
+					OutputBuffer[outputLength++] = (byte) '=';
+					OutputBuffer[outputLength++] = (byte) '4';
+					OutputBuffer[outputLength++] = (byte) '6';
 					index++;
 				}
 
-				Array.Copy (input, index, output, outputLength, endIndex - index);
+				Buffer.BlockCopy (input, index, OutputBuffer, outputLength, endIndex - index);
 				outputLength += endIndex - index;
 
-				return output;
+				return OutputBuffer;
 			}
 
 			outputLength = endIndex - startIndex;
@@ -162,6 +169,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			midline = false;

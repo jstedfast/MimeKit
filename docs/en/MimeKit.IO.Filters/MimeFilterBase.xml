@@ -17,7 +17,9 @@
     <summary>
             A base implementation for MIME filters.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A base implementation for MIME filters.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -29,8 +31,12 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.MimeFilterBase" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.MimeFilterBase" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EnsureOutputSize">
@@ -53,7 +59,9 @@
         <summary>
             Ensures that the output buffer is greater than or equal to the specified size.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Ensures that the output buffer is greater than or equal to the specified size.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -82,8 +90,11 @@
         <summary>
             Filters the specified input.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="input" /> is <c>null</c>.
             </exception>
@@ -122,7 +133,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -151,8 +165,11 @@
         <summary>
             Filters the specified input, flushing all internally buffered data to the output.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="input" /> is <c>null</c>.
             </exception>
@@ -162,10 +179,10 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="output">
-      <MemberSignature Language="C#" Value="protected byte[] output;" />
-      <MemberSignature Language="ILAsm" Value=".field family unsigned int8[] output" />
-      <MemberType>Field</MemberType>
+    <Member MemberName="Output">
+      <MemberSignature Language="C#" Value="protected byte[] Output { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] Output" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
@@ -173,8 +190,13 @@
         <ReturnType>System.Byte[]</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets the output buffer.
+            </summary>
+        <value>The output buffer.</value>
+        <remarks>
+            Gets the output buffer.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -192,7 +214,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SaveRemainingInput">
@@ -217,7 +241,9 @@
         <summary>
             Saves the remaining input for the next round of processing.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Saves the remaining input for the next round of processing.
+            </remarks>
       </Docs>
     </Member>
   </Members>

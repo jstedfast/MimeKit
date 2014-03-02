@@ -61,7 +61,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Creates a filtered stream using the specified source stream.
 		/// </remarks>
-		/// <param name='source'>The underlying stream to filter.</param>
+		/// <param name="source">The underlying stream to filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="source"/> is <c>null</c>.
 		/// </exception>
@@ -95,7 +95,7 @@ namespace MimeKit.IO {
 		/// that data will pass through as data is read from or written to the
 		/// underlying source stream.
 		/// </remarks>
-		/// <param name='filter'>The filter.</param>
+		/// <param name="filter">The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -115,7 +115,7 @@ namespace MimeKit.IO {
 		/// </remarks>
 		/// <returns><value>true</value> if the specified filter exists;
 		/// otherwise <value>false</value>.</returns>
-		/// <param name='filter'>The filter.</param>
+		/// <param name="filter">The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -134,7 +134,7 @@ namespace MimeKit.IO {
 		/// Removes the specified filter from the list if it exists.
 		/// </remarks>
 		/// <returns><value>true</value> if the filter was removed; otherwise <value>false</value>.</returns>
-		/// <param name='filter'>The filter.</param>
+		/// <param name="filter">The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
 		/// </exception>
@@ -357,9 +357,9 @@ namespace MimeKit.IO {
 		/// Filters the provided buffer through each of the filters before finally writing
 		/// the result to the underlying <see cref="Source"/> stream.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -466,7 +466,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Setting the length of a <see cref="FilteredStream"/> is not supported.
 		/// </remarks>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>

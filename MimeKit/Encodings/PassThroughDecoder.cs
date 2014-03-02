@@ -38,7 +38,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughDecoder"/> class.
 		/// </summary>
-		/// <param name='encoding'>The encoding to return in the <see cref="Encoding"/> property.</param>
+		/// <param name="encoding">The encoding to return in the <see cref="Encoding"/> property.</param>
 		/// <remarks>
 		/// Creates a new pass-through decoder.
 		/// </remarks>
@@ -77,7 +77,7 @@ namespace MimeKit.Encodings {
 		/// Estimates the number of bytes needed to decode the specified number of input bytes.
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
-		/// <param name='inputLength'>The input length.</param>
+		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			return inputLength;
@@ -108,9 +108,9 @@ namespace MimeKit.Encodings {
 		/// Copies the input buffer into the output buffer, verbatim.
 		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
+		/// <param name="input">A pointer to the beginning of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -130,10 +130,10 @@ namespace MimeKit.Encodings {
 		/// Copies the input buffer into the output buffer, verbatim.
 		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>The output buffer.</param>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>

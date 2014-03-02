@@ -10,7 +10,9 @@
     <summary>
             An interface for incrementally filtering data.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An interface for incrementally filtering data.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Filter">
@@ -31,26 +33,19 @@
         <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="input">
-            The input buffer.
-            </param>
-        <param name="startIndex">
-            The starting index of the input buffer.
-            </param>
-        <param name="length">
-            The number of bytes of the input to filter.
-            </param>
-        <param name="outputIndex">
-            The starting index of the output in the returned buffer.
-            </param>
-        <param name="outputLength">
-            The length of the output buffer.
-            </param>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes of the input to filter.</param>
+        <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+        <param name="outputLength">The length of the output buffer.</param>
         <summary>
             Filters the specified input.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -71,26 +66,19 @@
         <Parameter Name="outputLength" Type="System.Int32&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="input">
-            The input buffer.
-            </param>
-        <param name="startIndex">
-            The starting index of the input buffer.
-            </param>
-        <param name="length">
-            The number of bytes of the input to filter.
-            </param>
-        <param name="outputIndex">
-            The starting index of the output in the returned buffer.
-            </param>
-        <param name="outputLength">
-            The length of the output buffer.
-            </param>
+        <param name="input">The input buffer.</param>
+        <param name="startIndex">The starting index of the input buffer.</param>
+        <param name="length">The number of bytes of the input to filter.</param>
+        <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+        <param name="outputLength">The length of the output buffer.</param>
         <summary>
             Filters the specified input, flushing all internally buffered data to the output.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -108,7 +96,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
   </Members>

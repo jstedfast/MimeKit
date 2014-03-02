@@ -50,10 +50,10 @@ namespace MimeKit.IO {
 		/// If the <paramref name="endBoundary"/> is less than <c>0</c>, then the end of the stream
 		/// is unbounded.
 		/// </remarks>
-		/// <param name='baseStream'>The underlying stream.</param>
-		/// <param name='startBoundary'>The offset in the base stream that will mark the start of this substream.</param>
-		/// <param name='endBoundary'>The offset in the base stream that will mark the end of this substream.</param>
-		/// <param name='leaveOpen'><c>true</c> to leave the baseStream open after the
+		/// <param name="baseStream">The underlying stream.</param>
+		/// <param name="startBoundary">The offset in the base stream that will mark the start of this substream.</param>
+		/// <param name="endBoundary">The offset in the base stream that will mark the end of this substream.</param>
+		/// <param name="leaveOpen"><c>true</c> to leave the baseStream open after the
 		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="baseStream"/> is <c>null</c>.
@@ -358,9 +358,9 @@ namespace MimeKit.IO {
 		/// Writes data to the <see cref="BaseStream"/>, not allowing it to
 		/// write beyond the <see cref="EndBoundary"/>.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -512,7 +512,7 @@ namespace MimeKit.IO {
 		/// to allow this, then the length of the <see cref="BaseStream"/> will also be
 		/// updated.
 		/// </remarks>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>

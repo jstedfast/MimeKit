@@ -32,14 +32,18 @@ namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A filter for decoding MIME content.
 	/// </summary>
+	/// <remarks>
+	/// Uses a <see cref="IMimeDecoder"/> to incrementally decode data.
+	/// </remarks>
 	public class DecoderFilter : MimeFilterBase
 	{
 		/// <summary>
 		/// Gets the decoder used by this filter.
 		/// </summary>
-		/// <value>
-		/// The decoder.
-		/// </value>
+		/// <remarks>
+		/// Gets the decoder used by this filter.
+		/// </remarks>
+		/// <value>The decoder.</value>
 		public IMimeDecoder Decoder {
 			get; private set;
 		}
@@ -47,9 +51,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <remarks>
+		/// Gets the encoding that the decoder supports.
+		/// </remarks>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return Decoder.Encoding; }
 		}
@@ -57,9 +62,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.DecoderFilter"/> class.
 		/// </summary>
-		/// <param name='decoder'>
-		/// A specific decoder for the filter to use.
-		/// </param>
+		/// <remarks>
+		/// Creates a new <see cref="DecoderFilter"/> using the specified decoder.
+		/// </remarks>
+		/// <param name="decoder">A specific decoder for the filter to use.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="decoder"/> is <c>null</c>.
 		/// </exception>
@@ -74,9 +80,11 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Create a filter that will decode the specified encoding.
 		/// </summary>
-		/// <param name='encoding'>
-		/// The encoding to create a filter for.
-		/// </param>
+		/// <remarks>
+		/// Creates a new <see cref="DecoderFilter"/> for the specified encoding.
+		/// </remarks>
+		/// <returns>A new decoder filter.</returns>
+		/// <param name="encoding">The encoding to create a filter for.</param>
 		public static IMimeFilter Create (ContentEncoding encoding)
 		{
 			switch (encoding) {
@@ -90,6 +98,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -101,15 +113,18 @@ namespace MimeKit.IO.Filters {
 		{
 			EnsureOutputSize (Decoder.EstimateOutputLength (length), false);
 
-			outputLength = Decoder.Decode (input, startIndex, length, output);
+			outputLength = Decoder.Decode (input, startIndex, length, OutputBuffer);
 			outputIndex = 0;
 
-			return output;
+			return OutputBuffer;
 		}
 
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			Decoder.Reset ();

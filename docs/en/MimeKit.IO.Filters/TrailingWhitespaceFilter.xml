@@ -13,7 +13,9 @@
     <summary>
             A filter for stripping trailing whitespace from lines in a textual stream.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Strips trailing whitespace from lines in a textual stream.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -28,7 +30,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.TrailingWhitespaceFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.TrailingWhitespaceFilter" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -60,7 +64,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -78,7 +85,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
   </Members>

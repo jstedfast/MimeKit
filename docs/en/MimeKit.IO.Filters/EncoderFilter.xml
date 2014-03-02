@@ -13,7 +13,9 @@
     <summary>
             A filter for encoding MIME content.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Uses a <see cref="T:MimeKit.Encodings.IMimeEncoder" /> to incrementally encode data.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -27,13 +29,13 @@
         <Parameter Name="encoder" Type="MimeKit.Encodings.IMimeEncoder" />
       </Parameters>
       <Docs>
-        <param name="encoder">
-            A specific encoder for the filter to use.
-            </param>
+        <param name="encoder">A specific encoder for the filter to use.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.EncoderFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.EncoderFilter" /> using the specified encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -50,14 +52,14 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">
-            The encoding to create a filter for.
-            </param>
+        <param name="encoding">The encoding to create a filter for.</param>
         <summary>
             Create a filter that will encode using specified encoding.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new encoder filter.</returns>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.EncoderFilter" /> for the specified encoding.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encoder">
@@ -74,10 +76,10 @@
         <summary>
             Gets the encoder used by this filter.
             </summary>
-        <value>
-            The encoder.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The encoder.</value>
+        <remarks>
+            Gets the encoder used by this filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -94,10 +96,10 @@
         <summary>
             Gets the encoding.
             </summary>
-        <value>
-            The encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The encoding.</value>
+        <remarks>
+            Gets the encoding that the encoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -129,7 +131,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -147,7 +152,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
   </Members>

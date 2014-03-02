@@ -14,7 +14,9 @@
             A charset filter for incrementally converting text streams from
             one charset encoding to another.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Incrementally converts text from one charset encoding to another.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -29,16 +31,15 @@
         <Parameter Name="targetCodePage" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sourceCodePage">
-            Source code page.
-            </param>
-        <param name="targetCodePage">
-            Target code page.
-            </param>
+        <param name="sourceCodePage">Source code page.</param>
+        <param name="targetCodePage">Target code page.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <para>
             <paramref name="sourceCodePage" /> is less than zero or greater than 65535.</para>
@@ -65,16 +66,15 @@
         <Parameter Name="targetEncodingName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sourceEncodingName">
-            Source encoding name.
-            </param>
-        <param name="targetEncodingName">
-            Target encoding name.
-            </param>
+        <param name="sourceEncodingName">Source encoding name.</param>
+        <param name="targetEncodingName">Target encoding name.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="sourceEncodingName" /> is <c>null</c>.</para>
@@ -101,16 +101,15 @@
         <Parameter Name="targetEncoding" Type="System.Text.Encoding" />
       </Parameters>
       <Docs>
-        <param name="sourceEncoding">
-            Source encoding.
-            </param>
-        <param name="targetEncoding">
-            Target encoding.
-            </param>
+        <param name="sourceEncoding">Source encoding.</param>
+        <param name="targetEncoding">Target encoding.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="sourceEncoding" /> is <c>null</c>.</para>
@@ -149,7 +148,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -167,7 +169,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceEncoding">
@@ -184,10 +188,10 @@
         <summary>
             Gets the source encoding.
             </summary>
-        <value>
-            The source encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The source encoding.</value>
+        <remarks>
+            Gets the source encoding.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetEncoding">
@@ -204,10 +208,10 @@
         <summary>
             Gets the target encoding.
             </summary>
-        <value>
-            The target encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The target encoding.</value>
+        <remarks>
+            Gets the target encoding.
+            </remarks>
       </Docs>
     </Member>
   </Members>

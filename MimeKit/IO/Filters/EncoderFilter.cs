@@ -24,22 +24,24 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 using MimeKit.Encodings;
 
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A filter for encoding MIME content.
 	/// </summary>
+	/// <remarks>
+	/// Uses a <see cref="IMimeEncoder"/> to incrementally encode data.
+	/// </remarks>
 	public class EncoderFilter : MimeFilterBase
 	{
 		/// <summary>
 		/// Gets the encoder used by this filter.
 		/// </summary>
-		/// <value>
-		/// The encoder.
-		/// </value>
+		/// <remarks>
+		/// Gets the encoder used by this filter.
+		/// </remarks>
+		/// <value>The encoder.</value>
 		public IMimeEncoder Encoder {
 			get; private set;
 		}
@@ -47,9 +49,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		/// <value>
-		/// The encoding.
-		/// </value>
+		/// <remarks>
+		/// Gets the encoding that the encoder supports.
+		/// </remarks>
+		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return Encoder.Encoding; }
 		}
@@ -57,9 +60,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.EncoderFilter"/> class.
 		/// </summary>
-		/// <param name='encoder'>
-		/// A specific encoder for the filter to use.
-		/// </param>
+		/// <remarks>
+		/// Creates a new <see cref="EncoderFilter"/> using the specified encoder.
+		/// </remarks>
+		/// <param name="encoder">A specific encoder for the filter to use.</param>
 		public EncoderFilter (IMimeEncoder encoder)
 		{
 			Encoder = encoder;
@@ -68,9 +72,11 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Create a filter that will encode using specified encoding.
 		/// </summary>
-		/// <param name='encoding'>
-		/// The encoding to create a filter for.
-		/// </param>
+		/// <remarks>
+		/// Creates a new <see cref="EncoderFilter"/> for the specified encoding.
+		/// </remarks>
+		/// <returns>A new encoder filter.</returns>
+		/// <param name="encoding">The encoding to create a filter for.</param>
 		public static IMimeFilter Create (ContentEncoding encoding)
 		{
 			switch (encoding) {
@@ -84,6 +90,10 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -96,18 +106,21 @@ namespace MimeKit.IO.Filters {
 			EnsureOutputSize (Encoder.EstimateOutputLength (length), false);
 
 			if (flush)
-				outputLength = Encoder.Flush (input, startIndex, length, output);
+				outputLength = Encoder.Flush (input, startIndex, length, OutputBuffer);
 			else
-				outputLength = Encoder.Encode (input, startIndex, length, output);
+				outputLength = Encoder.Encode (input, startIndex, length, OutputBuffer);
 
 			outputIndex = 0;
 
-			return output;
+			return OutputBuffer;
 		}
 
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			Encoder.Reset ();

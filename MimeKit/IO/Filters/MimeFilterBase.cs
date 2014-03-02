@@ -30,16 +30,44 @@ namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A base implementation for MIME filters.
 	/// </summary>
+	/// <remarks>
+	/// A base implementation for MIME filters.
+	/// </remarks>
     public abstract class MimeFilterBase : IMimeFilter
     {
-		protected byte[] output = null;
 		byte[] preload = null;
+		byte[] output = null;
 		byte[] inbuf = null;
 		int preloadLength;
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.MimeFilterBase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeFilterBase"/>.
+		/// </remarks>
+		protected MimeFilterBase ()
+		{
+		}
+
+		/// <summary>
+		/// Gets the output buffer.
+		/// </summary>
+		/// <remarks>
+		/// Gets the output buffer.
+		/// </remarks>
+		/// <value>The output buffer.</value>
+		protected byte[] OutputBuffer {
+			get { return output; }
+		}
+
+		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -69,10 +97,10 @@ namespace MimeKit.IO.Filters {
 			}
 			
 			// Copy our preload data into our internal input buffer
-			Array.Copy (preload, 0, inbuf, 0, preloadLength);
+			Buffer.BlockCopy (preload, 0, inbuf, 0, preloadLength);
 			
 			// Copy our input to the end of our internal input buffer
-			Array.Copy (input, startIndex, inbuf, preloadLength, length);
+			Buffer.BlockCopy (input, startIndex, inbuf, preloadLength, length);
 			
 			startIndex = preloadLength;
 			length = totalLength;
@@ -96,11 +124,16 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input.
 		/// </summary>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The number of bytes of the input to filter.</param>
-		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
-		/// <param name='outputLength'>The length of the output buffer.</param>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes of the input to filter.</param>
+		/// <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+		/// <param name="outputLength">The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>
@@ -120,11 +153,16 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Filters the specified input, flushing all internally buffered data to the output.
 		/// </summary>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The number of bytes of the input to filter.</param>
-		/// <param name='outputIndex'>The starting index of the output in the returned buffer.</param>
-		/// <param name='outputLength'>The length of the output buffer.</param>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes of the input to filter.</param>
+		/// <param name="outputIndex">The starting index of the output in the returned buffer.</param>
+		/// <param name="outputLength">The length of the output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="input"/> is <c>null</c>.
 		/// </exception>
@@ -144,6 +182,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public virtual void Reset ()
 		{
 			preloadLength = 0;
@@ -152,6 +193,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Saves the remaining input for the next round of processing.
 		/// </summary>
+		/// <remarks>
+		/// Saves the remaining input for the next round of processing.
+		/// </remarks>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the buffer to save.</param>
 		/// <param name="length">The length of the buffer to save, starting at <paramref name="startIndex"/>.</param>
@@ -163,13 +207,16 @@ namespace MimeKit.IO.Filters {
 			if (preload == null || preload.Length < length)
 				preload = new byte[GetIdealBufferSize (length)];
 
-			Array.Copy (input, startIndex, preload, 0, length);
+			Buffer.BlockCopy (input, startIndex, preload, 0, length);
 			preloadLength = length;
 		}
 
 		/// <summary>
 		/// Ensures that the output buffer is greater than or equal to the specified size.
 		/// </summary>
+		/// <remarks>
+		/// Ensures that the output buffer is greater than or equal to the specified size.
+		/// </remarks>
 		/// <param name="size">The minimum size needed.</param>
 		/// <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
 		protected void EnsureOutputSize (int size, bool keep)
