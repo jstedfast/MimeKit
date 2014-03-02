@@ -32,9 +32,12 @@ namespace MimeKit.Encodings {
 	/// <summary>
 	/// Q-Encoding mode.
 	/// </summary>
+	/// <remarks>
+	/// The encoding mode for the 'Q' encoding used in rfc2047.
+	/// </remarks>
 	public enum QEncodeMode : byte {
 		/// <summary>
-		/// A mode for encoding phrases, as defined by rfc0822.
+		/// A mode for encoding phrases, as defined by rfc822.
 		/// </summary>
 		Phrase,
 
@@ -90,6 +93,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the encoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.QuotedPrintable; }
@@ -155,6 +161,12 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>
@@ -200,6 +212,12 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>

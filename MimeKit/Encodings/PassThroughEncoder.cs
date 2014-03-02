@@ -62,6 +62,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the encoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get; private set;
@@ -101,6 +104,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// Copies the input buffer into the output buffer, verbatim.
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>
@@ -131,6 +137,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
+		/// <remarks>
+		/// Copies the input buffer into the output buffer, verbatim.
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>

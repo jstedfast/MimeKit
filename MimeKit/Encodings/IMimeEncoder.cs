@@ -24,17 +24,21 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// An interface for incrementally encoding content.
 	/// </summary>
+	/// <remarks>
+	/// An interface for incrementally encoding content.
+	/// </remarks>
 	public interface IMimeEncoder
 	{
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the encoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		ContentEncoding Encoding { get; }
 
@@ -60,6 +64,12 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>
@@ -84,6 +94,12 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name='input'>The input buffer.</param>
 		/// <param name='startIndex'>The starting index of the input buffer.</param>

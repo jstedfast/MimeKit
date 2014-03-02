@@ -91,7 +91,12 @@
             Encodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Encodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            encoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.QEncoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -126,7 +131,9 @@
             Gets the encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the encoding that the encoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EstimateOutputLength">
@@ -178,7 +185,12 @@
             Encodes the specified input into the output buffer, flushing any internal buffer state as well.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+          <para>The output buffer should be large enough to hold all of the
+            encoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.QEncoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>

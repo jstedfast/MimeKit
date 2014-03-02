@@ -85,7 +85,12 @@
             Decodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Decodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            decoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.Base64Decoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Decode">
@@ -113,7 +118,12 @@
             Decodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Decodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            decoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.Base64Decoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -148,7 +158,9 @@
             Gets the encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the encoding that the decoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EstimateOutputLength">

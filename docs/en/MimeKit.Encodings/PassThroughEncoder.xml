@@ -88,7 +88,9 @@
             Encodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies the input buffer into the output buffer, verbatim.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -123,7 +125,9 @@
             Gets the encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the encoding that the encoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EstimateOutputLength">
@@ -175,7 +179,9 @@
             Encodes the specified input into the output buffer, flushing any internal buffer state as well.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies the input buffer into the output buffer, verbatim.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>

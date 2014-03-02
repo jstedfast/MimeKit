@@ -12,7 +12,9 @@
     <summary>
             Q-Encoding mode.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The encoding mode for the 'Q' encoding used in rfc2047.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Phrase">
@@ -27,7 +29,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            A mode for encoding phrases, as defined by rfc0822.
+            A mode for encoding phrases, as defined by rfc822.
             </summary>
       </Docs>
     </Member>
