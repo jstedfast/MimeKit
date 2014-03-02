@@ -108,12 +108,13 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Contains the specified filter.
+		/// Checks if the filtered stream contains the specified filter.
 		/// </summary>
 		/// <remarks>
-		/// Checks for the specified filter, by reference, in the list of
-		/// filters that have been added.
+		/// Determines whether or not the filtered stream contains the specified filter.
 		/// </remarks>
+		/// <returns><value>true</value> if the specified filter exists;
+		/// otherwise <value>false</value>.</returns>
 		/// <param name='filter'>The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <c>null</c>.
@@ -213,7 +214,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// Getting the length of a <see cref="FilteredStream"/> is not supported.
@@ -227,7 +228,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// Getting and setting the position of a <see cref="FilteredStream"/> is not supported.

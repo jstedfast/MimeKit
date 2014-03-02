@@ -172,12 +172,13 @@
       <Docs>
         <param name="filter">The filter.</param>
         <summary>
-            Contains the specified filter.
+            Checks if the filtered stream contains the specified filter.
             </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <value>true</value> if the specified filter exists;
+            otherwise <value>false</value>.</returns>
         <remarks>
-            Checks for the specified filter, by reference, in the list of
-            filters that have been added.
+            Determines whether or not the filtered stream contains the specified filter.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="filter" /> is <c>null</c>.
@@ -253,7 +254,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the length in bytes of the stream.
+            Gets the length of the stream, in bytes.
             </summary>
         <value>The length of the stream in bytes.</value>
         <remarks>
@@ -279,7 +280,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the position within the current stream.
+            Gets or sets the current position within the stream.
             </summary>
         <value>The position of the stream.</value>
         <remarks>

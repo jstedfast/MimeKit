@@ -32,7 +32,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.ChainedStream" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.ChainedStream" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -218,7 +220,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the length in bytes of the stream.
+            Gets the length of the stream, in bytes.
             </summary>
         <value>The length of the stream in bytes.</value>
         <remarks>
@@ -245,7 +247,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the position within the current stream.
+            Gets or sets the current position within the stream.
             </summary>
         <value>The position of the stream.</value>
         <remarks>

@@ -167,7 +167,9 @@
             Clears all buffers for this stream and causes any buffered data to be written
             to the underlying device.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This method does not do anything.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -191,7 +193,9 @@
             Gets the length of the stream, in bytes.
             </summary>
         <value>The length of the stream, in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the length of the stream, in bytes.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -209,10 +213,12 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the position within the current stream.
+            Gets or sets the current position within the stream.
             </summary>
         <value>The position of the stream.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the current position within the stream.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -249,7 +255,10 @@
             </summary>
         <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
             bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Reads a sequence of bytes from the stream and advances the position
+            within the stream by the number of bytes read.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -289,7 +298,9 @@
             Sets the position within the current stream.
             </summary>
         <returns>The new position within the stream.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the position within the current stream.
+            </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.
             </exception>
@@ -319,7 +330,9 @@
         <summary>
             Sets the length of the stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the length of the stream.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="value" /> is out of range.
             </exception>
@@ -373,7 +386,9 @@
             position within this stream by the number of bytes written.
             </summary>
         <remarks>
-            Writes the entire buffer to the buffer, adding memory blocks as needed.
+            Writes the entire buffer to the stream and advances the current position
+            within the stream by the number of bytes written, adding memory blocks as
+            needed in order to contain the newly written bytes.
             </remarks>
         <exception cref="T:System.ObjectDisposedException">
             The stream has been disposed.

@@ -204,7 +204,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// If the <see cref="EndBoundary"/> property is greater than or equal to <c>0</c>,
@@ -235,7 +235,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="Position"/> is relative to the <see cref="StartBoundary"/>.

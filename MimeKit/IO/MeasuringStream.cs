@@ -43,6 +43,16 @@ namespace MimeKit.IO {
 		long position;
 		long length;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.MeasuringStream"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MeasuringStream"/>.
+		/// </remarks>
+		public MeasuringStream ()
+		{
+		}
+
 		void CheckDisposed ()
 		{
 			if (disposed)
@@ -96,7 +106,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// The length of a <see cref="MeasuringStream"/> indicates the
@@ -115,7 +125,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// Since it is possible to seek within a <see cref="MeasuringStream"/>,

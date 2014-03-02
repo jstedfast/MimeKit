@@ -39,11 +39,22 @@ namespace MimeKit.IO {
 	/// </remarks>
 	public class ChainedStream : Stream
 	{
-		readonly List<Stream> streams = new List<Stream> ();
+		readonly List<Stream> streams;
 		long position;
 		bool disposed;
 		int current;
 		bool eos;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ChainedStream"/>.
+		/// </remarks>
+		public ChainedStream ()
+		{
+			streams = new List<Stream> ();
+		}
 
 		/// <summary>
 		/// Add the specified stream to the chained stream.
@@ -158,7 +169,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// The length of a <see cref="ChainedStream"/> is the combined lenths of all
@@ -185,7 +196,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// It is always possible to get the position of a <see cref="ChainedStream"/>,
