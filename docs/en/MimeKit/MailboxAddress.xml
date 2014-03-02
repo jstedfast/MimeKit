@@ -15,7 +15,7 @@
   </Interfaces>
   <Docs>
     <summary>
-            A mailbox address, as specified by rfc0822.
+            A mailbox address, as specified by rfc822.
             </summary>
     <remarks>
             Represents a mailbox address (commonly referred to as an email address)
@@ -289,7 +289,8 @@
       <Docs>
         <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.MailboxAddress" /> will be encoded.</param>
         <summary>
-            Serializes the <see cref="T:MimeKit.MailboxAddress" /> to a string, optionally encoding it for transport.
+            Returns a string representation of the <see cref="T:MimeKit.MailboxAddress" />,
+            optionally encoding it for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.MailboxAddress" />.</returns>
         <remarks>

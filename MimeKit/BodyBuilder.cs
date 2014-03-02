@@ -36,6 +36,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.BodyBuilder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="BodyBuilder"/>.
+		/// </remarks>
 		public BodyBuilder ()
 		{
 			LinkedResources = new AttachmentCollection (true);

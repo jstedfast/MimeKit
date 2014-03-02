@@ -36,7 +36,7 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
-	/// A mailbox address, as specified by rfc0822.
+	/// A mailbox address, as specified by rfc822.
 	/// </summary>
 	/// <remarks>
 	/// Represents a mailbox address (commonly referred to as an email address)
@@ -244,7 +244,8 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.MailboxAddress"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the <see cref="MailboxAddress"/>,
+		/// optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
 		/// Returns a string containing the formatted mailbox address. If the <paramref name="encode"/>
@@ -252,8 +253,8 @@ namespace MimeKit {
         /// in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
         /// for display purposes.
 		/// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.MailboxAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.MailboxAddress"/> will be encoded.</param>
+		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)
 		{
 			if (encode) {

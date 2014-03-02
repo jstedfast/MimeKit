@@ -155,7 +155,8 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.GroupAddress"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the <see cref="GroupAddress"/>,
+		/// optionally encoding it for transport.
 		/// </summary>
         /// <remarks>
         /// Returns a string containing the formatted group of addresses. If the <paramref name="encode"/>
@@ -163,8 +164,8 @@ namespace MimeKit {
         /// according to the rules defined in rfc2047, otherwise the names will not be encoded at all and
         /// will therefor only be suitable for display purposes.
         /// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.GroupAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.GroupAddress"/> will be encoded.</param>
+		/// <returns>A string representing the <see cref="GroupAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="GroupAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)
 		{
 			var builder = new StringBuilder ();

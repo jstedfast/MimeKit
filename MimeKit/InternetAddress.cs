@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// An internet address, as specified by rfc0822.
 	/// </summary>
 	/// <remarks>
-	/// <para>An <see cref="InternetAddress"/> can be any type of address defined by the
+	/// <para>A <see cref="InternetAddress"/> can be any type of address defined by the
 	/// original Internet Message specification.</para>
 	/// <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
 	/// <para>Mailbox addresses are what are most commonly known as email addresses and are
@@ -117,7 +117,8 @@ namespace MimeKit {
 		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the <see cref="InternetAddress"/>,
+		/// optionally encoding it for transport.
 		/// </summary>
         /// <remarks>
         /// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
@@ -125,17 +126,17 @@ namespace MimeKit {
         /// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
         /// return a string suitable only for display purposes.</para>
         /// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddress"/> will be encoded.</param>
+		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
 		public abstract string ToString (bool encode);
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string suitable for display.
+		/// Returns a string representation of a <see cref="InternetAddress"/> suitable for display.
 		/// </summary>
         /// <remarks>
         /// The string returned by this method is suitable only for display purposes.
         /// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
 			return ToString (false);

@@ -37,7 +37,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.AttachmentCollection" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.AttachmentCollection" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -55,7 +57,11 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.AttachmentCollection" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.AttachmentCollection" />.</para>
+          <para>If <paramref name="linkedResources" /> is <c>true</c>, then the attachments
+            are treated as if they are linked to another <see cref="T:MimeKit.MimePart" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -76,7 +82,9 @@
         <summary>
             Add the specified attachment.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified <see cref="T:MimeKit.MimePart" /> as an attachment.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="attachment" /> is <c>null</c>.
             </exception>
@@ -100,7 +108,9 @@
         <summary>
             Add the specified attachment.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Adds the specified file as an attachment.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -139,9 +149,10 @@
             Add the specified attachment.
             </summary>
         <remarks>
-            For a list of known mime-types and their associated file extensions, see
-            http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
-            </remarks>
+          <para>Adds the specified file as an attachment using the supplied Content-Type.</para>
+          <para>For a list of known mime-types and their associated file extensions, see
+            http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="fileName" /> is <c>null</c>.</para>
@@ -176,9 +187,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Clear the attachment collection.
+            Clears the attachment collection.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all attachments from the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -199,8 +212,12 @@
         <summary>
             Checks if the collection contains the specified attachment.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the specified attachment exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the collection contains the specified attachment.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="attachment" /> is <c>null</c>.
             </exception>
@@ -226,7 +243,10 @@
         <summary>
             Copies all of the attachments in the collection to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the attachments within the <see cref="T:MimeKit.AttachmentCollection" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -250,7 +270,9 @@
             Gets the number of attachments currently in the collection.
             </summary>
         <value>The number of attachments.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of attachments in the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -269,7 +291,9 @@
             Gets an enumerator for the list of attachments.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of attachments.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -288,7 +312,9 @@
             </summary>
         <value>
           <c>true</c> if the collection is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.AttachmentCollection" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -311,7 +337,9 @@
             </summary>
         <returns>
           <value>true</value> if the attachment was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified attachment.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="attachment" /> is <c>null</c>.
             </exception>
@@ -329,9 +357,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of attachments.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of attachments.
+            </remarks>
       </Docs>
     </Member>
   </Members>

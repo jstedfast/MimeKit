@@ -47,6 +47,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="AttachmentCollection"/>.</para>
+		/// <para>If <paramref name="linkedResources"/> is <c>true</c>, then the attachments
+		/// are treated as if they are linked to another <see cref="MimePart"/>.</para>
+		/// </remarks>
 		/// <param name="linkedResources">If set to <c>true</c>; the attachments are treated as linked resources.</param>
 		public AttachmentCollection (bool linkedResources)
 		{
@@ -57,6 +62,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="AttachmentCollection"/>.
+		/// </remarks>
 		public AttachmentCollection () : this (false)
 		{
 		}
@@ -66,6 +74,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the number of attachments currently in the collection.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of attachments in the collection.
+		/// </remarks>
 		/// <value>The number of attachments.</value>
 		public int Count {
 			get { return attachments.Count; }
@@ -74,6 +85,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets whther or not the collection is read-only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="AttachmentCollection"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if the collection is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
@@ -110,8 +124,9 @@ namespace MimeKit {
 		/// Add the specified attachment.
 		/// </summary>
 		/// <remarks>
-		/// For a list of known mime-types and their associated file extensions, see
-		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+		/// <para>Adds the specified file as an attachment using the supplied Content-Type.</para>
+		/// <para>For a list of known mime-types and their associated file extensions, see
+		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
 		/// </remarks>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
@@ -191,6 +206,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Add the specified attachment.
 		/// </summary>
+		/// <remarks>
+		/// <para>Adds the specified file as an attachment.</para>
+		/// </remarks>
 		/// <param name="fileName">The name of the file.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
@@ -228,6 +246,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Add the specified attachment.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified <see cref="MimePart"/> as an attachment.
+		/// </remarks>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <c>null</c>.
@@ -241,8 +262,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clear the attachment collection.
+		/// Clears the attachment collection.
 		/// </summary>
+		/// <remarks>
+		/// Removes all attachments from the collection.
+		/// </remarks>
 		public void Clear ()
 		{
 			attachments.Clear ();
@@ -251,6 +275,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the collection contains the specified attachment.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the collection contains the specified attachment.
+		/// </remarks>
+		/// <returns><value>true</value> if the specified attachment exists;
+		/// otherwise <value>false</value>.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <c>null</c>.
@@ -266,6 +295,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies all of the attachments in the collection to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the attachments within the <see cref="AttachmentCollection"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the attachments to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -288,6 +321,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified attachment.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified attachment.
+		/// </remarks>
 		/// <returns><value>true</value> if the attachment was removed; otherwise <value>false</value>.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -308,6 +344,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of attachments.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of attachments.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<MimePart> GetEnumerator ()
 		{
@@ -318,6 +357,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of attachments.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of attachments.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return GetEnumerator ();

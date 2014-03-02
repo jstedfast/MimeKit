@@ -30,7 +30,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.BodyBuilder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.BodyBuilder" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Attachments">
