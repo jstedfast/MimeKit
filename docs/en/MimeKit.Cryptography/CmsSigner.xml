@@ -37,7 +37,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsSigner" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The initial value of the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> will be set to
+            <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" /> and both the <see cref="P:MimeKit.Cryptography.CmsSigner.SignedAttributes" />
+            and <see cref="P:MimeKit.Cryptography.CmsSigner.UnsignedAttributes" /> properties will be initialized to empty
+            tables.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="certificate" /> is <c>null</c>.</para>
@@ -128,10 +133,12 @@
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the certificate chain.
+            Gets the certificate chain.
             </summary>
         <value>The certificate chain.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the certificate chain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="DigestAlgorithm">

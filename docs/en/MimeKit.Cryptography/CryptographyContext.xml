@@ -33,8 +33,12 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Create">
@@ -55,8 +59,12 @@
         <summary>
             Creates a new <see cref="T:MimeKit.Cryptography.CryptographyContext" /> for the specified protocol.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The <see cref="T:MimeKit.Cryptography.CryptographyContext" /> for the protocol.</returns>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.Cryptography.CryptographyContext" /> for the specified protocol.</para>
+          <para>The default <see cref="T:MimeKit.Cryptography.CryptographyContext" /> types can over overridden by calling
+            the <see cref="M:MimeKit.Cryptography.CryptographyContext.Register(System.Type)" /> method with the preferred type.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="protocol" /> is <c>null</c>.
             </exception>
@@ -82,10 +90,12 @@
       <Docs>
         <param name="encryptedData">The encrypted data.</param>
         <summary>
-            Decrypt the specified encryptedData.
+            Decrypts the specified encryptedData.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the specified encryptedData.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encryptedData" /> is <c>null</c>.
             </exception>
@@ -133,7 +143,10 @@
             Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> and
             optionally releases the managed resources.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.CryptographyContext" /> and
+            optionally releases the managed resources.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -158,7 +171,9 @@
             </summary>
         <returns>A new <see cref="T:MimeKit.MimePart" /> instance
             containing the encrypted data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the specified content for the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -212,7 +227,9 @@
             Exports the keys for the specified mailboxes.
             </summary>
         <returns>A new <see cref="T:MimeKit.MimePart" /> instance containing the exported keys.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Exports the keys for the specified mailboxes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="mailboxes" /> is <c>null</c>.
             </exception>
@@ -298,7 +315,9 @@
         <summary>
             Imports the public certificates or keys from the specified stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the public certificates or keys from the specified stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -322,7 +341,9 @@
             Gets the key exchange protocol.
             </summary>
         <value>The key exchange protocol.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The key exchange protocol is really only used for PGP.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Register">
@@ -344,7 +365,10 @@
         <summary>
             Registers a default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> or <see cref="T:MimeKit.Cryptography.OpenPgpContext" />.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Registers the specified type as the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" /> or
+            <see cref="T:MimeKit.Cryptography.OpenPgpContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="type" /> is <c>null</c>.
             </exception>
@@ -378,11 +402,13 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="content">The content.</param>
         <summary>
-            Sign the content using the specified signer.
+            Cryptographically signs the content.
             </summary>
         <returns>A new <see cref="T:MimeKit.MimePart" /> instance
             containing the detached signature data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs the content using the specified signer and digest algorithm.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -470,10 +496,12 @@
         <param name="content">The content.</param>
         <param name="signatureData">The signature data.</param>
         <summary>
-            Verify the specified content and signatureData.
+            Verifies the specified content using the detached signatureData.
             </summary>
         <returns>A list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the specified content using the detached signatureData.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="content" /> is <c>null</c>.</para>

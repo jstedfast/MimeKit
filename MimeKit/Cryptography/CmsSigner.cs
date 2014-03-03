@@ -114,6 +114,12 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
+		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
+		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
+		/// tables.</para>
+		/// </remarks>
 		/// <param name="certificate">The signer's certificate.</param>
 		/// <param name="key">The signer's private key.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -160,8 +166,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets or sets the certificate chain.
+		/// Gets the certificate chain.
 		/// </summary>
+		/// <remarks>
+		/// Gets the certificate chain.
+		/// </remarks>
 		/// <value>The certificate chain.</value>
 		public IList<X509Certificate> CertificateChain {
 			get; private set;

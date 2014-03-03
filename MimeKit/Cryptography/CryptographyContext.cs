@@ -45,6 +45,16 @@ namespace MimeKit.Cryptography {
 		static readonly object mutex = new object ();
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CryptographyContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="CryptographyContext"/>.
+		/// </remarks>
+		protected CryptographyContext ()
+		{
+		}
+
+		/// <summary>
 		/// Gets the signature protocol.
 		/// </summary>
 		/// <remarks>
@@ -69,6 +79,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the key exchange protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>The key exchange protocol is really only used for PGP.</para>
+		/// </remarks>
 		/// <value>The key exchange protocol.</value>
 		public abstract string KeyExchangeProtocol { get; }
 
@@ -130,8 +143,11 @@ namespace MimeKit.Cryptography {
 		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
 
 		/// <summary>
-		/// Sign the content using the specified signer.
+		/// Cryptographically signs the content.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -154,8 +170,11 @@ namespace MimeKit.Cryptography {
 		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content);
 
 		/// <summary>
-		/// Verify the specified content and signatureData.
+		/// Verifies the specified content using the detached signatureData.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the specified content using the detached signatureData.
+		/// </remarks>
 		/// <returns>A list of digital signatures.</returns>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The signature data.</param>
@@ -169,6 +188,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
@@ -184,8 +206,11 @@ namespace MimeKit.Cryptography {
 		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
-		/// Decrypt the specified encryptedData.
+		/// Decrypts the specified encryptedData.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData.
+		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -196,6 +221,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports the public certificates or keys from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports the public certificates or keys from the specified stream.
+		/// </remarks>
 		/// <param name="stream">The raw certificate or key data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -208,6 +236,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
 		/// </summary>
+		/// <remarks>
+		/// Exports the keys for the specified mailboxes.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -225,6 +256,10 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="CryptographyContext"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="CryptographyContext"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
@@ -244,8 +279,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.CryptographyContext"/> for the specified protocol.
+		/// Creates a new <see cref="CryptographyContext"/> for the specified protocol.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="CryptographyContext"/> for the specified protocol.</para>
+		/// <para>The default <see cref="CryptographyContext"/> types can over overridden by calling
+		/// the <see cref="Register"/> method with the preferred type.</para>
+		/// </remarks>
+		/// <returns>The <see cref="CryptographyContext"/> for the protocol.</returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="protocol"/> is <c>null</c>.
@@ -292,6 +333,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
 		/// </summary>
+		/// <remarks>
+		/// Registers the specified type as the default <see cref="SecureMimeContext"/> or
+		/// <see cref="OpenPgpContext"/>.
+		/// </remarks>
 		/// <param name="type">A custom subclass of <see cref="SecureMimeContext"/> or
 		/// <see cref="OpenPgpContext"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
