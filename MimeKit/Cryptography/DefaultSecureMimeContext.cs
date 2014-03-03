@@ -162,6 +162,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the X.509 certificate matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the first certificate that matches the specified selector.
+		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
@@ -172,6 +175,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key for the certificate matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key for the first certificate that matches the specified selector.
+		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
@@ -262,7 +268,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="CmsRecipient.EncryptionAlgorithms"/> for the specified mailbox.</para>
 		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
 		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
-		/// the mailbox address.</para>
+		/// the mailbox address for database lookups.</para>
 		/// </remarks>
 		/// <returns>A <see cref="CmsRecipient"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
@@ -297,6 +303,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// <para>Constructs a <see cref="CmsSigner"/> with the appropriate signing certificate
+		/// for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address for database lookups.</para>
+		/// </remarks>
 		/// <returns>A <see cref="CmsSigner"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="digestAlgo">The preferred digest algorithm.</param>
@@ -321,6 +334,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
@@ -343,8 +359,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Imports a certificate.
 		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate into the database.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
@@ -359,8 +378,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate revocation list.
+		/// Imports a certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate revocation list.
+		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <c>null</c>.
@@ -399,6 +421,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports all of the certificates and keys from the pkcs12-encoded stream.
+		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -464,6 +489,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports a DER-encoded certificate stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports all of the certificates in the DER-encoded stream.
+		/// </remarks>
 		/// <param name="stream">The raw certificate(s).</param>
 		/// <param name="trusted"><c>true</c> if the certificates are trusted.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -490,6 +518,10 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="DefaultSecureMimeContext"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="DefaultSecureMimeContext"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)

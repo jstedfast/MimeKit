@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -45,6 +43,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DigitalSignatureCollection"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureCollection"/>.
+		/// </remarks>
 		/// <param name="signatures">The signatures.</param>
 		public DigitalSignatureCollection (IList<IDigitalSignature> signatures) : base (signatures)
 		{

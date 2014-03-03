@@ -31,6 +31,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A <see cref="OpenPgpContext"/> that uses the GnuPG keyrings.
 	/// </summary>
+	/// <remarks>
+	/// A <see cref="OpenPgpContext"/> that uses the GnuPG keyrings.
+	/// </remarks>
 	public abstract class GnuPGContext : OpenPgpContext
 	{
 		static readonly string PublicKeyRing;
@@ -57,6 +60,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.GnuPGContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GnuPGContext"/>.
+		/// </remarks>
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
 		}

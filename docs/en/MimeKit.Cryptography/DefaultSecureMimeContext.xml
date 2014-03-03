@@ -150,7 +150,10 @@
             Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> and
             optionally releases the managed resources.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> and
+            optionally releases the managed resources.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificate">
@@ -172,7 +175,9 @@
             Gets the X.509 certificate matching the specified selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificateRevocationLists">
@@ -222,7 +227,7 @@
             <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> for the specified mailbox.</para>
           <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
             <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
-            the mailbox address.</para>
+            the mailbox address for database lookups.</para>
         </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
@@ -250,7 +255,13 @@
             Gets the <see cref="T:MimeKit.Cryptography.CmsSigner" /> for the specified mailbox.
             </summary>
         <returns>A <see cref="T:MimeKit.Cryptography.CmsSigner" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constructs a <see cref="T:MimeKit.Cryptography.CmsSigner" /> with the appropriate signing certificate
+            for the specified mailbox.</para>
+          <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
+            <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
+            the mailbox address for database lookups.</para>
+        </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
             </exception>
@@ -298,7 +309,9 @@
             Gets the private key for the certificate matching the specified selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the private key for the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTrustedAnchors">
@@ -339,9 +352,11 @@
       <Docs>
         <param name="certificate">The certificate.</param>
         <summary>
-            Import the specified certificate.
+            Imports a certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate into the database.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="certificate" /> is <c>null</c>.
             </exception>
@@ -363,9 +378,11 @@
       <Docs>
         <param name="crl">The certificate revocation list.</param>
         <summary>
-            Import the specified certificate revocation list.
+            Imports a certificate revocation list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate revocation list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="crl" /> is <c>null</c>.
             </exception>
@@ -392,7 +409,9 @@
         <summary>
             Imports a DER-encoded certificate stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports all of the certificates in the DER-encoded stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -418,7 +437,9 @@
         <summary>
             Imports certificates and keys from a pkcs12-encoded stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports all of the certificates and keys from the pkcs12-encoded stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
@@ -456,7 +477,9 @@
         <summary>
             Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+            </remarks>
       </Docs>
     </Member>
   </Members>

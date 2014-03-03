@@ -40,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureCollection" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.DigitalSignatureCollection" />.
+            </remarks>
       </Docs>
     </Member>
   </Members>

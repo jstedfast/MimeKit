@@ -30,7 +30,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -69,11 +71,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -107,11 +112,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -147,11 +155,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -187,11 +198,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -229,11 +243,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -283,11 +300,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -346,11 +366,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -402,11 +425,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -455,10 +481,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
+            </remarks>
         <exception cref="T:System.FormatException">
           <para>The <c>protocol</c> parameter was not specified.</para>
           <para>-or-</para>
@@ -495,10 +523,13 @@
       <Docs>
         <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> and extracts any digital signatures in cases
+            where the content was also signed.
+            </remarks>
         <exception cref="T:System.FormatException">
           <para>The <c>protocol</c> parameter was not specified.</para>
           <para>-or-</para>
@@ -535,10 +566,12 @@
       <Docs>
         <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -579,10 +612,13 @@
         <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> and extracts any digital signatures in cases
+            where the content was also signed.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>

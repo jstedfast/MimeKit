@@ -30,35 +30,53 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An interface for a digital signature.
 	/// </summary>
+	/// <remarks>
+	/// An interface for a digital signature.
+	/// </remarks>
 	public interface IDigitalSignature
 	{
 		/// <summary>
 		/// Gets certificate used by the signer.
 		/// </summary>
+		/// <remarks>
+		/// Gets certificate used by the signer.
+		/// </remarks>
 		/// <value>The signer's certificate.</value>
 		IDigitalCertificate SignerCertificate { get; }
 
 		/// <summary>
 		/// Gets the public key algorithm used for the signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm used for the signature.
+		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		PublicKeyAlgorithm PublicKeyAlgorithm { get; }
 
 		/// <summary>
 		/// Gets the digest algorithm used for the signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the digest algorithm used for the signature.
+		/// </remarks>
 		/// <value>The digest algorithm.</value>
 		DigestAlgorithm DigestAlgorithm { get; }
 
 		/// <summary>
 		/// Gets the creation date of the digital signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the creation date of the digital signature.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		DateTime CreationDate { get; }
 
 		/// <summary>
-		/// Verify the digital signature.
+		/// Verifies the digital signature.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signature.
+		/// </remarks>
 		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
