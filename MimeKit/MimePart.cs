@@ -381,7 +381,7 @@ namespace MimeKit {
 		{
 			#if ENABLE_CRYPTO
 			var md5 = new Org.BouncyCastle.Crypto.Digests.MD5Digest ();
-			var checksum = new byte[md5.GetByteLength ()];
+			var checksum = new byte[md5.GetDigestSize ()];
 			var buf = new byte[4096];
 			int nread;
 
