@@ -40,7 +40,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -61,7 +63,9 @@
         <summary>
             Adds the specified recipient.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -82,7 +86,9 @@
         <summary>
             Clears the recipient collection.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the recipients from the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -101,10 +107,14 @@
       <Docs>
         <param name="recipient">The recipient.</param>
         <summary>
-            Check if the collection contains the specified recipient.
+            Checks if the collection contains the specified recipient.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the specified recipient exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the collection contains the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -128,9 +138,12 @@
         <param name="array">The array.</param>
         <param name="arrayIndex">The array index.</param>
         <summary>
-            Copies the recpients into the specified array starting at the specified index.
+            Copies all of the recipients in the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the recipients within the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -154,7 +167,9 @@
             Gets the number of recipients in the collection.
             </summary>
         <value>The number of recipients in the collection.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of recipients in the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -173,7 +188,9 @@
             Gets an enumerator for the collection of recipients.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the collection of recipients.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -192,7 +209,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -211,11 +230,13 @@
       <Docs>
         <param name="recipient">The recipient.</param>
         <summary>
-            Remove the specified recipient.
+            Removes the specified recipient.
             </summary>
         <returns>
           <value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -233,9 +254,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the collection of recipients.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the collection of recipients.
+            </remarks>
       </Docs>
     </Member>
   </Members>

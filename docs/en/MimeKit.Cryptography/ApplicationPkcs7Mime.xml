@@ -13,7 +13,10 @@
     <summary>
             An S/MIME part with a Content-Type of application/pkcs7-mime.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An application/pkcs7-mime is an S/MIME part and may contain encrypted,
+            signed or compressed data (or any combination of the above).
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -91,13 +94,14 @@
       <Docs>
         <param name="entity">The entity.</param>
         <summary>
-            Compress the specified entity.
+            Compresses the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The compressed entity.</returns>
         <remarks>
-            It should be noted that this feature is not supported by most mail clients,
-            even among those that support S/MIME.
-            </remarks>
+          <para>Compresses the specified entity using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>It should be noted that this feature is not supported by most mail clients,
+            even among those that support S/MIME.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="entity" /> is <c>null</c>.
             </exception>
@@ -124,13 +128,14 @@
         <param name="ctx">The S/MIME context to use for compressing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Compress the specified entity.
+            Compresses the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The compressed entity.</returns>
         <remarks>
-            It should be noted that this feature is not supported by most mail clients,
-            even among those that support S/MIME.
-            </remarks>
+          <para>Compresses the specified entity using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>It should be noted that this feature is not supported by most mail clients,
+            even among those that support S/MIME.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -156,10 +161,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decompress using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            Decompresses the content.
             </summary>
         <returns>The decompressed <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decompresses the content using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "compressed-data".
             </exception>
@@ -184,10 +191,12 @@
       <Docs>
         <param name="ctx">The S/MIME context to use for decompressing.</param>
         <summary>
-            Decompress using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            Decompresses the content.
             </summary>
         <returns>The decompressed <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decompresses the content using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -212,10 +221,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decrypt the content.
+            Decrypts the content.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the content using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
@@ -240,10 +251,12 @@
       <Docs>
         <param name="ctx">The S/MIME context to use for decrypting.</param>
         <summary>
-            Decrypt using the specified <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            Decrypts the content.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the content using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -273,10 +286,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -307,10 +322,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -349,10 +366,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the supplied <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -388,10 +407,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the supplied <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -429,9 +450,11 @@
       <Docs>
         <param name="ctx">The S/MIME context to import certificates into.</param>
         <summary>
-            Import the certificates contained in the content.
+            Imports the certificates contained in the content.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the certificates contained in the content.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
@@ -455,7 +478,9 @@
             Gets the value of the "smime-type" parameter.
             </summary>
         <value>The value of the "smime-type" parameter.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the value of the "smime-type" parameter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -476,15 +501,16 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
+          <para>Signs the entity using the supplied signer.</para>
+          <para>For better interoperability with other mail clients, you should use
             <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -517,15 +543,16 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
+          <para>Signs the entity using the supplied signer and <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>For better interoperability with other mail clients, you should use
             <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -561,15 +588,16 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
-            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.CryptographyContext,MimeKit.MailboxAddress,MimeKit.Cryptography.DigestAlgorithm,MimeKit.MimeEntity)" />
+          <para>Signs the entity using the supplied signer and digest algorithm.</para>
+          <para>For better interoperability with other mail clients, you should use
+            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -607,15 +635,16 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
-            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.CryptographyContext,MimeKit.MailboxAddress,MimeKit.Cryptography.DigestAlgorithm,MimeKit.MimeEntity)" />
+          <para>Signs the entity using the supplied signer, digest algorithm and <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>For better interoperability with other mail clients, you should use
+            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -654,10 +683,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -695,10 +727,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -739,10 +774,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -787,10 +825,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -830,10 +871,12 @@
       <Docs>
         <param name="entity">The unencapsulated entity.</param>
         <summary>
-            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
         <returns>The list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
             </exception>
@@ -860,10 +903,12 @@
         <param name="ctx">The S/MIME context to use for verifying the signature.</param>
         <param name="entity">The unencapsulated entity.</param>
         <summary>
-            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
         <returns>The list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
             </exception>

@@ -45,6 +45,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipientCollection"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="CmsRecipientCollection"/>.
+		/// </remarks>
 		public CmsRecipientCollection ()
 		{
 			recipients = new List<CmsRecipient> ();
@@ -53,24 +56,33 @@ namespace MimeKit.Cryptography {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
-		/// </summary>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get; private set;
-		}
-
-		/// <summary>
 		/// Gets the number of recipients in the collection.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of recipients in the collection.
+		/// </remarks>
 		/// <value>The number of recipients in the collection.</value>
 		public int Count {
 			get { return recipients.Count; }
 		}
 
 		/// <summary>
+		/// Gets a value indicating whether this instance is read only.
+		/// </summary>
+		/// <remarks>
+		/// A <see cref="CmsRecipientCollection"/> is never read-only.
+		/// </remarks>
+		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		public bool IsReadOnly {
+			get; private set;
+		}
+
+		/// <summary>
 		/// Adds the specified recipient.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified recipient.
+		/// </remarks>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="recipient"/> is <c>null</c>.
@@ -86,14 +98,22 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Clears the recipient collection.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the recipients from the collection.
+		/// </remarks>
 		public void Clear ()
 		{
 			recipients.Clear ();
 		}
 
 		/// <summary>
-		/// Check if the collection contains the specified recipient.
+		/// Checks if the collection contains the specified recipient.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the collection contains the specified recipient.
+		/// </remarks>
+		/// <returns><value>true</value> if the specified recipient exists;
+		/// otherwise <value>false</value>.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="recipient"/> is <c>null</c>.
@@ -107,8 +127,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Copies the recpients into the specified array starting at the specified index.
+		/// Copies all of the recipients in the <see cref="CmsRecipientCollection"/> to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the recipients within the <see cref="CmsRecipientCollection"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array.</param>
 		/// <param name="arrayIndex">The array index.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -129,8 +153,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Remove the specified recipient.
+		/// Removes the specified recipient.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified recipient.
+		/// </remarks>
 		/// <returns><value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -151,6 +178,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets an enumerator for the collection of recipients.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the collection of recipients.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<CmsRecipient> GetEnumerator ()
 		{
@@ -161,6 +191,13 @@ namespace MimeKit.Cryptography {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the collection of recipients.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the collection of recipients.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return recipients.GetEnumerator ();
