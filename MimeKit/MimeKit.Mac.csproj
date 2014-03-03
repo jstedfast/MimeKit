@@ -17,6 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\mac</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\mac</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,6 +32,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\lib\mac</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\mac</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\lib\mac\MimeKit.xml</DocumentationFile>
