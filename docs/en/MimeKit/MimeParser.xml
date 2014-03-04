@@ -15,10 +15,12 @@
   </Interfaces>
   <Docs>
     <summary>
-            A MIME parser which can be used to parse <see cref="T:MimeKit.MimeMessage" />s and
-            <see cref="T:MimeKit.MimeEntity" />s from arbitrary streams.
+            A MIME message and entity parser.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A MIME parser is used to parse <see cref="T:MimeKit.MimeMessage" /> and
+            <see cref="T:MimeKit.MimeEntity" /> objects from arbitrary streams.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -36,7 +38,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -59,7 +63,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -86,7 +92,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -111,6 +119,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -143,7 +152,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -174,6 +185,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -212,6 +224,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -248,6 +261,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -263,24 +277,6 @@
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
         </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="CurrentStreamOffset">
-      <MemberSignature Language="C#" Value="public long CurrentStreamOffset { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance int64 CurrentStreamOffset" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Int64</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets the current stream offset that the parser is at.
-            </summary>
-        <value>The stream offset.</value>
-        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -321,7 +317,9 @@
         <value>
           <c>true</c> if this parser has reached the end of the input stream;
             otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets a value indicating whether the parser has reached the end of the input stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="MboxMarker">
@@ -339,7 +337,9 @@
             Gets the most recent mbox marker.
             </summary>
         <value>The mbox marker.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the most recent mbox marker.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="MboxMarkerOffset">
@@ -357,7 +357,9 @@
             Gets the most recent mbox marker offset.
             </summary>
         <value>The mbox marker offset.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the most recent mbox marker offset.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ParseEntity">
@@ -376,7 +378,9 @@
             Parses an entity from the stream.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an entity from the stream.
+            </remarks>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
@@ -404,7 +408,9 @@
             Parses an entity from the stream.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an entity from the stream.
+            </remarks>
         <exception cref="T:System.OperationCanceledException">
             The operation was canceled via the cancellation token.
             </exception>
@@ -432,7 +438,9 @@
             Parses a message from the stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a message from the stream.
+            </remarks>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
@@ -460,7 +468,9 @@
             Parses a message from the stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a message from the stream.
+            </remarks>
         <exception cref="T:System.OperationCanceledException">
             The operation was canceled via the cancellation token.
             </exception>
@@ -470,6 +480,26 @@
         <exception cref="T:System.FormatException">
             There was an error parsing the message.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Position">
+      <MemberSignature Language="C#" Value="public long Position { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 Position" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current position of the parser within the stream.
+            </summary>
+        <value>The stream offset.</value>
+        <remarks>
+            Gets the current position of the parser within the stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -490,7 +520,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -516,7 +548,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -546,7 +580,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -574,6 +610,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -609,7 +646,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -643,6 +682,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -684,6 +724,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -723,6 +764,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.

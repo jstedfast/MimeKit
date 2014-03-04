@@ -238,25 +238,6 @@
             </remarks>
       </Docs>
     </Member>
-    <Member MemberName="IsInitializing">
-      <MemberSignature Language="C#" Value="protected bool IsInitializing { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance bool IsInitializing" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Boolean</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets a value indicating whether this instance is initializing.
-            </summary>
-        <value>
-          <c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Load">
       <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (System.IO.Stream stream);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream) cil managed" />

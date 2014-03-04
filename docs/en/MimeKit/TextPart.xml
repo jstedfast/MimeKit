@@ -105,7 +105,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
             class with the specified text subtype.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.TextPart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="subtype" /> is <c>null</c>.</para>

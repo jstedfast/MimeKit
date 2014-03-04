@@ -44,6 +44,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ParseException"/>.
+		/// </remarks>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -61,6 +64,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ParseException"/>.
+		/// </remarks>
 		/// <param name="message">The error message.</param>
 		/// <param name="tokenIndex">The byte offset of the token.</param>
 		/// <param name="errorIndex">The byte offset of the error.</param>
@@ -74,6 +80,10 @@ namespace MimeKit {
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
 		/// with information about the exception.
 		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </remarks>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The streaming context.</param>
 		/// <exception cref="System.ArgumentNullException">

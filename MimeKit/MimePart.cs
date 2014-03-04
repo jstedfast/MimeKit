@@ -37,6 +37,9 @@ namespace MimeKit {
 	/// <summary>
 	/// A leaf-node MIME part that contains content such as the message body text or an attachment.
 	/// </summary>
+	/// <remarks>
+	/// A leaf-node MIME part that contains content such as the message body text or an attachment.
+	/// </remarks>
 	public class MimePart : MimeEntity
 	{
 		static readonly string[] ContentTransferEncodings = {
@@ -60,6 +63,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
 		/// with the specified media type and subtype.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimePart"/> with the specified media type and subtype.
+		/// </remarks>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and part content.</param>
@@ -118,7 +124,7 @@ namespace MimeKit {
 		/// with the specified media type and subtype.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new MIME entity with the specified media type and subtype.
+		/// Creates a new <see cref="MimePart"/> with the specified media type and subtype.
 		/// </remarks>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
@@ -136,7 +142,7 @@ namespace MimeKit {
 		/// with the specified content type.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new MIME entity with the specified Content-Type value.
+		/// Creates a new <see cref="MimePart"/> with the specified Content-Type value.
 		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -151,7 +157,7 @@ namespace MimeKit {
 		/// with the specified content type.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new MIME entity with the specified Content-Type value.
+		/// Creates a new <see cref="MimePart"/> with the specified Content-Type value.
 		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -169,7 +175,7 @@ namespace MimeKit {
 		/// with the default Content-Type of application/octet-stream.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new MIME entity with a Content-Type of application/octet-stream.
+		/// Creates a new <see cref="MimePart"/> with a Content-Type of application/octet-stream.
 		/// </remarks>
 		public MimePart () : base ("application", "octet-stream")
 		{
@@ -298,9 +304,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content of the mime part.
+		/// Gets or sets the MIME content.
 		/// </summary>
-		/// <value>The content of the mime part.</value>
+		/// <remarks>
+		/// Gets or sets the MIME content.
+		/// </remarks>
+		/// <value>The MIME content.</value>
 		public IContentObject ContentObject {
 			get; set;
 		}

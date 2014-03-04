@@ -78,6 +78,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="Multipart"/> with the specified subtype.
+		/// </remarks>
 		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <param name="args">An array of initialization parameters: headers and MIME entities.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -111,7 +114,7 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new multipart MIME entity with the specified subtype.
+		/// Creates a new <see cref="Multipart"/> with the specified subtype.
 		/// </remarks>
 		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -127,7 +130,7 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new multipart/mixed entity.
+		/// Creates a new <see cref="Multipart"/> with a ContentType of multipart/mixed.
 		/// </remarks>
 		public Multipart () : this ("mixed")
 		{

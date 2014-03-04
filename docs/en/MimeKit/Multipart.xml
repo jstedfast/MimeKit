@@ -59,7 +59,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
         <remarks>
-            Creates a new multipart/mixed entity.
+            Creates a new <see cref="T:MimeKit.Multipart" /> with a ContentType of multipart/mixed.
             </remarks>
       </Docs>
     </Member>
@@ -97,7 +97,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
         <remarks>
-            Creates a new multipart MIME entity with the specified subtype.
+            Creates a new <see cref="T:MimeKit.Multipart" /> with the specified subtype.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="subtype" /> is <c>null</c>.
@@ -127,7 +127,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Multipart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="subtype" /> is <c>null</c>.</para>

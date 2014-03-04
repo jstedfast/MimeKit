@@ -30,6 +30,9 @@ namespace MimeKit {
 	/// <summary>
 	/// MIME entity constructor info.
 	/// </summary>
+	/// <remarks>
+	/// MIME entity constructor info.
+	/// </remarks>
 	public sealed class MimeEntityConstructorInfo
 	{
 		internal ParserOptions ParserOptions {

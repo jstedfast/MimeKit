@@ -49,6 +49,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MessagePart"/>.
+		/// </remarks>
 		/// <param name="subtype">The message subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// <exception cref="System.ArgumentNullException">

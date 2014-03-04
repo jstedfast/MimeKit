@@ -57,6 +57,9 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
 		/// class with the specified text subtype.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TextPart"/> with the specified subtype.
+		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers, charset encoding and text.</param>
 		/// <exception cref="System.ArgumentNullException">

@@ -99,7 +99,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MessagePart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MessagePart" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="subtype" /> is <c>null</c>.</para>

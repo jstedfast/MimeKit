@@ -55,11 +55,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="args">To be added.</param>
+        <param name="args">An array of initialization parameters: headers and message parts.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
-            <param name="args">An array of initialization parameters: headers and message parts.</param></summary>
-        <remarks>To be added.</remarks>
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MimeMessage" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="args" /> is <c>null</c>.
             </exception>
@@ -199,7 +201,9 @@
             Creates a new <see cref="T:MimeKit.MimeMessage" /> from a <see cref="T:System.Net.Mail.MailMessage" />.
             </summary>
         <returns>The equivalent <see cref="T:MimeKit.MimeMessage" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MimeMessage" /> from a <see cref="T:System.Net.Mail.MailMessage" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="message" /> is <c>null</c>.
             </exception>
@@ -878,7 +882,9 @@
             Gets or sets the Resent-Date of the message.
             </summary>
         <value>The Resent-Date of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the Resent-Date of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentFrom">

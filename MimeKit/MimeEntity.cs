@@ -72,14 +72,12 @@ namespace MimeKit {
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
 
-			IsInitializing = true;
 			foreach (var header in entity.Headers) {
 				if (entity.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				Headers.Add (header);
 			}
-			IsInitializing = false;
 		}
 
 		/// <summary>
@@ -148,14 +146,6 @@ namespace MimeKit {
 			}
 
 			return false;
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether this instance is initializing.
-		/// </summary>
-		/// <value><c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
-		protected bool IsInitializing {
-			get; private set;
 		}
 
 		/// <summary>

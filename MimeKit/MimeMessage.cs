@@ -119,8 +119,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
-		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/>.
+		/// </remarks>
+		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
@@ -478,6 +481,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the Resent-Date of the message.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the Resent-Date of the message.
+		/// </remarks>
 		/// <value>The Resent-Date of the message.</value>
 		public DateTimeOffset ResentDate {
 			get { return resentDate; }
@@ -1749,6 +1755,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
+		/// </remarks>
 		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">

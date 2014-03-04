@@ -39,7 +39,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ParseException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.ParseException" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="info" /> is <c>null</c>.
             </exception>
@@ -64,7 +66,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ParseException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.ParseException" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorIndex">
@@ -108,7 +112,10 @@
             When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" />
             with information about the exception.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" />
+            with information about the exception.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="info" /> is <c>null</c>.
             </exception>
