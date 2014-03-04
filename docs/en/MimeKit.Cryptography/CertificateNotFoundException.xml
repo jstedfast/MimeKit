@@ -13,7 +13,9 @@
     <summary>
             An exception that is thrown when a certificate could not be found for a specified mailbox.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An exception that is thrown when a certificate could not be found for a specified mailbox.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Mailbox">
@@ -51,7 +55,9 @@
             Gets the mailbox address that could not be resolved to a certificate.
             </summary>
         <value>The mailbox address.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the mailbox address that could not be resolved to a certificate.
+            </remarks>
       </Docs>
     </Member>
   </Members>

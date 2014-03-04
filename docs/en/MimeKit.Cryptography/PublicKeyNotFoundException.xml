@@ -13,7 +13,9 @@
     <summary>
             An exception that is thrown when a public key could not be found for a specified mailbox.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An exception that is thrown when a public key could not be found for a specified mailbox.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.PublicKeyNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.PublicKeyNotFoundException" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Mailbox">
@@ -51,7 +55,9 @@
             Gets the key id that could not be found.
             </summary>
         <value>The key id.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the key id that could not be found.
+            </remarks>
       </Docs>
     </Member>
   </Members>

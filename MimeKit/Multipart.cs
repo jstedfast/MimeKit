@@ -56,7 +56,8 @@ namespace MimeKit {
 	/// <para>The "multipart/parallel" type contains entities that are all meant to be shown (or heard)
 	/// in parallel.</para>
 	/// <para>Another commonly used type is the "multipart/related" type which contains, as one might expect,
-	/// inter-related MIME parts.</para>
+	/// inter-related MIME parts which typically reference each other via URIs based on the Content-Id and/or
+	/// Content-Location headers.</para>
 	/// </remarks>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{

@@ -94,6 +94,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the common name of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the common name of the certificate.
+		/// </remarks>
 		/// <returns>The common name.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -107,6 +110,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the subject name of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the subject name of the certificate.
+		/// </remarks>
 		/// <returns>The subject name.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">

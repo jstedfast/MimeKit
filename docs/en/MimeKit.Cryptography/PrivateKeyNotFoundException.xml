@@ -13,7 +13,9 @@
     <summary>
             An exception that is thrown when a private key could not be found for a specified mailbox or key id.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An exception that is thrown when a private key could not be found for a specified mailbox or key id.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -33,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="mailbox" /> is <c>null</c>.
             </exception>
@@ -56,7 +60,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="keyid" /> is <c>null</c>.
             </exception>
@@ -77,7 +83,9 @@
             Gets the key id that could not be found.
             </summary>
         <value>The key id.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the key id that could not be found.
+            </remarks>
       </Docs>
     </Member>
   </Members>

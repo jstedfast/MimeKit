@@ -37,7 +37,9 @@
             Gets the common name of the certificate.
             </summary>
         <returns>The common name.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the common name of the certificate.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="certificate" /> is <c>null</c>.
             </exception>
@@ -176,7 +178,9 @@
             Gets the subject name of the certificate.
             </summary>
         <returns>The subject name.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the subject name of the certificate.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="certificate" /> is <c>null</c>.
             </exception>

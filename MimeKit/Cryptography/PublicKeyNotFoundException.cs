@@ -30,11 +30,17 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An exception that is thrown when a public key could not be found for a specified mailbox.
 	/// </summary>
+	/// <remarks>
+	/// An exception that is thrown when a public key could not be found for a specified mailbox.
+	/// </remarks>
 	public class PublicKeyNotFoundException : Exception
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PublicKeyNotFoundException"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PublicKeyNotFoundException"/>.
+		/// </remarks>
 		/// <param name="mailbox">The mailbox that could not be resolved to a valid private key.</param>
 		/// <param name="message">A message explaining the error.</param>
 		public PublicKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
@@ -45,6 +51,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the key id that could not be found.
 		/// </summary>
+		/// <remarks>
+		/// Gets the key id that could not be found.
+		/// </remarks>
 		/// <value>The key id.</value>
 		public MailboxAddress Mailbox {
 			get; private set;
