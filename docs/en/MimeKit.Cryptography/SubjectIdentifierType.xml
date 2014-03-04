@@ -12,7 +12,9 @@
     <summary>
             The method to use for identifying a certificate.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The method to use for identifying a certificate.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="IssuerAndSerialNumber">

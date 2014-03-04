@@ -28,6 +28,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The method to use for identifying a certificate.
 	/// </summary>
+	/// <remarks>
+	/// The method to use for identifying a certificate.
+	/// </remarks>
 	public enum SubjectIdentifierType {
 		/// <summary>
 		/// The identifier type is unknown.

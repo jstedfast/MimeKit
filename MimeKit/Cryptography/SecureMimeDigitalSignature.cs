@@ -34,6 +34,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME digital signature.
 	/// </summary>
+	/// <remarks>
+	/// An S/MIME digital signature.
+	/// </remarks>
 	public class SecureMimeDigitalSignature : IDigitalSignature
 	{
 		DigitalSignatureVerifyException vex;
@@ -51,6 +54,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the signer info.
 		/// </summary>
+		/// <remarks>
+		/// Gets the signer info.
+		/// </remarks>
 		/// <value>The signer info.</value>
 		public SignerInformation SignerInfo {
 			get; private set;
@@ -60,6 +66,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the list of encryption algorithms, in preferential order,
 		/// that the signer's client supports.
 		/// </summary>
+		/// <remarks>
+		/// Gets the list of encryption algorithms, in preferential order,
+		/// that the signer's client supports.
+		/// </remarks>
 		/// <value>The S/MIME encryption algorithms.</value>
 		public EncryptionAlgorithm[] EncryptionAlgorithms {
 			get; internal set;
@@ -93,6 +103,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets certificate used by the signer.
 		/// </summary>
+		/// <remarks>
+		/// Gets certificate used by the signer.
+		/// </remarks>
 		/// <value>The signer's certificate.</value>
 		public IDigitalCertificate SignerCertificate {
 			get; internal set;
@@ -101,6 +114,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public key algorithm used for the signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm used for the signature.
+		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
 			get; internal set;
@@ -109,6 +125,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the digest algorithm used for the signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the digest algorithm used for the signature.
+		/// </remarks>
 		/// <value>The digest algorithm.</value>
 		public DigestAlgorithm DigestAlgorithm {
 			get; internal set;
@@ -117,14 +136,20 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the creation date of the digital signature.
 		/// </summary>
+		/// <remarks>
+		/// Gets the creation date of the digital signature.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		public DateTime CreationDate {
 			get; internal set;
 		}
 
 		/// <summary>
-		/// Verify the digital signature.
+		/// Verifies the digital signature.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signature.
+		/// </remarks>
 		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.

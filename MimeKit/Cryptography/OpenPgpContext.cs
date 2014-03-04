@@ -47,6 +47,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public keyring path.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public keyring path.
+		/// </remarks>
 		/// <value>The public key ring path.</value>
 		protected string PublicKeyRingPath {
 			get; set;
@@ -55,6 +58,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the secret keyring path.
 		/// </summary>
+		/// <remarks>
+		/// Gets the secret keyring path.
+		/// </remarks>
 		/// <value>The secret key ring path.</value>
 		protected string SecretKeyRingPath {
 			get; set;
@@ -63,6 +69,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public keyring bundle.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public keyring bundle.
+		/// </remarks>
 		/// <value>The public keyring bundle.</value>
 		public PgpPublicKeyRingBundle PublicKeyRingBundle {
 			get; protected set;
@@ -71,6 +80,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the secret keyring bundle.
 		/// </summary>
+		/// <remarks>
+		/// Gets the secret keyring bundle.
+		/// </remarks>
 		/// <value>The secret keyring bundle.</value>
 		public PgpSecretKeyRingBundle SecretKeyRingBundle {
 			get; protected set;
@@ -105,14 +117,21 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the key exchange protocol.
 		/// </summary>
+		/// <remarks>
+		/// Gets the key exchange protocol.
+		/// </remarks>
 		/// <value>The key exchange protocol.</value>
 		public override string KeyExchangeProtocol {
 			get { return "application/pgp-keys"; }
 		}
 
 		/// <summary>
-		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// Checks whether or not the specified protocol is supported.
 		/// </summary>
+		/// <remarks>
+		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
+		/// or multipart/encrypted part is supported by the supplied cryptography context.
+		/// </remarks>
 		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -148,6 +167,10 @@ namespace MimeKit.Cryptography {
 		/// <item><term><see cref="DigestAlgorithm.MD2"/></term><description>pgp-md2</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Tiger192"/></term><description>pgp-tiger192</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Haval5160"/></term><description>pgp-haval-5-160</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha256"/></term><description>pgp-sha256</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha384"/></term><description>pgp-sha384</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha512"/></term><description>pgp-sha512</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha224"/></term><description>pgp-sha224</description></item>
 		/// </list>
 		/// </remarks>
 		/// <returns>The micalg value.</returns>
@@ -208,6 +231,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyring paths.
+		/// </remarks>
 		/// <param name="pubring">The public keyring file path.</param>
 		/// <param name="secring">The secret keyring file path.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -262,8 +288,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the public key associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the public key associated with the mailbox address.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key associated with the mailbox address.
+		/// </remarks>
 		/// <returns>The encryption key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -298,8 +327,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the public keys for the specified <see cref="MimeKit.MailboxAddress"/>es.
+		/// Gets the public keys for the specified mailbox addresses.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public keys for the specified mailbox addresses.
+		/// </remarks>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -322,8 +354,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the signing key associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the signing key associated with the mailbox address.
 		/// </summary>
+		/// <remarks>
+		/// Gets the signing key associated with the mailbox address.
+		/// </remarks>
 		/// <returns>The signing key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -363,6 +398,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the password for key.
 		/// </summary>
+		/// <remarks>
+		/// Gets the password for key.
+		/// </remarks>
 		/// <returns>The password for key.</returns>
 		/// <param name="key">The key.</param>
 		/// <exception cref="System.OperationCanceledException">
@@ -373,6 +411,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key from the specified secret key.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key from the specified secret key.
+		/// </remarks>
 		/// <returns>The private key.</returns>
 		/// <param name="key">The secret key.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -411,6 +452,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key.
+		/// </remarks>
 		/// <returns>The private key.</returns>
 		/// <param name="keyId">The key identifier.</param>
 		/// <exception cref="CertificateNotFoundException">
@@ -472,8 +516,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign the content using the specified signer.
+		/// Cryptographically signs the content.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -513,8 +560,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign the content using the specified signer.
+		/// Cryptographically signs the content.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -582,8 +632,12 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Gets the equivalent <see cref="DigestAlgorithm"/> for the specified
-		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>. 
+		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>.
 		/// </summary>
+		/// <remarks>
+		/// Gets the equivalent <see cref="DigestAlgorithm"/> for the specified
+		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/>.
+		/// </remarks>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="hashAlgorithm">The hash algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -612,8 +666,12 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Gets the equivalent <see cref="PublicKeyAlgorithm"/> for the specified
-		/// <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>. 
+		/// <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>.
 		/// </summary>
+		/// <remarks>
+		/// Gets the equivalent <see cref="PublicKeyAlgorithm"/> for the specified
+		/// <see cref="Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag"/>.
+		/// </remarks>
 		/// <returns>The public-key algorithm.</returns>
 		/// <param name="algorithm">The public-key algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -671,8 +729,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the specified content and signatureData.
+		/// Verifies the specified content using the detached signatureData.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the specified content using the detached signatureData.
+		/// </remarks>
 		/// <returns>A list of digital signatures.</returns>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The signature data.</param>
@@ -710,6 +771,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
@@ -783,6 +847,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
@@ -828,8 +895,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -883,8 +953,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -1001,8 +1074,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt an encrypted stream.
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
@@ -1098,8 +1174,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt the encrypted data.
+		/// Decrypts the specified encryptedData.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData.
+		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1189,6 +1268,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports public pgp keys from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports public pgp keys from the specified stream.
+		/// </remarks>
 		/// <param name="stream">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -1225,6 +1307,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports secret pgp keys from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports secret pgp keys from the specified stream.
+		/// </remarks>
 		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="rawData"/> is <c>null</c>.
@@ -1261,6 +1346,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the public keys for the specified mailboxes.
 		/// </summary>
+		/// <remarks>
+		/// Exports the public keys for the specified mailboxes.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1280,6 +1368,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the specified public keys.
 		/// </summary>
+		/// <remarks>
+		/// Exports the specified public keys.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1299,6 +1390,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the specified public keys.
 		/// </summary>
+		/// <remarks>
+		/// Exports the specified public keys.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The keys.</param>
 		/// <exception cref="System.ArgumentNullException">

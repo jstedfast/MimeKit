@@ -24,12 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// Public key algorithms.
+	/// An enumeration of public key algorithms.
 	/// </summary>
+	/// <remarks>
+	/// An enumeration of public key algorithms.
+	/// </remarks>
 	public enum PublicKeyAlgorithm {
 		/// <summary>
 		/// No public key algorithm specified.

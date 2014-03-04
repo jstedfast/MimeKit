@@ -100,11 +100,13 @@
       <Docs>
         <param name="stream">The stream to compress.</param>
         <summary>
-            Compress the specified stream.
+            Compresses the specified stream.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance
             containing the compressed content.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Compresses the specified stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -132,7 +134,9 @@
             Decompress the specified stream.
             </summary>
         <returns>The decompressed mime part.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decompress the specified stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -157,10 +161,12 @@
       <Docs>
         <param name="encryptedData">The encrypted data.</param>
         <summary>
-            Decrypt the specified encryptedData.
+            Decrypts the specified encryptedData.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the specified encryptedData.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="encryptedData" /> is <c>null</c>.
             </exception>
@@ -187,7 +193,9 @@
         <summary>
             Disables the encryption algorithm.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Disables the encryption algorithm.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Enable">
@@ -208,7 +216,9 @@
         <summary>
             Enables the encryption algorithm.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Enables the encryption algorithm.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EnabledEncryptionAlgorithms">
@@ -226,7 +236,9 @@
             Gets the enabled encryption algorithms in ranked order.
             </summary>
         <value>The enabled encryption algorithms.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the enabled encryption algorithms in ranked order.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EncapsulatedSign">
@@ -247,11 +259,13 @@
         <param name="signer">The signer.</param>
         <param name="content">The content.</param>
         <summary>
-            Sign and encapsulate the content using the specified signer.
+            Cryptographically signs and encapsulates the content using the specified signer.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance
             containing the detached signature data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs and encapsulates the content using the specified signer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -284,11 +298,13 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="content">The content.</param>
         <summary>
-            Sign and encapsulate the content using the specified signer.
+            Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance
             containing the detached signature data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -328,11 +344,13 @@
         <param name="recipients">The recipients.</param>
         <param name="content">The content.</param>
         <summary>
-            Encrypt the specified content for the specified recipients.
+            Encrypts the specified content for the specified recipients.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance
             containing the encrypted content.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the specified content for the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -367,7 +385,9 @@
             </summary>
         <returns>A new <see cref="T:MimeKit.MimePart" /> instance
             containing the encrypted data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the specified content for the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -401,7 +421,9 @@
             Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
             </summary>
         <value>The preferred encryption algorithm ranking.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EncryptionProtocol">
@@ -446,7 +468,9 @@
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Mime" /> instance containing
             the exported keys.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Exports the certificates for the specified mailboxes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="mailboxes" /> is <c>null</c>.
             </exception>
@@ -480,7 +504,9 @@
             Gets the X.509 certificate matching the specified selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificateRevocationLists">
@@ -553,10 +579,12 @@
       <Docs>
         <param name="mailboxes">The mailboxes.</param>
         <summary>
-            Gets the <see cref="T:MimeKit.Cryptography.CmsRecipient" />s for the specified <see cref="T:MimeKit.MailboxAddress" />es.
+            Gets a collection of CmsRecipients for the specified mailboxes.
             </summary>
-        <returns>The <see cref="T:MimeKit.Cryptography.CmsRecipient" />s.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" />.</returns>
+        <remarks>
+            Gets a collection of CmsRecipients for the specified mailboxes.
+            </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for one or more of the specified <paramref name="mailboxes" /> could not be found.
             </exception>
@@ -586,7 +614,13 @@
             Gets the <see cref="T:MimeKit.Cryptography.CmsSigner" /> for the specified mailbox.
             </summary>
         <returns>A <see cref="T:MimeKit.Cryptography.CmsSigner" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constructs a <see cref="T:MimeKit.Cryptography.CmsSigner" /> with the appropriate signing certificate
+            for the specified mailbox.</para>
+          <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
+            <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
+            the mailbox address for database lookups.</para>
+        </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
             </exception>
@@ -706,10 +740,12 @@
       <Docs>
         <param name="digestAlgo">The digest algorithm.</param>
         <summary>
-            Gets the digest oid.
+            Gets the OID for the digest algorithm.
             </summary>
         <returns>The digest oid.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the OID for the digest algorithm.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="digestAlgo" /> is out of range.
             </exception>
@@ -760,7 +796,9 @@
             Gets the private key for the certificate matching the specified selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the private key for the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTrustedAnchors">
@@ -801,9 +839,11 @@
       <Docs>
         <param name="certificate">The certificate.</param>
         <summary>
-            Import the specified certificate.
+            Imports the specified certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="certificate" /> is <c>null</c>.
             </exception>
@@ -825,9 +865,11 @@
       <Docs>
         <param name="crl">The certificate revocation list.</param>
         <summary>
-            Import the specified certificate revocation list.
+            Imports the specified certificate revocation list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate revocation list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="crl" /> is <c>null</c>.
             </exception>
@@ -852,7 +894,10 @@
             Imports certificates (as from a certs-only application/pkcs-mime part)
             from the specified stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports certificates (as from a certs-only application/pkcs-mime part)
+            from the specified stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -881,7 +926,9 @@
         <summary>
             Imports certificates and keys from a pkcs12-encoded stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports certificates and keys from a pkcs12-encoded stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
@@ -910,11 +957,13 @@
       <Docs>
         <param name="algorithm">Algorithm.</param>
         <summary>
-            Determines whether the specified encryption algorithm is enabled.
+            Checks whether the specified encryption algorithm is enabled.
             </summary>
         <returns>
           <c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether the specified encryption algorithm is enabled.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="KeyExchangeProtocol">
@@ -932,7 +981,9 @@
             Gets the key exchange protocol.
             </summary>
         <value>The key exchange protocol.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the key exchange protocol.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -953,11 +1004,13 @@
         <param name="signer">The signer.</param>
         <param name="content">The content.</param>
         <summary>
-            Sign the content using the specified signer.
+            Cryptographically signs the content using the specified signer.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.ApplicationPkcs7Signature" /> instance
             containing the detached signature data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs the content using the specified signer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -990,11 +1043,13 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="content">The content.</param>
         <summary>
-            Sign the content using the specified signer.
+            Cryptographically signs the content using the specified signer and digest algorithm.
             </summary>
         <returns>A new <see cref="T:MimeKit.MimePart" /> instance
             containing the detached signature data.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs the content using the specified signer and digest algorithm.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -1058,7 +1113,10 @@
             </summary>
         <returns>
           <c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Used in order to make sure that the protocol parameter value specified in either a multipart/signed
+            or multipart/encrypted part is supported by the supplied cryptography context.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="protocol" /> is <c>null</c>.
             </exception>
@@ -1087,7 +1145,10 @@
             </summary>
         <returns>
           <c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Attempts to map a <see cref="T:Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier" />
+            to a <see cref="T:MimeKit.Cryptography.EncryptionAlgorithm" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="identifier" /> is <c>null</c>.
             </exception>
@@ -1115,7 +1176,9 @@
         <summary>
             Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -1136,10 +1199,12 @@
         <param name="signedData">The signed data.</param>
         <param name="entity">The unencapsulated entity.</param>
         <summary>
-            Verify the digital signatures of the specified signedData and extract the original content.
+            Verifies the digital signatures of the specified signedData and extract the original content.
             </summary>
         <returns>The list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the digital signatures of the specified signedData and extract the original content.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="signedData" /> is <c>null</c>.
             </exception>
@@ -1166,10 +1231,12 @@
         <param name="content">The content.</param>
         <param name="signatureData">The detached signature data.</param>
         <summary>
-            Verify the digital signatures of the specified content using the detached signatureData.
+            Verifies the specified content using the detached signatureData.
             </summary>
         <returns>A list of the digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the specified content using the detached signatureData.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="content" /> is <c>null</c>.</para>

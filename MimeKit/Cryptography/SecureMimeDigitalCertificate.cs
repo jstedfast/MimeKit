@@ -25,19 +25,18 @@
 //
 
 using System;
-using System.Text;
 
+using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.X509;
-using System.Security.Cryptography;
-using Org.BouncyCastle.Crypto.Digests;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME digital certificate.
 	/// </summary>
+	/// <remarks>
+	/// An S/MIME digital certificate.
+	/// </remarks>
 	public class SecureMimeDigitalCertificate : IDigitalCertificate
 	{
 		internal SecureMimeDigitalCertificate (X509Certificate certificate)
@@ -66,6 +65,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the <see cref="Org.BouncyCastle.X509.X509Certificate" />.
 		/// </summary>
+		/// <remarks>
+		/// Gets the <see cref="Org.BouncyCastle.X509.X509Certificate" />.
+		/// </remarks>
 		/// <value>The certificate.</value>
 		public X509Certificate Certificate {
 			get; private set;
@@ -84,6 +86,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public key algorithm supported by the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm supported by the certificate.
+		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
 			get; private set;
@@ -92,6 +97,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the date that the certificate was created.
 		/// </summary>
+		/// <remarks>
+		/// Gets the date that the certificate was created.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		public DateTime CreationDate {
 			get { return Certificate.NotBefore; }
@@ -100,6 +108,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the expiration date of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the expiration date of the certificate.
+		/// </remarks>
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
 			get { return Certificate.NotAfter; }
@@ -108,6 +119,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the fingerprint of the certificate.
+		/// </remarks>
 		/// <value>The fingerprint.</value>
 		public string Fingerprint {
 			get; private set;
@@ -116,6 +130,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the email address of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the email address of the owner of the certificate.
+		/// </remarks>
 		/// <value>The email address.</value>
 		public string Email {
 			get { return Certificate.GetSubjectEmailAddress (); }
@@ -124,6 +141,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the name of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the name of the owner of the certificate.
+		/// </remarks>
 		/// <value>The name of the owner.</value>
 		public string Name {
 			get { return Certificate.GetSubjectName (); }

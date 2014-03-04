@@ -44,8 +44,11 @@ namespace MimeKit.Cryptography {
 	public class SecureMailboxAddress : MailboxAddress
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMailboxAddress"/> class.
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
@@ -68,8 +71,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMailboxAddress"/> class.
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
@@ -89,8 +95,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMailboxAddress"/> class.
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
@@ -110,8 +119,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMailboxAddress"/> class.
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>

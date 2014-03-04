@@ -41,7 +41,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> with the specified fingerprint.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="address" /> is <c>null</c>.</para>
@@ -72,7 +74,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> with the specified fingerprint.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="route" /> is <c>null</c>.</para>
@@ -106,7 +110,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> with the specified fingerprint.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="encoding" /> is <c>null</c>.</para>
@@ -142,7 +148,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" /> with the specified fingerprint.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="encoding" /> is <c>null</c>.</para>

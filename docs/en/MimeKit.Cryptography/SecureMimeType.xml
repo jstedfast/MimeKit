@@ -12,7 +12,9 @@
     <summary>
             The type of S/MIME data that an application/pkcs7-mime part contains.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The type of S/MIME data that an application/pkcs7-mime part contains.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="CertsOnly">

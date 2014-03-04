@@ -11,9 +11,13 @@
   <Interfaces />
   <Docs>
     <summary>
-            A signed multipart, as sued by both S/MIME and PGP/MIME protocols.
+            A signed multipart, as used by both S/MIME and PGP/MIME protocols.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The first child of a multipart/signed is the content while the second child
+            is the detached signature data. Any other children are not defined and could
+            be anything.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -28,7 +32,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.MultipartSigned" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -67,10 +73,14 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity to sign.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
+        <remarks>
+            Cryptographically signs the entity using the supplied signer in order
+            to generate a detached signature and then adds the entity along with
+            the detached signature data to a new multipart/signed part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -106,10 +116,14 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity to sign.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
+        <remarks>
+            Cryptographically signs the entity using the supplied signer in order
+            to generate a detached signature and then adds the entity along with
+            the detached signature data to a new multipart/signed part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -145,10 +159,14 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity to sign.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
+        <remarks>
+            Cryptographically signs the entity using the supplied signer and digest algorithm in
+            order to generate a detached signature and then adds the entity along with the
+            detached signature data to a new multipart/signed part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -194,10 +212,14 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity to sign.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Cryptographically signs the entity using the supplied signer and digest algorithm in
+            order to generate a detached signature and then adds the entity along with the
+            detached signature data to a new multipart/signed part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -250,10 +272,14 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity to sign.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartSigned" />.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartSigned" /> instance.</returns>
+        <remarks>
+            Cryptographically signs the entity using the supplied signer and digest algorithm in
+            order to generate a detached signature and then adds the entity along with the
+            detached signature data to a new multipart/signed part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -291,10 +317,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Verify the multipart/signed content.
+            Verifies the multipart/signed part.
             </summary>
         <returns>A signer info collection.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the multipart/signed part using the default cryptography context.
+            </remarks>
         <exception cref="T:System.FormatException">
           <para>The <c>protocol</c> parameter was not specified.</para>
           <para>-or-</para>
@@ -324,10 +352,12 @@
       <Docs>
         <param name="ctx">The cryptography context to use for verifying the signature.</param>
         <summary>
-            Verify the multipart/signed content.
+            Verifies the multipart/signed part.
             </summary>
         <returns>A signer info collection.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the multipart/signed part using the supplied cryptography context.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>

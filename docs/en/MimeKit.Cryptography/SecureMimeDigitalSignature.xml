@@ -17,7 +17,9 @@
     <summary>
             An S/MIME digital signature.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An S/MIME digital signature.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Chain">
@@ -76,7 +78,9 @@
             Gets the creation date of the digital signature.
             </summary>
         <value>The creation date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the creation date of the digital signature.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="DigestAlgorithm">
@@ -94,7 +98,9 @@
             Gets the digest algorithm used for the signature.
             </summary>
         <value>The digest algorithm.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the digest algorithm used for the signature.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EncryptionAlgorithms">
@@ -113,7 +119,10 @@
             that the signer's client supports.
             </summary>
         <value>The S/MIME encryption algorithms.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the list of encryption algorithms, in preferential order,
+            that the signer's client supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="PublicKeyAlgorithm">
@@ -131,7 +140,9 @@
             Gets the public key algorithm used for the signature.
             </summary>
         <value>The public key algorithm.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the public key algorithm used for the signature.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SignerCertificate">
@@ -149,7 +160,9 @@
             Gets certificate used by the signer.
             </summary>
         <value>The signer's certificate.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets certificate used by the signer.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SignerInfo">
@@ -167,7 +180,9 @@
             Gets the signer info.
             </summary>
         <value>The signer info.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the signer info.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Verify">
@@ -183,11 +198,13 @@
       <Parameters />
       <Docs>
         <summary>
-            Verify the digital signature.
+            Verifies the digital signature.
             </summary>
         <returns>
           <c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the digital signature.
+            </remarks>
         <exception cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException">
             An error verifying the signature has occurred.
             </exception>

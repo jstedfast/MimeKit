@@ -10,9 +10,11 @@
   </Base>
   <Docs>
     <summary>
-            Public key algorithms.
+            An enumeration of public key algorithms.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An enumeration of public key algorithms.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="DiffieHellman">

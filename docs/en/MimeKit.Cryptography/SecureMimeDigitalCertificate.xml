@@ -17,7 +17,9 @@
     <summary>
             An S/MIME digital certificate.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An S/MIME digital certificate.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Certificate">
@@ -35,7 +37,9 @@
             Gets the <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.
             </summary>
         <value>The certificate.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreationDate">
@@ -53,7 +57,9 @@
             Gets the date that the certificate was created.
             </summary>
         <value>The creation date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the date that the certificate was created.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Email">
@@ -71,7 +77,9 @@
             Gets the email address of the owner of the certificate.
             </summary>
         <value>The email address.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the email address of the owner of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExpirationDate">
@@ -89,7 +97,9 @@
             Gets the expiration date of the certificate.
             </summary>
         <value>The expiration date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the expiration date of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Fingerprint">
@@ -107,7 +117,9 @@
             Gets the fingerprint of the certificate.
             </summary>
         <value>The fingerprint.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the fingerprint of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -125,7 +137,9 @@
             Gets the name of the owner of the certificate.
             </summary>
         <value>The name of the owner.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the name of the owner of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="PublicKeyAlgorithm">
@@ -143,7 +157,9 @@
             Gets the public key algorithm supported by the certificate.
             </summary>
         <value>The public key algorithm.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the public key algorithm supported by the certificate.
+            </remarks>
       </Docs>
     </Member>
   </Members>

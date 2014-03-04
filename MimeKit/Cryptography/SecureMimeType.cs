@@ -24,12 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The type of S/MIME data that an application/pkcs7-mime part contains.
 	/// </summary>
+	/// <remarks>
+	/// The type of S/MIME data that an application/pkcs7-mime part contains.
+	/// </remarks>
 	public enum SecureMimeType {
 		/// <summary>
 		/// S/MIME compressed data.
