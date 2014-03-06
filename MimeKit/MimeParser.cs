@@ -1120,12 +1120,15 @@ namespace MimeKit {
 					int alignment = (inputIndex + 3) & ~3;
 					byte* aligned = inptr + alignment;
 					byte* start = inptr;
+					byte c = *aligned;
 					uint mask;
 
-					while (inptr < aligned && *inptr != (byte) '\n')
+					*aligned = (byte) '\n';
+					while (*inptr != (byte) '\n')
 						inptr++;
+					*aligned = c;
 
-					if (inptr == aligned) {
+					if (inptr == aligned && c != (byte) '\n') {
 						// -funroll-loops, bitches.
 						uint* dword = (uint*) inptr;
 
