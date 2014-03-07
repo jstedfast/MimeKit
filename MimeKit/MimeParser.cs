@@ -1118,7 +1118,7 @@ namespace MimeKit {
 				while (inptr < inend) {
 					// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
 					int alignment = (startIndex + 3) & ~3;
-					byte* aligned = inptr + alignment;
+					byte* aligned = inbuf + alignment;
 					byte* start = inptr;
 					byte c = *aligned;
 					uint mask;
