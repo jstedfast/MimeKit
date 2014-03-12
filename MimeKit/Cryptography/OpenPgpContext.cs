@@ -287,6 +287,21 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		static bool PgpPublicKeyMatches (PgpPublicKey key, MailboxAddress mailbox)
+		{
+			foreach (string userId in key.GetUserIds ()) {
+				MailboxAddress email;
+
+				if (!MailboxAddress.TryParse (userId, out email))
+					continue;
+
+				if (string.Compare (mailbox.Address, email.Address, StringComparison.OrdinalIgnoreCase) == 0)
+					return true;
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Gets the public key associated with the mailbox address.
 		/// </summary>
@@ -306,8 +321,10 @@ namespace MimeKit.Cryptography {
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
 
-			// FIXME: improve implementation of BouncyCastle's GetKeyRings code
-			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, false, true)) {
+			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ()) {
+				if (!PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
+					continue;
+
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
 					if (!key.IsEncryptionKey || key.IsRevoked ())
 						continue;
@@ -353,6 +370,21 @@ namespace MimeKit.Cryptography {
 			return recipients;
 		}
 
+		static bool PgpSecretKeyMatches (PgpSecretKey key, MailboxAddress mailbox)
+		{
+			foreach (string userId in key.UserIds) {
+				MailboxAddress email;
+
+				if (!MailboxAddress.TryParse (userId, out email))
+					continue;
+
+				if (string.Compare (mailbox.Address, email.Address, StringComparison.OrdinalIgnoreCase) == 0)
+					return true;
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Gets the signing key associated with the mailbox address.
 		/// </summary>
@@ -372,7 +404,10 @@ namespace MimeKit.Cryptography {
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
 
-			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
+				if (!PgpSecretKeyMatches (keyring.GetSecretKey (), mailbox))
+					continue;
+
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
 					if (!key.IsSigningKey)
 						continue;
