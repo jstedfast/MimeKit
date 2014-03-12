@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.27.0.0</version>
+        <version>0.28.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,12 +22,12 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added a new BodyBuilder class for building common message body structures.
-* Fixed Multipart.WriteTo()'s CancellationToken parameter name to be consistent with similar APIs.
-* Modified Multipart's boundary generator to use Random instead of RNGCryptoServiceProvider (part of a larger effort to make MimeKit into a PCL).
-* Modified MimePart's Content-MD5 logic to use BouncyCastle's MD5 implementation instead of System.Security's (another change working toward PCL).
-* Changed the names of the iOS, Android and Mac assembly names to not have a platform suffix (they are now just MimeKit.dll).
-* Improved API documentation.</releaseNotes>
+        <releaseNotes>* Added a new TemporarySecureMimeContext for non-persistent storage of certs, private keys and CRLs.
+* Improved OpenPgpContext's logic for matching public and secrey key userId strings with email addresses.
+* Improved MimeParser performance by another 7%.
+* Fixed a bug introduced in 0.27 wrt MimePart.ContentMd5 calculations.
+* Updated BouncyCastle dependency to 1.8 Beta 3.
+* Completed API documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime security smime openpgp pgp mbox email parser xamarin android ios monodroid monotouch</tags>

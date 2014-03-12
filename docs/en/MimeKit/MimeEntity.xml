@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeEntity extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.27.0.0</AssemblyVersion>
+    <AssemblyVersion>0.28.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="contentType" Type="MimeKit.ContentType" />
@@ -50,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -72,7 +72,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mediaType" Type="System.String" />
@@ -101,7 +101,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentBase" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Uri</ReturnType>
@@ -127,7 +127,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentDisposition ContentDisposition" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -149,7 +149,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string ContentId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -174,7 +174,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Uri</ReturnType>
@@ -200,7 +200,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentType ContentType" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentType</ReturnType>
@@ -221,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -243,7 +243,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -277,7 +277,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -320,7 +320,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -360,7 +360,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -400,7 +400,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -449,7 +449,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -488,7 +488,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -536,7 +536,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -581,7 +581,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -626,7 +626,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -671,7 +671,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -725,7 +725,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -775,7 +775,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -804,7 +804,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void RemoveHeader(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -828,7 +828,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, unsigned int8[] rawValue) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -854,7 +854,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -880,7 +880,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance bool TryInit(object obj) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -905,7 +905,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -934,7 +934,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -969,7 +969,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1003,7 +1003,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.27.0.0</AssemblyVersion>
+        <AssemblyVersion>0.28.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
