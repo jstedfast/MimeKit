@@ -532,13 +532,9 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("encryptedData");
 
 			var enveloped = new EnvelopedCms ();
+
 			enveloped.Decode (ReadAllBytes (encryptedData));
-
-			var store = new X509Store (StoreName.My, StoreLocation);
-			store.Open (OpenFlags.ReadOnly);
-
 			enveloped.Decrypt ();
-			store.Close ();
 
 			var decryptedData = enveloped.Encode ();
 
@@ -623,6 +619,7 @@ namespace MimeKit.Cryptography {
 					rawData = memory.ToArray ();
 				}
 			}
+
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
 
