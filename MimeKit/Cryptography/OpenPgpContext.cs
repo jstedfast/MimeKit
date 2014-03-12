@@ -306,8 +306,8 @@ namespace MimeKit.Cryptography {
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
 
-			// FIXME: do the mailbox comparisons ourselves?
-			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, true)) {
+			// FIXME: improve implementation of BouncyCastle's GetKeyRings code
+			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings (mailbox.Address, false, true)) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
 					if (!key.IsEncryptionKey || key.IsRevoked ())
 						continue;
