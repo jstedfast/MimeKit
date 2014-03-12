@@ -55,6 +55,9 @@ namespace UnitTests {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
+			if (selector == null && certificates.Count > 0)
+				return certificates[0];
+
 			foreach (var certificate in certificates) {
 				if (selector.Match (certificate))
 					return certificate;
@@ -76,7 +79,7 @@ namespace UnitTests {
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
 
-				if (!selector.Match (certificate))
+				if (selector != null && !selector.Match (certificate))
 					continue;
 
 				return key;
