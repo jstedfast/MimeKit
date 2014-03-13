@@ -75,8 +75,8 @@ MimeKit is Copyright (C) 2012-2014 Xamarin Inc. and is licensed under the MIT li
 
 ## History
 
-As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of E-Mail client
-(and server) software had less-than-satisfactory MIME implementations. More often than not these E-Mail clients
+As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of email client
+(and server) software had less-than-satisfactory MIME implementations. More often than not these email clients
 created broken MIME messages and/or would incorrectly try to parse a MIME message thus subtracting from the full
 benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
 as closely as possible while also providing programmers with an extremely easy to use high-level API.
@@ -87,6 +87,23 @@ which is implemented in C and later added a C# binding called GMime-Sharp.
 Now that I typically find myself working in C# rather than lower level languages like C, I decided to
 begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
 flexibility in that I'd be able use Generics and create a more .NET-compliant API.
+
+## Performance
+
+While mainstream beliefs may suggest that C# can never be as fast as C, it turns out that with a bit of creative
+parser design and a few clever optimizations 
+<sup>[[1](http://jeffreystedfast.blogspot.com/2013/09/optimization-tips-tricks-used-by.html)]
+[[2](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)]</sup>, MimeKit's performance
+is actually [on par with GMime](http://jeffreystedfast.blogspot.com/2014/03/gmime-gets-speed-boost.html).
+
+Since GMime is pretty well-known as a high-performance native MIME parser and MimeKit more-or-less matches GMime's
+performance, it stands to reason that MimeKit is likely unsurpassed in performance in the .NET MIME parser space.
+
+For a comparison, as I [blogged here](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)
+(I have since optimized MimeKit by at least another 30%), MimeKit is more than 25x faster than OpenPOP.NET, 75x faster
+than SharpMimeTools, and 65x faster than regex-based parsers. Even the commercial MIME parser offerings such as LimiLabs'
+Mail.dll and NewtonIdeas' Mime4Net cannot even come close to matching MimeKit's performance (they are both orders of
+magnitude slower than MimeKit).
 
 ## Installing via NuGet
 
