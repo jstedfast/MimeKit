@@ -725,7 +725,7 @@ namespace MimeKit {
 						if (mboxMarkerBuffer.Length < mboxMarkerLength)
 							Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
-						Array.Copy (input, startIndex, mboxMarkerBuffer, 0, length);
+						Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, (int) length);
 						complete = true;
 						break;
 					}
@@ -747,7 +747,7 @@ namespace MimeKit {
 			if (left < length)
 				Array.Resize (ref headerBuffer, NextAllocSize (headerIndex + length));
 
-			Array.Copy (input, startIndex, headerBuffer, headerIndex, length);
+			Buffer.BlockCopy (input, startIndex, headerBuffer, headerIndex, length);
 			headerIndex += length;
 		}
 
