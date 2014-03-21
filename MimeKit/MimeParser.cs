@@ -81,7 +81,7 @@ namespace MimeKit {
 
 		public override string ToString ()
 		{
-			return Encoding.UTF8.GetString (Marker);
+			return Encoding.UTF8.GetString (Marker, 0, Marker.Length);
 		}
 	}
 
