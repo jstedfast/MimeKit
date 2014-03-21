@@ -31,7 +31,7 @@ using System.Collections.Generic;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()

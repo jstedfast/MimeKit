@@ -41,7 +41,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class ParameterList : IList<Parameter>
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		readonly Dictionary<string, Parameter> table;
 		readonly List<Parameter> parameters;
