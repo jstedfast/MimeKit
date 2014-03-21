@@ -717,9 +717,9 @@ namespace MimeKit {
 					}
 
 					if (length >= 5 && IsMboxMarker (start)) {
-						long startIndex = start - inbuf;
+						int startIndex = (int) (start - inbuf);
 
-						mboxMarkerOffset = GetOffset ((int) startIndex);
+						mboxMarkerOffset = GetOffset (startIndex);
 						mboxMarkerLength = (int) length;
 
 						if (mboxMarkerBuffer.Length < mboxMarkerLength)
