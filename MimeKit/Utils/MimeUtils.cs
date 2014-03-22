@@ -39,8 +39,6 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
-		static int MessageIdCounter;
-
 		/// <summary>
 		/// Generates a Message-Id.
 		/// </summary>

@@ -131,6 +131,27 @@ namespace MimeKit {
 			return options;
 		}
 
+#if PORTABLE
+		static ConstructorInfo GetConstructor (TypeInfo type, Type[] argTypes)
+		{
+			foreach (var ctor in type.DeclaredConstructors) {
+				var args = ctor.GetParameters ();
+
+				if (args.Length != ConstructorArgTypes.Length)
+					continue;
+
+				bool matched = true;
+				for (int i = 0; i < argTypes.Length && matched; i++)
+					matched = matched && args[i].ParameterType == argTypes[i];
+
+				if (matched)
+					return ctor;
+			}
+
+			return null;
+		}
+#endif
+
 		/// <summary>
 		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
 		/// </summary>
@@ -164,12 +185,23 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-			if (!type.IsSubclassOf (typeof (MessagePart)) &&
-				!type.IsSubclassOf (typeof (Multipart)) &&
-				!type.IsSubclassOf (typeof (MimePart)))
+#if PORTABLE
+			var info = type.GetTypeInfo ();
+#else
+			var info = type;
+#endif
+
+			if (!info.IsSubclassOf (typeof (MessagePart)) &&
+				!info.IsSubclassOf (typeof (Multipart)) &&
+				!info.IsSubclassOf (typeof (MimePart)))
 				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
 
+#if PORTABLE
+			var ctor = GetConstructor (info, ConstructorArgTypes);
+#else
 			var ctor = type.GetConstructor (ConstructorArgTypes);
+#endif
+
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
 
