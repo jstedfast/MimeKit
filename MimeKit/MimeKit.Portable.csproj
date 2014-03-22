@@ -18,6 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\portable</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\portable</IntermediateOutputPath>
     <DefineConstants>DEBUG;PORTABLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,6 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\lib\portable</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\portable</IntermediateOutputPath>
     <DocumentationFile>bin\Release\lib\portable\MimeKit.xml</DocumentationFile>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
