@@ -93,6 +93,7 @@ namespace MimeKit {
 			get { return false; }
 		}
 
+#if !PORTABLE
 		void LoadContent (MimePart attachment, string fileName)
 		{
 			var content = new MemoryBlockStream ();
@@ -242,6 +243,7 @@ namespace MimeKit {
 
 			attachments.Add (attachment);
 		}
+#endif // !PORTABLE
 
 		/// <summary>
 		/// Add the specified attachment.

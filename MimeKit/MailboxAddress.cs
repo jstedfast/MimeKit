@@ -519,7 +519,7 @@ namespace MimeKit {
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
 
-		#if ENABLE_SNM
+#if ENABLE_SNM
 		/// <summary>
 		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
 		/// <see cref="System.Net.Mail.MailAddress"/>.
@@ -549,6 +549,6 @@ namespace MimeKit {
 		{
 			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
 		}
-		#endif
+#endif
 	}
 }

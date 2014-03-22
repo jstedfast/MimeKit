@@ -110,7 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj">
-      <Project>{eee48c75-11be-4b50-b759-f85b5052d473}</Project>
+      <Project>{EEE48C75-11BE-4B50-B759-F85B5052D473}</Project>
       <Name>Portable.Text.Encoding</Name>
     </ProjectReference>
   </ItemGroup>

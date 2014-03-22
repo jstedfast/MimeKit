@@ -912,7 +912,7 @@ namespace MimeKit {
 			return recipients;
 		}
 
-		#if ENABLE_CRYPTO
+#if ENABLE_CRYPTO
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
@@ -1150,7 +1150,7 @@ namespace MimeKit {
 		{
 			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
-		#endif // ENABLE_CRYPTO
+#endif // ENABLE_CRYPTO
 
 		IEnumerable<Header> MergeHeaders ()
 		{
@@ -1718,7 +1718,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
 
-		#if ENABLE_SNM
+#if ENABLE_SNM
 		#region System.Net.Mail support
 
 		static MimePart GetMimePart (AttachmentBase item)
@@ -1883,6 +1883,6 @@ namespace MimeKit {
 		}
 
 		#endregion
-		#endif
+#endif
 	}
 }

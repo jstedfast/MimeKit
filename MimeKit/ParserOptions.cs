@@ -198,18 +198,18 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
-				#if ENABLE_CRYPTO
+#if ENABLE_CRYPTO
 				if (subtype == "encrypted")
 					return new MultipartEncrypted (entity);
 
 				if (subtype == "signed")
 					return new MultipartSigned (entity);
-				#endif
+#endif
 
 				return new Multipart (entity);
 			}
 
-			#if ENABLE_CRYPTO
+#if ENABLE_CRYPTO
 			if (type == "application") {
 				switch (subtype) {
 				case "x-pkcs7-signature":
@@ -226,7 +226,7 @@ namespace MimeKit {
 					return new ApplicationPkcs7Mime (entity);
 				}
 			}
-			#endif
+#endif
 
 			if (type == "text")
 				return new TextPart (entity);

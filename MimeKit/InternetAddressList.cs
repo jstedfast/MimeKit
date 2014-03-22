@@ -1030,7 +1030,7 @@ namespace MimeKit {
 			return Parse (ParserOptions.Default, text);
 		}
 
-		#if ENABLE_SNM
+#if ENABLE_SNM
 		/// <summary>
 		/// Explicit cast to convert a <see cref="InternetAddressList"/> to a
 		/// <see cref="System.Net.Mail.MailAddressCollection"/>.
@@ -1083,6 +1083,6 @@ namespace MimeKit {
 
 			return list;
 		}
-		#endif
+#endif
 	}
 }
