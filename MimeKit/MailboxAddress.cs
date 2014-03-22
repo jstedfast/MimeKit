@@ -28,6 +28,10 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 #if ENABLE_SNM
 using System.Net.Mail;
 #endif

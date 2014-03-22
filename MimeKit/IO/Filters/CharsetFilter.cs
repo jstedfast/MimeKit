@@ -27,6 +27,12 @@
 using System;
 using System.Text;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
+#endif
+
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A charset filter for incrementally converting text streams from

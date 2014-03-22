@@ -29,6 +29,10 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 #if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif

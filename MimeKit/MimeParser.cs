@@ -32,6 +32,10 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 using MimeKit.IO;
 

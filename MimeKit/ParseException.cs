@@ -38,9 +38,12 @@ namespace MimeKit {
 	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
 	/// occurred.
 	/// </remarks>
+#if !PORTABLE
 	[Serializable]
+#endif
 	public class ParseException : FormatException
 	{
+#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
 		/// </summary>
@@ -60,6 +63,7 @@ namespace MimeKit {
 			TokenIndex = info.GetInt32 ("TokenIndex");
 			ErrorIndex = info.GetInt32 ("ErrorIndex");
 		}
+#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
@@ -76,6 +80,7 @@ namespace MimeKit {
 			ErrorIndex = errorIndex;
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
 		/// with information about the exception.
@@ -99,6 +104,7 @@ namespace MimeKit {
 
 			base.GetObjectData (info, context);
 		}
+#endif
 
 		/// <summary>
 		/// Gets the byte index of the token that was malformed.

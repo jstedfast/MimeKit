@@ -28,6 +28,10 @@ using System;
 using System.IO;
 using System.Text;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.IO;
 using MimeKit.IO.Filters;
 using MimeKit.Utils;
@@ -156,7 +160,11 @@ namespace MimeKit {
 				using (var memory = new MemoryStream ()) {
 					ContentObject.DecodeTo (memory);
 
+#if PORTABLE
+					var content = memory.ToArray ();
+#else
 					var content = memory.GetBuffer ();
+#endif
 					Encoding encoding = null;
 
 					if (charset != null) {
@@ -203,7 +211,15 @@ namespace MimeKit {
 					ContentObject.DecodeTo (filtered);
 					filtered.Flush ();
 
-					return Encoding.UTF8.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+#if PORTABLE
+					var buffer = memory.ToArray ();
+					int length = buffer.Length;
+#else
+					var buffer = memory.GetBuffer ();
+					int length = (int) memory.Length;
+#endif
+
+					return Encoding.UTF8.GetString (buffer, 0, length);
 				}
 			}
 		}

@@ -31,6 +31,10 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.IO;
 
 namespace MimeKit {

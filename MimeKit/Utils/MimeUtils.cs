@@ -57,9 +57,7 @@ namespace MimeKit.Utils {
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			return string.Format ("<{0}.{1}.{2}@{3}>", DateTime.Now.Ticks,
-			                      Process.GetCurrentProcess ().Id,
-			                      MessageIdCounter++, domain);
+			return string.Format ("<{0}@{1}>", new Guid (), domain);
 		}
 
 		/// <summary>
@@ -71,7 +69,11 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
+#if PORTABLE
+			return GenerateMessageId ("localhost.localdomain");
+#else
 			return GenerateMessageId (Dns.GetHostName ());
+#endif
 		}
 
 		/// <summary>

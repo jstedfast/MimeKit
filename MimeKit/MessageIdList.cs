@@ -29,6 +29,10 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 namespace MimeKit {
 	/// <summary>
 	/// A list of Message-Ids.

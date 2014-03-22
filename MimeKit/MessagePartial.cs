@@ -185,7 +185,11 @@ namespace MimeKit {
 				}
 
 				var streams = new List<Stream> ();
+#if PORTABLE
+				var buf = memory.ToArray ();
+#else
 				var buf = memory.GetBuffer ();
+#endif
 				long startIndex = 0;
 
 				while (startIndex < memory.Length) {
