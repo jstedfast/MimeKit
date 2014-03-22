@@ -377,7 +377,7 @@ namespace MimeKit {
 	{
 		public static string ToHeaderName (this Enum value)
 		{
-			var builder = new StringBuilder (value);
+			var builder = new StringBuilder (value.ToString ());
 
 			for (int i = 2; i < builder.Length; i++) {
 				if (char.IsUpper (builder[i]))

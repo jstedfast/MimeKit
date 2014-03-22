@@ -1568,6 +1568,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, CancellationToken.None);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
@@ -1717,6 +1718,7 @@ namespace MimeKit {
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
+#endif // !PORTABLE
 
 #if ENABLE_SNM
 		#region System.Net.Mail support
