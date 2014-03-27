@@ -39,6 +39,8 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
+		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
+
 		/// <summary>
 		/// Generates a Message-Id.
 		/// </summary>
@@ -55,7 +57,13 @@ namespace MimeKit.Utils {
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			return string.Format ("<{0}@{1}>", new Guid (), domain);
+			var guid = new byte[16];
+
+			lock (random) {
+				random.NextBytes (guid);
+			}
+
+			return string.Format ("<{0}@{1}>", new Guid (guid), domain);
 		}
 
 		/// <summary>

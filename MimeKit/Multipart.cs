@@ -65,7 +65,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
-		static int seed = (int) DateTime.Now.Ticks;
+		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
 		readonly List<MimeEntity> children;
 		string preamble, epilogue;
 
@@ -143,12 +143,13 @@ namespace MimeKit {
 		static string GenerateBoundary ()
 		{
 			var base64 = new Base64Encoder (true);
-			var random = new Random (seed++);
 			var digest = new byte[16];
 			var buf = new byte[24];
 			int length;
 
-			random.NextBytes (digest);
+			lock (random) {
+				random.NextBytes (digest);
+			}
 
 			length = base64.Flush (digest, 0, digest.Length, buf);
 
