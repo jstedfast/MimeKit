@@ -496,5 +496,25 @@ namespace UnitTests {
 			Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
 			Assert.AreEqual (latin1.HeaderName, parsed[0].Encoding.HeaderName, "Parsed charset does not match");
 		}
+
+		[Test]
+		public void TestUnsupportedCharsetExceptionNotThrown ()
+		{
+			var mailbox = new MailboxAddress (Encoding.UTF8, "狂ったこの世で狂うなら気は確かだ。", "famous@quotes.ja");
+			var list = new InternetAddressList ();
+			list.Add (mailbox);
+
+			var encoded = list.ToString (true);
+
+			encoded = encoded.Replace ("utf-8", "x-unknown");
+
+			InternetAddressList parsed;
+
+			try {
+				Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
+			} catch (Exception ex) {
+				Assert.Fail ("Exception thrown parsing address with unsupported charset: {0}", ex);
+			}
+		}
 	}
 }

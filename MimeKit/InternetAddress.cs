@@ -439,15 +439,17 @@ namespace MimeKit {
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
-				int codepage;
+				int codepage = -1;
 				string name;
 
 				if (length > 0) {
 					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
 				} else {
 					name = string.Empty;
-					codepage = 65001;
 				}
+
+				if (codepage == -1)
+					codepage = 65001;
 
 				return TryParseMailbox (text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
