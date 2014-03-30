@@ -54,6 +54,10 @@ namespace MimeKit.Utils {
 			// treated the same as US-ASCII.
 			aliases.Add ("ansi_x3.4-1968", 20127);
 
+			// Macintosh aliases
+			aliases.Add ("macintosh", 10000);
+			aliases.Add ("x-mac-icelandic", 10079);
+
 			// Korean charsets (aliases for euc-kr)
 			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
 			aliases.Add ("ks_c_5601-1987", 51949);
@@ -207,6 +211,17 @@ namespace MimeKit.Utils {
 
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
+			} else if (charset.StartsWith ("ibm", StringComparison.OrdinalIgnoreCase)) {
+				i = 3;
+
+				if (i == charset.Length)
+					return -1;
+
+				if (charset[i] == '-' || charset[i] == '_')
+					i++;
+
+				if (int.TryParse (charset.Substring (i), out codepage))
+					return codepage;
 			} else if (charset.StartsWith ("iso", StringComparison.OrdinalIgnoreCase)) {
 				i = 3;
 
@@ -264,6 +279,8 @@ namespace MimeKit.Utils {
 						try {
 							encoding = Encoding.GetEncoding (codepage);
 							aliases[encoding.HeaderName] = codepage;
+						} catch (ArgumentOutOfRangeException) {
+							codepage = -1;
 						} catch (NotSupportedException) {
 							codepage = -1;
 						}
