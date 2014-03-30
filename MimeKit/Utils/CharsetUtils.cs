@@ -41,12 +41,11 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()
 		{
-			aliases = new Dictionary<string, int> (icase);
+			aliases = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase);
 
 			aliases.Add ("utf-8", 65001);
 			aliases.Add ("utf8", 65001);
@@ -139,7 +138,7 @@ namespace MimeKit.Utils {
 			if (charset.Length < 6)
 				return -1;
 
-			int dash = charset.IndexOfAny (new char[] { '-', '_' });
+			int dash = charset.IndexOfAny (new [] { '-', '_' });
 			if (dash == -1)
 				dash = charset.Length;
 
@@ -232,11 +231,6 @@ namespace MimeKit.Utils {
 					return codepage;
 			} else if (charset == "latin1") {
 				return 28591;
-			} else {
-				foreach (var info in Encoding.GetEncodings ()) {
-					if (icase.Compare (info.Name, charset) == 0)
-						return info.CodePage;
-				}
 			}
 
 			return -1;
@@ -251,16 +245,28 @@ namespace MimeKit.Utils {
 
 			lock (aliases) {
 				if (!aliases.TryGetValue (charset, out codepage)) {
+					Encoding encoding;
+
 					codepage = ParseCodePage (charset);
 
-					if (codepage == -1)
-						return -1;
+					if (codepage == -1) {
+						try {
+							encoding = Encoding.GetEncoding (charset);
+							codepage = encoding.CodePage;
 
-					try {
-						var encoding = Encoding.GetEncoding (codepage);
-						aliases[encoding.HeaderName] = codepage;
-					} catch (NotSupportedException) {
-						codepage = -1;
+							aliases[encoding.HeaderName] = codepage;
+						} catch (ArgumentException) {
+							codepage = -1;
+						} catch (NotSupportedException) {
+							codepage = -1;
+						}
+					} else {
+						try {
+							encoding = Encoding.GetEncoding (codepage);
+							aliases[encoding.HeaderName] = codepage;
+						} catch (NotSupportedException) {
+							codepage = -1;
+						}
 					}
 
 					aliases[charset] = codepage;
@@ -410,9 +416,9 @@ namespace MimeKit.Utils {
 
 			// Note: 65001 is UTF-8 and 28591 is iso-8859-1
 			if (userCharset != null && userCharset.CodePage != 65001 && userCharset.CodePage != 28591) {
-				codepages = new int[] { 65001, userCharset.CodePage, 28591 };
+				codepages = new [] { 65001, userCharset.CodePage, 28591 };
 			} else {
-				codepages = new int[] { 65001, 28591 };
+				codepages = new [] { 65001, 28591 };
 			}
 
 			for (int i = 0; i < codepages.Length; i++) {

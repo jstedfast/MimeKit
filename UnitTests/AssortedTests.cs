@@ -190,5 +190,21 @@ namespace UnitTests {
 
 			Assert.AreEqual (japanese, decoded, "Decoded text did not match the original.");
 		}
+
+		[Test]
+		public void TestDecodeInvalidCharset ()
+		{
+			const string xunknown = "=?x-unknown?B?aG9sYQ==?=";
+			const string cp1260 = "=?cp1260?B?aG9sYQ==?=";
+			string actual;
+
+			// Note: we won't be able to get a codepage for x-unknown.
+			actual = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (xunknown));
+			Assert.AreEqual ("hola", actual, "Unexpected decoding of x-unknown.");
+
+			// Note: cp-1260 doesn't exist, but will make CharsetUtils parse the codepage as 1260.
+			actual = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (cp1260));
+			Assert.AreEqual ("hola", actual, "Unexpected decoding of cp1260.");
+		}
 	}
 }
