@@ -36,7 +36,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany ("Xamarin Inc.")]
 [assembly: AssemblyProduct ("MimeKit")]
 [assembly: AssemblyCopyright ("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")]
-[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyTrademark ("Xamarin Inc.")]
 [assembly: AssemblyCulture ("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -75,6 +75,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("0.28.0")]
-[assembly: AssemblyFileVersion ("0.28.0.0")]
-[assembly: AssemblyVersion ("0.28.0.0")]
+[assembly: AssemblyInformationalVersion ("0.29.0")]
+[assembly: AssemblyFileVersion ("0.29.0.0")]
+[assembly: AssemblyVersion ("0.29.0.0")]

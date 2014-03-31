@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.28.0.0">
+    <Assembly Name="MimeKit" Version="0.29.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("Xamarin Inc.")</AttributeName>
@@ -15,10 +15,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.28.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.29.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.28.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.29.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -27,7 +27,7 @@
           <AttributeName>System.Reflection.AssemblyTitle("MimeKit")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyTrademark("")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyTrademark("Xamarin Inc.")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>

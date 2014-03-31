@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit SecureMailboxAddress extends MimeKit.MailboxAddress" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.28.0.0</AssemblyVersion>
+    <AssemblyVersion>0.29.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MailboxAddress</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, string address, string fingerprint) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -58,7 +58,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address, string fingerprint) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -94,7 +94,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, string address, string fingerprint) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoding" Type="System.Text.Encoding" />
@@ -130,7 +130,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address, string fingerprint) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoding" Type="System.Text.Encoding" />
@@ -171,7 +171,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Fingerprint" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

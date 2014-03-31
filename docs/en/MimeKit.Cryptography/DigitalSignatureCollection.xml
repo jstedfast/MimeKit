@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DigitalSignatureCollection extends System.Collections.ObjectModel.ReadOnlyCollection`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt;" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.28.0.0</AssemblyVersion>
+    <AssemblyVersion>0.29.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Collections.ObjectModel.ReadOnlyCollection&lt;MimeKit.Cryptography.IDigitalSignature&gt;</BaseTypeName>
@@ -30,7 +30,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IList`1&lt;class MimeKit.Cryptography.IDigitalSignature&gt; signatures) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.28.0.0</AssemblyVersion>
+        <AssemblyVersion>0.29.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="signatures" Type="System.Collections.Generic.IList&lt;MimeKit.Cryptography.IDigitalSignature&gt;" />
