@@ -760,9 +760,6 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (!Headers.Contains ("Date"))
-				Date = DateTimeOffset.Now;
-
 			if (messageId == null)
 				MessageId = MimeUtils.GenerateMessageId ();
 
