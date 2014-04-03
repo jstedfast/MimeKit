@@ -186,14 +186,16 @@ namespace MimeKit {
 			// Do exactly as in the parameterless constructor but avoid setting a default
 			// value if an header already provided one.
 
-			if (!Headers.Contains ("From"))
-				Headers["From"] = string.Empty;
-			if (!Headers.Contains ("To"))
-				Headers["To"] = string.Empty;
+			if (!Headers.Contains (HeaderId.From))
+				Headers[HeaderId.From] = string.Empty;
+			if (!Headers.Contains (HeaderId.To))
+				Headers[HeaderId.To] = string.Empty;
 			if (date == default (DateTimeOffset))
 				Date = DateTimeOffset.Now;
-			if (!Headers.Contains ("Subject"))
+			if (!Headers.Contains (HeaderId.Subject))
 				Subject = string.Empty;
+			if (messageId == null)
+				MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
@@ -204,10 +206,11 @@ namespace MimeKit {
 		/// </remarks>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
-			Headers["From"] = string.Empty;
-			Headers["To"] = string.Empty;
+			Headers[HeaderId.From] = string.Empty;
+			Headers[HeaderId.To] = string.Empty;
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
+			MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
@@ -759,9 +762,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
-
-			if (messageId == null)
-				MessageId = MimeUtils.GenerateMessageId ();
 
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
