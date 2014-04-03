@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit QEncoder extends System.Object implements class MimeKit.Encodings.IMimeEncoder" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.29.0.0</AssemblyVersion>
     <AssemblyVersion>0.30.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -31,7 +30,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Encodings.QEncodeMode mode) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
@@ -52,7 +50,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Encodings.IMimeEncoder Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -74,7 +71,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Encode(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -125,7 +121,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -146,7 +141,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 EstimateOutputLength(int32 inputLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -171,7 +165,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Flush(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -222,7 +215,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.29.0.0</AssemblyVersion>
         <AssemblyVersion>0.30.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
