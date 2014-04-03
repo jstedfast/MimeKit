@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.29.0.0</version>
+        <version>0.30.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,11 +22,7 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Modified argument validation checks to avoid integer overflows.
-* Fixed potential problems with unrecognized/unsupported charsets.
-* Modified to be able to build as a PCL.
-* Updated BouncyCastle.
-* Completed API documentation.</releaseNotes>
+        <releaseNotes>* Don't set the Message-Id or Date header in MimeMessage.WriteTo(), set them in the .ctor instead.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser xamarin</tags>
