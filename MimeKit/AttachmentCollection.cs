@@ -94,6 +94,27 @@ namespace MimeKit {
 		}
 
 #if !PORTABLE
+		// Hinzugefügt am 02.04.2014 von CM: 
+		private void LoadContent(MimePart attachment, string fileName, byte[] data)
+		{
+			var content = new MemoryBlockStream();
+			var filter = new BestEncodingFilter();
+
+			int index, length;
+
+			filter.Filter(data, 0, data.Length, out index, out length);
+			content.Write(data, 0, data.Length);
+			filter.Flush(data, 0, 0, out index, out length);
+
+			content.Position = 0;
+
+			if(linked)
+				attachment.ContentLocation = new Uri(Path.GetFileName(fileName), UriKind.Relative);
+
+			attachment.ContentTransferEncoding = filter.GetBestEncoding(EncodingConstraint.SevenBit);
+			attachment.ContentObject = new ContentObject(content, ContentEncoding.Default);
+		}
+
 		void LoadContent (MimePart attachment, string fileName)
 		{
 			var content = new MemoryBlockStream ();
@@ -167,6 +188,32 @@ namespace MimeKit {
 			LoadContent (attachment, fileName);
 
 			attachments.Add (attachment);
+		}
+
+		// Hinzugefügt am 02.04.2014 von CM: 
+		public void Add(string fileName, byte[] data)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException("fileName");
+
+			if (fileName.Length == 0)
+				throw new ArgumentException("The specified file path is empty.", "fileName");
+
+			if(data == null)
+				throw new ArgumentNullException("data");
+
+			if(data.Length == 0)
+				throw new ArgumentException("The specified data is empty.", "data");
+
+			var attachment = new MimePart(GetMimeType(Path.GetExtension(fileName).ToLowerInvariant()))
+			{
+				FileName = Path.GetFileName(fileName),
+				IsAttachment = true,
+			};
+
+			LoadContent(attachment, fileName, data);
+
+			attachments.Add(attachment);
 		}
 
 		static ContentType GetMimeType (string extension)
