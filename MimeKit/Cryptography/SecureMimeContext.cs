@@ -143,6 +143,19 @@ namespace MimeKit.Cryptography {
 			get { return "application/pkcs7-mime"; }
 		}
 
+		/// <summary> 
+		/// Gets or sets the encryption algorithm to use. If the value is null the used encryption
+		/// algorithm is derived from the supported encryption algorithms of the the recipients
+		/// (<see cref="GetPreferredEncryptionAlgorithm"/>).
+		/// </summary>
+		/// <remarks>
+		/// Explictily specifying the encryption algorithm should only be used to support special
+		/// use-cases. Usally the best enryption algorithm can be determined automatically based
+		/// on the recipients' supported encryption algorithms.
+		/// </remarks>
+		/// <value>The encryption algorithm to use.</value>
+		public EncryptionAlgorithm? ForcedEncryptionAlgorithm { get; set; }
+
 		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
@@ -1010,8 +1023,20 @@ namespace MimeKit.Cryptography {
 			#endregion
 		}
 
-		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		/// <summary> 
+		/// Gets preferred encryption algorithm based on the enryption algorithms that are
+		/// supported by the <paramref name="recipients"/> or if set, returns the encryption
+		/// algorithm that was set in <see cref="ForcedEncryptionAlgorithm"/>.
+		/// </summary>
+		/// <param name="recipients">The recipients.</param>
+		/// <returns>The preferred encryption algorithm.</returns>
+		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
 		{
+			if (this.ForcedEncryptionAlgorithm.HasValue)
+			{
+				return this.ForcedEncryptionAlgorithm.Value;
+			}
+
 			var votes = new int[EncryptionAlgorithmCount];
 
 			foreach (var recipient in recipients) {
