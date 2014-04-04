@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 
 		static SecureMimeContext ()
 		{
-			DefaultEncryptionAlgorithmRank = new EncryptionAlgorithm[] {
+			DefaultEncryptionAlgorithmRank = new [] {
 				EncryptionAlgorithm.Camellia256,
 				EncryptionAlgorithm.Aes256,
 				EncryptionAlgorithm.Camellia192,
@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			var type = protocol.ToLowerInvariant ().Split (new char[] { '/' });
+			var type = protocol.ToLowerInvariant ().Split (new [] { '/' });
 			if (type.Length != 2 || type[0] != "application")
 				return false;
 
@@ -922,7 +922,7 @@ namespace MimeKit.Cryptography {
 
 				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-					if (algorithms.Count > 0 && signedDate.HasValue)
+					if (algorithms.Count > 0 && signedDate != null)
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
 				}
 
@@ -1010,7 +1010,19 @@ namespace MimeKit.Cryptography {
 			#endregion
 		}
 
-		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		/// <summary>
+		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
+		/// based on the encryption algorithms supported by each of the recipients, the
+		/// <see cref="EnabledEncryptionAlgorithms"/>, and the <see cref="EncryptionAlgorithmRank"/>.</para>
+		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
+		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
+		/// </remarks>
+		/// <returns>The preferred encryption algorithm.</returns>
+		/// <param name="recipients">The recipients.</param>
+		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
 		{
 			var votes = new int[EncryptionAlgorithmCount];
 
