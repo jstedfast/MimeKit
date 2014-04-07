@@ -1213,7 +1213,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 
 				for (int i = 0; i < references.Count; i++) {
-					if (lineLength + references[i].Length >= options.MaxLineLength) {
+					if (i > 0 && lineLength + references[i].Length + 2 >= options.MaxLineLength) {
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
@@ -1223,7 +1223,7 @@ namespace MimeKit {
 					}
 
 					lineLength += references[i].Length;
-					builder.Append (references[i]);
+					builder.Append ("<" + references[i] + ">");
 				}
 
 				builder.Append (options.NewLine);
