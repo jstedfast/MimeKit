@@ -28,7 +28,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 * Fixed serialization of the References header to include angle-brackets around the message-ids.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime security smime openpgp pgp mbox email parser xamarin android ios monodroid monotouch win8 wp81</tags>
+        <tags>mime encryption security smime openpgp pgp mbox email parser net40 xamarin android ios monodroid monotouch win8 wp81</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />

@@ -26,15 +26,22 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 * Fixed serialization of the References header to include angle-brackets around the message-ids.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime mbox email parser xamarin</tags>
+        <tags>mime mbox email parser net40 xamarin android ios monodroid monotouch</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
         </frameworkAssemblies>
     </metadata>
     <files>
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.dll" target="lib\MonoAndroid\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.xml" target="lib\MonoAndroid\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.dll" target="lib\MonoTouch\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.xml" target="lib\MonoTouch\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.dll" target="lib\net40\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.xml" target="lib\net40\MimeKitLite.xml" />
     </files>

@@ -3,18 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite", "MimeKit\MimeKitLite.csproj", "{87B25B2B-10E4-4A09-B682-7267CD3123BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Android", "MimeKit\MimeKitLite.Android.csproj", "{D95A2734-2A81-4C75-985E-A33B15CC62BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.iOS", "MimeKit\MimeKitLite.iOS.csproj", "{5F211544-940D-46C9-98EB-4FD8F62506AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-		GlobalSection(MonoDevelopProperties) = preSolution
+	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MimeKit\MimeKitLite.csproj
 		Policies = $0
 		$0.StandardHeader = $1
