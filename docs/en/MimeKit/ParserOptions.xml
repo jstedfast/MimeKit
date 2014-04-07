@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ParserOptions extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.30.0.0</AssemblyVersion>
+    <AssemblyVersion>0.31.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -24,7 +24,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -43,7 +43,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding CharsetEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -67,7 +67,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.ParserOptions Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ParserOptions</ReturnType>
@@ -89,7 +89,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static initonly class MimeKit.ParserOptions Default" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ParserOptions</ReturnType>
@@ -109,7 +109,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool EnableRfc2047Workarounds" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -132,7 +132,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RegisterMimeType(string mimeType, class System.Type type) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -176,7 +176,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool RespectContentLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
