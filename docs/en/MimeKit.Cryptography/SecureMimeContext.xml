@@ -777,6 +777,34 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetPreferredEncryptionAlgorithm">
+      <MemberSignature Language="C#" Value="protected virtual MimeKit.Cryptography.EncryptionAlgorithm GetPreferredEncryptionAlgorithm (MimeKit.Cryptography.CmsRecipientCollection recipients);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype MimeKit.Cryptography.EncryptionAlgorithm GetPreferredEncryptionAlgorithm(class MimeKit.Cryptography.CmsRecipientCollection recipients) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="recipients" Type="MimeKit.Cryptography.CmsRecipientCollection" />
+      </Parameters>
+      <Docs>
+        <param name="recipients">The recipients.</param>
+        <summary>
+            Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+            </summary>
+        <returns>The preferred encryption algorithm.</returns>
+        <remarks>
+          <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
+            based on the encryption algorithms supported by each of the recipients, the
+            <see cref="P:MimeKit.Cryptography.SecureMimeContext.EnabledEncryptionAlgorithms" />, and the <see cref="P:MimeKit.Cryptography.SecureMimeContext.EncryptionAlgorithmRank" />.</para>
+          <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
+            the recipient supports at least the Triple-DES encryption algorithm.</para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetPrivateKey">
       <MemberSignature Language="C#" Value="protected abstract Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />

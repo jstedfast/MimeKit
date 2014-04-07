@@ -94,25 +94,22 @@ namespace MimeKit {
 		}
 
 #if !PORTABLE
-		// Hinzugefügt am 02.04.2014 von CM: 
-		private void LoadContent(MimePart attachment, string fileName, byte[] data)
+		void LoadContent (MimePart attachment, string fileName, byte[] data)
 		{
 			var content = new MemoryBlockStream();
 			var filter = new BestEncodingFilter();
-
 			int index, length;
 
-			filter.Filter(data, 0, data.Length, out index, out length);
-			content.Write(data, 0, data.Length);
-			filter.Flush(data, 0, 0, out index, out length);
+			filter.Flush (data, 0, data.Length, out index, out length);
+			content.Write (data, 0, data.Length);
 
 			content.Position = 0;
 
-			if(linked)
-				attachment.ContentLocation = new Uri(Path.GetFileName(fileName), UriKind.Relative);
+			if (linked)
+				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
 
-			attachment.ContentTransferEncoding = filter.GetBestEncoding(EncodingConstraint.SevenBit);
-			attachment.ContentObject = new ContentObject(content, ContentEncoding.Default);
+			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+			attachment.ContentObject = new ContentObject (content, ContentEncoding.Default);
 		}
 
 		void LoadContent (MimePart attachment, string fileName)
@@ -190,30 +187,55 @@ namespace MimeKit {
 			attachments.Add (attachment);
 		}
 
-		// Hinzugefügt am 02.04.2014 von CM: 
-		public void Add(string fileName, byte[] data)
+		/// <summary>
+		/// Add the specified attachment.
+		/// </summary>
+		/// <remarks>
+		/// <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
+		/// <para>The file name parameter is used to set the Content-Location.</para>
+		/// <para>For a list of known mime-types and their associated file extensions, see
+		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
+		/// </remarks>
+		/// <param name="fileName">The name of the file.</param>
+		/// <param name="data">The file data.</param>
+		/// <param name="contentType">The mime-type of the file.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The specified file path is empty.</para>
+		/// <para>-or-</para>
+		/// <para>The data is empty.</para>
+		/// </exception>
+		public void Add (string fileName, byte[] data, ContentType contentType)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException("fileName");
+				throw new ArgumentNullException ("fileName");
 
 			if (fileName.Length == 0)
-				throw new ArgumentException("The specified file path is empty.", "fileName");
+				throw new ArgumentException ("The specified file path is empty.", "fileName");
 
-			if(data == null)
-				throw new ArgumentNullException("data");
+			if (data == null)
+				throw new ArgumentNullException ("data");
 
-			if(data.Length == 0)
-				throw new ArgumentException("The specified data is empty.", "data");
+			if (data.Length == 0)
+				throw new ArgumentException ("The data is empty.", "data");
 
-			var attachment = new MimePart(GetMimeType(Path.GetExtension(fileName).ToLowerInvariant()))
-			{
-				FileName = Path.GetFileName(fileName),
-				IsAttachment = true,
+			if (contentType == null)
+				throw new ArgumentNullException ("contentType");
+
+			var attachment = new MimePart (contentType) {
+				FileName = Path.GetFileName (fileName),
+				IsAttachment = true
 			};
 
-			LoadContent(attachment, fileName, data);
+			LoadContent (attachment, fileName, data);
 
-			attachments.Add(attachment);
+			attachments.Add (attachment);
 		}
 
 		static ContentType GetMimeType (string extension)
@@ -249,6 +271,49 @@ namespace MimeKit {
 			case ".xml":   return new ContentType ("text", "xml");
 			default:       return new ContentType ("application", "octet-stream");
 			}
+		}
+
+		/// <summary>
+		/// Add the specified attachment.
+		/// </summary>
+		/// <remarks>
+		/// <para>Adds the data as an attachment, using the specified file name for deducing
+		/// the mime-type by extension and for setting the Content-Location.</para>
+		/// </remarks>
+		/// <param name="fileName">The name of the file.</param>
+		/// <param name="data">The file data to attach.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The specified file path is empty.</para>
+		/// <para>-or-</para>
+		/// <para>The specified data is empty.</para>
+		/// </exception>
+		public void Add (string fileName, byte[] data)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			if (fileName.Length == 0)
+				throw new ArgumentException ("The specified file path is empty.", "fileName");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (data.Length == 0)
+				throw new ArgumentException ("The specified data is empty.", "data");
+
+			var attachment = new MimePart (GetMimeType (Path.GetExtension (fileName).ToLowerInvariant ())) {
+				FileName = Path.GetFileName (fileName),
+				IsAttachment = true,
+			};
+
+			LoadContent (attachment, fileName, data);
+
+			attachments.Add (attachment);
 		}
 
 		/// <summary>

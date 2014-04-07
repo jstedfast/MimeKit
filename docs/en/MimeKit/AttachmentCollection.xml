@@ -174,6 +174,89 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (string fileName, byte[] data);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="data" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file.</param>
+        <param name="data">The file data to attach.</param>
+        <summary>
+            Add the specified attachment.
+            </summary>
+        <remarks>
+          <para>Adds the data as an attachment, using the specified file name for deducing
+            the mime-type by extension and for setting the Content-Location.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="data" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>The specified file path is empty.</para>
+          <para>-or-</para>
+          <para>The specified data is empty.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (string fileName, byte[] data, MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data, class MimeKit.ContentType contentType) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.30.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="data" Type="System.Byte[]" />
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file.</param>
+        <param name="data">The file data.</param>
+        <param name="contentType">The mime-type of the file.</param>
+        <summary>
+            Add the specified attachment.
+            </summary>
+        <remarks>
+          <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
+          <para>The file name parameter is used to set the Content-Location.</para>
+          <para>For a list of known mime-types and their associated file extensions, see
+            http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="data" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>The specified file path is empty.</para>
+          <para>-or-</para>
+          <para>The data is empty.</para>
+        </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Clear">
       <MemberSignature Language="C#" Value="public void Clear ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
