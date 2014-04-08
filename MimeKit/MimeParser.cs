@@ -904,11 +904,14 @@ namespace MimeKit {
 								inptr++;
 						}
 
-						AppendRawHeaderData ((int) (start - inbuf), (int) length);
+						if (length > 0) {
+							AppendRawHeaderData ((int) (start - inbuf), (int) length);
+							midline = true;
+						}
+
 						inputIndex = (int) (inptr - inbuf);
 						left = (int) (inend - inptr);
 						needInput = true;
-						midline = true;
 						break;
 					}
 
