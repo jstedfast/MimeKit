@@ -32,7 +32,8 @@ using System;
 using System.IO;
 
 namespace MimeKit.Cryptography {
-	public sealed class MD5 : IDisposable {
+	public sealed class MD5 : IDisposable
+	{
 		const int BLOCK_SIZE_BYTES = 64;
 
 		static readonly uint[] K = {
