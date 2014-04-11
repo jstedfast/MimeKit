@@ -1,5 +1,5 @@
 ﻿//
-// SqliteCertificateDatabase.cs
+// DbExtensions.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -24,28 +24,27 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Data;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// Usefull extensions for working with System.Data types.
+	/// Useful extensions for working with System.Data types.
 	/// </summary>
-	public static class DbExtensions
+	static class DbExtensions
 	{
 		/// <summary>
-		/// Creates a <see cref="System.Data.IDbDataParameter"/> with name and value. 
+		/// Creates a <see cref="System.Data.IDbDataParameter"/> with the specified name and value and then adds it to the command's parameters.
 		/// </summary>
-		/// <returns>The <see cref="System.Data.IDbDataParameter"/>.</returns>
-		/// <param name="command">The <see cref="System.Data.IDbCommand/>.</param>
+		/// <param name="command">The database command.</param>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
-		public static IDbDataParameter CreateParameterWithValue (this IDbCommand command, string name, object value)
+		public static int AddParameterWithValue (this IDbCommand command, string name, object value)
 		{
-			IDbDataParameter parameter = command.CreateParameter ();
+			var parameter = command.CreateParameter ();
 			parameter.ParameterName = name;
 			parameter.Value = value;
-			return parameter;
+
+			return command.Parameters.Add (parameter);
 		}
 	}
 }

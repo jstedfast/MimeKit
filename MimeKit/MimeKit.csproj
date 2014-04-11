@@ -59,6 +59,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DbExtensions.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
@@ -162,7 +163,6 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
-    <Compile Include="Cryptography\DbExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />
