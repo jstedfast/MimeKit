@@ -84,8 +84,9 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Allows the program to specify its own location for the SQLite database. If the file does not exist,
-		/// it will be created and the necessary tables and indexes will be constructed.
+		/// <para>Allows the program to specify its own location for the SQLite database. If the file does not exist,
+		/// it will be created and the necessary tables and indexes will be constructed.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
 		/// <param name="fileName">The path to the SQLite database.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
@@ -96,6 +97,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
@@ -120,7 +124,7 @@ namespace MimeKit.Cryptography {
 			if (SqliteCertificateDatabase.IsAvailable)
 				dbase = new SqliteCertificateDatabase (fileName, password);
 			else
-				throw new NotImplementedException ("MimeKit still requires Mono.Data.Sqlite");
+				throw new NotImplementedException ("Mono.Data.Sqlite is not available.");
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
@@ -131,9 +135,13 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Allows the program to specify its own password for the default database.
+		/// <para>Allows the program to specify its own password for the default database.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the database at the default location.
 		/// </exception>
@@ -148,8 +156,12 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Not recommended for production use as the password to unlock the private keys is hard-coded.
+		/// <para>Not recommended for production use as the password to unlock the private keys is hard-coded.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the database at the default location.
 		/// </exception>
@@ -158,6 +170,24 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DefaultSecureMimeContext () : this (DefaultDatabasePath, "no.secret")
 		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// This constructor is useful for supplying a custom <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
+		/// <param name="database">The certificate database.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="database"/> is <c>null</c>.
+		/// </exception>
+		public DefaultSecureMimeContext (IX509CertificateDatabase database)
+		{
+			if (database == null)
+				throw new ArgumentNullException ("database");
+
+			dbase = database;
 		}
 
 		#region implemented abstract members of SecureMimeContext

@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database built on SQLite.
 	/// </summary>
-	class SqliteCertificateDatabase : X509CertificateDatabase
+	public class SqliteCertificateDatabase : X509CertificateDatabase
 	{
 #if !__MOBILE__
 		static readonly Type sqliteConnectionStringBuilderClass;
@@ -123,6 +123,30 @@ namespace MimeKit.Cryptography {
 			sqlite = new SqliteConnection (builder.ConnectionString);
 			sqlite.Open ();
 #endif
+
+			CreateCertificatesTable ();
+			CreateCrlsTable ();
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
+		/// </summary>
+		/// <param name="connection">The SQLite connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		public SqliteCertificateDatabase (IDbConnection connection, string password) : base (password)
+		{
+			if (connection == null)
+				throw new ArgumentNullException ("connection");
+
+			sqlite = connection;
+
+			if (sqlite.State != ConnectionState.Open)
+				sqlite.Open ();
 
 			CreateCertificatesTable ();
 			CreateCrlsTable ();
