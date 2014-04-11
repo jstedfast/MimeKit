@@ -36,7 +36,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An interface for an X509 Certificate database.
 	/// </summary>
-	interface IX509CertificateDatabase : IX509Store, IDisposable
+	public interface IX509CertificateDatabase : IX509Store, IDisposable
 	{
 		/// <summary>
 		/// Find the specified certificate.

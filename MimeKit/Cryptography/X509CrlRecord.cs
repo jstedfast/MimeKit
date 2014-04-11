@@ -30,7 +30,7 @@ using Org.BouncyCastle.X509;
 
 namespace MimeKit.Cryptography {
 	[Flags]
-	enum X509CrlRecordFields {
+	public enum X509CrlRecordFields {
 		Id                = 1 << 0,
 		IsDelta           = 1 << 1,
 		IssuerName        = 1 << 2,
@@ -46,7 +46,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 Certificate Revocation List (CRL) record.
 	/// </summary>
-	class X509CrlRecord
+	public class X509CrlRecord
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",
