@@ -31,7 +31,7 @@ using Org.BouncyCastle.Crypto;
 
 namespace MimeKit.Cryptography {
 	[Flags]
-	enum X509CertificateRecordFields {
+	public enum X509CertificateRecordFields {
 		Id                = 1 << 0,
 		Trusted           = 1 << 1,
 		Algorithms        = 1 << 3,
@@ -51,7 +51,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 Certificate record.
 	/// </summary>
-	class X509CertificateRecord
+	public class X509CertificateRecord
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",

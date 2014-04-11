@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database.
 	/// </summary>
-	abstract class X509CertificateDatabase : IX509CertificateDatabase
+	public abstract class X509CertificateDatabase : IX509CertificateDatabase
 	{
 		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
 		const int MinIterations = 1024;
