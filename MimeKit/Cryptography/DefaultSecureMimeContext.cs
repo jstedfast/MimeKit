@@ -117,7 +117,10 @@ namespace MimeKit.Cryptography {
 			if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
 				Directory.CreateDirectory (dir);
 
-			dbase = new SqliteCertificateDatabase (fileName, password);
+			if (SqliteCertificateDatabase.IsAvailable)
+				dbase = new SqliteCertificateDatabase (fileName, password);
+			else 
+				throw new NotImplementedException("MimeKit still requires Mono.Data.Sqlite");
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.

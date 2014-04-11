@@ -28,8 +28,7 @@ using System;
 using System.IO;
 using System.Data;
 using System.Text;
-
-using Mono.Data.Sqlite;
+using System.Reflection;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
@@ -41,8 +40,29 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	class SqliteCertificateDatabase : X509CertificateDatabase
 	{
-		readonly SqliteConnection sqlite;
+		readonly IDbConnection sqlite;
 		bool disposed;
+
+		// At class initialization we try to use reflection to load the
+		// Mono.Data.Sqlite assembly: this allows to use Sqlite as the 
+		// default certificate store without depending explicitly on the
+		// DLL.
+
+		static SqliteCertificateDatabase()
+		{
+			sqliteDll = Assembly.Load ("Mono.Data.Sqlite");
+			if (sqliteDll != null) {
+				classSqliteConnection = sqliteDll.GetType ("Mono.Data.Sqlite.SqliteConnection");
+				classSqliteConnectionStringBuilder = sqliteDll.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
+				IsAvailable = true;
+			}
+		}
+
+		static readonly Assembly sqliteDll;
+		static readonly Type classSqliteConnection;
+		static readonly Type classSqliteConnectionStringBuilder;
+
+		public static bool IsAvailable { get; private set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
@@ -68,21 +88,22 @@ namespace MimeKit.Cryptography {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
-			var builder = new SqliteConnectionStringBuilder ();
-			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
-			builder.DataSource = fileName;
+			var builder = Activator.CreateInstance (classSqliteConnectionStringBuilder);
+			classSqliteConnectionStringBuilder.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+			classSqliteConnectionStringBuilder.GetProperty ("DataSource").SetValue (builder, fileName, null);
 
 			if (!File.Exists (fileName))
-				SqliteConnection.CreateFile (fileName);
+				classSqliteConnection.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
 
-			sqlite = new SqliteConnection (builder.ConnectionString);
+			var connectionString = (string)classSqliteConnectionStringBuilder.GetProperty ("ConnectionString").GetValue( builder, null);
+			sqlite = (IDbConnection)Activator.CreateInstance (classSqliteConnection, new [] {connectionString});
 			sqlite.Open ();
 
 			CreateCertificatesTable ();
 			CreateCrlsTable ();
 		}
 
-		static SqliteCommand GetCreateCertificatesTableCommand (SqliteConnection sqlite)
+		static IDbCommand GetCreateCertificatesTableCommand (IDbConnection sqlite)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
 			var columns = X509CertificateRecord.ColumnNames;
@@ -129,7 +150,7 @@ namespace MimeKit.Cryptography {
 			// FIXME: create some indexes as well?
 		}
 
-		static SqliteCommand GetCreateCrlsTableCommand (SqliteConnection sqlite)
+		static IDbCommand GetCreateCrlsTableCommand (IDbConnection sqlite)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
 			var columns = X509CrlRecord.ColumnNames;
@@ -183,9 +204,9 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@SERIALNUMBER", serialNumber);
-			command.Parameters.AddWithValue ("@FINGERPRINT", fingerprint);
+			command.Parameters.Add (command.CreateParameterWithValue ("@ISSUERNAME", issuerName));
+			command.Parameters.Add (command.CreateParameterWithValue ("@SERIALNUMBER", serialNumber));
+			command.Parameters.Add (command.CreateParameterWithValue ("@FINGERPRINT", fingerprint));
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -206,11 +227,11 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 			var constraints = " WHERE ";
 
-			command.Parameters.AddWithValue ("@BASICCONSTRAINTS", -1);
+			command.Parameters.Add (command.CreateParameterWithValue ("@BASICCONSTRAINTS", -1));
 			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
 
 			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
-			command.Parameters.AddWithValue ("@NOW", now);
+			command.Parameters.Add (command.CreateParameterWithValue ("@NOW", now));
 
 			if (requirePrivateKey)
 				constraints += "AND PRIVATEKEY NOT NULL ";
@@ -218,14 +239,14 @@ namespace MimeKit.Cryptography {
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length < 40) {
 					constraints += "AND FINGERPRINT LIKE @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint + "%");
+					command.Parameters.Add (command.CreateParameterWithValue ("@FINGERPRINT", secure.Fingerprint + "%"));
 				} else {
 					constraints += "AND FINGERPRINT = @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint);
+					command.Parameters.Add (command.CreateParameterWithValue ("@FINGERPRINT", secure.Fingerprint));
 				}
 			} else {
 				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
-				command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+				command.Parameters.Add (command.CreateParameterWithValue ("@SUBJECTEMAIL", mailbox.Address));
 			}
 
 			command.CommandText = query + constraints;
@@ -250,7 +271,7 @@ namespace MimeKit.Cryptography {
 			var constraints = " WHERE ";
 
 			if (trustedOnly) {
-				command.Parameters.AddWithValue ("@TRUSTED", true);
+				command.Parameters.Add (command.CreateParameterWithValue ("@TRUSTED", true));
 				constraints += "TRUSTED = @TRUSTED";
 			}
 
@@ -259,7 +280,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
+					command.Parameters.Add (command.CreateParameterWithValue ("@BASICCONSTRAINTS", match.BasicConstraints));
 					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
 				}
 
@@ -270,7 +291,7 @@ namespace MimeKit.Cryptography {
 						if (command.Parameters.Count > 0)
 							constraints += " AND ";
 
-						command.Parameters.AddWithValue ("@FLAGS", (int) flags);
+						command.Parameters.Add (command.CreateParameterWithValue ("@FLAGS", (int) flags));
 						constraints += "KEYUSAGE & @FLAGS";
 					}
 				}
@@ -279,7 +300,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@ISSUERNAME", match.Issuer.ToString ());
+					command.Parameters.Add (command.CreateParameterWithValue ("@ISSUERNAME", match.Issuer.ToString ()));
 					constraints += "ISSUERNAME = @ISSUERNAME";
 				}
 
@@ -287,7 +308,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
+					command.Parameters.Add (command.CreateParameterWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ()));
 					constraints += "SERIALNUMBER = @SERIALNUMBER";
 				}
 			}
@@ -319,7 +340,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuer.ToString ());
+			command.Parameters.Add (command.CreateParameterWithValue ("@ISSUERNAME", issuer.ToString ()));
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -338,9 +359,9 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
-			command.Parameters.AddWithValue ("@DELTA", crl.IsDelta ());
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@THISUPDATE", crl.ThisUpdate);
+			command.Parameters.Add (command.CreateParameterWithValue ("@DELTA", crl.IsDelta ()));
+			command.Parameters.Add (command.CreateParameterWithValue ("@ISSUERNAME", issuerName));
+			command.Parameters.Add (command.CreateParameterWithValue ("@THISUPDATE", crl.ThisUpdate));
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -370,7 +391,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CERTIFICATES WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.Parameters.Add (command.CreateParameterWithValue ("@ID", record.Id));
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -386,7 +407,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CRLS WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.Parameters.Add (command.CreateParameterWithValue ("@ID", record.Id));
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -413,7 +434,7 @@ namespace MimeKit.Cryptography {
 				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
 
-				command.Parameters.AddWithValue (variable, value);
+				command.Parameters.Add (command.CreateParameterWithValue (variable, value));
 				statement.Append (columns[i]);
 				variables.Append (variable);
 			}
@@ -448,7 +469,7 @@ namespace MimeKit.Cryptography {
 				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
 
-				command.Parameters.AddWithValue (variable, value);
+				command.Parameters.Add (command.CreateParameterWithValue (variable, value));
 				statement.Append (columns[i]);
 				variables.Append (variable);
 			}
@@ -485,11 +506,11 @@ namespace MimeKit.Cryptography {
 				statement.Append (" = ");
 				statement.Append (variable);
 
-				command.Parameters.AddWithValue (variable, value);
+				command.Parameters.Add (command.CreateParameterWithValue (variable, value));
 			}
 
 			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.Parameters.Add (command.CreateParameterWithValue ("@ID", record.Id));
 
 			command.CommandText = statement.ToString ();
 			command.CommandType = CommandType.Text;
@@ -519,11 +540,11 @@ namespace MimeKit.Cryptography {
 				statement.Append (" = ");
 				statement.Append (variable);
 
-				command.Parameters.AddWithValue (variable, value);
+				command.Parameters.Add (command.CreateParameterWithValue (variable, value));
 			}
 
 			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.Parameters.Add (command.CreateParameterWithValue ("@ID", record.Id));
 
 			command.CommandText = statement.ToString ();
 			command.CommandType = CommandType.Text;
