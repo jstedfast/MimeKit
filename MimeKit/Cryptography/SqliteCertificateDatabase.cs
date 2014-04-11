@@ -28,7 +28,12 @@ using System;
 using System.IO;
 using System.Data;
 using System.Text;
+
+#if __MOBILE__
+using Mono.Data.Sqlite;
+#else
 using System.Reflection;
+#endif
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
@@ -40,6 +45,12 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	class SqliteCertificateDatabase : X509CertificateDatabase
 	{
+#if !__MOBILE__
+		static readonly Type sqliteConnectionStringBuilderClass;
+		static readonly Type sqliteConnectionClass;
+		static readonly Assembly sqliteAssembly;
+#endif
+
 		readonly IDbConnection sqlite;
 		bool disposed;
 
@@ -48,21 +59,23 @@ namespace MimeKit.Cryptography {
 		// default certificate store without depending explicitly on the
 		// DLL.
 
-		static SqliteCertificateDatabase()
+		static SqliteCertificateDatabase ()
 		{
-			sqliteDll = Assembly.Load ("Mono.Data.Sqlite");
-			if (sqliteDll != null) {
-				classSqliteConnection = sqliteDll.GetType ("Mono.Data.Sqlite.SqliteConnection");
-				classSqliteConnectionStringBuilder = sqliteDll.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
+#if !__MOBILE__
+			sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
+			if (sqliteAssembly != null) {
+				sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
+				sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
 				IsAvailable = true;
 			}
+#else
+			IsAvailable = true;
+#endif
 		}
 
-		static readonly Assembly sqliteDll;
-		static readonly Type classSqliteConnection;
-		static readonly Type classSqliteConnectionStringBuilder;
-
-		public static bool IsAvailable { get; private set; }
+		internal static bool IsAvailable {
+			get; private set;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
@@ -88,16 +101,28 @@ namespace MimeKit.Cryptography {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
-			var builder = Activator.CreateInstance (classSqliteConnectionStringBuilder);
-			classSqliteConnectionStringBuilder.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
-			classSqliteConnectionStringBuilder.GetProperty ("DataSource").SetValue (builder, fileName, null);
+#if !__MOBILE__
+			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
 
 			if (!File.Exists (fileName))
-				classSqliteConnection.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
+				sqliteConnectionClass.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
 
-			var connectionString = (string)classSqliteConnectionStringBuilder.GetProperty ("ConnectionString").GetValue( builder, null);
-			sqlite = (IDbConnection)Activator.CreateInstance (classSqliteConnection, new [] {connectionString});
+			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+			sqlite = (IDbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
 			sqlite.Open ();
+#else
+			var builder = new SqliteConnectionStringBuilder ();
+			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
+			builder.DataSource = fileName;
+
+			if (!File.Exists (fileName))
+				SqliteConnection.CreateFile (fileName);
+
+			sqlite = new SqliteConnection (builder.ConnectionString);
+			sqlite.Open ();
+#endif
 
 			CreateCertificatesTable ();
 			CreateCrlsTable ();

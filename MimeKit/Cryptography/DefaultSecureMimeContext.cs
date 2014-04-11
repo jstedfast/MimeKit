@@ -119,8 +119,8 @@ namespace MimeKit.Cryptography {
 
 			if (SqliteCertificateDatabase.IsAvailable)
 				dbase = new SqliteCertificateDatabase (fileName, password);
-			else 
-				throw new NotImplementedException("MimeKit still requires Mono.Data.Sqlite");
+			else
+				throw new NotImplementedException ("MimeKit still requires Mono.Data.Sqlite");
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
