@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.31.0.0</version>
+        <version>0.32.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,9 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added 2 more methods to AttachmentCollection for adding byte arrays as attachments.
-* Fixed serialization of the References header to include angle-brackets around the message-ids.</releaseNotes>
+        <releaseNotes>* Fixed a corner-case bug in MimeParser's header parser.
+* Added a work-around for mail clients that mistakenly quote rfc2184 encoded parameter values.
+* Now includes the Xamarin.Android and Xamarin.iOS assemblies.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser net40 xamarin android ios monodroid monotouch</tags>
