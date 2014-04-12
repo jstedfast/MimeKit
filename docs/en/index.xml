@@ -100,6 +100,7 @@
       <Type Name="GnuPGContext" Kind="Class" />
       <Type Name="IDigitalCertificate" Kind="Interface" />
       <Type Name="IDigitalSignature" Kind="Interface" />
+      <Type Name="IX509CertificateDatabase" Kind="Interface" />
       <Type Name="MultipartEncrypted" Kind="Class" />
       <Type Name="MultipartSigned" Kind="Class" />
       <Type Name="OpenPgpContext" Kind="Class" />
@@ -113,11 +114,17 @@
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />
       <Type Name="SecureMimeType" Kind="Enumeration" />
+      <Type Name="SqliteCertificateDatabase" Kind="Class" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
       <Type Name="TemporarySecureMimeContext" Kind="Class" />
       <Type Name="WindowsSecureMimeContext" Kind="Class" />
+      <Type Name="X509CertificateDatabase" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
+      <Type Name="X509CertificateRecord" Kind="Class" />
+      <Type Name="X509CertificateRecordFields" Kind="Enumeration" />
       <Type Name="X509CertificateStore" Kind="Class" />
+      <Type Name="X509CrlRecord" Kind="Class" />
+      <Type Name="X509CrlRecordFields" Kind="Enumeration" />
       <Type Name="X509KeyUsageFlags" Kind="Enumeration" />
     </Namespace>
     <Namespace Name="MimeKit.Encodings">

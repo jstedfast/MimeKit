@@ -942,6 +942,10 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)

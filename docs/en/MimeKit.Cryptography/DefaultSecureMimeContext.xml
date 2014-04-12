@@ -34,13 +34,40 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
         <remarks>
-            Not recommended for production use as the password to unlock the private keys is hard-coded.
-            </remarks>
+          <para>Not recommended for production use as the password to unlock the private keys is hard-coded.</para>
+          <para>Requires linking with Mono.Data.Sqlite.</para>
+        </remarks>
         <exception cref="T:System.IO.IOException">
             An error occurred reading the database at the default location.
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the database at the default location.
+            </exception>
+        <exception cref="T:System.NotImplementedException">
+            Mono.Data.Sqlite is not available.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public DefaultSecureMimeContext (MimeKit.Cryptography.IX509CertificateDatabase database);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.Cryptography.IX509CertificateDatabase database) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.31.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="database" Type="MimeKit.Cryptography.IX509CertificateDatabase" />
+      </Parameters>
+      <Docs>
+        <param name="database">The certificate database.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
+            </summary>
+        <remarks>
+            This constructor is useful for supplying a custom <see cref="T:MimeKit.Cryptography.IX509CertificateDatabase" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="database" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>
@@ -60,13 +87,17 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
         <remarks>
-            Allows the program to specify its own password for the default database.
-            </remarks>
+          <para>Allows the program to specify its own password for the default database.</para>
+          <para>Requires linking with Mono.Data.Sqlite.</para>
+        </remarks>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the database at the default location.
             </exception>
         <exception cref="T:System.IO.IOException">
             An error occurred reading the database at the default location.
+            </exception>
+        <exception cref="T:System.NotImplementedException">
+            Mono.Data.Sqlite is not available.
             </exception>
       </Docs>
     </Member>
@@ -88,9 +119,10 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> class.
             </summary>
         <remarks>
-            Allows the program to specify its own location for the SQLite database. If the file does not exist,
-            it will be created and the necessary tables and indexes will be constructed.
-            </remarks>
+          <para>Allows the program to specify its own location for the SQLite database. If the file does not exist,
+            it will be created and the necessary tables and indexes will be constructed.</para>
+          <para>Requires linking with Mono.Data.Sqlite.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="fileName" /> is <c>null</c>.</para>
@@ -106,6 +138,9 @@
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.NotImplementedException">
+            Mono.Data.Sqlite is not available.
             </exception>
       </Docs>
     </Member>

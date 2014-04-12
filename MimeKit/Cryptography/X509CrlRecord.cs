@@ -146,6 +146,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CrlRecord"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new CRL record for storing in a <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <c>null</c>.

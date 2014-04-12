@@ -43,6 +43,12 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database built on SQLite.
 	/// </summary>
+	/// <remarks>
+	/// <para>An X.509 certificate database is used for storing certificates, metdata related to the certificates
+	/// (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
+	/// and private keys.</para>
+	/// <para>This particular database uses SQLite to store the data.</para>
+	/// </remarks>
 	public class SqliteCertificateDatabase : X509CertificateDatabase
 	{
 #if !__MOBILE__
@@ -80,6 +86,14 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="SqliteCertificateDatabase"/> and opens a connection to the
+		/// SQLite database at the specified path using the Mono.Data.Sqlite binding to the native
+		/// SQLite library.</para>
+		/// <para>If Mono.Data.Sqlite is not available or if an alternative binding to the native
+		/// SQLite library is preferred, then consider using
+		/// <see cref="SqliteCertificateDatabase(System.Data.IDbConnection,string)"/> instead.</para>
+		/// </remarks>
 		/// <param name="fileName">The file name.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -131,6 +145,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SqliteCertificateDatabase"/> using the provided SQLite database connection.
+		/// </remarks>
 		/// <param name="connection">The SQLite connection.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -241,6 +258,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -264,6 +284,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
@@ -307,6 +330,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="selector">Selector.</param>
 		/// <param name="trustedOnly">If set to <c>true</c> trusted only.</param>
@@ -380,6 +406,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the CRL records matching the specified issuer.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the CRL records matching the specified issuer.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -398,6 +427,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record for the specified CRL.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record for the specified CRL.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -419,6 +451,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select all CRLs in the table.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select all CRLs in the table.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		protected override IDbCommand GetSelectAllCrlsCommand ()
 		{
@@ -433,6 +468,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to delete the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected override IDbCommand GetDeleteCommand (X509CertificateRecord record)
@@ -449,6 +487,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to delete the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The record.</param>
 		protected override IDbCommand GetDeleteCommand (X509CrlRecord record)
@@ -465,6 +506,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to insert the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected override IDbCommand GetInsertCommand (X509CertificateRecord record)
@@ -500,6 +544,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to insert the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected override IDbCommand GetInsertCommand (X509CrlRecord record)
@@ -535,6 +582,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
@@ -570,6 +620,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected override IDbCommand GetUpdateCommand (X509CrlRecord record)
@@ -605,6 +658,10 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
