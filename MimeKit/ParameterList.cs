@@ -864,6 +864,13 @@ namespace MimeKit {
 
 						if (parts[i].Encoded) {
 							bool flush = i + 1 >= parts.Count || !parts[i+1].Encoded;
+
+							// Note: Some mail clients mistakenly quote encoded parameter values when they shouldn't
+							if (length >= 2 && text[startIndex] == (byte) '"' && text[startIndex + length - 1] == (byte) '"') {
+								startIndex++;
+								length -= 2;
+							}
+
 							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
 						} else if (length >= 2 && text[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options, text, startIndex, length);
