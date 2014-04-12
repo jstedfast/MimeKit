@@ -51,6 +51,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
+		const X509CertificateRecordFields CmsRecipientFields = X509CertificateRecordFields.Algorithms | X509CertificateRecordFields.Certificate;
+		const X509CertificateRecordFields CmsSignerFields = X509CertificateRecordFields.Certificate | X509CertificateRecordFields.PrivateKey;
+		const X509CertificateRecordFields AlgorithmFields = X509CertificateRecordFields.Id | X509CertificateRecordFields.Algorithms | X509CertificateRecordFields.AlgorithmsUpdated;
+		const X509CertificateRecordFields ImportPkcs12Fields = AlgorithmFields | X509CertificateRecordFields.Trusted | X509CertificateRecordFields.PrivateKey;
+
 		/// <summary>
 		/// The default database path for certificates, private keys and CRLs.
 		/// </summary>
@@ -310,7 +315,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, X509CertificateRecordFields.CmsRecipient)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, CmsRecipientFields)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
 					continue;
 
@@ -351,7 +356,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, X509CertificateRecordFields.CmsSigner)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
 					continue;
 
@@ -377,7 +382,7 @@ namespace MimeKit.Cryptography {
 		{
 			X509CertificateRecord record;
 
-			if ((record = dbase.Find (certificate, X509CertificateRecordFields.UpdateAlgorithms)) == null) {
+			if ((record = dbase.Find (certificate, AlgorithmFields)) == null) {
 				record = new X509CertificateRecord (certificate);
 				record.AlgorithmsUpdated = timestamp;
 				record.Algorithms = algorithms;
@@ -387,7 +392,7 @@ namespace MimeKit.Cryptography {
 				record.AlgorithmsUpdated = timestamp;
 				record.Algorithms = algorithms;
 
-				dbase.Update (record, X509CertificateRecordFields.UpdateAlgorithms);
+				dbase.Update (record, AlgorithmFields);
 			}
 		}
 
@@ -429,12 +434,13 @@ namespace MimeKit.Cryptography {
 			if (dbase.Find (crl, X509CrlRecordFields.Id) != null)
 				return;
 
+			const X509CrlRecordFields fields = ~X509CrlRecordFields.Crl;
 			var obsolete = new List<X509CrlRecord> ();
 			var delta = crl.IsDelta ();
 
 			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
 			// older CRLs or if there are any newer CRLs that obsolete that obsolete this one.
-			foreach (var record in dbase.Find (crl.IssuerDN, X509CrlRecordFields.AllExeptCrl)) {
+			foreach (var record in dbase.Find (crl.IssuerDN, fields)) {
 				if (!record.IsDelta && record.ThisUpdate >= crl.ThisUpdate) {
 					// we have a complete CRL that obsoletes this CRL
 					return;
@@ -486,7 +492,7 @@ namespace MimeKit.Cryptography {
 					int startIndex = 0;
 
 					if (entry.Key.IsPrivate) {
-						if ((record = dbase.Find (chain[0].Certificate, X509CertificateRecordFields.ImportPkcs12)) == null) {
+						if ((record = dbase.Find (chain[0].Certificate, ImportPkcs12Fields)) == null) {
 							record = new X509CertificateRecord (chain[0].Certificate, entry.Key);
 							record.AlgorithmsUpdated = DateTime.Now;
 							record.Algorithms = enabledAlgorithms;
@@ -498,7 +504,7 @@ namespace MimeKit.Cryptography {
 							if (record.PrivateKey == null)
 								record.PrivateKey = entry.Key;
 							record.IsTrusted = true;
-							dbase.Update (record, X509CertificateRecordFields.ImportPkcs12);
+							dbase.Update (record, ImportPkcs12Fields);
 						}
 
 						startIndex = 1;

@@ -43,8 +43,14 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database.
 	/// </summary>
+	/// <remarks>
+	/// An X.509 certificate database is used for storing certificates, metdata related to the certificates
+	/// (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
+	/// and private keys.
+	/// </remarks>
 	public abstract class X509CertificateDatabase : IX509CertificateDatabase
 	{
+		const X509CertificateRecordFields PrivateKeyFields = X509CertificateRecordFields.Certificate | X509CertificateRecordFields.PrivateKey;
 		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
 		const int MinIterations = 1024;
 		const int SaltSize = 20;
@@ -54,6 +60,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> class.
 		/// </summary>
+		/// <remarks>
+		/// The password is used to encrypt and decrypt private keys in the database and cannot be null.
+		/// </remarks>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="password"/> is <c>null</c>.
@@ -66,6 +75,14 @@ namespace MimeKit.Cryptography {
 			passwd = password.ToCharArray ();
 		}
 
+		/// <summary>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> is reclaimed by garbage collection.
+		/// </summary>
+		/// <remarks>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> is reclaimed by garbage collection.
+		/// </remarks>
 		~X509CertificateDatabase ()
 		{
 			Dispose (false);
@@ -259,6 +276,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the column names for the specified fields.
 		/// </summary>
+		/// <remarks>
+		/// Gets the column names for the specified fields.
+		/// </remarks>
 		/// <returns>The column names.</returns>
 		/// <param name="fields">The fields.</param>
 		protected static string[] GetColumnNames (X509CertificateRecordFields fields)
@@ -284,6 +304,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -292,6 +315,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
@@ -302,6 +328,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select certificate records matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select certificate records matching the specified selector.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="selector">Selector.</param>
 		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched.</param>
@@ -312,11 +341,18 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the column names for the specified fields.
 		/// </summary>
+		/// <remarks>
+		/// Gets the column names for the specified fields.
+		/// </remarks>
 		/// <returns>The column names.</returns>
 		/// <param name="fields">The fields.</param>
 		protected static string[] GetColumnNames (X509CrlRecordFields fields)
 		{
-			if (fields == X509CrlRecordFields.All)
+			const X509CrlRecordFields all = X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta |
+				X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate |
+				X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl;
+
+			if (fields == all)
 				return new [] { "*" };
 
 			var columns = new List<string> ();
@@ -340,6 +376,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the CRL records matching the specified issuer.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the CRL records matching the specified issuer.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -348,6 +387,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record for the specified CRL.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record for the specified CRL.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -356,12 +398,18 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select all CRLs in the table.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select all CRLs in the table.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		protected abstract IDbCommand GetSelectAllCrlsCommand ();
 
 		/// <summary>
 		/// Gets the database command to delete the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected abstract IDbCommand GetDeleteCommand (X509CertificateRecord record);
@@ -369,6 +417,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to delete the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The record.</param>
 		protected abstract IDbCommand GetDeleteCommand (X509CrlRecord record);
@@ -376,9 +427,15 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the value for the specified column.
 		/// </summary>
+		/// <remarks>
+		/// Gets the value for the specified column.
+		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="columnName">The column name.</param>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="columnName"/> is not a known column name.
+		/// </exception>
 		protected object GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
@@ -396,16 +453,22 @@ namespace MimeKit.Cryptography {
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
 			case "CERTIFICATE": return record.Certificate.GetEncoded ();
 			case "PRIVATEKEY": return EncodePrivateKey (record.PrivateKey);
-			default: throw new ArgumentOutOfRangeException ("columnName");
+			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), "columnName");
 			}
 		}
 
 		/// <summary>
 		/// Gets the value for the specified column.
 		/// </summary>
+		/// <remarks>
+		/// Gets the value for the specified column.
+		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="record">The CRL record.</param>
 		/// <param name="columnName">The column name.</param>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="columnName"/> is not a known column name.
+		/// </exception>
 		protected static object GetValue (X509CrlRecord record, string columnName)
 		{
 			switch (columnName) {
@@ -415,13 +478,16 @@ namespace MimeKit.Cryptography {
 			case "THISUPDATE": return record.ThisUpdate;
 			case "NEXTUPDATE": return record.NextUpdate;
 			case "CRL": return record.Crl.GetEncoded ();
-			default: throw new ArgumentOutOfRangeException ("columnName");
+			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), "columnName");
 			}
 		}
 
 		/// <summary>
 		/// Gets the database command to insert the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected abstract IDbCommand GetInsertCommand (X509CertificateRecord record);
@@ -429,6 +495,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to insert the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected abstract IDbCommand GetInsertCommand (X509CrlRecord record);
@@ -436,6 +505,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
@@ -444,6 +516,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected abstract IDbCommand GetUpdateCommand (X509CrlRecord record);
@@ -451,6 +526,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Find the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Searches the database for the specified certificate, returning the matching
+		/// record with the desired fields populated.
+		/// </remarks>
+		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -482,8 +562,12 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the certificates matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Searches the database for certificates matching the selector, returning all
+		/// matching certificates.
+		/// </remarks>
 		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match criteria.</param>
+		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
 		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, false, false, X509CertificateRecordFields.Certificate)) {
@@ -509,10 +593,15 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the private keys matching the specified selector.
 		/// </summary>
-		/// <param name="selector">The selector.</param>
+		/// <remarks>
+		/// Searches the database for certificate records matching the selector, returning the
+		/// private keys for each matching record.
+		/// </remarks>
+		/// <returns>The matching certificates.</returns>
+		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
 		{
-			using (var command = GetSelectCommand (selector, false, true, X509CertificateRecordFields.PrivateKeyLookup)) {
+			using (var command = GetSelectCommand (selector, false, true, PrivateKeyFields)) {
 				var reader = command.ExecuteReader ();
 
 				try {
@@ -536,8 +625,14 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Searches the database for certificates matching the specified mailbox that are valid
+		/// for the date and time specified, returning all matching records populated with the
+		/// desired fields.
+		/// </remarks>
+		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="now">The date and time for which the certificate should be valid.</param>
+		/// <param name="now">The date and time.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -569,7 +664,12 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the certificate records matching the specified selector.
 		/// </summary>
-		/// <param name="selector">The selector.</param>
+		/// <remarks>
+		/// Searches the database for certificate records matching the selector, returning all
+		/// of the matching records populated with the desired fields.
+		/// </remarks>
+		/// <returns>The matching certificate records populated with the desired fields.</returns>
+		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
 		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedOnly, X509CertificateRecordFields fields)
@@ -598,6 +698,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Add the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified certificate record to the database.
+		/// </remarks>
 		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -615,6 +718,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Remove the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified certificate record from the database.
+		/// </remarks>
 		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -632,6 +738,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Update the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Updates the specified fields of the record in the database.
+		/// </remarks>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -650,6 +759,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the CRL records for the specified issuer.
 		/// </summary>
+		/// <remarks>
+		/// Searches the database for CRL records matching the specified issuer, returning
+		/// all matching records populated with the desired fields.
+		/// </remarks>
+		/// <returns>The matching CRL records populated with the desired fields.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -681,6 +795,11 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Finds the specified certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Searches the database for the specified CRL, returning the matching record with
+		/// the desired fields populated.
+		/// </remarks>
+		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -712,6 +831,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Add the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified CRL record to the database.
+		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -729,6 +851,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Remove the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified CRL record from the database.
+		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -746,6 +871,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Update the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Updates the specified fields of the record in the database.
+		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <c>null</c>.
@@ -763,6 +891,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets a certificate revocation list store.
 		/// </summary>
+		/// <remarks>
+		/// Gets a certificate revocation list store.
+		/// </remarks>
 		/// <returns>A certificate recovation list store.</returns>
 		public IX509Store GetCrlStore ()
 		{
@@ -791,9 +922,11 @@ namespace MimeKit.Cryptography {
 		#region IX509Store implementation
 
 		/// <summary>
-		/// Gets a collection of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
-		/// based on the specified selector.
+		/// Gets a collection of matching certificates matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets a collection of matching certificates matching the specified selector.
+		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
 		ICollection IX509Store.GetMatches (IX509Selector selector)
