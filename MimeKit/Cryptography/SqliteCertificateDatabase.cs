@@ -68,11 +68,24 @@ namespace MimeKit.Cryptography {
 		static SqliteCertificateDatabase ()
 		{
 #if !__MOBILE__
-			sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
-			if (sqliteAssembly != null) {
-				sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
-				sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
-				IsAvailable = true;
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.Is64BitProcess)
+				return;
+
+			try {
+				sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
+				if (sqliteAssembly != null) {
+					sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
+					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
+
+					// Make sure that the runtime can load the native sqlite3 library
+					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+					sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+
+					IsAvailable = true;
+				}
+			} catch (FileNotFoundException) {
+			} catch (FileLoadException) {
+			} catch (BadImageFormatException) {
 			}
 #else
 			IsAvailable = true;
