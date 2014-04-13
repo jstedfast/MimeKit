@@ -210,14 +210,13 @@ namespace UnitTests {
 		[Test]
 		public void TestMistakenlyQuotedEncodedParameterValues ()
 		{
-			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%4B%6F%F8%ED%6E%65%6B%20%4D%69%63%68%61%6C%20%2D\";\n " +
-				"filename*1*=\"%20%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
-				"filename*2*=\"%70%74%61%63%69%20%73%6D%6C%6F%75%76%79%20%31%32%2E%31%32%2E\";\n " +
-				"filename*3*=\"%64%6F%63\"";
+			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
+				"filename*1*=\"%70%74%61%63%69%20%73%6D%6C%6F%75%76%79%20%31%32%2E%31%32%2E\";\n " +
+				"filename*2*=\"%64%6F%63\"";
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse fourth Content-Disposition");
-			Assert.AreEqual ("Kořínek Michal - ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The fourth filename value does not match.");
+			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The fourth filename value does not match.");
 		}
 	}
 }
