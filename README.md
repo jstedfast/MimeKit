@@ -418,6 +418,92 @@ builder.Attachments.Add ("C:\\Users\Joey\\Documents\\party.ics");
 message.Body = builder.ToMessageBody ();
 ```
 
+### Preparing to use MimeKit's S/MIME support
+
+Before you can begin using MimeKit's S/MIME support, you will need to decide which
+database to use for certificate storage.
+
+If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
+anything (although you certianly can if you want to) because, by default, I've
+configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
+
+If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
+provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
+Once you've made your choice and installed it (via NuGet or however), you'll need to
+implement your own `SecureMimeContext` class. Luckily, it's very simple to do. Assuming
+you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
+class:
+
+```csharp
+using System.Data.SQLite;
+using MimeKit.Cryptography;
+
+using MyAppNamespace {
+    class MySecureMimeContext : DefaultSecureMimeContext
+    {
+        public MySecureMimeContext () : base (OpenDatabase ("C:\\wherever\\certdb.sqlite"))
+        {
+        }
+
+        static IX509CertificateDatabase OpenDatabase (string fileName)
+        {
+            var builder = new SQLiteConnectionStringBuilder ();
+            builder.DateTimeFormat = SQLiteDateFormats.Ticks;
+            builder.DataSource = fileName;
+
+            if (!File.Exists (fileName))
+                SQLiteConnection.CreateFile (fileName);
+
+            var sqlite = new SQLiteConnection (builder.ConnectionString);
+            sqlite.Open ();
+
+            return new SqliteCertificateDatabase (sqlite, "password");
+        }
+    }
+}
+```
+
+Now that you've implemented your own SecureMimeContext, you'll want to register it with MimeKit:
+
+```csharp
+CryptographyContext.Register (typeof (MySecureMimeContext));
+```
+
+Now you are ready to encrypt, decrypt, sign and verify S/MIME messages!
+
+### Preparing to use MimeKit's PGP/MIME support
+
+Like with S/MIME support, you also need to register your own `OpenPgpContext`. Unlike S/MIME, however,
+you don't need to choose a database if you subclass `GnuPGContext` because it uses GnuPG's PGP keyrings
+to load and store public and private keys. If you choose to subclass `GnuPGContext`, the only thing you
+you need to do is implement a password callback method:
+
+```csharp
+using MimeKit.Cryptography;
+
+namespace MyAppNamespace {
+    class MyGnuPGContext : GnuPGContext
+    {
+        public MyGnuPgContext () : base ()
+        {
+        }
+        
+        protected override string GetPasswordForKey (PgpSecretKey key)
+        {
+            // prompt the user (or a secure password cache) for the password for the specified secret key.
+            return "password";
+        }
+    }
+}
+```
+
+Once again, to register your OpenPgpContext, you can use the following code snippet:
+
+```csharp
+CryptographyContext.Register (typeof (MyGnuPGContext));
+```
+
+Now you are ready to encrypt, decrypt, sign and verify PGP/MIME messages!
 
 ### Digitally Signing Messages with S/MIME or PGP/MIME
 
