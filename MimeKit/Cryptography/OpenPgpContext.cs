@@ -1159,7 +1159,7 @@ namespace MimeKit.Cryptography {
 					throw new Exception ("no encrypted data objects found?");
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
-				PgpOnePassSignatureList onepassList = null;
+				//PgpOnePassSignatureList onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
 
@@ -1172,8 +1172,8 @@ namespace MimeKit.Cryptography {
 
 							compressed = (PgpCompressedData) obj;
 							factory = new PgpObjectFactory (compressed.GetDataStream ());
-						} else if (obj is PgpOnePassSignatureList) {
-							onepassList = (PgpOnePassSignatureList) obj;
+						//} else if (obj is PgpOnePassSignatureList) {
+							//onepassList = (PgpOnePassSignatureList) obj;
 						} else if (obj is PgpSignatureList) {
 							signatureList = (PgpSignatureList) obj;
 						} else if (obj is PgpLiteralData) {
