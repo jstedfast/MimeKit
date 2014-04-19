@@ -810,9 +810,25 @@ namespace MimeKit {
 
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
-					// failed to find the end of the headers; EOF reached
-					ParseAndAppendHeader ();
-					state = MimeParserState.Content;
+					// EOF reached before we reached the end of the headers...
+					if (left == 0 && headerIndex == 0) {
+						// the last header we encountered has been parsed cleanly, so try to
+						// fail gracefully by pretending we found the end of the headers...
+						//
+						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+						state = MimeParserState.Content;
+					} else {
+						// the last header we encountered was truncated - probably best
+						// to error out in this case
+						if (left > 0) {
+							// consume the remaining data
+							AppendRawHeaderData (inputIndex, left);
+							ParseAndAppendHeader ();
+						}
+
+						state = MimeParserState.Error;
+					}
+
 					inputIndex = inputEnd;
 					return;
 				}
