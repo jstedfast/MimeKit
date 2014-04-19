@@ -811,7 +811,8 @@ namespace MimeKit {
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
 					// failed to find the end of the headers; EOF reached
-					state = MimeParserState.Error;
+					ParseAndAppendHeader ();
+					state = MimeParserState.Content;
 					inputIndex = inputEnd;
 					return;
 				}
