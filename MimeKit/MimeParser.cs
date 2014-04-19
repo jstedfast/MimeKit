@@ -811,7 +811,7 @@ namespace MimeKit {
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
 					// EOF reached before we reached the end of the headers...
-					if (left == 0 && headerIndex == 0) {
+					if (left == 0 && !midline && headers.Count > 0) {
 						// the last header we encountered has been parsed cleanly, so try to
 						// fail gracefully by pretending we found the end of the headers...
 						//
@@ -820,15 +820,13 @@ namespace MimeKit {
 					} else {
 						// the last header we encountered was truncated - probably best
 						// to error out in this case
-						if (left > 0) {
-							// consume the remaining data
+						if (left > 0)
 							AppendRawHeaderData (inputIndex, left);
-							ParseAndAppendHeader ();
-						}
 
 						state = MimeParserState.Error;
 					}
 
+					ParseAndAppendHeader ();
 					inputIndex = inputEnd;
 					return;
 				}

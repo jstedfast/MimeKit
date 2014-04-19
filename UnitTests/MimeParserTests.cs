@@ -190,5 +190,17 @@ namespace UnitTests {
 
 			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
 		}
+
+		[Test]
+		public void TestIssue51 ()
+		{
+			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +
+				"From: Jeffrey Stedfast <notifications@github.com>\r\n" +
+				"Subject: Re: [MimeKit] Allow parsing of message with 0 byte body. (#51)\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				Assert.DoesNotThrow (() => MimeMessage.Load (stream), "A message with 0 bytes of content should not fail to parse.");
+			}
+		}
 	}
 }
