@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System;
 using System.Data;
 
 namespace MimeKit.Cryptography {
@@ -42,7 +43,17 @@ namespace MimeKit.Cryptography {
 		{
 			var parameter = command.CreateParameter ();
 			parameter.ParameterName = name;
-			parameter.Value = value;
+
+			// Some drivers, notable Npgsql, don't like enum types: we convert them to
+			// the underlying system type to avoid problems.
+
+			var valueType = value != null ? value.GetType () : null;
+			if (valueType != null && valueType.IsEnum) {
+				parameter.Value = Convert.ChangeType (value, valueType.GetEnumUnderlyingType ());
+			}
+			else {
+				parameter.Value = value;
+			}
 
 			return command.Parameters.Add (parameter);
 		}

@@ -34,17 +34,13 @@ using MimeKit;
 using MimeKit.Cryptography;
 
 namespace UnitTests {
-	[TestFixture]
-	public class SecureMimeTests
+	public abstract class SecureMimeTests
 	{
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
-		static SecureMimeContext CreateContext ()
-		{
-			return new DefaultSecureMimeContext ("smime.db", "no.secret");
-		}
+		protected abstract SecureMimeContext CreateContext ();
 
 		[TestFixtureSetUp]
 		public void SetUp ()
@@ -56,7 +52,11 @@ namespace UnitTests {
 				foreach (var filename in CertificateAuthorities) {
 					path = Path.Combine (dataDir, filename);
 					using (var file = File.OpenRead (path)) {
+						try {
 						ctx.Import (file, true);
+						}catch(Exception e){
+							Console.WriteLine(e);
+						}
 					}
 				}
 
@@ -447,6 +447,24 @@ namespace UnitTests {
 					Assert.IsFalse (imported.keys.Count > 0, "One or more of the certificates included the private key.");
 				}
 			}
+		}
+	}
+
+	[TestFixture]
+	public class SecureMimeTestsWithSqlite : SecureMimeTests
+	{
+		protected override SecureMimeContext CreateContext ()
+		{
+			return new DefaultSecureMimeContext ("smime.db", "no.secret");
+		}
+	}
+
+	[TestFixture, Explicit]
+	public class SecureMimeTestsWithNpgql : SecureMimeTests
+	{
+		protected override SecureMimeContext CreateContext ()
+		{
+			return new DefaultSecureMimeContext (new NpgsqlCertificateDatabase ("server=localhost;database=test;user id=fog", "no.secret"));
 		}
 	}
 }

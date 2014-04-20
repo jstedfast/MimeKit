@@ -261,7 +261,7 @@ namespace MimeKit.Cryptography {
 			var record = new X509CertificateRecord ();
 
 			for (int i = 0; i < reader.FieldCount; i++) {
-				switch (reader.GetName (i)) {
+				switch (reader.GetName (i).ToUpperInvariant ()) {
 				case "CERTIFICATE":
 					record.Certificate = DecodeCertificate (reader, parser, i, ref buffer);
 					break;
@@ -291,7 +291,7 @@ namespace MimeKit.Cryptography {
 			var record = new X509CrlRecord ();
 
 			for (int i = 0; i < reader.FieldCount; i++) {
-				switch (reader.GetName (i)) {
+				switch (reader.GetName (i).ToUpperInvariant ()) {
 				case "CRL":
 					record.Crl = DecodeX509Crl (reader, parser, i, ref buffer);
 					break;

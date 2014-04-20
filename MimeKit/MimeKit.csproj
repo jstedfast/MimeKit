@@ -163,6 +163,8 @@
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\NpgsqlCertificateDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />
