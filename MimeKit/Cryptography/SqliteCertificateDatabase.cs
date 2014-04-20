@@ -47,8 +47,6 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class SqliteCertificateDatabase : SqlCertificateDatabase
 	{
-		readonly string fileName;
-
 #if !__MOBILE__
 		static readonly Type sqliteConnectionStringBuilderClass;
 		static readonly Type sqliteConnectionClass;
@@ -56,35 +54,32 @@ namespace MimeKit.Cryptography {
 #endif
 
 		// At class initialization we try to use reflection to load the
-		// Mono.Data.Sqlite assembly: this allows to use Sqlite as the 
-		// default certificate store without depending explicitly on the
-		// DLL.
-
+		// Mono.Data.Sqlite assembly: this allows us to use Sqlite as the 
+		// default certificate store without explicitly depending on the
+		// assembly.
 		static SqliteCertificateDatabase ()
 		{
 #if !__MOBILE__
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.Is64BitProcess)
-				return;
+			var platform = Environment.OSVersion.Platform;
 
 			try {
-				sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
-				if (sqliteAssembly != null) {
-					sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
-					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
+				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
+				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || !Environment.Is64BitProcess) {
+					sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
+					if (sqliteAssembly != null) {
+						sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
+						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
 
-					// Make sure that the runtime can load the native sqlite3 library
-					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-					sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+						// Make sure that the runtime can load the native sqlite3 library
+						var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+						sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
 
-					IsAvailable = true;
+						IsAvailable = true;
+					}
 				}
-			} catch (FileNotFoundException) {
-			} catch (FileLoadException) {
-			} catch (BadImageFormatException) {
-			}
 
-			try {
-				if (!IsAvailable) {
+				// System.Data.Sqlite is only available for Windows-based platforms.
+				if (!IsAvailable && platform != PlatformID.Unix && platform != PlatformID.MacOSX) {
 					sqliteAssembly = Assembly.Load ("System.Data.SQLite");
 					if (sqliteAssembly != null) {
 						sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
@@ -108,6 +103,37 @@ namespace MimeKit.Cryptography {
 
 		internal static bool IsAvailable {
 			get; private set;
+		}
+
+		static IDbConnection CreateConnection (string fileName)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			if (fileName.Length == 0)
+				throw new ArgumentException ("The file name cannot be empty.", "fileName");
+
+#if !__MOBILE__
+			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
+
+			if (!File.Exists (fileName))
+				sqliteConnectionClass.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
+
+			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+
+			return (IDbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
+#else
+			var builder = new SqliteConnectionStringBuilder ();
+			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
+			builder.DataSource = fileName;
+
+			if (!File.Exists (fileName))
+				SqliteConnection.CreateFile (fileName);
+
+			return new SqliteConnection (builder.ConnectionString);
+#endif
 		}
 
 		/// <summary>
@@ -137,12 +163,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
-		public SqliteCertificateDatabase (string fileName, string password) : base (password)
+		public SqliteCertificateDatabase (string fileName, string password) : base (CreateConnection (fileName), password)
 		{
-			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
-
-			this.fileName = fileName;
 		}
 
 		/// <summary>
@@ -160,33 +182,17 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public SqliteCertificateDatabase (IDbConnection connection, string password) : base (connection, password)
 		{
-			// FIXME: Should we check the connection type somehow?
-		}
-			
-		protected override IDbConnection CreateConnection ()
-		{
-			#if !__MOBILE__
-			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-			sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
-			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
-
-			if (!File.Exists (fileName))
-				sqliteConnectionClass.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
-
-			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
-			return (IDbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
-			#else
-			var builder = new SqliteConnectionStringBuilder ();
-			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
-			builder.DataSource = fileName;
-
-			if (!File.Exists (fileName))
-			SqliteConnection.CreateFile (fileName);
-
-			return new SqliteConnection (builder.ConnectionString);
-			#endif
 		}
 
+		/// <summary>
+		/// Gets the command to create the certificates table.
+		/// </summary>
+		/// <remarks>
+		/// Constructs the command to create a certificates table suitable for storing
+		/// <see cref="X509CertificateRecord"/> objects.
+		/// </remarks>
+		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
 		protected override IDbCommand GetCreateCertificatesTableCommand (IDbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
@@ -225,6 +231,15 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
+		/// <summary>
+		/// Gets the command to create the CRLs table.
+		/// </summary>
+		/// <remarks>
+		/// Constructs the command to create a CRLs table suitable for storing
+		/// <see cref="X509CertificateRecord"/> objects.
+		/// </remarks>
+		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
 		protected override IDbCommand GetCreateCrlsTableCommand (IDbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");

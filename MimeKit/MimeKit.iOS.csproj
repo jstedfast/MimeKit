@@ -83,6 +83,7 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />

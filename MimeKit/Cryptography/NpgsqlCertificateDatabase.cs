@@ -1,7 +1,7 @@
 ﻿//
-// SqliteCertificateDatabase.cs
+// NpgsqlCertificateDatabase.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Federico Di Gregorio <fog@initd.org>
 //
 // Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
@@ -42,16 +42,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class NpgsqlCertificateDatabase : SqlCertificateDatabase
 	{
-		readonly string connectionString;
-
 		static readonly Type npgsqlConnectionClass;
 		static readonly Assembly npgsqlAssembly;
 
 		static NpgsqlCertificateDatabase ()
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.Is64BitProcess)
-				return;
-
 			try {
 				npgsqlAssembly = Assembly.Load ("Npgsql");
 				if (npgsqlAssembly != null) {
@@ -69,12 +64,23 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
+		static IDbConnection CreateConnection (string connectionString)
+		{
+			if (connectionString == null)
+				throw new ArgumentNullException ("connectionString");
+
+			if (connectionString.Length == 0)
+				throw new ArgumentException ("The connection string cannot be empty.", "connectionString");
+
+			return (IDbConnection) Activator.CreateInstance (npgsqlConnectionClass, new [] { connectionString });
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.NpgsqlCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="NpgsqlCertificateDatabase"/> and opens a connection to the
-		/// PostgreSQL database using the specified connection string</para>
+		/// PostgreSQL database using the specified connection string.</para>
 		/// </remarks>
 		/// <param name="connectionString">The connection string.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
@@ -83,12 +89,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		public NpgsqlCertificateDatabase (string connectionString, string password) : base (password)
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="connectionString"/> is empty.
+		/// </exception>
+		public NpgsqlCertificateDatabase (string connectionString, string password) : base (CreateConnection (connectionString), password)
 		{
-			if (connectionString == null)
-				throw new ArgumentNullException ("connectionString");
-
-			this.connectionString = connectionString;
 		}
 
 		/// <summary>
@@ -106,14 +111,17 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public NpgsqlCertificateDatabase (IDbConnection connection, string password) : base (connection, password)
 		{
-			// FIXME: Should we check the connection type somehow?
-		}
-			
-		protected override IDbConnection CreateConnection ()
-		{
-			return (IDbConnection) Activator.CreateInstance (npgsqlConnectionClass, new [] { connectionString });
 		}
 
+		/// <summary>
+		/// Gets the command to create the certificates table.
+		/// </summary>
+		/// <remarks>
+		/// Constructs the command to create a certificates table suitable for storing
+		/// <see cref="X509CertificateRecord"/> objects.
+		/// </remarks>
+		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
 		protected override IDbCommand GetCreateCertificatesTableCommand (IDbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
@@ -152,6 +160,15 @@ namespace MimeKit.Cryptography {
 			return command;
 		}
 
+		/// <summary>
+		/// Gets the command to create the CRLs table.
+		/// </summary>
+		/// <remarks>
+		/// Constructs the command to create a CRLs table suitable for storing
+		/// <see cref="X509CertificateRecord"/> objects.
+		/// </remarks>
+		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
 		protected override IDbCommand GetCreateCrlsTableCommand (IDbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");

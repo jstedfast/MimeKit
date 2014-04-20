@@ -482,13 +482,13 @@ namespace MimeKit.Cryptography {
 			case "ID": return record.Id;
 			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
-			case "KEYUSAGE": return record.KeyUsage;
+			case "KEYUSAGE": return (int) record.KeyUsage;
 			case "NOTBEFORE": return record.NotBefore;
 			case "NOTAFTER": return record.NotAfter;
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
-			case "SUBJECTEMAIL": return record.SubjectEmail;
-			case "FINGERPRINT": return record.Fingerprint;
+			case "SUBJECTEMAIL": return record.SubjectEmail.ToLowerInvariant ();
+			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
 			case "CERTIFICATE": return record.Certificate.GetEncoded ();
