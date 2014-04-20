@@ -35,6 +35,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.BC;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
@@ -51,9 +52,9 @@ namespace MimeKit.Cryptography {
 	public abstract class X509CertificateDatabase : IX509CertificateDatabase
 	{
 		const X509CertificateRecordFields PrivateKeyFields = X509CertificateRecordFields.Certificate | X509CertificateRecordFields.PrivateKey;
-		static readonly DerObjectIdentifier KeyAlgorithm = PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc;
-		const int MinIterations = 1024;
-		const int SaltSize = 20;
+		static readonly DerObjectIdentifier DefaultEncryptionAlgorithm = BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes256_cbc;
+		const int DefaultMinIterations = 1024;
+		const int DefaultSaltSize = 20;
 
 		readonly char[] passwd;
 
@@ -72,6 +73,10 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
+			EncryptionAlgorithm = DefaultEncryptionAlgorithm;
+			MinIterations = DefaultMinIterations;
+			SaltSize = DefaultSaltSize;
+
 			passwd = password.ToCharArray ();
 		}
 
@@ -86,6 +91,41 @@ namespace MimeKit.Cryptography {
 		~X509CertificateDatabase ()
 		{
 			Dispose (false);
+		}
+
+		/// <summary>
+		/// Gets or sets the algorithm used for encrypting the private keys.
+		/// </summary>
+		/// <remarks>
+		/// <para>The encryption algorithm should be one of the PBE (password-based encryption) algorithms
+		/// supported by Bouncy Castle.</para>
+		/// <para>The default algorithm is SHA-256 + AES256.</para>
+		/// </remarks>
+		/// <value>The encryption algorithm.</value>
+		protected DerObjectIdentifier EncryptionAlgorithm {
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the minimum iterations.
+		/// </summary>
+		/// <remarks>
+		/// The default minimum number of iterations is <c>1024</c>.
+		/// </remarks>
+		/// <value>The minimum iterations.</value>
+		protected int MinIterations {
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the size of the salt.
+		/// </summary>
+		/// <remarks>
+		/// The default salt size is <c>20</c>.
+		/// </remarks>
+		/// <value>The size of the salt.</value>
+		protected int SaltSize {
+			get; set;
 		}
 
 		static int ReadBinaryBlob (IDataRecord reader, int column, ref byte[] buffer)
@@ -120,18 +160,18 @@ namespace MimeKit.Cryptography {
 
 		byte[] EncryptAsymmetricKeyParameter (AsymmetricKeyParameter key)
 		{
-			var cipher = PbeUtilities.CreateEngine (KeyAlgorithm.Id) as IBufferedCipher;
+			var cipher = PbeUtilities.CreateEngine (EncryptionAlgorithm.Id) as IBufferedCipher;
 			var keyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo (key);
 			var random = new SecureRandom ();
 			var salt = new byte[SaltSize];
 
 			if (cipher == null)
-				throw new Exception ("Unknown encryption algorithm: " + KeyAlgorithm.Id);
+				throw new Exception ("Unknown encryption algorithm: " + EncryptionAlgorithm.Id);
 
 			random.NextBytes (salt);
 
-			var pbeParameters = PbeUtilities.GenerateAlgorithmParameters (KeyAlgorithm.Id, salt, MinIterations);
-			var algorithm = new AlgorithmIdentifier (KeyAlgorithm, pbeParameters);
+			var pbeParameters = PbeUtilities.GenerateAlgorithmParameters (EncryptionAlgorithm.Id, salt, MinIterations);
+			var algorithm = new AlgorithmIdentifier (EncryptionAlgorithm, pbeParameters);
 			var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
 
 			cipher.Init (true, cipherParameters);
