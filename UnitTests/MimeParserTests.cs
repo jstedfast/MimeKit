@@ -199,7 +199,11 @@ namespace UnitTests {
 				"Subject: Re: [MimeKit] Allow parsing of message with 0 byte body. (#51)\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				Assert.DoesNotThrow (() => MimeMessage.Load (stream), "A message with 0 bytes of content should not fail to parse.");
+				try {
+					MimeMessage.Load (stream);
+				} catch {
+					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
+				}
 			}
 		}
 	}
