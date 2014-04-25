@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,24 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
+#endif
+
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
 		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()
 		{
-			aliases = new Dictionary<string, int> (icase);
+			aliases = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase);
 
 			aliases.Add ("utf-8", 65001);
 			aliases.Add ("utf8", 65001);
@@ -44,6 +53,10 @@ namespace MimeKit.Utils {
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
 			aliases.Add ("ansi_x3.4-1968", 20127);
+
+			// Macintosh aliases
+			aliases.Add ("macintosh", 10000);
+			aliases.Add ("x-mac-icelandic", 10079);
 
 			// Korean charsets (aliases for euc-kr)
 			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
@@ -129,7 +142,7 @@ namespace MimeKit.Utils {
 			if (charset.Length < 6)
 				return -1;
 
-			int dash = charset.IndexOfAny (new char[] { '-', '_' });
+			int dash = charset.IndexOfAny (new [] { '-', '_' });
 			if (dash == -1)
 				dash = charset.Length;
 
@@ -198,6 +211,17 @@ namespace MimeKit.Utils {
 
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
+			} else if (charset.StartsWith ("ibm", StringComparison.OrdinalIgnoreCase)) {
+				i = 3;
+
+				if (i == charset.Length)
+					return -1;
+
+				if (charset[i] == '-' || charset[i] == '_')
+					i++;
+
+				if (int.TryParse (charset.Substring (i), out codepage))
+					return codepage;
 			} else if (charset.StartsWith ("iso", StringComparison.OrdinalIgnoreCase)) {
 				i = 3;
 
@@ -222,11 +246,6 @@ namespace MimeKit.Utils {
 					return codepage;
 			} else if (charset == "latin1") {
 				return 28591;
-			} else {
-				foreach (var info in Encoding.GetEncodings ()) {
-					if (icase.Compare (info.Name, charset) == 0)
-						return info.CodePage;
-				}
 			}
 
 			return -1;
@@ -241,16 +260,30 @@ namespace MimeKit.Utils {
 
 			lock (aliases) {
 				if (!aliases.TryGetValue (charset, out codepage)) {
+					Encoding encoding;
+
 					codepage = ParseCodePage (charset);
 
-					if (codepage == -1)
-						return -1;
+					if (codepage == -1) {
+						try {
+							encoding = Encoding.GetEncoding (charset);
+							codepage = encoding.CodePage;
 
-					try {
-						var encoding = Encoding.GetEncoding (codepage);
-						aliases[encoding.HeaderName] = codepage;
-					} catch (NotSupportedException) {
-						codepage = -1;
+							aliases[encoding.HeaderName] = codepage;
+						} catch (ArgumentException) {
+							codepage = -1;
+						} catch (NotSupportedException) {
+							codepage = -1;
+						}
+					} else {
+						try {
+							encoding = Encoding.GetEncoding (codepage);
+							aliases[encoding.HeaderName] = codepage;
+						} catch (ArgumentOutOfRangeException) {
+							codepage = -1;
+						} catch (NotSupportedException) {
+							codepage = -1;
+						}
 					}
 
 					aliases[charset] = codepage;
@@ -400,9 +433,9 @@ namespace MimeKit.Utils {
 
 			// Note: 65001 is UTF-8 and 28591 is iso-8859-1
 			if (userCharset != null && userCharset.CodePage != 65001 && userCharset.CodePage != 28591) {
-				codepages = new int[] { 65001, userCharset.CodePage, 28591 };
+				codepages = new [] { 65001, userCharset.CodePage, 28591 };
 			} else {
-				codepages = new int[] { 65001, 28591 };
+				codepages = new [] { 65001, 28591 };
 			}
 
 			for (int i = 0; i < codepages.Length; i++) {
@@ -442,7 +475,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			int count;
@@ -489,7 +522,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			int count;

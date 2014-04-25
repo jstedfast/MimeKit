@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,16 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Net.Mail;
 
-#if !__MIMEKIT_LITE__
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
+#if ENABLE_SNM
+using System.Net.Mail;
+#endif
+
+#if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif
 
@@ -43,10 +50,16 @@ namespace MimeKit {
 	/// <summary>
 	/// A MIME message.
 	/// </summary>
-	public sealed class MimeMessage
+	/// <remarks>
+	/// <para>A message consists of header fields and, optionally, a body.</para>
+	/// <para>The body of the message can either be plain text or it can be a
+	/// tree of MIME entities such as a text/plain MIME part and a collection
+	/// of file attachments.</para>
+	/// </remarks>
+	public class MimeMessage
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-		static readonly string[] StandardAddressHeaders = new string[] {
+		static readonly string[] StandardAddressHeaders = {
 			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
 			"From", "Reply-To", "To", "Cc", "Bcc"
 		};
@@ -110,8 +123,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
-		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/>.
+		/// </remarks>
+		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
@@ -170,30 +186,42 @@ namespace MimeKit {
 			// Do exactly as in the parameterless constructor but avoid setting a default
 			// value if an header already provided one.
 
-			if (!Headers.Contains ("From"))
-				Headers["From"] = string.Empty;
-			if (!Headers.Contains ("To"))
-				Headers["To"] = string.Empty;
+			if (!Headers.Contains (HeaderId.From))
+				Headers[HeaderId.From] = string.Empty;
+			if (!Headers.Contains (HeaderId.To))
+				Headers[HeaderId.To] = string.Empty;
 			if (date == default (DateTimeOffset))
 				Date = DateTimeOffset.Now;
-			if (!Headers.Contains ("Subject"))
+			if (!Headers.Contains (HeaderId.Subject))
 				Subject = string.Empty;
+			if (messageId == null)
+				MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME message.
+		/// </remarks>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
-			Headers["From"] = string.Empty;
-			Headers["To"] = string.Empty;
+			Headers[HeaderId.From] = string.Empty;
+			Headers[HeaderId.To] = string.Empty;
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
+			MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
+		/// <remarks>
+		/// Represents the list of headers for a message. Typically, the headers of
+		/// a message will contain transmission headers such as From and To along
+		/// with metadata headers such as Subject and Date, but may include just
+		/// about anything.
+		/// </remarks>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
@@ -202,6 +230,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the address in the Sender header.
 		/// </summary>
+		/// <remarks>
+		/// The sender may differ from the addresses in <see cref="From"/> if
+		/// the message was sent by someone on behalf of someone else.
+		/// </remarks>
 		/// <value>The address in the Sender header.</value>
 		public MailboxAddress Sender {
 			get { return sender; }
@@ -236,6 +268,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the address in the Resent-Sender header.
 		/// </summary>
+		/// <remarks>
+		/// The resent sender may differ from the addresses in <see cref="ResentFrom"/> if
+		/// the message was sent by someone on behalf of someone else.
+		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
 		public MailboxAddress ResentSender {
 			get { return resentSender; }
@@ -270,6 +306,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the From header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The "From" header specifies the author(s) of the message.</para>
+		/// <para>If more than one <see cref="MailboxAddress"/> is added to the
+		/// list of "From" addresses, the <see cref="Sender"/> should be set to the
+		/// single <see cref="MailboxAddress"/> of the personal actually sending
+		/// the message.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the From header.</value>
 		public InternetAddressList From {
 			get { return addresses["From"]; }
@@ -278,6 +321,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-From header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The "Resent-From" header specifies the author(s) of the messagebeing
+		/// resent.</para>
+		/// <para>If more than one <see cref="MailboxAddress"/> is added to the
+		/// list of "Resent-From" addresses, the <see cref="ResentSender"/> should
+		/// be set to the single <see cref="MailboxAddress"/> of the personal actually
+		/// sending the message.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-From header.</value>
 		public InternetAddressList ResentFrom {
 			get { return addresses["Resent-From"]; }
@@ -286,6 +337,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Reply-To header.
 		/// </summary>
+		/// <remarks>
+		/// <para>When the list of addresses in the Reply-To header is not empty,
+		/// it contains the address(es) where the author(s) of the message prefer
+		/// that replies be sent.</para>
+		/// <para>When the list of addresses in the Reply-To header is empty,
+		/// replies should be sent to the mailbox(es) specified in the From
+		/// header.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
 			get { return addresses["Reply-To"]; }
@@ -294,6 +353,14 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Reply-To header.
 		/// </summary>
+		/// <remarks>
+		/// <para>When the list of addresses in the Resent-Reply-To header is not empty,
+		/// it contains the address(es) where the author(s) of the resent message prefer
+		/// that replies be sent.</para>
+		/// <para>When the list of addresses in the Resent-Reply-To header is empty,
+		/// replies should be sent to the mailbox(es) specified in the Resent-From
+		/// header.</para>
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Reply-To header.</value>
 		public InternetAddressList ResentReplyTo {
 			get { return addresses["Resent-Reply-To"]; }
@@ -302,6 +369,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the To header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the To header are the primary recipients of
+		/// the message.
+		/// </remarks>
 		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
 			get { return addresses["To"]; }
@@ -310,6 +381,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-To header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Resent-To header are the primary recipients of
+		/// the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-To header.</value>
 		public InternetAddressList ResentTo {
 			get { return addresses["Resent-To"]; }
@@ -318,6 +393,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Cc header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Cc header are secondary recipients of the message
+		/// and are usually not the individuals being directly addressed in the
+		/// content of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Cc header.</value>
 		public InternetAddressList Cc {
 			get { return addresses["Cc"]; }
@@ -326,6 +406,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Cc header.
 		/// </summary>
+		/// <remarks>
+		/// The addresses in the Resent-Cc header are secondary recipients of the message
+		/// and are usually not the individuals being directly addressed in the
+		/// content of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Cc header.</value>
 		public InternetAddressList ResentCc {
 			get { return addresses["Resent-Cc"]; }
@@ -334,6 +419,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Bcc header.
 		/// </summary>
+		/// <remarks>
+		/// Recipients in the Blind-Carpbon-Copy list will not be visible to
+		/// the other recipients of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
 			get { return addresses["Bcc"]; }
@@ -342,6 +431,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the list of addresses in the Resent-Bcc header.
 		/// </summary>
+		/// <remarks>
+		/// Recipients in the Resent-Bcc list will not be visible to
+		/// the other recipients of the message.
+		/// </remarks>
 		/// <value>The list of addresses in the Resent-Bcc header.</value>
 		public InternetAddressList ResentBcc {
 			get { return addresses["Resent-Bcc"]; }
@@ -350,6 +443,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the subject of the message.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Subject is typically a short string denoting the topic of the message.</para>
+		/// <para>Replies will often use <c>"Re: "</c> followed by the Subject of the original message.</para>
+		/// </remarks>
 		/// <value>The subject of the message.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -369,6 +466,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the date of the message.
 		/// </summary>
+		/// <remarks>
+		/// If the date is not explicitly set before the message is written to a stream,
+		/// the date will default to the exact moment when it is written to said stream.
+		/// </remarks>
 		/// <value>The date of the message.</value>
 		public DateTimeOffset Date {
 			get { return date; }
@@ -387,6 +488,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the Resent-Date of the message.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the Resent-Date of the message.
+		/// </remarks>
 		/// <value>The Resent-Date of the message.</value>
 		public DateTimeOffset ResentDate {
 			get { return resentDate; }
@@ -405,14 +509,23 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the list of references to other messages.
 		/// </summary>
+		/// <remarks>
+		/// The References header contains a chain of Message-Ids back to the
+		/// original message that started the thread.
+		/// </remarks>
 		/// <value>The references.</value>
 		public MessageIdList References {
 			get { return references; }
 		}
 
 		/// <summary>
-		/// Gets or sets the message-id that this message is in reply to.
+		/// Gets or sets the Message-Id that this message is in reply to.
 		/// </summary>
+		/// <remarks>
+		/// If the message is a reply to another message, it will typically
+		/// use the In-Reply-To header to specify the Message-Id of the
+		/// original message being replied to.
+		/// </remarks>
 		/// <value>The message id that this message is in reply to.</value>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
@@ -438,10 +551,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				inreplyto = "<" + ((MailboxAddress) addr).Address + ">";
+				inreplyto = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["In-Reply-To"] = inreplyto;
+				Headers["In-Reply-To"] = "<" + inreplyto + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -449,6 +562,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the message identifier.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Message-Id is meant to be a globally unique identifier for
+		/// a message.</para>
+		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// to generate this value.</para>
+		/// </remarks>
 		/// <value>The message identifier.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -472,10 +591,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				messageId = "<" + ((MailboxAddress) addr).Address + ">";
+				messageId = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Message-Id"] = messageId;
+				Headers["Message-Id"] = "<" + messageId + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -483,6 +602,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the Resent-Message-Id header.
 		/// </summary>
+		/// <remarks>
+		/// <para>The Resent-Message-Id is meant to be a globally unique identifier for
+		/// a message.</para>
+		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// to generate this value.</para>
+		/// </remarks>
 		/// <value>The Resent-Message-Id.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -506,10 +631,10 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
 
-				resentMessageId = "<" + ((MailboxAddress) addr).Address + ">";
+				resentMessageId = ((MailboxAddress) addr).Address;
 
 				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Message-Id"] = resentMessageId;
+				Headers["Resent-Message-Id"] = "<" + resentMessageId + ">";
 				Headers.Changed += HeadersChanged;
 			}
 		}
@@ -517,6 +642,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the MIME-Version.
 		/// </summary>
+		/// <remarks>
+		/// The MIME-Version header specifies the version of the MIME specification
+		/// that the message was created for.
+		/// </remarks>
 		/// <value>The MIME version.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -541,14 +670,77 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the body of the message.
 		/// </summary>
+		/// <remarks>
+		/// <para>The body of the message can either be plain text or it can be a
+		/// tree of MIME entities such as a text/plain MIME part and a collection
+		/// of file attachments.</para>
+		/// <para>For a convenient way of constructing message bodies, see the
+		/// <see cref="BodyBuilder"/> class.</para>
+		/// </remarks>
 		/// <value>The body of the message.</value>
 		public MimeEntity Body {
 			get; set;
 		}
 
+		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
+		{
+			if (entity == null)
+				yield break;
+
+			var multipart = entity as Multipart;
+
+			if (multipart != null) {
+				foreach (var subpart in multipart) {
+					foreach (var part in EnumerateMimeParts (subpart))
+						yield return part;
+				}
+
+				yield break;
+			}
+
+			var msgpart = entity as MessagePart;
+
+			if (msgpart != null) {
+				var message = msgpart.Message;
+
+				foreach (var part in EnumerateMimeParts (message.Body))
+					yield return part;
+
+				yield break;
+			}
+
+			yield return (MimePart) entity;
+		}
+
+		/// <summary>
+		/// Gets the body parts of the message.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating all  of the <see cref="MimePart"/> objects.
+		/// </remarks>
+		/// <value>The body parts.</value>
+		public IEnumerable<MimePart> BodyParts {
+			get { return EnumerateMimeParts (Body); }
+		}
+
+		/// <summary>
+		/// Gets the attachments.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects that
+		/// have a Content-Disposition header set to <c>"attachment"</c>.
+		/// </remarks>
+		/// <value>The attachments.</value>
+		public IEnumerable<MimePart> Attachments {
+			get { return EnumerateMimeParts (Body).Where (part => part.IsAttachment); }
+		}
+
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -570,12 +762,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
-
-			if (!Headers.Contains ("Date"))
-				Date = DateTimeOffset.Now;
-
-			if (messageId == null)
-				MessageId = MimeUtils.GenerateMessageId ();
 
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
@@ -615,6 +801,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -633,6 +822,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -652,6 +844,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -714,7 +909,7 @@ namespace MimeKit {
 			return recipients;
 		}
 
-		#if !__MIMEKIT_LITE__
+#if ENABLE_CRYPTO
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
@@ -952,7 +1147,7 @@ namespace MimeKit {
 		{
 			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
-		#endif // __MIMEKIT_LITE__
+#endif // ENABLE_CRYPTO
 
 		IEnumerable<Header> MergeHeaders ()
 		{
@@ -1018,7 +1213,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 
 				for (int i = 0; i < references.Count; i++) {
-					if (lineLength + references[i].Length >= options.MaxLineLength) {
+					if (i > 0 && lineLength + references[i].Length + 2 >= options.MaxLineLength) {
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
@@ -1028,7 +1223,7 @@ namespace MimeKit {
 					}
 
 					lineLength += references[i].Length;
-					builder.Append (references[i]);
+					builder.Append ("<" + references[i] + ">");
 				}
 
 				builder.Append (options.NewLine);
@@ -1259,6 +1454,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -1270,6 +1469,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1290,6 +1492,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -1298,6 +1504,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1310,6 +1519,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -1317,6 +1530,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1329,10 +1545,17 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1342,9 +1565,14 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, CancellationToken.None);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -1365,6 +1593,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1385,6 +1616,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -1403,6 +1638,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1414,6 +1652,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -1431,6 +1673,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1442,6 +1687,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1456,6 +1705,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1463,142 +1715,173 @@ namespace MimeKit {
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
+#endif // !PORTABLE
 
+#if ENABLE_SNM
 		#region System.Net.Mail support
 
-		static System.Net.Mime.ContentType GetContentType (ContentType contentType)
+		static MimePart GetMimePart (AttachmentBase item)
 		{
-			var ctype = new System.Net.Mime.ContentType ();
-			ctype.MediaType = string.Format ("{0}/{1}", contentType.MediaType, contentType.MediaSubtype);
+			var mimeType = item.ContentType.ToString ();
+			var part = new MimePart (ContentType.Parse (mimeType));
+			var attachment = item as Attachment;
 
-			foreach (var param in contentType.Parameters)
-				ctype.Parameters.Add (param.Name, param.Value);
-
-			return ctype;
-		}
-
-		static System.Net.Mime.TransferEncoding GetTransferEncoding (ContentEncoding encoding)
-		{
-			switch (encoding) {
-			case ContentEncoding.QuotedPrintable:
-			case ContentEncoding.EightBit:
-				return System.Net.Mime.TransferEncoding.QuotedPrintable;
-			case ContentEncoding.SevenBit:
-				return System.Net.Mime.TransferEncoding.SevenBit;
-			default:
-				return System.Net.Mime.TransferEncoding.Base64;
+			if (attachment != null) {
+				var disposition = attachment.ContentDisposition.ToString ();
+				part.ContentDisposition = ContentDisposition.Parse (disposition);
 			}
-		}
 
-		static void AddBodyPart (MailMessage message, MimeEntity entity)
-		{
-			if (entity is MessagePart) {
-				// FIXME: how should this be converted into a MailMessage?
-			} else if (entity is Multipart) {
-				var multipart = (Multipart) entity;
-
-				if (multipart.ContentType.Matches ("multipart", "alternative")) {
-					foreach (var part in multipart.OfType<MimePart> ()) {
-						// clone the content
-						var content = new MemoryStream ();
-						part.ContentObject.DecodeTo (content);
-						content.Position = 0;
-
-						var view = new AlternateView (content, GetContentType (part.ContentType));
-						view.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
-						if (!string.IsNullOrEmpty (part.ContentId))
-							view.ContentId = part.ContentId;
-
-						message.AlternateViews.Add (view);
-					}
-				} else {
-					foreach (var part in multipart)
-						AddBodyPart (message, part);
-				}
-			} else {
-				var part = (MimePart) entity;
-
-				if (part.IsAttachment || !string.IsNullOrEmpty (message.Body) || !(part is TextPart)) {
-					// clone the content
-					var content = new MemoryStream ();
-					part.ContentObject.DecodeTo (content);
-					content.Position = 0;
-
-					var attachment = new Attachment (content, GetContentType (part.ContentType));
-
-					if (part.ContentDisposition != null) {
-						attachment.ContentDisposition.DispositionType = part.ContentDisposition.Disposition;
-						foreach (var param in part.ContentDisposition.Parameters)
-							attachment.ContentDisposition.Parameters.Add (param.Name, param.Value);
-					}
-
-					attachment.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
-
-					if (!string.IsNullOrEmpty (part.ContentId))
-						attachment.ContentId = part.ContentId;
-
-					message.Attachments.Add (attachment);
-				} else {
-					message.IsBodyHtml = part.ContentType.Matches ("text", "html");
-					message.Body = ((TextPart) part).Text;
-				}
+			switch (item.TransferEncoding) {
+			case System.Net.Mime.TransferEncoding.QuotedPrintable:
+				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+				break;
+			case System.Net.Mime.TransferEncoding.Base64:
+				part.ContentTransferEncoding = ContentEncoding.Base64;
+				break;
+			case System.Net.Mime.TransferEncoding.SevenBit:
+				part.ContentTransferEncoding = ContentEncoding.SevenBit;
+				break;
 			}
+
+			if (item.ContentId != null)
+				part.ContentId = item.ContentId;
+
+			var stream = new MemoryStream ();
+			item.ContentStream.CopyTo (stream);
+			stream.Position = 0;
+
+			part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+
+			return part;
 		}
 
 		/// <summary>
-		/// Explicit cast to convert a <see cref="MimeMessage"/> to a
-		/// <see cref="System.Net.Mail.MailMessage"/>.
+		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
 		/// <remarks>
-		/// <para>Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
-		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.</para>
-		/// <para>It should be noted, however, that <see cref="System.Net.Mail.MailMessage"/>
-		/// cannot represent all MIME structures that can be constructed using MimeKit,
-		/// so the conversion may not be perfect.</para>
+		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </remarks>
-		/// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
+		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <c>null</c>.
 		/// </exception>
-		public static explicit operator MailMessage (MimeMessage message)
+		public static MimeMessage CreateFromMailMessage (MailMessage message)
 		{
 			if (message == null)
 				throw new ArgumentNullException ("message");
 
-			var from = message.From.Mailboxes.FirstOrDefault ();
-			var msg = new MailMessage ();
-			var sender = message.Sender;
+			var headers = new List<Header> ();
+			foreach (var field in message.Headers.AllKeys) {
+				foreach (var value in message.Headers.GetValues (field))
+					headers.Add (new Header (field, value));
+			}
 
-			foreach (var header in message.Headers)
-				msg.Headers.Add (header.Field, header.Value);
+			var msg = new MimeMessage (ParserOptions.Default, headers);
+			MimeEntity body = null;
 
-			if (sender != null)
-				msg.Sender = (MailAddress) sender;
+			if (message.Sender != null)
+				msg.Sender = (MailboxAddress) message.Sender;
+			if (message.From != null)
+				msg.From.Add ((MailboxAddress) message.From);
+			msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			msg.To.AddRange ((InternetAddressList) message.To);
+			msg.Cc.AddRange ((InternetAddressList) message.CC);
+			msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+			msg.Subject = message.Subject ?? string.Empty;
 
-			if (from != null)
-				msg.From = (MailAddress) from;
+			switch (message.Priority) {
+			case MailPriority.High:
+				msg.Headers.Add (HeaderId.Priority, "urgent");
+				msg.Headers.Add (HeaderId.Importance, "high");
+				msg.Headers.Add ("X-Priority", "1");
+				break;
+			case MailPriority.Low:
+				msg.Headers.Add (HeaderId.Priority, "non-urgent");
+				msg.Headers.Add (HeaderId.Importance, "low");
+				msg.Headers.Add ("X-Priority", "5");
+				break;
+			}
 
-			foreach (var mailbox in message.ReplyTo.Mailboxes)
-				msg.ReplyToList.Add ((MailAddress) mailbox);
+			if (message.Body != null) {
+				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
+				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
+				body = text;
+			}
 
-			foreach (var mailbox in message.To.Mailboxes)
-				msg.To.Add ((MailAddress) mailbox);
+			if (message.AlternateViews.Count > 0) {
+				var alternative = new Multipart ("alternative");
 
-			foreach (var mailbox in message.Cc.Mailboxes)
-				msg.CC.Add ((MailAddress) mailbox);
+				if (body != null)
+					alternative.Add (body);
 
-			foreach (var mailbox in message.Bcc.Mailboxes)
-				msg.Bcc.Add ((MailAddress) mailbox);
+				foreach (var view in message.AlternateViews) {
+					var part = GetMimePart (view);
 
-			msg.Subject = message.Subject;
+					if (view.BaseUri != null)
+						part.ContentLocation = view.BaseUri;
 
-			if (message.Body != null)
-				AddBodyPart (msg, message.Body);
+					if (view.LinkedResources.Count > 0) {
+						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
+						var related = new Multipart ("related");
+
+						related.ContentType.Parameters.Add ("type", type);
+
+						if (view.BaseUri != null)
+							related.ContentLocation = view.BaseUri;
+
+						related.Add (part);
+
+						foreach (var resource in view.LinkedResources) {
+							part = GetMimePart (resource);
+
+							if (resource.ContentLink != null)
+								part.ContentLocation = resource.ContentLink;
+
+							related.Add (part);
+						}
+
+						alternative.Add (related);
+					} else {
+						alternative.Add (part);
+					}
+				}
+
+				body = alternative;
+			}
+
+			if (message.Attachments.Count > 0) {
+				var mixed = new Multipart ("mixed");
+
+				if (body != null)
+					mixed.Add (body);
+
+				foreach (var attachment in message.Attachments)
+					mixed.Add (GetMimePart (attachment));
+
+				body = mixed;
+			}
+
+			msg.Body = body;
 
 			return msg;
 		}
 
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailMessage"/> to a
+		/// <see cref="MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
+		/// </remarks>
+		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
+		/// <param name="message">The message.</param>
+		public static explicit operator MimeMessage (MailMessage message)
+		{
+			return message != null ? CreateFromMailMessage (message) : null;
+		}
+
 		#endregion
+#endif
 	}
 }

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -189,6 +189,22 @@ namespace UnitTests {
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
 			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+		}
+
+		[Test]
+		public void TestIssue51 ()
+		{
+			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +
+				"From: Jeffrey Stedfast <notifications@github.com>\r\n" +
+				"Subject: Re: [MimeKit] Allow parsing of message with 0 byte body. (#51)\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				try {
+					MimeMessage.Load (stream);
+				} catch {
+					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
+				}
+			}
 		}
 	}
 }

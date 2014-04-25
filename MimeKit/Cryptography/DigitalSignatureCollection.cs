@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -45,6 +43,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DigitalSignatureCollection"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureCollection"/>.
+		/// </remarks>
 		/// <param name="signatures">The signatures.</param>
 		public DigitalSignatureCollection (IList<IDigitalSignature> signatures) : base (signatures)
 		{

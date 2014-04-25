@@ -1,9 +1,9 @@
 <Type Name="ApplicationPkcs7Mime" FullName="MimeKit.Cryptography.ApplicationPkcs7Mime">
-  <TypeSignature Language="C#" Value="public sealed class ApplicationPkcs7Mime : MimeKit.MimePart" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ApplicationPkcs7Mime extends MimeKit.MimePart" />
+  <TypeSignature Language="C#" Value="public class ApplicationPkcs7Mime : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPkcs7Mime extends MimeKit.MimePart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimePart</BaseTypeName>
@@ -13,7 +13,10 @@
     <summary>
             An S/MIME part with a Content-Type of application/pkcs7-mime.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An application/pkcs7-mime is an S/MIME part and may contain encrypted,
+            signed or compressed data (or any combination of the above).
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -21,7 +24,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -39,7 +42,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Cryptography.SecureMimeType type, class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="type" Type="MimeKit.Cryptography.SecureMimeType" />
@@ -80,7 +83,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Compress(class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -91,13 +94,14 @@
       <Docs>
         <param name="entity">The entity.</param>
         <summary>
-            Compress the specified entity.
+            Compresses the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The compressed entity.</returns>
         <remarks>
-            It should be noted that this feature is not supported by most mail clients,
-            even among those that support S/MIME.
-            </remarks>
+          <para>Compresses the specified entity using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>It should be noted that this feature is not supported by most mail clients,
+            even among those that support S/MIME.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="entity" /> is <c>null</c>.
             </exception>
@@ -111,7 +115,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Compress(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -124,13 +128,14 @@
         <param name="ctx">The S/MIME context to use for compressing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Compress the specified entity.
+            Compresses the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The compressed entity.</returns>
         <remarks>
-            It should be noted that this feature is not supported by most mail clients,
-            even among those that support S/MIME.
-            </remarks>
+          <para>Compresses the specified entity using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>It should be noted that this feature is not supported by most mail clients,
+            even among those that support S/MIME.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -148,7 +153,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decompress() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -156,10 +161,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decompress using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            Decompresses the content.
             </summary>
         <returns>The decompressed <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decompresses the content using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "compressed-data".
             </exception>
@@ -173,7 +180,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decompress(class MimeKit.Cryptography.SecureMimeContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -184,10 +191,12 @@
       <Docs>
         <param name="ctx">The S/MIME context to use for decompressing.</param>
         <summary>
-            Decompress using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            Decompresses the content.
             </summary>
         <returns>The decompressed <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decompresses the content using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -204,7 +213,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -212,10 +221,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decrypt the content.
+            Decrypts the content.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the content using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
@@ -229,7 +240,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.SecureMimeContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -240,10 +251,12 @@
       <Docs>
         <param name="ctx">The S/MIME context to use for decrypting.</param>
         <summary>
-            Decrypt using the specified <see cref="T:MimeKit.Cryptography.CryptographyContext" />.
+            Decrypts the content.
             </summary>
         <returns>The decrypted <see cref="T:MimeKit.MimeEntity" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the content using the specified <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -260,7 +273,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -273,10 +286,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -294,7 +309,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -307,10 +322,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the default <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -334,7 +351,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -349,10 +366,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the supplied <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -373,7 +392,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Encrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -388,10 +407,12 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Encrypt the specified entity.
+            Encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The encrypted entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients using the supplied <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -418,7 +439,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class MimeKit.Cryptography.SecureMimeContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -429,9 +450,11 @@
       <Docs>
         <param name="ctx">The S/MIME context to import certificates into.</param>
         <summary>
-            Import the certificates contained in the content.
+            Imports the certificates contained in the content.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the certificates contained in the content.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "certs-only".
             </exception>
@@ -445,7 +468,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.SecureMimeType SecureMimeType" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.SecureMimeType</ReturnType>
@@ -455,7 +478,9 @@
             Gets the value of the "smime-type" parameter.
             </summary>
         <value>The value of the "smime-type" parameter.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the value of the "smime-type" parameter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -463,7 +488,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Sign(class MimeKit.Cryptography.CmsSigner signer, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -476,15 +501,16 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
+          <para>Signs the entity using the supplied signer.</para>
+          <para>For better interoperability with other mail clients, you should use
             <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -502,7 +528,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Sign(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.Cryptography.CmsSigner signer, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -517,15 +543,16 @@
         <param name="signer">The signer.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
+          <para>Signs the entity using the supplied signer and <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>For better interoperability with other mail clients, you should use
             <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -546,7 +573,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Sign(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -561,15 +588,16 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
-            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.CryptographyContext,MimeKit.MailboxAddress,MimeKit.Cryptography.DigestAlgorithm,MimeKit.MimeEntity)" />
+          <para>Signs the entity using the supplied signer and digest algorithm.</para>
+          <para>For better interoperability with other mail clients, you should use
+            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -590,7 +618,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime Sign(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -607,15 +635,16 @@
         <param name="digestAlgo">The digest algorithm to use for signing.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign the specified entity.
+            Cryptographically signs the specified entity.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The signed entity.</returns>
         <remarks>
-            For better interoperability with other mail clients, you should use
-            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.CryptographyContext,MimeKit.MailboxAddress,MimeKit.Cryptography.DigestAlgorithm,MimeKit.MimeEntity)" />
+          <para>Signs the entity using the supplied signer, digest algorithm and <see cref="T:MimeKit.Cryptography.SecureMimeContext" />.</para>
+          <para>For better interoperability with other mail clients, you should use
+            <see cref="M:MimeKit.Cryptography.MultipartSigned.Create(MimeKit.Cryptography.SecureMimeContext,MimeKit.Cryptography.CmsSigner,MimeKit.MimeEntity)" />
             instead as the multipart/signed format is supported among a much larger
-            subset of mail client software.
-            </remarks>
+            subset of mail client software.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -639,7 +668,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.Cryptography.CmsSigner signer, class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -654,10 +683,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -678,7 +710,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.Cryptography.CmsSigner signer, class MimeKit.Cryptography.CmsRecipientCollection recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -695,10 +727,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -722,7 +757,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -739,10 +774,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -768,7 +806,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.ApplicationPkcs7Mime SignAndEncrypt(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -787,10 +825,13 @@
         <param name="recipients">The recipients.</param>
         <param name="entity">The entity.</param>
         <summary>
-            Sign and Encrypt the specified entity.
+            Cryptographically signs and encrypts the specified entity.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The signed and encrypted entity.</returns>
+        <remarks>
+            Cryptographically signs entity using the supplied signer and then
+            encrypts the result to the specified recipients.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -819,7 +860,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
@@ -830,10 +871,12 @@
       <Docs>
         <param name="entity">The unencapsulated entity.</param>
         <summary>
-            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
         <returns>The list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
             </exception>
@@ -847,7 +890,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Cryptography.DigitalSignatureCollection Verify(class MimeKit.Cryptography.SecureMimeContext ctx, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
@@ -860,15 +903,20 @@
         <param name="ctx">The S/MIME context to use for verifying the signature.</param>
         <param name="entity">The unencapsulated entity.</param>
         <summary>
-            Verify the signed-data and return the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
             </summary>
         <returns>The list of digital signatures.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Verifies the signed-data and returns the unencapsulated <see cref="T:MimeKit.MimeEntity" />.
+            </remarks>
         <exception cref="T:System.InvalidOperationException">
             The "smime-type" parameter on the Content-Type header is not "signed-data".
             </exception>
         <exception cref="T:Org.BouncyCastle.Cms.CmsException">
             An error occurred in the cryptographic message syntax subsystem.
+            </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="ctx" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>

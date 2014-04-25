@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Multipart extends MimeKit.MimeEntity implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimeEntity</BaseTypeName>
@@ -21,9 +21,29 @@
   </Interfaces>
   <Docs>
     <summary>
-            A Multipart MIME part which may contain a collection of MIME parts.
+            A multipart MIME entity which may contain a collection of MIME entities.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>All multipart MIME entities will have a Content-Type with a media type of <c>"multipart"</c>.
+            The most common multipart MIME entity used in email is the <c>"multipart/mixed"</c> entity.</para>
+      <para>Four (4) initial subtypes were defined in the original MIME specifications: mixed, alternative,
+            digest, and parallel.</para>
+      <para>The "multipart/mixed" type is a sort of general-purpose container. When used in email, the
+            first entity is typically the "body" of the message while additional entities are most often
+            file attachments.</para>
+      <para>Speaking of message "bodies", the "multipart/alternative" type is used to offer a list of
+            alternative formats for the main body of the message (usually they will be "text/plain" and
+            "text/html"). These alternatives are in order of increasing faithfulness to the original document
+            (in other words, the last entity will be in a format that, when rendered, will most closely match
+            what the sending client's WYSISYG editor produced).</para>
+      <para>The "multipart/digest" type will typically contain a digest of MIME messages and is most
+            commonly used by mailing-list software.</para>
+      <para>The "multipart/parallel" type contains entities that are all meant to be shown (or heard)
+            in parallel.</para>
+      <para>Another commonly used type is the "multipart/related" type which contains, as one might expect,
+            inter-related MIME parts which typically reference each other via URIs based on the Content-Id and/or
+            Content-Location headers.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -31,15 +51,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class
-            with a default Content-Type of multipart/mixed.
+            Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Multipart" /> with a ContentType of multipart/mixed.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -47,7 +68,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -65,7 +86,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string subtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -75,7 +96,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Multipart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="subtype" /> is <c>null</c>.
             </exception>
@@ -86,7 +109,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string subtype, object[] args) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -104,7 +127,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Multipart" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Multipart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="subtype" /> is <c>null</c>.</para>
@@ -122,7 +147,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.MimeEntity part) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -135,7 +160,9 @@
         <summary>
             Adds the specified part.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified part to the multipart.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -146,7 +173,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Boundary" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -156,7 +183,9 @@
             Gets or sets the boundary.
             </summary>
         <value>The boundary.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the boundary parameter on the Content-Type header.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -167,7 +196,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -175,9 +204,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Removes all of the children.
+            Clears the multipart.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the parts within the multipart.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -185,7 +216,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.MimeEntity part) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -198,8 +229,12 @@
         <summary>
             Checks if the <see cref="T:MimeKit.Multipart" /> contains the specified part.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the specified part exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the multipart contains the specified part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -210,7 +245,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.MimeEntity[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -225,7 +260,10 @@
         <summary>
             Copies all of the entities in the <see cref="T:MimeKit.Multipart" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the entities within the <see cref="T:MimeKit.Multipart" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -239,17 +277,19 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the number of child parts.
+            Gets the number of parts in the multipart.
             </summary>
-        <value>The number of child parts.</value>
-        <remarks>To be added.</remarks>
+        <value>The number of parts in the multipart.</value>
+        <remarks>
+            Indicates the number of parts in the multipart.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Epilogue">
@@ -257,7 +297,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Epilogue" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -267,7 +307,10 @@
             Gets or sets the epilogue.
             </summary>
         <value>The epilogue.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A multipart epiloque is the text that ppears after the last
+            child of the multipart and is rarely ever used.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -275,7 +318,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.MimeEntity&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.MimeEntity&gt;</ReturnType>
@@ -286,7 +329,9 @@
             Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -294,7 +339,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.MimeEntity part) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -308,7 +353,9 @@
             Gets the index of the specified part.
             </summary>
         <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified address, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -319,7 +366,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.MimeEntity part) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -332,9 +379,11 @@
         <param name="index">The index.</param>
         <param name="part">The part.</param>
         <summary>
-            Insert the part atthe specified index.
+            Inserts the part at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the part into the multipart at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -348,7 +397,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -359,7 +408,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.Multipart" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -367,7 +418,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Item(int32)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -380,8 +431,10 @@
         <summary>
             Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The entity at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -395,7 +448,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Preamble" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -405,7 +458,13 @@
             Gets or sets the preamble.
             </summary>
         <value>The preamble.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A multipart preamble appears before the first child entity of the
+            multipart and is typically used only in the top-level multipart
+            of the message to specify that the message is in MIME format and
+            therefore requires a MIME compliant email application to render
+            it correctly.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -413,7 +472,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.MimeEntity part) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -424,11 +483,13 @@
       <Docs>
         <param name="part">The part to remove.</param>
         <summary>
-            Remove the specified part.
+            Removes the specified part.
             </summary>
         <returns>
-          <c>true</c> if the part was removed; otherwise <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+          <value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the specified part, if it exists within the multipart.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="part" /> is <c>null</c>.
             </exception>
@@ -439,7 +500,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -452,7 +513,9 @@
         <summary>
             Removes the part at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the part at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -463,24 +526,28 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets the enumerator for the children of the <see cref="T:MimeKit.Multipart" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken token);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken token) cil managed" />
+      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -488,16 +555,18 @@
       <Parameters>
         <Parameter Name="options" Type="MimeKit.FormatOptions" />
         <Parameter Name="stream" Type="System.IO.Stream" />
-        <Parameter Name="token" Type="System.Threading.CancellationToken" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
         <param name="options">The formatting options.</param>
         <param name="stream">The output stream.</param>
-        <param name="token">A cancellation token.</param>
+        <param name="cancellationToken">A cancellation token.</param>
         <summary>
             Writes the <see cref="T:MimeKit.Multipart" /> to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the multipart MIME entity and its subparts to the output stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

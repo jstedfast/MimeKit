@@ -1,9 +1,9 @@
 <Type Name="InternetAddressList" FullName="MimeKit.InternetAddressList">
-  <TypeSignature Language="C#" Value="public sealed class InternetAddressList : IEquatable&lt;MimeKit.InternetAddressList&gt;, System.Collections.Generic.ICollection&lt;MimeKit.InternetAddress&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;, System.Collections.Generic.IList&lt;MimeKit.InternetAddress&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit InternetAddressList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.IEnumerable, class System.IEquatable`1&lt;class MimeKit.InternetAddressList&gt;" />
+  <TypeSignature Language="C#" Value="public class InternetAddressList : IEquatable&lt;MimeKit.InternetAddressList&gt;, System.Collections.Generic.ICollection&lt;MimeKit.InternetAddress&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;, System.Collections.Generic.IList&lt;MimeKit.InternetAddress&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit InternetAddressList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.InternetAddress&gt;, class System.Collections.IEnumerable, class System.IEquatable`1&lt;class MimeKit.InternetAddressList&gt;" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -24,9 +24,19 @@
   </Interfaces>
   <Docs>
     <summary>
-            A list of <see cref="T:MimeKit.InternetAddress" />es.
+            A list of email addresses.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>An <see cref="T:MimeKit.InternetAddressList" /> may contain any number of addresses of any type
+            defined by the original Internet Message specification.</para>
+      <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
+      <para>Mailbox addresses are what are most commonly known as email addresses and are
+            represented by the <see cref="T:MimeKit.MailboxAddress" /> class.</para>
+      <para>Group addresses are themselves lists of addresses and are represented by the
+            <see cref="T:MimeKit.GroupAddress" /> class. While rare, it is still important to handle these
+            types of addresses. They typically only contain mailbox addresses, but may also
+            contain other group addresses.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -34,14 +44,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new, empty, <see cref="T:MimeKit.InternetAddressList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -49,7 +61,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; addresses) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="addresses" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
@@ -59,7 +71,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.InternetAddressList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.InternetAddressList" /> containing the supplied addresses.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="addresses" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -67,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -80,7 +97,9 @@
         <summary>
             Adds the specified address.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified address to the end of the address list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -91,7 +110,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddRange(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -104,7 +123,9 @@
         <summary>
             Adds a collection of addresses.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a range of addresses to the end of the address list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="addresses" /> is <c>null</c>.
             </exception>
@@ -115,7 +136,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -123,9 +144,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Clears the <see cref="T:MimeKit.InternetAddressList" />.
+            Clears the address list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the addresses from the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -133,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -147,9 +170,11 @@
             Checks if the <see cref="T:MimeKit.InternetAddressList" /> contains the specified address.
             </summary>
         <returns>
-          <value>true</value> if the requested address exists;
+          <value>true</value> if the specified address exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the address list contains the specified address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -160,7 +185,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.InternetAddress[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -175,7 +200,10 @@
         <summary>
             Copies all of the addresses in the <see cref="T:MimeKit.InternetAddressList" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the addresses within the <see cref="T:MimeKit.InternetAddressList" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -189,7 +217,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -199,7 +227,9 @@
             Gets the number of addresses in the <see cref="T:MimeKit.InternetAddressList" />.
             </summary>
         <value>The number of addresses.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of addresses in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -207,7 +237,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(class MimeKit.InternetAddressList other) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -223,7 +253,9 @@
         <returns>
           <c>true</c> if the specified <see cref="T:MimeKit.InternetAddressList" /> is equal to the current
             <see cref="T:MimeKit.InternetAddressList" />; otherwise, <c>false</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether the specified <see cref="T:MimeKit.InternetAddressList" /> is equal to the current <see cref="T:MimeKit.InternetAddressList" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -231,7 +263,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.InternetAddress&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.InternetAddress&gt;</ReturnType>
@@ -242,7 +274,9 @@
             Gets an enumerator for the list of addresses.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of addresses.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -250,7 +284,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -264,7 +298,9 @@
             Gets the index of the specified address.
             </summary>
         <returns>The index of the specified address if found; otherwise <c>-1</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified address, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -275,7 +311,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -290,7 +326,9 @@
         <summary>
             Inserts the address at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the address at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -304,7 +342,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -315,7 +353,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.InternetAddressList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -323,7 +363,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddress Item(int32)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -332,12 +372,14 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">The idnex of the addres to get or set.</param>
+        <param name="index">The index of the address to get or set.</param>
         <summary>
-            Gets or sets the <see cref="T:MimeKit.InternetAddressList" /> at the specified index.
+            Gets or sets the <see cref="T:MimeKit.InternetAddress" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The internet address at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.InternetAddress" /> at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -351,7 +393,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; Mailboxes" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;</ReturnType>
@@ -367,12 +409,67 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailAddressCollection op_Explicit (MimeKit.InternetAddressList addresses);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailAddressCollection op_Explicit(class MimeKit.InternetAddressList addresses) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Net.Mail.MailAddressCollection</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="addresses" Type="MimeKit.InternetAddressList" />
+      </Parameters>
+      <Docs>
+        <param name="addresses">The addresses.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:MimeKit.InternetAddressList" /> to a
+            <see cref="T:System.Net.Mail.MailAddressCollection" />.
+            </summary>
+        <returns>The equivalent <see cref="T:System.Net.Mail.MailAddressCollection" />.</returns>
+        <remarks>
+            Casts a <see cref="T:MimeKit.InternetAddressList" /> to a <see cref="T:System.Net.Mail.MailAddressCollection" />
+            in cases where you might want to make use of the System.Net.Mail APIs.
+            </remarks>
+        <exception cref="T:System.InvalidCastException">
+          <paramref name="addresses" /> contains one or more group addresses and cannot be converted.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static MimeKit.InternetAddressList op_Explicit (System.Net.Mail.MailAddressCollection addresses);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class MimeKit.InternetAddressList op_Explicit(class System.Net.Mail.MailAddressCollection addresses) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.InternetAddressList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="addresses" Type="System.Net.Mail.MailAddressCollection" />
+      </Parameters>
+      <Docs>
+        <param name="addresses">The mail address.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:System.Net.Mail.MailAddressCollection" />
+            to a <see cref="T:MimeKit.InternetAddressList" />.
+            </summary>
+        <returns>The equivalent <see cref="T:MimeKit.InternetAddressList" />.</returns>
+        <remarks>
+            Casts a <see cref="T:System.Net.Mail.MailAddressCollection" /> to a <see cref="T:MimeKit.InternetAddressList" />
+            in cases where you might want to make use of the the superior MimeKit APIs.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Parse">
       <MemberSignature Language="C#" Value="public static MimeKit.InternetAddressList Parse (byte[] buffer);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(unsigned int8[] buffer) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -386,7 +483,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -400,7 +499,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -414,7 +513,9 @@
             Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -428,7 +529,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -444,7 +545,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -462,7 +565,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(class MimeKit.ParserOptions options, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -478,7 +581,9 @@
             Parses the given text into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -496,7 +601,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(unsigned int8[] buffer, int32 startIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -512,7 +617,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -529,7 +636,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -547,7 +654,9 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -568,7 +677,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -586,7 +695,10 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -604,7 +716,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddressList Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -624,7 +736,10 @@
             Parses the given input buffer into a new <see cref="T:MimeKit.InternetAddressList" /> instance.
             </summary>
         <returns>The parsed <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -646,7 +761,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -659,8 +774,11 @@
         <summary>
             Removes the specified address.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the address was removed; otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the specified address.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="address" /> is <c>null</c>.
             </exception>
@@ -671,7 +789,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -684,7 +802,9 @@
         <summary>
             Removes the address at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the address at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="index" /> is out of range.
             </exception>
@@ -695,16 +815,20 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of addresses.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of addresses.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -712,7 +836,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -720,10 +844,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string suitable for display.
+            Returns a string representation of the email addresses in the <see cref="T:MimeKit.InternetAddressList" />.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If there are multiple addresses in the list, they will be separated by a comma.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -731,7 +857,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ToString(bool encode) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -740,12 +866,17 @@
         <Parameter Name="encode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.InternetAddressList" /> will be encoded.</param>
+        <param name="encode">If set to <c>true</c>, each <see cref="T:MimeKit.InternetAddress" /> in the list will be encoded.</param>
         <summary>
-            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string, optionally encoding it for transport.
+            Returns a string representation of the email addresses in the <see cref="T:MimeKit.InternetAddressList" />,
+            optionally encoding them for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>If <paramref name="encode" /> is <c>true</c>, each address in the list will be encoded
+            according to the rules defined in rfc2047.</para>
+          <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -753,7 +884,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ToString(class MimeKit.FormatOptions options, bool encode) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -764,12 +895,17 @@
       </Parameters>
       <Docs>
         <param name="options">The formatting options.</param>
-        <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.InternetAddressList" /> will be encoded.</param>
+        <param name="encode">If set to <c>true</c>, each <see cref="T:MimeKit.InternetAddress" /> in the list will be encoded.</param>
         <summary>
-            Serializes the <see cref="T:MimeKit.InternetAddressList" /> to a string, optionally encoding it for transport.
+            Returns a string representation of the email addresses in the <see cref="T:MimeKit.InternetAddressList" />,
+            optionally encoding them for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.InternetAddressList" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>If <paramref name="encode" /> is <c>true</c>, each address in the list will be encoded
+            according to the rules defined in rfc2047.</para>
+          <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -777,7 +913,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -794,7 +930,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -805,7 +943,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -822,7 +960,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -833,7 +973,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -852,7 +992,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -867,7 +1009,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -886,7 +1028,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -901,7 +1045,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -920,7 +1064,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -934,7 +1080,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -955,7 +1101,9 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -973,7 +1121,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -994,7 +1142,10 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -1009,7 +1160,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddressList addresses) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1032,7 +1183,10 @@
             </summary>
         <returns>
           <c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a list of addresses from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

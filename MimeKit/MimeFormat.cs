@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,9 @@ namespace MimeKit {
 	/// <summary>
 	/// The format of the MIME stream.
 	/// </summary>
+	/// <remarks>
+	/// The format of the MIME stream.
+	/// </remarks>
 	public enum MimeFormat : byte {
 		/// <summary>
 		/// The stream contains a single MIME entity or message.

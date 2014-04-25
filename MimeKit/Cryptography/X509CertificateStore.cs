@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A store for X.509 certificates and keys.
 	/// </summary>
+	/// <remarks>
+	/// A store for X.509 certificates and keys.
+	/// </remarks>
 	public class X509CertificateStore : IX509Store
 	{
 		readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys;
@@ -49,6 +52,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateStore"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="X509CertificateStore"/>.
+		/// </remarks>
 		public X509CertificateStore ()
 		{
 			keys = new Dictionary<X509Certificate, AsymmetricKeyParameter> ();
@@ -57,8 +63,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets a read-only list of certificates currently in the store.
+		/// Enumerates the certificates currently in the store.
 		/// </summary>
+		/// <remarks>
+		/// Enumerates the certificates currently in the store.
+		/// </remarks>
 		/// <value>The certificates.</value>
 		public IEnumerable<X509Certificate> Certificates {
 			get { return certs; }
@@ -67,6 +76,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key for the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key for the specified certificate, if it exists.
+		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		public AsymmetricKeyParameter GetPrivateKey (X509Certificate certificate)
@@ -80,8 +92,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Add the specified certificate.
+		/// Adds the specified certificate to the store.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified certificate to the store.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
@@ -96,8 +111,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Adds the specified range of certificates.
+		/// Adds the specified range of certificates to the store.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified range of certificates to the store.
+		/// </remarks>
 		/// <param name="certificates">The certificates.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificates"/> is <c>null</c>.
@@ -114,8 +132,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Remove the specified certificate.
+		/// Removes the specified certificate from the store.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified certificate from the store.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
@@ -130,8 +151,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Removes the specified range of certificates.
+		/// Removes the specified range of certificates from the store.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified range of certificates from the store.
+		/// </remarks>
 		/// <param name="certificates">The certificates.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificates"/> is <c>null</c>.
@@ -148,8 +172,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the certificate(s) from the specified stream.
+		/// Imports the certificate(s) from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports the certificate(s) from the specified stream.
+		/// </remarks>
 		/// <param name="stream">The stream to import.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -171,8 +198,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the certificate(s) from the specified file.
+		/// Imports the certificate(s) from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Imports the certificate(s) from the specified file.
+		/// </remarks>
 		/// <param name="fileName">The name of the file to import.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
@@ -193,8 +223,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the certificate(s) from the specified byte array.
+		/// Imports the certificate(s) from the specified byte array.
 		/// </summary>
+		/// <remarks>
+		/// Imports the certificate(s) from the specified byte array.
+		/// </remarks>
 		/// <param name="rawData">The raw certificate data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="rawData"/> is <c>null</c>.
@@ -209,8 +242,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import certificates and private keys from the specified stream.
+		/// Imports certificates and private keys from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// <para>Imports certificates and private keys from the specified pkcs12 stream.</para>
+		/// </remarks>
 		/// <param name="stream">The stream to import.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -253,8 +289,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import certificates and private keys from the specified file.
+		/// Imports certificates and private keys from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// <para>Imports certificates and private keys from the specified pkcs12 stream.</para>
+		/// </remarks>
 		/// <param name="fileName">The name of the file to import.</param>
 		/// <param name="password">The password to unlock the file.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -287,8 +326,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import certificates and private keys from the specified byte array.
+		/// Imports certificates and private keys from the specified byte array.
 		/// </summary>
+		/// <remarks>
+		/// <para>Imports certificates and private keys from the specified pkcs12 stream.</para>
+		/// </remarks>
 		/// <param name="rawData">The raw certificate data.</param>
 		/// <param name="password">The password to unlock the raw data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -306,8 +348,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Export the certificates to an unencrypted stream.
+		/// Exports the certificates to an unencrypted stream.
 		/// </summary>
+		/// <remarks>
+		/// Exports the certificates to an unencrypted stream.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -327,8 +372,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Export the certificates to an unencrypted file.
+		/// Exports the certificates to an unencrypted file.
 		/// </summary>
+		/// <remarks>
+		/// Exports the certificates to an unencrypted file.
+		/// </remarks>
 		/// <param name="fileName">The file path to write to.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
@@ -362,8 +410,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Export the specified stream and password to a pkcs12-formatted file.
+		/// Exports the specified stream and password to a pkcs12 encrypted file.
 		/// </summary>
+		/// <remarks>
+		/// Exports the specified stream and password to a pkcs12 encrypted file.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="password">The password to use to lock the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -407,8 +458,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Export the specified stream and password to a pkcs12-formatted file.
+		/// Exports the specified stream and password to a pkcs12 encrypted file.
 		/// </summary>
+		/// <remarks>
+		/// Exports the specified stream and password to a pkcs12 encrypted file.
+		/// </remarks>
 		/// <param name="fileName">The file path to write to.</param>
 		/// <param name="password">The password to use to lock the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -448,9 +502,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets an enumerator of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
-		/// based on the specified selector.
+		/// Gets an enumerator of matching X.509 certificates based on the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator of matching X.509 certificates based on the specified selector.
+		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
 		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
@@ -466,9 +522,11 @@ namespace MimeKit.Cryptography {
 		#region IX509Store implementation
 
 		/// <summary>
-		/// Gets a collection of matching <see cref="Org.BouncyCastle.X509.X509Certificate"/>s
-		/// based on the specified selector.
+		/// Gets a collection of matching X.509 certificates based on the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets a collection of matching X.509 certificates based on the specified selector.
+		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
 		ICollection IX509Store.GetMatches (IX509Selector selector)

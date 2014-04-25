@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,10 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -39,13 +43,18 @@ namespace MimeKit {
 	/// An abstract MIME entity.
 	/// </summary>
 	/// <remarks>
-	/// There are 3 basic types of entities: <see cref="MimePart"/>, <see cref="Multipart"/>,
-	/// and <see cref="MessagePart"/>. All other types are derivatives of one of those.
+	/// <para>A MIME entity is really just a node in a tree structure of MIME parts in a MIME message.</para>
+	/// <para>There are 3 basic types of entities: <see cref="MimePart"/>, <see cref="Multipart"/>,
+	/// and <see cref="MessagePart"/> (which is actually just a special variation of
+	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
+	/// derivatives of one of those.</para>
 	/// </remarks>
 	public abstract class MimeEntity
 	{
 		ContentDisposition disposition;
 		string contentId;
+		Uri location;
+		Uri baseUri;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
@@ -67,14 +76,12 @@ namespace MimeKit {
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
 
-			IsInitializing = true;
 			foreach (var header in entity.Headers) {
 				if (entity.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				Headers.Add (header);
 			}
-			IsInitializing = false;
 		}
 
 		/// <summary>
@@ -146,14 +153,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is initializing.
-		/// </summary>
-		/// <value><c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
-		protected bool IsInitializing {
-			get; private set;
-		}
-
-		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
 		/// <remarks>
@@ -191,8 +190,6 @@ namespace MimeKit {
 					disposition.Changed += ContentDispositionChanged;
 					SerializeContentDisposition ();
 				}
-
-				OnChanged ();
 			}
 		}
 
@@ -200,7 +197,8 @@ namespace MimeKit {
 		/// Gets the type of the content.
 		/// </summary>
 		/// <remarks>
-		/// Represents the pre-parsed Content-Type header.
+		/// <para>The Content-Type header specifies information about the type of content contained
+		/// within the MIME entity.</para>
 		/// </remarks>
 		/// <value>The type of the content.</value>
 		public ContentType ContentType {
@@ -208,10 +206,74 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the base content URI.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Base header specifies the base URI for the <see cref="MimeEntity"/>
+		/// in cases where the <see cref="ContentLocation"/> is a relative URI.</para>
+		/// <para>The Content-Base URI must be an absolute URI.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// </remarks>
+		/// <value>The base content URI or <c>null</c>.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is not an absolute URI.
+		/// </exception>
+		public Uri ContentBase {
+			get { return baseUri; }
+			set {
+				if (baseUri == value)
+					return;
+
+				if (value != null && !value.IsAbsoluteUri)
+					throw new ArgumentException ("The Content-Base URI may only be set to an absolute URI.", "value");
+
+				baseUri = value;
+
+				if (value != null)
+					SetHeader ("Content-Base", value.ToString ());
+				else
+					RemoveHeader ("Content-Base");
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the content location.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Location header specifies the URI for a MIME entity and can be
+		/// either absolute or relative.</para>
+		/// <para>Setting a Content-Location URI allows other <see cref="MimePart"/> objects
+		/// within the same multipart/related container to reference this part by URI. This
+		/// can be useful, for example, when constructing an HTML message body that needs to
+		/// reference image attachments.</para>
+		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// </remarks>
+		/// <value>The content location or <c>null</c>.</value>
+		public Uri ContentLocation {
+			get { return location; }
+			set {
+				if (location == value)
+					return;
+
+				location = value;
+
+				if (value != null)
+					SetHeader ("Content-Location", value.ToString ());
+				else
+					RemoveHeader ("Content-Location");
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the content identifier.
 		/// </summary>
 		/// <remarks>
-		/// Represents the pre-parsed Content-Id header.
+		/// <para>The Content-Id header is used for uniquely identifying a particular entity and
+		/// uses the same syntax as the Message-Id header on MIME messages.</para>
+		/// <para>Setting a Content-Id allows other <see cref="MimePart"/> objects within the same
+		/// multipart/related container to reference this part by its unique identifier, typically
+		/// by using a "cid:" URI in an HTML-formatted message body. This can be useful, for example,
+		/// when the HTML-formatted message body needs to reference image attachments.</para>
 		/// </remarks>
 		/// <value>The content identifier.</value>
 		public string ContentId {
@@ -233,9 +295,9 @@ namespace MimeKit {
 				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 					throw new ArgumentException ("Invalid Content-Id format.");
 
-				contentId = "<" + ((MailboxAddress) addr).Address + ">";
+				contentId = ((MailboxAddress) addr).Address;
 
-				SetHeader ("Content-Id", contentId);
+				SetHeader ("Content-Id", "<" + contentId + ">");
 			}
 		}
 
@@ -243,7 +305,8 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Subclasses should override this method to write the content of the entity.</para>
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -261,6 +324,12 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
 			if (options.WriteHeaders)
 				Headers.WriteTo (options, stream, cancellationToken);
 			else
@@ -273,7 +342,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -294,7 +363,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -316,7 +385,7 @@ namespace MimeKit {
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the headers to the output stream, followed by a blank line.
+		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -400,8 +469,6 @@ namespace MimeKit {
 			Headers.Changed -= HeadersChanged;
 			SerializeContentDisposition ();
 			Headers.Changed += HeadersChanged;
-
-			OnChanged ();
 		}
 
 		void ContentTypeChanged (object sender, EventArgs e)
@@ -409,21 +476,24 @@ namespace MimeKit {
 			Headers.Changed -= HeadersChanged;
 			SerializeContentType ();
 			Headers.Changed += HeadersChanged;
-
-			OnChanged ();
 		}
 
 		/// <summary>
 		/// Called when the headers change in some way.
 		/// </summary>
 		/// <remarks>
-		/// Whenever a header is changed, this method will be called in order to allow
-		/// custom <see cref="MimeEntity"/> subclasses to update their state.
+		/// <para>Whenever a header is added, changed, or removed, this method will
+		/// be called in order to allow custom <see cref="MimeEntity"/> subclasses
+		/// to update their state.</para>
+		/// <para>Overrides of this method should call the base method so that their
+		/// superclass may also update its own state.</para>
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
+			string text;
+
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
@@ -434,6 +504,24 @@ namespace MimeKit {
 
 					if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
 						disposition.Changed += ContentDispositionChanged;
+					break;
+				case HeaderId.ContentLocation:
+					text = header.Value.Trim ();
+
+					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
+						location = new Uri (text, UriKind.Absolute);
+					else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
+						location = new Uri (text, UriKind.Relative);
+					else
+						location = null;
+					break;
+				case HeaderId.ContentBase:
+					text = header.Value.Trim ();
+
+					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
+						baseUri = new Uri (text, UriKind.Absolute);
+					else
+						baseUri = null;
 					break;
 				case HeaderId.ContentId:
 					contentId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
@@ -448,6 +536,12 @@ namespace MimeKit {
 
 					disposition = null;
 					break;
+				case HeaderId.ContentLocation:
+					location = null;
+					break;
+				case HeaderId.ContentBase:
+					baseUri = null;
+					break;
 				case HeaderId.ContentId:
 					contentId = null;
 					break;
@@ -459,32 +553,26 @@ namespace MimeKit {
 
 				disposition = null;
 				contentId = null;
+				location = null;
+				baseUri = null;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new ArgumentOutOfRangeException ("action");
 			}
 		}
 
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
 			OnHeadersChanged (e.Action, e.Header);
-			OnChanged ();
-		}
-
-		internal event EventHandler Changed;
-
-		/// <summary>
-		/// Raises the internal changed event.
-		/// </summary>
-		protected void OnChanged ()
-		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
 		}
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -496,6 +584,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -516,6 +607,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -524,6 +619,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -536,6 +634,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -543,6 +645,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -555,10 +660,17 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -568,9 +680,14 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, CancellationToken.None);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -591,6 +708,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -611,6 +731,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -629,6 +753,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -640,6 +767,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the specified <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
@@ -657,6 +788,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -668,6 +802,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeEntity"/> from the file at the give file path,
+		/// using the default <see cref="ParserOptions"/>.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -682,6 +820,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -689,6 +830,7 @@ namespace MimeKit {
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
+#endif // !PORTABLE
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified content stream.
@@ -711,6 +853,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -758,6 +903,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -784,6 +932,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -806,6 +957,9 @@ namespace MimeKit {
 		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.

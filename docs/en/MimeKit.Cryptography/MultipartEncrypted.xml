@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MultipartEncrypted extends MimeKit.Multipart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Multipart</BaseTypeName>
@@ -23,14 +23,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -38,7 +40,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -56,7 +58,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -69,11 +71,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -94,7 +99,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -107,11 +112,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="recipients" /> is <c>null</c>.</para>
@@ -132,7 +140,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class MimeKit.Cryptography.OpenPgpContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -147,11 +155,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -172,7 +183,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class MimeKit.Cryptography.OpenPgpContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -187,11 +198,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -212,7 +226,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -229,11 +243,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -266,7 +283,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -283,11 +300,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="signer" /> is <c>null</c>.</para>
@@ -327,7 +347,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class MimeKit.Cryptography.OpenPgpContext ctx, class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -346,11 +366,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -383,7 +406,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Create(class MimeKit.Cryptography.OpenPgpContext ctx, class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
@@ -402,11 +425,14 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance with the entity as the content.
+            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="ctx" /> is <c>null</c>.</para>
@@ -447,7 +473,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -455,10 +481,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
+            </remarks>
         <exception cref="T:System.FormatException">
           <para>The <c>protocol</c> parameter was not specified.</para>
           <para>-or-</para>
@@ -484,7 +512,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.DigitalSignatureCollection signatures) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -495,10 +523,13 @@
       <Docs>
         <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> and extracts any digital signatures in cases
+            where the content was also signed.
+            </remarks>
         <exception cref="T:System.FormatException">
           <para>The <c>protocol</c> parameter was not specified.</para>
           <para>-or-</para>
@@ -524,7 +555,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.OpenPgpContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -535,10 +566,12 @@
       <Docs>
         <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>
@@ -566,7 +599,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Decrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class MimeKit.Cryptography.DigitalSignatureCollection signatures) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -579,10 +612,13 @@
         <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
         <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
         <summary>
-            Decrypt this instance.
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> part.
             </summary>
         <returns>The decrypted entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Decrypts the <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> and extracts any digital signatures in cases
+            where the content was also signed.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="ctx" /> is <c>null</c>.
             </exception>

@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeEntity extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -14,9 +14,12 @@
             An abstract MIME entity.
             </summary>
     <remarks>
-            There are 3 basic types of entities: <see cref="T:MimeKit.MimePart" />, <see cref="T:MimeKit.Multipart" />,
-            and <see cref="T:MimeKit.MessagePart" />. All other types are derivatives of one of those.
-            </remarks>
+      <para>A MIME entity is really just a node in a tree structure of MIME parts in a MIME message.</para>
+      <para>There are 3 basic types of entities: <see cref="T:MimeKit.MimePart" />, <see cref="T:MimeKit.Multipart" />,
+            and <see cref="T:MimeKit.MessagePart" /> (which is actually just a special variation of
+            <see cref="T:MimeKit.MimePart" /> who's content is another MIME message/document). All other types are
+            derivatives of one of those.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -24,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="contentType" Type="MimeKit.ContentType" />
@@ -47,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -69,7 +72,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mediaType" Type="System.String" />
@@ -93,12 +96,38 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="ContentBase">
+      <MemberSignature Language="C#" Value="public Uri ContentBase { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentBase" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the base content URI.
+            </summary>
+        <value>The base content URI or <c>null</c>.</value>
+        <remarks>
+          <para>The Content-Base header specifies the base URI for the <see cref="T:MimeKit.MimeEntity" />
+            in cases where the <see cref="P:MimeKit.MimeEntity.ContentLocation" /> is a relative URI.</para>
+          <para>The Content-Base URI must be an absolute URI.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+        </remarks>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="value" /> is not an absolute URI.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="ContentDisposition">
       <MemberSignature Language="C#" Value="public MimeKit.ContentDisposition ContentDisposition { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentDisposition ContentDisposition" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -120,7 +149,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string ContentId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -131,8 +160,39 @@
             </summary>
         <value>The content identifier.</value>
         <remarks>
-            Represents the pre-parsed Content-Id header.
-            </remarks>
+          <para>The Content-Id header is used for uniquely identifying a particular entity and
+            uses the same syntax as the Message-Id header on MIME messages.</para>
+          <para>Setting a Content-Id allows other <see cref="T:MimeKit.MimePart" /> objects within the same
+            multipart/related container to reference this part by its unique identifier, typically
+            by using a "cid:" URI in an HTML-formatted message body. This can be useful, for example,
+            when the HTML-formatted message body needs to reference image attachments.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentLocation">
+      <MemberSignature Language="C#" Value="public Uri ContentLocation { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the content location.
+            </summary>
+        <value>The content location or <c>null</c>.</value>
+        <remarks>
+          <para>The Content-Location header specifies the URI for a MIME entity and can be
+            either absolute or relative.</para>
+          <para>Setting a Content-Location URI allows other <see cref="T:MimeKit.MimePart" /> objects
+            within the same multipart/related container to reference this part by URI. This
+            can be useful, for example, when constructing an HTML message body that needs to
+            reference image attachments.</para>
+          <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentType">
@@ -140,7 +200,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentType ContentType" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentType</ReturnType>
@@ -151,8 +211,9 @@
             </summary>
         <value>The type of the content.</value>
         <remarks>
-            Represents the pre-parsed Content-Type header.
-            </remarks>
+          <para>The Content-Type header specifies information about the type of content contained
+            within the MIME entity.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Headers">
@@ -160,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -177,31 +238,12 @@
             </remarks>
       </Docs>
     </Member>
-    <Member MemberName="IsInitializing">
-      <MemberSignature Language="C#" Value="protected bool IsInitializing { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance bool IsInitializing" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Boolean</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Gets a value indicating whether this instance is initializing.
-            </summary>
-        <value>
-          <c>true</c> if this instance is initializing; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
-    </Member>
     <Member MemberName="Load">
       <MemberSignature Language="C#" Value="public static MimeKit.MimeEntity Load (System.IO.Stream stream);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -215,12 +257,18 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
             </exception>
       </Docs>
     </Member>
@@ -229,7 +277,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -243,7 +291,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -259,6 +310,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -266,7 +320,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -296,6 +350,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -303,7 +360,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -319,7 +376,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -330,6 +390,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -337,7 +400,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -353,7 +416,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -373,6 +439,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -380,7 +449,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -396,7 +465,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -406,6 +478,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -413,7 +488,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -429,7 +504,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -448,6 +526,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -455,7 +536,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -490,6 +571,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -497,7 +581,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -532,6 +616,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -539,7 +626,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -557,7 +644,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified stream.
             </summary>
         <returns>The parsed MIME entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -571,6 +661,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -578,7 +671,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -596,7 +689,10 @@
             Load a <see cref="T:MimeKit.MimeEntity" /> from the specified file.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeEntity" /> from the file at the give file path,
+            using the specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -619,6 +715,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -626,7 +725,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -666,24 +765,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="OnChanged">
-      <MemberSignature Language="C#" Value="protected void OnChanged ();" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void OnChanged() cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters />
-      <Docs>
-        <summary>
-            Raises the internal changed event.
-            </summary>
-        <remarks>To be added.</remarks>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="OnHeadersChanged">
@@ -691,7 +775,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -707,9 +791,12 @@
             Called when the headers change in some way.
             </summary>
         <remarks>
-            Whenever a header is changed, this method will be called in order to allow
-            custom <see cref="T:MimeKit.MimeEntity" /> subclasses to update their state.
-            </remarks>
+          <para>Whenever a header is added, changed, or removed, this method will
+            be called in order to allow custom <see cref="T:MimeKit.MimeEntity" /> subclasses
+            to update their state.</para>
+          <para>Overrides of this method should call the base method so that their
+            superclass may also update its own state.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveHeader">
@@ -717,7 +804,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void RemoveHeader(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -741,7 +828,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, unsigned int8[] rawValue) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -767,7 +854,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -793,7 +880,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance bool TryInit(object obj) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -818,7 +905,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -832,7 +919,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
@@ -847,7 +934,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -863,7 +950,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -882,7 +969,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -898,7 +985,7 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
+            Writes the entity to the output stream.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
@@ -916,7 +1003,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -934,8 +1021,9 @@
             Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified output stream.
             </summary>
         <remarks>
-            Writes the headers to the output stream, followed by a blank line.
-            </remarks>
+          <para>Writes the headers to the output stream, followed by a blank line.</para>
+          <para>Subclasses should override this method to write the content of the entity.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

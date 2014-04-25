@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit PrivateKeyNotFoundException extends System.Exception" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -13,7 +13,9 @@
     <summary>
             An exception that is thrown when a private key could not be found for a specified mailbox or key id.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An exception that is thrown when a private key could not be found for a specified mailbox or key id.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -21,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MailboxAddress mailbox, string message) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
@@ -33,7 +35,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="mailbox" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -41,7 +48,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string keyid, string message) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="keyid" Type="System.String" />
@@ -53,7 +60,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CertificateNotFoundException" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="keyid" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="KeyId">
@@ -61,7 +73,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string KeyId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -71,7 +83,9 @@
             Gets the key id that could not be found.
             </summary>
         <value>The key id.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the key id that could not be found.
+            </remarks>
       </Docs>
     </Member>
   </Members>

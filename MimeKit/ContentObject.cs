@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,8 +39,10 @@ namespace MimeKit {
 	/// A <see cref="ContentObject"/> represents the content of a <see cref="MimePart"/>.
 	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
 	/// </remarks>
-	public sealed class ContentObject : IContentObject
+	public class ContentObject : IContentObject
 	{
+		readonly Stream content;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
 		/// </summary>
@@ -64,11 +66,14 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (!stream.CanRead || !stream.CanSeek)
-				throw new ArgumentException ("stream");
+			if (!stream.CanRead)
+				throw new ArgumentException ("The stream does not support reading.", "stream");
+
+			if (!stream.CanSeek)
+				throw new ArgumentException ("The stream does not support seeking.", "stream");
 
 			Encoding = encoding;
-			Stream = stream;
+			content = stream;
 		}
 
 		#region IContentObject implementation
@@ -87,11 +92,21 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content stream.
+		/// Opens the decoded content stream.
 		/// </summary>
-		/// <value>The content stream.</value>
-		public Stream Stream {
-			get; private set;
+		/// <remarks>
+		/// Provides a means of reading the decoded content without having to first
+		/// write it to another stream using <see cref="DecodeTo(Stream)"/>.
+		/// </remarks>
+		/// <returns>The decoded content stream.</returns>
+		public Stream Open ()
+		{
+			content.Seek (0, SeekOrigin.Begin);
+
+			var filtered = new FilteredStream (content);
+			filtered.Add (DecoderFilter.Create (Encoding));
+
+			return filtered;
 		}
 
 		/// <summary>
@@ -120,27 +135,27 @@ namespace MimeKit {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			byte[] buf = new byte[4096];
+			var buf = new byte[4096];
 			int nread;
 
-			Stream.Seek (0, SeekOrigin.Begin);
+			content.Seek (0, SeekOrigin.Begin);
 
 			try {
 				do {
 					cancellationToken.ThrowIfCancellationRequested ();
-					if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
+					if ((nread = content.Read (buf, 0, buf.Length)) <= 0)
 						break;
 
 					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (buf, 0, nread);
 				} while (true);
 
-				Stream.Seek (0, SeekOrigin.Begin);
+				content.Seek (0, SeekOrigin.Begin);
 			} catch (OperationCanceledException) {
 				// try and reset the stream
 
 				try {
-					Stream.Seek (0, SeekOrigin.Begin);
+					content.Seek (0, SeekOrigin.Begin);
 				} catch (IOException) {
 				}
 

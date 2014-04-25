@@ -17,7 +17,8 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\lib\net40</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <IntermediateOutputPath>obj\Debug\lib\net40</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -25,7 +26,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\lib\net40</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <IntermediateOutputPath>obj\Release\lib\net40</IntermediateOutputPath>
+    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -46,10 +48,6 @@
       <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
       <Name>BouncyCastle</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj">
-      <Project>{F26434C1-BA3D-41FB-B560-C009CB72B1B6}</Project>
-      <Name>Mono.Data.Sqlite</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
@@ -61,6 +59,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DbExtensions.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
@@ -69,8 +68,10 @@
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
+    <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
+    <Compile Include="Cryptography\NpgsqlCertificateDatabase.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
@@ -82,7 +83,10 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
@@ -128,6 +132,8 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="AttachmentCollection.cs" />
+    <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="ContentObject.cs" />

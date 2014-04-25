@@ -14,7 +14,7 @@
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AssemblyName>MimeKit.Android</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
     <TargetFrameworkVersion>v2.3</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -22,7 +22,8 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\MonoAndroid</OutputPath>
-    <DefineConstants>DEBUG;__MOBILE__;__ANDROID__</DefineConstants>
+    <IntermediateOutputPath>obj\Debug\lib\MonoAndroid</IntermediateOutputPath>
+    <DefineConstants>DEBUG;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidLinkMode>None</AndroidLinkMode>
@@ -32,13 +33,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\lib\MonoAndroid</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\MonoAndroid</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>__MOBILE__;__ANDROID__</DefineConstants>
-    <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.Android.xml</DocumentationFile>
+    <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
+    <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -64,6 +66,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DbExtensions.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
+    <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
@@ -85,7 +89,10 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />
@@ -130,6 +137,8 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="AttachmentCollection.cs" />
+    <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="ContentObject.cs" />

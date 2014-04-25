@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,19 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Encodings;
 
 namespace MimeKit.Utils {
 	/// <summary>
 	/// Utility methods for encoding and decoding rfc2047 encoded-word tokens.
 	/// </summary>
+	/// <remarks>
+	/// Utility methods for encoding and decoding rfc2047 encoded-word tokens.
+	/// </remarks>
 	public static class Rfc2047
 	{
 		class Token {
@@ -174,9 +181,9 @@ namespace MimeKit.Utils {
 
 		static unsafe IList<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
-			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var tokens = new List<Token> ();
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
@@ -299,9 +306,9 @@ namespace MimeKit.Utils {
 
 		static unsafe IList<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
-			List<Token> tokens = new List<Token> ();
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var tokens = new List<Token> ();
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
@@ -425,10 +432,10 @@ namespace MimeKit.Utils {
 
 		static unsafe string DecodeTokens (ParserOptions options, IList<Token> tokens, byte[] input, byte* inbuf, int length)
 		{
-			StringBuilder decoded = new StringBuilder (length);
-			IMimeDecoder qp = new QuotedPrintableDecoder (true);
-			IMimeDecoder base64 = new Base64Decoder ();
-			byte[] output = new byte[length];
+			var decoded = new StringBuilder (length);
+			var qp = new QuotedPrintableDecoder (true);
+			var base64 = new Base64Decoder ();
+			var output = new byte[length];
 			Token token;
 			int len;
 
@@ -532,9 +539,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified number of bytes of the phrase starting
-		/// at the specified starting index.
+		/// Decodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the phrase(s) starting at the given index and spanning across
+		/// the specified number of bytes using the supplied parser options.
+		/// </remarks>
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="phrase">The phrase to decode.</param>
@@ -576,9 +586,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified number of bytes of the phrase starting
-		/// at the specified starting index.
+		/// Decodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the phrase(s) starting at the given index and spanning across
+		/// the specified number of bytes using the default parser options.
+		/// </remarks>
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
@@ -596,8 +609,11 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified phrase.
+		/// Decodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the phrase(s) within the specified buffer using the supplied parser options.
+		/// </remarks>
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="phrase">The phrase to decode.</param>
@@ -612,8 +628,11 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified phrase.
+		/// Decodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the phrase(s) within the specified buffer using the default parser options.
+		/// </remarks>
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -625,9 +644,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified number of bytes of unstructured text starting
-		/// at the specified starting index.
+		/// Decodes unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the unstructured text buffer starting at the given index and spanning
+		/// across the specified number of bytes using the supplied parser options.
+		/// </remarks>
 		/// <returns>The decoded text.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to decode.</param>
@@ -669,9 +691,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the specified number of bytes of unstructured text starting
-		/// at the specified starting index.
+		/// Decodes unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the unstructured text buffer starting at the given index and spanning
+		/// across the specified number of bytes using the default parser options.
+		/// </remarks>
 		/// <returns>The decoded text.</returns>
 		/// <param name="text">The text to decode.</param>
 		/// <param name="startIndex">The starting index.</param>
@@ -689,8 +714,11 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the unstructured text.
+		/// Decodes unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the unstructured text buffer using the specified parser options.
+		/// </remarks>
 		/// <returns>The decoded text.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to decode.</param>
@@ -705,8 +733,11 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the unstructured text.
+		/// Decodes unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Decodes the unstructured text buffer using the default parser options.
+		/// </remarks>
 		/// <returns>The decoded text.</returns>
 		/// <param name="text">The text to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -719,7 +750,7 @@ namespace MimeKit.Utils {
 
 		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input, bool structured)
 		{
-			StringBuilder output = new StringBuilder (" ");
+			var output = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 			int lwsp = 0, tab = 0;
 			Token token;
@@ -863,7 +894,7 @@ namespace MimeKit.Utils {
 		{
 			var encoder = charset.GetEncoder ();
 			int count = encoder.GetByteCount (word, 0, length, true);
-			byte[] encoded = new byte[count];
+			var encoded = new byte[count];
 
 			converted = encoder.GetBytes (word, 0, length, encoded, 0, true);
 
@@ -887,7 +918,7 @@ namespace MimeKit.Utils {
 
 		static void AppendEncodeWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
-			char[] chars = new char[length];
+			var chars = new char[length];
 			IMimeEncoder encoder;
 			byte[] word, encoded;
 			char encoding;
@@ -1350,9 +1381,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the phrase using the specified charset encoding according
-		/// to the rules of RFC 2047.
+		/// Encodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Encodes the phrase according to the rules of rfc2047 using
+		/// the specified charset encoding and formatting options.
+		/// </remarks>
 		/// <returns>The encoded phrase.</returns>
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
@@ -1379,9 +1413,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the phrase using the specified charset encoding according
-		/// to the rules of RFC 2047.
+		/// Encodes the phrase.
 		/// </summary>
+		/// <remarks>
+		/// Encodes the phrase according to the rules of rfc2047 using
+		/// the specified charset encoding.
+		/// </remarks>
 		/// <returns>The encoded phrase.</returns>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
@@ -1396,9 +1433,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the unstructured text using the specified charset encoding
-		/// according to the rules of RFC 2047.
+		/// Encodes the unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Encodes the unstructured text according to the rules of rfc2047
+		/// using the specified charset encoding and formatting options.
+		/// </remarks>
 		/// <returns>The encoded text.</returns>
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
@@ -1425,9 +1465,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the unstructured text using the specified charset encoding
-		/// according to the rules of RFC 2047.
+		/// Encodes the unstructured text.
 		/// </summary>
+		/// <remarks>
+		/// Encodes the unstructured text according to the rules of rfc2047
+		/// using the specified charset encoding.
+		/// </remarks>
 		/// <returns>The encoded text.</returns>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>

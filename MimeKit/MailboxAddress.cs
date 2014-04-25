@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,20 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
+#if ENABLE_SNM
 using System.Net.Mail;
+#endif
 
 using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
-	/// A mailbox address, as specified by rfc0822.
+	/// A mailbox address, as specified by rfc822.
 	/// </summary>
 	/// <remarks>
 	/// Represents a mailbox address (commonly referred to as an email address)
@@ -177,7 +184,7 @@ namespace MimeKit {
 
 			if (!string.IsNullOrEmpty (Name)) {
 				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-				var str = Encoding.ASCII.GetString (encoded);
+				var str = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
 
 				if (lineLength + str.Length > options.MaxLineLength) {
 					if (str.Length > options.MaxLineLength) {
@@ -241,7 +248,8 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.MailboxAddress"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the <see cref="MailboxAddress"/>,
+		/// optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
 		/// Returns a string containing the formatted mailbox address. If the <paramref name="encode"/>
@@ -249,8 +257,8 @@ namespace MimeKit {
         /// in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
         /// for display purposes.
 		/// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.MailboxAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.MailboxAddress"/> will be encoded.</param>
+		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)
 		{
 			if (encode) {
@@ -299,26 +307,6 @@ namespace MimeKit {
 		void RouteChanged (object sender, EventArgs e)
 		{
 			OnChanged ();
-		}
-
-		/// <summary>
-		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
-		/// <see cref="System.Net.Mail.MailAddress"/>.
-		/// </summary>
-		/// <remarks>
-		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
-		/// in cases where you might want to make use of the System.Net.Mail APIs.
-		/// </remarks>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="mailbox"/> is <c>null</c>.
-		/// </exception>
-		public static explicit operator MailAddress (MailboxAddress mailbox)
-		{
-			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
-
-			return new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding);
 		}
 
 		/// <summary>
@@ -530,5 +518,37 @@ namespace MimeKit {
 		{
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
+
+#if ENABLE_SNM
+		/// <summary>
+		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
+		/// <see cref="System.Net.Mail.MailAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="MailboxAddress"/> to a <see cref="System.Net.Mail.MailAddress"/>
+		/// in cases where you might want to make use of the System.Net.Mail APIs.
+		/// </remarks>
+		/// <returns>The equivalent <see cref="System.Net.Mail.MailAddress"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		public static explicit operator MailAddress (MailboxAddress mailbox)
+		{
+			return mailbox != null ? new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding) : null;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailAddress"/>
+		/// to a <see cref="MailboxAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
+		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// </remarks>
+		/// <returns>The equivalent <see cref="MailboxAddress"/>.</returns>
+		/// <param name="address">The mail address.</param>
+		public static explicit operator MailboxAddress (MailAddress address)
+		{
+			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
+		}
+#endif
 	}
 }

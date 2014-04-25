@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 
 		static SecureMimeContext ()
 		{
-			DefaultEncryptionAlgorithmRank = new EncryptionAlgorithm[] {
+			DefaultEncryptionAlgorithmRank = new [] {
 				EncryptionAlgorithm.Camellia256,
 				EncryptionAlgorithm.Aes256,
 				EncryptionAlgorithm.Camellia192,
@@ -135,6 +135,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the key exchange protocol.
 		/// </summary>
+		/// <remarks>
+		/// Gets the key exchange protocol.
+		/// </remarks>
 		/// <value>The key exchange protocol.</value>
 		public override string KeyExchangeProtocol {
 			get { return "application/pkcs7-mime"; }
@@ -143,6 +146,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
+		/// <remarks>
+		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
+		/// or multipart/encrypted part is supported by the supplied cryptography context.
+		/// </remarks>
 		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -153,7 +160,7 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			var type = protocol.ToLowerInvariant ().Split (new char[] { '/' });
+			var type = protocol.ToLowerInvariant ().Split (new [] { '/' });
 			if (type.Length != 2 || type[0] != "application")
 				return false;
 
@@ -238,6 +245,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
 		/// </summary>
+		/// <remarks>
+		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
+		/// </remarks>
 		/// <value>The preferred encryption algorithm ranking.</value>
 		protected virtual EncryptionAlgorithm[] EncryptionAlgorithmRank {
 			get { return DefaultEncryptionAlgorithmRank; }
@@ -246,6 +256,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the enabled encryption algorithms in ranked order.
 		/// </summary>
+		/// <remarks>
+		/// Gets the enabled encryption algorithms in ranked order.
+		/// </remarks>
 		/// <value>The enabled encryption algorithms.</value>
 		protected EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
 			get {
@@ -263,6 +276,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Enables the encryption algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Enables the encryption algorithm.
+		/// </remarks>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		public void Enable (EncryptionAlgorithm algorithm)
 		{
@@ -272,6 +288,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Disables the encryption algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Disables the encryption algorithm.
+		/// </remarks>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		public void Disable (EncryptionAlgorithm algorithm)
 		{
@@ -279,8 +298,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Determines whether the specified encryption algorithm is enabled.
+		/// Checks whether the specified encryption algorithm is enabled.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified encryption algorithm is enabled.
+		/// </remarks>
 		/// <returns><c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
 		/// <param name="algorithm">Algorithm.</param>
 		public bool IsEnabled (EncryptionAlgorithm algorithm)
@@ -291,6 +313,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the X.509 certificate matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the first certificate that matches the specified selector.
+		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected abstract X509Certificate GetCertificate (IX509Selector selector);
@@ -298,6 +323,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key for the certificate matching the specified selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key for the first certificate that matches the specified selector.
+		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
@@ -352,15 +380,24 @@ namespace MimeKit.Cryptography {
 		protected abstract CmsRecipient GetCmsRecipient (MailboxAddress mailbox);
 
 		/// <summary>
-		/// Gets the <see cref="CmsRecipient"/>s for the specified <see cref="MimeKit.MailboxAddress"/>es.
+		/// Gets a collection of CmsRecipients for the specified mailboxes.
 		/// </summary>
-		/// <returns>The <see cref="CmsRecipient"/>s.</returns>
+		/// <remarks>
+		/// Gets a collection of CmsRecipients for the specified mailboxes.
+		/// </remarks>
+		/// <returns>A <see cref="CmsRecipientCollection"/>.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
 		/// </exception>
 		protected CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
+			if (mailboxes == null)
+				throw new ArgumentNullException ("mailboxes");
+
 			var recipients = new CmsRecipientCollection ();
 
 			foreach (var mailbox in mailboxes)
@@ -372,6 +409,13 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// <para>Constructs a <see cref="CmsSigner"/> with the appropriate signing certificate
+		/// for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address for database lookups.</para>
+		/// </remarks>
 		/// <returns>A <see cref="CmsSigner"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="digestAlgo">The preferred digest algorithm.</param>
@@ -383,14 +427,20 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
 		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp);
 
 		/// <summary>
-		/// Gets the digest oid.
+		/// Gets the OID for the digest algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Gets the OID for the digest algorithm.
+		/// </remarks>
 		/// <returns>The digest oid.</returns>
 		/// <param name="digestAlgo">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -421,8 +471,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Compress the specified stream.
+		/// Compresses the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Compresses the specified stream.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
 		/// containing the compressed content.</returns>
 		/// <param name="stream">The stream to compress.</param>
@@ -448,6 +501,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Decompress the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Decompress the specified stream.
+		/// </remarks>
 		/// <returns>The decompressed mime part.</returns>
 		/// <param name="stream">The stream to decompress.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -543,8 +599,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign and encapsulate the content using the specified signer.
+		/// Cryptographically signs and encapsulates the content using the specified signer.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encapsulates the content using the specified signer.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -575,8 +634,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign and encapsulate the content using the specified signer.
+		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -613,8 +675,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign the content using the specified signer.
+		/// Cryptographically signs the content using the specified signer.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -645,8 +710,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign the content using the specified signer.
+		/// Cryptographically signs the content using the specified signer and digest algorithm.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -725,11 +793,21 @@ namespace MimeKit.Cryptography {
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="EncryptionAlgorithm"/>.
 		/// </summary>
+		/// <remarks>
+		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
+		/// to a <see cref="EncryptionAlgorithm"/>.
+		/// </remarks>
 		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="identifier"/> is <c>null</c>.
+		/// </exception>
 		protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
+			if (identifier == null)
+				throw new ArgumentNullException ("identifier");
+
 			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc) {
 				algorithm = EncryptionAlgorithm.Aes256;
 				return true;
@@ -844,7 +922,7 @@ namespace MimeKit.Cryptography {
 
 				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-					if (algorithms.Count > 0 && signedDate.HasValue)
+					if (algorithms.Count > 0 && signedDate != null)
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
 				}
 
@@ -863,8 +941,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the digital signatures of the specified content using the detached signatureData.
+		/// Verifies the specified content using the detached signatureData.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the specified content using the detached signatureData.
+		/// </remarks>
 		/// <returns>A list of the digital signatures.</returns>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The detached signature data.</param>
@@ -892,8 +973,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the digital signatures of the specified signedData and extract the original content.
+		/// Verifies the digital signatures of the specified signedData and extract the original content.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signatures of the specified signedData and extract the original content.
+		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="entity">The unencapsulated entity.</param>
@@ -926,7 +1010,19 @@ namespace MimeKit.Cryptography {
 			#endregion
 		}
 
-		EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
+		/// <summary>
+		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
+		/// based on the encryption algorithms supported by each of the recipients, the
+		/// <see cref="EnabledEncryptionAlgorithms"/>, and the <see cref="EncryptionAlgorithmRank"/>.</para>
+		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
+		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
+		/// </remarks>
+		/// <returns>The preferred encryption algorithm.</returns>
+		/// <param name="recipients">The recipients.</param>
+		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
 		{
 			var votes = new int[EncryptionAlgorithmCount];
 
@@ -1026,8 +1122,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypt the specified content for the specified recipients.
+		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
@@ -1054,6 +1153,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
@@ -1084,8 +1186,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt the specified encryptedData.
+		/// Decrypts the specified encryptedData.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData.
+		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1121,6 +1226,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports certificates and keys from a pkcs12-encoded stream.
+		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1136,6 +1244,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Exports the certificates for the specified mailboxes.
 		/// </summary>
+		/// <remarks>
+		/// Exports the certificates for the specified mailboxes.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
@@ -1179,8 +1290,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Imports the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
@@ -1188,8 +1302,11 @@ namespace MimeKit.Cryptography {
 		public abstract void Import (X509Certificate certificate);
 
 		/// <summary>
-		/// Import the specified certificate revocation list.
+		/// Imports the specified certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate revocation list.
+		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <c>null</c>.
@@ -1200,6 +1317,10 @@ namespace MimeKit.Cryptography {
 		/// Imports certificates (as from a certs-only application/pkcs-mime part)
 		/// from the specified stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports certificates (as from a certs-only application/pkcs-mime part)
+		/// from the specified stream.
+		/// </remarks>
 		/// <param name="stream">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.

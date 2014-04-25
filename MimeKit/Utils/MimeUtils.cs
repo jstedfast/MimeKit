@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,13 +34,19 @@ namespace MimeKit.Utils {
 	/// <summary>
 	/// MIME utility methods.
 	/// </summary>
+	/// <remarks>
+	/// Various utility methods that don't belong anywhere else.
+	/// </remarks>
 	public static class MimeUtils
 	{
-		static int MessageIdCounter = 0;
+		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
 
 		/// <summary>
-		/// Generates a token suitable for a Message-Id.
+		/// Generates a Message-Id.
 		/// </summary>
+		/// <remarks>
+		/// Generates a new Message-Id using the supplied domain.
+		/// </remarks>
 		/// <returns>The message identifier.</returns>
 		/// <param name="domain">A domain to use.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -51,23 +57,40 @@ namespace MimeKit.Utils {
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			return string.Format ("<{0}.{1}.{2}@{3}>", DateTime.Now.Ticks,
-			                      Process.GetCurrentProcess ().Id,
-			                      MessageIdCounter++, domain);
+			var guid = new byte[16];
+
+			lock (random) {
+				random.NextBytes (guid);
+			}
+
+			return string.Format ("<{0}@{1}>", new Guid (guid), domain);
 		}
 
 		/// <summary>
-		/// Generates a token suitable for a Message-Id.
+		/// Generates a Message-Id.
 		/// </summary>
+		/// <remarks>
+		/// Generates a new Message-Id using the local machine's domain.
+		/// </remarks>
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
+#if PORTABLE
+			return GenerateMessageId ("localhost.localdomain");
+#else
 			return GenerateMessageId (Dns.GetHostName ());
+#endif
 		}
 
 		/// <summary>
-		/// Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+		/// Enumerates the message-id references such as those that can be found in
+		/// the In-Reply-To or References header.
 		/// </summary>
+		/// <remarks>
+		/// Incrementally parses Message-Ids (such as those from a References header
+		/// in a MIME message) from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The references.</returns>
 		/// <param name="buffer">The raw byte buffer to parse.</param>
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
@@ -91,7 +114,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			do {
@@ -105,7 +128,7 @@ namespace MimeKit.Utils {
 					if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
 						break;
 
-					yield return "<" + ((MailboxAddress) addr).Address + ">";
+					yield return ((MailboxAddress) addr).Address;
 				} else if (!ParseUtils.Skip8bitWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}
@@ -115,8 +138,13 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+		/// Enumerates the message-id references such as those that can be found in
+		/// the In-Reply-To or References header.
 		/// </summary>
+		/// <remarks>
+		/// Incrementally parses Message-Ids (such as those from a References header
+		/// in a MIME message) from the specified text.
+		/// </remarks>
 		/// <returns>The references.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -135,6 +163,10 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse a version from a header such as Mime-Version.
 		/// </summary>
+		/// <remarks>
+		/// Parses a MIME version string from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The raw byte buffer to parse.</param>
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
@@ -155,7 +187,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			List<int> values = new List<int> ();
@@ -197,6 +229,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse a version from a header such as Mime-Version.
 		/// </summary>
+		/// <remarks>
+		/// Parses a MIME version string from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
@@ -214,9 +249,13 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
+		/// Quotes the specified text.
+		/// </summary>
+		/// <remarks>
 		/// Quotes the specified text, enclosing it in double-quotes and escaping
 		/// any backslashes and double-quotes within.
-		/// </summary>
+		/// </remarks>
+		/// <returns>The quoted text.</returns>
 		/// <param name="text">The text to quote.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <c>null</c>.
@@ -240,9 +279,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Unquotes the specified text, removing any escaped backslashes and
-		/// double-quotes within.
+		/// Unquotes the specified text.
 		/// </summary>
+		/// <remarks>
+		/// Unquotes the specified text, removing any escaped backslashes within.
+		/// </remarks>
+		/// <returns>The unquoted text.</returns>
 		/// <param name="text">The text to unquote.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <c>null</c>.
@@ -252,12 +294,12 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			int index = text.IndexOfAny (new char[] { '\r', '\n', '\t', '\\', '"' });
+			int index = text.IndexOfAny (new [] { '\r', '\n', '\t', '\\', '"' });
 
 			if (index == -1)
 				return text;
 
-			StringBuilder builder = new StringBuilder ();
+			var builder = new StringBuilder ();
 			bool escaped = false;
 			bool quoted = false;
 

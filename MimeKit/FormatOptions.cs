@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -59,10 +59,10 @@ namespace MimeKit {
 	/// Represents the available options for formatting MIME messages
 	/// and entities when writing them to a stream.
 	/// </remarks>
-	public sealed class FormatOptions
+	public class FormatOptions
 	{
-		static readonly byte[][] NewLineFormats = new byte[][] {
-			new byte[] { 0x0A }, new byte[] { 0x0D, 0x0A }
+		static readonly byte[][] NewLineFormats = {
+			new byte[] { (byte) '\n' }, new byte[] { (byte) '\r', (byte) '\n' }
 		};
 
 		/// <summary>
@@ -144,15 +144,25 @@ namespace MimeKit {
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
-			Default.MaxLineLength = 72;
-			Default.WriteHeaders = true;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.FormatOptions"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new set of formatting options for use with methods such as
+		/// <see cref="MimeMessage.WriteTo(System.IO.Stream)"/>.
+		/// </remarks>
+		public FormatOptions ()
+		{
+			HiddenHeaders = new HashSet<HeaderId> ();
+			WriteHeaders = true;
+			MaxLineLength = 72;
 
 			if (Environment.NewLine.Length == 1)
-				Default.NewLineFormat = NewLineFormat.Unix;
+				NewLineFormat = NewLineFormat.Unix;
 			else
-				Default.NewLineFormat = NewLineFormat.Dos;
-
-			Default.HiddenHeaders = new HashSet<HeaderId> ();
+				NewLineFormat = NewLineFormat.Dos;
 		}
 
 		/// <summary>
@@ -161,6 +171,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Clones the formatting options.
 		/// </remarks>
+		/// <returns>An exact copy of the <see cref="FormatOptions"/>.</returns>
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();

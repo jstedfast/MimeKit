@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -50,11 +50,17 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME cryptography context that uses Windows' <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>.
 	/// </summary>
+	/// <remarks>
+	/// An S/MIME cryptography context that uses Windows' <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>.
+	/// </remarks>
 	public class WindowsSecureMimeContext : SecureMimeContext
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="WindowsSecureMimeContext"/>.
+		/// </remarks>
 		/// <param name="location">The X.509 store location.</param>
 		public WindowsSecureMimeContext (StoreLocation location)
 		{
@@ -85,6 +91,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the X.509 store location.
 		/// </summary>
+		/// <remarks>
+		/// Gets the X.509 store location.
+		/// </remarks>
 		/// <value>The store location.</value>
 		public StoreLocation StoreLocation {
 			get; private set;
@@ -95,11 +104,14 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the X.509 certificate based on the selector.
+		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (IX509Selector selector)
 		{
-			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			var storeNames = new [] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
 
 			foreach (var storeName in storeNames) {
 				var store = new X509Store (storeName, StoreLocation);
@@ -109,7 +121,7 @@ namespace MimeKit.Cryptography {
 				try {
 					foreach (var certificate in store.Certificates) {
 						var cert = DotNetUtilities.FromX509Certificate (certificate);
-						if (selector.Match (cert))
+						if (selector == null || selector.Match (cert))
 							return cert;
 					}
 				} finally {
@@ -123,6 +135,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the private key based on the provided selector.
 		/// </summary>
+		/// <remarks>
+		/// Gets the private key based on the provided selector.
+		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
@@ -138,7 +153,7 @@ namespace MimeKit.Cryptography {
 
 					var cert = DotNetUtilities.FromX509Certificate (certificate);
 
-					if (selector.Match (cert)) {
+					if (selector == null || selector.Match (cert)) {
 						var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
 						return pair.Private;
 					}
@@ -153,6 +168,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the trusted anchors.
 		/// </summary>
+		/// <remarks>
+		/// Gets the trusted anchors.
+		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
@@ -178,6 +196,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the intermediate certificates.
 		/// </summary>
+		/// <remarks>
+		/// Gets the intermediate certificates.
+		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
@@ -203,6 +224,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the certificate revocation lists.
 		/// </summary>
+		/// <remarks>
+		/// Gets the certificate revocation lists.
+		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
@@ -264,8 +288,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Gets the X.509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Gets the X.509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// </remarks>
 		/// <returns>The certificate.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="CertificateNotFoundException">
@@ -340,6 +367,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
+		/// <remarks>
+		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
+		/// </remarks>
 		/// <returns>The cms signer.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="digestAlgo">The preferred digest algorithm.</param>
@@ -367,6 +397,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
@@ -392,6 +425,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Sign and encapsulate the content using the specified signer.
 		/// </summary>
+		/// <remarks>
+		/// Sign and encapsulate the content using the specified signer.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -434,6 +470,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Sign the content using the specified signer.
 		/// </summary>
+		/// <remarks>
+		/// Sign the content using the specified signer.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
@@ -476,6 +515,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Decrypt the encrypted data.
 		/// </summary>
+		/// <remarks>
+		/// Decrypt the encrypted data.
+		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -490,13 +532,9 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("encryptedData");
 
 			var enveloped = new EnvelopedCms ();
+
 			enveloped.Decode (ReadAllBytes (encryptedData));
-
-			var store = new X509Store (StoreName.My, StoreLocation);
-			store.Open (OpenFlags.ReadOnly);
-
 			enveloped.Decrypt ();
-			store.Close ();
 
 			var decryptedData = enveloped.Encode ();
 
@@ -508,12 +546,18 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Import the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Import the specified certificate.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
 		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
 			var store = new X509Store (StoreName.AddressBook, StoreLocation);
 
 			store.Open (OpenFlags.ReadWrite);
@@ -524,6 +568,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Import the specified certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Import the specified certificate revocation list.
+		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <c>null</c>.
@@ -539,6 +586,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
+		/// <remarks>
+		/// Imports certificates and keys from a pkcs12-encoded stream.
+		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -569,6 +619,7 @@ namespace MimeKit.Cryptography {
 					rawData = memory.ToArray ();
 				}
 			}
+
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
 

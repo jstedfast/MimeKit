@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
 		/// </summary>
-		/// <param name='rfc2047'>
+		/// <remarks>
+		/// Creates a new quoted-printable decoder.
+		/// </remarks>
+		/// <param name="rfc2047">
 		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
 		/// </param>
 		public QuotedPrintableDecoder (bool rfc2047)
@@ -64,6 +67,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new quoted-printable decoder.
+		/// </remarks>
 		public QuotedPrintableDecoder () : this (false)
 		{
 		}
@@ -71,6 +77,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="QuotedPrintableDecoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="QuotedPrintableDecoder"/> with exactly the same state as the current decoder.
+		/// </remarks>
 		/// <returns>A new <see cref="QuotedPrintableDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
@@ -85,6 +94,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the decoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.QuotedPrintable; }
@@ -93,8 +105,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
-		/// <param name='inputLength'>The input length.</param>
+		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// add an extra 3 bytes for the saved input byte from previous decode step (in case it is invalid hex)
@@ -109,7 +124,7 @@ namespace MimeKit.Encodings {
 			if (startIndex < 0 || startIndex > input.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > input.Length)
+			if (length < 0 || length > (input.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			if (output == null)
@@ -122,10 +137,16 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// decoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
+		/// <param name="input">A pointer to the beginning of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -186,11 +207,17 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// decoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>The output buffer.</param>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -219,6 +246,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			state = QpDecoderState.PassThrough;

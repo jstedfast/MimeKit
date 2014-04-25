@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class Base64Encoder : IMimeEncoder
 	{
-		static readonly byte[] base64_alphabet = new byte[64] {
+		static readonly byte[] base64_alphabet = {
 			0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
 			0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66,
 			0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76,
@@ -57,7 +57,7 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
 		/// </summary>
-		/// <param name='rfc2047'>
+		/// <param name="rfc2047">
 		/// <c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.
 		/// </param>
 		internal Base64Encoder (bool rfc2047)
@@ -69,6 +69,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new base64 encoder.
+		/// </remarks>
 		public Base64Encoder () : this (false)
 		{
 		}
@@ -76,6 +79,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="Base64Encoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="Base64Encoder"/> with exactly the same state as the current encoder.
+		/// </remarks>
 		/// <returns>A new <see cref="Base64Encoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
@@ -92,6 +98,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the encoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.Base64; }
@@ -100,8 +109,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to encode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
-		/// <param name='inputLength'>The input length.</param>
+		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			if (rfc2047)
@@ -118,7 +130,7 @@ namespace MimeKit.Encodings {
 			if (startIndex < 0 || startIndex > input.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > input.Length)
+			if (length < 0 || length > (input.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			if (output == null)
@@ -141,16 +153,8 @@ namespace MimeKit.Encodings {
 				byte* inend = inptr + length - 2;
 				int c1, c2, c3;
 
-				if (saved < 1)
-					c1 = *inptr++;
-				else
-					c1 = saved1;
-
-				if (saved < 2)
-					c2 = *inptr++;
-				else
-					c2 = saved2;
-
+				c1 = saved < 1 ? *inptr++ : saved1;
+				c2 = saved < 2 ? *inptr++ : saved2;
 				c3 = *inptr++;
 
 				do {
@@ -202,11 +206,17 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>The output buffer.</param>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -263,11 +273,17 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
+		/// <remarks>
+		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+		/// <para>The output buffer should be large enough to hold all of the
+		/// encoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>The output buffer.</param>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -296,6 +312,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			quartets = 0;

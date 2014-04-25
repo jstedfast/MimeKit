@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,41 +30,62 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An interface for a digital certificate.
 	/// </summary>
+	/// <remarks>
+	/// An interface for a digital certificate.
+	/// </remarks>
 	public interface IDigitalCertificate
 	{
 		/// <summary>
 		/// Gets the public key algorithm supported by the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm supported by the certificate.
+		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		PublicKeyAlgorithm PublicKeyAlgorithm { get; }
 
 		/// <summary>
 		/// Gets the date that the certificate was created.
 		/// </summary>
+		/// <remarks>
+		/// Gets the date that the certificate was created.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		DateTime CreationDate { get; }
 
 		/// <summary>
 		/// Gets the expiration date of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the expiration date of the certificate.
+		/// </remarks>
 		/// <value>The expiration date.</value>
 		DateTime ExpirationDate { get; }
 
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the fingerprint of the certificate.
+		/// </remarks>
 		/// <value>The fingerprint.</value>
 		string Fingerprint { get; }
 
 		/// <summary>
 		/// Gets the email address of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the email address of the owner of the certificate.
+		/// </remarks>
 		/// <value>The email address.</value>
 		string Email { get; }
 
 		/// <summary>
 		/// Gets the name of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the name of the owner of the certificate.
+		/// </remarks>
 		/// <value>The name of the owner.</value>
 		string Name { get; }
 	}

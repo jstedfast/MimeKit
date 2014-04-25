@@ -1,9 +1,9 @@
 <Type Name="Parameter" FullName="MimeKit.Parameter">
-  <TypeSignature Language="C#" Value="public sealed class Parameter" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit Parameter extends System.Object" />
+  <TypeSignature Language="C#" Value="public class Parameter" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Parameter extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -13,7 +13,10 @@
     <summary>
             A header parameter as found in the Content-Type and Content-Disposition headers.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Content-Type and Content-Disposition headers often have parameters that specify
+            further information about how to interpret the content.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -21,7 +24,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -33,7 +36,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Parameter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new parameter with the specified name and value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -51,7 +56,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -61,7 +66,9 @@
             Gets the parameter name.
             </summary>
         <value>The parameter name.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the parameter name.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -69,7 +76,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -77,12 +84,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Returns a <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.Parameter" />.
+            Returns a string representation of the <see cref="T:MimeKit.Parameter" />.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.Parameter" />.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A string representation of the <see cref="T:MimeKit.Parameter" />.</returns>
+        <remarks>
+            Formats the parameter name and value in the form <c>name="value"</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Value">
@@ -90,7 +97,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Value" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -100,7 +107,9 @@
             Gets or sets the parameter value.
             </summary>
         <value>The parameter value.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the parameter value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>

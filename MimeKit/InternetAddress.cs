@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,27 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
 	/// An internet address, as specified by rfc0822.
 	/// </summary>
-    /// <remarks>
-    /// Serves as the base class for <see cref="MailboxAddress"/> and <see cref="GroupAddress"/>.
-    /// </remarks>
+	/// <remarks>
+	/// <para>A <see cref="InternetAddress"/> can be any type of address defined by the
+	/// original Internet Message specification.</para>
+	/// <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
+	/// <para>Mailbox addresses are what are most commonly known as email addresses and are
+	/// represented by the <see cref="MailboxAddress"/> class.</para>
+	/// <para>Group addresses are themselves lists of addresses and are represented by the
+	/// <see cref="GroupAddress"/> class. While rare, it is still important to handle these
+	/// types of addresses. They typically only contain mailbox addresses, but may also
+	/// contain other group addresses.</para>
+	/// </remarks>
 	public abstract class InternetAddress
 	{
 		Encoding encoding;
@@ -109,7 +121,8 @@ namespace MimeKit {
 		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string, optionally encoding it for transport.
+		/// Returns a string representation of the <see cref="InternetAddress"/>,
+		/// optionally encoding it for transport.
 		/// </summary>
         /// <remarks>
         /// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
@@ -117,17 +130,17 @@ namespace MimeKit {
         /// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
         /// return a string suitable only for display purposes.</para>
         /// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MimeKit.InternetAddress"/> will be encoded.</param>
+		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
 		public abstract string ToString (bool encode);
 
 		/// <summary>
-		/// Serializes the <see cref="MimeKit.InternetAddress"/> to a string suitable for display.
+		/// Returns a string representation of a <see cref="InternetAddress"/> suitable for display.
 		/// </summary>
         /// <remarks>
         /// The string returned by this method is suitable only for display purposes.
         /// </remarks>
-		/// <returns>A string representing the <see cref="MimeKit.InternetAddress"/>.</returns>
+		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
 			return ToString (false);
@@ -341,6 +354,13 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
+			if (index == endIndex) {
+				if (throwOnError)
+					throw new ParseException ("No address found.", index, index);
+
+				return false;
+			}
+
 			// keep track of the start & length of the phrase
 			int startIndex = index;
 			int length = 0;
@@ -404,30 +424,34 @@ namespace MimeKit {
 
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
-				int codepage;
+				int codepage = -1;
 				string name;
 
 				if (length > 0) {
 					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
 				} else {
 					name = string.Empty;
-					codepage = 65001;
 				}
+
+				if (codepage == -1)
+					codepage = 65001;
 
 				return TryParseGroup (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
-				int codepage;
+				int codepage = -1;
 				string name;
 
 				if (length > 0) {
 					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
 				} else {
 					name = string.Empty;
-					codepage = 65001;
 				}
+
+				if (codepage == -1)
+					codepage = 65001;
 
 				return TryParseMailbox (text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
@@ -502,10 +526,10 @@ namespace MimeKit {
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
 
-			if (startIndex < 0 || startIndex >= buffer.Length)
+			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length >= buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			int endIndex = startIndex + length;
@@ -779,7 +803,7 @@ namespace MimeKit {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			int endIndex = startIndex + length;

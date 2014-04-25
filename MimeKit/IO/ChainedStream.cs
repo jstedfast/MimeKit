@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,11 +39,22 @@ namespace MimeKit.IO {
 	/// </remarks>
 	public class ChainedStream : Stream
 	{
-		readonly List<Stream> streams = new List<Stream> ();
+		readonly List<Stream> streams;
 		long position;
 		bool disposed;
 		int current;
 		bool eos;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ChainedStream"/>.
+		/// </remarks>
+		public ChainedStream ()
+		{
+			streams = new List<Stream> ();
+		}
 
 		/// <summary>
 		/// Add the specified stream to the chained stream.
@@ -158,7 +169,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// The length of a <see cref="ChainedStream"/> is the combined lenths of all
@@ -185,7 +196,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// It is always possible to get the position of a <see cref="ChainedStream"/>,
@@ -206,7 +217,7 @@ namespace MimeKit.IO {
 			set { Seek (value, SeekOrigin.Begin); }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
@@ -288,9 +299,9 @@ namespace MimeKit.IO {
 		/// complete buffer, the data will spill over into the next stream in the
 		/// chain in order to complete the write.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -470,7 +481,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Setting the length of a <see cref="ChainedStream"/> is not supported.
 		/// </remarks>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -485,13 +496,11 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Disposes the stream.
+		/// Releases the unmanaged resources used by the <see cref="ChainedStream"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
-		/// <remarks>
-		/// Sets the internal disposed state to <c>true</c>.
-		/// </remarks>
-		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
-		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

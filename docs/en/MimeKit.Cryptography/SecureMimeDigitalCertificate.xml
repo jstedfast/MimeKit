@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit SecureMimeDigitalCertificate extends System.Object implements class MimeKit.Cryptography.IDigitalCertificate" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -17,7 +17,9 @@
     <summary>
             An S/MIME digital certificate.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An S/MIME digital certificate.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Certificate">
@@ -25,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -35,7 +37,9 @@
             Gets the <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.
             </summary>
         <value>The certificate.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the <see cref="T:Org.BouncyCastle.X509.X509Certificate" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreationDate">
@@ -43,7 +47,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime CreationDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -53,7 +57,9 @@
             Gets the date that the certificate was created.
             </summary>
         <value>The creation date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the date that the certificate was created.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Email">
@@ -61,7 +67,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Email" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -71,7 +77,9 @@
             Gets the email address of the owner of the certificate.
             </summary>
         <value>The email address.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the email address of the owner of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExpirationDate">
@@ -79,7 +87,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime ExpirationDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -89,7 +97,9 @@
             Gets the expiration date of the certificate.
             </summary>
         <value>The expiration date.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the expiration date of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Fingerprint">
@@ -97,7 +107,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Fingerprint" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -107,7 +117,9 @@
             Gets the fingerprint of the certificate.
             </summary>
         <value>The fingerprint.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the fingerprint of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -115,7 +127,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -125,7 +137,9 @@
             Gets the name of the owner of the certificate.
             </summary>
         <value>The name of the owner.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the name of the owner of the certificate.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="PublicKeyAlgorithm">
@@ -133,7 +147,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
@@ -143,7 +157,9 @@
             Gets the public key algorithm supported by the certificate.
             </summary>
         <value>The public key algorithm.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the public key algorithm supported by the certificate.
+            </remarks>
       </Docs>
     </Member>
   </Members>

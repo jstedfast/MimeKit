@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The type of S/MIME data that an application/pkcs7-mime part contains.
 	/// </summary>
+	/// <remarks>
+	/// The type of S/MIME data that an application/pkcs7-mime part contains.
+	/// </remarks>
 	public enum SecureMimeType {
 		/// <summary>
 		/// S/MIME compressed data.

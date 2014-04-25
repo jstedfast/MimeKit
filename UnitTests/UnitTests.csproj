@@ -32,11 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework">
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="nunit.framework" />
     <Reference Include="System.Security" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
@@ -89,6 +88,9 @@
     <None Include="TestData\smime\thunderbird-signed.txt" />
     <None Include="..\lib\sqlite3.dll">
       <Link>sqlite3.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Npgsql.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

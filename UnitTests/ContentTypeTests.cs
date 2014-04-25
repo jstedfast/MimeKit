@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -205,6 +205,18 @@ namespace UnitTests {
 			const string text3 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename=\"Filename.doc\";\n filename*1*=name.doc";
 			Assert.IsTrue (ContentDisposition.TryParse (text3, out disposition), "Failed to parse third Content-Disposition");
 			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The third filename value does not match.");
+		}
+
+		[Test]
+		public void TestMistakenlyQuotedEncodedParameterValues ()
+		{
+			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
+				"filename*1*=\"%70%74%61%63%69%20%73%6D%6C%6F%75%76%79%20%31%32%2E%31%32%2E\";\n " +
+				"filename*2*=\"%64%6F%63\"";
+			ContentDisposition disposition;
+
+			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse fourth Content-Disposition");
+			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The fourth filename value does not match.");
 		}
 	}
 }

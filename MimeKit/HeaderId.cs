@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -373,40 +373,18 @@ namespace MimeKit {
 		Unknown = -1
 	}
 
-	[AttributeUsage (AttributeTargets.Field)]
-	class HeaderNameAttribute : Attribute
-	{
-		public HeaderNameAttribute (string name)
-		{
-			HeaderName = name;
-		}
-
-		public string HeaderName {
-			get; private set;
-		}
-	}
-
 	static class HeaderIdExtension
 	{
 		public static string ToHeaderName (this Enum value)
 		{
-			var name = value.ToString ();
-			var type = value.GetType ();
-			var field = type.GetField (name);
+			var builder = new StringBuilder (value.ToString ());
 
-			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), true);
-			if (attrs == null || attrs.Length == 0) {
-				var builder = new StringBuilder (name);
-
-				for (int i = 2; i < builder.Length; i++) {
-					if (char.IsUpper (builder[i]))
-						builder.Insert (i++, '-');
-				}
-
-				return builder.ToString ();
+			for (int i = 2; i < builder.Length; i++) {
+				if (char.IsUpper (builder[i]))
+					builder.Insert (i++, '-');
 			}
 
-			return ((HeaderNameAttribute) attrs[0]).HeaderName;
+			return builder.ToString ();
 		}
 
 		public static HeaderId ToHeaderId (this string name)

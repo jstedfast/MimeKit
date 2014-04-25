@@ -1,20 +1,26 @@
 <Type Name="MimeParser" FullName="MimeKit.MimeParser">
-  <TypeSignature Language="C#" Value="public sealed class MimeParser" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeParser extends System.Object" />
+  <TypeSignature Language="C#" Value="public class MimeParser : System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimeParser extends System.Object implements class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeMessage&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
-  <Interfaces />
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.IEnumerable&lt;MimeKit.MimeMessage&gt;</InterfaceName>
+    </Interface>
+  </Interfaces>
   <Docs>
     <summary>
-            A MIME parser which can be used to parse <see cref="T:MimeKit.MimeMessage" />s and
-            <see cref="T:MimeKit.MimeEntity" />s from arbitrary streams.
+            A MIME message and entity parser.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A MIME parser is used to parse <see cref="T:MimeKit.MimeMessage" /> and
+            <see cref="T:MimeKit.MimeEntity" /> objects from arbitrary streams.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -22,7 +28,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -32,7 +38,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -43,7 +51,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -55,7 +63,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -70,7 +80,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -82,7 +92,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -93,7 +105,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -107,6 +119,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -125,7 +138,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -139,7 +152,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -154,7 +169,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -170,6 +185,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -192,7 +208,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />
@@ -208,6 +224,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -226,7 +243,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="options" Type="MimeKit.ParserOptions" />
@@ -244,6 +261,7 @@
             Initializes a new instance of the <see cref="T:MimeKit.MimeParser" /> class.
             </summary>
         <remarks>
+          <para>Creates a new <see cref="T:MimeKit.MimeParser" /> that will parse the specified stream.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -261,22 +279,25 @@
         </exception>
       </Docs>
     </Member>
-    <Member MemberName="CurrentStreamOffset">
-      <MemberSignature Language="C#" Value="public long CurrentStreamOffset { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance int64 CurrentStreamOffset" />
-      <MemberType>Property</MemberType>
+    <Member MemberName="GetEnumerator">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerator&lt;MimeKit.MimeMessage&gt; GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.MimeMessage&gt; GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Int64</ReturnType>
+        <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.MimeMessage&gt;</ReturnType>
       </ReturnValue>
+      <Parameters />
       <Docs>
         <summary>
-            Gets the current stream offset that the parser is at.
+            Enumerates the messages in the stream.
             </summary>
-        <value>The stream offset.</value>
-        <remarks>To be added.</remarks>
+        <returns>The enumerator.</returns>
+        <remarks>
+            This is mostly useful when parsing mbox-formatted streams.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsEndOfStream">
@@ -284,7 +305,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsEndOfStream" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -296,7 +317,9 @@
         <value>
           <c>true</c> if this parser has reached the end of the input stream;
             otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets a value indicating whether the parser has reached the end of the input stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="MboxMarker">
@@ -304,7 +327,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string MboxMarker" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -314,7 +337,9 @@
             Gets the most recent mbox marker.
             </summary>
         <value>The mbox marker.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the most recent mbox marker.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="MboxMarkerOffset">
@@ -322,7 +347,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int64 MboxMarkerOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
@@ -332,7 +357,9 @@
             Gets the most recent mbox marker offset.
             </summary>
         <value>The mbox marker offset.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the most recent mbox marker offset.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ParseEntity">
@@ -340,7 +367,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity ParseEntity() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -351,9 +378,14 @@
             Parses an entity from the stream.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an entity from the stream.
+            </remarks>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
             </exception>
       </Docs>
     </Member>
@@ -362,7 +394,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity ParseEntity(valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -376,12 +408,17 @@
             Parses an entity from the stream.
             </summary>
         <returns>The parsed entity.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses an entity from the stream.
+            </remarks>
         <exception cref="T:System.OperationCanceledException">
             The operation was canceled via the cancellation token.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
             </exception>
       </Docs>
     </Member>
@@ -390,7 +427,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -401,9 +438,14 @@
             Parses a message from the stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a message from the stream.
+            </remarks>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the message.
             </exception>
       </Docs>
     </Member>
@@ -412,7 +454,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage(valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -426,13 +468,38 @@
             Parses a message from the stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a message from the stream.
+            </remarks>
         <exception cref="T:System.OperationCanceledException">
             The operation was canceled via the cancellation token.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the message.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Position">
+      <MemberSignature Language="C#" Value="public long Position { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 Position" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current position of the parser within the stream.
+            </summary>
+        <value>The stream offset.</value>
+        <remarks>
+            Gets the current position of the parser within the stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetStream">
@@ -440,7 +507,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -453,7 +520,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -464,7 +533,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -479,7 +548,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -494,7 +565,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -509,7 +580,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -520,7 +593,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -537,6 +610,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -555,7 +629,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -572,7 +646,9 @@
         <summary>
             Sets the stream to parse.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the stream to parse.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -587,7 +663,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -606,6 +682,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -628,7 +705,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -647,6 +724,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -665,7 +743,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStream(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype MimeKit.MimeFormat format, bool persistent) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -686,6 +764,7 @@
             Sets the stream to parse.
             </summary>
         <remarks>
+          <para>Sets the stream to parse.</para>
           <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
             the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
             it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
@@ -701,6 +780,27 @@
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
         </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
+      <MemberSignature Language="C#" Value="System.Collections.IEnumerator IEnumerable.GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.IEnumerator</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Enumerates the messages in the stream.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            This is mostly useful when parsing mbox-formatted streams.
+            </remarks>
       </Docs>
     </Member>
   </Members>

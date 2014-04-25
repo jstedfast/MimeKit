@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,10 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
 
 using MimeKit.IO;
 
@@ -111,7 +115,7 @@ namespace MimeKit {
 		/// Checks if the <see cref="MimeKit.HeaderList"/> contains a header with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the specified header is contained within the header list.
+		/// Determines whether or not the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
@@ -131,7 +135,7 @@ namespace MimeKit {
 		/// Checks if the <see cref="MimeKit.HeaderList"/> contains a header with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the specified header is contained within the header list.
+		/// Determines whether or not the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
@@ -150,6 +154,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested header, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the first index of the specified header, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="id">The header id.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -171,6 +178,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested header, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the first index of the specified header, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -192,6 +202,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts a header with the specified field and value at the given index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the header at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The header value.</param>
@@ -214,6 +227,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts a header with the specified field and value at the given index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the header at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
@@ -239,7 +255,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the first occurance of the specified header field.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
+		/// <remarks>
+		/// Removes the first occurance of the specified header field, if any exist.
+		/// </remarks>
+		/// <returns><value>true</value> if the first occurance of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -260,7 +279,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the first occurance of the specified header field.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
+		/// <remarks>
+		/// Removes the first occurance of the specified header field, if any exist.
+		/// </remarks>
+		/// <returns><value>true</value> if the first occurance of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -281,6 +303,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes all of the headers matching the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the headers matching the specified field name.
+		/// </remarks>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -306,6 +331,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes all of the headers matching the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the headers matching the specified field name.
+		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <c>null</c>.
@@ -330,9 +358,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Replaces all headers with identical field names with the single specified header.
-		/// 
-		/// If no headers with the specified field name exist, it is simply added.
 		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -354,9 +384,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Replaces all headers with identical field names with the single specified header.
-		/// 
-		/// If no headers with the specified field name exist, it is simply added.
 		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -382,6 +414,11 @@ namespace MimeKit {
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the first occurance of a header
+		/// with the specified field name.
+		/// </remarks>
+		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -417,6 +454,11 @@ namespace MimeKit {
 		/// Gets or sets the value of the first occurance of a header
 		/// with the specified field name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the first occurance of a header
+		/// with the specified field name.
+		/// </remarks>
+		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="field"/> is <c>null</c>.</para>
@@ -453,6 +495,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
@@ -497,6 +542,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -515,6 +563,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -534,6 +585,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -551,6 +605,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the number of headers in the <see cref="MimeKit.HeaderList"/>.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of headers in the list.
+		/// </remarks>
 		/// <value>The number of headers.</value>
 		public int Count {
 			get { return headers.Count; }
@@ -559,6 +616,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this instance is read only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="HeaderList"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
@@ -567,6 +627,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds the specified header.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified header to the end of the header list.
+		/// </remarks>
 		/// <param name="header">The header to add.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <c>null</c>.
@@ -586,8 +649,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes all headers from the <see cref="MimeKit.HeaderList"/>.
+		/// Clears the header list.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the headers from the list.
+		/// </remarks>
 		public void Clear ()
 		{
 			foreach (var header in headers)
@@ -602,6 +668,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="HeaderList"/> contains the specified header.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the header list contains the specified header.
+		/// </remarks>
 		/// <returns><value>true</value> if the specified header is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="header">The header.</param>
@@ -619,6 +688,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies all of the headers in the <see cref="MimeKit.HeaderList"/> to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the headers within the <see cref="HeaderList"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -635,6 +708,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified header.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified header from the list if it exists.
+		/// </remarks>
 		/// <returns><c>true</c> if the specified header was removed;
 		/// otherwise <c>false</c>.</returns>
 		/// <param name="header">The header.</param>
@@ -672,13 +748,13 @@ namespace MimeKit {
 			return true;
 		}
 
-
-
 		/// <summary>
 		/// Replaces all headers with identical field names with the single specified header.
-		/// 
-		/// If no headers with the specified header's field name exist, it is simply added.
 		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <c>null</c>.
@@ -724,6 +800,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested header, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified header, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -740,6 +819,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts the specified header at the given index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the header at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -776,6 +858,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the header at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Removes the header at the specified index.
+		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -809,6 +894,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.Header"/> at the specified index.
+		/// </remarks>
+		/// <value>The header at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -878,6 +967,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of headers.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of headers.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<Header> GetEnumerator ()
 		{
@@ -888,6 +980,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of headers.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of headers.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return headers.GetEnumerator ();

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,11 +30,17 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
 	/// </summary>
+	/// <remarks>
+	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
+	/// </remarks>
 	public class CertificateNotFoundException : Exception
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="CertificateNotFoundException"/>.
+		/// </remarks>
 		/// <param name="mailbox">The mailbox that could not be resolved to a valid certificate.</param>
 		/// <param name="message">A message explaining the error.</param>
 		public CertificateNotFoundException (MailboxAddress mailbox, string message) : base (message)
@@ -45,6 +51,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the mailbox address that could not be resolved to a certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the mailbox address that could not be resolved to a certificate.
+		/// </remarks>
 		/// <value>The mailbox address.</value>
 		public MailboxAddress Mailbox {
 			get; private set;

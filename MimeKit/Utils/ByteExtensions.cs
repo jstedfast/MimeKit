@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ namespace MimeKit.Utils {
 
 				if (bitcopy != CharType.None) {
 					for (i = 0; i < 256; i++) {
-						if (table[i].HasFlag (bitcopy))
+						if ((table[i] & bitcopy) != 0)
 							table[i] &= ~bit;
 					}
 				}
@@ -89,7 +89,7 @@ namespace MimeKit.Utils {
 
 				if (bitcopy != CharType.None) {
 					for (i = 0; i < 256; i++) {
-						if (table[i].HasFlag (bitcopy))
+						if ((table[i] & bitcopy) != 0)
 							table[i] |= bit;
 					}
 				}
@@ -136,47 +136,47 @@ namespace MimeKit.Utils {
 
 		public static bool IsAscii (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsAscii);
+			return (table[c] & CharType.IsAscii) != 0;
 		}
 
 		public static bool IsAtom (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsAtom);
+			return (table[c] & CharType.IsAtom) != 0;
 		}
 
 		public static bool IsAttr (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsAttrChar);
+			return (table[c] & CharType.IsAttrChar) != 0;
 		}
 
 		public static bool IsBlank (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsBlank);
+			return (table[c] & CharType.IsBlank) != 0;
 		}
 
 		public static bool IsCtrl (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsControl);
+			return (table[c] & CharType.IsControl) != 0;
 		}
 
 		public static bool IsDomain (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsDomainSafe);
+			return (table[c] & CharType.IsDomainSafe) != 0;
 		}
 
 		public static bool IsQpSafe (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsQuotedPrintableSafe);
+			return (table[c] & CharType.IsQuotedPrintableSafe) != 0;
 		}
 
 		public static bool IsToken (this byte c)
 		{
-			return !c.IsTokenSpecial () && !c.IsWhitespace () && !c.IsCtrl ();
+			return (table[c] & (CharType.IsTokenSpecial | CharType.IsWhitespace | CharType.IsControl)) == 0;
 		}
 
 		public static bool IsTokenSpecial (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsTokenSpecial);
+			return (table[c] & CharType.IsTokenSpecial) != 0;
 		}
 
 		public static bool IsType (this byte c, CharType type)
@@ -186,12 +186,12 @@ namespace MimeKit.Utils {
 
 		public static bool IsWhitespace (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsWhitespace);
+			return (table[c] & CharType.IsWhitespace) != 0;
 		}
 
 		public static bool IsXDigit (this byte c)
 		{
-			return table[c].HasFlag (CharType.IsXDigit);
+			return (table[c] & CharType.IsXDigit) != 0;
 		}
 
 		public static byte ToLower (this byte c)

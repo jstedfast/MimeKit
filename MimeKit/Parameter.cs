@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,11 @@
 using System;
 using System.Text;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+#endif
+
 using MimeKit.Encodings;
 using MimeKit.Utils;
 
@@ -34,13 +39,20 @@ namespace MimeKit {
 	/// <summary>
 	/// A header parameter as found in the Content-Type and Content-Disposition headers.
 	/// </summary>
-	public sealed class Parameter
+	/// <remarks>
+	/// Content-Type and Content-Disposition headers often have parameters that specify
+	/// further information about how to interpret the content.
+	/// </remarks>
+	public class Parameter
 	{
 		string text;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Parameter"/> class.
+		/// Initializes a new instance of the <see cref="Parameter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new parameter with the specified name and value.
+		/// </remarks>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -79,6 +91,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the parameter name.
 		/// </summary>
+		/// <remarks>
+		/// Gets the parameter name.
+		/// </remarks>
 		/// <value>The parameter name.</value>
 		public string Name {
 			get; private set;
@@ -87,6 +102,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the parameter value.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the parameter value.
+		/// </remarks>
 		/// <value>The parameter value.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -356,11 +374,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.Parameter"/>.
+		/// Returns a string representation of the <see cref="Parameter"/>.
 		/// </summary>
-		/// <returns>A <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.Parameter"/>.</returns>
+		/// <remarks>
+		/// Formats the parameter name and value in the form <c>name="value"</c>.
+		/// </remarks>
+		/// <returns>A string representation of the <see cref="Parameter"/>.</returns>
 		public override string ToString ()
 		{
 			return Name + "=" + MimeUtils.Quote (Value);

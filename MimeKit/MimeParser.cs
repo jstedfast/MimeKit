@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,12 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
+
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
 
 using MimeKit.Utils;
 using MimeKit.IO;
@@ -80,7 +85,7 @@ namespace MimeKit {
 
 		public override string ToString ()
 		{
-			return Encoding.UTF8.GetString (Marker);
+			return Encoding.UTF8.GetString (Marker, 0, Marker.Length);
 		}
 	}
 
@@ -97,10 +102,13 @@ namespace MimeKit {
 	}
 
 	/// <summary>
-	/// A MIME parser which can be used to parse <see cref="MimeKit.MimeMessage"/>s and
-	/// <see cref="MimeKit.MimeEntity"/>s from arbitrary streams.
+	/// A MIME message and entity parser.
 	/// </summary>
-	public sealed class MimeParser
+	/// <remarks>
+	/// A MIME parser is used to parse <see cref="MimeKit.MimeMessage"/> and
+	/// <see cref="MimeKit.MimeEntity"/> objects from arbitrary streams.
+	/// </remarks>
+	public class MimeParser : IEnumerable<MimeMessage>
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		const int ReadAheadSize = 128;
@@ -139,10 +147,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -151,6 +157,9 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -161,6 +170,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
+		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -173,9 +185,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -184,6 +195,8 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -194,6 +207,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
+		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -205,10 +221,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -217,6 +231,9 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -229,6 +246,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
+		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -243,11 +263,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -256,6 +273,10 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -272,6 +293,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
+		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
@@ -287,6 +311,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether the parser has reached the end of the input stream.
 		/// </summary>
+		/// <remarks>
+		/// Gets a value indicating whether the parser has reached the end of the input stream.
+		/// </remarks>
 		/// <value><c>true</c> if this parser has reached the end of the input stream;
 		/// otherwise, <c>false</c>.</value>
 		public bool IsEndOfStream {
@@ -294,16 +321,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the current stream offset that the parser is at.
+		/// Gets the current position of the parser within the stream.
 		/// </summary>
+		/// <remarks>
+		/// Gets the current position of the parser within the stream.
+		/// </remarks>
 		/// <value>The stream offset.</value>
-		public long CurrentStreamOffset {
+		public long Position {
 			get { return GetOffset (-1); }
 		}
 
 		/// <summary>
 		/// Gets the most recent mbox marker offset.
 		/// </summary>
+		/// <remarks>
+		/// Gets the most recent mbox marker offset.
+		/// </remarks>
 		/// <value>The mbox marker offset.</value>
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
@@ -312,6 +345,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the most recent mbox marker.
 		/// </summary>
+		/// <remarks>
+		/// Gets the most recent mbox marker.
+		/// </remarks>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
 			get { return Encoding.ASCII.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
@@ -320,11 +356,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -333,6 +366,10 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -376,6 +413,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
@@ -392,10 +432,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -404,6 +442,9 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -417,6 +458,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -432,10 +476,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -444,6 +486,9 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -455,6 +500,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -468,9 +516,8 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
@@ -479,6 +526,8 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="ContentObject"/> to read the content.</para>
 		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -490,6 +539,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Sets the stream to parse.
 		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
@@ -548,7 +600,7 @@ namespace MimeKit {
 
 			// attempt to align the end of the remaining input with ReadAheadSize
 			if (index >= start) {
-				start -= left < ReadAheadSize ? left : ReadAheadSize;
+				start -= Math.Min (ReadAheadSize, left);
 				MemMove (inbuf, index, start, left);
 				index = start;
 				start += left;
@@ -669,15 +721,15 @@ namespace MimeKit {
 					}
 
 					if (length >= 5 && IsMboxMarker (start)) {
-						long startIndex = start - inbuf;
+						int startIndex = (int) (start - inbuf);
 
-						mboxMarkerOffset = GetOffset ((int) startIndex);
+						mboxMarkerOffset = GetOffset (startIndex);
 						mboxMarkerLength = (int) length;
 
 						if (mboxMarkerBuffer.Length < mboxMarkerLength)
 							Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
-						Array.Copy (input, startIndex, mboxMarkerBuffer, 0, length);
+						Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, (int) length);
 						complete = true;
 						break;
 					}
@@ -699,7 +751,7 @@ namespace MimeKit {
 			if (left < length)
 				Array.Resize (ref headerBuffer, NextAllocSize (headerIndex + length));
 
-			Array.Copy (input, startIndex, headerBuffer, headerIndex, length);
+			Buffer.BlockCopy (input, startIndex, headerBuffer, headerIndex, length);
 			headerIndex += length;
 		}
 
@@ -758,8 +810,23 @@ namespace MimeKit {
 
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
-					// failed to find the end of the headers; EOF reached
-					state = MimeParserState.Error;
+					// EOF reached before we reached the end of the headers...
+					if (left == 0 && !midline && headers.Count > 0) {
+						// the last header we encountered has been parsed cleanly, so try to
+						// fail gracefully by pretending we found the end of the headers...
+						//
+						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+						state = MimeParserState.Content;
+					} else {
+						// the last header we encountered was truncated - probably best
+						// to error out in this case
+						if (left > 0)
+							AppendRawHeaderData (inputIndex, left);
+
+						state = MimeParserState.Error;
+					}
+
+					ParseAndAppendHeader ();
 					inputIndex = inputEnd;
 					return;
 				}
@@ -852,11 +919,14 @@ namespace MimeKit {
 								inptr++;
 						}
 
-						AppendRawHeaderData ((int) (start - inbuf), (int) length);
+						if (length > 0) {
+							AppendRawHeaderData ((int) (start - inbuf), (int) length);
+							midline = true;
+						}
+
 						inputIndex = (int) (inptr - inbuf);
 						left = (int) (inend - inptr);
 						needInput = true;
-						midline = true;
 						break;
 					}
 
@@ -928,7 +998,7 @@ namespace MimeKit {
 			case MimeParserState.Eos:
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new IndexOutOfRangeException ("state");
 			}
 
 			return state;
@@ -1069,15 +1139,18 @@ namespace MimeKit {
 
 				while (inptr < inend) {
 					// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-					int alignment = (inputIndex + 3) & ~3;
-					byte* aligned = inptr + alignment;
+					int alignment = (startIndex + 3) & ~3;
+					byte* aligned = inbuf + alignment;
 					byte* start = inptr;
+					byte c = *aligned;
 					uint mask;
 
-					while (inptr < aligned && *inptr != (byte) '\n')
+					*aligned = (byte) '\n';
+					while (*inptr != (byte) '\n')
 						inptr++;
+					*aligned = c;
 
-					if (inptr == aligned) {
+					if (inptr == aligned && c != (byte) '\n') {
 						// -funroll-loops, bitches.
 						uint* dword = (uint*) inptr;
 
@@ -1329,7 +1402,7 @@ namespace MimeKit {
 			state = MimeParserState.Headers;
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
-					throw new Exception ("Failed to parse entity headers.");
+					throw new FormatException ("Failed to parse entity headers.");
 			}
 
 			var type = GetContentType (null);
@@ -1356,10 +1429,16 @@ namespace MimeKit {
 		/// <summary>
 		/// Parses an entity from the stream.
 		/// </summary>
+		/// <remarks>
+		/// Parses an entity from the stream.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1378,7 +1457,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Parses an entity from the stream.
 		/// </summary>
+		/// <remarks>
+		/// Parses an entity from the stream.
+		/// </remarks>
 		/// <returns>The parsed entity.</returns>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1395,16 +1480,16 @@ namespace MimeKit {
 			while (state != MimeParserState.MessageHeaders) {
 				switch (Step (inbuf)) {
 				case MimeParserState.Error:
-					throw new Exception ("Failed to find mbox From marker.");
+					throw new FormatException ("Failed to find mbox From marker.");
 				case MimeParserState.Eos:
-					throw new Exception ("End of stream.");
+					throw new FormatException ("End of stream.");
 				}
 			}
 
 			// parse the headers
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
-					throw new Exception ("Failed to parse message headers.");
+					throw new FormatException ("Failed to parse message headers.");
 			}
 
 			var message = new MimeMessage (options, headers);
@@ -1455,10 +1540,16 @@ namespace MimeKit {
 		/// <summary>
 		/// Parses a message from the stream.
 		/// </summary>
+		/// <remarks>
+		/// Parses a message from the stream.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the message.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1477,7 +1568,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Parses a message from the stream.
 		/// </summary>
+		/// <remarks>
+		/// Parses a message from the stream.
+		/// </remarks>
 		/// <returns>The parsed message.</returns>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the message.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1485,5 +1582,40 @@ namespace MimeKit {
 		{
 			return ParseMessage (CancellationToken.None);
 		}
+
+		#region IEnumerable implementation
+
+		/// <summary>
+		/// Enumerates the messages in the stream.
+		/// </summary>
+		/// <remarks>
+		/// This is mostly useful when parsing mbox-formatted streams.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
+		public IEnumerator<MimeMessage> GetEnumerator ()
+		{
+			while (!IsEndOfStream)
+				yield return ParseMessage ();
+
+			yield break;
+		}
+
+		#endregion
+
+		#region IEnumerable implementation
+
+		/// <summary>
+		/// Enumerates the messages in the stream.
+		/// </summary>
+		/// <remarks>
+		/// This is mostly useful when parsing mbox-formatted streams.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
+		IEnumerator IEnumerable.GetEnumerator ()
+		{
+			return GetEnumerator ();
+		}
+
+		#endregion
 	}
 }

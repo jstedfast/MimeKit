@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MailboxAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.MailboxAddress&gt;" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.InternetAddress</BaseTypeName>
@@ -15,7 +15,7 @@
   </Interfaces>
   <Docs>
     <summary>
-            A mailbox address, as specified by rfc0822.
+            A mailbox address, as specified by rfc822.
             </summary>
     <remarks>
             Represents a mailbox address (commonly referred to as an email address)
@@ -28,7 +28,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, string address) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -53,7 +53,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -84,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, string address) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoding" Type="System.Text.Encoding" />
@@ -116,7 +116,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name, class System.Collections.Generic.IEnumerable`1&lt;string&gt; route, string address) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoding" Type="System.Text.Encoding" />
@@ -153,7 +153,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Address" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -176,7 +176,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(class MimeKit.MailboxAddress other) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -202,7 +202,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailAddress op_Explicit(class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Net.Mail.MailAddress</ReturnType>
@@ -216,7 +216,7 @@
             Explicit cast to convert a <see cref="T:MimeKit.MailboxAddress" /> to a
             <see cref="T:System.Net.Mail.MailAddress" />.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The equivalent <see cref="T:System.Net.Mail.MailAddress" />.</returns>
         <remarks>
             Casts a <see cref="T:MimeKit.MailboxAddress" /> to a <see cref="T:System.Net.Mail.MailAddress" />
             in cases where you might want to make use of the System.Net.Mail APIs.
@@ -226,12 +226,38 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="op_Explicit">
+      <MemberSignature Language="C#" Value="public static MimeKit.MailboxAddress op_Explicit (System.Net.Mail.MailAddress address);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class MimeKit.MailboxAddress op_Explicit(class System.Net.Mail.MailAddress address) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MailboxAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="address" Type="System.Net.Mail.MailAddress" />
+      </Parameters>
+      <Docs>
+        <param name="address">The mail address.</param>
+        <summary>
+            Explicit cast to convert a <see cref="T:System.Net.Mail.MailAddress" />
+            to a <see cref="T:MimeKit.MailboxAddress" />.
+            </summary>
+        <returns>The equivalent <see cref="T:MimeKit.MailboxAddress" />.</returns>
+        <remarks>
+            Casts a <see cref="T:System.Net.Mail.MailAddress" /> to a <see cref="T:MimeKit.MailboxAddress" />
+            in cases where you might want to make use of the the superior MimeKit APIs.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Route">
       <MemberSignature Language="C#" Value="public MimeKit.DomainList Route { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.DomainList Route" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.DomainList</ReturnType>
@@ -252,7 +278,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString(bool encode) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -263,7 +289,8 @@
       <Docs>
         <param name="encode">If set to <c>true</c>, the <see cref="T:MimeKit.MailboxAddress" /> will be encoded.</param>
         <summary>
-            Serializes the <see cref="T:MimeKit.MailboxAddress" /> to a string, optionally encoding it for transport.
+            Returns a string representation of the <see cref="T:MimeKit.MailboxAddress" />,
+            optionally encoding it for transport.
             </summary>
         <returns>A string representing the <see cref="T:MimeKit.MailboxAddress" />.</returns>
         <remarks>
@@ -279,7 +306,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -310,7 +337,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -341,7 +368,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -378,7 +405,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -411,7 +438,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -447,7 +474,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -489,7 +516,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -528,7 +555,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>

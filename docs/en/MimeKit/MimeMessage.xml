@@ -1,9 +1,9 @@
 <Type Name="MimeMessage" FullName="MimeKit.MimeMessage">
-  <TypeSignature Language="C#" Value="public sealed class MimeMessage" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeMessage extends System.Object" />
+  <TypeSignature Language="C#" Value="public class MimeMessage" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimeMessage extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -13,7 +13,12 @@
     <summary>
             A MIME message.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>A message consists of header fields and, optionally, a body.</para>
+      <para>The body of the message can either be plain text or it can be a
+            tree of MIME entities such as a text/plain MIME part and a collection
+            of file attachments.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -21,14 +26,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new MIME message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -36,7 +43,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(object[] args) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="args" Type="System.Object[]">
@@ -48,11 +55,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="args">To be added.</param>
+        <param name="args">An array of initialization parameters: headers and message parts.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
-            <param name="args">An array of initialization parameters: headers and message parts.</param></summary>
-        <remarks>To be added.</remarks>
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MimeMessage" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="args" /> is <c>null</c>.
             </exception>
@@ -65,12 +74,33 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="Attachments">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; Attachments { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; Attachments" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the attachments.
+            </summary>
+        <value>The attachments.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all of the <see cref="T:MimeKit.MimePart" /> objects that
+            have a Content-Disposition header set to <c>"attachment"</c>.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Bcc">
       <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Bcc { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Bcc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -80,7 +110,10 @@
             Gets the list of addresses in the Bcc header.
             </summary>
         <value>The list of addresses in the Bcc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Recipients in the Blind-Carpbon-Copy list will not be visible to
+            the other recipients of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Body">
@@ -88,7 +121,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Body" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -98,7 +131,33 @@
             Gets or sets the body of the message.
             </summary>
         <value>The body of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The body of the message can either be plain text or it can be a
+            tree of MIME entities such as a text/plain MIME part and a collection
+            of file attachments.</para>
+          <para>For a convenient way of constructing message bodies, see the
+            <see cref="T:MimeKit.BodyBuilder" /> class.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BodyParts">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; BodyParts { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; BodyParts" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the body parts of the message.
+            </summary>
+        <value>The body parts.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all  of the <see cref="T:MimeKit.MimePart" /> objects.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Cc">
@@ -106,7 +165,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Cc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -116,7 +175,38 @@
             Gets the list of addresses in the Cc header.
             </summary>
         <value>The list of addresses in the Cc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The addresses in the Cc header are secondary recipients of the message
+            and are usually not the individuals being directly addressed in the
+            content of the message.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CreateFromMailMessage">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage CreateFromMailMessage (System.Net.Mail.MailMessage message);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage CreateFromMailMessage(class System.Net.Mail.MailMessage message) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="message" Type="System.Net.Mail.MailMessage" />
+      </Parameters>
+      <Docs>
+        <param name="message">The message.</param>
+        <summary>
+            Creates a new <see cref="T:MimeKit.MimeMessage" /> from a <see cref="T:System.Net.Mail.MailMessage" />.
+            </summary>
+        <returns>The equivalent <see cref="T:MimeKit.MimeMessage" />.</returns>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MimeMessage" /> from a <see cref="T:System.Net.Mail.MailMessage" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="message" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Date">
@@ -124,7 +214,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset Date" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -134,7 +224,10 @@
             Gets or sets the date of the message.
             </summary>
         <value>The date of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the date is not explicitly set before the message is written to a stream,
+            the date will default to the exact moment when it is written to said stream.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encrypt">
@@ -142,7 +235,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Encrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -187,7 +280,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList From" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -197,7 +290,13 @@
             Gets the list of addresses in the From header.
             </summary>
         <value>The list of addresses in the From header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The "From" header specifies the author(s) of the message.</para>
+          <para>If more than one <see cref="T:MimeKit.MailboxAddress" /> is added to the
+            list of "From" addresses, the <see cref="P:MimeKit.MimeMessage.Sender" /> should be set to the
+            single <see cref="T:MimeKit.MailboxAddress" /> of the personal actually sending
+            the message.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Headers">
@@ -205,7 +304,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -215,7 +314,12 @@
             Gets the list of headers.
             </summary>
         <value>The list of headers.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Represents the list of headers for a message. Typically, the headers of
+            a message will contain transmission headers such as From and To along
+            with metadata headers such as Subject and Date, but may include just
+            about anything.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="InReplyTo">
@@ -223,17 +327,21 @@
       <MemberSignature Language="ILAsm" Value=".property instance string InReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the message-id that this message is in reply to.
+            Gets or sets the Message-Id that this message is in reply to.
             </summary>
         <value>The message id that this message is in reply to.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            If the message is a reply to another message, it will typically
+            use the In-Reply-To header to specify the Message-Id of the
+            original message being replied to.
+            </remarks>
         <exception cref="T:System.ArgumentException">
           <paramref name="value" /> is improperly formatted.
             </exception>
@@ -244,7 +352,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -258,12 +366,18 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
             </exception>
       </Docs>
     </Member>
@@ -272,7 +386,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -286,7 +400,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -302,6 +419,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -309,7 +429,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -325,7 +445,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -336,6 +459,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -343,7 +469,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -359,7 +485,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -379,6 +508,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -386,7 +518,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -402,7 +534,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -412,6 +547,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -419,7 +557,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -435,7 +573,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
@@ -454,6 +595,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -461,7 +605,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -479,7 +623,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -493,6 +640,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -500,7 +650,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -518,7 +668,10 @@
             Load a <see cref="T:MimeKit.MimeMessage" /> from the specified file.
             </summary>
         <returns>The parsed message.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Loads a <see cref="T:MimeKit.MimeMessage" /> from the file at the given path, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -541,6 +694,9 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="MessageId">
@@ -548,7 +704,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string MessageId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -558,7 +714,13 @@
             Gets or sets the message identifier.
             </summary>
         <value>The message identifier.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The Message-Id is meant to be a globally unique identifier for
+            a message.</para>
+          <para>
+            <see cref="M:MimeKit.Utils.MimeUtils.GenerateMessageId" /> can be used
+            to generate this value.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -572,7 +734,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Version MimeVersion" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Version</ReturnType>
@@ -582,42 +744,38 @@
             Gets or sets the MIME-Version.
             </summary>
         <value>The MIME version.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The MIME-Version header specifies the version of the MIME specification
+            that the message was created for.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>
     <Member MemberName="op_Explicit">
-      <MemberSignature Language="C#" Value="public static System.Net.Mail.MailMessage op_Explicit (MimeKit.MimeMessage message);" />
-      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailMessage op_Explicit(class MimeKit.MimeMessage message) cil managed" />
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage op_Explicit (System.Net.Mail.MailMessage message);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class MimeKit.MimeMessage op_Explicit(class System.Net.Mail.MailMessage message) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Net.Mail.MailMessage</ReturnType>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="message" Type="MimeKit.MimeMessage" />
+        <Parameter Name="message" Type="System.Net.Mail.MailMessage" />
       </Parameters>
       <Docs>
         <param name="message">The message.</param>
         <summary>
-            Explicit cast to convert a <see cref="T:MimeKit.MimeMessage" /> to a
-            <see cref="T:System.Net.Mail.MailMessage" />.
+            Explicit cast to convert a <see cref="T:System.Net.Mail.MailMessage" /> to a
+            <see cref="T:MimeKit.MimeMessage" />.
             </summary>
-        <returns>A <see cref="T:System.Net.Mail.MailMessage" />.</returns>
+        <returns>The equivalent <see cref="T:MimeKit.MimeMessage" />.</returns>
         <remarks>
-          <para>Casting a <see cref="T:MimeKit.MimeMessage" /> to a <see cref="T:System.Net.Mail.MailMessage" />
-            makes it possible to use MimeKit with <see cref="T:System.Net.Mail.SmtpClient" />.</para>
-          <para>It should be noted, however, that <see cref="T:System.Net.Mail.MailMessage" />
-            cannot represent all MIME structures that can be constructed using MimeKit,
-            so the conversion may not be perfect.</para>
-        </remarks>
-        <exception cref="T:System.ArgumentNullException">
-            The <paramref name="message" /> is <c>null</c>.
-            </exception>
+            Allows creation of messages using Microsoft's System.Net.Mail APIs.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="References">
@@ -625,7 +783,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MessageIdList References" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MessageIdList</ReturnType>
@@ -635,7 +793,10 @@
             Gets or sets the list of references to other messages.
             </summary>
         <value>The references.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The References header contains a chain of Message-Ids back to the
+            original message that started the thread.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReplyTo">
@@ -643,7 +804,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -653,7 +814,14 @@
             Gets the list of addresses in the Reply-To header.
             </summary>
         <value>The list of addresses in the Reply-To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When the list of addresses in the Reply-To header is not empty,
+            it contains the address(es) where the author(s) of the message prefer
+            that replies be sent.</para>
+          <para>When the list of addresses in the Reply-To header is empty,
+            replies should be sent to the mailbox(es) specified in the From
+            header.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentBcc">
@@ -661,7 +829,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentBcc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -671,7 +839,10 @@
             Gets the list of addresses in the Resent-Bcc header.
             </summary>
         <value>The list of addresses in the Resent-Bcc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Recipients in the Resent-Bcc list will not be visible to
+            the other recipients of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentCc">
@@ -679,7 +850,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentCc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -689,7 +860,11 @@
             Gets the list of addresses in the Resent-Cc header.
             </summary>
         <value>The list of addresses in the Resent-Cc header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The addresses in the Resent-Cc header are secondary recipients of the message
+            and are usually not the individuals being directly addressed in the
+            content of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentDate">
@@ -697,7 +872,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset ResentDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -707,7 +882,9 @@
             Gets or sets the Resent-Date of the message.
             </summary>
         <value>The Resent-Date of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets or sets the Resent-Date of the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentFrom">
@@ -715,7 +892,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentFrom" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -725,7 +902,14 @@
             Gets the list of addresses in the Resent-From header.
             </summary>
         <value>The list of addresses in the Resent-From header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The "Resent-From" header specifies the author(s) of the messagebeing
+            resent.</para>
+          <para>If more than one <see cref="T:MimeKit.MailboxAddress" /> is added to the
+            list of "Resent-From" addresses, the <see cref="P:MimeKit.MimeMessage.ResentSender" /> should
+            be set to the single <see cref="T:MimeKit.MailboxAddress" /> of the personal actually
+            sending the message.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentMessageId">
@@ -733,7 +917,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string ResentMessageId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -743,7 +927,13 @@
             Gets or sets the Resent-Message-Id header.
             </summary>
         <value>The Resent-Message-Id.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The Resent-Message-Id is meant to be a globally unique identifier for
+            a message.</para>
+          <para>
+            <see cref="M:MimeKit.Utils.MimeUtils.GenerateMessageId" /> can be used
+            to generate this value.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -757,7 +947,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -767,7 +957,14 @@
             Gets the list of addresses in the Resent-Reply-To header.
             </summary>
         <value>The list of addresses in the Resent-Reply-To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When the list of addresses in the Resent-Reply-To header is not empty,
+            it contains the address(es) where the author(s) of the resent message prefer
+            that replies be sent.</para>
+          <para>When the list of addresses in the Resent-Reply-To header is empty,
+            replies should be sent to the mailbox(es) specified in the Resent-From
+            header.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentSender">
@@ -775,7 +972,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress ResentSender" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -785,7 +982,10 @@
             Gets or sets the address in the Resent-Sender header.
             </summary>
         <value>The address in the Resent-Sender header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The resent sender may differ from the addresses in <see cref="P:MimeKit.MimeMessage.ResentFrom" /> if
+            the message was sent by someone on behalf of someone else.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResentTo">
@@ -793,7 +993,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -803,7 +1003,10 @@
             Gets the list of addresses in the Resent-To header.
             </summary>
         <value>The list of addresses in the Resent-To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The addresses in the Resent-To header are the primary recipients of
+            the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sender">
@@ -811,7 +1014,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress Sender" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -821,7 +1024,10 @@
             Gets or sets the address in the Sender header.
             </summary>
         <value>The address in the Sender header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The sender may differ from the addresses in <see cref="P:MimeKit.MimeMessage.From" /> if
+            the message was sent by someone on behalf of someone else.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Sign">
@@ -829,7 +1035,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -869,7 +1075,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -917,7 +1123,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -971,7 +1177,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1033,7 +1239,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Subject" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1043,7 +1249,10 @@
             Gets or sets the subject of the message.
             </summary>
         <value>The subject of the message.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The Subject is typically a short string denoting the topic of the message.</para>
+          <para>Replies will often use <c>"Re: "</c> followed by the Subject of the original message.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -1054,7 +1263,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList To" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -1064,7 +1273,10 @@
             Gets the list of addresses in the To header.
             </summary>
         <value>The list of addresses in the To header.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            The addresses in the To header are the primary recipients of
+            the message.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
@@ -1072,7 +1284,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1085,7 +1297,9 @@
         <summary>
             Writes the message to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the message to the output stream using the default formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -1099,7 +1313,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1114,7 +1328,9 @@
         <summary>
             Writes the message to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the message to the output stream using the provided formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -1132,7 +1348,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1147,7 +1363,9 @@
         <summary>
             Writes the message to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the message to the output stream using the default formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -1164,7 +1382,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1181,7 +1399,9 @@
         <summary>
             Writes the message to the specified output stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Writes the message to the output stream using the provided formatting options.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>

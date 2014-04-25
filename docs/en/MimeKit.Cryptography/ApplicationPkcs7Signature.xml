@@ -1,9 +1,9 @@
 <Type Name="ApplicationPkcs7Signature" FullName="MimeKit.Cryptography.ApplicationPkcs7Signature">
-  <TypeSignature Language="C#" Value="public sealed class ApplicationPkcs7Signature : MimeKit.MimePart" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ApplicationPkcs7Signature extends MimeKit.MimePart" />
+  <TypeSignature Language="C#" Value="public class ApplicationPkcs7Signature : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ApplicationPkcs7Signature extends MimeKit.MimePart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimePart</BaseTypeName>
@@ -26,7 +26,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -44,7 +44,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream stream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="stream" Type="System.IO.Stream" />

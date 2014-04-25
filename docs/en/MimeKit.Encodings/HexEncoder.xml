@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit HexEncoder extends System.Object implements class MimeKit.Encodings.IMimeEncoder" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -28,14 +28,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.HexEncoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new hex encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -43,7 +45,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Encodings.IMimeEncoder Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.IMimeEncoder</ReturnType>
@@ -54,7 +56,9 @@
             Clone the <see cref="T:MimeKit.Encodings.HexEncoder" /> with its current state.
             </summary>
         <returns>A new <see cref="T:MimeKit.Encodings.HexEncoder" /> with identical state.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Encodings.HexEncoder" /> with exactly the same state as the current encoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encode">
@@ -62,7 +66,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Encode(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -82,7 +86,12 @@
             Encodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Encodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            encoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.HexEncoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -107,7 +116,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -117,7 +126,9 @@
             Gets the encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the encoding that the encoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EstimateOutputLength">
@@ -125,7 +136,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 EstimateOutputLength(int32 inputLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -139,7 +150,9 @@
             Estimates the length of the output.
             </summary>
         <returns>The estimated output length.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Estimates the number of bytes needed to encode the specified number of input bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -147,7 +160,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Flush(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -167,7 +180,12 @@
             Encodes the specified input into the output buffer, flushing any internal buffer state as well.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+          <para>The output buffer should be large enough to hold all of the
+            encoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.HexEncoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -192,7 +210,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -202,7 +220,9 @@
         <summary>
             Resets the encoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the encoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

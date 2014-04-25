@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit MimeUtils extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -13,7 +13,9 @@
     <summary>
             MIME utility methods.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Various utility methods that don't belong anywhere else.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="EnumerateReferences">
@@ -21,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
@@ -32,10 +34,14 @@
       <Docs>
         <param name="text">The text to parse.</param>
         <summary>
-            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            Enumerates the message-id references such as those that can be found in
+            the In-Reply-To or References header.
             </summary>
         <returns>The references.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Incrementally parses Message-Ids (such as those from a References header
+            in a MIME message) from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -46,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
@@ -61,10 +67,15 @@
         <param name="startIndex">The index into the buffer to start parsing.</param>
         <param name="length">The length of the buffer to parse.</param>
         <summary>
-            Enumerates the message-id references such as those that can be found in the In-Reply-To or References header.
+            Enumerates the message-id references such as those that can be found in
+            the In-Reply-To or References header.
             </summary>
         <returns>The references.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Incrementally parses Message-Ids (such as those from a References header
+            in a MIME message) from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -79,7 +90,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -87,10 +98,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Generates a token suitable for a Message-Id.
+            Generates a Message-Id.
             </summary>
         <returns>The message identifier.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Generates a new Message-Id using the local machine's domain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GenerateMessageId">
@@ -98,7 +111,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId(string domain) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -109,10 +122,12 @@
       <Docs>
         <param name="domain">A domain to use.</param>
         <summary>
-            Generates a token suitable for a Message-Id.
+            Generates a Message-Id.
             </summary>
         <returns>The message identifier.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Generates a new Message-Id using the supplied domain.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="domain" /> is <c>null</c>.
             </exception>
@@ -123,7 +138,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Quote(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -134,11 +149,13 @@
       <Docs>
         <param name="text">The text to quote.</param>
         <summary>
+            Quotes the specified text.
+            </summary>
+        <returns>The quoted text.</returns>
+        <remarks>
             Quotes the specified text, enclosing it in double-quotes and escaping
             any backslashes and double-quotes within.
-            </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -149,7 +166,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(string text, class System.Version version) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -166,7 +183,9 @@
             </summary>
         <returns>
           <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a MIME version string from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -177,7 +196,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(unsigned int8[] buffer, int32 startIndex, int32 length, class System.Version version) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -198,7 +217,10 @@
             </summary>
         <returns>
           <c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a MIME version string from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -213,7 +235,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Unquote(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -224,11 +246,12 @@
       <Docs>
         <param name="text">The text to unquote.</param>
         <summary>
-            Unquotes the specified text, removing any escaped backslashes and
-            double-quotes within.
+            Unquotes the specified text.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The unquoted text.</returns>
+        <remarks>
+            Unquotes the specified text, removing any escaped backslashes within.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>

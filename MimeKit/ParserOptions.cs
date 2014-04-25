@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,11 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
-#if !__MIMEKIT_LITE__
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
+#if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif
 
@@ -37,7 +41,11 @@ namespace MimeKit {
 	/// <summary>
 	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
-	public sealed class ParserOptions
+	/// <remarks>
+	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
+	/// used by methods such as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream)"/> and others.
+	/// </remarks>
+	public class ParserOptions
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
@@ -66,12 +74,12 @@ namespace MimeKit {
 		/// Gets or sets a value indicating whether the Content-Length value should be
 		/// respected when parsing mbox streams.
 		/// </summary>
-		/// <value><c>true</c> if the Content-Length value should be respected;
-		/// otherwise, <c>false</c>.</value>
 		/// <remarks>
 		/// For more details about why this may be useful, you can find more information
 		/// at http://www.jwz.org/doc/content-length.html
 		/// </remarks>
+		/// <value><c>true</c> if the Content-Length value should be respected;
+		/// otherwise, <c>false</c>.</value>
 		public bool RespectContentLength { get; set; }
 
 		/// <summary>
@@ -105,6 +113,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Clones an instance of <see cref="MimeKit.ParserOptions"/>.
 		/// </summary>
+		/// <remarks>
+		/// Clones a set of options, allowing you to change a specific option
+		/// without requiring you to change the original.
+		/// </remarks>
 		/// <returns>An identical copy of the current instance.</returns>
 		public ParserOptions Clone ()
 		{
@@ -118,6 +130,27 @@ namespace MimeKit {
 
 			return options;
 		}
+
+#if PORTABLE
+		static ConstructorInfo GetConstructor (TypeInfo type, Type[] argTypes)
+		{
+			foreach (var ctor in type.DeclaredConstructors) {
+				var args = ctor.GetParameters ();
+
+				if (args.Length != ConstructorArgTypes.Length)
+					continue;
+
+				bool matched = true;
+				for (int i = 0; i < argTypes.Length && matched; i++)
+					matched = matched && args[i].ParameterType == argTypes[i];
+
+				if (matched)
+					return ctor;
+			}
+
+			return null;
+		}
+#endif
 
 		/// <summary>
 		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
@@ -152,12 +185,23 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-			if (!type.IsSubclassOf (typeof (MessagePart)) &&
-				!type.IsSubclassOf (typeof (Multipart)) &&
-				!type.IsSubclassOf (typeof (MimePart)))
+#if PORTABLE
+			var info = type.GetTypeInfo ();
+#else
+			var info = type;
+#endif
+
+			if (!info.IsSubclassOf (typeof (MessagePart)) &&
+				!info.IsSubclassOf (typeof (Multipart)) &&
+				!info.IsSubclassOf (typeof (MimePart)))
 				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
 
+#if PORTABLE
+			var ctor = GetConstructor (info, ConstructorArgTypes);
+#else
 			var ctor = type.GetConstructor (ConstructorArgTypes);
+#endif
+
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
 
@@ -186,18 +230,18 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
-				#if !__MIMEKIT_LITE__
+#if ENABLE_CRYPTO
 				if (subtype == "encrypted")
 					return new MultipartEncrypted (entity);
 
 				if (subtype == "signed")
 					return new MultipartSigned (entity);
-				#endif
+#endif
 
 				return new Multipart (entity);
 			}
 
-			#if !__MIMEKIT_LITE__
+#if ENABLE_CRYPTO
 			if (type == "application") {
 				switch (subtype) {
 				case "x-pkcs7-signature":
@@ -214,7 +258,7 @@ namespace MimeKit {
 					return new ApplicationPkcs7Mime (entity);
 				}
 			}
-			#endif
+#endif
 
 			if (type == "text")
 				return new TextPart (entity);

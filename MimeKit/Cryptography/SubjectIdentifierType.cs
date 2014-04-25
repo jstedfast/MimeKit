@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The method to use for identifying a certificate.
 	/// </summary>
+	/// <remarks>
+	/// The method to use for identifying a certificate.
+	/// </remarks>
 	public enum SubjectIdentifierType {
 		/// <summary>
 		/// The identifier type is unknown.

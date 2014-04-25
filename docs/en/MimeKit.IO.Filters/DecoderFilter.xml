@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DecoderFilter extends MimeKit.IO.Filters.MimeFilterBase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
@@ -13,7 +13,9 @@
     <summary>
             A filter for decoding MIME content.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Uses a <see cref="T:MimeKit.Encodings.IMimeDecoder" /> to incrementally decode data.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -21,19 +23,19 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.Encodings.IMimeDecoder decoder) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="decoder" Type="MimeKit.Encodings.IMimeDecoder" />
       </Parameters>
       <Docs>
-        <param name="decoder">
-            A specific decoder for the filter to use.
-            </param>
+        <param name="decoder">A specific decoder for the filter to use.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.DecoderFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.DecoderFilter" /> using the specified decoder.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="decoder" /> is <c>null</c>.
             </exception>
@@ -44,7 +46,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.IO.Filters.IMimeFilter Create(valuetype MimeKit.ContentEncoding encoding) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.IO.Filters.IMimeFilter</ReturnType>
@@ -53,14 +55,14 @@
         <Parameter Name="encoding" Type="MimeKit.ContentEncoding" />
       </Parameters>
       <Docs>
-        <param name="encoding">
-            The encoding to create a filter for.
-            </param>
+        <param name="encoding">The encoding to create a filter for.</param>
         <summary>
             Create a filter that will decode the specified encoding.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new decoder filter.</returns>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.DecoderFilter" /> for the specified encoding.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Decoder">
@@ -68,7 +70,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Encodings.IMimeDecoder Decoder" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.IMimeDecoder</ReturnType>
@@ -77,10 +79,10 @@
         <summary>
             Gets the decoder used by this filter.
             </summary>
-        <value>
-            The decoder.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The decoder.</value>
+        <remarks>
+            Gets the decoder used by this filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -88,7 +90,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -97,10 +99,10 @@
         <summary>
             Gets the encoding.
             </summary>
-        <value>
-            The encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The encoding.</value>
+        <remarks>
+            Gets the encoding that the decoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -108,7 +110,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -132,7 +134,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -140,7 +145,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -150,7 +155,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
   </Members>

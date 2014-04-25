@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed QEncodeMode extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -12,7 +12,9 @@
     <summary>
             Q-Encoding mode.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            The encoding mode for the 'Q' encoding used in rfc2047.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Phrase">
@@ -20,14 +22,14 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Encodings.QEncodeMode Phrase = unsigned int8(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.QEncodeMode</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            A mode for encoding phrases, as defined by rfc0822.
+            A mode for encoding phrases, as defined by rfc822.
             </summary>
       </Docs>
     </Member>
@@ -36,7 +38,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Encodings.QEncodeMode Text = unsigned int8(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.QEncodeMode</ReturnType>

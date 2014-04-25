@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -34,17 +35,13 @@ using MimeKit;
 using MimeKit.Cryptography;
 
 namespace UnitTests {
-	[TestFixture]
-	public class SecureMimeTests
+	public abstract class SecureMimeTestsBase
 	{
-		static readonly string[] CertificateAuthorities = new string[] {
+		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
-		static SecureMimeContext CreateContext ()
-		{
-			return new DefaultSecureMimeContext ("smime.db", "no.secret");
-		}
+		protected abstract SecureMimeContext CreateContext ();
 
 		[TestFixtureSetUp]
 		public void SetUp ()
@@ -449,4 +446,33 @@ namespace UnitTests {
 			}
 		}
 	}
+
+	[TestFixture]
+	public class SecureMimeSqliteTests : SecureMimeTestsBase
+	{
+		protected override SecureMimeContext CreateContext ()
+		{
+			return new DefaultSecureMimeContext ("smime.db", "no.secret");
+		}
+	}
+
+	#if false
+	[TestFixture, Explicit]
+	public class SecureMimeNpgsqlTests : SecureMimeTestsBase
+	{
+		protected override SecureMimeContext CreateContext ()
+		{
+			var user = Environment.GetEnvironmentVariable ("USER");
+			var builder = new StringBuilder ();
+
+			builder.Append ("server=localhost;");
+			builder.Append ("database=smime.npg;");
+			builder.AppendFormat ("user id={0}", user);
+
+			var db = new NpgsqlCertificateDatabase (builder.ToString (), "no.secret");
+
+			return new DefaultSecureMimeContext (db);
+		}
+	}
+	#endif
 }

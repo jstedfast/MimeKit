@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -144,6 +144,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Gets the length of the stream, in bytes.
 		/// </summary>
+		/// <remarks>
+		/// Gets the length of the stream, in bytes.
+		/// </remarks>
 		/// <value>The length of the stream, in bytes.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
@@ -157,8 +160,11 @@ namespace MimeKit.IO
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the current position within the stream.
+		/// </remarks>
 		/// <value>The position of the stream.</value>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -174,7 +180,7 @@ namespace MimeKit.IO
 			set { Seek (value, SeekOrigin.Begin); }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
@@ -190,6 +196,10 @@ namespace MimeKit.IO
 		/// Reads a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
+		/// <remarks>
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </remarks>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
 		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
@@ -242,11 +252,13 @@ namespace MimeKit.IO
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
-		/// Writes the entire buffer to the buffer, adding memory blocks as needed.
+		/// Writes the entire buffer to the stream and advances the current position
+		/// within the stream by the number of bytes written, adding memory blocks as
+		/// needed in order to contain the newly written bytes.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -300,6 +312,9 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Sets the position within the current stream.
 		/// </summary>
+		/// <remarks>
+		/// Sets the position within the current stream.
+		/// </remarks>
 		/// <returns>The new position within the stream.</returns>
 		/// <param name="offset">The offset into the stream relative to the <paramref name="origin"/>.</param>
 		/// <param name="origin">The origin to seek from.</param>
@@ -355,6 +370,9 @@ namespace MimeKit.IO
 		/// Clears all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
+		/// <remarks>
+		/// This method does not do anything.
+		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -368,7 +386,10 @@ namespace MimeKit.IO
 		/// <summary>
 		/// Sets the length of the stream.
 		/// </summary>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <remarks>
+		/// Sets the length of the stream.
+		/// </remarks>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is out of range.
 		/// </exception>
@@ -411,13 +432,11 @@ namespace MimeKit.IO
 		#endregion
 
 		/// <summary>
-		/// Disposes the stream.
+		/// Releases the unmanaged resources used by the <see cref="MemoryBlockStream"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
-		/// <remarks>
-		/// Sets the internal disposed state to <c>true</c>.
-		/// </remarks>
-		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
-		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

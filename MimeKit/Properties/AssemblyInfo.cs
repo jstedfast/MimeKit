@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,10 +33,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("MimeKit")]
 [assembly: AssemblyDescription ("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
+[assembly: AssemblyCompany ("Xamarin Inc.")]
 [assembly: AssemblyProduct ("MimeKit")]
-[assembly: AssemblyCopyright ("Copyright © 2014 Jeffrey Stedfast")]
-[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")]
+[assembly: AssemblyTrademark ("Xamarin Inc.")]
 [assembly: AssemblyCulture ("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -44,8 +44,10 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible (false)]
 
+#if !PORTABLE
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid ("2fe79b66-d107-45da-9493-175f59c4a53c")]
+#endif
 
 // Version information for an assembly consists of the following four values:
 //
@@ -73,6 +75,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("0.20.0")]
-[assembly: AssemblyFileVersion ("0.20.0.0")]
-[assembly: AssemblyVersion ("0.20.0.0")]
+[assembly: AssemblyInformationalVersion ("0.32.0")]
+[assembly: AssemblyFileVersion ("0.32.0.0")]
+[assembly: AssemblyVersion ("0.32.0.0")]

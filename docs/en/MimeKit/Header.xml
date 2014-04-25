@@ -1,9 +1,9 @@
 <Type Name="Header" FullName="MimeKit.Header">
-  <TypeSignature Language="C#" Value="public sealed class Header" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit Header extends System.Object" />
+  <TypeSignature Language="C#" Value="public class Header" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Header extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="id" Type="MimeKit.HeaderId" />
@@ -52,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string field, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="field" Type="System.String" />
@@ -85,7 +85,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="charset" Type="System.Text.Encoding" />
@@ -122,7 +122,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, string field, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="charset" Type="System.Text.Encoding" />
@@ -162,7 +162,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Field" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -182,7 +182,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetValue(class System.Text.Encoding charset) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -211,7 +211,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.HeaderId Id" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -231,7 +231,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Nullable`1&lt;int64&gt; Offset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.Int64&gt;</ReturnType>
@@ -252,7 +252,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] RawValue" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -272,7 +272,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetValue(class System.Text.Encoding charset, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -306,7 +306,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -314,9 +314,9 @@
       <Parameters />
       <Docs>
         <summary>
-            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.
+            Returns a string representation of the header.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.Header" />.</returns>
+        <returns>A string representing the <see cref="T:MimeKit.Header" />.</returns>
         <remarks>
             Formats the header field and value in a way that is suitable for display.
             </remarks>
@@ -327,7 +327,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -344,7 +344,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -355,7 +357,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -372,7 +374,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="text" /> is <c>null</c>.
             </exception>
@@ -383,7 +387,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -402,7 +406,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified buffer.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -417,7 +423,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -436,7 +442,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the specified text.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -451,7 +459,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -470,7 +478,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -484,7 +494,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -505,7 +515,9 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -523,7 +535,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -544,7 +556,10 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="buffer" /> is <c>null</c>.
             </exception>
@@ -559,7 +574,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -582,7 +597,10 @@
             </summary>
         <returns>
           <c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Parses a header from the supplied buffer starting at the given index
+            and spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="options" /> is <c>null</c>.</para>
@@ -601,7 +619,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Unfold(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -612,9 +630,9 @@
       <Docs>
         <param name="text">The header text.</param>
         <summary>
-            Unfold the specified header text.
+            Unfold the specified header value.
             </summary>
-        <returns>To be added.</returns>
+        <returns>The unfolded header value.</returns>
         <remarks>
             Unfolds the header value so that it becomes suitable for display.
             Since <see cref="P:MimeKit.Header.Value" /> is already unfolded, this method is really
@@ -627,7 +645,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Value" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

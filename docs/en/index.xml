@@ -1,24 +1,24 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.20.0.0">
+    <Assembly Name="MimeKit" Version="0.32.0.0">
       <Attributes>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyCompany("Xamarin Inc.")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyConfiguration("")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2014 Jeffrey Stedfast")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.20.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.32.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.20.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.32.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -27,7 +27,7 @@
           <AttributeName>System.Reflection.AssemblyTitle("MimeKit")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyTrademark("")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyTrademark("Xamarin Inc.")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
@@ -44,9 +44,11 @@
   <Remarks>
     <para>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP/MIME messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.</para>
   </Remarks>
-  <Copyright>Copyright (c) 2013 Jeffrey Stedfast</Copyright>
+  <Copyright>Copyright (c) 2013, 2014 Xamarin Inc. (www.xamarin.com)</Copyright>
   <Types>
     <Namespace Name="MimeKit">
+      <Type Name="AttachmentCollection" Kind="Class" />
+      <Type Name="BodyBuilder" Kind="Class" />
       <Type Name="ContentDisposition" Kind="Class" />
       <Type Name="ContentEncoding" Kind="Enumeration" />
       <Type Name="ContentObject" Kind="Class" />
@@ -98,6 +100,7 @@
       <Type Name="GnuPGContext" Kind="Class" />
       <Type Name="IDigitalCertificate" Kind="Interface" />
       <Type Name="IDigitalSignature" Kind="Interface" />
+      <Type Name="IX509CertificateDatabase" Kind="Interface" />
       <Type Name="MultipartEncrypted" Kind="Class" />
       <Type Name="MultipartSigned" Kind="Class" />
       <Type Name="OpenPgpContext" Kind="Class" />
@@ -111,10 +114,17 @@
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />
       <Type Name="SecureMimeType" Kind="Enumeration" />
+      <Type Name="SqliteCertificateDatabase" Kind="Class" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
+      <Type Name="TemporarySecureMimeContext" Kind="Class" />
       <Type Name="WindowsSecureMimeContext" Kind="Class" />
+      <Type Name="X509CertificateDatabase" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
+      <Type Name="X509CertificateRecord" Kind="Class" />
+      <Type Name="X509CertificateRecordFields" Kind="Enumeration" />
       <Type Name="X509CertificateStore" Kind="Class" />
+      <Type Name="X509CrlRecord" Kind="Class" />
+      <Type Name="X509CrlRecordFields" Kind="Enumeration" />
       <Type Name="X509KeyUsageFlags" Kind="Enumeration" />
     </Namespace>
     <Namespace Name="MimeKit.Encodings">

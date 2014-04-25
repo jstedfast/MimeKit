@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,13 @@ using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A signed multipart, as sued by both S/MIME and PGP/MIME protocols.
+	/// A signed multipart, as used by both S/MIME and PGP/MIME protocols.
 	/// </summary>
+	/// <remarks>
+	/// The first child of a multipart/signed is the content while the second child
+	/// is the detached signature data. Any other children are not defined and could
+	/// be anything.
+	/// </remarks>
 	public class MultipartSigned : Multipart
 	{
 		/// <summary>
@@ -50,6 +55,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MultipartSigned"/>.
+		/// </remarks>
 		public MultipartSigned () : base ("signed")
 		{
 		}
@@ -89,9 +97,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance.</returns>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="ctx">The cryptography context to use for signing.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -170,8 +183,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="ctx">The OpenPGP context to use for signing.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -250,8 +269,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
@@ -282,8 +307,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer in order
+		/// to generate a detached signature and then adds the entity along with
+		/// the detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="ctx">The S/MIME context to use for signing.</param>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
@@ -352,8 +383,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartSigned"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer in order
+		/// to generate a detached signature and then adds the entity along with
+		/// the detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -375,8 +412,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the multipart/signed content.
+		/// Verifies the multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the multipart/signed part using the supplied cryptography context.
+		/// </remarks>
 		/// <returns>A signer info collection.</returns>
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -433,8 +473,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verify the multipart/signed content.
+		/// Verifies the multipart/signed part.
 		/// </summary>
+		/// <remarks>
+		/// Verifies the multipart/signed part using the default cryptography context.
+		/// </remarks>
 		/// <returns>A signer info collection.</returns>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>

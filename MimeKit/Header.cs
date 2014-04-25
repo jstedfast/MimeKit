@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,10 @@
 using System;
 using System.Text;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -36,7 +40,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents a single header field and value pair.
 	/// </remarks>
-	public sealed class Header
+	public class Header
 	{
 		internal readonly ParserOptions Options;
 		string textValue;
@@ -307,25 +311,26 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.
+		/// Returns a string representation of the header.
 		/// </summary>
 		/// <remarks>
 		/// Formats the header field and value in a way that is suitable for display.
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Header"/>.</returns>
+		/// <returns>A string representing the <see cref="Header"/>.</returns>
 		public override string ToString ()
 		{
 			return Field + ": " + Value;
 		}
 
 		/// <summary>
-		/// Unfold the specified header text.
+		/// Unfold the specified header value.
 		/// </summary>
 		/// <remarks>
 		/// Unfolds the header value so that it becomes suitable for display.
 		/// Since <see cref="Value"/> is already unfolded, this method is really
 		/// only needed when working with raw header strings.
 		/// </remarks>
+		/// <returns>The unfolded header value.</returns>
 		/// <param name="text">The header text.</param>
 		public static unsafe string Unfold (string text)
 		{
@@ -427,6 +432,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
@@ -453,7 +462,7 @@ namespace MimeKit {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			unsafe {
@@ -466,6 +475,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -486,6 +499,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the supplied buffer starting at the specified index.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
@@ -509,6 +525,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the supplied buffer starting at the specified index.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -529,6 +548,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the specified buffer.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
@@ -546,6 +568,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the specified buffer.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
@@ -560,6 +585,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to parse.</param>
@@ -589,6 +617,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses a header from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>

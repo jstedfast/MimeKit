@@ -1,9 +1,9 @@
 <Type Name="CmsRecipientCollection" FullName="MimeKit.Cryptography.CmsRecipientCollection">
-  <TypeSignature Language="C#" Value="public sealed class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public class CmsRecipientCollection : System.Collections.Generic.ICollection&lt;MimeKit.Cryptography.CmsRecipient&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.CmsRecipient&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsRecipientCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.CmsRecipient&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -33,14 +33,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -48,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Cryptography.CmsRecipient recipient) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -61,7 +63,9 @@
         <summary>
             Adds the specified recipient.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -72,7 +76,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -82,7 +86,9 @@
         <summary>
             Clears the recipient collection.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the recipients from the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -90,7 +96,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.Cryptography.CmsRecipient recipient) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -101,10 +107,14 @@
       <Docs>
         <param name="recipient">The recipient.</param>
         <summary>
-            Check if the collection contains the specified recipient.
+            Checks if the collection contains the specified recipient.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the specified recipient exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the collection contains the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -115,7 +125,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.Cryptography.CmsRecipient[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -128,9 +138,12 @@
         <param name="array">The array.</param>
         <param name="arrayIndex">The array index.</param>
         <summary>
-            Copies the recpients into the specified array starting at the specified index.
+            Copies all of the recipients in the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the recipients within the <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> into the array,
+            starting at the specified array index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="array" /> is <c>null</c>.
             </exception>
@@ -144,7 +157,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -154,7 +167,9 @@
             Gets the number of recipients in the collection.
             </summary>
         <value>The number of recipients in the collection.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of recipients in the collection.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -162,7 +177,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.Cryptography.CmsRecipient&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.Cryptography.CmsRecipient&gt;</ReturnType>
@@ -173,7 +188,9 @@
             Gets an enumerator for the collection of recipients.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the collection of recipients.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsReadOnly">
@@ -181,7 +198,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -192,7 +209,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.Cryptography.CmsRecipientCollection" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Remove">
@@ -200,7 +219,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.Cryptography.CmsRecipient recipient) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -211,10 +230,13 @@
       <Docs>
         <param name="recipient">The recipient.</param>
         <summary>
-            Remove the specified recipient.
+            Removes the specified recipient.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>
+          <value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the specified recipient.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="recipient" /> is <c>null</c>.
             </exception>
@@ -225,16 +247,20 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the collection of recipients.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the collection of recipients.
+            </remarks>
       </Docs>
     </Member>
   </Members>

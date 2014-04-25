@@ -26,7 +26,7 @@
             <a id="forkme_banner" href="https://github.com/jstedfast/MimeKit">View on GitHub</a>
 
             <h1 id="project_title">MimeKit</h1>
-            <h2 id="project_tagline">A C# MIME creation and parser library with support for S/MIME, PGP and Unix mbox spools</h2>
+            <h2 id="project_tagline">A C# MIME creation and parser library with support for S/MIME, PGP and Unix mbox spools.</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/jstedfast/MimeKit/zipball/master">Download this project as a .zip file</a>

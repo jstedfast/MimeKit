@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,93 @@
 //
 
 using System;
+using System.Runtime.Serialization;
 
 namespace MimeKit {
 	/// <summary>
 	/// A Parse exception as thrown by the various Parse methods in MimeKit.
 	/// </summary>
-	public class ParseException : Exception
+	/// <remarks>
+	/// A <see cref="ParseException"/> can be thrown by any of the Parse() methods
+	/// in MimeKit. Each exception instance will have a <see cref="TokenIndex"/>
+	/// which marks the byte offset of the token that failed to parse as well
+	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
+	/// occurred.
+	/// </remarks>
+#if !PORTABLE
+	[Serializable]
+#endif
+	public class ParseException : FormatException
 	{
-		internal ParseException (string message, int tokenIndex, int errorIndex) : base (message)
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ParseException"/>.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			TokenIndex = info.GetInt32 ("TokenIndex");
+			ErrorIndex = info.GetInt32 ("ErrorIndex");
+		}
+#endif
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ParseException"/>.
+		/// </remarks>
+		/// <param name="message">The error message.</param>
+		/// <param name="tokenIndex">The byte offset of the token.</param>
+		/// <param name="errorIndex">The byte offset of the error.</param>
+		public ParseException (string message, int tokenIndex, int errorIndex) : base (message)
 		{
 			TokenIndex = tokenIndex;
 			ErrorIndex = errorIndex;
 		}
 
+#if !PORTABLE
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			info.AddValue ("TokenIndex", TokenIndex);
+			info.AddValue ("ErrorIndex", ErrorIndex);
+
+			base.GetObjectData (info, context);
+		}
+#endif
+
 		/// <summary>
 		/// Gets the byte index of the token that was malformed.
 		/// </summary>
+		/// <remarks>
+		/// The token index is the byte offset at which the token started.
+		/// </remarks>
 		/// <value>The byte index of the token.</value>
 		public int TokenIndex {
 			get; private set;
@@ -49,6 +120,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the byte that caused the error.
 		/// </summary>
+		/// <remarks>
+		/// The error index is the byte offset at which the parser encountered an error.
+		/// </remarks>
 		/// <value>The index of the byte that caused error.</value>
 		public int ErrorIndex {
 			get; private set;

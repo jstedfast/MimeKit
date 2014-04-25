@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TextPart extends MimeKit.MimePart" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimePart</BaseTypeName>
@@ -26,7 +26,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -34,7 +34,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
             class with a Content-Type of text/plain.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a default <see cref="T:MimeKit.TextPart" /> with a mime-type of text/plain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -42,7 +44,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -60,7 +62,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string subtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -71,7 +73,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
             class with the specified text subtype.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.TextPart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="subtype" /> is <c>null</c>.
             </exception>
@@ -82,7 +86,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string subtype, object[] args) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -101,7 +105,9 @@
             Initializes a new instance of the <see cref="T:MimeKit.TextPart" />
             class with the specified text subtype.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.TextPart" /> with the specified subtype.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="subtype" /> is <c>null</c>.</para>
@@ -126,7 +132,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetText(class System.Text.Encoding charset) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -141,7 +147,11 @@
             the charset specified in the Content-Type parameters.
             </summary>
         <returns>The decoded text.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Uses the provided charset encoding to convert the raw text content
+            into a unicode string, overriding any charset specified in the
+            Content-Type header.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="charset" /> is <c>null</c>.
             </exception>
@@ -152,7 +162,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetText(class System.Text.Encoding charset, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -167,7 +177,11 @@
         <summary>
             Sets the text content and the charset parameter in the Content-Type header.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            This method is similar to setting the <see cref="P:MimeKit.TextPart.Text" /> property, but allows
+            specifying a charset encoding to use. Also updates the
+            <see cref="P:MimeKit.ContentType.Charset" /> property.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
@@ -182,7 +196,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Text" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

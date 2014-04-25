@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -252,7 +252,7 @@ namespace MimeKit.Cryptography {
 		/// Releases all resources used by the <see cref="MimeKit.Cryptography.MacSecureMimeContext"/> object.
 		/// </summary>
 		/// <param name="disposing">If <c>true</c>, this method is being called by
-		/// <see cref="MimeKit.Cryptography.CryptographyContext.Dispose"/>;
+		/// <see cref="MimeKit.Cryptography.CryptographyContext.Dispose()"/>;
 		/// otherwise it is being called by the finalizer.</param>
 		protected override void Dispose (bool disposing)
 		{

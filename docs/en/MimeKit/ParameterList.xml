@@ -1,9 +1,9 @@
 <Type Name="ParameterList" FullName="MimeKit.ParameterList">
-  <TypeSignature Language="C#" Value="public sealed class ParameterList : System.Collections.Generic.ICollection&lt;MimeKit.Parameter&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Parameter&gt;, System.Collections.Generic.IList&lt;MimeKit.Parameter&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ParameterList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Parameter&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Parameter&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.Parameter&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public class ParameterList : System.Collections.Generic.ICollection&lt;MimeKit.Parameter&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.Parameter&gt;, System.Collections.Generic.IList&lt;MimeKit.Parameter&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ParameterList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Parameter&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Parameter&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.Parameter&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,9 @@
     <summary>
             A list of parameters, as found in the Content-Type and Content-Disposition headers.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Parameters are used by both <see cref="T:MimeKit.ContentType" /> and <see cref="T:MimeKit.ContentDisposition" />.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -31,14 +33,16 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.ParameterList" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new parameter list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -46,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Parameter param) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -59,7 +63,9 @@
         <summary>
             Adds the specified parameter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds the specified parameter to the end of the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -74,7 +80,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string name, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -89,7 +95,9 @@
         <summary>
             Adds a parameter with the specified name and value.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Adds a new parameter to the list with the specified name and value.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -107,7 +115,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -115,9 +123,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Removes all parameters from the <see cref="T:MimeKit.ParameterList" />.
+            Clears the parameter list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes all of the parameters from the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Contains">
@@ -125,7 +135,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.Parameter param) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -141,7 +151,9 @@
         <returns>
           <value>true</value> if the specified parameter is contained;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the parameter list contains the specified parameter.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -152,7 +164,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -168,7 +180,9 @@
         <returns>
           <value>true</value> if the requested parameter exists;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Determines whether or not the parameter list contains a parameter with the specified name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -179,7 +193,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.Parameter[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -194,7 +208,10 @@
         <summary>
             Copies all of the contained parameters to the specified array.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Copies all of the parameters within the <see cref="T:MimeKit.ParameterList" /> into the array,
+            starting at the specified array index.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Count">
@@ -202,7 +219,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -212,7 +229,9 @@
             Gets the number of parameters in the <see cref="T:MimeKit.ParameterList" />.
             </summary>
         <value>The number of parameters.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Indicates the number of parameters in the list.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -220,7 +239,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.Parameter&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.Parameter&gt;</ReturnType>
@@ -231,7 +250,9 @@
             Gets an enumerator for the list of parameters.
             </summary>
         <returns>The enumerator.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets an enumerator for the list of parameters.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -239,7 +260,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.Parameter param) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -253,7 +274,9 @@
             Gets the index of the requested parameter, if it exists.
             </summary>
         <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the specified parameter, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -264,7 +287,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -278,7 +301,9 @@
             Gets the index of the requested parameter, if it exists.
             </summary>
         <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Finds the index of the parameter with the specified name, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -289,7 +314,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.Parameter param) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -304,7 +329,9 @@
         <summary>
             Inserts the specified parameter at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts the parameter at the specified index in the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -322,7 +349,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Insert(int32 index, string name, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -339,7 +366,9 @@
         <summary>
             Inserts a parameter with the specified name and value at the given index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Inserts a new parameter with the given name and value at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -360,7 +389,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -371,7 +400,9 @@
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            A <see cref="T:MimeKit.ParameterList" /> is never read-only.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Item">
@@ -379,7 +410,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Parameter Item(int32)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Parameter</ReturnType>
@@ -392,8 +423,10 @@
         <summary>
             Gets or sets the <see cref="T:MimeKit.Parameter" /> at the specified index.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The parameter at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.Parameter" /> at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="value" /> is <c>null</c>.
             </exception>
@@ -411,7 +444,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Item(string)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -422,11 +455,12 @@
       <Docs>
         <param name="name">The parameter name.</param>
         <summary>
-            Gets or sets the value of the first occurance of a parameter
-            with the specified name.
+            Gets or sets the value of a parameter with the specified name.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The value of the specified parameter if it exists; otherwise <c>null</c>.</value>
+        <remarks>
+            Gets or sets the value of a parameter with the specified name.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="name" /> is <c>null</c>.</para>
@@ -444,7 +478,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.Parameter param) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -460,7 +494,9 @@
         <returns>
           <value>true</value> if the specified parameter was removed;
             otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the specified parameter from the list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
             The <paramref name="param" /> is <c>null</c>.
             </exception>
@@ -471,7 +507,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Remove(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -482,12 +518,14 @@
       <Docs>
         <param name="name">The parameter name.</param>
         <summary>
-            Removes the first occurance of the specified parameter.
+            Removes the specified parameter.
             </summary>
         <returns>
-          <value>true</value> if the frst occurance of the specified
-            parameter was removed; otherwise <value>false</value>.</returns>
-        <remarks>To be added.</remarks>
+          <value>true</value> if the specified parameter was removed;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the parameter with the specified name from the list, if it exists.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <c>null</c>.
             </exception>
@@ -498,7 +536,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -511,7 +549,9 @@
         <summary>
             Removes the parameter at the specified index.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Removes the parameter at the specified index.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
             The <paramref name="index" /> is out of range.
             </exception>
@@ -522,16 +562,20 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets an enumerator for the list of parameters.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of parameters.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -539,7 +583,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -547,12 +591,12 @@
       <Parameters />
       <Docs>
         <summary>
-            Returns a <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.ParameterList" />.
+            Returns a string representation of the parameters in the <see cref="T:MimeKit.ParameterList" />.
             </summary>
-        <returns>A <see cref="T:System.String" /> that represents the current
-            <see cref="T:MimeKit.ParameterList" />.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A string representing the <see cref="T:MimeKit.ParameterList" />.</returns>
+        <remarks>
+            If there are multiple parameters in the list, they will be separated by a semicolon.
+            </remarks>
       </Docs>
     </Member>
   </Members>

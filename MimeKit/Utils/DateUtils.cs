@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,10 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 namespace MimeKit.Utils {
 	[Flags]
 	enum DateTokenFlags : byte
@@ -50,27 +54,27 @@ namespace MimeKit.Utils {
 		public int Length { get; private set; }
 
 		public bool IsNumeric {
-			get { return !Flags.HasFlag (DateTokenFlags.NonNumeric); }
+			get { return (Flags & DateTokenFlags.NonNumeric) == 0; }
 		}
 
 		public bool IsWeekday {
-			get { return !Flags.HasFlag (DateTokenFlags.NonWeekday); }
+			get { return (Flags & DateTokenFlags.NonWeekday) == 0; }
 		}
 
 		public bool IsMonth {
-			get { return !Flags.HasFlag (DateTokenFlags.NonMonth); }
+			get { return (Flags & DateTokenFlags.NonMonth) == 0; }
 		}
 
 		public bool IsTimeOfDay {
-			get { return !Flags.HasFlag (DateTokenFlags.NonTime) && Flags.HasFlag (DateTokenFlags.HasColon); }
+			get { return (Flags & DateTokenFlags.NonTime) == 0 && (Flags & DateTokenFlags.HasColon) != 0; }
 		}
 
 		public bool IsNumericZone {
-			get { return !Flags.HasFlag (DateTokenFlags.NonNumericZone) && Flags.HasFlag (DateTokenFlags.HasSign); }
+			get { return (Flags & DateTokenFlags.NonNumericZone) == 0 && (Flags & DateTokenFlags.HasSign) != 0; }
 		}
 
 		public bool IsAlphaZone {
-			get { return !Flags.HasFlag (DateTokenFlags.NonAlphaZone); }
+			get { return (Flags & DateTokenFlags.NonAlphaZone) == 0; }
 		}
 
 		public bool IsTimeZone {
@@ -86,8 +90,11 @@ namespace MimeKit.Utils {
 	}
 
 	/// <summary>
-	/// Utility methods to parse and format rfc0822 date strings.
+	/// Utility methods to parse and format rfc822 date strings.
 	/// </summary>
+	/// <remarks>
+	/// Utility methods to parse and format rfc822 date strings.
+	/// </remarks>
 	public static class DateUtils
 	{
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";
@@ -279,7 +286,7 @@ namespace MimeKit.Utils {
 			tzone = 0;
 
 			if (token.IsNumericZone) {
-				if (!token.Flags.HasFlag (DateTokenFlags.HasSign))
+				if ((token.Flags & DateTokenFlags.HasSign) == 0)
 					return false;
 
 				int endIndex = token.StartIndex + token.Length;
@@ -507,6 +514,10 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
+		/// and spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -527,7 +538,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
@@ -546,6 +557,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -581,6 +595,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the specified buffer.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
@@ -608,6 +625,9 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
+		/// <remarks>
+		/// Parses an rfc822 date and time from the specified text.
+		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
@@ -634,8 +654,12 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc0822 date string.
+		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc822 date string.
 		/// </summary>
+		/// <remarks>
+		/// Formats the date and time in the format specified by rfc822, suitable for use
+		/// in the Date header of MIME messages.
+		/// </remarks>
 		/// <returns>The formatted string.</returns>
 		/// <param name="date">The date.</param>
 		public static string FormatDate (DateTimeOffset date)

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ namespace MimeKit.Cryptography {
 	/// a <see cref="MultipartEncrypted"/> part and contains only a Version
 	/// header.
 	/// </remarks>
-	public sealed class ApplicationPgpEncrypted : MimePart
+	public class ApplicationPgpEncrypted : MimePart
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpEncrypted"/>

@@ -17,7 +17,8 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\lib\net40</OutputPath>
-    <DefineConstants>DEBUG;TRACE;__MIMEKIT_LITE__</DefineConstants>
+    <IntermediateOutputPath>obj\Debug\lib\net40</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -25,7 +26,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\lib\net40</OutputPath>
-    <DefineConstants>TRACE;__MIMEKIT_LITE__</DefineConstants>
+    <IntermediateOutputPath>obj\Release\lib\net40</IntermediateOutputPath>
+    <DefineConstants>TRACE;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -80,6 +82,8 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="AttachmentCollection.cs" />
+    <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="ContentObject.cs" />

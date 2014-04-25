@@ -10,14 +10,15 @@
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <AssemblyName>MimeKit.Mac</AssemblyName>
+    <AssemblyName>MimeKit</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\mac</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <IntermediateOutputPath>obj\Debug\lib\mac</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
@@ -29,18 +30,19 @@
     <GenerateDocumentation>True</GenerateDocumentation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\lib\mac</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\mac</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\lib\mac\MimeKit.Mac.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\mac\MimeKit.xml</DocumentationFile>
     <EnableCodeSigning>false</EnableCodeSigning>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
     <UseSGen>false</UseSGen>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -65,6 +67,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DbExtensions.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
+    <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
     <Compile Include="Cryptography\MacSecureMimeContext.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
@@ -87,7 +91,10 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\SecureMimeType.cs" />
+    <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />
@@ -152,6 +159,8 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="AttachmentCollection.cs" />
+    <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
     <Compile Include="ContentObject.cs" />

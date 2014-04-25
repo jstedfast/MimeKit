@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,24 +29,54 @@ using System;
 using Org.BouncyCastle.X509;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// X.509 certificate revocation list record fields.
+	/// </summary>
+	/// <remarks>
+	/// The record fields are used when querying the <see cref="IX509CertificateDatabase"/>
+	/// for certificate revocation lists.
+	/// </remarks>
 	[Flags]
-	enum X509CrlRecordFields {
+	public enum X509CrlRecordFields {
+		/// <summary>
+		/// The "id" field is typically just the ROWID in the database.
+		/// </summary>
 		Id                = 1 << 0,
-		IsDelta           = 1 << 1,
-		IssuerName        = 1 << 2,
-		ThisUpdate        = 1 << 3,
-		NextUpdate        = 1 << 4,
-		Crl               = 1 << 5,
 
-		// helpers
-		AllExeptCrl       = All & ~Crl,
-		All               = 0xff
+		/// <summary>
+		/// The "delta" field is a boolean value indicating whether the certificate
+		/// revocation list is a delta.
+		/// </summary>
+		IsDelta           = 1 << 1,
+
+		/// <summary>
+		/// The "issuer name" field stores the issuer name of the certificate revocation list.
+		/// </summary>
+		IssuerName        = 1 << 2,
+
+		/// <summary>
+		/// The "this update" field stores the date and time of the most recent update.
+		/// </summary>
+		ThisUpdate        = 1 << 3,
+
+		/// <summary>
+		/// The "next update" field stores the date and time of the next scheduled update.
+		/// </summary>
+		NextUpdate        = 1 << 4,
+
+		/// <summary>
+		/// The "crl" field stores the raw binary data of the certificate revocation list.
+		/// </summary>
+		Crl               = 1 << 5,
 	}
 
 	/// <summary>
-	/// An X.509 Certificate Revocation List (CRL) record.
+	/// An X.509 certificate revocation list (CRL) record.
 	/// </summary>
-	class X509CrlRecord
+	/// <remarks>
+	/// Represents an X.509 certificate revocation list record loaded from a database.
+	/// </remarks>
+	public class X509CrlRecord
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",
@@ -60,43 +90,69 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the identifier.
 		/// </summary>
+		/// <remarks>
+		/// The id is typically the ROWID of the certificate revocation list in the
+		/// database and is not generally useful outside of the internals of the
+		/// database implementation.
+		/// </remarks>
 		/// <value>The identifier.</value>
 		public int Id { get; internal set; }
 
 		/// <summary>
 		/// Gets whether or not this certificate revocation list is a delta.
 		/// </summary>
+		/// <remarks>
+		/// Indicates whether or not this certificate revocation list is a delta.
+		/// </remarks>
 		/// <value><c>true</c> if th crl is delta; otherwise, <c>false</c>.</value>
 		public bool IsDelta { get; internal set; }
 
 		/// <summary>
-		/// Gets the certificate issuer's name.
+		/// Gets the issuer name of the certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Gets the issuer name of the certificate revocation list.
+		/// </remarks>
 		/// <value>The issuer's name.</value>
 		public string IssuerName { get; internal set; }
 
 		/// <summary>
 		/// Gets the date and time of the most recent update.
 		/// </summary>
+		/// <remarks>
+		/// Gets the date and time of the most recent update.
+		/// </remarks>
 		/// <value>The date and time.</value>
 		public DateTime ThisUpdate { get; internal set; }
 
 		/// <summary>
 		/// Gets the end date and time where the certificate is valid.
 		/// </summary>
+		/// <remarks>
+		/// Gets the end date and time where the certificate is valid.
+		/// </remarks>
 		/// <value>The date and time.</value>
 		public DateTime NextUpdate { get; internal set; }
 
 		/// <summary>
 		/// Gets the certificate revocation list.
 		/// </summary>
+		/// <remarks>
+		/// Gets the certificate revocation list.
+		/// </remarks>
 		/// <value>The certificate revocation list.</value>
 		public X509Crl Crl { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CrlRecord"/> class.
 		/// </summary>
-		/// <param name="crl">Crl.</param>
+		/// <remarks>
+		/// Creates a new CRL record for storing in a <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
 		public X509CrlRecord (X509Crl crl)
 		{
 			if (crl == null)
@@ -111,7 +167,14 @@ namespace MimeKit.Cryptography {
 			Crl = crl;
 		}
 
-		internal X509CrlRecord ()
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CrlRecord"/> class.
+		/// </summary>
+		/// <remarks>
+		/// This constructor is only meant to be used by implementors of <see cref="IX509CertificateDatabase"/>
+		/// when loading records from the database.
+		/// </remarks>
+		public X509CrlRecord ()
 		{
 		}
 	}

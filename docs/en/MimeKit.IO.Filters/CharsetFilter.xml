@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CharsetFilter extends MimeKit.IO.Filters.MimeFilterBase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
@@ -14,7 +14,9 @@
             A charset filter for incrementally converting text streams from
             one charset encoding to another.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            Incrementally converts text from one charset encoding to another.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -22,23 +24,22 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 sourceCodePage, int32 targetCodePage) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceCodePage" Type="System.Int32" />
         <Parameter Name="targetCodePage" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sourceCodePage">
-            Source code page.
-            </param>
-        <param name="targetCodePage">
-            Target code page.
-            </param>
+        <param name="sourceCodePage">Source code page.</param>
+        <param name="targetCodePage">Target code page.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
           <para>
             <paramref name="sourceCodePage" /> is less than zero or greater than 65535.</para>
@@ -58,23 +59,22 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string sourceEncodingName, string targetEncodingName) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceEncodingName" Type="System.String" />
         <Parameter Name="targetEncodingName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sourceEncodingName">
-            Source encoding name.
-            </param>
-        <param name="targetEncodingName">
-            Target encoding name.
-            </param>
+        <param name="sourceEncodingName">Source encoding name.</param>
+        <param name="targetEncodingName">Target encoding name.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="sourceEncodingName" /> is <c>null</c>.</para>
@@ -94,23 +94,22 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding sourceEncoding, class System.Text.Encoding targetEncoding) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceEncoding" Type="System.Text.Encoding" />
         <Parameter Name="targetEncoding" Type="System.Text.Encoding" />
       </Parameters>
       <Docs>
-        <param name="sourceEncoding">
-            Source encoding.
-            </param>
-        <param name="targetEncoding">
-            Target encoding.
-            </param>
+        <param name="sourceEncoding">Source encoding.</param>
+        <param name="targetEncoding">Target encoding.</param>
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.CharsetFilter" /> to convert text from the specified
+            source encoding into the target charset encoding.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="sourceEncoding" /> is <c>null</c>.</para>
@@ -125,7 +124,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -149,7 +148,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -157,7 +159,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -167,7 +169,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceEncoding">
@@ -175,7 +179,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding SourceEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -184,10 +188,10 @@
         <summary>
             Gets the source encoding.
             </summary>
-        <value>
-            The source encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The source encoding.</value>
+        <remarks>
+            Gets the source encoding.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetEncoding">
@@ -195,7 +199,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding TargetEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -204,10 +208,10 @@
         <summary>
             Gets the target encoding.
             </summary>
-        <value>
-            The target encoding.
-            </value>
-        <remarks>To be added.</remarks>
+        <value>The target encoding.</value>
+        <remarks>
+            Gets the target encoding.
+            </remarks>
       </Docs>
     </Member>
   </Members>

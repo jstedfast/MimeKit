@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ namespace MimeKit {
 	/// A MIME part containing a <see cref="MimeKit.MimeMessage"/> as its content.
 	/// </summary>
 	/// <remarks>
-	/// Represents MIME parts such as those with a Content-Type of message/rfc822 or message/news.
+	/// Represents MIME entities such as those with a Content-Type of message/rfc822 or message/news.
 	/// </remarks>
 	public class MessagePart : MimeEntity
 	{
@@ -49,6 +49,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MessagePart"/>.
+		/// </remarks>
 		/// <param name="subtype">The message subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -91,6 +94,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME message entity with the specified subtype.
+		/// </remarks>
 		/// <param name="subtype">The message subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
@@ -102,6 +108,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new message/rfc822 MIME entity.
+		/// </remarks>
 		public MessagePart () : base ("message", "rfc822")
 		{
 		}
@@ -109,6 +118,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the message content.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the message content.
+		/// </remarks>
 		/// <value>The message content.</value>
 		public MimeMessage Message {
 			get; set;
@@ -117,6 +129,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MessagePart"/> to the output stream.
 		/// </summary>
+		/// <remarks>
+		/// Writes the MIME entity and its message to the output stream.
+		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>

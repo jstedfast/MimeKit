@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,8 +45,11 @@ namespace MimeKit.IO.Filters {
 		bool midline;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.ArmoredFromFilter"/> class.
+		/// Initializes a new instance of the <see cref="ArmoredFromFilter"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArmoredFromFilter"/>.
+		/// </remarks>
 		public ArmoredFromFilter ()
 		{
 		}
@@ -61,9 +64,25 @@ namespace MimeKit.IO.Filters {
 			return true;
 		}
 
+		static void ValidateArguments (byte[] input, int startIndex, int length)
+		{
+			if (input == null)
+				throw new ArgumentNullException ("input");
+
+			if (startIndex < 0 || startIndex > input.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || length > (input.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("length");
+		}
+
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
+		/// <remarks>
+		/// Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.
+		/// </remarks>
 		/// <returns>The filtered output.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -73,7 +92,9 @@ namespace MimeKit.IO.Filters {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			List<int> fromOffsets = new List<int> ();
+			ValidateArguments (input, startIndex, length);
+
+			var fromOffsets = new List<int> ();
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			int left;
@@ -122,22 +143,22 @@ namespace MimeKit.IO.Filters {
 				index = startIndex;
 				foreach (var offset in fromOffsets) {
 					if (index < offset) {
-						Array.Copy (input, index, output, outputLength, offset - index);
+						Buffer.BlockCopy (input, index, OutputBuffer, outputLength, offset - index);
 						outputLength += offset - index;
 						index = offset;
 					}
 
 					// encode the F using quoted-printable
-					output[outputLength++] = (byte) '=';
-					output[outputLength++] = (byte) '4';
-					output[outputLength++] = (byte) '6';
+					OutputBuffer[outputLength++] = (byte) '=';
+					OutputBuffer[outputLength++] = (byte) '4';
+					OutputBuffer[outputLength++] = (byte) '6';
 					index++;
 				}
 
-				Array.Copy (input, index, output, outputLength, endIndex - index);
+				Buffer.BlockCopy (input, index, OutputBuffer, outputLength, endIndex - index);
 				outputLength += endIndex - index;
 
-				return output;
+				return OutputBuffer;
 			}
 
 			outputLength = endIndex - startIndex;
@@ -148,6 +169,9 @@ namespace MimeKit.IO.Filters {
 		/// <summary>
 		/// Resets the filter.
 		/// </summary>
+		/// <remarks>
+		/// Resets the filter.
+		/// </remarks>
 		public override void Reset ()
 		{
 			midline = false;

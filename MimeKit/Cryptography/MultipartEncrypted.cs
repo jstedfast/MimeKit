@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -54,6 +54,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartEncrypted"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MultipartEncrypted"/>.
+		/// </remarks>
 		public MultipartEncrypted () : base ("encrypted")
 		{
 		}
@@ -85,9 +88,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
-		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
+		/// <remarks>
+		/// Signs the entity using the supplied signer and digest algorithm and then encrypts to
+		/// the specified recipients, encapsulating the result in a new multipart/encrypted part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for signing and encrypting.</param>
 		/// <param name="signer">The signer to use to sign the entity.</param>
@@ -151,8 +158,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Signs the entity using the supplied signer and digest algorithm and then encrypts to
+		/// the specified recipients, encapsulating the result in a new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="signer">The signer to use to sign the entity.</param>
@@ -198,8 +209,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Signs the entity using the supplied signer and digest algorithm and then encrypts to
+		/// the specified recipients, encapsulating the result in a new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for singing and encrypting.</param>
@@ -271,8 +286,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Signs the entity using the supplied signer and digest algorithm and then encrypts to
+		/// the specified recipients, encapsulating the result in a new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the signed and encrypted version of the specified entity.</returns>
 		/// <param name="signer">The signer to use to sign the entity.</param>
@@ -324,8 +343,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the entity to the specified recipients, encapsulating the result in a
+		/// new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
@@ -377,8 +400,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the entity to the specified recipients, encapsulating the result in a
+		/// new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
@@ -408,8 +435,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the entity to the specified recipients, encapsulating the result in a
+		/// new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
@@ -461,8 +492,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance with the entity as the content.
+		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
+		/// <remarks>
+		/// Encrypts the entity to the specified recipients, encapsulating the result in a
+		/// new multipart/encrypted part.
+		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.Cryptography.MultipartEncrypted"/> instance containing
 		/// the encrypted version of the specified entity.</returns>
 		/// <param name="recipients">The recipients for the encrypted entity.</param>
@@ -492,8 +527,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt this instance.
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the <see cref="MultipartEncrypted"/> and extracts any digital signatures in cases
+		/// where the content was also signed.
+		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
@@ -558,8 +597,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt this instance.
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
+		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
 		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -590,8 +632,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt this instance.
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the <see cref="MultipartEncrypted"/> and extracts any digital signatures in cases
+		/// where the content was also signed.
+		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.FormatException">
@@ -657,8 +703,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypt this instance.
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </summary>
+		/// <remarks>
+		/// Decrypts the <see cref="MultipartEncrypted"/> part.
+		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>

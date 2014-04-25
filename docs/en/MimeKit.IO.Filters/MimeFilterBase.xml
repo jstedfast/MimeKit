@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeFilterBase extends System.Object implements class MimeKit.IO.Filters.IMimeFilter" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -17,7 +17,9 @@
     <summary>
             A base implementation for MIME filters.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            A base implementation for MIME filters.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -25,12 +27,16 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.IO.Filters.MimeFilterBase" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.IO.Filters.MimeFilterBase" />.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EnsureOutputSize">
@@ -38,7 +44,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void EnsureOutputSize(int32 size, bool keep) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -53,7 +59,9 @@
         <summary>
             Ensures that the output buffer is greater than or equal to the specified size.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Ensures that the output buffer is greater than or equal to the specified size.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -61,7 +69,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -82,8 +90,11 @@
         <summary>
             Filters the specified input.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="input" /> is <c>null</c>.
             </exception>
@@ -98,7 +109,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -122,7 +133,10 @@
             Filter the specified input.
             </summary>
         <returns>The filtered output.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -130,7 +144,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] Flush(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -151,8 +165,11 @@
         <summary>
             Filters the specified input, flushing all internally buffered data to the output.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The filtered output.</returns>
+        <remarks>
+            Filters the specified input buffer starting at the given index,
+            spanning across the specified number of bytes.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="input" /> is <c>null</c>.
             </exception>
@@ -162,19 +179,24 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="output">
-      <MemberSignature Language="C#" Value="protected byte[] output;" />
-      <MemberSignature Language="ILAsm" Value=".field family unsigned int8[] output" />
-      <MemberType>Field</MemberType>
+    <Member MemberName="OutputBuffer">
+      <MemberSignature Language="C#" Value="protected byte[] OutputBuffer { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int8[] OutputBuffer" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+            Gets the output buffer.
+            </summary>
+        <value>The output buffer.</value>
+        <remarks>
+            Gets the output buffer.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -182,7 +204,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -192,7 +214,9 @@
         <summary>
             Resets the filter.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the filter.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SaveRemainingInput">
@@ -200,7 +224,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SaveRemainingInput(unsigned int8[] input, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -217,7 +241,9 @@
         <summary>
             Saves the remaining input for the next round of processing.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Saves the remaining input for the next round of processing.
+            </remarks>
       </Docs>
     </Member>
   </Members>

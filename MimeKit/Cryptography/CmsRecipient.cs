@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 	/// the <see cref="CryptographyContext"/> do its own certificate
 	/// lookups for each <see cref="MailboxAddress"/>.
 	/// </remarks>
-	public sealed class CmsRecipient
+	public class CmsRecipient
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.

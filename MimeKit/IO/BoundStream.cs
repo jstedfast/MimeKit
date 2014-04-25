@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -50,10 +50,10 @@ namespace MimeKit.IO {
 		/// If the <paramref name="endBoundary"/> is less than <c>0</c>, then the end of the stream
 		/// is unbounded.
 		/// </remarks>
-		/// <param name='baseStream'>The underlying stream.</param>
-		/// <param name='startBoundary'>The offset in the base stream that will mark the start of this substream.</param>
-		/// <param name='endBoundary'>The offset in the base stream that will mark the end of this substream.</param>
-		/// <param name='leaveOpen'><c>true</c> to leave the baseStream open after the
+		/// <param name="baseStream">The underlying stream.</param>
+		/// <param name="startBoundary">The offset in the base stream that will mark the start of this substream.</param>
+		/// <param name="endBoundary">The offset in the base stream that will mark the end of this substream.</param>
+		/// <param name="leaveOpen"><c>true</c> to leave the baseStream open after the
 		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="baseStream"/> is <c>null</c>.
@@ -204,7 +204,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length in bytes of the stream.
+		/// Gets the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// If the <see cref="EndBoundary"/> property is greater than or equal to <c>0</c>,
@@ -235,7 +235,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the position within the current stream.
+		/// Gets or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="Position"/> is relative to the <see cref="StartBoundary"/>.
@@ -279,7 +279,7 @@ namespace MimeKit.IO {
 			set { BaseStream.WriteTimeout = value; }
 		}
 
-		void ValidateArguments (byte[] buffer, int offset, int count)
+		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
@@ -358,9 +358,9 @@ namespace MimeKit.IO {
 		/// Writes data to the <see cref="BaseStream"/>, not allowing it to
 		/// write beyond the <see cref="EndBoundary"/>.
 		/// </remarks>
-		/// <param name='buffer'>The buffer to write.</param>
-		/// <param name='offset'>The offset of the first byte to write.</param>
-		/// <param name='count'>The number of bytes to write.</param>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -512,7 +512,7 @@ namespace MimeKit.IO {
 		/// to allow this, then the length of the <see cref="BaseStream"/> will also be
 		/// updated.
 		/// </remarks>
-		/// <param name='value'>The desired length of the stream in bytes.</param>
+		/// <param name="value">The desired length of the stream in bytes.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
@@ -539,14 +539,15 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Disposes the stream.
+		/// Releases the unmanaged resources used by the <see cref="BoundStream"/> and
+		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
 		/// If the <see cref="LeaveOpen"/> property is <c>false</c>, then
 		/// the <see cref="BaseStream"/> is also disposed.
 		/// </remarks>
-		/// <param name="disposing">If set to <c>true</c>, the stream is being disposed
-		/// via the <see cref="System.IO.Stream.Dispose()"/> method.</param>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !LeaveOpen)

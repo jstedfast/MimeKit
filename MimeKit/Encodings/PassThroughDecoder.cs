@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,10 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughDecoder"/> class.
 		/// </summary>
-		/// <param name='encoding'>The encoding to return in the <see cref="Encoding"/> property.</param>
+		/// <param name="encoding">The encoding to return in the <see cref="Encoding"/> property.</param>
+		/// <remarks>
+		/// Creates a new pass-through decoder.
+		/// </remarks>
 		public PassThroughDecoder (ContentEncoding encoding)
 		{
 			Encoding = encoding;
@@ -47,6 +50,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="PassThroughDecoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PassThroughDecoder"/> with exactly the same state as the current decoder.
+		/// </remarks>
 		/// <returns>A new <see cref="PassThroughDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
@@ -56,6 +62,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the decoder supports.
+		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
 			get; private set;
@@ -64,8 +73,11 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
-		/// <param name='inputLength'>The input length.</param>
+		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
 			return inputLength;
@@ -79,7 +91,7 @@ namespace MimeKit.Encodings {
 			if (startIndex < 0 || startIndex > input.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > input.Length)
+			if (length < 0 || length > (input.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			if (output == null)
@@ -92,10 +104,13 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// Copies the input buffer into the output buffer, verbatim.
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>A pointer to the beginning of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>A pointer to the beginning of the output buffer.</param>
+		/// <param name="input">A pointer to the beginning of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">A pointer to the beginning of the output buffer.</param>
 		public unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -111,11 +126,14 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Decodes the specified input into the output buffer.
 		/// </summary>
+		/// <remarks>
+		/// Copies the input buffer into the output buffer, verbatim.
+		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name='input'>The input buffer.</param>
-		/// <param name='startIndex'>The starting index of the input buffer.</param>
-		/// <param name='length'>The length of the input buffer.</param>
-		/// <param name='output'>The output buffer.</param>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="input"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -141,6 +159,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 		}

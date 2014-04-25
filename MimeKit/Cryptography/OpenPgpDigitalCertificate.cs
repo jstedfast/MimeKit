@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,9 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An OpenPGP digital certificate.
 	/// </summary>
+	/// <remarks>
+	/// An OpenPGP digital certificate.
+	/// </remarks>
 	public class OpenPgpDigitalCertificate : IDigitalCertificate
 	{
 		internal OpenPgpDigitalCertificate (PgpPublicKey pubkey)
@@ -79,6 +82,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public key.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key.
+		/// </remarks>
 		/// <value>The public key.</value>
 		public PgpPublicKey PublicKey {
 			get; private set;
@@ -89,6 +95,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the public key algorithm supported by the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm supported by the certificate.
+		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
 			get { return OpenPgpContext.GetPublicKeyAlgorithm (PublicKey.Algorithm); }
@@ -97,6 +106,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the date that the certificate was created.
 		/// </summary>
+		/// <remarks>
+		/// Gets the date that the certificate was created.
+		/// </remarks>
 		/// <value>The creation date.</value>
 		public DateTime CreationDate {
 			get { return PublicKey.CreationTime; }
@@ -105,6 +117,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the expiration date of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the expiration date of the certificate.
+		/// </remarks>
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
 			get { return CreationDate.AddSeconds ((double) PublicKey.GetValidSeconds ()); }
@@ -113,6 +128,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the fingerprint of the certificate.
+		/// </remarks>
 		/// <value>The fingerprint.</value>
 		public string Fingerprint {
 			get; private set;
@@ -121,6 +139,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the email address of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the email address of the owner of the certificate.
+		/// </remarks>
 		/// <value>The email address.</value>
 		public string Email {
 			get; private set;
@@ -129,6 +150,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the name of the owner of the certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the name of the owner of the certificate.
+		/// </remarks>
 		/// <value>The name of the owner.</value>
 		public string Name {
 			get; private set;

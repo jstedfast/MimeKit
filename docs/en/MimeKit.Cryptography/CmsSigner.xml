@@ -1,9 +1,9 @@
 <Type Name="CmsSigner" FullName="MimeKit.Cryptography.CmsSigner">
-  <TypeSignature Language="C#" Value="public sealed class CmsSigner" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit CmsSigner extends System.Object" />
+  <TypeSignature Language="C#" Value="public class CmsSigner" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsSigner extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.20.0.0</AssemblyVersion>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -25,7 +25,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
@@ -37,7 +37,12 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsSigner" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The initial value of the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> will be set to
+            <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" /> and both the <see cref="P:MimeKit.Cryptography.CmsSigner.SignedAttributes" />
+            and <see cref="P:MimeKit.Cryptography.CmsSigner.UnsignedAttributes" /> properties will be initialized to empty
+            tables.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="certificate" /> is <c>null</c>.</para>
@@ -59,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="chain" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Pkcs.X509CertificateEntry&gt;" />
@@ -100,7 +105,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -121,17 +126,19 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the certificate chain.
+            Gets the certificate chain.
             </summary>
         <value>The certificate chain.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the certificate chain.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="DigestAlgorithm">
@@ -139,7 +146,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.DigestAlgorithm DigestAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
@@ -160,7 +167,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -180,7 +187,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Asn1.Cms.AttributeTable SignedAttributes" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Asn1.Cms.AttributeTable</ReturnType>
@@ -200,7 +207,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Asn1.Cms.AttributeTable UnsignedAttributes" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.20.0.0</AssemblyVersion>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Asn1.Cms.AttributeTable</ReturnType>

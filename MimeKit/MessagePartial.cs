@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,6 @@ using System.Linq;
 using System.Collections.Generic;
 
 using MimeKit.IO;
-using MimeKit.IO.Filters;
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -38,7 +37,10 @@ namespace MimeKit {
 	/// A MIME part containing a partial message as its content.
 	/// </summary>
 	/// <remarks>
-	/// Represents a MIME part with a Content-Type of message/partial.
+	/// <para>The "message/partial" MIME-type is used to split large messages into
+	/// multiple parts, typically to work around transport systems that have size
+	/// limitations (for example, some SMTP servers limit have a maximum message
+	/// size that they will accept).</para>
 	/// </remarks>
 	public class MessagePartial : MimePart
 	{
@@ -54,14 +56,22 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePartial"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new message/partial entity.</para>
+		/// <para>Three (3) parameters must be specified in the Content-Type header
+		/// of a message/partial: id, number, and total.</para>
+		/// <para>The "id" parameter is a unique identifier used to match the parts together.</para>
+		/// <para>The "number" parameter is the sequential (1-based) index of the partial message fragment.</para>
+		/// <para>The "total" parameter is the total number of pieces that make up the complete message.</para>
+		/// </remarks>
 		/// <param name="id">The id value shared among the partial message parts.</param>
-		/// <param name="number">The part number for this partial message part.</param>
+		/// <param name="number">The (1-based) part number for this partial message part.</param>
 		/// <param name="total">The total number of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="id"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="number"/> is negative.</para>
+		/// <para><paramref name="number"/> is less than <c>1</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="total"/> is less than <paramref name="number"/>.</para>
 		/// </exception>
@@ -70,7 +80,7 @@ namespace MimeKit {
 			if (id == null)
 				throw new ArgumentNullException ("id");
 
-			if (number < 0)
+			if (number < 1)
 				throw new ArgumentOutOfRangeException ("number");
 
 			if (total < number)
@@ -82,16 +92,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the identifier.
+		/// Gets the "id" parameter of the Content-Type header.
 		/// </summary>
+		/// <remarks>
+		/// The "id" parameter is a unique identifier used to match the parts together.
+		/// </remarks>
 		/// <value>The identifier.</value>
 		public string Id {
 			get { return ContentType.Parameters["id"]; }
 		}
 
 		/// <summary>
-		/// Gets the part number for this partial message part.
+		/// Gets the "number" parameter of the Content-Type header.
 		/// </summary>
+		/// <remarks>
+		/// The "number" parameter is the sequential (1-based) index of the partial message fragment.
+		/// </remarks>
 		/// <value>The part number.</value>
 		public int? Number {
 			get {
@@ -106,8 +122,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the total number of parts.
+		/// Gets the "total" parameter of the Content-Type header.
 		/// </summary>
+		/// <remarks>
+		/// The "total" parameter is the total number of pieces that make up the complete message.
+		/// </remarks>
 		/// <value>The total number of parts.</value>
 		public int? Total {
 			get {
@@ -133,9 +152,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Split the specified message into multiple messages, each with a
-		/// message/partial body no larger than the max size specified.
+		/// Splits the specified message into multiple messages.
 		/// </summary>
+		/// <remarks>
+		/// Splits the specified message into multiple messages, each with a
+		/// message/partial body no larger than the max size specified.
+		/// </remarks>
+		/// <returns>An enumeration of partial messages.</returns>
 		/// <param name="message">The message.</param>
 		/// <param name="maxSize">The maximum size for each message body.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -162,7 +185,11 @@ namespace MimeKit {
 				}
 
 				var streams = new List<Stream> ();
+#if PORTABLE
+				var buf = memory.ToArray ();
+#else
 				var buf = memory.GetBuffer ();
+#endif
 				long startIndex = 0;
 
 				while (startIndex < memory.Length) {
@@ -211,14 +238,26 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Join the specified message/partial parts into the complete message.
+		/// Joins the specified message/partial parts into the complete message.
 		/// </summary>
+		/// <remarks>
+		/// Combines all of the message/partial fragments into its original,
+		/// complete, message.
+		/// </remarks>
+		/// <returns>The re-combined message.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The last partial does not have a Total.</para>
+		/// <para>-or-</para>
+		/// <para>The number of partials provided does not match the expected count.</para>
+		/// <para>-or-</para>
+		/// <para>One or more partials is missing.</para>
 		/// </exception>
 		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
@@ -236,11 +275,11 @@ namespace MimeKit {
 			parts.Sort (PartialCompare);
 
 			if (!parts[parts.Count - 1].Total.HasValue)
-				throw new ArgumentException ("partials");
+				throw new ArgumentException ("The last partial does not have a Total.", "partials");
 
 			int total = parts[parts.Count - 1].Total.Value;
 			if (parts.Count != total)
-				throw new ArgumentException ("partials");
+				throw new ArgumentException ("The number of partials provided does not match the expected count.", "partials");
 
 			string id = parts[0].Id;
 
@@ -250,13 +289,11 @@ namespace MimeKit {
 					int number = parts[i].Number.Value;
 
 					if (number != i + 1)
-						throw new ArgumentException ("partials");
+						throw new ArgumentException ("One or more partials is missing.", "partials");
 
 					var content = parts[i].ContentObject;
-					content.Stream.Seek (0, SeekOrigin.Begin);
-					var filtered = new FilteredStream (content.Stream);
-					filtered.Add (DecoderFilter.Create (content.Encoding));
-					chained.Add (filtered);
+
+					chained.Add (content.Open ());
 				}
 
 				var parser = new MimeParser (options, chained);
@@ -266,8 +303,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Join the specified message/partial parts into the complete message.
+		/// Joins the specified message/partial parts into the complete message.
 		/// </summary>
+		/// <remarks>
+		/// Combines all of the message/partial fragments into its original,
+		/// complete, message.
+		/// </remarks>
+		/// <returns>The re-combined message.</returns>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="partials"/>is <c>null</c>.

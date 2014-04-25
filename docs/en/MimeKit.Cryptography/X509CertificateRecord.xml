@@ -1,0 +1,378 @@
+<Type Name="X509CertificateRecord" FullName="MimeKit.Cryptography.X509CertificateRecord">
+  <TypeSignature Language="C#" Value="public class X509CertificateRecord" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CertificateRecord extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            An X.509 certificate record.
+            </summary>
+    <remarks>
+            Represents an X.509 certificate record loaded from a database.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public X509CertificateRecord ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.X509CertificateRecord" /> class.
+            </summary>
+        <remarks>
+            This constructor is only meant to be used by implementors of <see cref="T:MimeKit.Cryptography.IX509CertificateDatabase" />
+            when loading records from the database.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public X509CertificateRecord (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.X509CertificateRecord" /> class.
+            </summary>
+        <remarks>
+            Creates a new certificate record for storing in a <see cref="T:MimeKit.Cryptography.IX509CertificateDatabase" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public X509CertificateRecord (Org.BouncyCastle.X509.X509Certificate certificate, Org.BouncyCastle.Crypto.AsymmetricKeyParameter key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+        <Parameter Name="key" Type="Org.BouncyCastle.Crypto.AsymmetricKeyParameter" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <param name="key">The private key.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.X509CertificateRecord" /> class.
+            </summary>
+        <remarks>
+            Creates a new certificate record with a private key for storing in a
+            <see cref="T:MimeKit.Cryptography.IX509CertificateDatabase" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="certificate" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="key" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="key" /> is not a private key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Algorithms">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.EncryptionAlgorithm[] Algorithms { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] Algorithms" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the encryption algorithm capabilities.
+            </summary>
+        <value>The encryption algorithms.</value>
+        <remarks>
+            Gets or sets the encryption algorithm capabilities.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AlgorithmsUpdated">
+      <MemberSignature Language="C#" Value="public DateTime AlgorithmsUpdated { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime AlgorithmsUpdated" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTime</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the date when the algorithms were last updated.
+            </summary>
+        <value>The date the algorithms were updated.</value>
+        <remarks>
+            Gets or sets the date when the algorithms were last updated.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BasicConstraints">
+      <MemberSignature Language="C#" Value="public int BasicConstraints { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 BasicConstraints" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the basic constraints of the certificate.
+            </summary>
+        <value>The basic constraints of the certificate.</value>
+        <remarks>
+            Gets the basic constraints of the certificate.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Certificate">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.X509.X509Certificate Certificate { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the certificate.
+            </summary>
+        <value>The certificate.</value>
+        <remarks>
+            Gets the certificate.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Fingerprint">
+      <MemberSignature Language="C#" Value="public string Fingerprint { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Fingerprint" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the fingerprint of the certificate.
+            </summary>
+        <value>The fingerprint.</value>
+        <remarks>
+            Gets the fingerprint of the certificate.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public int Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the identifier.
+            </summary>
+        <value>The identifier.</value>
+        <remarks>
+            The id is typically the ROWID of the certificate in the database and is not
+            generally useful outside of the internals of the database implementation.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IssuerName">
+      <MemberSignature Language="C#" Value="public string IssuerName { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string IssuerName" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the certificate issuer's name.
+            </summary>
+        <value>The issuer's name.</value>
+        <remarks>
+            Gets the certificate issuer's name.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsTrusted">
+      <MemberSignature Language="C#" Value="public bool IsTrusted { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsTrusted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets a value indicating whether the certificate is trusted.
+            </summary>
+        <value>
+          <c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</value>
+        <remarks>
+            Indiciates whether or not the certificate is trusted.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyUsage">
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.X509KeyUsageFlags KeyUsage { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyUsage" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the key usage flags for the certificate.
+            </summary>
+        <value>The X.509 key usage.</value>
+        <remarks>
+            Gets the key usage flags for the certificate.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NotAfter">
+      <MemberSignature Language="C#" Value="public DateTime NotAfter { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime NotAfter" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTime</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the end date and time where the certificate is valid.
+            </summary>
+        <value>The date and time.</value>
+        <remarks>
+            Gets the end date and time where the certificate is valid.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NotBefore">
+      <MemberSignature Language="C#" Value="public DateTime NotBefore { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime NotBefore" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTime</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the starting date and time where the certificate is valid.
+            </summary>
+        <value>The date and time.</value>
+        <remarks>
+            Gets the starting date and time where the certificate is valid.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PrivateKey">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the private key.
+            </summary>
+        <value>The private key.</value>
+        <remarks>
+            Gets the private key.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SerialNumber">
+      <MemberSignature Language="C#" Value="public string SerialNumber { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string SerialNumber" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the serial number of the certificate.
+            </summary>
+        <value>The serial number.</value>
+        <remarks>
+            Gets the serial number of the certificate.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SubjectEmail">
+      <MemberSignature Language="C#" Value="public string SubjectEmail { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string SubjectEmail" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the subject email address.
+            </summary>
+        <value>The subject email address.</value>
+        <remarks>
+            Gets the subject email address.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

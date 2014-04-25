@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,13 +30,12 @@ using System.Collections.Generic;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Cms;
 
 using MimeKit;
 using MimeKit.Cryptography;
-using Org.BouncyCastle.Pkix;
 
 namespace UnitTests {
 	public class DummySecureMimeContext : SecureMimeContext
@@ -55,6 +54,9 @@ namespace UnitTests {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (IX509Selector selector)
 		{
+			if (selector == null && certificates.Count > 0)
+				return certificates[0];
+
 			foreach (var certificate in certificates) {
 				if (selector.Match (certificate))
 					return certificate;
@@ -76,7 +78,7 @@ namespace UnitTests {
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
 
-				if (!selector.Match (certificate))
+				if (selector != null && !selector.Match (certificate))
 					continue;
 
 				return key;
