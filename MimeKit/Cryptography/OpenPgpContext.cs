@@ -1114,7 +1114,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted stream.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1129,7 +1129,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
+		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -1162,49 +1162,109 @@ namespace MimeKit.Cryptography {
 				//PgpOnePassSignatureList onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
+				var memory = new MemoryStream ();
 
-				using (var memory = new MemoryStream ()) {
-					obj = factory.NextPgpObject ();
-					while (obj != null) {
-						if (obj is PgpCompressedData) {
-							if (compressed != null)
-								throw new Exception ("recursive compression detected.");
+				obj = factory.NextPgpObject ();
+				while (obj != null) {
+					if (obj is PgpCompressedData) {
+						if (compressed != null)
+							throw new Exception ("recursive compression detected.");
 
-							compressed = (PgpCompressedData) obj;
-							factory = new PgpObjectFactory (compressed.GetDataStream ());
+						compressed = (PgpCompressedData) obj;
+						factory = new PgpObjectFactory (compressed.GetDataStream ());
 						//} else if (obj is PgpOnePassSignatureList) {
-							//onepassList = (PgpOnePassSignatureList) obj;
-						} else if (obj is PgpSignatureList) {
-							signatureList = (PgpSignatureList) obj;
-						} else if (obj is PgpLiteralData) {
-							var literal = (PgpLiteralData) obj;
+						//onepassList = (PgpOnePassSignatureList) obj;
+					} else if (obj is PgpSignatureList) {
+						signatureList = (PgpSignatureList) obj;
+					} else if (obj is PgpLiteralData) {
+						var literal = (PgpLiteralData) obj;
 
-							using (var stream = literal.GetDataStream ()) {
-								stream.CopyTo (memory, 4096);
-							}
+						using (var stream = literal.GetDataStream ()) {
+							stream.CopyTo (memory, 4096);
 						}
-
-						obj = factory.NextPgpObject ();
 					}
 
-					memory.Position = 0;
-
-					// FIXME: validate the OnePass signatures... and do what with them?
-//					if (onepassList != null) {
-//						for (int i = 0; i < onepassList.Count; i++) {
-//							var onepass = onepassList[i];
-//						}
-//					}
-
-					if (signatureList != null) {
-						signatures = GetDigitalSignatures (signatureList, memory);
-						memory.Position = 0;
-					} else {
-						signatures = null;
-					}
-
-					return MimeEntity.Load (memory);
+					obj = factory.NextPgpObject ();
 				}
+
+				memory.Position = 0;
+
+				// FIXME: validate the OnePass signatures... and do what with them?
+				//if (onepassList != null) {
+				//	for (int i = 0; i < onepassList.Count; i++) {
+				//		var onepass = onepassList[i];
+				//	}
+				//}
+
+				if (signatureList != null) {
+					signatures = GetDigitalSignatures (signatureList, memory);
+					memory.Position = 0;
+				} else {
+					signatures = null;
+				}
+
+				return memory;
+			}
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData.
+		/// </remarks>
+		/// <returns>The decrypted stream.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public Stream GetDecryptedStream (Stream encryptedData)
+		{
+			DigitalSignatureCollection signatures;
+
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			return GetDecryptedStream (encryptedData, out signatures);
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// </remarks>
+		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			using (var decrypted = GetDecryptedStream (encryptedData, out signatures)) {
+				return MimeEntity.Load (decrypted);
 			}
 		}
 
