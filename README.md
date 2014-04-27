@@ -505,12 +505,9 @@ CryptographyContext.Register (typeof (MyGnuPGContext));
 
 Now you are ready to encrypt, decrypt, sign and verify PGP/MIME messages!
 
-### Digitally Signing Messages with S/MIME or PGP/MIME
+### Encrypting Messages with S/MIME
 
-Both S/MIME and PGP/MIME use a multipart/signed to contain the signed content and the detached signature data.
-
-To create a multipart/signed MIME part, let's pretend we're going to digitally sign our multipart/mixed example
-from the previous sample using S/MIME.
+S/MIME uses an application/pkcs7-mime MIME part to encapsulate encrypted content (as well as other things).
 
 ```csharp
 var joey = new MailboxAddress ("Joey", "joey@friends.com");
@@ -525,8 +522,96 @@ message.Subject = "How you doin?";
 // image attachments, for example)
 var body = CreateMessageBody ();
 
-// now to digitally sign our message body using the default S/MIME cryptography context
-using (var ctx = new DefaultSecureMimeContext ()) {
+// now to encrypt our message body using our custom S/MIME cryptography context
+using (var ctx = new MySecureMimeContext ()) {
+    // Note: this assumes that "Alice" has an S/MIME certificate with an X.509
+    // Subject Email identifier that matches her email address. If she doesn't,
+    // try using a SecureMailboxAddress which allows you to specify the
+    // fingerprint of her certificate to use for lookups.
+    message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, body);
+}
+```
+
+### Decrypting S/MIME Messages
+
+As mentioned earlier, S/MIME uses an application/pkcs7-mime part with an "smime-type" parameter with a value of
+"enveloped-data" to encapsulate the encrypted content.
+
+The first thing you must do is find the ApplicationPkcs7Mime part (see the section on traversing MIME parts).
+
+```csharp
+if (entity is ApplicationPkcs7Mime) {
+    var pkcs7 = (ApplicationPkcs7Mime) entity;
+
+    if (pkcs7.SecureMimeType == SecureMimeType.EnvelopedData)
+        return pkcs7.Decrypt ();
+}
+```
+
+### Encrypting Messages with PGP/MIME
+
+Unlike S/MIME, PGP/MIME uses multipart/encrypted to encapsulate its encrypted data.
+
+```csharp
+var joey = new MailboxAddress ("Joey", "joey@friends.com");
+var alice = new MailboxAddress ("Alice", "alice@wonderland.com");
+
+var message = new MimeMessage ();
+message.From.Add (joey);
+message.To.Add (alice);
+message.Subject = "How you doin?";
+
+// create our message body (perhaps a multipart/mixed with the message text and some
+// image attachments, for example)
+var body = CreateMessageBody ();
+
+// now to encrypt our message body using our custom PGP/MIME cryptography context
+using (var ctx = new MyGnuPGContext ()) {
+    // Note: this assumes that "Alice" has a public PGP key that matches her email
+    // address. If she doesn't, try using a SecureMailboxAddress which allows you
+    // to specify the fingerprint of her public PGP key to use for lookups.
+    message.Body = MultipartEncrypted.Create (ctx, message.To.Mailboxes, body);
+}
+```
+
+### Decrypting PGP/MIME Messages
+
+As mentioned earlier, PGP/MIME uses a multipart/encrypted part to encapsulate the encrypted content.
+
+A multipart/encrtpted contains exactly 2 parts: the first MimeEntity is the version information while the second
+MimeEntity is the actual encrypted content and will typically be an application/octet-stream.
+
+The first thing you must do is find the MultipartEncrypted part (see the section on traversing MIME parts).
+
+```csharp
+if (entity is MultipartEncrypted) {
+    var encrypted = (MultipartEncrypted) entity;
+
+    return encrypted.Decrypt ();
+}
+```
+
+### Digitally Signing Messages with S/MIME or PGP/MIME
+
+Both S/MIME and PGP/MIME use a multipart/signed to contain the signed content and the detached signature data.
+
+Here's how you might digitally sign a message using S/MIME:
+
+```csharp
+var joey = new MailboxAddress ("Joey", "joey@friends.com");
+var alice = new MailboxAddress ("Alice", "alice@wonderland.com");
+
+var message = new MimeMessage ();
+message.From.Add (joey);
+message.To.Add (alice);
+message.Subject = "How you doin?";
+
+// create our message body (perhaps a multipart/mixed with the message text and some
+// image attachments, for example)
+var body = CreateMessageBody ();
+
+// now to digitally sign our message body using our custom S/MIME cryptography context
+using (var ctx = new MySecureMimeContext ()) {
     // Note: this assumes that "Joey" has an S/MIME signing certificate and private key
     // with an X.509 Subject Email identifier that matches Joey's email address.
     message.Body = MultipartSigned.Create (ctx, joey, DigestAlgorithm.Sha1, body);
@@ -537,8 +622,8 @@ For S/MIME, if you have a way for the user to configure which S/MIME certificate
 as their signing certificate, you could also do something more like this:
 
 ```csharp
-// now to digitally sign our message body using the default S/MIME cryptography context
-using (var ctx = new DefaultSecureMimeContext ()) {
+// now to digitally sign our message body using our custom S/MIME cryptography context
+using (var ctx = new MySecureMimeContext ()) {
     var certificate = GetJoeysX509Certificate ();
     var signer = new CmsSigner (certificate);
     signer.DigestAlgorithm = DigestAlgorithm.Sha1;
@@ -609,8 +694,8 @@ if (entity is MultipartSigned) {
 ```
 
 It should be noted, however, that while most S/MIME clients will use the preferred multipart/signed
-approach, it is possible that you may encounter an "application/pkcs7-mime" part with an
-"smime-type" parameter set to "signed-data". Luckily, MimeKit can handle this format as well:
+approach, it is possible that you may encounter an application/pkcs7-mime part with an "smime-type"
+parameter set to "signed-data". Luckily, MimeKit can handle this format as well:
 
 ```csharp
 if (entity is ApplicationPkcs7Mime) {
@@ -620,8 +705,8 @@ if (entity is ApplicationPkcs7Mime) {
         // extract the original content and get a list of signatures
         MimeEntity extracted;
 
-        // Note: if you are rendering the message, you'll want to render
-        // the extracted mime part rather than the application/pkcs7-mime part.
+        // Note: if you are rendering the message, you'll want to render the
+        // extracted mime part rather than the application/pkcs7-mime part.
         foreach (var signature in pkcs7.Verify (out extracted)) {
             try {
                 bool valid = signature.Verify ();
