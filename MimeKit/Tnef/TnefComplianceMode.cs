@@ -1,5 +1,5 @@
 ﻿//
-// TnefNameId.cs
+// TnefComplianceMode.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -24,59 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Tnef {
-	public struct TnefNameId
-	{
-		readonly TnefNameIdKind kind;
-		readonly string name;
-		readonly Guid guid;
-		readonly int id;
-
-		public Guid PropertySetGuid {
-			get { return guid; }
-		}
-
-		public TnefNameIdKind Kind {
-			get { return kind; }
-		}
-
-		public string Name {
-			get { return name; }
-		}
-
-		public int Id {
-			get { return id; }
-		}
-
-		public TnefNameId (Guid propertySetGuid, int id)
-		{
-			kind = TnefNameIdKind.Id;
-			guid = propertySetGuid;
-			this.id = id;
-			name = null;
-		}
-
-		public TnefNameId (Guid propertySetGuid, string name)
-		{
-			kind = TnefNameIdKind.Name;
-			guid = propertySetGuid;
-			this.name = name;
-			id = 0;
-		}
-
-		public override bool Equals (object obj)
-		{
-			if (!(obj is TnefNameId))
-				return false;
-
-			var v = (TnefNameId) obj;
-
-			if (v.kind != kind || v.guid != guid)
-				return false;
-
-			return kind == TnefNameIdKind.Id ? v.id == id : v.name == name;
-		}
+	public enum TnefComplianceMode {
+		Loose,
+		Strict
 	}
 }

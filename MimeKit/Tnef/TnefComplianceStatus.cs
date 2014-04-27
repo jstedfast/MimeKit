@@ -1,5 +1,5 @@
 ﻿//
-// TnefAttribute.cs
+// TnefComplianceStatus.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -28,7 +28,23 @@ using System;
 
 namespace MimeKit.Tnef {
 	[Flags]
-	public enum TnefAttribute {
-
+	public enum TnefComplianceStatus {
+		Compliant                = 0,
+		AttributeOverflow        = 1 << 0,
+		InvalidAttribute         = 1 << 1,
+		InvalidAttributeChecksum = 1 << 2,
+		InvalidAttributeLength   = 1 << 3,
+		InvalidAttributeLevel    = 1 << 4,
+		InvalidAttributeValue    = 1 << 5,
+		InvalidDate              = 1 << 6,
+		InvalidMessageClass      = 1 << 7,
+		InvalidMessageCodepage   = 1 << 8,
+		InvalidPropertyLength    = 1 << 9,
+		InvalidRowCount          = 1 << 10,
+		InvalidTnefSignature     = 1 << 11,
+		InvalidTnefVersion       = 1 << 12,
+		NestingTooDeep           = 1 << 13,
+		StreamTruncated          = 1 << 14,
+		UnsupportedPropertyType  = 1 << 15
 	}
 }

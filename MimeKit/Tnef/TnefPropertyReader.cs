@@ -27,77 +27,89 @@
 using System;
 using System.IO;
 
+using MimeKit.IO;
+
 namespace MimeKit.Tnef {
 	public struct TnefPropertyReader
 	{
+		readonly TnefReader reader;
+
 		public bool IsComputedProperty {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public bool IsEmbeddedMessage {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public bool IsLargeValue {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public bool IsMultiValuedProperty {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public bool IsNamedProperty {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public bool IsObjectProperty {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public Guid ObjectIid {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public int PropertyCount {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public TnefNameId PropertyNameId {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public TnefPropertyTag PropertyTag {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public int RawValueLength {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public int RawValueStreamOffset {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public int RowCount {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public int ValueCount {
-			get; private set;
+			get { throw new NotImplementedException (); }
 		}
 
 		public Type ValueType {
-			get; private set;
+			get { throw new NotImplementedException (); }
+		}
+
+		internal TnefPropertyReader (TnefReader tnef)
+		{
+			reader = tnef;
 		}
 
 		public TnefReader GetEmbeddedMessageReader ()
 		{
-			throw new NotImplementedException ();
+			return new TnefReader (GetRawValueReadStream (), reader.MessageCodepage, reader.ComplianceMode);
 		}
 
 		public Stream GetRawValueReadStream ()
 		{
-			throw new NotImplementedException ();
+			long start = reader.AttributeRawValueStreamOffset;
+			long end = start + reader.AttributeRawValueLength;
+
+			return new BoundStream (reader.InputStream, start, end, true);
 		}
 
 		public bool ReadNextProperty ()
@@ -178,6 +190,21 @@ namespace MimeKit.Tnef {
 		public string ReadValueAsString ()
 		{
 			throw new NotImplementedException ();
+		}
+
+		public override int GetHashCode ()
+		{
+			return reader.GetHashCode ();
+		}
+
+		public override bool Equals (object obj)
+		{
+			if (!(obj is TnefPropertyReader))
+				return false;
+
+			var prop = (TnefPropertyReader) obj;
+
+			return prop.reader == reader;
 		}
 	}
 }
