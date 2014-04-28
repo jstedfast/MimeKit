@@ -344,9 +344,8 @@ namespace MimeKit.Tnef {
 				value = null;
 				break;
 			case TnefPropertyType.I2:
-				value = ReadInt16 ();
-				// skip 2 bytes of padding
-				ReadInt16 ();
+				// 2 bytes for the short followed by 2 bytes of padding
+				value = (short) (ReadInt32 () >> 16);
 				break;
 			case TnefPropertyType.Error:
 			case TnefPropertyType.Long:
@@ -520,12 +519,19 @@ namespace MimeKit.Tnef {
 			rawValueOffset = 0;
 			rawValueLength = 0;
 
-			if (reader.AttributeTag != TnefAttributeTag.RecipientTable) {
+			if (reader.AttributeTag == TnefAttributeTag.MapiProperties) {
 				LoadPropertyCount ();
 				rowCount = 0;
 				rowIndex = 0;
-			} else {
+			} else if (reader.AttributeTag == TnefAttributeTag.RecipientTable) {
 				LoadRowCount ();
+			} else {
+				propertyCount = 0;
+				propertyIndex = 0;
+				valueCount = 1;
+				valueIndex = 0;
+				rowCount = 0;
+				rowIndex = 0;
 			}
 		}
 	}

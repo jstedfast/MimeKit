@@ -454,6 +454,8 @@ namespace MimeKit.Tnef {
 					ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
 					throw new TnefException ("Truncated TNEF stream.");
 				}
+			} else {
+				n = Math.Min (inputLeft, n);
 			}
 
 			Buffer.BlockCopy (input, inputIndex, buffer, offset, n);
