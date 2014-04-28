@@ -66,6 +66,13 @@ namespace MimeKit.Tnef {
 			id = 0;
 		}
 
+		public override int GetHashCode ()
+		{
+			int hash = kind == TnefNameIdKind.Id ? id : name.GetHashCode ();
+
+			return kind.GetHashCode () ^ guid.GetHashCode () ^ hash;
+		}
+
 		public override bool Equals (object obj)
 		{
 			if (!(obj is TnefNameId))

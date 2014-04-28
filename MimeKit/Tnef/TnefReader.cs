@@ -75,7 +75,7 @@ namespace MimeKit.Tnef {
 		}
 
 		public TnefComplianceStatus ComplianceStatus {
-			get; private set;
+			get; internal set;
 		}
 
 		internal Stream InputStream {
@@ -100,6 +100,7 @@ namespace MimeKit.Tnef {
 
 		public TnefReader (Stream inputStream, int defaultMessageCodepage, TnefComplianceMode complianceMode)
 		{
+			TnefPropertyReader = new TnefPropertyReader (this);
 			MessageCodepage = defaultMessageCodepage;
 			ComplianceMode = complianceMode;
 			InputStream = inputStream;
@@ -364,6 +365,8 @@ namespace MimeKit.Tnef {
 				if (ComplianceMode == TnefComplianceMode.Strict)
 					throw new TnefException ("Invalid attribute length.");
 			}
+
+			TnefPropertyReader.Load ();
 
 			return true;
 		}

@@ -714,16 +714,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag Xpos = new TnefPropertyTag (TnefPropertyId.Xpos, TnefPropertyType.Long);
 		public static readonly TnefPropertyTag Ypos = new TnefPropertyTag (TnefPropertyId.Ypos, TnefPropertyType.Long);
 
+		const TnefPropertyId NamedMin = unchecked ((TnefPropertyId) 0x8000);
+		const TnefPropertyId NamedMax = unchecked ((TnefPropertyId) 0xFFFE);
+		const short MultiValuedFlag = (short) TnefPropertyType.MultiValued;
+		readonly TnefPropertyType type;
+		readonly TnefPropertyId id;
+
 		public TnefPropertyId Id {
-			get { throw new NotImplementedException (); }
+			get { return id; }
 		}
 
 		public bool IsMultiValued {
-			get { throw new NotImplementedException (); }
+			get { return (((short) type) & MultiValuedFlag) != 0; }
 		}
 
 		public bool IsNamed {
-			get { throw new NotImplementedException (); }
+			get { return id >= NamedMin && id <= NamedMax; }
 		}
 
 		public bool IsTnefTypeValid {
@@ -731,25 +737,29 @@ namespace MimeKit.Tnef {
 		}
 
 		public TnefPropertyType TnefType {
-			get { throw new NotImplementedException (); }
+			get { return type; }
 		}
 
 		public TnefPropertyType ValueTnefType {
-			get { throw new NotImplementedException (); }
+			get { return (TnefPropertyType) (((short) type) & ~MultiValuedFlag); }
 		}
 
 		public TnefPropertyTag (int tag)
 		{
-			throw new NotImplementedException ();
+			type = (TnefPropertyType) ((tag >> 16) & 0xFFFF);
+			id = (TnefPropertyId) (tag & 0xFFFF);
 		}
 
 		TnefPropertyTag (TnefPropertyId id, TnefPropertyType type, bool multiValue)
 		{
-			throw new NotImplementedException ();
+			this.type = (TnefPropertyType) (((short) type) | (multiValue ? MultiValuedFlag : 0));
+			this.id = id;
 		}
 
-		public TnefPropertyTag (TnefPropertyId id, TnefPropertyType type) : this (id, type, false)
+		public TnefPropertyTag (TnefPropertyId id, TnefPropertyType type)
 		{
+			this.type = type;
+			this.id = id;
 		}
 
 		public static implicit operator TnefPropertyTag (int tag)

@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Tnef {
 	public enum TnefNameIdKind {
 		Id,
