@@ -264,6 +264,32 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		unsafe static void Load32BitValue (byte *dest, byte[] src, int startIndex)
+		{
+			if (BitConverter.IsLittleEndian) {
+				dest[0] = src[startIndex];
+				dest[1] = src[startIndex + 1];
+				dest[2] = src[startIndex + 2];
+				dest[3] = src[startIndex + 3];
+			} else {
+				dest[0] = src[startIndex + 3];
+				dest[1] = src[startIndex + 2];
+				dest[2] = src[startIndex + 1];
+				dest[3] = src[startIndex];
+			}
+		}
+
+		unsafe static void Load64BitValue (byte *dest, byte[] src, int startIndex)
+		{
+			if (BitConverter.IsLittleEndian) {
+				for (int i = 0; i < 8; ++i)
+					dest[i] = src[startIndex + i];
+			} else {
+				for (int i = 0; i < 8; ++i)
+					dest[i] = src[startIndex + (7 - i)];
+			}
+		}
+
 		internal bool ReadBoolean ()
 		{
 			return ReadByte () != 0;
@@ -300,6 +326,32 @@ namespace MimeKit.Tnef {
 			long hi = ReadInt32 ();
 
 			return (hi << 32) | lo;
+		}
+
+		unsafe internal float ReadSingle ()
+		{
+			if (ReadAhead (4) < 4)
+				throw new EndOfStreamException ();
+
+			float value;
+
+			Load32BitValue ((byte *) &value, input, inputIndex);
+			inputIndex += 4;
+
+			return value;
+		}
+
+		unsafe internal double ReadDouble ()
+		{
+			if (ReadAhead (8) < 8)
+				throw new EndOfStreamException ();
+
+			double value;
+
+			Load64BitValue ((byte *) &value, input, inputIndex);
+			inputIndex += 8;
+
+			return value;
 		}
 
 		void SkipAttributeRawValue ()
