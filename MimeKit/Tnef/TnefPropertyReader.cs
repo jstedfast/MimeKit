@@ -55,7 +55,7 @@ namespace MimeKit.Tnef {
 		}
 
 		public bool IsEmbeddedMessage {
-			get { throw new NotImplementedException (); }
+			get { return propertyTag == TnefPropertyTag.AttachDataObj; }
 		}
 
 		public bool IsLargeValue {
@@ -128,6 +128,9 @@ namespace MimeKit.Tnef {
 
 		public TnefReader GetEmbeddedMessageReader ()
 		{
+			if (!IsEmbeddedMessage)
+				throw new InvalidOperationException ();
+
 			return new TnefReader (GetRawValueReadStream (), reader.MessageCodepage, reader.ComplianceMode);
 		}
 
