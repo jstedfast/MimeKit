@@ -39,9 +39,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// The <see cref="AttachmentCollection"/> is only used when building a message body with a <see cref="BodyBuilder"/>.
 	/// </remarks>
-	public class AttachmentCollection : ICollection<MimePart>
+	public class AttachmentCollection : ICollection<MimeEntity>
 	{
-		readonly List<MimePart> attachments;
+		readonly List<MimeEntity> attachments;
 		readonly bool linked;
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace MimeKit {
 		/// <param name="linkedResources">If set to <c>true</c>; the attachments are treated as linked resources.</param>
 		public AttachmentCollection (bool linkedResources)
 		{
-			attachments = new List<MimePart> ();
+			attachments = new List<MimeEntity> ();
 			linked = linkedResources;
 		}
 
@@ -367,7 +367,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <c>null</c>.
 		/// </exception>
-		public void Add (MimePart attachment)
+		public void Add (MimeEntity attachment)
 		{
 			if (attachment == null)
 				throw new ArgumentNullException ("attachment");
@@ -398,7 +398,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <c>null</c>.
 		/// </exception>
-		public bool Contains (MimePart attachment)
+		public bool Contains (MimeEntity attachment)
 		{
 			if (attachment == null)
 				throw new ArgumentNullException ("attachment");
@@ -421,7 +421,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
 		/// </exception>
-		public void CopyTo (MimePart[] array, int arrayIndex)
+		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
 			if (array == null)
 				throw new ArgumentNullException ("array");
@@ -443,7 +443,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <c>null</c>.
 		/// </exception>
-		public bool Remove (MimePart attachment)
+		public bool Remove (MimeEntity attachment)
 		{
 			if (attachment == null)
 				throw new ArgumentNullException ("attachment");
@@ -462,7 +462,7 @@ namespace MimeKit {
 		/// Gets an enumerator for the list of attachments.
 		/// </remarks>
 		/// <returns>The enumerator.</returns>
-		public IEnumerator<MimePart> GetEnumerator ()
+		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
 			return attachments.GetEnumerator ();
 		}
