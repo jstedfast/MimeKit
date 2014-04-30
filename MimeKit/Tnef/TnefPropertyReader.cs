@@ -227,7 +227,7 @@ namespace MimeKit.Tnef {
 			return DateTime.FromFileTime (fileTime);
 		}
 
-		int GetPaddedLength (int length)
+		static int GetPaddedLength (int length)
 		{
 			return (length + 3) & ~3;
 		}
