@@ -254,23 +254,37 @@ namespace MimeKit.Tnef {
 		string ReadUnicodeString ()
 		{
 			var bytes = ReadByteArray ();
+			int length = bytes.Length;
 
-			return Encoding.Unicode.GetString (bytes);
+			while (length > 1 && bytes[length - 1] == 0 && bytes[length - 2] == 0)
+				length -= 2;
+
+			if (length < 2)
+				return string.Empty;
+
+			return Encoding.Unicode.GetString (bytes, 0, length);
 		}
 
 		string DecodeAnsiString (byte[] bytes)
 		{
 			int codepage = reader.MessageCodepage;
+			int length = bytes.Length;
+
+			while (length > 0 && bytes[length - 1] == 0)
+				length--;
+
+			if (length == 0)
+				return string.Empty;
 
 			if (codepage != 0 && codepage != 1252) {
 				try {
-					return Encoding.GetEncoding (codepage).GetString (bytes, 0, bytes.Length);
+					return Encoding.GetEncoding (codepage).GetString (bytes, 0, length);
 				} catch {
-					return DefaultEncoding.GetString (bytes, 0, bytes.Length);
+					return DefaultEncoding.GetString (bytes, 0, length);
 				}
 			}
 
-			return DefaultEncoding.GetString (bytes, 0, bytes.Length);
+			return DefaultEncoding.GetString (bytes, 0, length);
 		}
 
 		string ReadString ()
@@ -924,6 +938,7 @@ namespace MimeKit.Tnef {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode: value = ReadUnicodeString (); break;
 				case TnefPropertyType.String8: value = ReadString (); break;
+				case TnefPropertyType.Binary:  value = ReadString (); break;
 				default: throw new InvalidOperationException ();
 				}
 			} else {
