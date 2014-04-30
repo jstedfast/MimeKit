@@ -70,6 +70,10 @@ namespace MimeKit.Tnef {
 			get; private set;
 		}
 
+		internal TnefAttributeType AttributeType {
+			get { return (TnefAttributeType) ((int) AttributeTag & 0xF0000); }
+		}
+
 		public TnefComplianceMode ComplianceMode {
 			get; private set;
 		}
@@ -290,11 +294,6 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		internal bool ReadBoolean ()
-		{
-			return ReadByte () != 0;
-		}
-
 		internal byte ReadByte ()
 		{
 			if (ReadAhead (1) < 1)
@@ -318,6 +317,15 @@ namespace MimeKit.Tnef {
 
 			return input[inputIndex++] | (input[inputIndex++] << 8) |
 				(input[inputIndex++] << 16) | (input[inputIndex++] << 24);
+		}
+
+		internal int PeekInt32 ()
+		{
+			if (ReadAhead (4) < 4)
+				throw new EndOfStreamException ();
+
+			return input[inputIndex] | (input[inputIndex + 1] << 8) |
+				(input[inputIndex + 2] << 16) | (input[inputIndex + 3] << 24);
 		}
 
 		internal long ReadInt64 ()
@@ -354,20 +362,41 @@ namespace MimeKit.Tnef {
 			return value;
 		}
 
-		void SkipAttributeRawValue ()
+		internal bool Seek (int offset)
 		{
-			int dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
-			int dataLeft = dataEndOffset - StreamOffset;
+			int left = offset - StreamOffset;
+
+			if (left == 0)
+				return true;
+
+			do {
+				int n = Math.Min (inputEnd - inputIndex, left);
+
+				inputIndex += n;
+				left -= n;
+
+				if (left == 0)
+					break;
+
+				if (ReadAhead (left) == 0) {
+					ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
+					if (ComplianceMode == TnefComplianceMode.Strict)
+						throw new TnefException ("Truncated TNEF stream.");
+
+					return false;
+				}
+			} while (true);
+
+			return true;
+		}
+
+		bool SkipAttributeRawValue ()
+		{
+			int offset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			short crc16;
 
-			if (dataLeft > 0) {
-				var buffer = new byte[Math.Min (4096, dataLeft)];
-				int nread;
-
-				do {
-					nread = ReadAttributeRawValue (buffer, 0, buffer.Length);
-				} while (nread > 0);
-			}
+			if (!Seek (offset))
+				return false;
 
 			try {
 				crc16 = ReadInt16 ();
@@ -375,7 +404,8 @@ namespace MimeKit.Tnef {
 				ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
 				if (ComplianceMode == TnefComplianceMode.Strict)
 					throw new TnefException ("Truncated TNEF stream.");
-				throw;
+
+				return false;
 			}
 
 			if (crc16 != checksum) {
@@ -383,12 +413,14 @@ namespace MimeKit.Tnef {
 				if (ComplianceMode == TnefComplianceMode.Strict)
 					throw new TnefException ("Invalid attribute checksum.");
 			}
+
+			return true;
 		}
 
 		public bool ReadNextAttribute ()
 		{
-			if (AttributeRawValueStreamOffset != 0)
-				SkipAttributeRawValue ();
+			if (AttributeRawValueStreamOffset != 0 && !SkipAttributeRawValue ())
+				return false;
 
 			try {
 				AttributeLevel = (TnefAttributeLevel) ReadByte ();
