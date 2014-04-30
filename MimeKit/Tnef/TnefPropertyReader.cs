@@ -222,13 +222,9 @@ namespace MimeKit.Tnef {
 
 		DateTime ReadDateTime ()
 		{
-			long hundredthOfNano = ReadInt64 ();
-			long milli = hundredthOfNano / 10000;
+			long fileTime = ReadInt64 ();
 
-			var date = new DateTime (1601, 1, 1);
-			date = date.AddMilliseconds (milli);
-
-			return date;
+			return DateTime.FromFileTime (fileTime);
 		}
 
 		int GetPaddedLength (int length)
