@@ -94,6 +94,13 @@ namespace MimeKit.Tnef {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the current stream offset.
+		/// </summary>
+		/// <remarks>
+		/// Gets the current stream offset.
+		/// </remarks>
+		/// <value>The stream offset.</value>
 		public int StreamOffset {
 			get { return (int) (position - (inputEnd - inputIndex)); }
 		}
@@ -102,17 +109,50 @@ namespace MimeKit.Tnef {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
+		/// </summary>
+		/// <param name="inputStream">The input stream.</param>
+		/// <param name="defaultMessageCodepage">The default message codepage.</param>
+		/// <param name="complianceMode">The compliance mode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="inputStream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="defaultMessageCodepage"/> is not a valid codepage.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="defaultMessageCodepage"/> is not a supported codepage.
+		/// </exception>
 		public TnefReader (Stream inputStream, int defaultMessageCodepage, TnefComplianceMode complianceMode)
 		{
+			if (inputStream == null)
+				throw new ArgumentNullException ("inputStream");
+
+			if (defaultMessageCodepage < 0)
+				throw new ArgumentOutOfRangeException ("defaultMessageCodepage");
+
+			if (defaultMessageCodepage != 0) {
+				// make sure that this codepage is valid...
+				var encoding = Encoding.GetEncoding (defaultMessageCodepage);
+				MessageCodepage = encoding.CodePage;
+			}
+
 			TnefPropertyReader = new TnefPropertyReader (this);
-			MessageCodepage = defaultMessageCodepage;
 			ComplianceMode = complianceMode;
 			InputStream = inputStream;
 
 			DecodeHeader ();
 		}
 
-		public TnefReader (Stream inputStream) : this (inputStream, 1252, TnefComplianceMode.Loose)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
+		/// </summary>
+		/// <param name="inputStream">The input stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="inputStream"/> is <c>null</c>.
+		/// </exception>
+		public TnefReader (Stream inputStream) : this (inputStream, 0, TnefComplianceMode.Loose)
 		{
 		}
 

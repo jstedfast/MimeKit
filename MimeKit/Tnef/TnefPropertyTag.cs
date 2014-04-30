@@ -733,7 +733,30 @@ namespace MimeKit.Tnef {
 		}
 
 		public bool IsTnefTypeValid {
-			get { throw new NotImplementedException (); }
+			get {
+				switch (ValueTnefType) {
+				case TnefPropertyType.Unspecified:
+				case TnefPropertyType.Null:
+				case TnefPropertyType.I2:
+				case TnefPropertyType.Long:
+				case TnefPropertyType.R4:
+				case TnefPropertyType.Double:
+				case TnefPropertyType.Currency:
+				case TnefPropertyType.AppTime:
+				case TnefPropertyType.Error:
+				case TnefPropertyType.Boolean:
+				case TnefPropertyType.Object:
+				case TnefPropertyType.I8:
+				case TnefPropertyType.String8:
+				case TnefPropertyType.Unicode:
+				case TnefPropertyType.SysTime:
+				case TnefPropertyType.ClassId:
+				case TnefPropertyType.Binary:
+					return true;
+				default:
+					return false;
+				}
+			}
 		}
 
 		public TnefPropertyType TnefType {

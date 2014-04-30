@@ -43,7 +43,7 @@ namespace UnitTests {
 		{
 			var prop = reader.TnefPropertyReader;
 
-			// Note: The RecipientTable is the only attribute that uses rows...
+			// Note: The RecipientTable uses rows of properties...
 			while (prop.ReadNextRow ()) {
 				InternetAddressList list = null;
 				string name = null, addr = null;
@@ -51,7 +51,7 @@ namespace UnitTests {
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
 					case TnefPropertyId.RecipientType:
-						switch (prop.ReadValueAsInt16 ()) {
+						switch (prop.ReadValueAsInt32 ()) {
 						case 1: list = message.To; break;
 						case 2: list = message.Cc; break;
 						case 3: list = message.Bcc; break;
@@ -60,9 +60,11 @@ namespace UnitTests {
 							break;
 						}
 						break;
+					case TnefPropertyId.TransmitableDisplayName:
 					case TnefPropertyId.DisplayName:
 						name = prop.ReadValueAsString ();
 						break;
+					case TnefPropertyId.EmailAddress:
 					case TnefPropertyId.SmtpAddress:
 						addr = prop.ReadValueAsString ();
 						break;
@@ -129,7 +131,7 @@ namespace UnitTests {
 					}
 					break;
 				default:
-					Console.WriteLine ("Unhandled message property: {0}", prop.PropertyTag.Id);
+					Console.WriteLine ("Unhandled message property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 					break;
 				}
 			}
@@ -254,6 +256,28 @@ namespace UnitTests {
 					var prop = reader.TnefPropertyReader;
 
 					message.Date = prop.ReadValueAsDateTime ();
+				} else if (reader.AttributeTag == TnefAttributeTag.Body) {
+					var prop = reader.TnefPropertyReader;
+
+					builder.TextBody = prop.ReadValueAsString ();
+				} else if (reader.AttributeTag == TnefAttributeTag.TnefVersion) {
+					var prop = reader.TnefPropertyReader;
+
+					Console.WriteLine ("Tnef Version = {0:x4}", prop.ReadValueAsInt32 ());
+				} else if (reader.AttributeTag == TnefAttributeTag.OemCodepage) {
+					var prop = reader.TnefPropertyReader;
+					int codepage = prop.ReadValueAsInt32 ();
+
+					try {
+						var encoding = Encoding.GetEncoding (codepage);
+						Console.WriteLine ("OemCodepage = {0}", encoding.HeaderName);
+					} catch {
+						Console.WriteLine ("OemCodepage = {0}", codepage);
+					}
+				} else {
+					var prop = reader.TnefPropertyReader;
+
+					Console.WriteLine ("Unhandled attribute: {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 				}
 			}
 
@@ -324,9 +348,9 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMapiObj ()
+		public void TestMapiObject ()
 		{
-			TestTnefParser ("../../TestData/tnef/MAPI_OBJ");
+			TestTnefParser ("../../TestData/tnef/MAPI_OBJECT");
 		}
 
 		[Test]
