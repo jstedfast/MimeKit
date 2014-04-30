@@ -82,7 +82,7 @@ namespace MimeKit.Tnef {
 		Object      = 13,
 
 		/// <summary>
-		/// A signed 128-bit value.
+		/// A signed 64-bit value.
 		/// </summary>
 		I8          = 20,
 

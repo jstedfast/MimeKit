@@ -366,12 +366,13 @@ namespace MimeKit.Tnef {
 		{
 			int left = offset - StreamOffset;
 
-			if (left == 0)
+			if (left <= 0)
 				return true;
 
 			do {
 				int n = Math.Min (inputEnd - inputIndex, left);
 
+				UpdateChecksum (input, inputIndex, n);
 				inputIndex += n;
 				left -= n;
 

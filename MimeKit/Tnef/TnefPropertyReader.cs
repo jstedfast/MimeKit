@@ -38,6 +38,7 @@ using MimeKit.IO;
 namespace MimeKit.Tnef {
 	public class TnefPropertyReader
 	{
+		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
 		TnefPropertyTag propertyTag;
 		readonly TnefReader reader;
 		TnefNameId propertyName;
@@ -241,12 +242,40 @@ namespace MimeKit.Tnef {
 			return Encoding.Unicode.GetString (bytes);
 		}
 
+		string DecodeAnsiString (byte[] bytes, int length)
+		{
+			int codepage = reader.MessageCodepage;
+
+			if (codepage != 0 && codepage != 1252) {
+				try {
+					return Encoding.GetEncoding (codepage).GetString (bytes, 0, length);
+				} catch {
+					return DefaultEncoding.GetString (bytes, 0, length);
+				}
+			}
+
+			return DefaultEncoding.GetString (bytes, 0, length);
+		}
+
 		string ReadString ()
 		{
 			var bytes = ReadByteArray ();
 
-			// FIXME: probably need to use the codepage...
-			return Encoding.ASCII.GetString (bytes);
+			return DecodeAnsiString (bytes, bytes.Length);
+		}
+
+		string ReadAttrString ()
+		{
+			int end = RawValueStreamOffset + RawValueLength;
+			int length = end - reader.StreamOffset;
+
+			if (length <= 0)
+				return string.Empty;
+
+			var bytes = ReadBytes (length);
+
+			// attribute strings are null-terminated
+			return DecodeAnsiString (bytes, length - 1);
 		}
 
 		DateTime ReadPropertyDateTime ()
@@ -493,8 +522,8 @@ namespace MimeKit.Tnef {
 
 			switch (reader.AttributeType) {
 			case TnefAttributeType.Triples: value = null; break;// FIXME
-			case TnefAttributeType.String: return ReadValueAsString ();
-			case TnefAttributeType.Text:   return ReadValueAsString ();
+			case TnefAttributeType.String: value = ReadAttrString (); break;
+			case TnefAttributeType.Text:   value = ReadAttrString (); break;
 			case TnefAttributeType.Date:   value = ReadAttributeDateTime (); break;
 			case TnefAttributeType.Short:  value = ReadInt16 (); break;
 			case TnefAttributeType.Long:   value = ReadInt32 (); break;
@@ -539,7 +568,13 @@ namespace MimeKit.Tnef {
 
 		public byte[] ReadValueAsBytes ()
 		{
-			throw new NotImplementedException ();
+			int end = RawValueStreamOffset + RawValueLength;
+			int length = end - reader.StreamOffset;
+
+			if (length <= 0)
+				return new byte[0];
+
+			return ReadBytes (length);
 		}
 
 		public DateTime ReadValueAsDateTime ()
@@ -726,8 +761,8 @@ namespace MimeKit.Tnef {
 				}
 			} else {
 				switch (reader.AttributeType) {
-				case TnefAttributeType.String:
-				case TnefAttributeType.Text:
+				case TnefAttributeType.String: value = ReadAttrString (); break;
+				case TnefAttributeType.Text:   value = ReadAttrString (); break;
 				default: throw new InvalidOperationException ();
 				}
 			}
