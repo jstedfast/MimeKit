@@ -47,6 +47,8 @@ namespace MimeKit.Tnef {
 
 		short checksum;
 		long position;
+		int codepage;
+		int version;
 		bool closed;
 		bool eos;
 
@@ -87,7 +89,26 @@ namespace MimeKit.Tnef {
 		}
 
 		public int MessageCodepage {
-			get; private set;
+			get { return codepage; }
+			private set {
+				if (value == codepage)
+					return;
+
+				try {
+					var encoding = Encoding.GetEncoding (value);
+					codepage = encoding.CodePage;
+				} catch (ArgumentOutOfRangeException) {
+					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
+					if (ComplianceMode == TnefComplianceMode.Strict)
+						throw new TnefException (string.Format ("Invalid message codepage: {0}", value));
+					codepage = 1252;
+				} catch (NotSupportedException) {
+					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
+					if (ComplianceMode == TnefComplianceMode.Strict)
+						throw new TnefException (string.Format ("Unsupported message codepage: {0}", value));
+					codepage = 1252;
+				}
+			}
 		}
 
 		public TnefPropertyReader TnefPropertyReader {
@@ -106,7 +127,16 @@ namespace MimeKit.Tnef {
 		}
 
 		public int TnefVersion {
-			get; private set;
+			get { return version; }
+			private set {
+				if (value != 0x00010000) {
+					ComplianceStatus |= TnefComplianceStatus.InvalidTnefVersion;
+					if (ComplianceMode == TnefComplianceMode.Strict)
+						throw new TnefException (string.Format ("Invalid TNEF version: {0}", value));
+				}
+
+				version = value;
+			}
 		}
 
 		/// <summary>
@@ -135,7 +165,9 @@ namespace MimeKit.Tnef {
 			if (defaultMessageCodepage != 0) {
 				// make sure that this codepage is valid...
 				var encoding = Encoding.GetEncoding (defaultMessageCodepage);
-				MessageCodepage = encoding.CodePage;
+				codepage = encoding.CodePage;
+			} else {
+				codepage = 1252;
 			}
 
 			TnefPropertyReader = new TnefPropertyReader (this);
@@ -236,7 +268,7 @@ namespace MimeKit.Tnef {
 			if (signature != 0x223e9f78) {
 				ComplianceStatus |= TnefComplianceStatus.InvalidTnefSignature;
 				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid TnefSignature.");
+					throw new TnefException ("Invalid TNEF signature.");
 			}
 
 			// read the LegacyKey (ignore this value)
@@ -289,7 +321,6 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.MessageId:
 			case TnefAttributeTag.MessageStatus:
 			case TnefAttributeTag.Null:
-			case TnefAttributeTag.OemCodepage:
 			case TnefAttributeTag.OriginalMessageClass:
 			case TnefAttributeTag.Owner:
 			case TnefAttributeTag.ParentId:
@@ -298,7 +329,12 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.RequestResponse:
 			case TnefAttributeTag.SentFor:
 			case TnefAttributeTag.Subject:
+				break;
+			case TnefAttributeTag.OemCodepage:
+				MessageCodepage = PeekInt32 ();
+				break;
 			case TnefAttributeTag.TnefVersion:
+				TnefVersion = PeekInt32 ();
 				break;
 			default:
 				ComplianceStatus = TnefComplianceStatus.InvalidAttribute;

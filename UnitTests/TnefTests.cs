@@ -51,7 +51,8 @@ namespace UnitTests {
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
 					case TnefPropertyId.RecipientType:
-						switch (prop.ReadValueAsInt32 ()) {
+						int recipientType = prop.ReadValueAsInt32 ();
+						switch (recipientType) {
 						case 1: list = message.To; break;
 						case 2: list = message.Cc; break;
 						case 3: list = message.Bcc; break;
@@ -59,17 +60,36 @@ namespace UnitTests {
 							Assert.Fail ("Invalid recipient type.");
 							break;
 						}
+						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, recipientType);
 						break;
 					case TnefPropertyId.TransmitableDisplayName:
+						if (string.IsNullOrEmpty (name)) {
+							name = prop.ReadValueAsString ();
+							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
+						} else {
+							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+						}
+						break;
 					case TnefPropertyId.DisplayName:
 						name = prop.ReadValueAsString ();
+						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
 						break;
 					case TnefPropertyId.EmailAddress:
+						if (string.IsNullOrEmpty (addr)) {
+							addr = prop.ReadValueAsString ();
+							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
+						} else {
+							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+						}
+						break;
 					case TnefPropertyId.SmtpAddress:
+						// The SmtpAddress, if it exists, should take precedence over the EmailAddress
+						// (since the SmtpAddress is meant to be used in the RCPT TO command).
 						addr = prop.ReadValueAsString ();
+						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
 						break;
 					default:
-						Console.WriteLine ("Unhandled RecipientType property: {0}", prop.PropertyTag.Id);
+						Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 						break;
 					}
 				}
@@ -92,6 +112,7 @@ namespace UnitTests {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.MessageId = prop.ReadValueAsString ();
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.MessageId);
 					} else {
 						Assert.Fail ("Unknown property type for Message-Id: {0}", prop.PropertyTag.ValueTnefType);
 					}
@@ -100,38 +121,33 @@ namespace UnitTests {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.Subject = prop.ReadValueAsString ();
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.Subject);
 					} else {
 						Assert.Fail ("Unknown property type for Subject: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
-					using (var stream = prop.GetRawValueReadStream ()) {
-						int codepage = reader.MessageCodepage != 0 ? reader.MessageCodepage : Encoding.UTF8.CodePage;
-						var encoding = Encoding.GetEncoding (codepage);
-
-						using (var body = new MemoryStream ()) {
-							stream.CopyTo (body, 4096);
-							body.Position = 0;
-
-							builder.HtmlBody = encoding.GetString (body.GetBuffer (), 0, (int) body.Length);
-						}
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						builder.HtmlBody = prop.ReadValueAsString ();
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, builder.HtmlBody);
+					} else {
+						Assert.Fail ("Unknown property type for BodyHtml: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.Body:
-					using (var stream = prop.GetRawValueReadStream ()) {
-						int codepage = reader.MessageCodepage != 0 ? reader.MessageCodepage : Encoding.UTF8.CodePage;
-						var encoding = Encoding.GetEncoding (codepage);
-
-						using (var body = new MemoryStream ()) {
-							stream.CopyTo (body, 4096);
-							body.Position = 0;
-
-							builder.TextBody = encoding.GetString (body.GetBuffer (), 0, (int) body.Length);
-						}
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						builder.TextBody = prop.ReadValueAsString ();
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, builder.TextBody);
+					} else {
+						Assert.Fail ("Unknown property type for Body: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				default:
-					Console.WriteLine ("Unhandled message property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+					Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 					break;
 				}
 			}
@@ -150,11 +166,9 @@ namespace UnitTests {
 					attachRenderData = true;
 
 				if (attachRenderData) {
-					MimePart attachment = new MimePart ();
+					var attachment = new MimePart ();
 					MimeMessage embedded = null;
 					string text;
-
-					prop = reader.TnefPropertyReader;
 
 					while (prop.ReadNextProperty ()) {
 						switch (prop.PropertyTag.Id) {
@@ -214,7 +228,7 @@ namespace UnitTests {
 							}
 							break;
 						default:
-							Console.WriteLine ("Unhandled attachment property: {0}", prop.PropertyTag.Id);
+							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 							break;
 						}
 					}
@@ -232,6 +246,8 @@ namespace UnitTests {
 					} else {
 						builder.Attachments.Add (attachment);
 					}
+				} else {
+					Console.WriteLine ("Attachment ATtribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 				}
 			} while (reader.ReadNextAttribute ());
 		}
@@ -248,41 +264,46 @@ namespace UnitTests {
 				if (reader.AttributeLevel != TnefAttributeLevel.Message)
 					Assert.Fail ("Unknown attribute level.");
 
-				if (reader.AttributeTag == TnefAttributeTag.RecipientTable) {
+				var prop = reader.TnefPropertyReader;
+
+				switch (reader.AttributeTag) {
+				case TnefAttributeTag.RecipientTable:
 					ExtractRecipientTable (reader, message);
-				} else if (reader.AttributeTag == TnefAttributeTag.MapiProperties) {
+					break;
+				case TnefAttributeTag.MapiProperties:
 					ExtractMapiProperties (reader, message, builder);
-				} else if (reader.AttributeTag == TnefAttributeTag.DateSent) {
-					var prop = reader.TnefPropertyReader;
-
+					break;
+				case TnefAttributeTag.DateSent:
 					message.Date = prop.ReadValueAsDateTime ();
-				} else if (reader.AttributeTag == TnefAttributeTag.Body) {
-					var prop = reader.TnefPropertyReader;
-
+					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, message.Date);
+					break;
+				case TnefAttributeTag.Body:
 					builder.TextBody = prop.ReadValueAsString ();
-				} else if (reader.AttributeTag == TnefAttributeTag.TnefVersion) {
-					var prop = reader.TnefPropertyReader;
-
-					Console.WriteLine ("Tnef Version = {0:x4}", prop.ReadValueAsInt32 ());
-				} else if (reader.AttributeTag == TnefAttributeTag.OemCodepage) {
-					var prop = reader.TnefPropertyReader;
+					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, builder.TextBody);
+					break;
+				case TnefAttributeTag.TnefVersion:
+					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, prop.ReadValueAsInt32 ());
+					break;
+				case TnefAttributeTag.OemCodepage:
 					int codepage = prop.ReadValueAsInt32 ();
-
 					try {
 						var encoding = Encoding.GetEncoding (codepage);
-						Console.WriteLine ("OemCodepage = {0}", encoding.HeaderName);
-					} catch {
-						Console.WriteLine ("OemCodepage = {0}", codepage);
+						Console.WriteLine ("Message Attribute: OemCodepage = {0}", encoding.HeaderName);
 					}
-				} else {
-					var prop = reader.TnefPropertyReader;
-
-					Console.WriteLine ("Unhandled attribute: {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					catch {
+						Console.WriteLine ("Message Attribute: OemCodepage = {0}", codepage);
+					}
+					break;
+				default:
+					Console.WriteLine ("Message Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					break;
 				}
 			}
 
 			if (reader.AttributeLevel == TnefAttributeLevel.Attachment) {
 				ExtractAttachments (reader, builder);
+			} else {
+				Console.WriteLine ("no attachments");
 			}
 
 			message.Body = builder.ToMessageBody ();
