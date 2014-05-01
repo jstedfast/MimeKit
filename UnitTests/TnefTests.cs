@@ -338,23 +338,25 @@ namespace UnitTests {
 				Console.WriteLine ("no attachments");
 			}
 
-			Assert.AreEqual (TnefComplianceStatus.Compliant, reader.ComplianceStatus, "Unexpected compliance status.");
-
 			message.Body = builder.ToMessageBody ();
 
 			return message;
 		}
 
-		static MimeMessage ParseTnefMessage (string path)
+		static MimeMessage ParseTnefMessage (string path, TnefComplianceStatus expected)
 		{
 			using (var reader = new TnefReader (File.OpenRead (path))) {
-				return ExtractTnefMessage (reader);
+				var message = ExtractTnefMessage (reader);
+
+				Assert.AreEqual (expected, reader.ComplianceStatus, "Unexpected compliance status.");
+
+				return message;
 			}
 		}
 
-		static void TestTnefParser (string path)
+		static void TestTnefParser (string path, TnefComplianceStatus expected = TnefComplianceStatus.Compliant)
 		{
-			var message = ParseTnefMessage (path + ".tnef");
+			var message = ParseTnefMessage (path + ".tnef", expected);
 			var names = File.ReadAllLines (path + ".list");
 
 			foreach (var name in names) {
@@ -387,7 +389,7 @@ namespace UnitTests {
 		[Test]
 		public void TestGarbageAtEnd ()
 		{
-			TestTnefParser ("../../TestData/tnef/garbage-at-end");
+			TestTnefParser ("../../TestData/tnef/garbage-at-end", TnefComplianceStatus.StreamTruncated);
 		}
 
 		[Test]
