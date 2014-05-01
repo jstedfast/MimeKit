@@ -126,24 +126,49 @@ namespace UnitTests {
 						Assert.Fail ("Unknown property type for Subject: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
+				case TnefPropertyId.RtfCompressed:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						var rtf = new TextPart ("rtf");
+						rtf.ContentType.Name = "body.rtf";
+						rtf.Text = prop.ReadValueAsString ();
+
+						builder.Attachments.Add (rtf);
+
+						Console.WriteLine ("Message Property: {0} = <compressed rtf data>", prop.PropertyTag.Id);
+					} else {
+						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
+					}
+					break;
 				case TnefPropertyId.BodyHtml:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						builder.HtmlBody = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, builder.HtmlBody);
+						var html = new TextPart ("html");
+						html.ContentType.Name = "body.html";
+						html.Text = prop.ReadValueAsString ();
+
+						builder.Attachments.Add (html);
+
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, html.Text);
 					} else {
-						Assert.Fail ("Unknown property type for BodyHtml: {0}", prop.PropertyTag.ValueTnefType);
+						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.Body:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						builder.TextBody = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, builder.TextBody);
+						var plain = new TextPart ("plain");
+						plain.ContentType.Name = "body.txt";
+						plain.Text = prop.ReadValueAsString ();
+
+						builder.Attachments.Add (plain);
+
+						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, plain.Text);
 					} else {
-						Assert.Fail ("Unknown property type for Body: {0}", prop.PropertyTag.ValueTnefType);
+						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				default:
@@ -155,29 +180,44 @@ namespace UnitTests {
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
+			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
-			bool attachRenderData = false;
+			MimePart attachment = null;
+			int outIndex, outLength;
+			byte[] attachData;
+			string text;
+
+			Console.WriteLine ("Extracting attachments...");
 
 			do {
 				if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
 					Assert.Fail ("Expected attachment attribute level: {0}", reader.AttributeLevel);
 
-				if (reader.AttributeTag == TnefAttributeTag.AttachRenderData)
-					attachRenderData = true;
+				switch (reader.AttributeTag) {
+				case TnefAttributeTag.AttachRenderData:
+					if (attachment != null)
+						builder.Attachments.Add (attachment);
 
-				if (attachRenderData) {
-					var attachment = new MimePart ();
-					MimeMessage embedded = null;
-					string text;
+					attachment = new MimePart ();
+					break;
+				case TnefAttributeTag.Attachment:
+					if (attachment == null)
+						break;
 
 					while (prop.ReadNextProperty ()) {
 						switch (prop.PropertyTag.Id) {
 						case TnefPropertyId.AttachLongFilename:
 							attachment.FileName = prop.ReadValueAsString ();
+
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
 							break;
 						case TnefPropertyId.AttachFilename:
-							if (attachment.FileName == null)
+							if (attachment.FileName == null) {
 								attachment.FileName = prop.ReadValueAsString ();
+								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
+							} else {
+								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+							}
 							break;
 						case TnefPropertyId.AttachContentLocation:
 							text = prop.ReadValueAsString ();
@@ -185,13 +225,16 @@ namespace UnitTests {
 								attachment.ContentLocation = new Uri (text, UriKind.Absolute);
 							else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
 								attachment.ContentLocation = new Uri (text, UriKind.Relative);
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentBase:
 							text = prop.ReadValueAsString ();
 							attachment.ContentBase = new Uri (text, UriKind.Absolute);
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentId:
 							attachment.ContentId = prop.ReadValueAsString ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
@@ -199,32 +242,13 @@ namespace UnitTests {
 								attachment.ContentDisposition = new ContentDisposition (text);
 							else
 								attachment.ContentDisposition.Disposition = text;
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachData:
 							if (prop.IsEmbeddedMessage) {
-								using (var er = prop.GetEmbeddedMessageReader ()) {
-									embedded = ExtractTnefMessage (er);
-								}
-
-								break;
-							}
-
-							using (var attachData = prop.GetRawValueReadStream ()) {
-								var filter = new BestEncodingFilter ();
-								var content = new MemoryBlockStream ();
-
-								using (var filtered = new FilteredStream (content)) {
-									filtered.Add (filter);
-
-									attachData.CopyTo (filtered, 4096);
-									filtered.Flush ();
-								}
-
-								content.Position = 0;
-
-								attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-								attachment.ContentObject = new ContentObject (content, ContentEncoding.Default);
-								embedded = null;
+								Console.WriteLine ("Attachment Property: {0} is an EmbeddedMessage", prop.PropertyTag.Id);
+							} else {
+								Console.WriteLine ("Attachment Property: {0} is not an EmbeddedMessage", prop.PropertyTag.Id);
 							}
 							break;
 						default:
@@ -232,23 +256,24 @@ namespace UnitTests {
 							break;
 						}
 					}
+					break;
+				case TnefAttributeTag.AttachData:
+					if (attachment == null)
+						break;
 
-					if (embedded != null) {
-						var rfc822 = new MessagePart ();
-						rfc822.ContentDisposition = attachment.ContentDisposition;
-						rfc822.ContentLocation = attachment.ContentLocation;
-						rfc822.ContentBase = attachment.ContentBase;
-						rfc822.ContentId = attachment.ContentId;
-
-						rfc822.Message = embedded;
-
-						builder.Attachments.Add (rfc822);
-					} else {
-						builder.Attachments.Add (attachment);
-					}
-				} else {
-					Console.WriteLine ("Attachment ATtribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					attachData = prop.ReadValueAsBytes ();
+					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
+					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false), ContentEncoding.Default);
+					filter.Reset ();
+					break;
+				default:
+					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					break;
 				}
+
+				if (attachment != null)
+					builder.Attachments.Add (attachment);
 			} while (reader.ReadNextAttribute ());
 		}
 

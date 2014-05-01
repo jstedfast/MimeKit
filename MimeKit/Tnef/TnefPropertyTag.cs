@@ -792,7 +792,7 @@ namespace MimeKit.Tnef {
 
 		public static implicit operator int (TnefPropertyTag tag)
 		{
-			throw new NotImplementedException ();
+			return (((int) tag.TnefType) << 16) | ((int) tag.Id);
 		}
 
 		public override int GetHashCode ()

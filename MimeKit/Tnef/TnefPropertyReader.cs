@@ -137,10 +137,25 @@ namespace MimeKit.Tnef {
 
 		public Stream GetRawValueReadStream ()
 		{
-			long start = reader.AttributeRawValueStreamOffset;
-			long end = start + reader.AttributeRawValueLength;
+			if (valueIndex >= valueCount)
+				throw new InvalidOperationException ();
 
-			return new BoundStream (reader.InputStream, start, end, true);
+			int start = RawValueStreamOffset;
+			int length = RawValueLength;
+
+			if (propertyCount > 0) {
+				switch (propertyTag.ValueTnefType) {
+				case TnefPropertyType.Unicode:
+				case TnefPropertyType.String8:
+				case TnefPropertyType.Binary:
+					start += 4;
+					break;
+				}
+			}
+
+			valueIndex++;
+
+			return new BoundStream (reader.InputStream, start, start + length, true);
 		}
 
 		void CheckAvailable (long bytes)
@@ -222,9 +237,12 @@ namespace MimeKit.Tnef {
 
 		DateTime ReadDateTime ()
 		{
+			var date = new DateTime (1601, 1, 1);
 			long fileTime = ReadInt64 ();
 
-			return DateTime.FromFileTime (fileTime);
+			date = date.AddMilliseconds (fileTime /= 10000);
+
+			return date;
 		}
 
 		static int GetPaddedLength (int length)
@@ -1046,14 +1064,19 @@ namespace MimeKit.Tnef {
 			rowCount = 0;
 			rowIndex = 0;
 
-			if (reader.AttributeTag == TnefAttributeTag.MapiProperties) {
+			switch (reader.AttributeTag) {
+			case TnefAttributeTag.MapiProperties:
+			case TnefAttributeTag.Attachment:
 				LoadPropertyCount ();
-			} else if (reader.AttributeTag == TnefAttributeTag.RecipientTable) {
+				break;
+			case TnefAttributeTag.RecipientTable:
 				LoadRowCount ();
-			} else {
+				break;
+			default:
 				rawValueLength = reader.AttributeRawValueLength;
 				rawValueOffset = reader.StreamOffset;
 				valueCount = 1;
+				break;
 			}
 		}
 	}
