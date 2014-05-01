@@ -25,7 +25,7 @@
 //
 
 namespace MimeKit.Tnef {
-	public enum TnefComplianceMode {
+	enum TnefComplianceMode {
 		Loose,
 		Strict
 	}

@@ -25,7 +25,7 @@
 //
 
 namespace MimeKit.Tnef {
-	public enum TnefNameIdKind {
+	enum TnefNameIdKind {
 		Id,
 		Name
 	}

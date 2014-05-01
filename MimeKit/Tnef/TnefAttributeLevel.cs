@@ -25,7 +25,7 @@
 //
 
 namespace MimeKit.Tnef {
-	public enum TnefAttributeLevel {
+	enum TnefAttributeLevel {
 		Message    = 1,
 		Attachment = 2,
 	}

@@ -1,5 +1,5 @@
 ﻿//
-// TnefTests.cs
+// TnefPart.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,19 +26,43 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Linq;
+using System.Collections.Generic;
 
-using MimeKit;
-using MimeKit.Tnef;
 using MimeKit.IO.Filters;
 
-using NUnit.Framework;
-
-namespace UnitTests {
-	[TestFixture]
-	public class TnefTests
+namespace MimeKit.Tnef {
+	/// <summary>
+	/// A Microsoft TNEF MIME part.
+	/// </summary>
+	/// <remarks>
+	/// <para>Represents an application/ms-tnef or application/vnd.ms-tnef part.</para>
+	/// <para>TNEF (Transport Neutral Encapsulation Format) attachments are most often
+	/// sent by Microsoft Outlook clients.</para>
+	/// </remarks>
+	public class TnefPart : MimePart
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPart"/> class.
+		/// </summary>
+		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
+		/// <param name="entity">Information used by the constructor.</param>
+		public TnefPart (MimeEntityConstructorInfo entity) : base (entity)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPart"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefPart"/> with a Content-Type of application/vnd.ms-tnef
+		/// and a Content-Disposition value of "attachment" and a filename paremeter with a
+		/// value of "winmail.dat".
+		/// </remarks>
+		public TnefPart () : base ("application", "vnd.ms-tnef")
+		{
+			FileName = "winmail.dat";
+		}
+
 		static void ExtractRecipientTable (TnefReader reader, MimeMessage message)
 		{
 			var prop = reader.TnefPropertyReader;
@@ -56,48 +80,28 @@ namespace UnitTests {
 						case 1: list = message.To; break;
 						case 2: list = message.Cc; break;
 						case 3: list = message.Bcc; break;
-						default:
-							Assert.Fail ("Invalid recipient type.");
-							break;
 						}
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, recipientType);
 						break;
 					case TnefPropertyId.TransmitableDisplayName:
-						if (string.IsNullOrEmpty (name)) {
+						if (string.IsNullOrEmpty (name))
 							name = prop.ReadValueAsString ();
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
-						} else {
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
-						}
 						break;
 					case TnefPropertyId.DisplayName:
 						name = prop.ReadValueAsString ();
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
 						break;
 					case TnefPropertyId.EmailAddress:
-						if (string.IsNullOrEmpty (addr)) {
+						if (string.IsNullOrEmpty (addr))
 							addr = prop.ReadValueAsString ();
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
-						} else {
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
-						}
 						break;
 					case TnefPropertyId.SmtpAddress:
 						// The SmtpAddress, if it exists, should take precedence over the EmailAddress
 						// (since the SmtpAddress is meant to be used in the RCPT TO command).
 						addr = prop.ReadValueAsString ();
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
-						break;
-					default:
-						Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 						break;
 					}
 				}
 
-				Assert.NotNull (list, "The recipient type was never specified.");
-				Assert.NotNull (addr, "The address was never specified.");
-
-				if (list != null)
+				if (list != null && !string.IsNullOrEmpty (addr))
 					list.Add (new MailboxAddress (name, addr));
 			}
 		}
@@ -112,18 +116,12 @@ namespace UnitTests {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.MessageId = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.MessageId);
-					} else {
-						Assert.Fail ("Unknown property type for Message-Id: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.Subject:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.Subject = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.Subject);
-					} else {
-						Assert.Fail ("Unknown property type for Subject: {0}", prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.RtfCompressed:
@@ -135,10 +133,6 @@ namespace UnitTests {
 						rtf.Text = prop.ReadValueAsString ();
 
 						builder.Attachments.Add (rtf);
-
-						Console.WriteLine ("Message Property: {0} = <compressed rtf data>", prop.PropertyTag.Id);
-					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
@@ -150,10 +144,6 @@ namespace UnitTests {
 						html.Text = prop.ReadValueAsString ();
 
 						builder.Attachments.Add (html);
-
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, html.Text);
-					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
 					break;
 				case TnefPropertyId.Body:
@@ -165,14 +155,7 @@ namespace UnitTests {
 						plain.Text = prop.ReadValueAsString ();
 
 						builder.Attachments.Add (plain);
-
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, plain.Text);
-					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
-					break;
-				default:
-					Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 					break;
 				}
 			}
@@ -187,11 +170,9 @@ namespace UnitTests {
 			byte[] attachData;
 			string text;
 
-			Console.WriteLine ("Extracting attachments...");
-
 			do {
 				if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
-					Assert.Fail ("Expected attachment attribute level: {0}", reader.AttributeLevel);
+					break;
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
@@ -208,16 +189,10 @@ namespace UnitTests {
 						switch (prop.PropertyTag.Id) {
 						case TnefPropertyId.AttachLongFilename:
 							attachment.FileName = prop.ReadValueAsString ();
-
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
 							break;
 						case TnefPropertyId.AttachFilename:
-							if (attachment.FileName == null) {
+							if (attachment.FileName == null)
 								attachment.FileName = prop.ReadValueAsString ();
-								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
-							} else {
-								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
-							}
 							break;
 						case TnefPropertyId.AttachContentLocation:
 							text = prop.ReadValueAsString ();
@@ -225,16 +200,13 @@ namespace UnitTests {
 								attachment.ContentLocation = new Uri (text, UriKind.Absolute);
 							else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
 								attachment.ContentLocation = new Uri (text, UriKind.Relative);
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentBase:
 							text = prop.ReadValueAsString ();
 							attachment.ContentBase = new Uri (text, UriKind.Absolute);
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentId:
 							attachment.ContentId = prop.ReadValueAsString ();
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
@@ -242,24 +214,9 @@ namespace UnitTests {
 								attachment.ContentDisposition = new ContentDisposition (text);
 							else
 								attachment.ContentDisposition.Disposition = text;
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachData:
-							if (prop.IsEmbeddedMessage) {
-								Console.WriteLine ("Attachment Property: {0} is an EmbeddedMessage", prop.PropertyTag.Id);
-								var stream = prop.GetRawValueReadStream ();
-								using (var tnef = new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode)) {
-									var embedded = ExtractTnefMessage (tnef);
-									Console.WriteLine ("embedded attachments = {0}", embedded.BodyParts.Count ());
-									foreach (var part in embedded.BodyParts)
-										builder.Attachments.Add (part);
-								}
-							} else {
-								Console.WriteLine ("Attachment Property: {0} is not an EmbeddedMessage", prop.PropertyTag.Id);
-							}
-							break;
-						default:
-							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+							// TODO: implement this...
 							break;
 						}
 					}
@@ -270,12 +227,9 @@ namespace UnitTests {
 
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
-					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false), ContentEncoding.Default);
 					filter.Reset ();
-					break;
-				default:
-					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 					break;
 				}
 
@@ -293,9 +247,6 @@ namespace UnitTests {
 				if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
 					break;
 
-				if (reader.AttributeLevel != TnefAttributeLevel.Message)
-					Assert.Fail ("Unknown attribute level.");
-
 				var prop = reader.TnefPropertyReader;
 
 				switch (reader.AttributeTag) {
@@ -307,139 +258,61 @@ namespace UnitTests {
 					break;
 				case TnefAttributeTag.DateSent:
 					message.Date = prop.ReadValueAsDateTime ();
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, message.Date);
 					break;
 				case TnefAttributeTag.Body:
 					builder.TextBody = prop.ReadValueAsString ();
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, builder.TextBody);
-					break;
-				case TnefAttributeTag.TnefVersion:
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, prop.ReadValueAsInt32 ());
-					break;
-				case TnefAttributeTag.OemCodepage:
-					int codepage = prop.ReadValueAsInt32 ();
-					try {
-						var encoding = Encoding.GetEncoding (codepage);
-						Console.WriteLine ("Message Attribute: OemCodepage = {0}", encoding.HeaderName);
-					}
-					catch {
-						Console.WriteLine ("Message Attribute: OemCodepage = {0}", codepage);
-					}
-					break;
-				default:
-					Console.WriteLine ("Message Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 					break;
 				}
 			}
 
-			if (reader.AttributeLevel == TnefAttributeLevel.Attachment) {
+			if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
 				ExtractAttachments (reader, builder);
-			} else {
-				Console.WriteLine ("no attachments");
-			}
 
 			message.Body = builder.ToMessageBody ();
 
 			return message;
 		}
 
-		static MimeMessage ParseTnefMessage (string path)
+		/// <summary>
+		/// Converts the TNEF content into a <see cref="MimeKit.MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// TNEF data often contains properties that map to <see cref="MimeKit.MimeMessage"/>
+		/// headers. TNEF data also often contains file attachments which will be
+		/// mapped to MIME parts.
+		/// </remarks>
+		/// <returns>A message representing the TNEF data in MIME format.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
+		/// </exception>
+		public MimeMessage ConvertToMessage ()
 		{
-			using (var reader = new TnefReader (File.OpenRead (path))) {
+			if (ContentObject == null)
+				throw new InvalidOperationException ("Cannot parse TNEF data without a ContentObject.");
+
+			using (var reader = new TnefReader (ContentObject.Open ())) {
 				return ExtractTnefMessage (reader);
 			}
 		}
 
-		static void TestTnefParser (string path)
+		/// <summary>
+		/// Extracts the embedded attachments from the TNEF data.
+		/// </summary>
+		/// <remarks>
+		/// Parses the TNEF data and extracts all of the embedded file attachments.
+		/// </remarks>
+		/// <returns>The attachments.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
+		/// </exception>
+		public IEnumerable<MimePart> ExtractAttachments ()
 		{
-			var message = ParseTnefMessage (path + ".tnef");
-			var names = File.ReadAllLines (path + ".list");
+			var message = ConvertToMessage ();
 
-			foreach (var name in names) {
-				bool found = false;
+			foreach (var attachment in message.BodyParts)
+				yield return attachment;
 
-				foreach (var part in message.BodyParts) {
-					if (part.FileName == name) {
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-					Assert.Fail ("Failed to locate attachment: {0}", name);
-			}
-		}
-
-		[Test]
-		public void TestBody ()
-		{
-			TestTnefParser ("../../TestData/tnef/body");
-		}
-
-		[Test]
-		public void TestDataBeforeName ()
-		{
-			TestTnefParser ("../../TestData/tnef/data-before-name");
-		}
-
-		[Test]
-		public void TestGarbageAtEnd ()
-		{
-			TestTnefParser ("../../TestData/tnef/garbage-at-end");
-		}
-
-		[Test]
-		public void TestLongFileName ()
-		{
-			TestTnefParser ("../../TestData/tnef/long-filename");
-		}
-
-		[Test]
-		public void TestMapiAttachDataObj ()
-		{
-			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ");
-		}
-
-		[Test, Ignore]
-		public void TestMapiObject ()
-		{
-			TestTnefParser ("../../TestData/tnef/MAPI_OBJECT");
-		}
-
-		[Test]
-		public void TestMissingFileNames ()
-		{
-			TestTnefParser ("../../TestData/tnef/missing-filenames");
-		}
-
-		[Test]
-		public void TestMultiNameProperty ()
-		{
-			TestTnefParser ("../../TestData/tnef/multi-name-property");
-		}
-
-		[Test]
-		public void TestOneFile ()
-		{
-			TestTnefParser ("../../TestData/tnef/one-file");
-		}
-
-		[Test]
-		public void TestRtf ()
-		{
-			TestTnefParser ("../../TestData/tnef/rtf");
-		}
-
-		[Test]
-		public void TestTriples ()
-		{
-			TestTnefParser ("../../TestData/tnef/triples");
-		}
-
-		[Test]
-		public void TestTwoFiles ()
-		{
-			TestTnefParser ("../../TestData/tnef/two-files");
+			yield break;
 		}
 	}
 }

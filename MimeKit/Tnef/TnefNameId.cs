@@ -27,7 +27,7 @@
 using System;
 
 namespace MimeKit.Tnef {
-	public struct TnefNameId
+	struct TnefNameId
 	{
 		readonly TnefNameIdKind kind;
 		readonly string name;

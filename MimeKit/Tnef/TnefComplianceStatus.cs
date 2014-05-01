@@ -28,7 +28,7 @@ using System;
 
 namespace MimeKit.Tnef {
 	[Flags]
-	public enum TnefComplianceStatus {
+	enum TnefComplianceStatus {
 		Compliant                = 0,
 		AttributeOverflow        = 1 << 0,
 		InvalidAttribute         = 1 << 1,

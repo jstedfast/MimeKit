@@ -131,6 +131,7 @@
     <Compile Include="Tnef\TnefException.cs" />
     <Compile Include="Tnef\TnefNameId.cs" />
     <Compile Include="Tnef\TnefNameIdKind.cs" />
+    <Compile Include="Tnef\TnefPart.cs" />
     <Compile Include="Tnef\TnefPropertyId.cs" />
     <Compile Include="Tnef\TnefPropertyReader.cs" />
     <Compile Include="Tnef\TnefPropertyTag.cs" />
@@ -183,8 +184,8 @@
     <Folder Include="Encodings\" />
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
-    <Folder Include="Utils\" />
     <Folder Include="Tnef\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -25,7 +25,7 @@
 //
 
 namespace MimeKit.Tnef {
-	public enum TnefPropertyId : short {
+	enum TnefPropertyId : short {
 		AbDefaultDir                             = 0x3D06,
 		AbDefaultPab                             = 0x3D07,
 		AbProviderId                             = 0x3615,

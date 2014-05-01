@@ -25,7 +25,7 @@
 //
 
 namespace MimeKit.Tnef {
-	public enum TnefPropertyType : short {
+	enum TnefPropertyType : short {
 		/// <summary>
 		/// The type is unspecified.
 		/// </summary>

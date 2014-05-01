@@ -36,7 +36,7 @@ using Encoding = System.Text.Encoding;
 using MimeKit.IO;
 
 namespace MimeKit.Tnef {
-	public class TnefPropertyReader
+	class TnefPropertyReader
 	{
 		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
 		TnefPropertyTag propertyTag;
@@ -334,7 +334,9 @@ namespace MimeKit.Tnef {
 			int hour = ReadInt16 ();
 			int minute = ReadInt16 ();
 			int second = ReadInt16 ();
+			#pragma warning disable 219
 			int dow = ReadInt16 ();
+			#pragma warning restore 219
 
 			var value = new DateTime (year, month, day, hour, minute, second);
 

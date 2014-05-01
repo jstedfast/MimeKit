@@ -38,7 +38,7 @@ namespace MimeKit.Tnef {
 		Max     = 0x00090000
 	}
 
-	public enum TnefAttributeTag {
+	enum TnefAttributeTag {
 		Null                    = TnefAttributeType.Triples | 0x0000,
 		Owner                   = TnefAttributeType.Byte    | 0x0000,
 		SentFor                 = TnefAttributeType.Byte    | 0x0001,

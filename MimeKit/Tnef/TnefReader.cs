@@ -33,7 +33,7 @@ using Encoding = Portable.Text.Encoding;
 #endif
 
 namespace MimeKit.Tnef {
-	public class TnefReader : IDisposable
+	class TnefReader : IDisposable
 	{
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;

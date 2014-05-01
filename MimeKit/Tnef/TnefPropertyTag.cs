@@ -27,7 +27,7 @@
 using System;
 
 namespace MimeKit.Tnef {
-	public struct TnefPropertyTag
+	struct TnefPropertyTag
 	{
 		public static readonly TnefPropertyTag AbDefaultDir = new TnefPropertyTag (TnefPropertyId.AbDefaultDir, TnefPropertyType.Binary);
 		public static readonly TnefPropertyTag AbDefaultPab = new TnefPropertyTag (TnefPropertyId.AbDefaultPab, TnefPropertyType.Binary);
