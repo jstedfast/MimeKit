@@ -45,8 +45,8 @@ namespace MimeKit.Tnef {
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
 
-		short checksum;
 		long position;
+		int checksum;
 		int codepage;
 		int version;
 		bool closed;
@@ -375,6 +375,8 @@ namespace MimeKit.Tnef {
 			if (ReadAhead (1) < 1)
 				throw new EndOfStreamException ();
 
+			UpdateChecksum (input, inputIndex, 1);
+
 			return input[inputIndex++];
 		}
 
@@ -383,6 +385,8 @@ namespace MimeKit.Tnef {
 			if (ReadAhead (2) < 2)
 				throw new EndOfStreamException ();
 
+			UpdateChecksum (input, inputIndex, 2);
+
 			return (short) (input[inputIndex++] | (input[inputIndex++] << 8));
 		}
 
@@ -390,6 +394,8 @@ namespace MimeKit.Tnef {
 		{
 			if (ReadAhead (4) < 4)
 				throw new EndOfStreamException ();
+
+			UpdateChecksum (input, inputIndex, 4);
 
 			return input[inputIndex++] | (input[inputIndex++] << 8) |
 				(input[inputIndex++] << 16) | (input[inputIndex++] << 24);
@@ -404,15 +410,21 @@ namespace MimeKit.Tnef {
 				(input[inputIndex + 2] << 16) | (input[inputIndex + 3] << 24);
 		}
 
-		internal long ReadInt64 ()
+		internal unsafe long ReadInt64 ()
 		{
-			long lo = ReadInt32 ();
-			long hi = ReadInt32 ();
+			if (ReadAhead (8) < 8)
+				throw new EndOfStreamException ();
 
-			return (hi << 32) | lo;
+			long value;
+
+			Load32BitValue ((byte *) &value, input, inputIndex);
+			UpdateChecksum (input, inputIndex, 8);
+			inputIndex += 8;
+
+			return value;
 		}
 
-		unsafe internal float ReadSingle ()
+		internal unsafe float ReadSingle ()
 		{
 			if (ReadAhead (4) < 4)
 				throw new EndOfStreamException ();
@@ -420,12 +432,13 @@ namespace MimeKit.Tnef {
 			float value;
 
 			Load32BitValue ((byte *) &value, input, inputIndex);
+			UpdateChecksum (input, inputIndex, 4);
 			inputIndex += 4;
 
 			return value;
 		}
 
-		unsafe internal double ReadDouble ()
+		internal unsafe double ReadDouble ()
 		{
 			if (ReadAhead (8) < 8)
 				throw new EndOfStreamException ();
@@ -433,6 +446,7 @@ namespace MimeKit.Tnef {
 			double value;
 
 			Load64BitValue ((byte *) &value, input, inputIndex);
+			UpdateChecksum (input, inputIndex, 8);
 			inputIndex += 8;
 
 			return value;
@@ -470,13 +484,16 @@ namespace MimeKit.Tnef {
 		bool SkipAttributeRawValue ()
 		{
 			int offset = AttributeRawValueStreamOffset + AttributeRawValueLength;
-			short crc16;
+			int expected, actual;
 
 			if (!Seek (offset))
 				return false;
 
+			// Note: ReadInt16() will update the checksum, so we need to capture it here
+			expected = checksum;
+
 			try {
-				crc16 = ReadInt16 ();
+				actual = (ushort) ReadInt16 ();
 			} catch (EndOfStreamException) {
 				ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
 				if (ComplianceMode == TnefComplianceMode.Strict)
@@ -485,7 +502,7 @@ namespace MimeKit.Tnef {
 				return false;
 			}
 
-			if (crc16 != checksum) {
+			if (actual != expected) {
 				ComplianceStatus |= TnefComplianceStatus.InvalidAttributeChecksum;
 				if (ComplianceMode == TnefComplianceMode.Strict)
 					throw new TnefException ("Invalid attribute checksum.");
@@ -535,7 +552,7 @@ namespace MimeKit.Tnef {
 		void UpdateChecksum (byte[] buffer, int offset, int count)
 		{
 			for (int i = offset; i < offset + count; i++)
-				checksum += (short) (buffer[i] & 0xff);
+				checksum = (checksum + buffer[i]) & 0xFFFF;
 		}
 
 		public int ReadAttributeRawValue (byte[] buffer, int offset, int count)

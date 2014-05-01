@@ -275,6 +275,9 @@ namespace MimeKit.Tnef {
 			var bytes = ReadByteArray ();
 			int length = bytes.Length;
 
+			// force length to a multiple of 2 bytes
+			length &= ~1;
+
 			while (length > 1 && bytes[length - 1] == 0 && bytes[length - 2] == 0)
 				length -= 2;
 

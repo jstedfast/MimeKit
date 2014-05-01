@@ -338,6 +338,8 @@ namespace UnitTests {
 				Console.WriteLine ("no attachments");
 			}
 
+			Assert.AreEqual (TnefComplianceStatus.Compliant, reader.ComplianceStatus, "Unexpected compliance status.");
+
 			message.Body = builder.ToMessageBody ();
 
 			return message;
