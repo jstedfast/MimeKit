@@ -344,7 +344,7 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		unsafe static void Load32BitValue (byte *dest, byte[] src, int startIndex)
+		static unsafe void Load32BitValue (byte *dest, byte[] src, int startIndex)
 		{
 			if (BitConverter.IsLittleEndian) {
 				dest[0] = src[startIndex];
@@ -359,13 +359,13 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		unsafe static void Load64BitValue (byte *dest, byte[] src, int startIndex)
+		static unsafe void Load64BitValue (byte *dest, byte[] src, int startIndex)
 		{
 			if (BitConverter.IsLittleEndian) {
-				for (int i = 0; i < 8; ++i)
+				for (int i = 0; i < 8; i++)
 					dest[i] = src[startIndex + i];
 			} else {
-				for (int i = 0; i < 8; ++i)
+				for (int i = 0; i < 8; i++)
 					dest[i] = src[startIndex + (7 - i)];
 			}
 		}
