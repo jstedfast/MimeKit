@@ -812,7 +812,7 @@ namespace MimeKit.Tnef {
 
 		public override string ToString ()
 		{
-			return string.Format ("[TnefPropertyTag: Id={0}, IsMultiValues={1}, IsNamed={2}, IsTnefTypeValid={3}, TnefType={4}, ValueTnefType={5}]", Id, IsMultiValued, IsNamed, IsTnefTypeValid, TnefType, ValueTnefType);
+			return string.Format ("{0} ({1})", Id, ValueTnefType);
 		}
 
 		public TnefPropertyTag ToUnicode ()

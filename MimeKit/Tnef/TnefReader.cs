@@ -212,7 +212,7 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		int ReadAhead (int atleast)
+		internal int ReadAhead (int atleast)
 		{
 			int left = inputEnd - inputIndex;
 
@@ -261,18 +261,54 @@ namespace MimeKit.Tnef {
 			return inputEnd - inputIndex;
 		}
 
-		void DecodeHeader ()
+		internal void SetComplianceError (TnefComplianceStatus error, Exception innerException = null)
 		{
-			// read the TNEFSignature
-			int signature = ReadInt32 ();
-			if (signature != 0x223e9f78) {
-				ComplianceStatus |= TnefComplianceStatus.InvalidTnefSignature;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid TNEF signature.");
+			ComplianceStatus |= error;
+
+			if (ComplianceMode != TnefComplianceMode.Strict)
+				return;
+
+			string message = null;
+
+			switch (error) {
+			case TnefComplianceStatus.AttributeOverflow:        message = "Too many attributes."; break;
+			case TnefComplianceStatus.InvalidAttribute:         message = "Invalid attribute."; break;
+			case TnefComplianceStatus.InvalidAttributeChecksum: message = "Invalid attribute checksum."; break;
+			case TnefComplianceStatus.InvalidAttributeLength:   message = "Invalid attribute length."; break;
+			case TnefComplianceStatus.InvalidAttributeLevel:    message = "Invalid attribute level."; break;
+			case TnefComplianceStatus.InvalidAttributeValue:    message = "Invalid attribute value."; break;
+			case TnefComplianceStatus.InvalidDate:              message = "Invalid date."; break;
+			case TnefComplianceStatus.InvalidMessageClass:      message = "Invalid message class."; break;
+			case TnefComplianceStatus.InvalidMessageCodepage:   message = "Invalid message codepage."; break;
+			case TnefComplianceStatus.InvalidPropertyLength:    message = "Invalid property length."; break;
+			case TnefComplianceStatus.InvalidRowCount:          message = "Invalid row count."; break;
+			case TnefComplianceStatus.InvalidTnefSignature:     message = "Invalid TNEF signature."; break;
+			case TnefComplianceStatus.InvalidTnefVersion:       message = "Invalid TNEF version."; break;
+			case TnefComplianceStatus.NestingTooDeep:           message = "Nesting too deep."; break;
+			case TnefComplianceStatus.StreamTruncated:          message = "Truncated TNEF stream."; break;
+			case TnefComplianceStatus.UnsupportedPropertyType:  message = "Unsupported property type."; break;
 			}
 
-			// read the LegacyKey (ignore this value)
-			ReadInt16 ();
+			if (innerException != null)
+				throw new TnefException (message, innerException);
+
+			throw new TnefException (message);
+		}
+
+		void DecodeHeader ()
+		{
+			try {
+				// read the TNEFSignature
+				int signature = ReadInt32 ();
+				if (signature != 0x223e9f78)
+					SetComplianceError (TnefComplianceStatus.InvalidTnefSignature);
+
+				// read the LegacyKey (ignore this value)
+				ReadInt16 ();
+			} catch (EndOfStreamException) {
+				SetComplianceError (TnefComplianceStatus.StreamTruncated);
+				throw;
+			}
 		}
 
 		void CheckDisposed ()
@@ -288,9 +324,7 @@ namespace MimeKit.Tnef {
 			case TnefAttributeLevel.Message:
 				break;
 			default:
-				ComplianceStatus |= TnefComplianceStatus.InvalidAttributeLevel;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute level.");
+				SetComplianceError (TnefComplianceStatus.InvalidAttributeLevel);
 				break;
 			}
 		}
@@ -337,9 +371,7 @@ namespace MimeKit.Tnef {
 				TnefVersion = PeekInt32 ();
 				break;
 			default:
-				ComplianceStatus = TnefComplianceStatus.InvalidAttribute;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute.");
+				SetComplianceError (TnefComplianceStatus.InvalidAttribute);
 				break;
 			}
 		}
@@ -470,10 +502,7 @@ namespace MimeKit.Tnef {
 					break;
 
 				if (ReadAhead (left) == 0) {
-					ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
-					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException ("Truncated TNEF stream.");
-
+					SetComplianceError (TnefComplianceStatus.StreamTruncated);
 					return false;
 				}
 			} while (true);
@@ -495,18 +524,12 @@ namespace MimeKit.Tnef {
 			try {
 				actual = (ushort) ReadInt16 ();
 			} catch (EndOfStreamException) {
-				ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Truncated TNEF stream.");
-
+				SetComplianceError (TnefComplianceStatus.StreamTruncated);
 				return false;
 			}
 
-			if (actual != expected) {
-				ComplianceStatus |= TnefComplianceStatus.InvalidAttributeChecksum;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute checksum.");
-			}
+			if (actual != expected)
+				SetComplianceError (TnefComplianceStatus.InvalidAttributeChecksum);
 
 			return true;
 		}
@@ -522,29 +545,29 @@ namespace MimeKit.Tnef {
 				return false;
 			}
 
+			CheckAttributeLevel ();
+
 			try {
 				AttributeTag = (TnefAttributeTag) ReadInt32 ();
 				AttributeRawValueLength = ReadInt32 ();
 				AttributeRawValueStreamOffset = StreamOffset;
 				checksum = 0;
 			} catch (EndOfStreamException) {
-				ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Truncated TNEF stream.");
-
+				SetComplianceError (TnefComplianceStatus.StreamTruncated);
 				return false;
 			}
 
-			CheckAttributeLevel ();
 			CheckAttributeTag ();
 
-			if (AttributeRawValueLength < 0) {
-				ComplianceStatus = TnefComplianceStatus.InvalidAttributeLength;
-				if (ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute length.");
-			}
+			if (AttributeRawValueLength < 0)
+				SetComplianceError (TnefComplianceStatus.InvalidAttributeLength);
 
-			TnefPropertyReader.Load ();
+			try {
+				TnefPropertyReader.Load ();
+			} catch (EndOfStreamException) {
+				SetComplianceError (TnefComplianceStatus.StreamTruncated);
+				return false;
+			}
 
 			return true;
 		}
@@ -577,8 +600,8 @@ namespace MimeKit.Tnef {
 
 			if (n > inputLeft && inputLeft < ReadAheadSize) {
 				if ((n = Math.Min (ReadAhead (n), n)) == 0) {
-					ComplianceStatus |= TnefComplianceStatus.StreamTruncated;
-					throw new TnefException ("Truncated TNEF stream.");
+					SetComplianceError (TnefComplianceStatus.StreamTruncated);
+					return 0;
 				}
 			} else {
 				n = Math.Min (inputLeft, n);

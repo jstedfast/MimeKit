@@ -215,15 +215,14 @@ namespace MimeKit.Tnef {
 			return new BoundStream (reader.InputStream, start, start + length, true);
 		}
 
-		bool CheckAvailable (long bytes)
+		bool CheckRawValueLength ()
 		{
-			long attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			// Check that the property value does not go beyond the end of the end of the attribute
+			int attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			int valueEndOffset = RawValueStreamOffset + RawValueLength;
 
-			if (reader.StreamOffset + bytes > attrEndOffset) {
-				reader.ComplianceStatus |= TnefComplianceStatus.InvalidAttributeLength;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute length.");
-
+			if (valueEndOffset > attrEndOffset) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				return false;
 			}
 
@@ -232,15 +231,11 @@ namespace MimeKit.Tnef {
 
 		byte ReadByte ()
 		{
-			CheckAvailable (1);
-
 			return reader.ReadByte ();
 		}
 
 		byte[] ReadBytes (int count)
 		{
-			CheckAvailable (count);
-
 			var bytes = new byte[count];
 			int offset = 0;
 			int nread;
@@ -253,43 +248,31 @@ namespace MimeKit.Tnef {
 
 		short ReadInt16 ()
 		{
-			CheckAvailable (2);
-
 			return reader.ReadInt16 ();
 		}
 
 		int ReadInt32 ()
 		{
-			CheckAvailable (4);
-
 			return reader.ReadInt32 ();
 		}
 
 		int PeekInt32 ()
 		{
-			CheckAvailable (4);
-
 			return reader.PeekInt32 ();
 		}
 
 		long ReadInt64 ()
 		{
-			CheckAvailable (8);
-
 			return reader.ReadInt64 ();
 		}
 
 		float ReadSingle ()
 		{
-			CheckAvailable (4);
-
 			return reader.ReadSingle ();
 		}
 
 		double ReadDouble ()
 		{
-			CheckAvailable (8);
-
 			return reader.ReadDouble ();
 		}
 
@@ -394,9 +377,12 @@ namespace MimeKit.Tnef {
 			int dow = ReadInt16 ();
 			#pragma warning restore 219
 
-			var value = new DateTime (year, month, day, hour, minute, second);
-
-			return value;
+			try {
+				return new DateTime (year, month, day, hour, minute, second);
+			} catch (ArgumentOutOfRangeException ex) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidDate, ex);
+				return default (DateTime);
+			}
 		}
 
 		void LoadPropertyName ()
@@ -413,10 +399,7 @@ namespace MimeKit.Tnef {
 
 				propertyName = new TnefNameId (guid, id);
 			} else {
-				reader.ComplianceStatus |= TnefComplianceStatus.InvalidAttributeValue;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid TnefNameIdKind.");
-
+				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				propertyName = new TnefNameId (guid, 0);
 			}
 		}
@@ -434,23 +417,27 @@ namespace MimeKit.Tnef {
 				// skip over the value...
 			}
 
-			var type = (TnefPropertyType) ReadInt16 ();
-			var id = (TnefPropertyId) ReadInt16 ();
+			try {
+				var type = (TnefPropertyType) ReadInt16 ();
+				var id = (TnefPropertyId) ReadInt16 ();
 
-			propertyTag = new TnefPropertyTag (id, type);
+				propertyTag = new TnefPropertyTag (id, type);
 
-			if (propertyTag.IsNamed)
-				LoadPropertyName ();
+				if (propertyTag.IsNamed)
+					LoadPropertyName ();
 
-			LoadValueCount ();
-			propertyIndex++;
+				LoadValueCount ();
+				propertyIndex++;
 
-			if (!TryGetPropertyValueLength (out rawValueLength))
+				if (!TryGetPropertyValueLength (out rawValueLength))
+					return false;
+
+				rawValueOffset = reader.StreamOffset;
+			} catch (EndOfStreamException) {
 				return false;
+			}
 
-			rawValueOffset = reader.StreamOffset;
-
-			return true;
+			return CheckRawValueLength ();
 		}
 
 		/// <summary>
@@ -466,8 +453,13 @@ namespace MimeKit.Tnef {
 				// skip over the property...
 			}
 
-			LoadPropertyCount ();
-			rowIndex++;
+			try {
+				LoadPropertyCount ();
+				rowIndex++;
+			} catch (EndOfStreamException) {
+				reader.SetComplianceError (TnefComplianceStatus.StreamTruncated);
+				return false;
+			}
 
 			return true;
 		}
@@ -486,14 +478,17 @@ namespace MimeKit.Tnef {
 			if (reader.StreamOffset < offset && !reader.Seek (offset))
 				return false;
 
-			valueIndex++;
+			try {
+				if (!TryGetPropertyValueLength (out rawValueLength))
+					return false;
 
-			if (!TryGetPropertyValueLength (out rawValueLength))
+				rawValueOffset = reader.StreamOffset;
+				valueIndex++;
+			} catch (EndOfStreamException) {
 				return false;
+			}
 
-			rawValueOffset = reader.StreamOffset;
-
-			return true;
+			return CheckRawValueLength ();
 		}
 
 		public int ReadRawValue (byte[] buffer, int offset, int count)
@@ -550,22 +545,18 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.Unicode:
 			case TnefPropertyType.String8:
 			case TnefPropertyType.Binary:
-				if (!CheckAvailable (4)) {
-					length = 0;
-					return false;
-				}
-
 				length = 4 + GetPaddedLength (PeekInt32 ());
+				#if !PORTABLE
+				if (length > 1024000)
+					Console.WriteLine ("*** {0} value with a length of {1}???", propertyTag.Id, length);
+				#endif
 				break;
 			case TnefPropertyType.AppTime:
 			case TnefPropertyType.SysTime:
 				length = 8;
 				break;
 			default:
-				reader.ComplianceStatus |= TnefComplianceStatus.UnsupportedPropertyType;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Unsupported value type.");
-
+				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
 				length = 0;
 
 				return false;
@@ -661,9 +652,7 @@ namespace MimeKit.Tnef {
 				value = new Guid (ReadBytes (16));
 				break;
 			default:
-				reader.ComplianceStatus |= TnefComplianceStatus.UnsupportedPropertyType;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Unsupported property type.");
+				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
 
 				value = null;
 				break;
@@ -692,7 +681,7 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0)
 				return ReadPropertyValue ();
 
-			object value;
+			object value = null;
 
 			switch (reader.AttributeType) {
 			case TnefAttributeType.Triples: value = ReadAttrBytes (); break;
@@ -704,7 +693,6 @@ namespace MimeKit.Tnef {
 			case TnefAttributeType.Byte:   value = ReadAttrBytes (); break;
 			case TnefAttributeType.Word:   value = ReadInt16 (); break;
 			case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-			default: throw new TnefException ("Unknown attribute type.");
 			}
 
 			valueIndex++;
@@ -724,11 +712,8 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadValueAsBoolean ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
-
-			if (!CheckAvailable (RawValueLength))
-				return false;
 
 			bool value;
 
@@ -779,7 +764,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public byte[] ReadValueAsBytes ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			byte[] bytes;
@@ -828,7 +813,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public DateTime ReadValueAsDateTime ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			DateTime value;
@@ -862,7 +847,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public double ReadValueAsDouble ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			double value;
@@ -920,7 +905,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public float ReadValueAsFloat ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			float value;
@@ -978,7 +963,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public Guid ReadValueAsGuid ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			Guid guid;
@@ -1013,7 +998,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public short ReadValueAsInt16 ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			short value;
@@ -1071,7 +1056,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public int ReadValueAsInt32 ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			int value;
@@ -1129,7 +1114,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public long ReadValueAsInt64 ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			long value;
@@ -1187,7 +1172,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public string ReadValueAsString ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			string value;
@@ -1239,10 +1224,7 @@ namespace MimeKit.Tnef {
 		void LoadPropertyCount ()
 		{
 			if ((propertyCount = ReadInt32 ()) < 0) {
-				reader.ComplianceStatus |= TnefComplianceStatus.InvalidAttributeValue;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute value.");
-
+				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
 				propertyCount = 0;
 			}
 
@@ -1256,10 +1238,7 @@ namespace MimeKit.Tnef {
 			int count;
 
 			if ((count = ReadInt32 ()) < 0) {
-				reader.ComplianceStatus |= TnefComplianceStatus.InvalidAttributeValue;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute value.");
-
+				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				return 0;
 			}
 
@@ -1290,10 +1269,7 @@ namespace MimeKit.Tnef {
 		void LoadRowCount ()
 		{
 			if ((rowCount = ReadInt32 ()) < 0) {
-				reader.ComplianceStatus |= TnefComplianceStatus.InvalidAttributeValue;
-				if (reader.ComplianceMode == TnefComplianceMode.Strict)
-					throw new TnefException ("Invalid attribute value.");
-
+				reader.SetComplianceError (TnefComplianceStatus.InvalidRowCount);
 				rowCount = 0;
 			}
 

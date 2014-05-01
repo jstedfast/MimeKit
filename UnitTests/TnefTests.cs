@@ -345,7 +345,7 @@ namespace UnitTests {
 
 		static MimeMessage ParseTnefMessage (string path, TnefComplianceStatus expected)
 		{
-			using (var reader = new TnefReader (File.OpenRead (path))) {
+			using (var reader = new TnefReader (File.OpenRead (path), 0, TnefComplianceMode.Loose)) {
 				var message = ExtractTnefMessage (reader);
 
 				Assert.AreEqual (expected, reader.ComplianceStatus, "Unexpected compliance status.");
@@ -389,7 +389,7 @@ namespace UnitTests {
 		[Test]
 		public void TestGarbageAtEnd ()
 		{
-			TestTnefParser ("../../TestData/tnef/garbage-at-end", TnefComplianceStatus.StreamTruncated);
+			TestTnefParser ("../../TestData/tnef/garbage-at-end", TnefComplianceStatus.InvalidAttributeLevel | TnefComplianceStatus.StreamTruncated);
 		}
 
 		[Test]
@@ -401,7 +401,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMapiAttachDataObj ()
 		{
-			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ");
+			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ", TnefComplianceStatus.InvalidAttributeValue);
 		}
 
 		[Test, Ignore]
