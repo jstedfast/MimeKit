@@ -28,10 +28,17 @@ using System;
 using System.Runtime.Serialization;
 
 namespace MimeKit.Tnef {
+	/// <summary>
+	/// A TNEF exception.
+	/// </summary>
+	/// <remarks>
+	/// A <see cref="TnefException"/> occurs when when a TNEF stream is found to be
+	/// corrupted and cannot be read any futher.
+	/// </remarks>
 #if !PORTABLE
 	[Serializable]
 #endif
-	public class TnefException : Exception
+	public class TnefException : FormatException
 	{
 #if !PORTABLE
 		/// <summary>

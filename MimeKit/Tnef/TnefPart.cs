@@ -32,7 +32,7 @@ using MimeKit.IO.Filters;
 
 namespace MimeKit.Tnef {
 	/// <summary>
-	/// A Microsoft TNEF MIME part.
+	/// A MIME part containing Microsoft TNEF data.
 	/// </summary>
 	/// <remarks>
 	/// <para>Represents an application/ms-tnef or application/vnd.ms-tnef part.</para>

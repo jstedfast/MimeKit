@@ -341,6 +341,80 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="GetDecryptedStream">
+      <MemberSignature Language="C#" Value="public System.IO.Stream GetDecryptedStream (System.IO.Stream encryptedData);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.IO.Stream GetDecryptedStream(class System.IO.Stream encryptedData) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.IO.Stream</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="encryptedData" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="encryptedData">The encrypted data.</param>
+        <summary>
+            Decrypts the specified encryptedData.
+            </summary>
+        <returns>The decrypted stream.</returns>
+        <remarks>
+            Decrypts the specified encryptedData.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found to decrypt the stream.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDecryptedStream">
+      <MemberSignature Language="C#" Value="public System.IO.Stream GetDecryptedStream (System.IO.Stream encryptedData, out MimeKit.Cryptography.DigitalSignatureCollection signatures);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.IO.Stream GetDecryptedStream(class System.IO.Stream encryptedData, class MimeKit.Cryptography.DigitalSignatureCollection signatures) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.IO.Stream</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="encryptedData" Type="System.IO.Stream" />
+        <Parameter Name="signatures" Type="MimeKit.Cryptography.DigitalSignatureCollection&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="encryptedData">The encrypted data.</param>
+        <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+        <summary>
+            Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+            </summary>
+        <returns>The decrypted stream.</returns>
+        <remarks>
+            Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encryptedData" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key could not be found to decrypt the stream.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="GetDigestAlgorithm">
       <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig valuetype MimeKit.Cryptography.DigestAlgorithm GetDigestAlgorithm(valuetype Org.BouncyCastle.Bcpg.HashAlgorithmTag hashAlgorithm) cil managed" />

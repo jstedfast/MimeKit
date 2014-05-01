@@ -155,6 +155,28 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="EncryptionAlgorithm">
+      <MemberSignature Language="C#" Value="protected Org.BouncyCastle.Asn1.DerObjectIdentifier EncryptionAlgorithm { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Asn1.DerObjectIdentifier EncryptionAlgorithm" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.Asn1.DerObjectIdentifier</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the algorithm used for encrypting the private keys.
+            </summary>
+        <value>The encryption algorithm.</value>
+        <remarks>
+          <para>The encryption algorithm should be one of the PBE (password-based encryption) algorithms
+            supported by Bouncy Castle.</para>
+          <para>The default algorithm is SHA-256 + AES256.</para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Finalize">
       <MemberSignature Language="C#" Value="~X509CertificateDatabase ();" />
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Finalize() cil managed" />
@@ -818,6 +840,26 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="MinIterations">
+      <MemberSignature Language="C#" Value="protected int MinIterations { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 MinIterations" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the minimum iterations.
+            </summary>
+        <value>The minimum iterations.</value>
+        <remarks>
+            The default minimum number of iterations is <c>1024</c>.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Org.BouncyCastle.X509.Store.IX509Store.GetMatches">
       <MemberSignature Language="C#" Value="System.Collections.ICollection IX509Store.GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.ICollection Org.BouncyCastle.X509.Store.IX509Store.GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
@@ -892,6 +934,26 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="record" /> is <c>null</c>.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SaltSize">
+      <MemberSignature Language="C#" Value="protected int SaltSize { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 SaltSize" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the size of the salt.
+            </summary>
+        <value>The size of the salt.</value>
+        <remarks>
+            The default salt size is <c>20</c>.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Update">

@@ -94,8 +94,8 @@ namespace UnitTests {
 					}
 				}
 
-				Assert.NotNull (list, "The recipient type was never specified.");
-				Assert.NotNull (addr, "The address was never specified.");
+				Assert.IsNotNull (list, "The recipient type was never specified.");
+				Assert.IsNotNull (addr, "The address was never specified.");
 
 				if (list != null)
 					list.Add (new MailboxAddress (name, addr));

@@ -1,6 +1,6 @@
-<Type Name="SqliteCertificateDatabase" FullName="MimeKit.Cryptography.SqliteCertificateDatabase">
-  <TypeSignature Language="C#" Value="public class SqliteCertificateDatabase : MimeKit.Cryptography.SqlCertificateDatabase" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi SqliteCertificateDatabase extends MimeKit.Cryptography.SqlCertificateDatabase" />
+<Type Name="NpgsqlCertificateDatabase" FullName="MimeKit.Cryptography.NpgsqlCertificateDatabase">
+  <TypeSignature Language="C#" Value="public class NpgsqlCertificateDatabase : MimeKit.Cryptography.SqlCertificateDatabase" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi NpgsqlCertificateDatabase extends MimeKit.Cryptography.SqlCertificateDatabase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.32.0.0</AssemblyVersion>
@@ -11,18 +11,18 @@
   <Interfaces />
   <Docs>
     <summary>
-            An X.509 certificate database built on SQLite.
+            An X.509 certificate database built on PostgreSQL.
             </summary>
     <remarks>
       <para>An X.509 certificate database is used for storing certificates, metdata related to the certificates
             (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
             and private keys.</para>
-      <para>This particular database uses SQLite to store the data.</para>
+      <para>This particular database uses PostgreSQL to store the data.</para>
     </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public SqliteCertificateDatabase (System.Data.IDbConnection connection, string password);" />
+      <MemberSignature Language="C#" Value="public NpgsqlCertificateDatabase (System.Data.IDbConnection connection, string password);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Data.IDbConnection connection, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
@@ -33,13 +33,13 @@
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="connection">The SQLite connection.</param>
+        <param name="connection">The Npgsql connection.</param>
         <param name="password">The password used for encrypting and decrypting the private keys.</param>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.NpgsqlCertificateDatabase" /> class.
             </summary>
         <remarks>
-            Creates a new <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> using the provided SQLite database connection.
+            Creates a new <see cref="T:MimeKit.Cryptography.NpgsqlCertificateDatabase" /> using the provided Npgsql database connection.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -51,45 +51,35 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public SqliteCertificateDatabase (string fileName, string password);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string fileName, string password) cil managed" />
+      <MemberSignature Language="C#" Value="public NpgsqlCertificateDatabase (string connectionString, string password);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string connectionString, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="connectionString" Type="System.String" />
         <Parameter Name="password" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="fileName">The file name.</param>
+        <param name="connectionString">The connection string.</param>
         <param name="password">The password used for encrypting and decrypting the private keys.</param>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.NpgsqlCertificateDatabase" /> class.
             </summary>
         <remarks>
-          <para>Creates a new <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> and opens a connection to the
-            SQLite database at the specified path using the Mono.Data.Sqlite binding to the native
-            SQLite library.</para>
-          <para>If Mono.Data.Sqlite is not available or if an alternative binding to the native
-            SQLite library is preferred, then consider using
-            <see cref="M:MimeKit.Cryptography.SqliteCertificateDatabase.#ctor(System.Data.IDbConnection,System.String)" /> instead.</para>
+          <para>Creates a new <see cref="T:MimeKit.Cryptography.NpgsqlCertificateDatabase" /> and opens a connection to the
+            PostgreSQL database using the specified connection string.</para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="fileName" /> is <c>null</c>.</para>
+            <paramref name="connectionString" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="password" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
-            The specified file path is empty.
-            </exception>
-        <exception cref="T:System.UnauthorizedAccessException">
-            The user does not have access to read the specified file.
-            </exception>
-        <exception cref="T:System.IO.IOException">
-            An error occurred reading the file.
+          <paramref name="connectionString" /> is empty.
             </exception>
       </Docs>
     </Member>

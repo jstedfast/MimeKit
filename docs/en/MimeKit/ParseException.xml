@@ -71,6 +71,32 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public ParseException (string message, int tokenIndex, int errorIndex, Exception innerException);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string message, int32 tokenIndex, int32 errorIndex, class System.Exception innerException) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="message" Type="System.String" />
+        <Parameter Name="tokenIndex" Type="System.Int32" />
+        <Parameter Name="errorIndex" Type="System.Int32" />
+        <Parameter Name="innerException" Type="System.Exception" />
+      </Parameters>
+      <Docs>
+        <param name="message">The error message.</param>
+        <param name="tokenIndex">The byte offset of the token.</param>
+        <param name="errorIndex">The byte offset of the error.</param>
+        <param name="innerException">The inner exception.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.ParseException" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.ParseException" />.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ErrorIndex">
       <MemberSignature Language="C#" Value="public int ErrorIndex { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 ErrorIndex" />
