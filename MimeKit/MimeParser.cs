@@ -1443,7 +1443,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity ParseEntity (CancellationToken cancellationToken)
+		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1452,24 +1452,6 @@ namespace MimeKit {
 					return ParseEntity (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses an entity from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses an entity from the stream.
-		/// </remarks>
-		/// <returns>The parsed entity.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeEntity ParseEntity ()
-		{
-			return ParseEntity (CancellationToken.None);
 		}
 
 		unsafe MimeMessage ParseMessage (byte* inbuf)
@@ -1554,7 +1536,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeMessage ParseMessage (CancellationToken cancellationToken)
+		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1563,24 +1545,6 @@ namespace MimeKit {
 					return ParseMessage (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the message.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeMessage ParseMessage ()
-		{
-			return ParseMessage (CancellationToken.None);
 		}
 
 		#region IEnumerable implementation

@@ -512,7 +512,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -545,27 +545,6 @@ namespace MimeKit {
 		/// <remarks>
 		/// Writes all of the headers to the output stream.
 		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream)
-		{
-			WriteTo (options, stream, CancellationToken.None);
-		}
-
-		/// <summary>
-		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes all of the headers to the output stream.
-		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -577,27 +556,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken)
+		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
-		}
-
-		/// <summary>
-		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes all of the headers to the output stream.
-		/// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (Stream stream)
-		{
-			WriteTo (FormatOptions.Default, stream);
 		}
 
 		#region ICollection implementation

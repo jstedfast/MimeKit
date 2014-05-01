@@ -146,7 +146,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			base.WriteTo (options, stream, cancellationToken);
 

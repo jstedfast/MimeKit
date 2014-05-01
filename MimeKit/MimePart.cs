@@ -359,7 +359,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken)
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
@@ -375,22 +375,6 @@ namespace MimeKit {
 					return filter.GetBestEncoding (constraint);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Calculates the most efficient content encoding given the specified constraint.
-		/// </summary>
-		/// <remarks>
-		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
-		/// </remarks>
-		/// <returns>The most efficient content encoding.</returns>
-		/// <param name="constraint">The encoding constraint.</param>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
-		{
-			return GetBestEncoding (constraint, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -477,7 +461,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			base.WriteTo (options, stream, cancellationToken);
 
