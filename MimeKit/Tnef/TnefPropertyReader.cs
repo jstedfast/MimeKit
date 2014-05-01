@@ -56,7 +56,7 @@ namespace MimeKit.Tnef {
 		}
 
 		public bool IsEmbeddedMessage {
-			get { return propertyTag == TnefPropertyTag.AttachDataObj; }
+			get { return propertyTag.Id == TnefPropertyId.AttachData && propertyTag.ValueTnefType == TnefPropertyType.Object; }
 		}
 
 		public bool IsLargeValue {
@@ -72,7 +72,7 @@ namespace MimeKit.Tnef {
 		}
 
 		public bool IsObjectProperty {
-			get { throw new NotImplementedException (); }
+			get { return propertyTag.ValueTnefType == TnefPropertyType.Object; }
 		}
 
 		public Guid ObjectIid {
@@ -108,7 +108,12 @@ namespace MimeKit.Tnef {
 		}
 
 		public Type ValueType {
-			get { throw new NotImplementedException (); }
+			get {
+				if (propertyCount > 0)
+					return GetPropertyValueType ();
+
+				return GetAttributeValueType ();
+			}
 		}
 
 		internal TnefPropertyReader (TnefReader tnef)
@@ -481,6 +486,44 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		Type GetPropertyValueType ()
+		{
+			switch (propertyTag.ValueTnefType) {
+			case TnefPropertyType.I2:       return typeof (short);
+			case TnefPropertyType.Boolean:  return typeof (bool);
+			case TnefPropertyType.Currency: return typeof (long);
+			case TnefPropertyType.I8:       return typeof (long);
+			case TnefPropertyType.Error:    return typeof (int);
+			case TnefPropertyType.Long:     return typeof (int);
+			case TnefPropertyType.Double:   return typeof (double);
+			case TnefPropertyType.R4:       return typeof (float);
+			case TnefPropertyType.AppTime:  return typeof (DateTime);
+			case TnefPropertyType.SysTime:  return typeof (DateTime);
+			case TnefPropertyType.Unicode:  return typeof (string);
+			case TnefPropertyType.String8:  return typeof (string);
+			case TnefPropertyType.Binary:   return typeof (byte[]);
+			case TnefPropertyType.ClassId:  return typeof (byte[]);
+			case TnefPropertyType.Object:   return typeof (Guid);
+			default:                        return typeof (object);
+			}
+		}
+
+		Type GetAttributeValueType ()
+		{
+			switch (reader.AttributeType) {
+			case TnefAttributeType.Triples: return typeof (byte[]);
+			case TnefAttributeType.String:  return typeof (string);
+			case TnefAttributeType.Text:    return typeof (string);
+			case TnefAttributeType.Date:    return typeof (DateTime);
+			case TnefAttributeType.Short:   return typeof (short);
+			case TnefAttributeType.Long:    return typeof (int);
+			case TnefAttributeType.Byte:    return typeof (byte[]);
+			case TnefAttributeType.Word:    return typeof (short);
+			case TnefAttributeType.DWord:   return typeof (int);
+			default:                        return typeof (object);
+			}
+		}
+
 		object ReadPropertyValue ()
 		{
 			object value;
@@ -554,7 +597,7 @@ namespace MimeKit.Tnef {
 			object value;
 
 			switch (reader.AttributeType) {
-			case TnefAttributeType.Triples: value = null; break;// FIXME
+			case TnefAttributeType.Triples: value = ReadAttrBytes (); break;
 			case TnefAttributeType.String: value = ReadAttrString (); break;
 			case TnefAttributeType.Text:   value = ReadAttrString (); break;
 			case TnefAttributeType.Date:   value = ReadAttrDateTime (); break;
@@ -976,12 +1019,9 @@ namespace MimeKit.Tnef {
 
 		public override bool Equals (object obj)
 		{
-			if (!(obj is TnefPropertyReader))
-				return false;
+			var prop = obj as TnefPropertyReader;
 
-			var prop = (TnefPropertyReader) obj;
-
-			return prop.reader == reader;
+			return prop != null && prop.reader == reader;
 		}
 
 		void LoadPropertyCount ()
