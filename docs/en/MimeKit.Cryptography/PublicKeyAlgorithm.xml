@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed PublicKeyAlgorithm extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
     <AssemblyVersion>0.33.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -23,7 +22,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm DiffieHellman = int32(21)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -40,7 +38,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm Dsa = int32(17)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -57,7 +54,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm ElGamalEncrypt = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -74,7 +70,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm ElGamalGeneral = int32(20)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -91,7 +86,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm EllipticCurve = int32(18)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -108,7 +102,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm EllipticCurveDsa = int32(19)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -125,7 +118,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm None = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -142,7 +134,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm RsaEncrypt = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -159,7 +150,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm RsaGeneral = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -176,7 +166,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.PublicKeyAlgorithm RsaSign = int32(3)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>

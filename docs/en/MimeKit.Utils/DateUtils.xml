@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed DateUtils extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
     <AssemblyVersion>0.33.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -24,7 +23,6 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string FormatDate(valuetype System.DateTimeOffset date) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -50,7 +48,6 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseDateTime(unsigned int8[] buffer, valuetype System.DateTimeOffset date) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -81,7 +78,6 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseDateTime(string text, valuetype System.DateTimeOffset date) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -112,7 +108,6 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseDateTime(unsigned int8[] buffer, int32 startIndex, valuetype System.DateTimeOffset date) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -148,7 +143,6 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseDateTime(unsigned int8[] buffer, int32 startIndex, int32 length, valuetype System.DateTimeOffset date) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
         <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
