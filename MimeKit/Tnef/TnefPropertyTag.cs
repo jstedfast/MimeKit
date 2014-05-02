@@ -775,7 +775,7 @@ namespace MimeKit.Tnef {
 
 		TnefPropertyTag (TnefPropertyId id, TnefPropertyType type, bool multiValue)
 		{
-			this.type = (TnefPropertyType) (((short) type) | (multiValue ? MultiValuedFlag : 0));
+			this.type = (TnefPropertyType) (((ushort) type) | (multiValue ? MultiValuedFlag : 0));
 			this.id = id;
 		}
 
@@ -792,7 +792,7 @@ namespace MimeKit.Tnef {
 
 		public static implicit operator int (TnefPropertyTag tag)
 		{
-			return (((int) tag.TnefType) << 16) | ((int) tag.Id);
+			return (((ushort) tag.TnefType) << 16) | ((ushort) tag.Id);
 		}
 
 		public override int GetHashCode ()
