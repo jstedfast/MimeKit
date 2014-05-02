@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Runtime.Serialization;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -33,8 +34,36 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a certificate could not be found for a specified mailbox.
 	/// </remarks>
+#if !PORTABLE
+	[Serializable]
+#endif
 	public class CertificateNotFoundException : Exception
 	{
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="CertificateNotFoundException"/>.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		protected CertificateNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			var text = info.GetString ("Mailbox");
+			MailboxAddress mailbox;
+
+			if (MailboxAddress.TryParse (text, out mailbox))
+				Mailbox = mailbox;
+		}
+#endif
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
 		/// </summary>
@@ -47,6 +76,31 @@ namespace MimeKit.Cryptography {
 		{
 			Mailbox = mailbox;
 		}
+
+#if !PORTABLE
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			info.AddValue ("Mailbox", Mailbox.ToString (true));
+
+			base.GetObjectData (info, context);
+		}
+#endif
 
 		/// <summary>
 		/// Gets the mailbox address that could not be resolved to a certificate.
