@@ -4,6 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.33.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -26,6 +27,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -48,6 +50,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -68,6 +71,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -84,6 +88,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -106,6 +111,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -129,6 +135,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -149,6 +156,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>

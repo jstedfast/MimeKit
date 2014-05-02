@@ -4,6 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.33.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
@@ -24,6 +25,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoder" Type="MimeKit.Encodings.IMimeEncoder" />
@@ -44,6 +46,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.IO.Filters.IMimeFilter</ReturnType>
@@ -68,6 +71,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.IMimeEncoder</ReturnType>
@@ -88,6 +92,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -108,6 +113,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -143,6 +149,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.33.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
