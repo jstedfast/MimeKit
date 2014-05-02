@@ -73,3 +73,80 @@ var body = message.BodyParts.OfType<TextPart> ().FirstOrDefault ();
 ```
 
 Now that you've got the body, you can just use `body.Text`.
+
+### How do I decrypt PGP messages that are embedded in the main message text?
+
+Some PGP-enabled mail clients, such as Thunderbird, embed encrypted PGP blurbs within the text/plain body
+of the message rather than using the PGP/MIME format that MimeKit prefers.
+
+These messages often look something like this:
+
+    Return-Path: <pgp-enthusiast@example.com>
+    Received: from [127.0.0.1] (hostname.example.com. [201.95.8.17])
+        by mx.google.com with ESMTPSA id l67sm26628445yha.8.2014.04.27.13.49.44
+        for <pgp-enthusiast@example.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Sun, 27 Apr 2014 13:49:44 -0700 (PDT)
+    Message-ID: <535D6D67.8020803@example.com>
+    Date: Sun, 27 Apr 2014 17:49:43 -0300
+    From: Die-Hard PGP Fan <pgp-enthusiast@example.com>
+    User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:24.0) Gecko/20100101 Thunderbird/24.4.0
+    MIME-Version: 1.0
+    To: undisclosed-recipients:;
+    Subject: Test of inline encrypted PGP blocks
+    X-Enigmail-Version: 1.6
+    Content-Type: text/plain; charset=ISO-8859-1
+    Content-Transfer-Encoding: 8bit
+    X-Antivirus: avast! (VPS 140427-1, 27/04/2014), Outbound message
+    X-Antivirus-Status: Clean
+    
+    -----BEGIN PGP MESSAGE-----
+    Charset: ISO-8859-1
+    Version: GnuPG v2.0.22 (MingW32)
+    Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+    
+    SGFoISBJIGZvb2xlZCB5b3UsIHRoaXMgdGV4dCBpc24ndCBhY3R1YWxseSBlbmNy
+    eXB0ZWQgd2l0aCBQR1AsCml0J3MgYWN0dWFsbHkgb25seSBiYXNlNjQgZW5jb2Rl
+    ZCEKCkknbSBqdXN0IHVzaW5nIHRoaXMgYXMgYW4gZXhhbXBsZSwgdGhvdWdoLCBz
+    byBpdCBkb2Vzbid0IHJlYWxseSBtYXR0ZXIuCgpGb3IgdGhlIHNha2Ugb2YgYXJn
+    dW1lbnQsIHdlJ2xsIHByZXRlbmQgdGhhdCB0aGlzIGlzIGFjdHVhbGx5IGFuIGVu
+    Y3J5cHRlZApibHVyYi4gTW1ta2F5PyBUaGFua3MuCg==
+    -----END PGP MESSAGE-----
+
+To deal with these kinds of messages, I've added a method to OpenPgpContext called `GetDecryptedStream` which
+can be used to get the raw decrypted stream.
+
+There are actually 2 variants of this methods:
+
+```csharp
+public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
+```
+
+and
+
+```csharp
+public Stream GetDecryptedStream (Stream encryptedData)
+```
+
+The first variant is useful in cases where the encrypted PGP blurb is also digitally signed, allowing you to get
+your hands on the list of digitial signatures in order for you to verify each of them.
+
+To decrypt the content of the message, you'll want to locate the `TextPart` (in this case, it'll just be `message.Body`)
+and then do this:
+
+```
+static Stream DecryptEmbeddedPgp (TextPart text)
+{
+    using (var memory = new MemoryStream ()) {
+        text.ContentObject.DecodeTo (memory);
+        memory.Position = 0;
+
+        using (var ctx = new MyGnuPGContext ()) {
+            return ctx.GetDecryptedStream (memory);
+        }
+    }
+}
+```
+
+What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
+(is it text? a jpeg image? a video?) and how to display it to the user.
