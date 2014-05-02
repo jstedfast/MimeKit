@@ -115,10 +115,10 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
-		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
-		/// tables.</para>
+		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
+		/// initialized to empty tables.</para>
 		/// </remarks>
 		/// <param name="certificate">The signer's certificate.</param>
 		/// <param name="key">The signer's private key.</param>

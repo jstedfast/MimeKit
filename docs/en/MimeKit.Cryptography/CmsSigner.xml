@@ -38,10 +38,10 @@
             Initializes a new instance of the <see cref="T:MimeKit.Cryptography.CmsSigner" /> class.
             </summary>
         <remarks>
-          <para>The initial value of the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> will be set to
-            <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" /> and both the <see cref="P:MimeKit.Cryptography.CmsSigner.SignedAttributes" />
-            and <see cref="P:MimeKit.Cryptography.CmsSigner.UnsignedAttributes" /> properties will be initialized to empty
-            tables.</para>
+          <para>The initial value of the <see cref="T:MimeKit.Cryptography.DigestAlgorithm" /> will
+            be set to <see cref="F:MimeKit.Cryptography.DigestAlgorithm.Sha1" /> and both the
+            <see cref="P:MimeKit.Cryptography.CmsSigner.SignedAttributes" /> and <see cref="P:MimeKit.Cryptography.CmsSigner.UnsignedAttributes" /> properties will be
+            initialized to empty tables.</para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
