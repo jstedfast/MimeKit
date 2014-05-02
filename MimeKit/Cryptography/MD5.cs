@@ -32,6 +32,13 @@ using System;
 using System.IO;
 
 namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The MD5 hash algorithm.
+	/// </summary>
+	/// <remarks>
+	/// This class is only here for for portability reasons and should
+	/// not really be considered part of the MimeKit API.
+	/// </remarks>
 	public sealed class MD5 : IDisposable
 	{
 		const int BLOCK_SIZE_BYTES = 64;
@@ -62,6 +69,12 @@ namespace MimeKit.Cryptography {
 		bool disposed;
 		ulong count;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MD5"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new instance of an MD5 hash algorithm context.
+		/// </remarks>
 		public MD5 ()
 		{
 			queuedData = new byte [BLOCK_SIZE_BYTES];
@@ -71,11 +84,29 @@ namespace MimeKit.Cryptography {
 			Initialize ();
 		}
 
+		/// <summary>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Cryptography.MD5"/> is reclaimed by garbage collection.
+		/// </summary>
+		/// <remarks>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Cryptography.MD5"/> is reclaimed by garbage collection.
+		/// </remarks>
 		~MD5 ()
 		{
 			Dispose (false);
 		}
 
+		/// <summary>
+		/// Gets the value of the computed hash code.
+		/// </summary>
+		/// <remarks>
+		/// Gets the value of the computed hash code.
+		/// </remarks>
+		/// <value>The computed hash code.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// No hash value has been computed.
+		/// </exception>
 		public byte[] Hash {
 			get {
 				if (hashValue == null)
@@ -129,6 +160,12 @@ namespace MimeKit.Cryptography {
 			return hash;
 		}
 
+		/// <summary>
+		/// Initializes (or re-initializes) the MD5 hash algorithm context.
+		/// </summary>
+		/// <remarks>
+		/// Initializes (or re-initializes) the MD5 hash algorithm context.
+		/// </remarks>
 		public void Initialize ()
 		{
 			queuedCount = 0;
@@ -473,6 +510,26 @@ namespace MimeKit.Cryptography {
 			buffer[index]   = (byte) (length >> 56);
 		}
 
+		/// <summary>
+		/// Computes the MD5 hash code for the specified subrange of the buffer.
+		/// </summary>
+		/// <remarks>
+		/// Computes the MD5 hash code for the specified subrange of the buffer.
+		/// </remarks>
+		/// <returns>The computed hash code.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="offset">The starting offset.</param>
+		/// <param name="count">The number of bytes to hash.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="offset"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The MD5 context has been disposed.
+		/// </exception>
 		public byte[] ComputeHash (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
@@ -494,6 +551,20 @@ namespace MimeKit.Cryptography {
 			return hashValue;
 		}
 
+		/// <summary>
+		/// Computes the MD5 hash code for the buffer.
+		/// </summary>
+		/// <remarks>
+		/// Computes the MD5 hash code for the buffer.
+		/// </remarks>
+		/// <returns>The computed hash code.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The MD5 context has been disposed.
+		/// </exception>
 		public byte[] ComputeHash (byte[] buffer)
 		{
 			if (buffer == null)
@@ -502,8 +573,25 @@ namespace MimeKit.Cryptography {
 			return ComputeHash (buffer, 0, buffer.Length);
 		}
 
+		/// <summary>
+		/// Computes the MD5 hash code for the stream.
+		/// </summary>
+		/// <remarks>
+		/// Computes the MD5 hash code for the stream.
+		/// </remarks>
+		/// <returns>The computed hash code.</returns>
+		/// <param name="inputStream">The input stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="inputStream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The MD5 context has been disposed.
+		/// </exception>
 		public byte[] ComputeHash (Stream inputStream)
 		{
+			if (inputStream == null)
+				throw new ArgumentNullException ("inputStream");
+
 			// don't read stream unless object is ready to use
 			if (disposed)
 				throw new ObjectDisposedException ("HashAlgorithm");
@@ -522,6 +610,35 @@ namespace MimeKit.Cryptography {
 			return hashValue;
 		}
 
+		/// <summary>
+		/// Computes a partial MD5 hash value for the specified region of the
+		/// input buffer and copies the input into the output buffer.
+		/// </summary>
+		/// <remarks>
+		/// <para>Computes a partial MD5 hash value for the specified region of the
+		/// input buffer and copies the input into the output buffer.</para>
+		/// <para>Use <see cref="TransformFinalBlock"/> to complete the computation
+		/// of the MD5 hash code.</para>
+		/// </remarks>
+		/// <returns>The number of bytes copied into the output buffer.</returns>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input buffer offset.</param>
+		/// <param name="inputCount">The input count.</param>
+		/// <param name="outputBuffer">The output buffer.</param>
+		/// <param name="outputOffset">The output buffer offset.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="inputBuffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="inputOffset"/> and <paramref name="inputCount"/> do not specify
+		/// a valid range in the <paramref name="inputBuffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="outputOffset"/> is outside the bounds of the
+		/// <paramref name="outputBuffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="outputBuffer"/> is not large enough to hold the range of input
+		/// starting at <paramref name="outputOffset"/>.</para>
+		/// </exception>
 		public int TransformBlock (byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
 			if (inputBuffer == null)
@@ -546,9 +663,32 @@ namespace MimeKit.Cryptography {
 			return inputCount;
 		}
 
+		/// <summary>
+		/// Completes the MD5 hash compuation given the final block of input.
+		/// </summary>
+		/// <remarks>
+		/// Completes the MD5 hash compuation given the final block of input.
+		/// </remarks>
+		/// <returns>A new buffer containing the specified range of input.</returns>
+		/// <param name="inputBuffer">The input buffer.</param>
+		/// <param name="inputOffset">The input buffer offset.</param>
+		/// <param name="inputCount">The input count.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="inputBuffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="inputOffset"/> and <paramref name="inputCount"/> do not specify
+		/// a valid range in the <paramref name="inputBuffer"/>.
+		/// </exception>
 		public byte[] TransformFinalBlock (byte[] inputBuffer, int inputOffset, int inputCount)
 		{
-			if (inputCount < 0)
+			if (inputBuffer == null)
+				throw new ArgumentNullException ("inputBuffer");
+
+			if (inputOffset < 0 || inputOffset > inputBuffer.Length)
+				throw new ArgumentOutOfRangeException ("inputOffset");
+
+			if (inputCount < 0 || inputOffset > inputBuffer.Length - inputCount)
 				throw new ArgumentOutOfRangeException ("inputCount");
 
 			var outputBuffer = new byte [inputCount];
@@ -581,6 +721,13 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Releases all resource used by the <see cref="MimeKit.Cryptography.MD5"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.MD5"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.MD5"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.MD5"/> so the
+		/// garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.MD5"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

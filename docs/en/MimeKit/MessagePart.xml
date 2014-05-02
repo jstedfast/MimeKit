@@ -139,7 +139,7 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="C#" Value="public override void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>

@@ -70,8 +70,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// If a custom <see cref="FormatOptions"/> is not passed to methods such as
-		/// <see cref="MimeMessage.WriteTo(FormatOptions,System.IO.Stream)"/>, the default options
-		/// will be used.
+		/// <see cref="MimeMessage.WriteTo(FormatOptions,System.IO.Stream,System.Threading.CancellationToken)"/>,
+		/// the default options will be used.
 		/// </remarks>
 		public static readonly FormatOptions Default;
 
@@ -151,7 +151,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a new set of formatting options for use with methods such as
-		/// <see cref="MimeMessage.WriteTo(System.IO.Stream)"/>.
+		/// <see cref="MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
 		/// </remarks>
 		public FormatOptions ()
 		{

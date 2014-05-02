@@ -33,7 +33,7 @@
             </summary>
         <remarks>
             Creates a new set of formatting options for use with methods such as
-            <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream)" />.
+            <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)" />.
             </remarks>
       </Docs>
     </Member>
@@ -74,8 +74,8 @@
             </summary>
         <remarks>
             If a custom <see cref="T:MimeKit.FormatOptions" /> is not passed to methods such as
-            <see cref="M:MimeKit.MimeMessage.WriteTo(MimeKit.FormatOptions,System.IO.Stream)" />, the default options
-            will be used.
+            <see cref="M:MimeKit.MimeMessage.WriteTo(MimeKit.FormatOptions,System.IO.Stream,System.Threading.CancellationToken)" />,
+            the default options will be used.
             </remarks>
       </Docs>
     </Member>

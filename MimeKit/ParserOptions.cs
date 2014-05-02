@@ -44,8 +44,8 @@ namespace MimeKit {
 	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
 	/// <remarks>
-	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
-	/// used by methods such as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream)"/> and others.
+	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options used by methods such
+	/// as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream,System.Threading.CancellationToken)"/> and others.
 	/// </remarks>
 	public class ParserOptions
 	{

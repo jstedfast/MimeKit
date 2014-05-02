@@ -95,8 +95,8 @@ namespace MimeKit {
 		/// Opens the decoded content stream.
 		/// </summary>
 		/// <remarks>
-		/// Provides a means of reading the decoded content without having to first
-		/// write it to another stream using <see cref="DecodeTo(Stream)"/>.
+		/// Provides a means of reading the decoded content without having to first write it to another
+		/// stream using <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
 		/// </remarks>
 		/// <returns>The decoded content stream.</returns>
 		public Stream Open ()
@@ -113,7 +113,7 @@ namespace MimeKit {
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// This is equivalent to simply using <see cref="Stream.CopyTo(Stream)"/> to
+		/// This is equivalent to simply using <see cref="System.IO.Stream.CopyTo(System.IO.Stream)"/> to
 		/// copy the content stream to the output stream except that this method is
 		/// cancellable.
 		/// </remarks>

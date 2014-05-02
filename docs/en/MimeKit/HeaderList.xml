@@ -902,71 +902,7 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="stream" Type="System.IO.Stream" />
-      </Parameters>
-      <Docs>
-        <param name="stream">The output stream.</param>
-        <summary>
-            Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
-            </summary>
-        <remarks>
-            Writes all of the headers to the output stream.
-            </remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <paramref name="stream" /> is <c>null</c>.
-            </exception>
-        <exception cref="T:System.IO.IOException">
-            An I/O error occurred.
-            </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="options" Type="MimeKit.FormatOptions" />
-        <Parameter Name="stream" Type="System.IO.Stream" />
-      </Parameters>
-      <Docs>
-        <param name="options">The formatting options.</param>
-        <param name="stream">The output stream.</param>
-        <summary>
-            Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
-            </summary>
-        <remarks>
-            Writes all of the headers to the output stream.
-            </remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="options" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="stream" /> is <c>null</c>.</para>
-        </exception>
-        <exception cref="T:System.IO.IOException">
-            An I/O error occurred.
-            </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
@@ -1000,7 +936,7 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
