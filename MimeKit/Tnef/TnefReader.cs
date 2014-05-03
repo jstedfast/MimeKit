@@ -213,6 +213,14 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>When reading a TNEF stream using the <see cref="TnefComplianceMode.Strict"/> mode,
+		/// a <see cref="TnefException"/> will be thrown immediately at the first sign of
+		/// invalid or corrupted data.</para>
+		/// <para>When reading a TNEF stream using the <see cref="TnefComplianceMode.Loose"/> mode,
+		/// however, compliance issues are accumulated in the <see cref="ComplianceMode"/>
+		/// property, but exceptions are not raised unless the stream is too corrupted to continue.</para>
+		/// </remarks>
 		/// <param name="inputStream">The input stream.</param>
 		/// <param name="defaultMessageCodepage">The default message codepage.</param>
 		/// <param name="complianceMode">The compliance mode.</param>

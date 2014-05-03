@@ -27,6 +27,12 @@
 using System;
 
 namespace MimeKit.Tnef {
+	/// <summary>
+	/// A TNEF name identifier.
+	/// </summary>
+	/// <remarks>
+	/// A TNEF name identifier.
+	/// </remarks>
 	struct TnefNameId
 	{
 		readonly TnefNameIdKind kind;
@@ -34,22 +40,58 @@ namespace MimeKit.Tnef {
 		readonly Guid guid;
 		readonly int id;
 
+		/// <summary>
+		/// Gets the property set GUID.
+		/// </summary>
+		/// <remarks>
+		/// Gets the property set GUID.
+		/// </remarks>
+		/// <value>The property set GUID.</value>
 		public Guid PropertySetGuid {
 			get { return guid; }
 		}
 
+		/// <summary>
+		/// Gets the kind of TNEF name identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets the kind of TNEF name identifier.
+		/// </remarks>
+		/// <value>The kind of identifier.</value>
 		public TnefNameIdKind Kind {
 			get { return kind; }
 		}
 
+		/// <summary>
+		/// Gets the name, if available.
+		/// </summary>
+		/// <remarks>
+		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Name"/>, then this property will be available.
+		/// </remarks>
+		/// <value>The name.</value>
 		public string Name {
 			get { return name; }
 		}
 
+		/// <summary>
+		/// Gets the identifier, if available.
+		/// </summary>
+		/// <remarks>
+		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Id"/>, then this property will be available.
+		/// </remarks>
+		/// <value>The identifier.</value>
 		public int Id {
 			get { return id; }
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefNameId"/> struct.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefNameId"/> with the specified integer identifier.
+		/// </remarks>
+		/// <param name="propertySetGuid">The property set GUID.</param>
+		/// <param name="id">The identifier.</param>
 		public TnefNameId (Guid propertySetGuid, int id)
 		{
 			kind = TnefNameIdKind.Id;
@@ -58,6 +100,14 @@ namespace MimeKit.Tnef {
 			name = null;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefNameId"/> struct.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefNameId"/> with the specified string identifier.
+		/// </remarks>
+		/// <param name="propertySetGuid">The property set GUID.</param>
+		/// <param name="name">The name.</param>
 		public TnefNameId (Guid propertySetGuid, string name)
 		{
 			kind = TnefNameIdKind.Name;
@@ -66,6 +116,14 @@ namespace MimeKit.Tnef {
 			id = 0;
 		}
 
+		/// <summary>
+		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefNameId"/> object.
+		/// </summary>
+		/// <remarks>
+		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefNameId"/> object.
+		/// </remarks>
+		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
+		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
 			int hash = kind == TnefNameIdKind.Id ? id : name.GetHashCode ();
@@ -73,6 +131,15 @@ namespace MimeKit.Tnef {
 			return kind.GetHashCode () ^ guid.GetHashCode () ^ hash;
 		}
 
+		/// <summary>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefNameId"/>.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefNameId"/>.
+		/// </remarks>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefNameId"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="MimeKit.Tnef.TnefNameId"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
 			if (!(obj is TnefNameId))
