@@ -137,6 +137,7 @@
     <Compile Include="Tnef\TnefPropertyTag.cs" />
     <Compile Include="Tnef\TnefPropertyType.cs" />
     <Compile Include="Tnef\TnefReader.cs" />
+    <Compile Include="Tnef\TnefReaderStream.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
     <Compile Include="Utils\DateUtils.cs" />

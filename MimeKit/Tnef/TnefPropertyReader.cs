@@ -197,22 +197,22 @@ namespace MimeKit.Tnef {
 			if (valueIndex >= valueCount)
 				throw new InvalidOperationException ();
 
-			int start = RawValueStreamOffset;
-			int length = RawValueLength;
+			int end = RawValueStreamOffset + RawValueLength;
 
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
-					start += 4;
+					if (reader.StreamOffset == RawValueStreamOffset)
+						ReadInt32 ();
 					break;
 				}
 			}
 
 			valueIndex++;
 
-			return new BoundStream (reader.InputStream, start, start + length, true);
+			return new TnefReaderStream (reader, end);
 		}
 
 		bool CheckRawValueLength ()
