@@ -27,6 +27,12 @@
 using System;
 
 namespace MimeKit.Tnef {
+	/// <summary>
+	/// A TNEF property tag.
+	/// </summary>
+	/// <remarks>
+	/// A TNEF property tag.
+	/// </remarks>
 	struct TnefPropertyTag
 	{
 		public static readonly TnefPropertyTag AbDefaultDir = new TnefPropertyTag (TnefPropertyId.AbDefaultDir, TnefPropertyType.Binary);
@@ -720,18 +726,46 @@ namespace MimeKit.Tnef {
 		readonly TnefPropertyType type;
 		readonly TnefPropertyId id;
 
+		/// <summary>
+		/// Gets the property identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets the property identifier.
+		/// </remarks>
+		/// <value>The identifier.</value>
 		public TnefPropertyId Id {
 			get { return id; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether or not the property contains multiple values.
+		/// </summary>
+		/// <remarks>
+		/// Gets a value indicating whether or not the property contains multiple values.
+		/// </remarks>
+		/// <value><c>true</c> if the property contains multiple values; otherwise, <c>false</c>.</value>
 		public bool IsMultiValued {
 			get { return (((short) type) & MultiValuedFlag) != 0; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether or not the property has a special name.
+		/// </summary>
+		/// <remarks>
+		/// Gets a value indicating whether or not the property has a special name.
+		/// </remarks>
+		/// <value><c>true</c> if the property has a special name; otherwise, <c>false</c>.</value>
 		public bool IsNamed {
 			get { return id >= NamedMin && id <= NamedMax; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether the property value type is valid.
+		/// </summary>
+		/// <remarks>
+		/// Gets a value indicating whether the property value type is valid.
+		/// </remarks>
+		/// <value><c>true</c> if the property value type is valid; otherwise, <c>false</c>.</value>
 		public bool IsTnefTypeValid {
 			get {
 				switch (ValueTnefType) {
@@ -759,14 +793,36 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		/// <summary>
+		/// Gets the property's value type (including the multi-valued bit).
+		/// </summary>
+		/// <remarks>
+		/// Gets the property's value type (including the multi-valued bit).
+		/// </remarks>
+		/// <value>The property's value type.</value>
 		public TnefPropertyType TnefType {
 			get { return type; }
 		}
 
+		/// <summary>
+		/// Gets the type of the value that the property contains.
+		/// </summary>
+		/// <remarks>
+		/// Gets the type of the value that the property contains.
+		/// </remarks>
+		/// <value>The type of the value.</value>
 		public TnefPropertyType ValueTnefType {
 			get { return (TnefPropertyType) (((short) type) & ~MultiValuedFlag); }
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPropertyTag"/> struct.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefPropertyTag"/> based on a 32-bit integer tag as read from
+		/// a TNEF stream.
+		/// </remarks>
+		/// <param name="tag">The property tag.</param>
 		public TnefPropertyTag (int tag)
 		{
 			type = (TnefPropertyType) ((tag >> 16) & 0xFFFF);
@@ -779,6 +835,15 @@ namespace MimeKit.Tnef {
 			this.id = id;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPropertyTag"/> struct.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefPropertyTag"/> based on a <see cref="TnefPropertyId"/>
+		/// and <see cref="TnefPropertyType"/>.
+		/// </remarks>
+		/// <param name="id">The property identifier.</param>
+		/// <param name="type">The property type.</param>
 		public TnefPropertyTag (TnefPropertyId id, TnefPropertyType type)
 		{
 			this.type = type;
@@ -795,11 +860,28 @@ namespace MimeKit.Tnef {
 			return (((ushort) tag.TnefType) << 16) | ((ushort) tag.Id);
 		}
 
+		/// <summary>
+		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyTag"/> object.
+		/// </summary>
+		/// <remarks>
+		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyTag"/> object.
+		/// </remarks>
+		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
+		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
 			return ((int) this).GetHashCode ();
 		}
 
+		/// <summary>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// </remarks>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="MimeKit.Tnef.TnefPropertyTag"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
 			if (!(obj is TnefPropertyTag))
@@ -810,14 +892,30 @@ namespace MimeKit.Tnef {
 			return tag.Id == Id && tag.TnefType == TnefType;
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.</returns>
 		public override string ToString ()
 		{
 			return string.Format ("{0} ({1})", Id, ValueTnefType);
 		}
 
+		/// <summary>
+		/// Returns a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
+		/// </remarks>
+		/// <returns>The unicode equivalent of the property tag.</returns>
 		public TnefPropertyTag ToUnicode ()
 		{
-			throw new NotImplementedException ();
+			var unicode = (TnefPropertyType) ((((short) type) & MultiValuedFlag) | ((short) TnefPropertyType.Unicode));
+
+			return new TnefPropertyTag (id, unicode);
 		}
 	}
 }

@@ -25,94 +25,100 @@
 //
 
 namespace MimeKit.Tnef {
+	/// <summary>
+	/// The type of value that a TNEF property contains.
+	/// </summary>
+	/// <remarks>
+	/// The type of value that a TNEF property contains.
+	/// </remarks>
 	enum TnefPropertyType : short {
 		/// <summary>
-		/// The type is unspecified.
+		/// The type of the property is unspecified.
 		/// </summary>
 		Unspecified = 0,
 
 		/// <summary>
-		/// A null value.
+		/// The property has a null value.
 		/// </summary>
 		Null        = 1,
 
 		/// <summary>
-		/// A signed 16-bit value.
+		/// The property has a signed 16-bit value.
 		/// </summary>
 		I2          = 2,
 
 		/// <summary>
-		/// A signed 32-bit value.
+		/// The property has a signed 32-bit value.
 		/// </summary>
 		Long        = 3,
 
 		/// <summary>
-		/// A 32-bit floating point value.
+		/// THe property has a 32-bit floating point value.
 		/// </summary>
 		R4          = 4,
 
 		/// <summary>
-		/// A 64-bit floating point value.
+		/// The property has a 64-bit floating point value.
 		/// </summary>
 		Double      = 5,
 
 		/// <summary>
-		/// A 64-bit integer value representing 1/10000th of a monetary unit (i.e., 1/100th of a cent).
+		/// The property has a 64-bit integer value representing 1/10000th of a monetary unit (i.e., 1/100th of a cent).
 		/// </summary>
 		Currency    = 6,
 
 		/// <summary>
-		/// An application time value.
+		/// The property has a 64-bit integer value specifying the number of 100ns periods since Jan 1, 1601.
 		/// </summary>
 		AppTime     = 7,
 
 		/// <summary>
-		/// A 32-bit error value.
+		/// The property has a 32-bit error value.
 		/// </summary>
 		Error       = 10,
 
 		/// <summary>
-		/// A 16-bit boolean value.
+		/// The property has a boolean value.
 		/// </summary>
 		Boolean     = 11,
 
 		/// <summary>
-		/// An embedded object.
+		/// The property has an embedded object value.
 		/// </summary>
 		Object      = 13,
 
 		/// <summary>
-		/// A signed 64-bit value.
+		/// The property has a signed 64-bit value.
 		/// </summary>
 		I8          = 20,
 
 		/// <summary>
-		/// A null terminated 8-bit character string.
+		/// The property has a null-terminated 8-bit character string value.
 		/// </summary>
 		String8     = 30,
 
 		/// <summary>
-		/// A null terminated unicode character string.
+		/// The property has a null-terminated unicode character string value.
 		/// </summary>
 		Unicode     = 31,
 
 		/// <summary>
-		/// A 64-bit integer value specifying the number of 100ns periods since Jan 1, 1601.
+		/// The property has a 64-bit integer value specifying the number of 100ns periods since Jan 1, 1601.
 		/// </summary>
 		SysTime     = 64,
 
 		/// <summary>
-		/// An OLE GUID value.
+		/// The property has an OLE GUID value.
 		/// </summary>
 		ClassId     = 72,
 
 		/// <summary>
-		/// A byte array.
+		/// The property has a binary blob value.
 		/// </summary>
 		Binary      = 258,
 
 		/// <summary>
-		/// A flag indicating that the value contains multiple values.
+		/// A flag indicating that the property contains multiple values.
 		/// </summary>
 		MultiValued = 4096,
 	}
