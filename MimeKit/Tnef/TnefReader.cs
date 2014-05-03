@@ -52,22 +52,57 @@ namespace MimeKit.Tnef {
 		bool closed;
 		bool eos;
 
+		/// <summary>
+		/// Gets the attachment key value.
+		/// </summary>
+		/// <remarks>
+		/// Gets the attachment key value.
+		/// </remarks>
+		/// <value>The attachment key value.</value>
 		public short AttachmentKey {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the current attribute's level.
+		/// </summary>
+		/// <remarks>
+		/// Gets the current attribute's level.
+		/// </remarks>
+		/// <value>The current attribute's level.</value>
 		public TnefAttributeLevel AttributeLevel {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the length of the current attribute's raw value.
+		/// </summary>
+		/// <remarks>
+		/// Gets the length of the current attribute's raw value.
+		/// </remarks>
+		/// <value>The length of the current attribute's raw value.</value>
 		public int AttributeRawValueLength {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the stream offset of the current attribute's raw value.
+		/// </summary>
+		/// <remarks>
+		/// Gets the stream offset of the current attribute's raw value.
+		/// </remarks>
+		/// <value>The stream offset of the current attribute's raw value.</value>
 		public int AttributeRawValueStreamOffset {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the current attribute's tag.
+		/// </summary>
+		/// <remarks>
+		/// Gets the current attribute's tag.
+		/// </remarks>
+		/// <value>The current attribute's tag.</value>
 		public TnefAttributeTag AttributeTag {
 			get; private set;
 		}
@@ -76,10 +111,25 @@ namespace MimeKit.Tnef {
 			get { return (TnefAttributeType) ((int) AttributeTag & 0xF0000); }
 		}
 
+		/// <summary>
+		/// Gets the compliance mode.
+		/// </summary>
+		/// <remarks>
+		/// Gets the compliance mode.
+		/// </remarks>
+		/// <value>The compliance mode.</value>
 		public TnefComplianceMode ComplianceMode {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the current compliance status of the TNEF stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the current compliance status of the TNEF stream.</para>
+		/// <para>As the reader progresses, this value may change if errors are encountered.</para>
+		/// </remarks>
+		/// <value>The compliance status.</value>
 		public TnefComplianceStatus ComplianceStatus {
 			get; internal set;
 		}
@@ -88,6 +138,13 @@ namespace MimeKit.Tnef {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets the message codepage.
+		/// </summary>
+		/// <remarks>
+		/// Gets the message codepage.
+		/// </remarks>
+		/// <value>The message codepage.</value>
 		public int MessageCodepage {
 			get { return codepage; }
 			private set {
@@ -111,6 +168,13 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		/// <summary>
+		/// Gets the TNEF property reader.
+		/// </summary>
+		/// <remarks>
+		/// Gets the TNEF property reader.
+		/// </remarks>
+		/// <value>The TNEF property reader.</value>
 		public TnefPropertyReader TnefPropertyReader {
 			get; private set;
 		}
@@ -126,6 +190,13 @@ namespace MimeKit.Tnef {
 			get { return (int) (position - (inputEnd - inputIndex)); }
 		}
 
+		/// <summary>
+		/// Gets the TNEF version.
+		/// </summary>
+		/// <remarks>
+		/// Gets the TNEF version.
+		/// </remarks>
+		/// <value>The TNEF version.</value>
 		public int TnefVersion {
 			get { return version; }
 			private set {
@@ -153,6 +224,9 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="defaultMessageCodepage"/> is not a supported codepage.
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The TNEF stream is corrupted or invalid.
 		/// </exception>
 		public TnefReader (Stream inputStream, int defaultMessageCodepage, TnefComplianceMode complianceMode)
 		{
@@ -304,7 +378,7 @@ namespace MimeKit.Tnef {
 					SetComplianceError (TnefComplianceStatus.InvalidTnefSignature);
 
 				// read the LegacyKey (ignore this value)
-				ReadInt16 ();
+				AttachmentKey = ReadInt16 ();
 			} catch (EndOfStreamException) {
 				SetComplianceError (TnefComplianceStatus.StreamTruncated);
 				throw;
@@ -534,6 +608,16 @@ namespace MimeKit.Tnef {
 			return true;
 		}
 
+		/// <summary>
+		/// Advances to the next attribute in the TNEF stream.
+		/// </summary>
+		/// <remarks>
+		/// Advances to the next attribute in the TNEF stream.
+		/// </remarks>
+		/// <returns><c>true</c> if there is another attribute available to be read; otherwise <c>false</c>.</returns>
+		/// <exception cref="TnefException">
+		/// The TNEF stream is corrupted or invalid.
+		/// </exception>
 		public bool ReadNextAttribute ()
 		{
 			if (AttributeRawValueStreamOffset != 0 && !SkipAttributeRawValue ())
@@ -578,6 +662,33 @@ namespace MimeKit.Tnef {
 				checksum = (checksum + buffer[i]) & 0xFFFF;
 		}
 
+		/// <summary>
+		/// Reads the raw attribute value data from the underlying TNEF stream.
+		/// </summary>
+		/// <remarks>
+		/// Reads the raw attribute value data from the underlying TNEF stream.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number
+		/// of bytes requested if that many bytes are not available, or zero (0) if the end of the
+		/// value has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public int ReadAttributeRawValue (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
@@ -614,11 +725,23 @@ namespace MimeKit.Tnef {
 			return n;
 		}
 
+		/// <summary>
+		/// Resets the compliance status.
+		/// </summary>
+		/// <remarks>
+		/// Resets the compliance status.
+		/// </remarks>
 		public void ResetComplianceStatus ()
 		{
 			ComplianceStatus = TnefComplianceStatus.Compliant;
 		}
 
+		/// <summary>
+		/// Closes the TNEF reader and the underlying stream.
+		/// </summary>
+		/// <remarks>
+		/// Closes the TNEF reader and the underlying stream.
+		/// </remarks>
 		public void Close ()
 		{
 			Dispose ();
@@ -626,11 +749,28 @@ namespace MimeKit.Tnef {
 
 		#region IDisposable implementation
 
+		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="TnefReader"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="TnefReader"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 			InputStream.Dispose ();
 		}
 
+		/// <summary>
+		/// Releases all resource used by the <see cref="MimeKit.Tnef.TnefReader"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Tnef.TnefReader"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Tnef.TnefReader"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Tnef.TnefReader"/> so the garbage
+		/// collector can reclaim the memory that the <see cref="MimeKit.Tnef.TnefReader"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);
