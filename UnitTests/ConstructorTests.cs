@@ -45,7 +45,7 @@ namespace UnitTests {
 			var msg = new MimeMessage (
 				new Header ("From", "Federico Di Gregorio <fog@dndg.it>"),
 				new Header ("To", "jeff@xamarin.com"),
-				new Header[] { new Header ("Cc", "fog@dndg.it"), new Header ("Cc", "<gg@dndg.it>") },
+				new [] { new Header ("Cc", "fog@dndg.it"), new Header ("Cc", "<gg@dndg.it>") },
 				new Header ("Subject", "Hello"),
 				new TextPart ("plain", "Just a short message to say hello!")
 			);
@@ -63,7 +63,7 @@ namespace UnitTests {
 		[Test]
 		public void TestGenerateMultipleMessagesWithLinq ()
 		{
-			string[] destinations = new string[] { "jeff@xamarin.com", "gg@dndg.it" };
+			string[] destinations = { "jeff@xamarin.com", "gg@dndg.it" };
 
 			IList<MimeMessage> msgs = destinations.Select(x => new MimeMessage(
 				new Header ("From", "Federico Di Gregorio <fog@dndg.it>"),

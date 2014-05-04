@@ -65,6 +65,7 @@
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="TnefTests.cs" />
+    <Compile Include="RtfCompressedToRtfTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\mbox\jwz.mbox.txt" />

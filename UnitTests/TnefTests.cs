@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq;
 
 using MimeKit;
+using MimeKit.IO;
 using MimeKit.Tnef;
 using MimeKit.IO.Filters;
 
@@ -132,7 +133,21 @@ namespace UnitTests {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var rtf = new TextPart ("rtf");
 						rtf.ContentType.Name = "body.rtf";
-						rtf.Text = prop.ReadValueAsString ();
+
+						var converter = new RtfCompressedToRtf ();
+						var content = new MemoryStream ();
+
+						using (var filtered = new FilteredStream (content)) {
+							filtered.Add (converter);
+
+							using (var compressed = prop.GetRawValueReadStream ()) {
+								compressed.CopyTo (filtered, 4096);
+								filtered.Flush ();
+							}
+						}
+
+						rtf.ContentObject = new ContentObject (content);
+						content.Position = 0;
 
 						builder.Attachments.Add (rtf);
 
@@ -271,7 +286,7 @@ namespace UnitTests {
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false), ContentEncoding.Default);
+					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
 					break;
 				default:

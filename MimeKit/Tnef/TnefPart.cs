@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+using MimeKit.IO;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.Tnef {
@@ -130,7 +131,23 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var rtf = new TextPart ("rtf");
 						rtf.ContentType.Name = "body.rtf";
-						rtf.Text = prop.ReadValueAsString ();
+
+						var converter = new RtfCompressedToRtf ();
+						var content = new MemoryStream ();
+
+						using (var filtered = new FilteredStream (content)) {
+							filtered.Add (converter);
+
+							using (var compressed = prop.GetRawValueReadStream ()) {
+								compressed.CopyTo (filtered, 4096);
+								filtered.Flush ();
+							}
+						}
+
+						rtf.ContentObject = new ContentObject (content);
+						content.Position = 0;
+
+						builder.Attachments.Add (rtf);
 
 						builder.Attachments.Add (rtf);
 					}
