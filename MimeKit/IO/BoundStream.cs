@@ -310,7 +310,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
 		/// at the specified <paramref name="offset"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
@@ -367,7 +367,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
 		/// at the specified <paramref name="offset"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
