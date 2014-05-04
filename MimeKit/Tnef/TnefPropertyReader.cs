@@ -29,11 +29,11 @@ using System.IO;
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
+using Decoder = Portable.Text.Decoder;
 #else
 using Encoding = System.Text.Encoding;
+using Decoder = System.Text.Decoder;
 #endif
-
-using MimeKit.IO;
 
 namespace MimeKit.Tnef {
 	class TnefPropertyReader
@@ -46,6 +46,7 @@ namespace MimeKit.Tnef {
 		int rawValueLength;
 		int propertyIndex;
 		int propertyCount;
+		Decoder decoder;
 		int valueIndex;
 		int valueCount;
 		int rowIndex;
@@ -179,7 +180,15 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Gets the embedded TNEF message reader.
 		/// </summary>
+		/// <remarks>
+		/// Gets the embedded TNEF message reader.
+		/// </remarks>
 		/// <returns>The embedded TNEF message reader.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The property does not contain any more values.</para>
+		/// <para>-or-</para>
+		/// <para>The property value is not an embedded message.</para>
+		/// </exception>
 		public TnefReader GetEmbeddedMessageReader ()
 		{
 			if (!IsEmbeddedMessage)
@@ -191,7 +200,13 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Gets the raw value of the attribute or property as a stream.
 		/// </summary>
+		/// <remarks>
+		/// Gets the raw value of the attribute or property as a stream.
+		/// </remarks>
 		/// <returns>The raw value stream.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// The property does not contain any more values.
+		/// </exception>
 		public Stream GetRawValueReadStream ()
 		{
 			if (valueIndex >= valueCount)
@@ -323,9 +338,23 @@ namespace MimeKit.Tnef {
 			return Encoding.Unicode.GetString (bytes, 0, length);
 		}
 
-		string DecodeAnsiString (byte[] bytes)
+		Encoding GetMessageEncoding ()
 		{
 			int codepage = reader.MessageCodepage;
+
+			if (codepage != 0 && codepage != 1252) {
+				try {
+					return Encoding.GetEncoding (codepage);
+				} catch {
+					return DefaultEncoding;
+				}
+			}
+
+			return DefaultEncoding;
+		}
+
+		string DecodeAnsiString (byte[] bytes)
+		{
 			int length = bytes.Length;
 
 			while (length > 0 && bytes[length - 1] == 0)
@@ -334,15 +363,11 @@ namespace MimeKit.Tnef {
 			if (length == 0)
 				return string.Empty;
 
-			if (codepage != 0 && codepage != 1252) {
-				try {
-					return Encoding.GetEncoding (codepage).GetString (bytes, 0, length);
-				} catch {
-					return DefaultEncoding.GetString (bytes, 0, length);
-				}
+			try {
+				return GetMessageEncoding ().GetString (bytes, 0, length);
+			} catch {
+				return DefaultEncoding.GetString (bytes, 0, length);
 			}
-
-			return DefaultEncoding.GetString (bytes, 0, length);
 		}
 
 		string ReadString ()
@@ -407,7 +432,13 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Advances to the next MAPI property.
 		/// </summary>
+		/// <remarks>
+		/// Advances to the next MAPI property.
+		/// </remarks>
 		/// <returns><c>true</c> if there is another property available to be read; otherwise <c>false</c>.</returns>
+		/// <exception cref="TnefException">
+		/// The TNEF data is corrupt or invalid.
+		/// </exception>
 		public bool ReadNextProperty ()
 		{
 			if (propertyIndex >= propertyCount)
@@ -443,7 +474,13 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Advances to the next table row of properties.
 		/// </summary>
+		/// <remarks>
+		/// Advances to the next table row of properties.
+		/// </remarks>
 		/// <returns><c>true</c> if there is another row available to be read; otherwise <c>false</c>.</returns>
+		/// <exception cref="TnefException">
+		/// The TNEF data is corrupt or invalid.
+		/// </exception>
 		public bool ReadNextRow ()
 		{
 			if (rowIndex >= rowCount)
@@ -467,7 +504,13 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Advances to the next value in the TNEF stream.
 		/// </summary>
+		/// <remarks>
+		/// Advances to the next value in the TNEF stream.
+		/// </remarks>
 		/// <returns><c>true</c> if there is another value available to be read; otherwise <c>false</c>.</returns>
+		/// <exception cref="TnefException">
+		/// The TNEF data is corrupt or invalid.
+		/// </exception>
 		public bool ReadNextValue ()
 		{
 			if (valueIndex >= valueCount || propertyCount == 0)
@@ -491,6 +534,29 @@ namespace MimeKit.Tnef {
 			return CheckRawValueLength ();
 		}
 
+		/// <summary>
+		/// Reads the raw attribute or property value as a sequence of bytes.
+		/// </summary>
+		/// <remarks>
+		/// Reads the raw attribute or property value as a sequence of bytes.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public int ReadRawValue (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
@@ -502,9 +568,47 @@ namespace MimeKit.Tnef {
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException ("count");
 
-			throw new NotImplementedException ();
+			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
+				switch (propertyTag.ValueTnefType) {
+				case TnefPropertyType.Unicode:
+				case TnefPropertyType.String8:
+				case TnefPropertyType.Binary:
+					ReadInt32 ();
+					break;
+				}
+			}
+
+			int valueEndOffset = RawValueStreamOffset + RawValueLength;
+			int valueLeft = valueEndOffset - reader.StreamOffset;
+			int n = Math.Min (valueLeft, count);
+
+			return n > 0 ? reader.ReadAttributeRawValue (buffer, offset, n) : 0;
 		}
 
+		/// <summary>
+		/// Reads the raw attribute or property value as a sequence of unicode characters.
+		/// </summary>
+		/// <remarks>
+		/// Reads the raw attribute or property value as a sequence of unicode characters.
+		/// </remarks>
+		/// <returns>The total number of characters read into the buffer. This can be less than the number of characters
+		/// requested if that many bytes are not currently available, or zero (0) if the end of the stream has been
+		/// reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of characters to read.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> characters starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
 		public int ReadTextValue (char[] buffer, int offset, int count)
 		{
 			if (buffer == null)
@@ -516,7 +620,39 @@ namespace MimeKit.Tnef {
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException ("count");
 
-			throw new NotImplementedException ();
+			if (reader.StreamOffset == RawValueStreamOffset && decoder == null)
+				throw new InvalidOperationException ();
+
+			if (propertyCount > 0) {
+				switch (propertyTag.ValueTnefType) {
+				case TnefPropertyType.Unicode:
+					if (reader.StreamOffset == RawValueStreamOffset)
+						ReadInt32 ();
+					decoder = Encoding.Unicode.GetDecoder ();
+					break;
+				case TnefPropertyType.String8:
+				case TnefPropertyType.Binary:
+					if (reader.StreamOffset == RawValueStreamOffset)
+						ReadInt32 ();
+					decoder = GetMessageEncoding ().GetDecoder ();
+					break;
+				}
+			}
+
+			int valueEndOffset = RawValueStreamOffset + RawValueLength;
+			int valueLeft = valueEndOffset - reader.StreamOffset;
+			int n = Math.Min (valueLeft, count);
+
+			if (n <= 0)
+				return 0;
+
+			var bytes = new byte[n];
+
+			n = reader.ReadAttributeRawValue (bytes, 0, bytes.Length);
+
+			var flush = reader.StreamOffset >= valueEndOffset;
+
+			return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
 		}
 
 		bool TryGetPropertyValueLength (out int length)
@@ -666,6 +802,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value.
 		/// </summary>
+		/// <remarks>
+		/// Reads an attribute or property value as its native type.
+		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read.
@@ -675,7 +814,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public object ReadValue ()
 		{
-			if (valueIndex >= valueCount)
+			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
 			if (propertyCount > 0)
@@ -703,6 +842,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a boolean.
 		/// </summary>
+		/// <remarks>
+		/// Reads any integer-based attribute or property value as a boolean.
+		/// </remarks>
 		/// <returns>The value as a boolean.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a boolean.
@@ -755,6 +897,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a byte array.
 		/// </summary>
+		/// <remarks>
+		/// Reads any string, binary blob, Class ID, or Object attribute or property value as a byte array.
+		/// </remarks>
 		/// <returns>The value as a byte array.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a byte array.
@@ -804,6 +949,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a date and time.
 		/// </summary>
+		/// <remarks>
+		/// Reads any date and time attribute or property value as a <see cref="DateTime"/>.
+		/// </remarks>
 		/// <returns>The value as a date and time.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a date and time.
@@ -838,6 +986,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a double.
 		/// </summary>
+		/// <remarks>
+		/// Reads any numeric attribute or property value as a double.
+		/// </remarks>
 		/// <returns>The value as a double.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a double.
@@ -896,6 +1047,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a float.
 		/// </summary>
+		/// <remarks>
+		/// Reads any numeric attribute or property value as a float.
+		/// </remarks>
 		/// <returns>The value as a float.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a float.
@@ -954,6 +1108,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a GUID.
 		/// </summary>
+		/// <remarks>
+		/// Reads any Class ID or Object value as a GUID.
+		/// </remarks>
 		/// <returns>The value as a GUID.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a GUID.
@@ -989,6 +1146,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a 16-bit integer.
 		/// </summary>
+		/// <remarks>
+		/// Reads any integer-based attribute or property value as a 16-bit integer.
+		/// </remarks>
 		/// <returns>The value as a 16-bit integer.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a 16-bit integer.
@@ -1047,6 +1207,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a 32-bit integer.
 		/// </summary>
+		/// <remarks>
+		/// Reads any integer-based attribute or property value as a 32-bit integer.
+		/// </remarks>
 		/// <returns>The value as a 32-bit integer.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a 32-bit integer.
@@ -1105,6 +1268,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a 64-bit integer.
 		/// </summary>
+		/// <remarks>
+		/// Reads any integer-based attribute or property value as a 64-bit integer.
+		/// </remarks>
 		/// <returns>The value as a 64-bit integer.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a 64-bit integer.
@@ -1163,6 +1329,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Reads the value as a string.
 		/// </summary>
+		/// <remarks>
+		/// Reads any string or binary blob values as a string.
+		/// </remarks>
 		/// <returns>The value as a string.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// There are no more values to read or the value could not be read as a string.
@@ -1201,6 +1370,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyReader"/> object.
 		/// </summary>
+		/// <remarks>
+		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyReader"/> object.
+		/// </remarks>
 		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
 		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
@@ -1211,6 +1383,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.
+		/// </remarks>
 		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
 		/// <see cref="MimeKit.Tnef.TnefPropertyReader"/>; otherwise, <c>false</c>.</returns>
@@ -1231,6 +1406,7 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
+			decoder = null;
 		}
 
 		int ReadValueCount ()
@@ -1264,6 +1440,7 @@ namespace MimeKit.Tnef {
 			}
 
 			valueIndex = 0;
+			decoder = null;
 		}
 
 		void LoadRowCount ()
@@ -1277,6 +1454,7 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
+			decoder = null;
 			rowIndex = 0;
 		}
 
@@ -1289,6 +1467,7 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
+			decoder = null;
 			rowCount = 0;
 			rowIndex = 0;
 
