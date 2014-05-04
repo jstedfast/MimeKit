@@ -925,7 +925,7 @@ namespace MimeKit.Cryptography {
 
 			return new MimePart ("application", "octet-stream") {
 				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (encrypted, ContentEncoding.Default),
+				ContentObject = new ContentObject (encrypted),
 			};
 		}
 
@@ -1103,7 +1103,7 @@ namespace MimeKit.Cryptography {
 
 				return new MimePart ("application", "octet-stream") {
 					ContentDisposition = new ContentDisposition ("attachment"),
-					ContentObject = new ContentObject (memory, ContentEncoding.Default)
+					ContentObject = new ContentObject (memory)
 				};
 			}
 		}
@@ -1509,7 +1509,7 @@ namespace MimeKit.Cryptography {
 
 			return new MimePart ("application", "pgp-keys") {
 				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (content, ContentEncoding.Default)
+				ContentObject = new ContentObject (content)
 			};
 		}
 	}

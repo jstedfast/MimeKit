@@ -61,7 +61,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> does not support seeking.</para>
 		/// </exception>
-		public ContentObject (Stream stream, ContentEncoding encoding)
+		public ContentObject (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");

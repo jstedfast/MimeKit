@@ -67,11 +67,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ApplicationPkcs7Signature (Stream stream) : base ("application", "pkcs7-signature")
 		{
-			ContentObject = new ContentObject (stream, ContentEncoding.Default);
-			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.Base64;
-			ContentDisposition.FileName = "smime.p7s";
-			ContentType.Name = "smime.p7s";
+			ContentObject = new ContentObject (stream);
+			FileName = "smime.p7s";
 		}
 	}
 }

@@ -109,7 +109,7 @@ namespace MimeKit {
 				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
 
 			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			attachment.ContentObject = new ContentObject (content, ContentEncoding.Default);
+			attachment.ContentObject = new ContentObject (content);
 		}
 
 		void LoadContent (MimePart attachment, string fileName)
@@ -136,7 +136,7 @@ namespace MimeKit {
 				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
 
 			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			attachment.ContentObject = new ContentObject (content, ContentEncoding.Default);
+			attachment.ContentObject = new ContentObject (content);
 		}
 
 		/// <summary>

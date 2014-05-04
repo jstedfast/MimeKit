@@ -115,7 +115,7 @@ namespace MimeKit {
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
 					// Use default as specified by ContentObject ctor when building a new MimePart.
-					content = new ContentObject (stream, ContentEncoding.Default);
+					content = new ContentObject (stream);
 					continue;
 				}
 

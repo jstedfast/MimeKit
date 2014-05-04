@@ -246,10 +246,10 @@ namespace MimeKit {
 
 			if (text == null)
 				throw new ArgumentNullException ("text");
-
-			var content = new MemoryStream (charset.GetBytes (text));
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
+				
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (charset);
+			var content = new MemoryStream (charset.GetBytes (text));
+			ContentObject = new ContentObject (content);
 		}
 	}
 }
