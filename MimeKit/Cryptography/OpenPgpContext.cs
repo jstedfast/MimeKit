@@ -812,6 +812,7 @@ namespace MimeKit.Cryptography {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
 					signatureList = (PgpSignatureList) factory.NextPgpObject ();
 				} else {
+					// FIXME: this should probably throw a FormatException? Also needs docs.
 					if ((signatureList = data as PgpSignatureList) == null)
 						throw new Exception ("Unexpected pgp object");
 				}
@@ -1162,6 +1163,8 @@ namespace MimeKit.Cryptography {
 					obj = factory.NextPgpObject ();
 
 					list = obj as PgpEncryptedDataList;
+
+					// FIXME: throw a FormatException instead?
 					if (list == null)
 						throw new Exception ("Unexpected pgp object");
 				}
@@ -1172,10 +1175,12 @@ namespace MimeKit.Cryptography {
 						break;
 				}
 
+				// FIXME: throw a FormatException instead?
 				if (encrypted == null)
 					throw new Exception ("no encrypted data objects found?");
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
+				// TODO: would using the PgpOnePassSignatureList improve performance?
 				//PgpOnePassSignatureList onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
@@ -1184,6 +1189,7 @@ namespace MimeKit.Cryptography {
 				obj = factory.NextPgpObject ();
 				while (obj != null) {
 					if (obj is PgpCompressedData) {
+						// FIXME: throw a FormatException instead?
 						if (compressed != null)
 							throw new Exception ("recursive compression detected.");
 
@@ -1205,13 +1211,6 @@ namespace MimeKit.Cryptography {
 				}
 
 				memory.Position = 0;
-
-				// FIXME: validate the OnePass signatures... and do what with them?
-				//if (onepassList != null) {
-				//	for (int i = 0; i < onepassList.Count; i++) {
-				//		var onepass = onepassList[i];
-				//	}
-				//}
 
 				if (signatureList != null) {
 					signatures = GetDigitalSignatures (signatureList, memory);
