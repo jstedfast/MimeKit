@@ -245,7 +245,7 @@ namespace MimeKit.Tnef {
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false), ContentEncoding.Default);
+					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
 					break;
 				}

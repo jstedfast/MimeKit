@@ -230,10 +230,7 @@ namespace MimeKit {
 				if (md5sum == value)
 					return;
 
-				if (value != null)
-					md5sum = value.Trim ();
-				else
-					md5sum = null;
+				md5sum = value != null ? value.Trim () : null;
 
 				if (value != null)
 					SetHeader ("Content-Md5", md5sum);
@@ -292,10 +289,8 @@ namespace MimeKit {
 				if (filename == null)
 					filename = ContentType.Name;
 
-				if (filename == null)
-					return null;
+				return filename != null ? filename.Trim () : null;
 
-				return filename.Trim ();
 			}
 			set {
 				if (value != null) {
@@ -542,10 +537,7 @@ namespace MimeKit {
 					}
 					break;
 				case HeaderId.ContentDuration:
-					if (int.TryParse (header.Value, out value))
-						duration = value;
-					else
-						duration = null;
+					duration = int.TryParse (header.Value, out value) ? value : null;
 					break;
 				case HeaderId.ContentMd5:
 					md5sum = header.Value.Trim ();

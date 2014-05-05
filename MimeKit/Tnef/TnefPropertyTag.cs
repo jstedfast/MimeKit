@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF property tag.
