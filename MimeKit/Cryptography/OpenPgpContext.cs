@@ -1180,8 +1180,7 @@ namespace MimeKit.Cryptography {
 					throw new Exception ("no encrypted data objects found?");
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
-				// TODO: would using the PgpOnePassSignatureList improve performance?
-				//PgpOnePassSignatureList onepassList = null;
+				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
 				var memory = new MemoryStream ();
@@ -1195,15 +1194,56 @@ namespace MimeKit.Cryptography {
 
 						compressed = (PgpCompressedData) obj;
 						factory = new PgpObjectFactory (compressed.GetDataStream ());
-						//} else if (obj is PgpOnePassSignatureList) {
-						//onepassList = (PgpOnePassSignatureList) obj;
+					} else if (obj is PgpOnePassSignatureList) {
+						if (memory.Length == 0) {
+							var onepasses = (PgpOnePassSignatureList) obj;
+
+							onepassList = new List<IDigitalSignature> ();
+
+							for (int i = 0; i < list.Count; i++) {
+								var onepass = onepasses[i];
+								var pubkey = PublicKeyRingBundle.GetPublicKey (onepass.KeyId);
+
+								if (pubkey == null) {
+									// too messy, pretend we never found a one-pass signature list
+									onepassList = null;
+									break;
+								}
+
+								onepass.InitVerify (pubkey);
+
+								var signature = new OpenPgpDigitalSignature (pubkey, onepass) {
+									PublicKeyAlgorithm = GetPublicKeyAlgorithm (onepass.KeyAlgorithm),
+									DigestAlgorithm = GetDigestAlgorithm (onepass.HashAlgorithm),
+								};
+
+								onepassList.Add (signature);
+							}
+						}
 					} else if (obj is PgpSignatureList) {
 						signatureList = (PgpSignatureList) obj;
 					} else if (obj is PgpLiteralData) {
 						var literal = (PgpLiteralData) obj;
 
 						using (var stream = literal.GetDataStream ()) {
-							stream.CopyTo (memory, 4096);
+							var buffer = new byte[4096];
+							int nread;
+
+							while ((nread = stream.Read (buffer, 0, buffer.Length)) > 0) {
+								if (onepassList != null) {
+									// update our one-pass signatures...
+									for (int index = 0; index < nread; index++) {
+										byte c = buffer[index];
+
+										for (int i = 0; i < onepassList.Count; i++) {
+											var pgp = (OpenPgpDigitalSignature) onepassList[i];
+											pgp.OnePassSignature.Update (c);
+										}
+									}
+								}
+
+								memory.Write (buffer, 0, nread);
+							}
 						}
 					}
 
@@ -1213,8 +1253,18 @@ namespace MimeKit.Cryptography {
 				memory.Position = 0;
 
 				if (signatureList != null) {
-					signatures = GetDigitalSignatures (signatureList, memory);
-					memory.Position = 0;
+					if (onepassList != null && signatureList.Count == onepassList.Count) {
+						for (int i = 0; i < onepassList.Count; i++) {
+							var pgp = (OpenPgpDigitalSignature) onepassList[i];
+							pgp.CreationDate = signatureList[i].CreationTime;
+							pgp.Signature = signatureList[i];
+						}
+
+						signatures = new DigitalSignatureCollection (onepassList);
+					} else {
+						signatures = GetDigitalSignatures (signatureList, memory);
+						memory.Position = 0;
+					}
 				} else {
 					signatures = null;
 				}
