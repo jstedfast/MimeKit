@@ -33,6 +33,8 @@ using System.Collections.Generic;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
@@ -637,7 +639,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
@@ -859,7 +861,7 @@ namespace MimeKit.Cryptography {
 		static Stream Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var compressed = compresser.Open (memory)) {
 				var literalGenerator = new PgpLiteralDataGenerator ();
@@ -879,7 +881,7 @@ namespace MimeKit.Cryptography {
 
 		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
 		{
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				using (var compressed = Compress (content)) {
@@ -1070,7 +1072,7 @@ namespace MimeKit.Cryptography {
 
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
-			using (var compressed = new MemoryStream ()) {
+			using (var compressed = new MemoryBlockStream ()) {
 				using (var signed = compresser.Open (compressed)) {
 					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
 					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
@@ -1107,7 +1109,7 @@ namespace MimeKit.Cryptography {
 
 				compressed.Position = 0;
 
-				var memory = new MemoryStream ();
+				var memory = new MemoryBlockStream ();
 				using (var armored = new ArmoredOutputStream (memory)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 						compressed.CopyTo (encrypted, 4096);
@@ -1147,12 +1149,14 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
 		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
 			using (var armored = new ArmoredInputStream (encryptedData)) {
 				var factory = new PgpObjectFactory (armored);
 				var obj = factory.NextPgpObject ();
@@ -1164,9 +1168,8 @@ namespace MimeKit.Cryptography {
 
 					list = obj as PgpEncryptedDataList;
 
-					// FIXME: throw a FormatException instead?
 					if (list == null)
-						throw new Exception ("Unexpected pgp object");
+						throw new PgpException ("Unexpected OpenPGP packet.");
 				}
 
 				PgpPublicKeyEncryptedData encrypted = null;
@@ -1175,22 +1178,20 @@ namespace MimeKit.Cryptography {
 						break;
 				}
 
-				// FIXME: throw a FormatException instead?
 				if (encrypted == null)
-					throw new Exception ("no encrypted data objects found?");
+					throw new PgpException ("No encrypted data objects found.");
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
 				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
-				var memory = new MemoryStream ();
+				var memory = new MemoryBlockStream ();
 
 				obj = factory.NextPgpObject ();
 				while (obj != null) {
 					if (obj is PgpCompressedData) {
-						// FIXME: throw a FormatException instead?
 						if (compressed != null)
-							throw new Exception ("recursive compression detected.");
+							throw new PgpException ("Recursive compression packets are not supported.");
 
 						compressed = (PgpCompressedData) obj;
 						factory = new PgpObjectFactory (compressed.GetDataStream ());
@@ -1293,6 +1294,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
 		public Stream GetDecryptedStream (Stream encryptedData)
 		{
 			DigitalSignatureCollection signatures;
@@ -1324,6 +1328,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
 		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
@@ -1353,6 +1360,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
@@ -1564,7 +1574,7 @@ namespace MimeKit.Cryptography {
 			if (keys == null)
 				throw new ArgumentNullException ("keys");
 
-			var content = new MemoryStream ();
+			var content = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (content)) {
 				keys.Encode (armored);
