@@ -155,8 +155,6 @@ namespace MimeKit.Tnef {
 						content.Position = 0;
 
 						builder.Attachments.Add (rtf);
-
-						builder.Attachments.Add (rtf);
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
@@ -200,10 +198,8 @@ namespace MimeKit.Tnef {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
-					if (attachment != null)
-						builder.Attachments.Add (attachment);
-
 					attachment = new MimePart ();
+					builder.Attachments.Add (attachment);
 					break;
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
@@ -256,9 +252,6 @@ namespace MimeKit.Tnef {
 					filter.Reset ();
 					break;
 				}
-
-				if (attachment != null)
-					builder.Attachments.Add (attachment);
 			} while (reader.ReadNextAttribute ());
 		}
 

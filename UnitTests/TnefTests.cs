@@ -210,10 +210,8 @@ namespace UnitTests {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
-					if (attachment != null)
-						builder.Attachments.Add (attachment);
-
 					attachment = new MimePart ();
+					builder.Attachments.Add (attachment);
 					break;
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
@@ -293,9 +291,6 @@ namespace UnitTests {
 					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 					break;
 				}
-
-				if (attachment != null)
-					builder.Attachments.Add (attachment);
 			} while (reader.ReadNextAttribute ());
 		}
 
