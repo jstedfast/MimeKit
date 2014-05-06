@@ -327,12 +327,6 @@ namespace MimeKit.Tnef {
 
 			end = input.Length - PadSize;
 
-			// Note: if a perviously parsed MimePart's content has been read,
-			// then the stream position will have moved and will need to be
-			// reset.
-			if (InputStream.Position != position)
-				InputStream.Seek (position, SeekOrigin.Begin);
-
 			if ((nread = InputStream.Read (input, start, end - start)) > 0) {
 				inputEnd += nread;
 				position += nread;
