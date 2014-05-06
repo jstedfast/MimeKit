@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CertificateRecord extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.33.0.0</AssemblyVersion>
+    <AssemblyVersion>0.34.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -41,7 +41,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
@@ -64,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
@@ -97,7 +97,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.EncryptionAlgorithm[] Algorithms" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
@@ -117,7 +117,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime AlgorithmsUpdated" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -137,7 +137,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 BasicConstraints" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -157,7 +157,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -177,7 +177,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Fingerprint" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -197,7 +197,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Id" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -218,7 +218,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string IssuerName" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -238,7 +238,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsTrusted" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -259,7 +259,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyUsage" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -279,7 +279,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime NotAfter" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -299,7 +299,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime NotBefore" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -319,7 +319,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -339,7 +339,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string SerialNumber" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -359,7 +359,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string SubjectEmail" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.33.0.0</AssemblyVersion>
+        <AssemblyVersion>0.34.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
