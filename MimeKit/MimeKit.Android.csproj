@@ -42,6 +42,12 @@
     <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
     <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />

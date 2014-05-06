@@ -38,6 +38,12 @@
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj">
       <Project>{EEE48C75-11BE-4B50-B759-F85B5052D473}</Project>
