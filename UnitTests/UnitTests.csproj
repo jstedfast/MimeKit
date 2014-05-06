@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -29,6 +29,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>mimekit.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -68,6 +74,7 @@
     <Compile Include="RtfCompressedToRtfTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="mimekit.pfx" />
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
@@ -120,14 +127,7 @@
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestData\" />
-    <Folder Include="TestData\mbox\" />
-    <Folder Include="TestData\messages\" />
-    <Folder Include="TestData\openpgp\" />
-    <Folder Include="TestData\smime\" />
-    <Folder Include="TestData\tnef\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

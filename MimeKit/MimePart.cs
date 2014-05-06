@@ -537,7 +537,10 @@ namespace MimeKit {
 					}
 					break;
 				case HeaderId.ContentDuration:
-					duration = int.TryParse (header.Value, out value) ? value : null;
+					if (int.TryParse (header.Value, out value))
+						duration = value;
+					else
+						duration = null;
 					break;
 				case HeaderId.ContentMd5:
 					md5sum = header.Value.Trim ();
