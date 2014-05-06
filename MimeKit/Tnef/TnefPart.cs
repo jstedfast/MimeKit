@@ -28,7 +28,14 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#else
+using Encoding = System.Text.Encoding;
+#endif
+
 using MimeKit.IO;
+using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.Tnef {
@@ -307,7 +314,14 @@ namespace MimeKit.Tnef {
 			if (ContentObject == null)
 				throw new InvalidOperationException ("Cannot parse TNEF data without a ContentObject.");
 
-			using (var reader = new TnefReader (ContentObject.Open ())) {
+			int codepage = 0;
+
+			if (!string.IsNullOrEmpty (ContentType.Charset)) {
+				if ((codepage = CharsetUtils.GetCodePage (ContentType.Charset)) == -1)
+					codepage = 0;
+			}
+
+			using (var reader = new TnefReader (ContentObject.Open (), codepage, TnefComplianceMode.Loose)) {
 				return ExtractTnefMessage (reader);
 			}
 		}
