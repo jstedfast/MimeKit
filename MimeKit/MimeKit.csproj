@@ -130,6 +130,8 @@
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Text\TextConverter.cs" />
+    <Compile Include="Text\TextFormat.cs" />
     <Compile Include="Tnef\RtfCompressedToRtf.cs" />
     <Compile Include="Tnef\RtfCompressionMode.cs" />
     <Compile Include="Tnef\TnefAttributeLevel.cs" />
@@ -194,6 +196,7 @@
     <Folder Include="Encodings\" />
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
+    <Folder Include="Text\" />
     <Folder Include="Tnef\" />
     <Folder Include="Utils\" />
   </ItemGroup>

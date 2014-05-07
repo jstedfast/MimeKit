@@ -162,10 +162,10 @@ namespace MimeKit.IO.Filters {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			bool decodeCompleted = false;
-			bool encodeCompleted = false;
 			int inputIndex = startIndex;
 			int inputLeft = length;
+			bool decoded = false;
+			bool encoded = false;
 			int nwritten, nread;
 			int outputOffset = 0;
 			int outputLeft;
@@ -176,10 +176,10 @@ namespace MimeKit.IO.Filters {
 				charsLeft = chars.Length;
 				charIndex = 0;
 
-				if (!decodeCompleted) {
-					decoder.Convert (input, inputIndex, inputLeft, chars, charIndex, charsLeft, flush, out nread, out nwritten, out decodeCompleted);
+				if (!decoded) {
+					decoder.Convert (input, inputIndex, inputLeft, chars, charIndex, charsLeft, flush, out nread, out nwritten, out decoded);
 					if (nwritten > 0)
-						encodeCompleted = false;
+						encoded = false;
 					charIndex += nwritten;
 					inputIndex += nread;
 					inputLeft -= nread;
@@ -189,16 +189,16 @@ namespace MimeKit.IO.Filters {
 				charIndex = 0;
 				
 				// encode *all* input chars into the output buffer
-				while (!encodeCompleted) {
+				while (!encoded) {
 					EnsureOutputSize (outputOffset + TargetEncoding.GetMaxByteCount (charsLeft) + 4, true);
 					outputLeft = OutputBuffer.Length - outputOffset;
 					
-					encoder.Convert (chars, charIndex, charsLeft, OutputBuffer, outputOffset, outputLeft, flush, out nread, out nwritten, out encodeCompleted);
+					encoder.Convert (chars, charIndex, charsLeft, OutputBuffer, outputOffset, outputLeft, flush, out nread, out nwritten, out encoded);
 					outputOffset += nwritten;
 					charIndex += nread;
 					charsLeft -= nread;
 				}
-			} while (!decodeCompleted);
+			} while (!decoded);
 
 			outputLength = outputOffset;
 			outputIndex = 0;
