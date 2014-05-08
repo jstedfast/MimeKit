@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit HeaderList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Header&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Header&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.Header&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.34.0.0</AssemblyVersion>
+    <AssemblyVersion>0.35.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -34,7 +34,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -51,7 +51,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -77,7 +77,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -108,7 +108,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -143,7 +143,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -163,7 +163,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -192,7 +192,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -221,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -250,7 +250,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.Header[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -282,7 +282,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -302,7 +302,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.Header&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.Header&gt;</ReturnType>
@@ -323,7 +323,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -350,7 +350,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -377,7 +377,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -404,7 +404,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -435,7 +435,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Insert(int32 index, valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -472,7 +472,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Insert(int32 index, string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -512,7 +512,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -533,7 +533,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Item(valuetype MimeKit.HeaderId)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -562,7 +562,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Header Item(int32)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Header</ReturnType>
@@ -592,7 +592,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Item(string)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -625,7 +625,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -654,7 +654,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Remove(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -683,7 +683,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Remove(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -712,7 +712,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveAll(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -738,7 +738,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveAll(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -764,7 +764,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -790,7 +790,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -817,7 +817,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -849,7 +849,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -885,7 +885,7 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
@@ -906,7 +906,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -940,7 +940,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.34.0.0</version>
+        <version>0.35.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,11 +22,7 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Fixed the TNEF parser to default to the MIME part's charset if no codepage is defined in the TNEF stream.
-* Fixed the TNEF parser not to rely on the stream being seekable.
-* Modified the TNEF parser to decompress compressed RTF attachments.
-* Modified the ContentObject .ctor's ContentEncoding parameter to be optional.
-* MimeKit.dll is now strong-named.</releaseNotes>
+        <releaseNotes>* Fixed TnefPart.ExtractAttachments() to not return each attachment multiple times.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser tnef net40 xamarin android ios monodroid monotouch</tags>

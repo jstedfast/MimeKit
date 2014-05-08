@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CharsetFilter extends MimeKit.IO.Filters.MimeFilterBase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.34.0.0</AssemblyVersion>
+    <AssemblyVersion>0.35.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
@@ -24,7 +24,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 sourceCodePage, int32 targetCodePage) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceCodePage" Type="System.Int32" />
@@ -59,7 +59,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string sourceEncodingName, string targetEncodingName) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceEncodingName" Type="System.String" />
@@ -94,7 +94,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding sourceEncoding, class System.Text.Encoding targetEncoding) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="sourceEncoding" Type="System.Text.Encoding" />
@@ -124,7 +124,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -159,7 +159,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -179,7 +179,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding SourceEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -199,7 +199,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding TargetEncoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.34.0.0</AssemblyVersion>
+        <AssemblyVersion>0.35.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
