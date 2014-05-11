@@ -265,17 +265,17 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			var sb = new StringBuilder ();
+			var quoted = new StringBuilder ();
 
-			sb.Append ("\"");
+			quoted.Append ("\"");
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
-					sb.Append ('\\');
-				sb.Append (text[i]);
+					quoted.Append ('\\');
+				quoted.Append (text[i]);
 			}
-			sb.Append ("\"");
+			quoted.Append ("\"");
 
-			return sb.ToString ();
+			return quoted.ToString ();
 		}
 
 		/// <summary>
