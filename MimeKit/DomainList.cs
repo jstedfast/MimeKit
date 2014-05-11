@@ -351,7 +351,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Parses a list of domains.
+		/// Tries to parse a list of domains.
 		/// </summary>
 		/// <remarks>
 		/// Attempts to parse a <see cref="DomainList"/> from the text buffer starting at the
@@ -408,6 +408,32 @@ namespace MimeKit {
 			route = new DomainList (domains);
 
 			return true;
+		}
+
+		/// <summary>
+		/// Tries to parse a list of domains.
+		/// </summary>
+		/// <remarks>
+		/// Attempts to parse a <see cref="DomainList"/> from the supplied text. The index
+		/// will only be updated if a <see cref="DomainList"/> was successfully parsed.
+		/// </remarks>
+		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
+		/// <c>false</c> otherwise.</returns>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="route">The parsed DomainList.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryParse (string text, out DomainList route)
+		{
+			int index = 0;
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+
+			return TryParse (buffer, ref index, buffer.Length, false, out route);
 		}
 	}
 }
