@@ -84,6 +84,17 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
+		/// Clones the CRC32 context and state.
+		/// </summary>
+		/// <remarks>
+		/// Clones the CRC32 context and state.
+		/// </remarks>
+		public Crc32 Clone ()
+		{
+			return new Crc32 { crc = crc };
+		}
+
+		/// <summary>
 		/// Gets the computed checksum.
 		/// </summary>
 		/// <remarks>
