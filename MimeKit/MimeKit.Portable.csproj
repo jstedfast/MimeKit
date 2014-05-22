@@ -65,6 +65,8 @@
     <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
     <Compile Include="Encodings\UUDecoder.cs" />
     <Compile Include="Encodings\UUEncoder.cs" />
+    <Compile Include="Encodings\YDecoder.cs" />
+    <Compile Include="Encodings\YEncoder.cs" />
     <Compile Include="IO\BoundStream.cs" />
     <Compile Include="IO\ChainedStream.cs" />
     <Compile Include="IO\FilteredStream.cs" />

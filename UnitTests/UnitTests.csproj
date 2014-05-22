@@ -72,6 +72,7 @@
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="TnefTests.cs" />
     <Compile Include="RtfCompressedToRtfTests.cs" />
+    <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\mbox\jwz.mbox.txt" />
@@ -125,6 +126,7 @@
     <None Include="TestData\tnef\triples.tnef" />
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
+    <None Include="TestData\yenc\simple.msg" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -136,4 +138,7 @@
     <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="TestData\yenc\" />
+  </ItemGroup>
 </Project>
