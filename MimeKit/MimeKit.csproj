@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -189,6 +189,7 @@
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
+    <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -99,11 +99,11 @@ namespace UnitTests {
 			var input = "=?iso-8859-1?q?hola?=";
 			string actual;
 
-			options.EnableRfc2047Workarounds = false;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Strict;
 			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual);
 
-			options.EnableRfc2047Workarounds = true;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}
@@ -115,11 +115,11 @@ namespace UnitTests {
 			var input = "=?iso-8859-1?B?aG9sYQ==?=";
 			string actual;
 
-			options.EnableRfc2047Workarounds = false;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Strict;
 			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual);
 
-			options.EnableRfc2047Workarounds = true;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			actual = Rfc2047.DecodePhrase (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}
@@ -131,11 +131,11 @@ namespace UnitTests {
 			var input = "=?iso-8859-1?q?hola?=";
 			string actual;
 
-			options.EnableRfc2047Workarounds = false;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Strict;
 			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual);
 
-			options.EnableRfc2047Workarounds = true;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}
@@ -147,11 +147,11 @@ namespace UnitTests {
 			var input = "=?iso-8859-1?B?aG9sYQ==?=";
 			string actual;
 
-			options.EnableRfc2047Workarounds = false;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Strict;
 			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual);
 
-			options.EnableRfc2047Workarounds = true;
+			options.Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
 			Assert.AreEqual ("hola", actual, "Unexpected result when workarounds enabled.");
 		}

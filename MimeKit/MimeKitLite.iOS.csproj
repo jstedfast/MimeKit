@@ -139,6 +139,7 @@
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
+    <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
   </ItemGroup>
   <ItemGroup>

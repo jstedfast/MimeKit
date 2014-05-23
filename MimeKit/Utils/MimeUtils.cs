@@ -125,7 +125,7 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
+					if (!InternetAddress.TryParseMailbox (ParserOptions.Default, buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
 						break;
 
 					yield return ((MailboxAddress) addr).Address;

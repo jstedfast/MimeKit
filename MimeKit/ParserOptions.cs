@@ -62,15 +62,26 @@ namespace MimeKit {
 		public static readonly ParserOptions Default = new ParserOptions ();
 
 		/// <summary>
-		/// Gets or sets a value indicating whether rfc2047 workarounds should be used.
+		/// Gets or sets the compliance mode that should be used when parsing rfc822 addresses.
 		/// </summary>
 		/// <remarks>
-		/// In general, you'll probably want this value to be <c>true</c> (the default) as it
-		/// allows maximum interoperability with existing (broken) mail clients and other mail
-		/// software such as sloppily written perl scripts (aka spambots).
+		/// In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
+		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
+		/// and other mail software such as sloppily written perl scripts (aka spambots).
 		/// </remarks>
-		/// <value><c>true</c> if rfc2047 workarounds are enabled; otherwise, <c>false</c>.</value>
-		public bool EnableRfc2047Workarounds { get; set; }
+		/// <value>The RFC compliance mode.</value>
+		public RfcComplianceMode AddressParserComplianceMode { get; set; }
+
+		/// <summary>
+		/// Gets or sets the compliance mode that should be used when decoding rfc2047 encoded words.
+		/// </summary>
+		/// <remarks>
+		/// In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
+		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
+		/// and other mail software such as sloppily written perl scripts (aka spambots).
+		/// </remarks>
+		/// <value>The RFC compliance mode.</value>
+		public RfcComplianceMode Rfc2047ComplianceMode { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether the Content-Length value should be
@@ -107,8 +118,9 @@ namespace MimeKit {
 		/// </remarks>
 		public ParserOptions ()
 		{
+			AddressParserComplianceMode = RfcComplianceMode.Loose;
+			Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			CharsetEncoding = Encoding.Default;
-			EnableRfc2047Workarounds = true;
 			RespectContentLength = false;
 		}
 
@@ -123,7 +135,8 @@ namespace MimeKit {
 		public ParserOptions Clone ()
 		{
 			var options = new ParserOptions ();
-			options.EnableRfc2047Workarounds = EnableRfc2047Workarounds;
+			options.AddressParserComplianceMode = AddressParserComplianceMode;
+			options.Rfc2047ComplianceMode = Rfc2047ComplianceMode;
 			options.RespectContentLength = RespectContentLength;
 			options.CharsetEncoding = CharsetEncoding;
 

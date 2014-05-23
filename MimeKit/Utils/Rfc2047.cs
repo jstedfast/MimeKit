@@ -203,7 +203,7 @@ namespace MimeKit.Utils {
 				word = inptr;
 				ascii = true;
 				if (inptr < inend && IsAtom (*inptr)) {
-					if (options.EnableRfc2047Workarounds) {
+					if (options.Rfc2047ComplianceMode == RfcComplianceMode.Loose) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;
@@ -329,7 +329,7 @@ namespace MimeKit.Utils {
 					word = inptr;
 					ascii = true;
 
-					if (options.EnableRfc2047Workarounds) {
+					if (options.Rfc2047ComplianceMode == RfcComplianceMode.Loose) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;

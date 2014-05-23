@@ -255,7 +255,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
+		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
 			Encoding encoding = Encoding.GetEncoding (codepage);
 			DomainList route = null;
@@ -297,18 +297,20 @@ namespace MimeKit {
 				return false;
 
 			if (index >= endIndex || text[index] != (byte) '>') {
-				if (throwOnError)
-					throw new ParseException (string.Format ("Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
 
-				return false;
+					return false;
+				}
+			} else {
+				index++;
 			}
 
 			if (route != null)
 				address = new MailboxAddress (encoding, name, route, addrspec);
 			else
 				address = new MailboxAddress (encoding, name, addrspec);
-
-			index++;
 
 			return true;
 		}
@@ -453,7 +455,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
+				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '@') {
