@@ -1,6 +1,6 @@
-<Type Name="UUEncoder" FullName="MimeKit.Encodings.UUEncoder">
-  <TypeSignature Language="C#" Value="public class UUEncoder : MimeKit.Encodings.IMimeEncoder" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit UUEncoder extends System.Object implements class MimeKit.Encodings.IMimeEncoder" />
+<Type Name="YEncoder" FullName="MimeKit.Encodings.YEncoder">
+  <TypeSignature Language="C#" Value="public class YEncoder : MimeKit.Encodings.IMimeEncoder" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit YEncoder extends System.Object implements class MimeKit.Encodings.IMimeEncoder" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.36.0.0</AssemblyVersion>
@@ -15,31 +15,52 @@
   </Interfaces>
   <Docs>
     <summary>
-            Incrementally encodes content using the Unix-to-Unix encoding.
+            Incrementally encodes content using the yEnc encoding.
             </summary>
     <remarks>
-      <para>The UUEncoding is an encoding that predates MIME and was used to encode
-            binary content such as images and other types of multi-media to ensure
-            that the data remained intact when sent via 7bit transports such as SMTP.</para>
-      <para>These days, the UUEncoding has largely been deprecated in favour of
-            the base64 encoding, however, some older mail clients still use it.</para>
+      <para>The yEncoding is an encoding that is most commonly used with Usenet and
+            is a binary encoding that includes a 32-bit cyclic redundancy check.</para>
+      <para>For more information, see http://www.yenc.org/</para>
     </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public UUEncoder ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="C#" Value="public YEncoder (int maxLineLength = 128);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 maxLineLength) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.36.0.0</AssemblyVersion>
       </AssemblyInfo>
-      <Parameters />
+      <Parameters>
+        <Parameter Name="maxLineLength" Type="System.Int32" />
+      </Parameters>
       <Docs>
+        <param name="maxLineLength">The line length to use.</param>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Encodings.UUEncoder" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.YEncoder" /> class.
             </summary>
         <remarks>
-            Creates a new Unix-to-Unix encoder.
+            Creates a new yEnc encoder.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Checksum">
+      <MemberSignature Language="C#" Value="public int Checksum { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Checksum" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the checksum.
+            </summary>
+        <value>The checksum.</value>
+        <remarks>
+            Gets the checksum.
             </remarks>
       </Docs>
     </Member>
@@ -56,11 +77,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Clone the <see cref="T:MimeKit.Encodings.UUEncoder" /> with its current state.
+            Clone the <see cref="T:MimeKit.Encodings.YEncoder" /> with its current state.
             </summary>
-        <returns>A new <see cref="T:MimeKit.Encodings.UUEncoder" /> with identical state.</returns>
+        <returns>A new <see cref="T:MimeKit.Encodings.YEncoder" /> with identical state.</returns>
         <remarks>
-            Creates a new <see cref="T:MimeKit.Encodings.UUEncoder" /> with exactly the same state as the current encoder.
+            Creates a new <see cref="T:MimeKit.Encodings.YEncoder" /> with exactly the same state as the current encoder.
             </remarks>
       </Docs>
     </Member>
@@ -93,7 +114,7 @@
           <para>Encodes the specified input into the output buffer.</para>
           <para>The output buffer should be large enough to hold all of the
             encoded input. For estimating the size needed for the output buffer,
-            see <see cref="M:MimeKit.Encodings.UUEncoder.EstimateOutputLength(System.Int32)" />.</para>
+            see <see cref="M:MimeKit.Encodings.YEncoder.EstimateOutputLength(System.Int32)" />.</para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -109,7 +130,7 @@
         <exception cref="T:System.ArgumentException">
           <para>
             <paramref name="output" /> is not large enough to contain the encoded content.</para>
-          <para>Use the <see cref="M:MimeKit.Encodings.UUEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+          <para>Use the <see cref="M:MimeKit.Encodings.YEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
             necessary length of the <paramref name="output" /> byte array.</para>
         </exception>
       </Docs>
@@ -187,7 +208,7 @@
           <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
           <para>The output buffer should be large enough to hold all of the
             encoded input. For estimating the size needed for the output buffer,
-            see <see cref="M:MimeKit.Encodings.UUEncoder.EstimateOutputLength(System.Int32)" />.</para>
+            see <see cref="M:MimeKit.Encodings.YEncoder.EstimateOutputLength(System.Int32)" />.</para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -203,7 +224,7 @@
         <exception cref="T:System.ArgumentException">
           <para>
             <paramref name="output" /> is not large enough to contain the encoded content.</para>
-          <para>Use the <see cref="M:MimeKit.Encodings.UUEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+          <para>Use the <see cref="M:MimeKit.Encodings.YEncoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
             necessary length of the <paramref name="output" /> byte array.</para>
         </exception>
       </Docs>

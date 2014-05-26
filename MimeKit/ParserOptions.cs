@@ -65,9 +65,11 @@ namespace MimeKit {
 		/// Gets or sets the compliance mode that should be used when parsing rfc822 addresses.
 		/// </summary>
 		/// <remarks>
-		/// In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
+		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
 		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
-		/// and other mail software such as sloppily written perl scripts (aka spambots).
+		/// and other mail software such as sloppily written perl scripts (aka spambots).</para>
+		/// <para>It should be noted that even in <see cref="RfcComplianceMode.Strict"/> mode, the address
+		/// parser is fairly liberal in what it accepts.</para>
 		/// </remarks>
 		/// <value>The RFC compliance mode.</value>
 		public RfcComplianceMode AddressParserComplianceMode { get; set; }

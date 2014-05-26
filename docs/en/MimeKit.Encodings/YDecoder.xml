@@ -1,6 +1,6 @@
-<Type Name="HexDecoder" FullName="MimeKit.Encodings.HexDecoder">
-  <TypeSignature Language="C#" Value="public class HexDecoder : MimeKit.Encodings.IMimeDecoder" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit HexDecoder extends System.Object implements class MimeKit.Encodings.IMimeDecoder" />
+<Type Name="YDecoder" FullName="MimeKit.Encodings.YDecoder">
+  <TypeSignature Language="C#" Value="public class YDecoder : MimeKit.Encodings.IMimeDecoder" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit YDecoder extends System.Object implements class MimeKit.Encodings.IMimeDecoder" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.36.0.0</AssemblyVersion>
@@ -15,16 +15,17 @@
   </Interfaces>
   <Docs>
     <summary>
-            Incrementally decodes content encoded with a Uri hex encoding.
+            Incrementally decodes content encoded with the yEnc encoding.
             </summary>
     <remarks>
-            This is mostly meant for decoding parameter values encoded using
-            the rules specified by rfc2184 and rfc2231.
-            </remarks>
+      <para>The yEncoding is an encoding that is most commonly used with Usenet and
+            is a binary encoding that includes a 32-bit cyclic redundancy check.</para>
+      <para>For more information, see http://www.yenc.org/</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public HexDecoder ();" />
+      <MemberSignature Language="C#" Value="public YDecoder ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
@@ -33,10 +34,52 @@
       <Parameters />
       <Docs>
         <summary>
-            Initializes a new instance of the <see cref="T:MimeKit.Encodings.HexDecoder" /> class.
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.YDecoder" /> class.
             </summary>
         <remarks>
-            Creates a new hex decoder.
+            Creates a new yEnc decoder.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public YDecoder (bool payloadOnly);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(bool payloadOnly) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="payloadOnly" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="payloadOnly">
+            If <c>true</c>, decoding begins immediately rather than after finding an =ybegin line.
+            </param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Encodings.YDecoder" /> class.
+            </summary>
+        <remarks>
+            Creates a new yEnc decoder.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Checksum">
+      <MemberSignature Language="C#" Value="public int Checksum { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Checksum" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the checksum.
+            </summary>
+        <value>The checksum.</value>
+        <remarks>
+            Gets the checksum.
             </remarks>
       </Docs>
     </Member>
@@ -53,11 +96,11 @@
       <Parameters />
       <Docs>
         <summary>
-            Clone the <see cref="T:MimeKit.Encodings.HexDecoder" /> with its current state.
+            Clone the <see cref="T:MimeKit.Encodings.YDecoder" /> with its current state.
             </summary>
-        <returns>A new <see cref="T:MimeKit.Encodings.HexDecoder" /> with identical state.</returns>
+        <returns>A new <see cref="T:MimeKit.Encodings.YDecoder" /> with identical state.</returns>
         <remarks>
-            Creates a new <see cref="T:MimeKit.Encodings.HexDecoder" /> with exactly the same state as the current decoder.
+            Creates a new <see cref="T:MimeKit.Encodings.YDecoder" /> with exactly the same state as the current decoder.
             </remarks>
       </Docs>
     </Member>
@@ -88,7 +131,7 @@
           <para>Decodes the specified input into the output buffer.</para>
           <para>The output buffer should be large enough to hold all of the
             decoded input. For estimating the size needed for the output buffer,
-            see <see cref="M:MimeKit.Encodings.HexDecoder.EstimateOutputLength(System.Int32)" />.</para>
+            see <see cref="M:MimeKit.Encodings.YDecoder.EstimateOutputLength(System.Int32)" />.</para>
         </remarks>
       </Docs>
     </Member>
@@ -121,7 +164,7 @@
           <para>Decodes the specified input into the output buffer.</para>
           <para>The output buffer should be large enough to hold all of the
             decoded input. For estimating the size needed for the output buffer,
-            see <see cref="M:MimeKit.Encodings.HexDecoder.EstimateOutputLength(System.Int32)" />.</para>
+            see <see cref="M:MimeKit.Encodings.YDecoder.EstimateOutputLength(System.Int32)" />.</para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -137,7 +180,7 @@
         <exception cref="T:System.ArgumentException">
           <para>
             <paramref name="output" /> is not large enough to contain the encoded content.</para>
-          <para>Use the <see cref="M:MimeKit.Encodings.HexDecoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
+          <para>Use the <see cref="M:MimeKit.Encodings.YDecoder.EstimateOutputLength(System.Int32)" /> method to properly determine the
             necessary length of the <paramref name="output" /> byte array.</para>
         </exception>
       </Docs>

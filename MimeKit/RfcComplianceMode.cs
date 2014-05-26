@@ -33,13 +33,12 @@ namespace MimeKit {
 	/// </remarks>
 	public enum RfcComplianceMode {
 		/// <summary>
-		/// Use a loose compliance mode, attempting to ignore broken or invalid formatting.
+		/// Attempt to be much more liberal accepting broken and/or invalid formatting.
 		/// </summary>
 		Loose,
 
 		/// <summary>
-		/// Use a very strict compliance mode, aborting the parser at the first sign of
-		/// broken or invalid formatting.
+		/// Do not attempt to be overly liberal in accepting broken and/or invalid formatting.
 		/// </summary>
 		Strict
 	}
