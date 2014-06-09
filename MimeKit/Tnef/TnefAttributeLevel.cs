@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF attribute level.
 	/// </remarks>
-	enum TnefAttributeLevel {
+	public enum TnefAttributeLevel {
 		/// <summary>
 		/// The attribute is a message-level attribute.
 		/// </summary>

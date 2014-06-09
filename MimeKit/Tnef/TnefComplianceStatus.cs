@@ -34,7 +34,7 @@ namespace MimeKit.Tnef {
 	/// A bitfield of potential TNEF compliance issues.
 	/// </remarks>
 	[Flags]
-	enum TnefComplianceStatus {
+	public enum TnefComplianceStatus {
 		/// <summary>
 		/// The TNEF stream has no errors.
 		/// </summary>

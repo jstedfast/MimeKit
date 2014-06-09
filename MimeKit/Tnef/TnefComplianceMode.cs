@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF compliance mode.
 	/// </remarks>
-	enum TnefComplianceMode {
+	public enum TnefComplianceMode {
 		/// <summary>
 		/// Use a loose compliance mode, attempting to ignore invalid or corrupt data.
 		/// </summary>

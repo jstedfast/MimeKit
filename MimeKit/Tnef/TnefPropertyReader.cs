@@ -42,7 +42,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF property reader.
 	/// </remarks>
-	class TnefPropertyReader
+	public class TnefPropertyReader
 	{
 		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
 		TnefPropertyTag propertyTag;

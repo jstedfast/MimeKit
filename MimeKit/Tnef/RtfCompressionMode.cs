@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A RTF compression mode.
 	/// </remarks>
-	enum RtfCompressionMode {
+	public enum RtfCompressionMode {
 		/// <summary>
 		/// The compression mode is not known.
 		/// </summary>

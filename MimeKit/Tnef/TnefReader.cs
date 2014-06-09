@@ -33,7 +33,13 @@ using Encoding = Portable.Text.Encoding;
 #endif
 
 namespace MimeKit.Tnef {
-	class TnefReader : IDisposable
+	/// <summary>
+	/// A TNEF reader.
+	/// </summary>
+	/// <remarks>
+	/// A TNEF reader.
+	/// </remarks>
+	public class TnefReader : IDisposable
 	{
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
@@ -262,6 +268,9 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TnefReader"/> for the specified input stream.
+		/// </remarks>
 		/// <param name="inputStream">The input stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="inputStream"/> is <c>null</c>.
@@ -270,6 +279,14 @@ namespace MimeKit.Tnef {
 		{
 		}
 
+		/// <summary>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Tnef.TnefReader"/> is reclaimed by garbage collection.
+		/// </summary>
+		/// <remarks>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeKit.Tnef.TnefReader"/> is reclaimed by garbage collection.
+		/// </remarks>
 		~TnefReader ()
 		{
 			Dispose (false);

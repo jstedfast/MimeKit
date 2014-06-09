@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// The type of value that a TNEF property contains.
 	/// </remarks>
-	enum TnefPropertyType : short {
+	public enum TnefPropertyType : short {
 		/// <summary>
 		/// The type of the property is unspecified.
 		/// </summary>

@@ -1,0 +1,883 @@
+<Type Name="TnefPropertyReader" FullName="MimeKit.Tnef.TnefPropertyReader">
+  <TypeSignature Language="C#" Value="public class TnefPropertyReader" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TnefPropertyReader extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.36.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A TNEF property reader.
+            </summary>
+    <remarks>
+            A TNEF property reader.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Equals">
+      <MemberSignature Language="C#" Value="public override bool Equals (object obj);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool Equals(object obj) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="obj" Type="System.Object" />
+      </Parameters>
+      <Docs>
+        <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:MimeKit.Tnef.TnefPropertyReader" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:MimeKit.Tnef.TnefPropertyReader" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:System.Object" /> is equal to the current
+            <see cref="T:MimeKit.Tnef.TnefPropertyReader" />; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:MimeKit.Tnef.TnefPropertyReader" />.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEmbeddedMessageReader">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefReader GetEmbeddedMessageReader ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Tnef.TnefReader GetEmbeddedMessageReader() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefReader</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the embedded TNEF message reader.
+            </summary>
+        <returns>The embedded TNEF message reader.</returns>
+        <remarks>
+            Gets the embedded TNEF message reader.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <para>The property does not contain any more values.</para>
+          <para>-or-</para>
+          <para>The property value is not an embedded message.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetHashCode">
+      <MemberSignature Language="C#" Value="public override int GetHashCode ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance int32 GetHashCode() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Serves as a hash function for a <see cref="T:MimeKit.Tnef.TnefPropertyReader" /> object.
+            </summary>
+        <returns>A hash code for this instance that is suitable for use in hashing algorithms
+            and data structures such as a hash table.</returns>
+        <remarks>
+            Serves as a hash function for a <see cref="T:MimeKit.Tnef.TnefPropertyReader" /> object.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetRawValueReadStream">
+      <MemberSignature Language="C#" Value="public System.IO.Stream GetRawValueReadStream ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.IO.Stream GetRawValueReadStream() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.IO.Stream</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets the raw value of the attribute or property as a stream.
+            </summary>
+        <returns>The raw value stream.</returns>
+        <remarks>
+            Gets the raw value of the attribute or property as a stream.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The property does not contain any more values.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IsComputedProperty">
+      <MemberSignature Language="C#" Value="public bool IsComputedProperty { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsComputedProperty" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether the current property is a computed property.
+            </summary>
+        <value>
+          <c>true</c> if the current property is a computed property; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether the current property is a computed property.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsEmbeddedMessage">
+      <MemberSignature Language="C#" Value="public bool IsEmbeddedMessage { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsEmbeddedMessage" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether the current property is an embedded TNEF message.
+            </summary>
+        <value>
+          <c>true</c> if the current property is an embedded TNEF message; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether the current property is an embedded TNEF message.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsLargeValue">
+      <MemberSignature Language="C#" Value="public bool IsLargeValue { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsLargeValue" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether the current property has a large value.
+            </summary>
+        <value>
+          <c>true</c> if the current property has a large value; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether the current property has a large value.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsMultiValuedProperty">
+      <MemberSignature Language="C#" Value="public bool IsMultiValuedProperty { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsMultiValuedProperty" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether or not the current property has multiple values.
+            </summary>
+        <value>
+          <c>true</c> if the current property has multiple values; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether or not the current property has multiple values.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsNamedProperty">
+      <MemberSignature Language="C#" Value="public bool IsNamedProperty { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsNamedProperty" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether or not the current property is a named property.
+            </summary>
+        <value>
+          <c>true</c> if the current property is a named property; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether or not the current property is a named property.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsObjectProperty">
+      <MemberSignature Language="C#" Value="public bool IsObjectProperty { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsObjectProperty" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether the current property contains object values.
+            </summary>
+        <value>
+          <c>true</c> if the current property contains object values; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets a value indicating whether the current property contains object values.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ObjectIid">
+      <MemberSignature Language="C#" Value="public Guid ObjectIid { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Guid ObjectIid" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Guid</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the object iid.
+            </summary>
+        <value>The object iid.</value>
+        <remarks>
+            Gets the object iid.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PropertyCount">
+      <MemberSignature Language="C#" Value="public int PropertyCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 PropertyCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the number of properties available.
+            </summary>
+        <value>The property count.</value>
+        <remarks>
+            Gets the number of properties available.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PropertyNameId">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefNameId PropertyNameId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefNameId PropertyNameId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefNameId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the property name identifier.
+            </summary>
+        <value>The property name identifier.</value>
+        <remarks>
+            Gets the property name identifier.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PropertyTag">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefPropertyTag PropertyTag { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefPropertyTag PropertyTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyTag</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the property tag.
+            </summary>
+        <value>The property tag.</value>
+        <remarks>
+            Gets the property tag.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RawValueLength">
+      <MemberSignature Language="C#" Value="public int RawValueLength { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 RawValueLength" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the length of the raw value.
+            </summary>
+        <value>The length of the raw value.</value>
+        <remarks>
+            Gets the length of the raw value.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RawValueStreamOffset">
+      <MemberSignature Language="C#" Value="public int RawValueStreamOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 RawValueStreamOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the raw value stream offset.
+            </summary>
+        <value>The raw value stream offset.</value>
+        <remarks>
+            Gets the raw value stream offset.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadNextProperty">
+      <MemberSignature Language="C#" Value="public bool ReadNextProperty ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextProperty() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Advances to the next MAPI property.
+            </summary>
+        <returns>
+          <c>true</c> if there is another property available to be read; otherwise <c>false</c>.</returns>
+        <remarks>
+            Advances to the next MAPI property.
+            </remarks>
+        <exception cref="T:MimeKit.Tnef.TnefException">
+            The TNEF data is corrupt or invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadNextRow">
+      <MemberSignature Language="C#" Value="public bool ReadNextRow ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextRow() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Advances to the next table row of properties.
+            </summary>
+        <returns>
+          <c>true</c> if there is another row available to be read; otherwise <c>false</c>.</returns>
+        <remarks>
+            Advances to the next table row of properties.
+            </remarks>
+        <exception cref="T:MimeKit.Tnef.TnefException">
+            The TNEF data is corrupt or invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadNextValue">
+      <MemberSignature Language="C#" Value="public bool ReadNextValue ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextValue() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Advances to the next value in the TNEF stream.
+            </summary>
+        <returns>
+          <c>true</c> if there is another value available to be read; otherwise <c>false</c>.</returns>
+        <remarks>
+            Advances to the next value in the TNEF stream.
+            </remarks>
+        <exception cref="T:MimeKit.Tnef.TnefException">
+            The TNEF data is corrupt or invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadRawValue">
+      <MemberSignature Language="C#" Value="public int ReadRawValue (byte[] buffer, int offset, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadRawValue(unsigned int8[] buffer, int32 offset, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of bytes to read.</param>
+        <summary>
+            Reads the raw attribute or property value as a sequence of bytes.
+            </summary>
+        <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+            bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+        <remarks>
+            Reads the raw attribute or property value as a sequence of bytes.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
+          <para>-or-</para>
+          <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes starting
+            at the specified <paramref name="offset" />.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadTextValue">
+      <MemberSignature Language="C#" Value="public int ReadTextValue (char[] buffer, int offset, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadTextValue(char[] buffer, int32 offset, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Char[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of characters to read.</param>
+        <summary>
+            Reads the raw attribute or property value as a sequence of unicode characters.
+            </summary>
+        <returns>The total number of characters read into the buffer. This can be less than the number of characters
+            requested if that many bytes are not currently available, or zero (0) if the end of the stream has been
+            reached.</returns>
+        <remarks>
+            Reads the raw attribute or property value as a sequence of unicode characters.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
+          <para>-or-</para>
+          <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> characters starting
+            at the specified <paramref name="offset" />.</para>
+        </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValue">
+      <MemberSignature Language="C#" Value="public object ReadValue ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance object ReadValue() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value.
+            </summary>
+        <returns>The value.</returns>
+        <remarks>
+            Reads an attribute or property value as its native type.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsBoolean">
+      <MemberSignature Language="C#" Value="public bool ReadValueAsBoolean ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadValueAsBoolean() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a boolean.
+            </summary>
+        <returns>The value as a boolean.</returns>
+        <remarks>
+            Reads any integer-based attribute or property value as a boolean.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a boolean.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsBytes">
+      <MemberSignature Language="C#" Value="public byte[] ReadValueAsBytes ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance unsigned int8[] ReadValueAsBytes() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a byte array.
+            </summary>
+        <returns>The value as a byte array.</returns>
+        <remarks>
+            Reads any string, binary blob, Class ID, or Object attribute or property value as a byte array.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a byte array.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsDateTime">
+      <MemberSignature Language="C#" Value="public DateTime ReadValueAsDateTime ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype System.DateTime ReadValueAsDateTime() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.DateTime</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a date and time.
+            </summary>
+        <returns>The value as a date and time.</returns>
+        <remarks>
+            Reads any date and time attribute or property value as a <see cref="T:System.DateTime" />.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a date and time.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsDouble">
+      <MemberSignature Language="C#" Value="public double ReadValueAsDouble ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 ReadValueAsDouble() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a double.
+            </summary>
+        <returns>The value as a double.</returns>
+        <remarks>
+            Reads any numeric attribute or property value as a double.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a double.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsFloat">
+      <MemberSignature Language="C#" Value="public float ReadValueAsFloat ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float32 ReadValueAsFloat() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a float.
+            </summary>
+        <returns>The value as a float.</returns>
+        <remarks>
+            Reads any numeric attribute or property value as a float.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a float.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsGuid">
+      <MemberSignature Language="C#" Value="public Guid ReadValueAsGuid ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype System.Guid ReadValueAsGuid() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Guid</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a GUID.
+            </summary>
+        <returns>The value as a GUID.</returns>
+        <remarks>
+            Reads any Class ID or Object value as a GUID.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a GUID.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsInt16">
+      <MemberSignature Language="C#" Value="public short ReadValueAsInt16 ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int16 ReadValueAsInt16() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a 16-bit integer.
+            </summary>
+        <returns>The value as a 16-bit integer.</returns>
+        <remarks>
+            Reads any integer-based attribute or property value as a 16-bit integer.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a 16-bit integer.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsInt32">
+      <MemberSignature Language="C#" Value="public int ReadValueAsInt32 ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadValueAsInt32() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a 32-bit integer.
+            </summary>
+        <returns>The value as a 32-bit integer.</returns>
+        <remarks>
+            Reads any integer-based attribute or property value as a 32-bit integer.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a 32-bit integer.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsInt64">
+      <MemberSignature Language="C#" Value="public long ReadValueAsInt64 ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 ReadValueAsInt64() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a 64-bit integer.
+            </summary>
+        <returns>The value as a 64-bit integer.</returns>
+        <remarks>
+            Reads any integer-based attribute or property value as a 64-bit integer.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a 64-bit integer.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadValueAsString">
+      <MemberSignature Language="C#" Value="public string ReadValueAsString ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ReadValueAsString() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Reads the value as a string.
+            </summary>
+        <returns>The value as a string.</returns>
+        <remarks>
+            Reads any string or binary blob values as a string.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            There are no more values to read or the value could not be read as a string.
+            </exception>
+        <exception cref="T:System.IO.EndOfStreamException">
+            The TNEF stream is truncated and the value could not be read.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="RowCount">
+      <MemberSignature Language="C#" Value="public int RowCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 RowCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the number of table rows available.
+            </summary>
+        <value>The row count.</value>
+        <remarks>
+            Gets the number of table rows available.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValueCount">
+      <MemberSignature Language="C#" Value="public int ValueCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 ValueCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the number of values available.
+            </summary>
+        <value>The value count.</value>
+        <remarks>
+            Gets the number of values available.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValueType">
+      <MemberSignature Language="C#" Value="public Type ValueType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ValueType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the type of the value.
+            </summary>
+        <value>The type of the value.</value>
+        <remarks>
+            Gets the type of the value.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

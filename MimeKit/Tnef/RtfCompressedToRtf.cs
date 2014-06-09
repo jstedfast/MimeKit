@@ -42,7 +42,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// Used to decompress a compressed RTF stream.
 	/// </remarks>
-	class RtfCompressedToRtf : MimeFilterBase
+	public class RtfCompressedToRtf : MimeFilterBase
 	{
 		const string DictionaryInitializerText = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}" +
 			"{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier" +
@@ -79,7 +79,7 @@ namespace MimeKit.Tnef {
 		/// Initializes a new instance of the <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> class.
+		/// Creates a new <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> converter filter.
 		/// </remarks>
 		public RtfCompressedToRtf ()
 		{

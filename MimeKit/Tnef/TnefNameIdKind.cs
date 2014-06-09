@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// Tne kind of TNEF name identifier.
 	/// </remarks>
-	enum TnefNameIdKind {
+	public enum TnefNameIdKind {
 		/// <summary>
 		/// The property name is an integer.
 		/// </summary>

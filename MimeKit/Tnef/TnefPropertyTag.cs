@@ -31,7 +31,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF property tag.
 	/// </remarks>
-	struct TnefPropertyTag
+	public struct TnefPropertyTag
 	{
 		public static readonly TnefPropertyTag AbDefaultDir = new TnefPropertyTag (TnefPropertyId.AbDefaultDir, TnefPropertyType.Binary);
 		public static readonly TnefPropertyTag AbDefaultPab = new TnefPropertyTag (TnefPropertyId.AbDefaultPab, TnefPropertyType.Binary);
@@ -848,11 +848,27 @@ namespace MimeKit.Tnef {
 			this.id = id;
 		}
 
+		/// <summary>
+		/// Casts an integer tag value into a TNEF property tag.
+		/// </summary>
+		/// <remarks>
+		/// Casts an integer tag value into a TNEF property tag.
+		/// </remarks>
+		/// <returns>A <see cref="TnefPropertyTag"/> that represents the integer tag value.</returns>
+		/// <param name="tag">The integer tag value.</param>
 		public static implicit operator TnefPropertyTag (int tag)
 		{
 			return new TnefPropertyTag (tag);
 		}
 
+		/// <summary>
+		/// Casts a TNEF property tag into a 32-bit integer value.
+		/// </summary>
+		/// <remarks>
+		/// Casts a TNEF property tag into a 32-bit integer value.
+		/// </remarks>
+		/// <returns>A 32-bit integer value representing the TNEF property tag.</returns>
+		/// <param name="tag">The TNEF property tag.</param>
 		public static implicit operator int (TnefPropertyTag tag)
 		{
 			return (((ushort) tag.TnefType) << 16) | ((ushort) tag.Id);

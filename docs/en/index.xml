@@ -173,8 +173,21 @@
       <Type Name="Unix2DosFilter" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.Tnef">
+      <Type Name="RtfCompressedToRtf" Kind="Class" />
+      <Type Name="RtfCompressionMode" Kind="Enumeration" />
+      <Type Name="TnefAttributeLevel" Kind="Enumeration" />
+      <Type Name="TnefAttributeTag" Kind="Enumeration" />
+      <Type Name="TnefComplianceMode" Kind="Enumeration" />
+      <Type Name="TnefComplianceStatus" Kind="Enumeration" />
       <Type Name="TnefException" Kind="Class" />
+      <Type Name="TnefNameId" Kind="Structure" />
+      <Type Name="TnefNameIdKind" Kind="Enumeration" />
       <Type Name="TnefPart" Kind="Class" />
+      <Type Name="TnefPropertyId" Kind="Enumeration" />
+      <Type Name="TnefPropertyReader" Kind="Class" />
+      <Type Name="TnefPropertyTag" Kind="Structure" />
+      <Type Name="TnefPropertyType" Kind="Enumeration" />
+      <Type Name="TnefReader" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.Utils">
       <Type Name="DateUtils" Kind="Class" />

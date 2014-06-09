@@ -1,0 +1,53 @@
+<Type Name="TnefAttributeLevel" FullName="MimeKit.Tnef.TnefAttributeLevel">
+  <TypeSignature Language="C#" Value="public enum TnefAttributeLevel" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefAttributeLevel extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.36.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            A TNEF attribute level.
+            </summary>
+    <remarks>
+            A TNEF attribute level.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Attachment">
+      <MemberSignature Language="C#" Value="Attachment" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefAttributeLevel Attachment = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefAttributeLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The attribute is an attachment-level attribute.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Message">
+      <MemberSignature Language="C#" Value="Message" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefAttributeLevel Message = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefAttributeLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The attribute is a message-level attribute.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

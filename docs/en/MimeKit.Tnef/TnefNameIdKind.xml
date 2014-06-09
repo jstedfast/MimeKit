@@ -1,0 +1,53 @@
+<Type Name="TnefNameIdKind" FullName="MimeKit.Tnef.TnefNameIdKind">
+  <TypeSignature Language="C#" Value="public enum TnefNameIdKind" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefNameIdKind extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.36.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            Tne kind of TNEF name identifier.
+            </summary>
+    <remarks>
+            Tne kind of TNEF name identifier.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="Id" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefNameIdKind Id = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefNameIdKind</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property name is an integer.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="Name" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefNameIdKind Name = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.36.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefNameIdKind</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property name is a string.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
