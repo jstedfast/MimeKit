@@ -120,8 +120,8 @@ namespace MimeKit.IO.Filters {
 			SourceEncoding = sourceEncoding;
 			TargetEncoding = targetEncoding;
 
-			decoder = SourceEncoding.GetDecoder ();
-			encoder = TargetEncoding.GetEncoder ();
+			decoder = (Decoder) SourceEncoding.GetDecoder ();
+			encoder = (Encoder) TargetEncoding.GetEncoder ();
 		}
 
 		/// <summary>

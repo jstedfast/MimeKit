@@ -323,9 +323,9 @@ namespace MimeKit {
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var bestEncoding = GetBestEncoding (Value, encoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
+			var encoder = (Encoder) bestEncoding.GetEncoder ();
 			var bytes = new byte[Math.Max (maxLength, 6)];
 			var hexbuf = new byte[bytes.Length * 3 + 3];
-			var encoder = bestEncoding.GetEncoder ();
 			var chars = Value.ToCharArray ();
 			var hex = new HexEncoder ();
 			int index = 0, i = 0;

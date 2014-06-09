@@ -695,13 +695,13 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 					if (reader.StreamOffset == RawValueStreamOffset)
 						ReadInt32 ();
-					decoder = Encoding.Unicode.GetDecoder ();
+					decoder = (Decoder) Encoding.Unicode.GetDecoder ();
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 					if (reader.StreamOffset == RawValueStreamOffset)
 						ReadInt32 ();
-					decoder = GetMessageEncoding ().GetDecoder ();
+					decoder = (Decoder) GetMessageEncoding ().GetDecoder ();
 					break;
 				}
 			}
