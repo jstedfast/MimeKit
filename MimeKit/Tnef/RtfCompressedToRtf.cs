@@ -36,6 +36,12 @@ using Encoding = System.Text.Encoding;
 #endif
 
 namespace MimeKit.Tnef {
+	/// <summary>
+	/// A filter to decompress a compressed RTF stream.
+	/// </summary>
+	/// <remarks>
+	/// Used to decompress a compressed RTF stream.
+	/// </remarks>
 	class RtfCompressedToRtf : MimeFilterBase
 	{
 		const string DictionaryInitializerText = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}" +
@@ -69,16 +75,37 @@ namespace MimeKit.Tnef {
 		int saved;
 		int size;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Initializes a new instance of the <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> class.
+		/// </remarks>
 		public RtfCompressedToRtf ()
 		{
 			Buffer.BlockCopy (DictionaryInitializer, 0, dict, 0, DictionaryInitializer.Length);
 			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 		}
 
+		/// <summary>
+		/// Gets the compression mode.
+		/// </summary>
+		/// <remarks>
+		/// At least 12 bytes from the stream must be processed before this property value will
+		/// be accurate.
+		/// </remarks>
+		/// <value>The compression mode.</value>
 		public RtfCompressionMode CompressionMode {
-			get; set;
+			get; private set;
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether the crc32 is valid.
+		/// </summary>
+		/// <remarks>
+		/// Until all data has been processed, this property will always return <c>false</c>.
+		/// </remarks>
+		/// <value><c>true</c> if the crc32 is valid; otherwise, <c>false</c>.</value>
 		public bool IsValidCrc32 {
 			get { return crc32.Checksum == checksum; }
 		}
@@ -132,6 +159,18 @@ namespace MimeKit.Tnef {
 			return false;
 		}
 
+		/// <summary>
+		/// Filter the specified input.
+		/// </summary>
+		/// <remarks>Filters the specified input buffer starting at the given index,
+		/// spanning across the specified number of bytes.</remarks>
+		/// <returns>The filtered output.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">Length.</param>
+		/// <param name="outputIndex">Output index.</param>
+		/// <param name="outputLength">Output length.</param>
+		/// <param name="flush">If set to <c>true</c> flush.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			int endIndex = startIndex + length;
