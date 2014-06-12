@@ -42,7 +42,9 @@ namespace MimeKit {
 	public class AttachmentCollection : ICollection<MimeEntity>
 	{
 		readonly List<MimeEntity> attachments;
+#if !PORTABLE
 		readonly bool linked;
+#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
@@ -56,7 +58,9 @@ namespace MimeKit {
 		public AttachmentCollection (bool linkedResources)
 		{
 			attachments = new List<MimeEntity> ();
+#if !PORTABLE
 			linked = linkedResources;
+#endif
 		}
 
 		/// <summary>
