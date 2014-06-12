@@ -439,24 +439,12 @@ namespace MimeKit {
 
 		void ContentDispositionChanged (object sender, EventArgs e)
 		{
-			Headers.Changed -= HeadersChanged;
-
-			try {
-				SerializeContentDisposition ();
-			} finally {
-				Headers.Changed += HeadersChanged;
-			}
+			SerializeContentDisposition ();
 		}
 
 		void ContentTypeChanged (object sender, EventArgs e)
 		{
-			Headers.Changed -= HeadersChanged;
-
-			try {
-				SerializeContentType ();
-			} finally {
-				Headers.Changed += HeadersChanged;
-			}
+			SerializeContentType ();
 		}
 
 		/// <summary>
