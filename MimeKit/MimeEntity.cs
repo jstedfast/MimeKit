@@ -371,8 +371,12 @@ namespace MimeKit {
 		protected void RemoveHeader (string name)
 		{
 			Headers.Changed -= HeadersChanged;
-			Headers.RemoveAll (name);
-			Headers.Changed += HeadersChanged;
+
+			try {
+				Headers.RemoveAll (name);
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
 		}
 
 		/// <summary>
@@ -387,8 +391,12 @@ namespace MimeKit {
 		protected void SetHeader (string name, string value)
 		{
 			Headers.Changed -= HeadersChanged;
-			Headers[name] = value;
-			Headers.Changed += HeadersChanged;
+
+			try {
+				Headers[name] = value;
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
 		}
 
 		/// <summary>
@@ -405,8 +413,12 @@ namespace MimeKit {
 			var header = new Header (Headers.Options, name, rawValue);
 
 			Headers.Changed -= HeadersChanged;
-			Headers.Replace (header);
-			Headers.Changed += HeadersChanged;
+
+			try {
+				Headers.Replace (header);
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
 		}
 
 		void SerializeContentDisposition ()
@@ -428,15 +440,23 @@ namespace MimeKit {
 		void ContentDispositionChanged (object sender, EventArgs e)
 		{
 			Headers.Changed -= HeadersChanged;
-			SerializeContentDisposition ();
-			Headers.Changed += HeadersChanged;
+
+			try {
+				SerializeContentDisposition ();
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
 		}
 
 		void ContentTypeChanged (object sender, EventArgs e)
 		{
 			Headers.Changed -= HeadersChanged;
-			SerializeContentType ();
-			Headers.Changed += HeadersChanged;
+
+			try {
+				SerializeContentType ();
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
 		}
 
 		/// <summary>
