@@ -296,9 +296,14 @@ namespace MimeKit {
 
 			textValue = Unfold (value.Trim ());
 
-			var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
+			if (Id != HeaderId.ContentId && Id != HeaderId.MessageId && Id != HeaderId.ResentMessageId) {
+				var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
 
-			RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
+				RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
+			} else {
+				RawValue = charset.GetBytes (" " + textValue);
+			}
+
 			OnChanged ();
 		}
 
