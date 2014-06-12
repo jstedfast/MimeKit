@@ -171,13 +171,20 @@ namespace MimeKit {
 		{
 		}
 
-		// Note: this ctor is only used by the parser
 		internal Header (ParserOptions options, string field, byte[] value)
 		{
 			Id = field.ToHeaderId ();
 			Options = options;
 			RawValue = value;
 			Field = field;
+		}
+
+		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
+		{
+			Options = options;
+			RawValue = value;
+			Field = field;
+			Id = id;
 		}
 
 		/// <summary>

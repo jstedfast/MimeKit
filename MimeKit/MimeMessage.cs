@@ -242,9 +242,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.Sender);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.Sender);
 					sender = null;
 					return;
 				}
@@ -257,9 +255,7 @@ namespace MimeKit {
 
 				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "Sender", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.Sender, "Sender", raw);
 
 				sender = value;
 			}
@@ -280,9 +276,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.ResentSender);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.ResentSender);
 					resentSender = null;
 					return;
 				}
@@ -295,9 +289,7 @@ namespace MimeKit {
 
 				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "Resent-Sender", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.ResentSender, "Resent-Sender", raw);
 
 				resentSender = value;
 			}
@@ -457,9 +449,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Subject"] = value;
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Subject", value);
 			}
 		}
 
@@ -477,10 +467,7 @@ namespace MimeKit {
 				if (date == value)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = DateUtils.FormatDate (value);
-				Headers.Changed += HeadersChanged;
-
+				SetHeader ("Date", DateUtils.FormatDate (value));
 				date = value;
 			}
 		}
@@ -498,10 +485,7 @@ namespace MimeKit {
 				if (resentDate == value)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Date"] = DateUtils.FormatDate (value);
-				Headers.Changed += HeadersChanged;
-
+				SetHeader ("Resent-Date", DateUtils.FormatDate (value));
 				resentDate = value;
 			}
 		}
@@ -537,9 +521,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.InReplyTo);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.InReplyTo);
 					inreplyto = null;
 					return;
 				}
@@ -553,9 +535,7 @@ namespace MimeKit {
 
 				inreplyto = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["In-Reply-To"] = "<" + inreplyto + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
 			}
 		}
 
@@ -593,9 +573,7 @@ namespace MimeKit {
 
 				messageId = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Message-Id"] = "<" + messageId + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Message-Id", "<" + messageId + ">");
 			}
 		}
 
@@ -633,9 +611,7 @@ namespace MimeKit {
 
 				resentMessageId = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Message-Id"] = "<" + resentMessageId + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
 			}
 		}
 
@@ -659,11 +635,8 @@ namespace MimeKit {
 				if (version != null && version.CompareTo (value) == 0)
 					return;
 
+				SetHeader ("MIME-Version", value.ToString ());
 				version = value;
-
-				Headers.Changed -= HeadersChanged;
-				Headers["MIME-Version"] = version.ToString ();
-				Headers.Changed += HeadersChanged;
 			}
 		}
 
@@ -1139,6 +1112,39 @@ namespace MimeKit {
 				yield return Body.Headers[bodyIndex++];
 		}
 
+		void RemoveHeader (HeaderId id)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers.RemoveAll (id);
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		void ReplaceHeader (HeaderId id, string name, byte[] raw)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers.Replace (new Header (Headers.Options, id, name, raw));
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		void SetHeader (string name, string value)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers[name] = value;
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
 			var builder = new StringBuilder (" ");
@@ -1149,9 +1155,7 @@ namespace MimeKit {
 
 			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
 
-			Headers.Changed -= HeadersChanged;
-			Headers.Replace (new Header (Headers.Options, field, raw));
-			Headers.Changed += HeadersChanged;
+			ReplaceHeader (field.ToHeaderId (), field, raw);
 		}
 
 		void InternetAddressListChanged (object addrlist, EventArgs e)
@@ -1191,13 +1195,9 @@ namespace MimeKit {
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "References", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.References, "References", raw);
 			} else {
-				Headers.Changed -= HeadersChanged;
-				Headers.RemoveAll (HeaderId.References);
-				Headers.Changed += HeadersChanged;
+				RemoveHeader (HeaderId.References);
 			}
 		}
 
