@@ -185,6 +185,7 @@
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
     <Compile Include="Multipart.cs" />
+    <Compile Include="MultipartRelated.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />

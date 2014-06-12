@@ -247,6 +247,9 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
+				if (subtype == "related")
+					return new MultipartRelated (entity);
+
 #if ENABLE_CRYPTO
 				if (subtype == "encrypted")
 					return new MultipartEncrypted (entity);
