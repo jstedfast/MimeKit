@@ -481,7 +481,7 @@ namespace MimeKit {
 		/// Gets the index of the specified part.
 		/// </summary>
 		/// <remarks>
-		/// Finds the index of the specified address, if it exists.
+		/// Finds the index of the specified part, if it exists.
 		/// </remarks>
 		/// <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
 		/// <param name="part">The part.</param>
