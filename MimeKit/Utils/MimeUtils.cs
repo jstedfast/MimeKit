@@ -63,7 +63,7 @@ namespace MimeKit.Utils {
 				random.NextBytes (guid);
 			}
 
-			return string.Format ("<{0}@{1}>", new Guid (guid), domain);
+			return string.Format ("{0}@{1}", new Guid (guid), domain);
 		}
 
 		/// <summary>
