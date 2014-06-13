@@ -278,6 +278,42 @@ namespace MimeKit {
 			return Unfold (Rfc2047.DecodeText (options, RawValue));
 		}
 
+		static byte[] EncodeMessageIdValue (FormatOptions options, Encoding charset, string field, string value)
+		{
+			return charset.GetBytes (" " + value.Trim () + options.NewLine);
+		}
+
+		static byte[] EncodeReferencesValue (FormatOptions options, Encoding charset, string field, string value)
+		{
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+			int count = 0;
+
+			foreach (var reference in MimeUtils.EnumerateReferences (value)) {
+				if (count > 0 && lineLength + reference.Length + 3 > options.MaxLineLength) {
+					encoded.Append (options.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+					count = 0;
+				} else {
+					encoded.Append (' ');
+				}
+
+				encoded.Append ('<').Append (reference).Append ('>');
+			}
+
+			encoded.Append (options.NewLine);
+
+			return charset.GetBytes (encoded.ToString ());
+		}
+
+		static byte[] EncodeUnstructuredValue (FormatOptions options, Encoding charset, string field, string value)
+		{
+			var encoded = Rfc2047.EncodeText (options, charset, Unfold (value.Trim ()));
+
+			return Rfc2047.FoldUnstructuredHeader (options, field, encoded);
+		}
+
 		/// <summary>
 		/// Sets the header value using the specified charset.
 		/// </summary>
@@ -301,14 +337,18 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
-			textValue = Unfold (value.Trim ());
-
-			if (Id != HeaderId.ContentId && Id != HeaderId.MessageId && Id != HeaderId.ResentMessageId) {
-				var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
-
-				RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
-			} else {
-				RawValue = charset.GetBytes (" " + textValue);
+			switch (Id) {
+			case HeaderId.ResentMessageId:
+			case HeaderId.MessageId:
+			case HeaderId.ContentId:
+				RawValue = EncodeMessageIdValue (FormatOptions.Default, charset, Field, textValue);
+				break;
+			case HeaderId.References:
+				RawValue = EncodeReferencesValue (FormatOptions.Default, charset, Field, textValue);
+				break;
+			default:
+				RawValue = EncodeUnstructuredValue (FormatOptions.Default, charset, Field, textValue);
+				break;
 			}
 
 			OnChanged ();
