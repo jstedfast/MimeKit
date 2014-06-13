@@ -26,7 +26,6 @@
 
 using System;
 using System.Text;
-using System.Reflection;
 
 namespace MimeKit {
 	/// <summary>

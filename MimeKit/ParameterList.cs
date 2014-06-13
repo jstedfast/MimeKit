@@ -585,12 +585,8 @@ namespace MimeKit {
 			#region IComparable implementation
 			public int CompareTo (NameValuePair other)
 			{
-				if (!Id.HasValue) {
-					if (other.Id.HasValue)
-						return -1;
-
-					return 0;
-				}
+				if (!Id.HasValue)
+					return other.Id.HasValue ? -1 : 0;
 
 				if (!other.Id.HasValue)
 					return 1;
