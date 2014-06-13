@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -278,40 +279,240 @@ namespace MimeKit {
 			return Unfold (Rfc2047.DecodeText (options, RawValue));
 		}
 
-		static byte[] EncodeMessageIdValue (FormatOptions options, Encoding charset, string field, string value)
+		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
-			return charset.GetBytes (" " + value + options.NewLine);
+			var encoded = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
+			InternetAddressList list;
+
+			if (!InternetAddressList.TryParse (options, value, out list))
+				return new byte[0];
+
+			list.Encode (format, encoded, ref lineLength);
+			encoded.Append (format.NewLine);
+
+			return Encoding.ASCII.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] EncodeReferencesValue (FormatOptions options, Encoding charset, string field, string value)
+		static byte[] EncodeMessageIdHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			return charset.GetBytes (" " + value + format.NewLine);
+		}
+
+		delegate void ReceivedTokenSkipValueFunc (byte[] text, ref int index);
+
+		static void ReceivedTokenSkipAtom (byte[] text, ref int index)
+		{
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			ParseUtils.SkipAtom (text, ref index, text.Length);
+		}
+
+		static void ReceivedTokenSkipDomain (byte[] text, ref int index)
+		{
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false))
+				return;
+
+			if (text[index] == (byte) '[') {
+				while (index < text.Length && text[index] != (byte) ']')
+					index++;
+
+				if (index < text.Length)
+					index++;
+
+				return;
+			}
+
+			while (ParseUtils.SkipAtom (text, ref index, text.Length) && index < text.Length && text[index] == (byte) '.')
+				index++;
+		}
+
+		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
+		{
+			string addrspec;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			if (text[index] == (byte) '<') {
+				index++;
+
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+
+				if (index < text.Length && text[index] == (byte) '>')
+					index++;
+			} else {
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) ';', false, out addrspec);
+			}
+		}
+
+		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
+		{
+			string addrspec;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			if (text[index] == (byte) '<') {
+				index++;
+
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+
+				if (index < text.Length && text[index] == (byte) '>')
+					index++;
+			} else {
+				ParseUtils.SkipAtom (text, ref index, text.Length);
+			}
+		}
+
+		struct ReceivedToken {
+			public readonly ReceivedTokenSkipValueFunc Skip;
+			public readonly string Atom;
+
+			public ReceivedToken (string atom, ReceivedTokenSkipValueFunc skip)
+			{
+				Atom = atom;
+				Skip = skip;
+			}
+		}
+
+		static readonly ReceivedToken[] ReceivedTokens = {
+			new ReceivedToken ("from", ReceivedTokenSkipDomain),
+			new ReceivedToken ("by", ReceivedTokenSkipDomain),
+			new ReceivedToken ("via", ReceivedTokenSkipDomain),
+			new ReceivedToken ("with", ReceivedTokenSkipAtom),
+			new ReceivedToken ("id", ReceivedTokenSkipMessageId),
+			new ReceivedToken ("for", ReceivedTokenSkipAddress),
+		};
+
+		class ReceivedTokenValue
+		{
+			public readonly int StartIndex;
+			public int Length;
+
+			public ReceivedTokenValue (int startIndex, int length)
+			{
+				StartIndex = startIndex;
+				Length = length;
+			}
+		}
+
+		static byte[] EncodeReceivedHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var tokens = new List<ReceivedTokenValue> ();
+			var rawValue = charset.GetBytes (value);
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+			bool date = false;
+			int index = 0;
+			int count = 0;
+
+			while (index < rawValue.Length) {
+				ReceivedTokenValue token = null;
+				int startIndex = index;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false) || index >= rawValue.Length) {
+					tokens.Add (new ReceivedTokenValue (startIndex, index - startIndex));
+					break;
+				}
+
+				while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
+					index++;
+
+				var atom = charset.GetString (rawValue, startIndex, index - startIndex);
+
+				for (int i = 0; i < ReceivedTokens.Length; i++) {
+					if (atom == ReceivedTokens[i].Atom) {
+						ReceivedTokens[i].Skip (rawValue, ref index);
+
+						if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
+							if (index < rawValue.Length && rawValue[index] == (byte) ';') {
+								date = true;
+								index++;
+							}
+						}
+
+						token = new ReceivedTokenValue (startIndex, index - startIndex);
+						break;
+					}
+				}
+
+				if (token == null) {
+					if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
+						while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
+							index++;
+					}
+
+					token = new ReceivedTokenValue (startIndex, index - startIndex);
+				}
+
+				tokens.Add (token);
+
+				ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
+
+				if (date && index < rawValue.Length) {
+					// slurp up the date (the final token)
+					tokens.Add (new ReceivedTokenValue (index, rawValue.Length - index));
+					break;
+				}
+			}
+
+			foreach (var token in tokens) {
+				var text = charset.GetString (rawValue, token.StartIndex, token.Length).TrimEnd ();
+
+				if (count > 0 && lineLength + text.Length + 1 > format.MaxLineLength) {
+					encoded.Append (format.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+					count = 0;
+				} else {
+					encoded.Append (' ');
+					lineLength++;
+				}
+
+				lineLength += text.Length;
+				encoded.Append (text);
+				count++;
+			}
+
+			encoded.Append (format.NewLine);
+
+			return charset.GetBytes (encoded.ToString ());
+		}
+
+		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
 			int count = 0;
 
 			foreach (var reference in MimeUtils.EnumerateReferences (value)) {
-				if (count > 0 && lineLength + reference.Length + 3 > options.MaxLineLength) {
-					encoded.Append (options.NewLine);
+				if (count > 0 && lineLength + reference.Length + 3 > format.MaxLineLength) {
+					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
 					count = 0;
 				} else {
 					encoded.Append (' ');
+					lineLength++;
 				}
 
 				encoded.Append ('<').Append (reference).Append ('>');
+				lineLength += reference.Length + 2;
+				count++;
 			}
 
-			encoded.Append (options.NewLine);
+			encoded.Append (format.NewLine);
 
 			return charset.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] EncodeUnstructuredValue (FormatOptions options, Encoding charset, string field, string value)
+		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
-			var encoded = Rfc2047.EncodeText (options, charset, value);
+			var encoded = Rfc2047.EncodeText (format, charset, value);
 
-			return Rfc2047.FoldUnstructuredHeader (options, field, encoded);
+			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
 		}
 
 		/// <summary>
@@ -340,16 +541,29 @@ namespace MimeKit {
 			textValue = Unfold (value.Trim ());
 
 			switch (Id) {
+			case HeaderId.ResentFrom:
+			case HeaderId.ResentBcc:
+			case HeaderId.ResentCc:
+			case HeaderId.ResentTo:
+			case HeaderId.From:
+			case HeaderId.Bcc:
+			case HeaderId.Cc:
+			case HeaderId.To:
+				RawValue = EncodeAddressHeader (Options, FormatOptions.Default, charset, Field, textValue);
+				break;
+			case HeaderId.Received:
+				RawValue = EncodeReceivedHeader (Options, FormatOptions.Default, charset, Field, textValue);
+				break;
 			case HeaderId.ResentMessageId:
 			case HeaderId.MessageId:
 			case HeaderId.ContentId:
-				RawValue = EncodeMessageIdValue (FormatOptions.Default, charset, Field, textValue);
+				RawValue = EncodeMessageIdHeader (Options, FormatOptions.Default, charset, Field, textValue);
 				break;
 			case HeaderId.References:
-				RawValue = EncodeReferencesValue (FormatOptions.Default, charset, Field, textValue);
+				RawValue = EncodeReferencesHeader (Options, FormatOptions.Default, charset, Field, textValue);
 				break;
 			default:
-				RawValue = EncodeUnstructuredValue (FormatOptions.Default, charset, Field, textValue);
+				RawValue = EncodeUnstructuredHeader (Options, FormatOptions.Default, charset, Field, textValue);
 				break;
 			}
 

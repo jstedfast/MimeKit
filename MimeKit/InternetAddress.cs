@@ -206,7 +206,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte sentinel, bool throwOnError, out string addrspec)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte sentinel, bool throwOnError, out string addrspec)
 		{
 			int startIndex = index;
 

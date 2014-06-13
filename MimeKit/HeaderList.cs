@@ -313,7 +313,7 @@ namespace MimeKit {
 		public void RemoveAll (HeaderId id)
 		{
 			if (id == HeaderId.Unknown)
-				throw new ArgumentNullException ("field");
+				throw new ArgumentOutOfRangeException ("id");
 
 			table.Remove (id.ToHeaderName ());
 
