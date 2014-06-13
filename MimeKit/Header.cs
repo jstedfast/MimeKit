@@ -280,7 +280,7 @@ namespace MimeKit {
 
 		static byte[] EncodeMessageIdValue (FormatOptions options, Encoding charset, string field, string value)
 		{
-			return charset.GetBytes (" " + value.Trim () + options.NewLine);
+			return charset.GetBytes (" " + value + options.NewLine);
 		}
 
 		static byte[] EncodeReferencesValue (FormatOptions options, Encoding charset, string field, string value)
@@ -309,7 +309,7 @@ namespace MimeKit {
 
 		static byte[] EncodeUnstructuredValue (FormatOptions options, Encoding charset, string field, string value)
 		{
-			var encoded = Rfc2047.EncodeText (options, charset, Unfold (value.Trim ()));
+			var encoded = Rfc2047.EncodeText (options, charset, value);
 
 			return Rfc2047.FoldUnstructuredHeader (options, field, encoded);
 		}
@@ -336,6 +336,8 @@ namespace MimeKit {
 
 			if (value == null)
 				throw new ArgumentNullException ("value");
+
+			textValue = Unfold (value.Trim ());
 
 			switch (Id) {
 			case HeaderId.ResentMessageId:
