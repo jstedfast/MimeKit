@@ -50,7 +50,7 @@ namespace UnitTests {
 
 			var body = builder.ToMessageBody ();
 
-			Assert.IsInstanceOf (typeof (MultipartRelated), body, "Expected a multipart/related.");
+			Assert.IsInstanceOfType (typeof (MultipartRelated), body, "Expected a multipart/related.");
 
 			var related = (MultipartRelated) body;
 
@@ -84,7 +84,7 @@ namespace UnitTests {
 
 			var body = builder.ToMessageBody ();
 
-			Assert.IsInstanceOf (typeof (MultipartRelated), body, "Expected a multipart/related.");
+			Assert.IsInstanceOfType (typeof (MultipartRelated), body, "Expected a multipart/related.");
 
 			var related = (MultipartRelated) body;
 
