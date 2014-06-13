@@ -206,9 +206,45 @@
             <paramref name="data" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (string fileName, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file.</param>
+        <param name="stream">The content stream.</param>
+        <summary>
+            Add the specified attachment.
+            </summary>
+        <remarks>
+          <para>Adds the stream as an attachment, using the specified file name for deducing
+            the mime-type by extension and for setting the Content-Location.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
           <para>The specified file path is empty.</para>
           <para>-or-</para>
-          <para>The specified data is empty.</para>
+          <para>The stream cannot be read</para>
         </exception>
       </Docs>
     </Member>
@@ -251,9 +287,52 @@
             <paramref name="contentType" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
+            The specified file path is empty.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (string fileName, System.IO.Stream stream, MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream, class MimeKit.ContentType contentType) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="contentType" Type="MimeKit.ContentType" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file.</param>
+        <param name="stream">The content stream.</param>
+        <param name="contentType">The mime-type of the file.</param>
+        <summary>
+            Add the specified attachment.
+            </summary>
+        <remarks>
+          <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
+          <para>The file name parameter is used to set the Content-Location.</para>
+          <para>For a list of known mime-types and their associated file extensions, see
+            http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="contentType" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
           <para>The specified file path is empty.</para>
           <para>-or-</para>
-          <para>The data is empty.</para>
+          <para>The stream cannot be read.</para>
         </exception>
       </Docs>
     </Member>

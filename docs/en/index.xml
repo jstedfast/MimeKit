@@ -79,6 +79,7 @@
       <Type Name="MimeParser" Kind="Class" />
       <Type Name="MimePart" Kind="Class" />
       <Type Name="Multipart" Kind="Class" />
+      <Type Name="MultipartRelated" Kind="Class" />
       <Type Name="NewLineFormat" Kind="Enumeration" />
       <Type Name="Parameter" Kind="Class" />
       <Type Name="ParameterList" Kind="Class" />
