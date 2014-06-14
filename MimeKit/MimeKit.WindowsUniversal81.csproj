@@ -136,6 +136,7 @@
     <Compile Include="MimeEntity.cs" />
     <Compile Include="MimeEntityConstructorInfo.cs" />
     <Compile Include="MimeFormat.cs" />
+    <Compile Include="MimeIterator.cs" />
     <Compile Include="MimeMessage.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
