@@ -319,6 +319,82 @@ namespace MimeKit {
 			return false;
 		}
 
+		static int[] Parse (string pathSpecifier)
+		{
+			var path = pathSpecifier.Split ('.');
+			var indexes = new int[path.Length];
+			int index;
+
+			for (int i = 0; i < path.Length; i++) {
+				if (!int.TryParse (path[i], out index) || index < 0)
+					throw new FormatException ("Invalid path specifier format.");
+
+				indexes[i] = index - 1;
+			}
+
+			return indexes;
+		}
+
+		/// <summary>
+		/// Advances to the entity specified by the path specifier.
+		/// </summary>
+		/// <remarks>
+		/// <para>Advances the iterator to the entity specified by the path specifier which
+		/// must be in the same format as returned by <see cref="PathSpecifier"/>.</para>
+		/// <para>If the iterator has already advanced beyond the entity at the specified
+		/// path, the iterator will <see cref="Reset()"/> and advance as normal.</para>
+		/// </remarks>
+		/// <returns><c>true</c> if advancing to the specified entity was successful; otherwise, <c>false</c>.</returns>
+		/// <param name="pathSpecifier">The path specifier.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="pathSpecifier"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="pathSpecifier"/> is empty.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="pathSpecifier"/> is in an invalid format.
+		/// </exception>
+		public bool MoveTo (string pathSpecifier)
+		{
+			if (pathSpecifier == null)
+				throw new ArgumentNullException ("pathSpecifier");
+
+			if (pathSpecifier.Length == 0)
+				throw new ArgumentException ("The path specifier cannot be empty.", "pathSpecifier");
+
+			var indexes = Parse (pathSpecifier);
+			int i;
+
+			// OPTIMIZATION: only reset the iterator if we are jumping to a previous part
+			for (i = 0; i < Math.Min (indexes.Length, path.Count); i++) {
+				if (indexes[i] < path[i]) {
+					Reset ();
+					break;
+				}
+			}
+
+			if (i == path.Count && indexes[i] < index)
+				Reset ();
+
+			if (moveFirst && !MoveNext ())
+				return false;
+
+			do {
+				if (path.Count + 1 == indexes.Length) {
+					for (i = 0; i < path.Count; i++) {
+						if (indexes[i] != path[i])
+							break;
+					}
+
+					if (i == path.Count && indexes[i] == index)
+						return true;
+				}
+			} while (MoveNext ());
+
+			return false;
+		}
+
 		/// <summary>
 		/// Resets the iterator to its initial state.
 		/// </summary>
