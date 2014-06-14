@@ -185,54 +185,29 @@ Once you have parsed a MimeMessage, you'll most likely want to traverse the tree
 The MimeMessage.Body is the top-level MIME entity of the message. Generally, it will either be a
 TextPart or a Multipart.
 
-As an example, if you wanted to render the MimeMessage to some sort of UI control, you might
-use code similar to this:
+As an example, if you wanted to rip out all of the attachments of a message, your code might look
+something like this:
 
 ```csharp
-void RenderMessage (MimeMessage message)
-{
-    RenderMimeEntity (message.Body);
-}
+var attachments = new List<MimePart> ();
+var multiparts = new List<Multipart> ();
+var iter = new MimeIterator (message);
 
-void RenderMimeEntity (MimeEntity entity)
-{
-    if (entity is MessagePart) {
-        // This entity is an attached message/rfc822 mime part.
-        var messagePart = (MessagePart) entity;
+// collect our list of attachments and their parent multiparts
+while (iter.MoveNext ()) {
+    var multipart = iter.Parent as Multipart;
+    var part = iter.Current as MimePart;
 
-        // If you'd like to render this inline instead of treating
-        // it as an attachment, you would just continue to recurse:
-        RenderMessage (messagePart.Message);
-    } else if (entity is Multipart) {
-        // This entity is a multipart container.
-        var multipart = (Multipart) entity;
-
-        foreach (var subpart in multipart)
-            RenderMimeEntity (subpart);
-    } else {
-        // Everything that isn't either a MessagePart or a Multipart is a MimePart
-        var part = (MimePart) entity;
-
-        // Don't render anything that is explicitly marked as an attachment.
-        if (part.IsAttachment)
-            return;
-
-        if (part is TextPart) {
-            // This is a mime part with textual content.
-            var text = (TextPart) part;
-    
-            if (text.ContentType.Matches ("text", "html"))
-                RenderHtml (text.Text);
-            else
-                RenderText (text.Text);
-        } else if (entity.ContentType.Matches ("image", "*")) {
-            using (var content = part.ContentObject.Open ()) {
-                // render the raw image content
-                RenderImage (content);
-            }
-        }
+    if (parent != null && part != null && part.IsAttachment) {
+        // keep track of each attachment's parent multipart
+        multiparts.Add (multipart);
+        attachments.Add (part);
     }
 }
+
+// now remove each attachment from its parent multipart...
+for (int i = 0; i < attachments.Count; i++)
+    multiparts[i].Remove (attachments[i]);
 ```
 
 ### Getting the Decoded Content of a MIME Part

@@ -1,0 +1,209 @@
+<Type Name="MultipartRelated" FullName="MimeKit.MultipartRelated">
+  <TypeSignature Language="C#" Value="public class MultipartRelated : MimeKit.Multipart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MultipartRelated extends MimeKit.Multipart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.38.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.Multipart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A multipart/related MIME entity.
+            </summary>
+    <remarks>
+            A multipart/related MIME entity contains, as one might expect, inter-related MIME parts which
+            typically reference each other via URIs based on the Content-Id and/or Content-Location headers.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartRelated ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartRelated" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MultipartRelated" /> part.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartRelated (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartRelated" /> class.
+            </summary>
+        <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartRelated (object[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(object[] args) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="args" Type="System.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName>System.ParamArray</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="args">An array of initialization parameters: headers and MIME entities.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartRelated" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MultipartRelated" /> part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="args" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="args" /> contains one or more arguments of an unknown type.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Contains">
+      <MemberSignature Language="C#" Value="public bool Contains (Uri uri);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(class System.Uri uri) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="uri" Type="System.Uri" />
+      </Parameters>
+      <Docs>
+        <param name="uri">The URI of the MIME part.</param>
+        <summary>
+            Checks if the <see cref="T:MimeKit.MultipartRelated" /> contains a part matching the specified URI.
+            </summary>
+        <returns>
+          <value>true</value> if the specified part exists; otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the multipart/related entity contains a part matching the specified URI.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="uri" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IndexOf">
+      <MemberSignature Language="C#" Value="public int IndexOf (Uri uri);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(class System.Uri uri) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="uri" Type="System.Uri" />
+      </Parameters>
+      <Docs>
+        <param name="uri">The URI of the MIME part.</param>
+        <summary>
+            Gets the index of the part matching the specified URI.
+            </summary>
+        <returns>The index of the part matching the specified URI if found; otherwise <c>-1</c>.</returns>
+        <remarks>
+          <para>Finds the index of the part matching the specified URI, if it exists.</para>
+          <para>If the URI scheme is <c>"cid"</c>, then matching is performed based on the Content-Id header
+            values, otherwise the Content-Location headers are used. If the provided URI is absolute and a child
+            part's Content-Location is relative, then then the child part's Content-Location URI will be combined
+            with the value of its Content-Base header, if available, otherwise it will be combined with the
+            multipart/related part's Content-Base header in order to produce an absolute URI that can be
+            compared with the provided absolute URI.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="uri" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public System.IO.Stream Open (Uri uri);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.IO.Stream Open(class System.Uri uri) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.IO.Stream</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="uri" Type="System.Uri" />
+      </Parameters>
+      <Docs>
+        <param name="uri">The URI.</param>
+        <summary>
+            Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+            </summary>
+        <returns>A stream for reading the decoded content of the MIME part specified by the provided URI.</returns>
+        <remarks>
+            Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="uri" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The MIME part for the specified URI could not be found.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Root">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Root { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Root" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the root document of the multipart/related part and the appropriate Content-Type parameters.
+            </summary>
+        <value>The root MIME part.</value>
+        <remarks>
+          <para>Gets or sets the root document that references the other MIME parts within the multipart/related.</para>
+          <para>When getting the root document, the <c>"start"</c> parameter of the Content-Type header is used to
+            determine which of the parts is the root. If the <c>"start"</c> parameter does not exist or does not reference
+            any of the child parts, then the first child is assumed to be the root.</para>
+          <para>When setting the root document MIME part, the Content-Type header of the multipart/related part is also
+            updated with a appropriate <c>"start"</c> and <c>"type"</c> parameters.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

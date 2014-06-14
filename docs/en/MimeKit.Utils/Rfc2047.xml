@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit Rfc2047 extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.37.0.0</AssemblyVersion>
+    <AssemblyVersion>0.38.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(unsigned int8[] phrase) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -50,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(class MimeKit.ParserOptions options, unsigned int8[] phrase) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -83,7 +83,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(unsigned int8[] phrase, int32 startIndex, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -119,7 +119,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodePhrase(class MimeKit.ParserOptions options, unsigned int8[] phrase, int32 startIndex, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -161,7 +161,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(unsigned int8[] text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -188,7 +188,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(class MimeKit.ParserOptions options, unsigned int8[] text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -221,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(unsigned int8[] text, int32 startIndex, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -257,7 +257,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string DecodeText(class MimeKit.ParserOptions options, unsigned int8[] text, int32 startIndex, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -299,7 +299,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodePhrase(class System.Text.Encoding charset, string phrase) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -333,7 +333,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodePhrase(class MimeKit.FormatOptions options, class System.Text.Encoding charset, string phrase) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -372,7 +372,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodeText(class System.Text.Encoding charset, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -406,7 +406,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig unsigned int8[] EncodeText(class MimeKit.FormatOptions options, class System.Text.Encoding charset, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>

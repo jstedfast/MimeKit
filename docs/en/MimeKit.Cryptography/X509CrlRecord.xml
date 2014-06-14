@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CrlRecord extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.37.0.0</AssemblyVersion>
+    <AssemblyVersion>0.38.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -41,7 +41,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Crl crl) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="crl" Type="Org.BouncyCastle.X509.X509Crl" />
@@ -64,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Crl Crl" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Crl</ReturnType>
@@ -84,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Id" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -106,7 +106,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsDelta" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -127,7 +127,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string IssuerName" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -147,7 +147,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime NextUpdate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -167,7 +167,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime ThisUpdate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>

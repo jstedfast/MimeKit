@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit EncoderFilter extends MimeKit.IO.Filters.MimeFilterBase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.37.0.0</AssemblyVersion>
+    <AssemblyVersion>0.38.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.IO.Filters.MimeFilterBase</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.Encodings.IMimeEncoder encoder) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoder" Type="MimeKit.Encodings.IMimeEncoder" />
@@ -43,7 +43,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.IO.Filters.IMimeFilter Create(valuetype MimeKit.ContentEncoding encoding) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.IO.Filters.IMimeFilter</ReturnType>
@@ -67,7 +67,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Encodings.IMimeEncoder Encoder" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.IMimeEncoder</ReturnType>
@@ -87,7 +87,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -107,7 +107,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance unsigned int8[] Filter(unsigned int8[] input, int32 startIndex, int32 length, int32 outputIndex, int32 outputLength, bool flush) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
@@ -142,7 +142,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.37.0.0</AssemblyVersion>
+        <AssemblyVersion>0.38.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
