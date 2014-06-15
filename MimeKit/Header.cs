@@ -541,6 +541,7 @@ namespace MimeKit {
 			textValue = Unfold (value.Trim ());
 
 			switch (Id) {
+			case HeaderId.DispositionNotificationTo:
 			case HeaderId.ResentFrom:
 			case HeaderId.ResentBcc:
 			case HeaderId.ResentCc:
