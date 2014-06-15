@@ -46,9 +46,11 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [2110](http://www.ietf.org/rfc/rfc2110.txt): MIME E-mail Encapsulation of Aggregate Documents, such as HTML (MHTML)
 * [2111](http://www.ietf.org/rfc/rfc2111.txt): Content-ID and Message-ID Uniform Resource Locators
 * [2112](http://www.ietf.org/rfc/rfc2112.txt): The MIME Multipart/Related Content-type (Obsoletes rfc1872)
+* [2298](http://www.ietf.org/rfc/rfc2298.txt): An Extensible Message Format for Message Disposition Notifications
 * [2387](http://www.ietf.org/rfc/rfc2387.txt): The MIME Multipart/Related Content-type (Obsoletes rfc2112)
 * [2388](http://www.ietf.org/rfc/rfc2388.txt): Returning Values from Forms: multipart/form-data
 * [2557](http://www.ietf.org/rfc/rfc2557.txt): MIME Encapsulation of Aggregate Documents, such as HTML (MHTML) (Obsoletes rfc2110)
+* [3798](http://www.ietf.org/rfc/rfc3798.txt): Message Disposition Notification (Obsoletes rfc2298)
 * [7103](http://www.ietf.org/rfc/rfc7103.txt): Advice for Safe Handling of Malformed Messages
 
 ## License Information
