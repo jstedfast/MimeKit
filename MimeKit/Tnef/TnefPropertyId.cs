@@ -948,12 +948,12 @@ namespace MimeKit.Tnef {
 		IncompleteCopy                           = 0x0035,
 
 		/// <summary>
-		/// The MAPI property PR_INET_MAIL_OVERRIDE_CHARSET.
+		/// The Internet mail override charset.
 		/// </summary>
 		INetMailOverrideCharset                  = 0x5903,
 
 		/// <summary>
-		/// The MAPI property PR_INET_MAIL_OVERRIDE_FORMAT.
+		/// The Internet mail override format.
 		/// </summary>
 		INetMailOverrideFormat                   = 0x5902,
 
@@ -1486,210 +1486,1030 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_ORIGINAL_ENTRYID.
 		/// </summary>
 		OriginalEntryId                          = 0x3A12,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADRTYPE.
+		/// </summary>
 		OriginallyIntendedRecipAddrtype          = 0x007B,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+		/// </summary>
 		OriginallyIntendedRecipEmailAddress      = 0x007C,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ENTRYID.
+		/// </summary>
 		OriginallyIntendedRecipEntryId           = 0x1012,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIPIENT_NAME.
+		/// </summary>
 		OriginallyIntendedRecipientName          = 0x0020,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SEARCH_KEY.
+		/// </summary>
 		OriginalSearchKey                        = 0x3A14,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENDER_ADDRTYPE.
+		/// </summary>
 		OriginalSenderAddrtype                   = 0x0066,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENDER_EMAIL_ADDRESS.
+		/// </summary>
 		OriginalSenderEmailAddress               = 0x0067,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENDER_ENTRYID.
+		/// </summary>
 		OriginalSenderEntryId                    = 0x005B,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENDER_NAME.
+		/// </summary>
 		OriginalSenderName                       = 0x005A,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENDER_SEARCH_KEY.
+		/// </summary>
 		OriginalSenderSearchKey                  = 0x005C,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENSITIVITY.
+		/// </summary>
 		OriginalSensitivity                      = 0x002E,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENT_REPRESENTING_ADDRTYPE.
+		/// </summary>
 		OriginalSentRepresentingAddrtype         = 0x0068,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS.
+		/// </summary>
 		OriginalSentRepresentingEmailAddress     = 0x0069,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENT_REPRESENTING_ENTRYID.
+		/// </summary>
 		OriginalSentRepresentingEntryId          = 0x005E,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENT_REPRESENTING_NAME.
+		/// </summary>
 		OriginalSentRepresentingName             = 0x005D,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SENT_REPRESENTING_SEARCH_KEY.
+		/// </summary>
 		OriginalSentRepresentingSearchKey        = 0x005F,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SUBJECT.
+		/// </summary>
 		OriginalSubject                          = 0x0049,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SUBMIT_TIME.
+		/// </summary>
 		OriginalSubmitTime                       = 0x004E,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATING_MTA_CERTIFICATE.
+		/// </summary>
 		OriginatingMtaCertificate                = 0x0E25,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_AND_DL_EXPANSION_HISTORY.
+		/// </summary>
 		OriginatorAndDlExpansionHistory          = 0x1002,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_CERTIFICATE.
+		/// </summary>
 		OriginatorCertificate                    = 0x0022,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_DELIVERY_REPORT_REQUESTED.
+		/// </summary>
 		OriginatorDeliveryReportRequested        = 0x0023,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_NON_DELIVERY_REPORT_REQUESTED.
+		/// </summary>
 		OriginatorNonDeliveryReportRequested     = 0x0C08,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_REQUESTED_ALTERNATE_RECIPIENT.
+		/// </summary>
 		OriginatorRequestedAlternateRecipient    = 0x0C09,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINATOR_RETURN_ADDRESS.
+		/// </summary>
 		OriginatorReturnAddress                  = 0x0024,
+
+		/// <summary>
+		/// The MAPI property PR_ORIGIN_CHECK.
+		/// </summary>
 		OriginCheck                              = 0x0027,
+
+		/// <summary>
+		/// The MAPI property PR_ORIG_MESSAGE_CLASS.
+		/// </summary>
 		OrigMessageClass                         = 0x004B,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_CITY.
+		/// </summary>
 		OtherAddressCity                         = 0x3A5F,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_COUNTRY.
+		/// </summary>
 		OtherAddressCountry                      = 0x3A60,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_POSTAL_CODE.
+		/// </summary>
 		OtherAddressPostalCode                   = 0x3A61,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_POST_OFFICE_BOX.
+		/// </summary>
 		OtherAddressPostOfficeBox                = 0x3A64,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_STATE_OR_PROVINCE.
+		/// </summary>
 		OtherAddressStateOrProvince              = 0x3A62,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_ADDRESS_STREET.
+		/// </summary>
 		OtherAddressStreet                       = 0x3A63,
+
+		/// <summary>
+		/// The MAPI property PR_OTHER_TELEPHONE_NUMBER.
+		/// </summary>
 		OtherTelephoneNumber                     = 0x3A1F,
+
+		/// <summary>
+		/// The MAPI property PR_OWNER_APPT_ID.
+		/// </summary>
 		OwnerApptId                              = 0x0062,
+
+		/// <summary>
+		/// The MAPI property PR_OWN_STORE_ENTRYID.
+		/// </summary>
 		OwnStoreEntryId                          = 0x3E06,
+
+		/// <summary>
+		/// The MAPI property PR_PAGER_TELEPHONE_NUMBER.
+		/// </summary>
 		PagerTelephoneNumber                     = 0x3A21,
+
+		/// <summary>
+		/// The MAPI property PR_PARENT_DISPLAY.
+		/// </summary>
 		ParentDisplay                            = 0x0E05,
+
+		/// <summary>
+		/// The MAPI property PR_PARENT_ENTRYID.
+		/// </summary>
 		ParentEntryId                            = 0x0E09,
+
+		/// <summary>
+		/// The MAPI property PR_PARENT_KEY.
+		/// </summary>
 		ParentKey                                = 0x0025,
+
+		/// <summary>
+		/// The MAPI property PR_PERSONAL_HOME_PAGE.
+		/// </summary>
 		PersonalHomePage                         = 0x3A50,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_DELIVERY_BUREAU_FAX_DELIVERY.
+		/// </summary>
 		PhysicalDeliveryBureauFaxDelivery        = 0x0C0A,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_DELIVERY_MODE.
+		/// </summary>
 		PhysicalDeliveryMode                     = 0x0C0B,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_DELIVERY_REPORT_REQUEST.
+		/// </summary>
 		PhysicalDeliveryReportRequest            = 0x0C0C,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_FORWARDING_ADDRESS.
+		/// </summary>
 		PhysicalForwardingAddress                = 0x0C0D,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_FORWARDING_ADDRESS_REQUESTED.
+		/// </summary>
 		PhysicalForwardingAddressRequested       = 0x0C0E,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_FORWARDING_PROHIBITED.
+		/// </summary>
 		PhysicalForwardingProhibited             = 0x0C0F,
+
+		/// <summary>
+		/// The MAPI property PR_PHYSICAL_RENDITION_ATTRIBUTES.
+		/// </summary>
 		PhysicalRenditionAttributes              = 0x0C10,
+
+		/// <summary>
+		/// The MAPI property PR_POSTAL_ADDRESS.
+		/// </summary>
 		PostalAddress                            = 0x3A15,
+
+		/// <summary>
+		/// The MAPI property PR_POSTAL_CODE.
+		/// </summary>
 		PostalCode                               = 0x3A2A,
+
+		/// <summary>
+		/// The MAPI property PR_POST_FOLDER_ENTRIES.
+		/// </summary>
 		PostFolderEntries                        = 0x103B,
+
+		/// <summary>
+		/// The MAPI property PR_POST_FOLDER_NAMES.
+		/// </summary>
 		PostFolderNames                          = 0x103C,
+
+		/// <summary>
+		/// The MAPI property PR_POST_OFFICE_BOX.
+		/// </summary>
 		PostOfficeBox                            = 0x3A2B,
+
+		/// <summary>
+		/// The MAPI property PR_POST_REPLY_DENIED.
+		/// </summary>
 		PostReplyDenied                          = 0x103F,
+
+		/// <summary>
+		/// The MAPI property PR_POST_REPLY_FOLDER_ENTRIES.
+		/// </summary>
 		PostReplyFolderEntries                   = 0x103D,
+
+		/// <summary>
+		/// The MAPI property PR_POST_REPLY_FOLDER_NAMES.
+		/// </summary>
 		PostReplyFolderNames                     = 0x103E,
+
+		/// <summary>
+		/// The MAPI property PR_PREFERRED_BY_NAME.
+		/// </summary>
 		PreferredByName                          = 0x3A47,
+
+		/// <summary>
+		/// The MAPI property PR_PREPROCESS.
+		/// </summary>
 		Preprocess                               = 0x0E22,
+
+		/// <summary>
+		/// The MAPI property PR_PRIMARY_CAPABILITY.
+		/// </summary>
 		PrimaryCapability                        = 0x3904,
+
+		/// <summary>
+		/// The MAPI property PR_PRIMARY_FAX_NUMBER.
+		/// </summary>
 		PrimaryFaxNumber                         = 0x3A23,
+
+		/// <summary>
+		/// The MAPI property PR_PRIMARY_TELEPHONE_NUMBER.
+		/// </summary>
 		PrimaryTelephoneNumber                   = 0x3A1A,
+
+		/// <summary>
+		/// The MAPI property PR_PRIORITY.
+		/// </summary>
 		Priority                                 = 0x0026,
+
+		/// <summary>
+		/// The MAPI property PR_PROFESSION.
+		/// </summary>
 		Profession                               = 0x3A46,
+
+		/// <summary>
+		/// The MAPI property PR_PROFILE_NAME.
+		/// </summary>
 		ProfileName                              = 0x3D12,
+
+		/// <summary>
+		/// The MAPI property PR_PROOF_OF_DELIVERY.
+		/// </summary>
 		ProofOfDelivery                          = 0x0C11,
+
+		/// <summary>
+		/// The MAPI property PR_PROOF_OF_DELIVERY_REQUESTED.
+		/// </summary>
 		ProofOfDeliveryRequested                 = 0x0C12,
+
+		/// <summary>
+		/// The MAPI property PR_PROOF_OF_SUBMISSION.
+		/// </summary>
 		ProofOfSubmission                        = 0x0E26,
+
+		/// <summary>
+		/// The MAPI property PR_PROOF_OF_SUBMISSION_REQUESTED.
+		/// </summary>
 		ProofOfSubmissionRequested               = 0x0028,
+
+		/// <summary>
+		/// The MAPI property PR_PROP_ID_SECURE_MAX.
+		/// </summary>
 		PropIdSecureMax                          = 0x67FF,
+
+		/// <summary>
+		/// The MAPI property PR_PROP_ID_SECURE_MIN.
+		/// </summary>
 		PropIdSecureMin                          = 0x67F0,
+
+		/// <summary>
+		/// The MAPI property PR_PROVIDER_DISPLAY.
+		/// </summary>
 		ProviderDisplay                          = 0x3006,
+
+		/// <summary>
+		/// The MAPI property PR_PROVIDER_DLL_NAME.
+		/// </summary>
 		ProviderDllName                          = 0x300A,
+
+		/// <summary>
+		/// The MAPI property PR_PROVIDER_ORDINAL.
+		/// </summary>
 		ProviderOrdinal                          = 0x300D,
+
+		/// <summary>
+		/// The MAPI property PR_PROVIDER_SUBMIT_TIME.
+		/// </summary>
 		ProviderSubmitTime                       = 0x0048,
+
+		/// <summary>
+		/// The MAPI property PR_PROVIDER_UID.
+		/// </summary>
 		ProviderUid                              = 0x300C,
+
+		/// <summary>
+		/// The MAPI property PR_PUID.
+		/// </summary>
 		Puid                                     = 0x300E,
+
+		/// <summary>
+		/// The MAPI property PR_RADIO_TELEPHONE_NUMBER.
+		/// </summary>
 		RadioTelephoneNumber                     = 0x3A1D,
+
+		/// <summary>
+		/// The MAPI property PR_RCVD_REPRESENTING_ADDRTYPE.
+		/// </summary>
 		RcvdRepresentingAddrtype                 = 0x0077,
+
+		/// <summary>
+		/// The MAPI property PR_RCVD_REPRESENTING_EMAIL_ADDRESS.
+		/// </summary>
 		RcvdRepresentingEmailAddress             = 0x0078,
+
+		/// <summary>
+		/// The MAPI property PR_RCVD_REPRESENTING_ENTRYID.
+		/// </summary>
 		RcvdRepresentingEntryId                  = 0x0043,
+
+		/// <summary>
+		/// The MAPI property PR_RCVD_REPRESENTING_NAME.
+		/// </summary>
 		RcvdRepresentingName                     = 0x0044,
+
+		/// <summary>
+		/// The MAPI property PR_RCVD_REPRESENTING_SEARCH_KEY.
+		/// </summary>
 		RcvdRepresentingSearchKey                = 0x0052,
+
+		/// <summary>
+		/// The MAPI property PR_READ_RECEIPT_ENTRYID.
+		/// </summary>
 		ReadReceiptEntryId                       = 0x0046,
+
+		/// <summary>
+		/// The MAPI property PR_READ_RECEIPT_REQUESTED.
+		/// </summary>
 		ReadReceiptRequested                     = 0x0029,
+
+		/// <summary>
+		/// The MAPI property PR_READ_RECEIPT_SEARCH_KEY.
+		/// </summary>
 		ReadReceiptSearchKey                     = 0x0053,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIPT_TIME.
+		/// </summary>
 		ReceiptTime                              = 0x002A,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVED_BY_ADDRTYPE.
+		/// </summary>
 		ReceivedByAddrtype                       = 0x0075,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVED_BY_EMAIL_ADDRESS.
+		/// </summary>
 		ReceivedByEmailAddress                   = 0x0076,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVED_BY_ENTRYID.
+		/// </summary>
 		ReceivedByEntryId                        = 0x003F,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVED_BY_NAME.
+		/// </summary>
 		ReceivedByName                           = 0x0040,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVED_BY_SEARCH_KEY.
+		/// </summary>
 		ReceivedBySearchKey                      = 0x0051,
+
+		/// <summary>
+		/// The MAPI property PR_RECEIVE_FOLDER_SETTINGS.
+		/// </summary>
 		ReceiveFolderSettings                    = 0x3415,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_CERTIFICATE.
+		/// </summary>
 		RecipientCertificate                     = 0x0C13,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
+		/// </summary>
 		RecipientNumberForAdvice                 = 0x0C14,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_REASSIGNMENT_PROHIBITED.
+		/// </summary>
 		RecipientReassignmentProhibited          = 0x002B,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_STATUS.
+		/// </summary>
 		RecipientStatus                          = 0x0E15,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_TYPE.
+		/// </summary>
 		RecipientType                            = 0x0C15,
+
+		/// <summary>
+		/// The MAPI property PR_RECORD_KEY.
+		/// </summary>
 		RecordKey                                = 0x0FF9,
+
+		/// <summary>
+		/// The MAPI property PR_REDIRECTION_HISTORY.
+		/// </summary>
 		RedirectionHistory                       = 0x002C,
+
+		/// <summary>
+		/// The MAPI property PR_REFERRED_BY_NAME.
+		/// </summary>
 		ReferredByName                           = 0x3A47,
+
+		/// <summary>
+		/// The MAPI property PR_REGISTERED_MAIL_TYPE.
+		/// </summary>
 		RegisteredMailType                       = 0x0C16,
+
+		/// <summary>
+		/// The MAPI property PR_RELATED_IPMS.
+		/// </summary>
 		RelatedIpms                              = 0x002D,
+
+		/// <summary>
+		/// The MAPI property PR_REMOTE_PROGRESS.
+		/// </summary>
 		RemoteProgress                           = 0x3E0B,
+
+		/// <summary>
+		/// The MAPI property PR_REMOTE_PROGRESS_TEXT.
+		/// </summary>
 		RemoteProgressText                       = 0x3E0C,
+
+		/// <summary>
+		/// The MAPI property PR_REMOTE_VALIDATE_OK.
+		/// </summary>
 		RemoteValidateOk                         = 0x3E0D,
+
+		/// <summary>
+		/// The MAPI property PR_RENDERING_POSITION.
+		/// </summary>
 		RenderingPosition                        = 0x370B,
+
+		/// <summary>
+		/// The MAPI property PR_REPLY_RECIPIENT_ENTRIES.
+		/// </summary>
 		ReplyRecipientEntries                    = 0x004F,
+
+		/// <summary>
+		/// The MAPI property PR_REPLY_RECIPIENT_NAMES.
+		/// </summary>
 		ReplyRecipientNames                      = 0x0050,
+
+		/// <summary>
+		/// The MAPI property PR_REPLY_REQUESTED.
+		/// </summary>
 		ReplyRequested                           = 0x0C17,
+
+		/// <summary>
+		/// The MAPI property PR_REPLY_TIME.
+		/// </summary>
 		ReplyTime                                = 0x0030,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_ENTRYID.
+		/// </summary>
 		ReportEntryId                            = 0x0045,
+
+		/// <summary>
+		/// The MAPI property PR_REPORTING_DLL_NAME.
+		/// </summary>
 		ReportingDlName                          = 0x1003,
+
+		/// <summary>
+		/// The MAPI property PR_REPORTING_MTA_CERTIFICATE.
+		/// </summary>
 		ReportingMtaCertificate                  = 0x1004,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_NAME.
+		/// </summary>
 		ReportName                               = 0x003A,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_SEARCH_KEY.
+		/// </summary>
 		ReportSearchKey                          = 0x0054,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_TAG.
+		/// </summary>
 		ReportTag                                = 0x0031,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_TEXT.
+		/// </summary>
 		ReportText                               = 0x1001,
+
+		/// <summary>
+		/// The MAPI property PR_REPORT_TIME.
+		/// </summary>
 		ReportTime                               = 0x0032,
+
+		/// <summary>
+		/// The MAPI property PR_REQUESTED_DELIVERY_METHOD.
+		/// </summary>
 		RequestedDeliveryMethod                  = 0x0C18,
+
+		/// <summary>
+		/// The MAPI property PR_RESOURCE_FLAGS.
+		/// </summary>
 		ResourceFlags                            = 0x3009,
+
+		/// <summary>
+		/// The MAPI property PR_RESOURCE_METHODS.
+		/// </summary>
 		ResourceMethods                          = 0x3E02,
+
+		/// <summary>
+		/// The MAPI property PR_RESOURCE_PATH.
+		/// </summary>
 		ResourcePath                             = 0x3E07,
+
+		/// <summary>
+		/// The MAPI property PR_RESOURCE_TYPE.
+		/// </summary>
 		ResourceType                             = 0x3E03,
+
+		/// <summary>
+		/// The MAPI property PR_RESPONSE_REQUESTED.
+		/// </summary>
 		ResponseRequested                        = 0x0063,
+
+		/// <summary>
+		/// The MAPI property PR_RESPONSIBILITY.
+		/// </summary>
 		Responsibility                           = 0x0E0F,
+
+		/// <summary>
+		/// The MAPI property PR_RETURNED_IPM.
+		/// </summary>
 		ReturnedIpm                              = 0x0033,
+
+		/// <summary>
+		/// The MAPI property PR_ROWID.
+		/// </summary>
 		Rowid                                    = 0x3000,
+
+		/// <summary>
+		/// The MAPI property PR_ROW_TYPE.
+		/// </summary>
 		RowType                                  = 0x0FF5,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_COMPRESSED.
+		/// </summary>
 		RtfCompressed                            = 0x1009,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_IN_SYNC.
+		/// </summary>
 		RtfInSync                                = 0x0E1F,
+
+		/// <summary>
+		/// The MAPI property PR_SYNC_BODY_COUNT.
+		/// </summary>
 		RtfSyncBodyCount                         = 0x1007,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_SYNC_BODY_CRC.
+		/// </summary>
 		RtfSyncBodyCrc                           = 0x1006,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_SYNC_BODY_TAG.
+		/// </summary>
 		RtfSyncBodyTag                           = 0x1008,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_SYNC_PREFIX_COUNT.
+		/// </summary>
 		RtfSyncPrefixCount                       = 0x1010,
+
+		/// <summary>
+		/// The MAPI property PR_RTF_SYNC_TRAILING_COUNT.
+		/// </summary>
 		RtfSyncTrailingCount                     = 0x1011,
+
+		/// <summary>
+		/// The MAPI property PR_SEARCH.
+		/// </summary>
 		Search                                   = 0x3607,
+
+		/// <summary>
+		/// The MAPI property PR_SEARCH_KEY.
+		/// </summary>
 		SearchKey                                = 0x300B,
+
+		/// <summary>
+		/// The MAPI property PR_SECURITY.
+		/// </summary>
 		Security                                 = 0x0034,
+
+		/// <summary>
+		/// The MAPI property PR_SELECTABLE.
+		/// </summary>
 		Selectable                               = 0x3609,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_ADDRTYPE.
+		/// </summary>
 		SenderAddrtype                           = 0x0C1E,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_EMAIL_ADDRESS.
+		/// </summary>
 		SenderEmailAddress                       = 0x0C1F,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_ENTRYID.
+		/// </summary>
 		SenderEntryId                            = 0x0C19,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_NAME.
+		/// </summary>
 		SenderName                               = 0x0C1A,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SEARCH_KEY.
+		/// </summary>
 		SenderSearchKey                          = 0x0C1D,
+
+		/// <summary>
+		/// The MAPI property PR_SEND_INTERNET_ENCODING.
+		/// </summary>
 		SendInternetEncoding                     = 0x3A71,
+
+		/// <summary>
+		/// The MAPI property PR_SEND_RECALL_REPORT.
+		/// </summary>
 		SendRecallReport                         = 0x6803,
+
+		/// <summary>
+		/// The MAPI property PR_SEND_RICH_INFO.
+		/// </summary>
 		SendRichInfo                             = 0x3A40,
+
+		/// <summary>
+		/// The MAPI property PR_SENSITIVITY.
+		/// </summary>
 		Sensitivity                              = 0x0036,
+
+		/// <summary>
+		/// The MAPI property PR_SENTMAIL_ENTRYID.
+		/// </summary>
 		SentmailEntryId                          = 0x0E0A,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_ADDRTYPE.
+		/// </summary>
 		SentRepresentingAddrtype                 = 0x0064,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_EMAIL_ADDRESS.
+		/// </summary>
 		SentRepresentingEmailAddress             = 0x0065,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_ENTRYID.
+		/// </summary>
 		SentRepresentingEntryId                  = 0x0041,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_NAME.
+		/// </summary>
 		SentRepresentingName                     = 0x0042,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_SEARCH_KEY.
+		/// </summary>
 		SentRepresentingSearchKey                = 0x003B,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_DELETE_FILES.
+		/// </summary>
 		ServiceDeleteFiles                       = 0x3D10,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_DLL_NAME.
+		/// </summary>
 		ServiceDllName                           = 0x3D0A,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_ENTRY_NAME.
+		/// </summary>
 		ServiceEntryName                         = 0x3D0B,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_EXTRA_UIDS.
+		/// </summary>
 		ServiceExtraUids                         = 0x3D0D,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_NAME.
+		/// </summary>
 		ServiceName                              = 0x3D09,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICES.
+		/// </summary>
 		Services                                 = 0x3D0E,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_SUPPORT_FILES.
+		/// </summary>
 		ServiceSupportFiles                      = 0x3D0F,
+
+		/// <summary>
+		/// The MAPI property PR_SERVICE_UID.
+		/// </summary>
 		ServiceUid                               = 0x3D0C,
+
+		/// <summary>
+		/// The MAPI property PR_SEVEN_BIT_DISPLAY_NAME.
+		/// </summary>
 		SevenBitDisplayName                      = 0x39FF,
+
+		/// <summary>
+		/// The MAPI property PR_SMTP_ADDRESS.
+		/// </summary>
 		SmtpAddress                              = 0x39FE,
+
+		/// <summary>
+		/// The MAPI property PR_SPOOLER_STATUS.
+		/// </summary>
 		SpoolerStatus                            = 0x0E10,
+
+		/// <summary>
+		/// The MAPI property PR_SPOUSE_NAME.
+		/// </summary>
 		SpouseName                               = 0x3A48,
+
+		/// <summary>
+		/// The MAPI property PR_START_DATE.
+		/// </summary>
 		StartDate                                = 0x0060,
+
+		/// <summary>
+		/// The MAPI property PR_STATE_OR_PROVINCE.
+		/// </summary>
 		StateOrProvince                          = 0x3A28,
+
+		/// <summary>
+		/// The MAPI property PR_STATUS.
+		/// </summary>
 		Status                                   = 0x360B,
+
+		/// <summary>
+		/// The MAPI property PR_STATUS_CODE.
+		/// </summary>
 		StatusCode                               = 0x3E04,
+
+		/// <summary>
+		/// The MAPI property PR_STATUS_STRING.
+		/// </summary>
 		StatusString                             = 0x3E08,
+
+		/// <summary>
+		/// The MAPI property PR_STORE_ENTRYID.
+		/// </summary>
 		StoreEntryId                             = 0x0FFB,
+
+		/// <summary>
+		/// The MAPI property PR_STORE_PROVIDERS.
+		/// </summary>
 		StoreProviders                           = 0x3D00,
+
+		/// <summary>
+		/// The MAPI property PR_STORE_RECORD_KEY.
+		/// </summary>
 		StoreRecordKey                           = 0x0FFA,
+
+		/// <summary>
+		/// The MAPI property PR_STORE_STATE.
+		/// </summary>
 		StoreState                               = 0x340E,
+
+		/// <summary>
+		/// The MAPI property PR_STORE_SUPPORT_MASK.
+		/// </summary>
 		StoreSupportMask                         = 0x340D,
+
+		/// <summary>
+		/// The MAPI property PR_STREET_ADDRESS.
+		/// </summary>
 		StreetAddress                            = 0x3A29,
+
+		/// <summary>
+		/// The MAPI property PR_SUBFOLDERS.
+		/// </summary>
 		Subfolders                               = 0x360A,
+
+		/// <summary>
+		/// The MAPI property PR_SUBJECT.
+		/// </summary>
 		Subject                                  = 0x0037,
+
+		/// <summary>
+		/// The MAPI property PR_SUBJECT_IPM.
+		/// </summary>
 		SubjectIpm                               = 0x0038,
+
+		/// <summary>
+		/// The MAPI property PR_SUBJECT_PREFIX.
+		/// </summary>
 		SubjectPrefix                            = 0x003D,
+
+		/// <summary>
+		/// The MAPI property PR_SUBMIT_FLAGS.
+		/// </summary>
 		SubmitFlags                              = 0x0E14,
+
+		/// <summary>
+		/// The MAPI property PR_SUPERSEDES.
+		/// </summary>
 		Supersedes                               = 0x103A,
+
+		/// <summary>
+		/// The MAPI property PR_SUPPLEMENTARY_INFO.
+		/// </summary>
 		SupplementaryInfo                        = 0x0C1B,
+
+		/// <summary>
+		/// The MAPI property PR_SURNAME.
+		/// </summary>
 		Surname                                  = 0x3A11,
+
+		/// <summary>
+		/// The MAPI property PR_TELEX_NUMBER.
+		/// </summary>
 		TelexNumber                              = 0x3A2C,
+
+		/// <summary>
+		/// The MAPI property PR_TEMPLATEID.
+		/// </summary>
 		Templateid                               = 0x3902,
+
+		/// <summary>
+		/// The MAPI property PR_TITLE.
+		/// </summary>
 		Title                                    = 0x3A17,
+
+		/// <summary>
+		/// The MAPI property PR_TNEF_CORRELATION_KEY.
+		/// </summary>
 		TnefCorrelationKey                       = 0x007F,
+
+		/// <summary>
+		/// The MAPI property PR_TRANSMITABLE_DISPLAY_NAME.
+		/// </summary>
 		TransmitableDisplayName                  = 0x3A20,
+
+		/// <summary>
+		/// The MAPI property PR_TRANSPORT_KEY.
+		/// </summary>
 		TransportKey                             = 0x0E16,
+
+		/// <summary>
+		/// The MAPI property PR_TRANSPORT_MESSAGE_HEADERS.
+		/// </summary>
 		TransportMessageHeaders                  = 0x007D,
+
+		/// <summary>
+		/// The MAPI property PR_TRANSPORT_PROVIDERS.
+		/// </summary>
 		TransportProviders                       = 0x3D02,
+
+		/// <summary>
+		/// The MAPI property PR_TRANSPORT_STATUS.
+		/// </summary>
 		TransportStatus                          = 0x0E11,
+
+		/// <summary>
+		/// The MAPI property PR_TTYTDD_PHONE_NUMBER.
+		/// </summary>
 		TtytddPhoneNumber                        = 0x3A4B,
+
+		/// <summary>
+		/// The MAPI property PR_TYPE_OF_MTS_USER.
+		/// </summary>
 		TypeOfMtsUser                            = 0x0C1C,
+
+		/// <summary>
+		/// The MAPI property PR_USER_CERTIFICATE.
+		/// </summary>
 		UserCertificate                          = 0x3A22,
+
+		/// <summary>
+		/// The MAPI property PR_USER_X509_CERTIFICATE.
+		/// </summary>
 		UserX509Certificate                      = 0x3A70,
+
+		/// <summary>
+		/// The MAPI property PR_VALID_FOLDER_MASK.
+		/// </summary>
 		ValidFolderMask                          = 0x35DF,
+
+		/// <summary>
+		/// The MAPI property PR_VIEWS_ENTRYID.
+		/// </summary>
 		ViewsEntryId                             = 0x35E5,
+
+		/// <summary>
+		/// The MAPI property PR_WEDDING_ANNIVERSARY.
+		/// </summary>
 		WeddingAnniversary                       = 0x3A41,
+
+		/// <summary>
+		/// The MAPI property PR_X400_CONTENT_TYPE.
+		/// </summary>
 		X400ContentType                          = 0x003C,
+
+		/// <summary>
+		/// The MAPI property PR_X400_DEFERRED_DELIVERY_CANCEL.
+		/// </summary>
 		X400DeferredDeliveryCancel               = 0x3E09,
+
+		/// <summary>
+		/// The MAPI property PR_XPOS.
+		/// </summary>
 		Xpos                                     = 0x3F05,
+
+		/// <summary>
+		/// The MAPI property PR_YPOS.
+		/// </summary>
 		Ypos                                     = 0x3F06,
 	}
 }

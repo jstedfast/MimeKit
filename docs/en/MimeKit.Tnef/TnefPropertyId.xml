@@ -28,7 +28,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_DEFAULT_DIR.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AbDefaultPab">
@@ -42,7 +44,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_DEFAULT_PAB.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AbProviderId">
@@ -56,7 +60,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_PROVIDER_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AbProviders">
@@ -70,7 +76,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_PROVIDERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AbSearchPath">
@@ -84,7 +92,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_SEARCH_PATH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AbSearchPathUpdate">
@@ -98,7 +108,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AB_SEARCH_PATH_UPDATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Access">
@@ -112,7 +124,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ACCESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AccessLevel">
@@ -126,7 +140,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ACCESS_LEVEL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Account">
@@ -140,7 +156,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ACCOUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AcknowledgementMode">
@@ -154,7 +172,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ACKNOWLEDGEMENT_MODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Addrtype">
@@ -168,7 +188,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AlternateRecipient">
@@ -182,7 +204,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ALTERNATE_RECIPIENT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AlternateRecipientAllowed">
@@ -196,7 +220,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ALTERNATE_RECIPIENT_ALLOWED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Anr">
@@ -210,7 +236,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ANR.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Assistant">
@@ -224,7 +252,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ASSISTANT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AssistantTelephoneNumber">
@@ -238,7 +268,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ASSISTANT_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AssocContentCount">
@@ -252,7 +284,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ASSOC_CONTENT_COUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachAdditionalInfo">
@@ -266,7 +300,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_ADDITIONAL_INFO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachContentBase">
@@ -280,7 +316,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_CONTENT_BASE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachContentId">
@@ -294,7 +332,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_CONTENT_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachContentLocation">
@@ -308,7 +348,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_CONTENT_LOCATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachData">
@@ -322,7 +364,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_DATA_BIN or PR_ATTACH_DATA_OBJ.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachDisposition">
@@ -336,7 +380,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_DISPOSITION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachEncoding">
@@ -350,7 +396,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_ENCODING.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachExtension">
@@ -364,7 +412,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_EXTENSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachFilename">
@@ -378,7 +428,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_FILENAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachFlags">
@@ -392,7 +444,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachLongFilename">
@@ -406,7 +460,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_LONG_FILENAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachLongPathname">
@@ -420,7 +476,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_LONG_PATHNAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachmentX400Parameters">
@@ -434,7 +492,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACHMENT_X400_PARAMETERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachMethod">
@@ -448,7 +508,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_METHOD.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachMimeSequence">
@@ -462,7 +524,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_MIME_SEQUENCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachMimeTag">
@@ -476,7 +540,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_MIME_TAG.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachNetscapeMacInfo">
@@ -490,7 +556,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_NETSCAPE_MAC_INFO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachNum">
@@ -504,7 +572,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_NUM.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachPathname">
@@ -518,7 +588,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_PATHNAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachRendering">
@@ -532,7 +604,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_RENDERING.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachSize">
@@ -546,7 +620,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_SIZE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachTag">
@@ -560,7 +636,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_TAG.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AttachTransportName">
@@ -574,7 +652,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ATTACH_TRANSPORT_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AuthorizingUsers">
@@ -588,7 +668,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AUTHORIZING_USERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AutoForwarded">
@@ -602,7 +684,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AUTO_FORWARDED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AutoForwardingComment">
@@ -616,7 +700,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AUTO_FORWARDING_COMMENT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="AutoResponseSuppress">
@@ -630,7 +716,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_AUTO_RESPONSE_SUPPRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BeeperTelephoneNumber">
@@ -644,7 +732,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BEEPER_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Birthday">
@@ -658,7 +748,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BIRTHDAY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Body">
@@ -672,7 +764,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BODY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BodyContentId">
@@ -686,7 +780,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BODY_CONTENT_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BodyContentLocation">
@@ -700,7 +796,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BODY_CONTENT_LOCATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BodyCrc">
@@ -714,7 +812,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BODY_CRC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BodyHtml">
@@ -728,7 +828,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BODY_HTML.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Business2TelephoneNumber">
@@ -742,7 +844,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS2_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressCity">
@@ -756,7 +860,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_CITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressCountry">
@@ -770,7 +876,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_COUNTRY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressPostalCode">
@@ -784,7 +892,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_POSTAL_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressPostOfficeBox">
@@ -798,7 +908,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_POST_OFFICE_BOX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressStateOrProvince">
@@ -812,7 +924,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessAddressStreet">
@@ -826,7 +940,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_ADDRESS_STREET.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessFaxNumber">
@@ -840,7 +956,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_FAX_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="BusinessHomePage">
@@ -854,7 +972,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_BUSINESS_HOME_PAGE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CallbackTelephoneNumber">
@@ -868,7 +988,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CALLBACK_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CarTelephoneNumber">
@@ -882,7 +1004,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CAR_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CellularTelephoneNumber">
@@ -896,7 +1020,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CELLULAR_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ChildrensNames">
@@ -910,7 +1036,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CHILDRENS_NAMES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ClientSubmitTime">
@@ -924,7 +1052,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CLIENT_SUBMIT_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Comment">
@@ -938,7 +1068,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COMMENT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CommonViewsEntryId">
@@ -952,7 +1084,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COMMON_VIEWS_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CompanyMainPhoneNumber">
@@ -966,7 +1100,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COMPANY_MAIN_PHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CompanyName">
@@ -980,7 +1116,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COMPANY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ComputerNetworkName">
@@ -994,7 +1132,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COMPUTER_NETWORK_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContactAddrtypes">
@@ -1008,7 +1148,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTACT_ADDRTYPES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContactDefaultAddressIndex">
@@ -1022,7 +1164,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTACT_DEFAULT_ADDRESS_INDEX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContactEmailAddresses">
@@ -1036,7 +1180,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTACT_EMAIL_ADDRESSES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContactEntryIds">
@@ -1050,7 +1196,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTACT_ENTRYIDS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContactVersion">
@@ -1064,7 +1212,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTACT_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContainerClass">
@@ -1078,7 +1228,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTAINER_CLASS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContainerContents">
@@ -1092,7 +1244,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTAINER_CONTENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContainerFlags">
@@ -1106,7 +1260,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTAINER_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContainerHierarchy">
@@ -1120,7 +1276,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTAINER_HIERARCHY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContainerModifyVersion">
@@ -1134,7 +1292,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTAINER_MODIFY_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentConfidentialityAlgorithmId">
@@ -1148,7 +1308,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_CONFIDENTIALITY_ALGORITHM_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentCorrelator">
@@ -1162,7 +1324,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_CORRELATOR.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentCount">
@@ -1176,7 +1340,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_COUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentIdentifier">
@@ -1190,7 +1356,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_IDENTIFIER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentIntegrityCheck">
@@ -1204,7 +1372,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_INTEGRITY_CHECK.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentLength">
@@ -1218,7 +1388,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_LENGTH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentReturnRequested">
@@ -1232,7 +1404,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_RETURN_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentsSortOrder">
@@ -1246,7 +1420,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENTS_SORT_ORDER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ContentUnread">
@@ -1260,7 +1436,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTENT_UNREAD.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ControlFlags">
@@ -1274,7 +1452,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTROL_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ControlId">
@@ -1288,7 +1468,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTROL_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ControlStructure">
@@ -1302,7 +1484,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTROL_STRUCTURE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ControlType">
@@ -1316,7 +1500,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONTROL_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversationIndex">
@@ -1330,7 +1516,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSATION_INDEX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversationKey">
@@ -1344,7 +1532,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSATION_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversationTopic">
@@ -1358,7 +1548,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSATION_TOPIC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversionEits">
@@ -1372,7 +1564,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSATION_EITS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversionProhibited">
@@ -1386,7 +1580,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSION_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConversionWithLossProhibited">
@@ -1400,7 +1596,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERSION_WITH_LOSS_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ConvertedEits">
@@ -1414,7 +1612,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CONVERTED_EITS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Correlate">
@@ -1428,7 +1628,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CORRELATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CorrelateMtsid">
@@ -1442,7 +1644,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CORRELATE_MTSID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Country">
@@ -1456,7 +1660,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_COUNTRY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CreateTemplates">
@@ -1470,7 +1676,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CREATE_TEMPLATES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CreationTime">
@@ -1484,7 +1692,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CREATION_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CreationVersion">
@@ -1498,7 +1708,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CREATION_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CurrentVersion">
@@ -1512,7 +1724,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CURRENT_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="CustomerId">
@@ -1526,7 +1740,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_CUSTOMER_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DefaultProfile">
@@ -1540,7 +1756,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEFAULT_PROFILE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DefaultStore">
@@ -1554,7 +1772,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEFAULT_STORE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DefaultViewEntryId">
@@ -1568,7 +1788,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEFAULT_VIEW_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DefCreateDl">
@@ -1582,7 +1804,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEF_CREATE_DL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DefCreateMailuser">
@@ -1596,7 +1820,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEF_CREATE_MAILUSER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DeferredDeliveryTime">
@@ -1610,7 +1836,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEFERRED_DELIVERY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Delegation">
@@ -1624,7 +1852,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELEGATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DeleteAfterSubmit">
@@ -1638,7 +1868,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELETE_AFTER_SUBMIT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DeliverTime">
@@ -1652,7 +1884,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELIVER_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DeliveryPoint">
@@ -1666,7 +1900,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELIVERY_POINT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Deltax">
@@ -1680,7 +1916,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELTAX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Deltay">
@@ -1694,7 +1932,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DELTAY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DepartmentName">
@@ -1708,7 +1948,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEPARTMENT_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Depth">
@@ -1722,7 +1964,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DEPTH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DetailsTable">
@@ -1736,7 +1980,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DETAILS_TABLE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DiscardReason">
@@ -1750,7 +1996,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISCARD_REASON.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DiscloseRecipients">
@@ -1764,7 +2012,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISCLOSE_RECIPIENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisclosureOfRecipients">
@@ -1778,7 +2028,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISCLOSURE_OF_RECIPIENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DiscreteValues">
@@ -1792,7 +2044,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISCRETE_VALUES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DiscVal">
@@ -1806,7 +2060,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISC_VAL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayBcc">
@@ -1820,7 +2076,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_BCC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayCc">
@@ -1834,7 +2092,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_CC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayName">
@@ -1848,7 +2108,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayNamePrefix">
@@ -1862,7 +2124,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_NAME_PREFIX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayTo">
@@ -1876,7 +2140,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_TO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DisplayType">
@@ -1890,7 +2156,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DISPLAY_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DlExpansionHistory">
@@ -1904,7 +2172,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DL_EXPANSION_HISTORY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="DlExpansionProhibited">
@@ -1918,7 +2188,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_DL_EXPANSION_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EmailAddress">
@@ -1932,7 +2204,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EndDate">
@@ -1946,7 +2220,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_END_DATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="EntryId">
@@ -1960,7 +2236,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpandBeginTime">
@@ -1974,7 +2252,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPAND_BEGIN_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpandedBeginTime">
@@ -1988,7 +2268,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPANDED_BEGIN_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpandedEndTime">
@@ -2002,7 +2284,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPANDED_END_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpandEndTime">
@@ -2016,7 +2300,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPAND_END_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExpiryTime">
@@ -2030,7 +2316,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPIRY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ExplicitConversion">
@@ -2044,7 +2332,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_EXPLICIT_CONVERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FilteringHooks">
@@ -2058,7 +2348,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FILTERING_HOOKS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FinderEntryId">
@@ -2072,7 +2364,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FINDER_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FolderAssociatedContents">
@@ -2086,7 +2380,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FOLDER_ASSOCIATED_CONTENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FolderType">
@@ -2100,7 +2396,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FOLDER_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormCategory">
@@ -2114,7 +2412,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_CATEGORY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormCategorySub">
@@ -2128,7 +2428,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_CATEGORY_SUB.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormClsid">
@@ -2142,7 +2444,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_CLSID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormContactName">
@@ -2156,7 +2460,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_CONTACT_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormDesignerGuid">
@@ -2170,7 +2476,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_DESIGNER_GUID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormDesignerName">
@@ -2184,7 +2492,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_DESIGNER_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormHidden">
@@ -2198,7 +2508,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_HIDDEN.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormHostMap">
@@ -2212,7 +2524,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_HOST_MAP.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormMessageBehavior">
@@ -2226,7 +2540,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_MESSAGE_BEHAVIOR.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FormVersion">
@@ -2240,7 +2556,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FORM_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="FtpSite">
@@ -2254,7 +2572,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_FTP_SITE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Gender">
@@ -2268,7 +2588,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_GENDER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Generation">
@@ -2282,7 +2604,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_GENERATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="GivenName">
@@ -2296,7 +2620,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_GIVEN_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="GovernmentIdNumber">
@@ -2310,7 +2636,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_GOVERNMENT_ID_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Hasattach">
@@ -2324,7 +2652,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HASTTACH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HeaderFolderEntryId">
@@ -2338,7 +2668,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HEADER_FOLDER_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Hobbies">
@@ -2352,7 +2684,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOBBIES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Home2TelephoneNumber">
@@ -2366,7 +2700,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME2_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressCity">
@@ -2380,7 +2716,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_CITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressCountry">
@@ -2394,7 +2732,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_COUNTRY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressPostalCode">
@@ -2408,7 +2748,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_POSTAL_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressPostOfficeBox">
@@ -2422,7 +2764,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_POST_OFFICE_BOX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressStateOrProvince">
@@ -2436,7 +2780,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_STATE_OR_PROVINCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeAddressStreet">
@@ -2450,7 +2796,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_ADDRESS_STREET.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeFaxNumber">
@@ -2464,7 +2812,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_FAX_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="HomeTelephoneNumber">
@@ -2478,7 +2828,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_HOME_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Icon">
@@ -2492,7 +2844,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ICON.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IdentityDisplay">
@@ -2506,7 +2860,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IDENTITY_DISPLAY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IdentityEntryId">
@@ -2520,7 +2876,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IDENTITY_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IdentitySearchKey">
@@ -2534,7 +2892,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IDENTITY_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ImplicitConversionProhibited">
@@ -2548,7 +2908,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IMPLICIT_CONVERSION_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Importance">
@@ -2562,7 +2924,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IMPORTANCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IncompleteCopy">
@@ -2576,7 +2940,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INCOMPLETE_COPY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="INetMailOverrideCharset">
@@ -2590,7 +2956,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Internet mail override charset.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="INetMailOverrideFormat">
@@ -2604,7 +2972,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The Internet mail override format.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InitialDetailsPane">
@@ -2618,7 +2988,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INITIAL_DETAILS_PANE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Initials">
@@ -2632,7 +3004,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INITIALS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InReplyToId">
@@ -2646,7 +3020,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IN_REPLY_TO_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InstanceKey">
@@ -2660,7 +3036,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INSTANCE_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetApproved">
@@ -2674,7 +3052,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_APPROVED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetArticleNumber">
@@ -2688,7 +3068,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_ARTICLE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetControl">
@@ -2702,7 +3084,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_CONTROL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetCPID">
@@ -2716,7 +3100,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_CPID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetDistribution">
@@ -2730,7 +3116,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_DISTRIBUTION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetFollowupTo">
@@ -2744,7 +3132,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_FOLLOWUP_TO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetLines">
@@ -2758,7 +3148,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_LINES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetMessageId">
@@ -2772,7 +3164,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_MESSAGE_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetNewsgroups">
@@ -2786,7 +3180,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_NEWSGROUPS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetNntpPath">
@@ -2800,7 +3196,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_NNTP_PATH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetOrganization">
@@ -2814,7 +3212,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_ORGANIZATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetPrecedence">
@@ -2828,7 +3228,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_PRECEDENCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="InternetReferences">
@@ -2842,7 +3244,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_INTERNET_REFERENCES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmId">
@@ -2856,7 +3260,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmOutboxEntryId">
@@ -2870,7 +3276,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_OUTBOX_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmOutboxSearchKey">
@@ -2884,7 +3292,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_OUTBOX_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmReturnRequested">
@@ -2898,7 +3308,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_RETURN_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmSentmailEntryId">
@@ -2912,7 +3324,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_SENTMAIL_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmSentmailSearchKey">
@@ -2926,7 +3340,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_SENTMAIL_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmSubtreeEntryId">
@@ -2940,7 +3356,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_SUBTREE_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmSubtreeSearchKey">
@@ -2954,7 +3372,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_SUBTREE_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmWastebasketEntryId">
@@ -2968,7 +3388,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_WASTEBASKET_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IpmWastebasketSearchKey">
@@ -2982,7 +3404,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_IPM_WASTEBASKET_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="IsdnNumber">
@@ -2996,7 +3420,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ISDN_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Keyword">
@@ -3010,7 +3436,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_KEYWORD.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Language">
@@ -3024,7 +3452,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LANGUAGE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Languages">
@@ -3038,7 +3468,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LANGUAGES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LastModificationTime">
@@ -3052,7 +3484,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LAST_MODIFICATION_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LatestDeliveryTime">
@@ -3066,7 +3500,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LATEST_DELIVERY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListHelp">
@@ -3080,7 +3516,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LIST_HELP.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListSubscribe">
@@ -3094,7 +3532,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LIST_SUBSCRIBE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ListUnsubscribe">
@@ -3108,7 +3548,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LIST_UNSUBSCRIBE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Locality">
@@ -3122,7 +3564,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCALITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LocallyDelivered">
@@ -3136,7 +3580,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCALLY_DELIVERED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Location">
@@ -3150,7 +3596,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockBranchId">
@@ -3164,7 +3612,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_BRANCH_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockDepth">
@@ -3178,7 +3628,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_DEPTH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockEnlistmentContext">
@@ -3192,7 +3644,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_ENLISTMENT_CONTEXT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockExpiryTime">
@@ -3206,7 +3660,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_EXPIRY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockPersistent">
@@ -3220,7 +3676,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_PERSISTENT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockResourceDid">
@@ -3234,7 +3692,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_RESOURCE_DID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockResourceFid">
@@ -3248,7 +3708,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_RESOURCE_FID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockResourceMid">
@@ -3262,7 +3724,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_RESOURCE_MID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockScope">
@@ -3276,7 +3740,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_SCOPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockTimeout">
@@ -3290,7 +3756,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_TIMEOUT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="LockType">
@@ -3304,7 +3772,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_LOCK_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MailPermission">
@@ -3318,7 +3788,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MAIL_PERMISSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ManagerName">
@@ -3332,7 +3804,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MANAGER_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MappingSignature">
@@ -3346,7 +3820,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MAPPING_SIGNATURE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MdbProvider">
@@ -3360,7 +3836,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MDB_PROVIDER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageAttachments">
@@ -3374,7 +3852,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_ATTACHMENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageCcMe">
@@ -3388,7 +3868,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_CC_ME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageClass">
@@ -3402,7 +3884,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_CLASS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageCodepage">
@@ -3416,7 +3900,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_CODEPAGE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageDeliveryId">
@@ -3430,7 +3916,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_DELIVERY_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageDeliveryTime">
@@ -3444,7 +3932,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_DELIVERY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageDownloadTime">
@@ -3458,7 +3948,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_DOWNLOAD_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageFlags">
@@ -3472,7 +3964,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageRecipients">
@@ -3486,7 +3980,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_RECIPIENTS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageRecipMe">
@@ -3500,7 +3996,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_RECIP_ME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageSecurityLabel">
@@ -3514,7 +4012,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_SECURITY_LABEL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageSize">
@@ -3528,7 +4028,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_SIZE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageSubmissionId">
@@ -3542,7 +4044,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_SUBMISSION_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageToken">
@@ -3556,7 +4060,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_TOKEN.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MessageToMe">
@@ -3570,7 +4076,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MESSAGE_TO_ME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MhsCommonName">
@@ -3584,7 +4092,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MHS_COMMON_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MiddleName">
@@ -3598,7 +4108,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MIDDLE_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MiniIcon">
@@ -3612,7 +4124,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MINI_ICON.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MobileTelephoneNumber">
@@ -3626,7 +4140,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MOBILE_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ModifyVersion">
@@ -3640,7 +4156,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MODIFY_VERSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="MsgStatus">
@@ -3654,7 +4172,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_MSG_STATUS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NdrDiagCode">
@@ -3668,7 +4188,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NDR_DIAG_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NdrReasonCode">
@@ -3682,7 +4204,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NDR_REASON_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NdrStatusCode">
@@ -3696,7 +4220,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NDR_STATUS_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NewsgroupName">
@@ -3710,7 +4236,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NEWSGROUP_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Nickname">
@@ -3724,7 +4252,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NICKNAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NntpXref">
@@ -3738,7 +4268,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NNTP_XREF.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NonReceiptNotificationRequested">
@@ -3752,7 +4284,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NON_RECEIPT_NOTIFICATION_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NonReceiptReason">
@@ -3766,7 +4300,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NON_RECEIPT_REASON.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NormalizedSubject">
@@ -3780,7 +4316,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NORMALIZED_SUBJECT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="NtSecurityDescriptor">
@@ -3794,7 +4332,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NT_SECURITY_DESCRIPTOR.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Null">
@@ -3808,7 +4348,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_NULL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ObjectType">
@@ -3822,7 +4364,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OBJECT_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ObsoletedIpms">
@@ -3836,7 +4380,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OBSOLETE_IPMS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Office2TelephoneNumber">
@@ -3850,7 +4396,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OFFICE2_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OfficeLocation">
@@ -3864,7 +4412,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OFFICE_LOCATION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OfficeTelephoneNumber">
@@ -3878,7 +4428,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OFFICE_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OofReplyType">
@@ -3892,7 +4444,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OOF_REPLY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OrganizationalIdNumber">
@@ -3906,7 +4460,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OrigEntryId">
@@ -3920,7 +4476,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIG_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalAuthorAddrtype">
@@ -3934,7 +4492,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalAuthorEmailAddress">
@@ -3948,7 +4508,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_AUTHOR_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalAuthorEntryId">
@@ -3962,7 +4524,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_AUTHOR_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalAuthorName">
@@ -3976,7 +4540,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_AUTHOR_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalAuthorSearchKey">
@@ -3990,7 +4556,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_AUTHOR_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalDeliveryTime">
@@ -4004,7 +4572,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_DELIVERY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalDisplayBcc">
@@ -4018,7 +4588,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_DISPLAY_BCC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalDisplayCc">
@@ -4032,7 +4604,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_DISPLAY_CC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalDisplayName">
@@ -4046,7 +4620,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_DISPLAY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalDisplayTo">
@@ -4060,7 +4636,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_DISPLAY_TO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalEits">
@@ -4074,7 +4652,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_EITS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalEntryId">
@@ -4088,7 +4668,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginallyIntendedRecipAddrtype">
@@ -4102,7 +4684,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginallyIntendedRecipEmailAddress">
@@ -4116,7 +4700,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginallyIntendedRecipEntryId">
@@ -4130,7 +4716,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginallyIntendedRecipientName">
@@ -4144,7 +4732,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINALLY_INTENDED_RECIPIENT_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSearchKey">
@@ -4158,7 +4748,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSenderAddrtype">
@@ -4172,7 +4764,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENDER_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSenderEmailAddress">
@@ -4186,7 +4780,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENDER_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSenderEntryId">
@@ -4200,7 +4796,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENDER_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSenderName">
@@ -4214,7 +4812,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENDER_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSenderSearchKey">
@@ -4228,7 +4828,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENDER_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSensitivity">
@@ -4242,7 +4844,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENSITIVITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSentRepresentingAddrtype">
@@ -4256,7 +4860,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENT_REPRESENTING_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSentRepresentingEmailAddress">
@@ -4270,7 +4876,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSentRepresentingEntryId">
@@ -4284,7 +4892,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENT_REPRESENTING_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSentRepresentingName">
@@ -4298,7 +4908,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENT_REPRESENTING_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSentRepresentingSearchKey">
@@ -4312,7 +4924,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SENT_REPRESENTING_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSubject">
@@ -4326,7 +4940,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SUBJECT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginalSubmitTime">
@@ -4340,7 +4956,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINAL_SUBMIT_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatingMtaCertificate">
@@ -4354,7 +4972,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATING_MTA_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorAndDlExpansionHistory">
@@ -4368,7 +4988,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_AND_DL_EXPANSION_HISTORY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorCertificate">
@@ -4382,7 +5004,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorDeliveryReportRequested">
@@ -4396,7 +5020,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_DELIVERY_REPORT_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorNonDeliveryReportRequested">
@@ -4410,7 +5036,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_NON_DELIVERY_REPORT_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorRequestedAlternateRecipient">
@@ -4424,7 +5052,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_REQUESTED_ALTERNATE_RECIPIENT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginatorReturnAddress">
@@ -4438,7 +5068,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGINATOR_RETURN_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OriginCheck">
@@ -4452,7 +5084,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIGIN_CHECK.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OrigMessageClass">
@@ -4466,7 +5100,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ORIG_MESSAGE_CLASS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressCity">
@@ -4480,7 +5116,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_CITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressCountry">
@@ -4494,7 +5132,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_COUNTRY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressPostalCode">
@@ -4508,7 +5148,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_POSTAL_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressPostOfficeBox">
@@ -4522,7 +5164,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_POST_OFFICE_BOX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressStateOrProvince">
@@ -4536,7 +5180,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_STATE_OR_PROVINCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherAddressStreet">
@@ -4550,7 +5196,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_ADDRESS_STREET.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OtherTelephoneNumber">
@@ -4564,7 +5212,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OTHER_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OwnerApptId">
@@ -4578,7 +5228,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OWNER_APPT_ID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="OwnStoreEntryId">
@@ -4592,7 +5244,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_OWN_STORE_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PagerTelephoneNumber">
@@ -4606,7 +5260,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PAGER_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ParentDisplay">
@@ -4620,7 +5276,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PARENT_DISPLAY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ParentEntryId">
@@ -4634,7 +5292,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PARENT_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ParentKey">
@@ -4648,7 +5308,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PARENT_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PersonalHomePage">
@@ -4662,7 +5324,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PERSONAL_HOME_PAGE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalDeliveryBureauFaxDelivery">
@@ -4676,7 +5340,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_DELIVERY_BUREAU_FAX_DELIVERY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalDeliveryMode">
@@ -4690,7 +5356,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_DELIVERY_MODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalDeliveryReportRequest">
@@ -4704,7 +5372,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_DELIVERY_REPORT_REQUEST.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalForwardingAddress">
@@ -4718,7 +5388,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_FORWARDING_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalForwardingAddressRequested">
@@ -4732,7 +5404,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_FORWARDING_ADDRESS_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalForwardingProhibited">
@@ -4746,7 +5420,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_FORWARDING_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PhysicalRenditionAttributes">
@@ -4760,7 +5436,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PHYSICAL_RENDITION_ATTRIBUTES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostalAddress">
@@ -4774,7 +5452,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POSTAL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostalCode">
@@ -4788,7 +5468,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POSTAL_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostFolderEntries">
@@ -4802,7 +5484,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_FOLDER_ENTRIES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostFolderNames">
@@ -4816,7 +5500,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_FOLDER_NAMES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostOfficeBox">
@@ -4830,7 +5516,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_OFFICE_BOX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostReplyDenied">
@@ -4844,7 +5532,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_REPLY_DENIED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostReplyFolderEntries">
@@ -4858,7 +5548,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_REPLY_FOLDER_ENTRIES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PostReplyFolderNames">
@@ -4872,7 +5564,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_POST_REPLY_FOLDER_NAMES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PreferredByName">
@@ -4886,7 +5580,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PREFERRED_BY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Preprocess">
@@ -4900,7 +5596,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PREPROCESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PrimaryCapability">
@@ -4914,7 +5612,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PRIMARY_CAPABILITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PrimaryFaxNumber">
@@ -4928,7 +5628,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PRIMARY_FAX_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PrimaryTelephoneNumber">
@@ -4942,7 +5644,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PRIMARY_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Priority">
@@ -4956,7 +5660,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PRIORITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Profession">
@@ -4970,7 +5676,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROFESSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProfileName">
@@ -4984,7 +5692,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROFILE_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProofOfDelivery">
@@ -4998,7 +5708,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROOF_OF_DELIVERY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProofOfDeliveryRequested">
@@ -5012,7 +5724,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROOF_OF_DELIVERY_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProofOfSubmission">
@@ -5026,7 +5740,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROOF_OF_SUBMISSION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProofOfSubmissionRequested">
@@ -5040,7 +5756,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROOF_OF_SUBMISSION_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PropIdSecureMax">
@@ -5054,7 +5772,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROP_ID_SECURE_MAX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="PropIdSecureMin">
@@ -5068,7 +5788,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROP_ID_SECURE_MIN.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProviderDisplay">
@@ -5082,7 +5804,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROVIDER_DISPLAY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProviderDllName">
@@ -5096,7 +5820,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROVIDER_DLL_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProviderOrdinal">
@@ -5110,7 +5836,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROVIDER_ORDINAL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProviderSubmitTime">
@@ -5124,7 +5852,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROVIDER_SUBMIT_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ProviderUid">
@@ -5138,7 +5868,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PROVIDER_UID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Puid">
@@ -5152,7 +5884,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_PUID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RadioTelephoneNumber">
@@ -5166,7 +5900,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RADIO_TELEPHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RcvdRepresentingAddrtype">
@@ -5180,7 +5916,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RCVD_REPRESENTING_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RcvdRepresentingEmailAddress">
@@ -5194,7 +5932,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RCVD_REPRESENTING_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RcvdRepresentingEntryId">
@@ -5208,7 +5948,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RCVD_REPRESENTING_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RcvdRepresentingName">
@@ -5222,7 +5964,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RCVD_REPRESENTING_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RcvdRepresentingSearchKey">
@@ -5236,7 +5980,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RCVD_REPRESENTING_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReadReceiptEntryId">
@@ -5250,7 +5996,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_READ_RECEIPT_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReadReceiptRequested">
@@ -5264,7 +6012,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_READ_RECEIPT_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReadReceiptSearchKey">
@@ -5278,7 +6028,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_READ_RECEIPT_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceiptTime">
@@ -5292,7 +6044,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIPT_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceivedByAddrtype">
@@ -5306,7 +6060,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVED_BY_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceivedByEmailAddress">
@@ -5320,7 +6076,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVED_BY_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceivedByEntryId">
@@ -5334,7 +6092,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVED_BY_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceivedByName">
@@ -5348,7 +6108,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVED_BY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceivedBySearchKey">
@@ -5362,7 +6124,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVED_BY_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReceiveFolderSettings">
@@ -5376,7 +6140,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECEIVE_FOLDER_SETTINGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecipientCertificate">
@@ -5390,7 +6156,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECIPIENT_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecipientNumberForAdvice">
@@ -5404,7 +6172,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecipientReassignmentProhibited">
@@ -5418,7 +6188,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECIPIENT_REASSIGNMENT_PROHIBITED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecipientStatus">
@@ -5432,7 +6204,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECIPIENT_STATUS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecipientType">
@@ -5446,7 +6220,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECIPIENT_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RecordKey">
@@ -5460,7 +6236,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RECORD_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RedirectionHistory">
@@ -5474,7 +6252,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REDIRECTION_HISTORY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReferredByName">
@@ -5488,7 +6268,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REFERRED_BY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RegisteredMailType">
@@ -5502,7 +6284,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REGISTERED_MAIL_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RelatedIpms">
@@ -5516,7 +6300,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RELATED_IPMS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RemoteProgress">
@@ -5530,7 +6316,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REMOTE_PROGRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RemoteProgressText">
@@ -5544,7 +6332,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REMOTE_PROGRESS_TEXT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RemoteValidateOk">
@@ -5558,7 +6348,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REMOTE_VALIDATE_OK.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RenderingPosition">
@@ -5572,7 +6364,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RENDERING_POSITION.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyRecipientEntries">
@@ -5586,7 +6380,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPLY_RECIPIENT_ENTRIES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyRecipientNames">
@@ -5600,7 +6396,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPLY_RECIPIENT_NAMES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyRequested">
@@ -5614,7 +6412,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPLY_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReplyTime">
@@ -5628,7 +6428,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPLY_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportEntryId">
@@ -5642,7 +6444,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportingDlName">
@@ -5656,7 +6460,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORTING_DLL_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportingMtaCertificate">
@@ -5670,7 +6476,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORTING_MTA_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportName">
@@ -5684,7 +6492,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportSearchKey">
@@ -5698,7 +6508,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportTag">
@@ -5712,7 +6524,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_TAG.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportText">
@@ -5726,7 +6540,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_TEXT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReportTime">
@@ -5740,7 +6556,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REPORT_TIME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RequestedDeliveryMethod">
@@ -5754,7 +6572,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_REQUESTED_DELIVERY_METHOD.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResourceFlags">
@@ -5768,7 +6588,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESOURCE_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResourceMethods">
@@ -5782,7 +6604,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESOURCE_METHODS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResourcePath">
@@ -5796,7 +6620,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESOURCE_PATH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResourceType">
@@ -5810,7 +6636,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESOURCE_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ResponseRequested">
@@ -5824,7 +6652,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESPONSE_REQUESTED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Responsibility">
@@ -5838,7 +6668,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RESPONSIBILITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ReturnedIpm">
@@ -5852,7 +6684,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RETURNED_IPM.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Rowid">
@@ -5866,7 +6700,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ROWID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RowType">
@@ -5880,7 +6716,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_ROW_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfCompressed">
@@ -5894,7 +6732,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_COMPRESSED.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfInSync">
@@ -5908,7 +6748,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_IN_SYNC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfSyncBodyCount">
@@ -5922,7 +6764,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SYNC_BODY_COUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfSyncBodyCrc">
@@ -5936,7 +6780,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_SYNC_BODY_CRC.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfSyncBodyTag">
@@ -5950,7 +6796,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_SYNC_BODY_TAG.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfSyncPrefixCount">
@@ -5964,7 +6812,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_SYNC_PREFIX_COUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="RtfSyncTrailingCount">
@@ -5978,7 +6828,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_RTF_SYNC_TRAILING_COUNT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Search">
@@ -5992,7 +6844,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEARCH.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SearchKey">
@@ -6006,7 +6860,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Security">
@@ -6020,7 +6876,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SECURITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Selectable">
@@ -6034,7 +6892,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SELECTABLE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SenderAddrtype">
@@ -6048,7 +6908,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENDER_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SenderEmailAddress">
@@ -6062,7 +6924,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENDER_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SenderEntryId">
@@ -6076,7 +6940,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENDER_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SenderName">
@@ -6090,7 +6956,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENDER_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SenderSearchKey">
@@ -6104,7 +6972,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENDER_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SendInternetEncoding">
@@ -6118,7 +6988,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEND_INTERNET_ENCODING.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SendRecallReport">
@@ -6132,7 +7004,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEND_RECALL_REPORT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SendRichInfo">
@@ -6146,7 +7020,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEND_RICH_INFO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Sensitivity">
@@ -6160,7 +7036,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENSITIVITY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentmailEntryId">
@@ -6174,7 +7052,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENTMAIL_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentRepresentingAddrtype">
@@ -6188,7 +7068,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENT_REPRESENTING_ADDRTYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentRepresentingEmailAddress">
@@ -6202,7 +7084,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENT_REPRESENTING_EMAIL_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentRepresentingEntryId">
@@ -6216,7 +7100,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENT_REPRESENTING_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentRepresentingName">
@@ -6230,7 +7116,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENT_REPRESENTING_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SentRepresentingSearchKey">
@@ -6244,7 +7132,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SENT_REPRESENTING_SEARCH_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceDeleteFiles">
@@ -6258,7 +7148,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_DELETE_FILES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceDllName">
@@ -6272,7 +7164,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_DLL_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceEntryName">
@@ -6286,7 +7180,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_ENTRY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceExtraUids">
@@ -6300,7 +7196,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_EXTRA_UIDS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceName">
@@ -6314,7 +7212,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Services">
@@ -6328,7 +7228,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceSupportFiles">
@@ -6342,7 +7244,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_SUPPORT_FILES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ServiceUid">
@@ -6356,7 +7260,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SERVICE_UID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SevenBitDisplayName">
@@ -6370,7 +7276,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SEVEN_BIT_DISPLAY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SmtpAddress">
@@ -6384,7 +7292,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SMTP_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SpoolerStatus">
@@ -6398,7 +7308,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SPOOLER_STATUS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SpouseName">
@@ -6412,7 +7324,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SPOUSE_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StartDate">
@@ -6426,7 +7340,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_START_DATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StateOrProvince">
@@ -6440,7 +7356,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STATE_OR_PROVINCE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Status">
@@ -6454,7 +7372,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STATUS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StatusCode">
@@ -6468,7 +7388,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STATUS_CODE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StatusString">
@@ -6482,7 +7404,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STATUS_STRING.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StoreEntryId">
@@ -6496,7 +7420,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STORE_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StoreProviders">
@@ -6510,7 +7436,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STORE_PROVIDERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StoreRecordKey">
@@ -6524,7 +7452,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STORE_RECORD_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StoreState">
@@ -6538,7 +7468,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STORE_STATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StoreSupportMask">
@@ -6552,7 +7484,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STORE_SUPPORT_MASK.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="StreetAddress">
@@ -6566,7 +7500,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_STREET_ADDRESS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Subfolders">
@@ -6580,7 +7516,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUBFOLDERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Subject">
@@ -6594,7 +7532,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUBJECT.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SubjectIpm">
@@ -6608,7 +7548,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUBJECT_IPM.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SubjectPrefix">
@@ -6622,7 +7564,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUBJECT_PREFIX.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SubmitFlags">
@@ -6636,7 +7580,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUBMIT_FLAGS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Supersedes">
@@ -6650,7 +7596,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUPERSEDES.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="SupplementaryInfo">
@@ -6664,7 +7612,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SUPPLEMENTARY_INFO.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Surname">
@@ -6678,7 +7628,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_SURNAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TelexNumber">
@@ -6692,7 +7644,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TELEX_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Templateid">
@@ -6706,7 +7660,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TEMPLATEID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Title">
@@ -6720,7 +7676,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TITLE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TnefCorrelationKey">
@@ -6734,7 +7692,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TNEF_CORRELATION_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TransmitableDisplayName">
@@ -6748,7 +7708,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TRANSMITABLE_DISPLAY_NAME.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TransportKey">
@@ -6762,7 +7724,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TRANSPORT_KEY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TransportMessageHeaders">
@@ -6776,7 +7740,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TRANSPORT_MESSAGE_HEADERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TransportProviders">
@@ -6790,7 +7756,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TRANSPORT_PROVIDERS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TransportStatus">
@@ -6804,7 +7772,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TRANSPORT_STATUS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TtytddPhoneNumber">
@@ -6818,7 +7788,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TTYTDD_PHONE_NUMBER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="TypeOfMtsUser">
@@ -6832,7 +7804,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_TYPE_OF_MTS_USER.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="UserCertificate">
@@ -6846,7 +7820,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_USER_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="UserX509Certificate">
@@ -6860,7 +7836,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_USER_X509_CERTIFICATE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ValidFolderMask">
@@ -6874,7 +7852,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_VALID_FOLDER_MASK.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="ViewsEntryId">
@@ -6888,7 +7868,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_VIEWS_ENTRYID.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="WeddingAnniversary">
@@ -6902,7 +7884,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_WEDDING_ANNIVERSARY.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="X400ContentType">
@@ -6916,7 +7900,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_X400_CONTENT_TYPE.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="X400DeferredDeliveryCancel">
@@ -6930,7 +7916,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_X400_DEFERRED_DELIVERY_CANCEL.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Xpos">
@@ -6944,7 +7932,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_XPOS.
+            </summary>
       </Docs>
     </Member>
     <Member MemberName="Ypos">
@@ -6958,7 +7948,9 @@
         <ReturnType>MimeKit.Tnef.TnefPropertyId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            The MAPI property PR_YPOS.
+            </summary>
       </Docs>
     </Member>
   </Members>
