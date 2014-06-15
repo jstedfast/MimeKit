@@ -26,10 +26,10 @@
 
 namespace MimeKit.Tnef {
 	/// <summary>
-	/// Tne kind of TNEF name identifier.
+	/// The kind of TNEF name identifier.
 	/// </summary>
 	/// <remarks>
-	/// Tne kind of TNEF name identifier.
+	/// The kind of TNEF name identifier.
 	/// </remarks>
 	public enum TnefNameIdKind {
 		/// <summary>
