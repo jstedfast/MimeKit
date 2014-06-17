@@ -424,10 +424,15 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file could not be found.
+		/// The specified file path could not be found.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
