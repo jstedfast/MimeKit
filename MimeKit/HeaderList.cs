@@ -868,6 +868,9 @@ namespace MimeKit {
 		/// </exception>
 		public Header this [int index] {
 			get {
+				if (index < 0 || index > Count)
+					throw new ArgumentOutOfRangeException ("index");
+
 				return headers[index];
 			}
 			set {
