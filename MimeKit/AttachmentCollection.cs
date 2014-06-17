@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// The <see cref="AttachmentCollection"/> is only used when building a message body with a <see cref="BodyBuilder"/>.
 	/// </remarks>
-	public class AttachmentCollection : ICollection<MimeEntity>
+	public class AttachmentCollection : IList<MimeEntity>
 	{
 		readonly List<MimeEntity> attachments;
 		readonly bool linked;
@@ -69,7 +69,7 @@ namespace MimeKit {
 		{
 		}
 
-		#region ICollection implementation
+		#region IList implementation
 
 		/// <summary>
 		/// Gets the number of attachments currently in the collection.
@@ -91,6 +91,38 @@ namespace MimeKit {
 		/// <value><c>true</c> if the collection is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
+		}
+
+		/// <summary>
+		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// </remarks>
+		/// <value>The attachment at the specified index.</value>
+		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
+		public MimeEntity this [int index] {
+			get {
+				if (index < 0 || index > Count)
+					throw new ArgumentOutOfRangeException ("index");
+
+				return attachments[index];
+			}
+			set {
+				if (index < 0 || index > Count)
+					throw new ArgumentOutOfRangeException ("index");
+
+				if (value == null)
+					throw new ArgumentNullException ("value");
+
+				attachments[index] = value;
+			}
 		}
 
 		void LoadContent (MimePart attachment, string fileName, Stream stream)
@@ -499,6 +531,50 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the index of the requested attachment, if it exists.
+		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified attachment, if it exists.
+		/// </remarks>
+		/// <returns>The index of the requested attachment; otherwise <value>-1</value>.</returns>
+		/// <param name="attachment">The attachment.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="attachment"/> is <c>null</c>.
+		/// </exception>
+		public int IndexOf (MimeEntity attachment)
+		{
+			if (attachment == null)
+				throw new ArgumentNullException ("attachment");
+
+			return attachments.IndexOf (attachment);
+		}
+
+		/// <summary>
+		/// Inserts the specified attachment at the given index.
+		/// </summary>
+		/// <remarks>
+		/// Inserts the attachment at the specified index.
+		/// </remarks>
+		/// <param name="index">The index to insert the attachment.</param>
+		/// <param name="attachment">The attachment.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="attachment"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
+		public void Insert (int index, MimeEntity attachment)
+		{
+			if (index < 0 || index > Count)
+				throw new ArgumentOutOfRangeException ("index");
+
+			if (attachment == null)
+				throw new ArgumentNullException ("attachment");
+
+			attachments.Insert (index, attachment);
+		}
+
+		/// <summary>
 		/// Removes the specified attachment.
 		/// </summary>
 		/// <remarks>
@@ -515,6 +591,24 @@ namespace MimeKit {
 				throw new ArgumentNullException ("attachment");
 
 			return attachments.Remove (attachment);
+		}
+
+		/// <summary>
+		/// Removes the attachment at the specified index.
+		/// </summary>
+		/// <remarks>
+		/// Removes the attachment at the specified index.
+		/// </remarks>
+		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="index"/> is out of range.
+		/// </exception>
+		public void RemoveAt (int index)
+		{
+			if (index < 0 || index > Count)
+				throw new ArgumentOutOfRangeException ("index");
+
+			attachments.RemoveAt (index);
 		}
 
 		#endregion
