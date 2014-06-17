@@ -110,12 +110,7 @@ namespace MimeKit {
 		}
 
 		internal string NewLine {
-			get {
-				if (NewLineFormat == NewLineFormat.Unix)
-					return "\n";
-
-				return "\r\n";
-			}
+			get { return NewLineFormat == NewLineFormat.Unix ? "\n" : "\r\n"; }
 		}
 
 		internal byte[] NewLineBytes {
