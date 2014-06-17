@@ -305,12 +305,16 @@ namespace MimeKit {
 				quoted = Value;
 
 			if (method != EncodeMethod.Rfc2184) {
-				if (lineLength + 2 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
-					builder.Append (";\n\t");
+				builder.Append (';');
+				lineLength++;
+
+				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
+					builder.Append (options.NewLine);
+					builder.Append ('\t');
 					lineLength = 1;
 				} else {
-					builder.Append ("; ");
-					lineLength += 2;
+					builder.Append (' ');
+					lineLength++;
 				}
 
 				lineLength += Name.Length + 1 + quoted.Length;
@@ -334,16 +338,20 @@ namespace MimeKit {
 			int length;
 
 			do {
+				builder.Append (';');
+				lineLength++;
+
 				encoded = GetNextValue (charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out value);
 				length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
-					if (lineLength + 2 + length >= options.MaxLineLength) {
-						builder.Append (";\n\t");
+					if (lineLength + 1 + length >= options.MaxLineLength) {
+						builder.Append (options.NewLine);
+						builder.Append ('\t');
 						lineLength = 1;
 					} else {
-						builder.Append ("; ");
-						lineLength += 2;
+						builder.Append (' ');
+						lineLength++;
 					}
 
 					builder.Append (Name);
@@ -355,7 +363,8 @@ namespace MimeKit {
 					return;
 				}
 
-				builder.Append (";\n\t");
+				builder.Append (options.NewLine);
+				builder.Append ('\t');
 				lineLength = 1;
 
 				id = i.ToString ();
