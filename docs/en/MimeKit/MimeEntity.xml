@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit MimeEntity extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.38.0.0</AssemblyVersion>
+    <AssemblyVersion>0.39.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="contentType" Type="MimeKit.ContentType" />
@@ -50,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -72,7 +72,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string mediaType, string mediaSubtype) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="mediaType" Type="System.String" />
@@ -101,7 +101,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentBase" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Uri</ReturnType>
@@ -127,7 +127,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentDisposition ContentDisposition" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -149,7 +149,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string ContentId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -174,7 +174,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Uri ContentLocation" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Uri</ReturnType>
@@ -200,7 +200,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.ContentType ContentType" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentType</ReturnType>
@@ -221,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -243,7 +243,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -282,7 +282,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -306,10 +306,12 @@
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.ArgumentException">
-            The specified file path is empty.
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
             </exception>
         <exception cref="T:System.IO.FileNotFoundException">
-            The specified file could not be found.
+            The specified file path could not be found.
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the specified file.
@@ -323,6 +325,9 @@
         <exception cref="T:System.FormatException">
             There was an error parsing the entity.
             </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -330,7 +335,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -375,7 +380,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -420,7 +425,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -450,10 +455,12 @@
             <paramref name="fileName" /> is <c>null</c>.</para>
         </exception>
         <exception cref="T:System.ArgumentException">
-            The specified file path is empty.
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
             </exception>
         <exception cref="T:System.IO.FileNotFoundException">
-            The specified file could not be found.
+            The specified file path could not be found.
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the specified file.
@@ -467,6 +474,9 @@
         <exception cref="T:System.FormatException">
             There was an error parsing the entity.
             </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Load">
@@ -474,7 +484,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeEntity Load(class MimeKit.ParserOptions options, class MimeKit.ContentType contentType, class System.IO.Stream content, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -524,7 +534,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnHeadersChanged(valuetype MimeKit.HeaderListChangedAction action, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -553,7 +563,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void RemoveHeader(string name) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -577,7 +587,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, unsigned int8[] rawValue) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -603,7 +613,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance void SetHeader(string name, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -629,7 +639,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig instance bool TryInit(object obj) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -654,7 +664,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -684,11 +694,59 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (string fileName, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The file.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified file.
+            </summary>
+        <remarks>
+            Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified file using the default formatting options.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="fileName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file path could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to write to the specified file.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
       <MemberSignature Language="C#" Value="public virtual void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -718,6 +776,60 @@
         </exception>
         <exception cref="T:System.OperationCanceledException">
             The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTo">
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, string fileName, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.FormatOptions" />
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The formatting options.</param>
+        <param name="fileName">The file.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified file.
+            </summary>
+        <remarks>
+            Writes the <see cref="T:MimeKit.MimeEntity" /> to the specified file using the provided formatting options.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file path could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to write to the specified file.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.

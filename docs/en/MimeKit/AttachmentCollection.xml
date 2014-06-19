@@ -1,9 +1,9 @@
 <Type Name="AttachmentCollection" FullName="MimeKit.AttachmentCollection">
-  <TypeSignature Language="C#" Value="public class AttachmentCollection : System.Collections.Generic.ICollection&lt;MimeKit.MimeEntity&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.MimeEntity&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit AttachmentCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.IEnumerable" />
+  <TypeSignature Language="C#" Value="public class AttachmentCollection : System.Collections.Generic.ICollection&lt;MimeKit.MimeEntity&gt;, System.Collections.Generic.IEnumerable&lt;MimeKit.MimeEntity&gt;, System.Collections.Generic.IList&lt;MimeKit.MimeEntity&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit AttachmentCollection extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.MimeEntity&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.38.0.0</AssemblyVersion>
+    <AssemblyVersion>0.39.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -14,6 +14,9 @@
     </Interface>
     <Interface>
       <InterfaceName>System.Collections.Generic.IEnumerable&lt;MimeKit.MimeEntity&gt;</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.IList&lt;MimeKit.MimeEntity&gt;</InterfaceName>
     </Interface>
   </Interfaces>
   <Docs>
@@ -30,7 +33,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -47,7 +50,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(bool linkedResources) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="linkedResources" Type="System.Boolean" />
@@ -69,7 +72,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.MimeEntity attachment) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -95,7 +98,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -115,16 +118,21 @@
           <paramref name="fileName" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.ArgumentException">
-            The specified file path is empty.
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
             </exception>
         <exception cref="T:System.IO.FileNotFoundException">
-            The specified file could not be found.
+            The specified file path could not be found.
             </exception>
         <exception cref="T:System.UnauthorizedAccessException">
             The user does not have access to read the specified file.
             </exception>
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
             </exception>
       </Docs>
     </Member>
@@ -133,7 +141,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -179,7 +187,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -215,7 +223,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -253,7 +261,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -296,7 +304,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -341,7 +349,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -361,7 +369,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.MimeEntity attachment) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -390,7 +398,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.MimeEntity[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -422,7 +430,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -442,7 +450,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.MimeEntity&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.MimeEntity&gt;</ReturnType>
@@ -458,12 +466,70 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IndexOf">
+      <MemberSignature Language="C#" Value="public int IndexOf (MimeKit.MimeEntity attachment);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.MimeEntity attachment) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="attachment" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="attachment">The attachment.</param>
+        <summary>
+            Gets the index of the requested attachment, if it exists.
+            </summary>
+        <returns>The index of the requested attachment; otherwise <value>-1</value>.</returns>
+        <remarks>
+            Finds the index of the specified attachment, if it exists.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="attachment" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Insert">
+      <MemberSignature Language="C#" Value="public void Insert (int index, MimeKit.MimeEntity attachment);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.MimeEntity attachment) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+        <Parameter Name="attachment" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index to insert the attachment.</param>
+        <param name="attachment">The attachment.</param>
+        <summary>
+            Inserts the specified attachment at the given index.
+            </summary>
+        <remarks>
+            Inserts the attachment at the specified index.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="attachment" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="IsReadOnly">
       <MemberSignature Language="C#" Value="public bool IsReadOnly { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -479,12 +545,42 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Item">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity this[int index] { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Item(int32)" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index.</param>
+        <summary>
+            Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
+            </summary>
+        <value>The attachment at the specified index.</value>
+        <remarks>
+            Gets or sets the <see cref="T:MimeKit.MimeEntity" /> at the specified index.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Remove">
       <MemberSignature Language="C#" Value="public bool Remove (MimeKit.MimeEntity attachment);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.MimeEntity attachment) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -507,12 +603,38 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="RemoveAt">
+      <MemberSignature Language="C#" Value="public void RemoveAt (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index.</param>
+        <summary>
+            Removes the attachment at the specified index.
+            </summary>
+        <remarks>
+            Removes the attachment at the specified index.
+            </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
       <MemberSignature Language="C#" Value="System.Collections.IEnumerator IEnumerable.GetEnumerator ();" />
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>

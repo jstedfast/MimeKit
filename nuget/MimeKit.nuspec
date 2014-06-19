@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.38.0.0</version>
+        <version>0.39.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,12 +22,10 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added a new MimeIterator for traversing a MimeMessage's MIME tree in depth-first order.
-* Added a new MultipartRelated subclass of Multipart with convenience methods for looking up referenced part by URIs.
-* Extended AttachmentCollection to allow adding streams.
-* Fixed the Header.Value setter to not fold or encode Message-Id or Content-Id header values.
-* Added custom logic to the Header.Value setter to do nicer folding for Received, Reference, and address headers.
-* Fixed MimeUtils.GenerateMessageId() to not wrap the value in &lt;&gt;'s.
+        <releaseNotes>* Fixed Disposition-Notification-To header folding.
+* Modified AttachmentCollection to implement IList instead of ICollection.
+* Added new WriteTo(string fileName) methods to MimeMessage and MimeEntity for convenience.
+* Fixed logic bug in MemMove() - related to MailKit issue #23 and #58.
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>

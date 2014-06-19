@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed X509CertificateRecordFields extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.38.0.0</AssemblyVersion>
+    <AssemblyVersion>0.39.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -28,7 +28,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields Algorithms = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
@@ -46,7 +46,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields AlgorithmsUpdated = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
@@ -63,7 +63,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields Certificate = int32(32)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
@@ -80,7 +80,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields Id = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
@@ -96,7 +96,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields PrivateKey = int32(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
@@ -113,7 +113,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509CertificateRecordFields Trusted = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.38.0.0</AssemblyVersion>
+        <AssemblyVersion>0.39.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecordFields</ReturnType>
