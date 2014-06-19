@@ -553,7 +553,7 @@ namespace MimeKit {
 
 		static unsafe void MemMove (byte *buf, int sourceIndex, int destIndex, int length)
 		{
-			if (sourceIndex + length > destIndex) {
+			if (sourceIndex < destIndex) {
 				byte* src = buf + sourceIndex + length - 1;
 				byte *dest = buf + destIndex + length - 1;
 				byte *start = buf + sourceIndex;
