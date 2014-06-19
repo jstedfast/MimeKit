@@ -294,6 +294,9 @@ namespace MimeKit.Tnef {
 
 		static void MemMove (byte[] buf, int sourceIndex, int destIndex, int length)
 		{
+			if (length == 0 || sourceIndex == destIndex)
+				return;
+
 			if (sourceIndex < destIndex) {
 				int src = sourceIndex + length - 1;
 				int dest = destIndex + length - 1;
