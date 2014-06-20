@@ -257,8 +257,14 @@ namespace MimeKit {
 
 		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
-			Encoding encoding = Encoding.GetEncoding (codepage);
 			DomainList route = null;
+			Encoding encoding;
+
+			try {
+				encoding = Encoding.GetEncoding (codepage);
+			} catch {
+				encoding = Encoding.UTF8;
+			}
 
 			address = null;
 
@@ -317,8 +323,14 @@ namespace MimeKit {
 
 		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
-			Encoding encoding = Encoding.GetEncoding (codepage);
 			List<InternetAddress> members;
+			Encoding encoding;
+
+			try {
+				encoding = Encoding.GetEncoding (codepage);
+			} catch {
+				encoding = Encoding.UTF8;
+			}
 
 			address = null;
 
