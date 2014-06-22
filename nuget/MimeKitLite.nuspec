@@ -29,8 +29,11 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime mbox email parser tnef net40 xamarin android ios monodroid monotouch</tags>
+        <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch</tags>
         <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
@@ -47,5 +50,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
         <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.xml" target="lib\MonoTouch\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.dll" target="lib\net40\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.xml" target="lib\net40\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.xml" target="lib\net45\MimeKitLite.xml" />
     </files>
 </package>

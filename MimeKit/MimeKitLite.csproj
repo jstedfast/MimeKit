@@ -5,7 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{87B25B2B-10E4-4A09-B682-7267CD3123BA}</ProjectGuid>
+    <ProjectGuid>{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}</ProjectGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MimeKit</RootNamespace>
@@ -16,8 +17,8 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\lib\net40</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\net40</IntermediateOutputPath>
+    <OutputPath>bin\Debug\lib\net45</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\net45</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,13 +26,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
-    <OutputPath>bin\Release\lib\net40</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\net40</IntermediateOutputPath>
+    <OutputPath>bin\Release\lib\net45</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\net45</IntermediateOutputPath>
     <DefineConstants>TRACE;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\lib\net40\MimeKitLite.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\net45\MimeKitLite.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

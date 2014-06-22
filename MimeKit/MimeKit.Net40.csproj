@@ -5,8 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D5F54A4F-D84B-430F-9271-F7861E285B3E}</ProjectGuid>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProjectGuid>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MimeKit</RootNamespace>
@@ -17,22 +16,22 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\lib\net45</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\net45</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
+    <OutputPath>bin\Debug\lib\net40</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\net40</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
-    <OutputPath>bin\Release\lib\net45</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\net45</IntermediateOutputPath>
-    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
+    <OutputPath>bin\Release\lib\net40</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\net40</IntermediateOutputPath>
+    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\lib\net45\MimeKit.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\net40\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

@@ -1,9 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit", "MimeKit\MimeKit.csproj", "{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{0225FDB7-CF63-4402-BB30-9B149AC06C2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net40", "MimeKit\MimeKit.Net40.csproj", "{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyCastle", "..\bc-csharp\crypto\BouncyCastle.csproj", "{4C235092-820C-4DEB-9074-D356FB797D8B}"
 EndProject
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C235092-820C-4DEB-9074-D356FB797D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4C235092-820C-4DEB-9074-D356FB797D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C235092-820C-4DEB-9074-D356FB797D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,7 +27,7 @@ Global
 		{F26434C1-BA3D-41FB-B560-C009CB72B1B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = MimeKit\MimeKit.csproj
+		StartupItem = MimeKit\MimeKit.Net40.csproj
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = @\n${FileName}\n \nAuthor: ${AuthorName} <${AuthorEmail}>\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n

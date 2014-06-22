@@ -29,8 +29,12 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime encryption security smime openpgp pgp mbox email parser tnef net40 xamarin android ios monodroid monotouch win8 wp81</tags>
+        <tags>mime encryption security smime openpgp pgp mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
         <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
@@ -54,6 +58,10 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net45\BouncyCastle.dll" target="lib\net45\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net45\BouncyCastle.xml" target="lib\net45\BouncyCastle.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.dll" target="lib\wpa81\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.xml" target="lib\wpa81\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />

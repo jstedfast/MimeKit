@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
-      <Project>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</Project>
+      <Project>{D5F54A4F-D84B-430F-9271-F7861E285B3E}</Project>
       <Name>MimeKit</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
