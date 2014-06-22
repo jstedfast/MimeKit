@@ -628,9 +628,16 @@ namespace MimeKit {
 			if (persistent && stream.Position != offset)
 				stream.Seek (offset, SeekOrigin.Begin);
 
-			token.ThrowIfCancellationRequested ();
+			// use the cancellable stream interface if available...
+			var cancellable = stream as ICancellableStream;
+			if (cancellable != null) {
+				nread = cancellable.Read (input, start, end - start, token);
+			} else {
+				token.ThrowIfCancellationRequested ();
+				nread = stream.Read (input, start, end - start);
+			}
 
-			if ((nread = stream.Read (input, start, end - start)) > 0) {
+			if (nread > 0) {
 				inputEnd += nread;
 				offset += nread;
 			} else {

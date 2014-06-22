@@ -123,6 +123,7 @@
     <Compile Include="IO\BoundStream.cs" />
     <Compile Include="IO\ChainedStream.cs" />
     <Compile Include="IO\FilteredStream.cs" />
+    <Compile Include="IO\ICancellableStream.cs" />
     <Compile Include="IO\MeasuringStream.cs" />
     <Compile Include="IO\MemoryBlockStream.cs" />
     <Compile Include="IO\Filters\ArmoredFromFilter.cs" />

@@ -335,7 +335,14 @@ namespace MimeKit {
 			else
 				options.WriteHeaders = true;
 
-			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			var cancellable = stream as ICancellableStream;
+
+			if (cancellable != null) {
+				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+			} else {
+				cancellationToken.ThrowIfCancellationRequested ();
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			}
 		}
 
 		/// <summary>

@@ -739,14 +739,18 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
+			var cancellable = stream as ICancellableStream;
+
 			if (Body == null) {
 				Headers.WriteTo (options, stream, cancellationToken);
 
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (cancellable != null) {
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
 			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -754,16 +758,14 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						cancellationToken.ThrowIfCancellationRequested ();
-
 						var name = Encoding.ASCII.GetBytes (header.Field);
 
-						filtered.Write (name, 0, name.Length);
-						filtered.WriteByte ((byte) ':');
-						filtered.Write (header.RawValue, 0, header.RawValue.Length);
+						filtered.Write (name, 0, name.Length, cancellationToken);
+						filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+						filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
 					}
 
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 
 				options.WriteHeaders = false;

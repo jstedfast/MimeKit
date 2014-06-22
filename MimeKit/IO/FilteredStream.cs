@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 
 using MimeKit.IO.Filters;
@@ -37,7 +38,7 @@ namespace MimeKit.IO {
 	/// <remarks>
 	/// Passes data through each <see cref="IMimeFilter"/> as the data is read or written.
 	/// </remarks>
-	public class FilteredStream : Stream
+	public class FilteredStream : Stream, ICancellableStream
 	{
 		const int ReadBufferSize = 4096;
 
@@ -293,6 +294,87 @@ namespace MimeKit.IO {
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public int Read (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanRead ();
+
+			ValidateArguments (buffer, offset, count);
+
+			lastOp = IOOperation.Read;
+			if (readbuf == null)
+				readbuf = new byte[ReadBufferSize];
+
+			int nread;
+
+			if (filteredLength == 0) {
+				var cancellable = Source as ICancellableStream;
+
+				if (cancellable != null) {
+					if ((nread = cancellable.Read (readbuf, 0, ReadBufferSize, cancellationToken)) <= 0)
+						return nread;
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
+						return nread;
+				}
+
+				// filter the data we've just read...
+				filteredLength = nread;
+				filteredIndex = 0;
+				filtered = readbuf;
+
+				foreach (var filter in filters)
+					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+			}
+
+			// copy our filtered data into our caller's buffer
+			nread = Math.Min (filteredLength, count);
+
+			if (nread > 0) {
+				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
+				filteredLength -= nread;
+				filteredIndex += nread;
+			}
+
+			return nread;
+		}
+
+		/// <summary>
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
+		/// through each of the filters before finally copying the result into the provided buffer.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
@@ -313,40 +395,67 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
+			return Read (buffer, offset, count, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Filters the provided buffer through each of the filters before finally writing
+		/// the result to the underlying <see cref="Source"/> stream.
+		/// </remarks>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void Write (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
 			CheckDisposed ();
-			CheckCanRead ();
+			CheckCanWrite ();
 
 			ValidateArguments (buffer, offset, count);
 
-			lastOp = IOOperation.Read;
-			if (readbuf == null)
-				readbuf = new byte[ReadBufferSize];
+			lastOp = IOOperation.Write;
+			flushed = false;
 
-			int nread;
+			filteredIndex = offset;
+			filteredLength = count;
+			filtered = buffer;
 
-			if (filteredLength == 0) {
-				if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
-					return nread;
-				
-				// filter the data we've just read...
-				filteredLength = nread;
-				filteredIndex = 0;
-				filtered = readbuf;
+			foreach (var filter in filters)
+				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
-				foreach (var filter in filters)
-					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+			var cancellable = Source as ICancellableStream;
+
+			if (cancellable != null) {
+				cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
+			} else {
+				cancellationToken.ThrowIfCancellationRequested ();
+				Source.Write (filtered, filteredIndex, filteredLength);
 			}
-
-			// copy our filtered data into our caller's buffer
-			nread = Math.Min (filteredLength, count);
-
-			if (nread > 0) {
-				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
-				filteredLength -= nread;
-				filteredIndex += nread;
-			}
-
-			return nread;
 		}
 
 		/// <summary>
@@ -380,22 +489,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
-			CheckDisposed ();
-			CheckCanWrite ();
-
-			ValidateArguments (buffer, offset, count);
-
-			lastOp = IOOperation.Write;
-			flushed = false;
-
-			filteredIndex = offset;
-			filteredLength = count;
-			filtered = buffer;
-
-			foreach (var filter in filters)
-				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
-
-			Source.Write (filtered, filteredIndex, filteredLength);
+			Write (buffer, offset, count, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -423,16 +517,20 @@ namespace MimeKit.IO {
 		/// Flushes the state of all filters, writing any output to the underlying <see cref="Source"/>
 		/// stream and then calling <see cref="System.IO.Stream.Flush"/> on the <see cref="Source"/>.
 		/// </remarks>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The stream has been disposed.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The stream does not support writing.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void Flush ()
+		public void Flush (CancellationToken cancellationToken)
 		{
 			CheckDisposed ();
 			CheckCanWrite ();
@@ -451,13 +549,47 @@ namespace MimeKit.IO {
 				flushed = true;
 			}
 
+			var cancellable = Source as ICancellableStream;
+
 			if (filteredLength > 0) {
-				Source.Write (filtered, filteredIndex, filteredLength);
+				if (cancellable != null) {
+					cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					Source.Write (filtered, filteredIndex, filteredLength);
+				}
+
 				filteredIndex = 0;
 				filteredLength = 0;
 			}
 
-			Source.Flush ();
+			if (cancellable != null) {
+				cancellable.Flush (cancellationToken);
+			} else {
+				Source.Flush ();
+			}
+		}
+
+		/// <summary>
+		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
+		/// </summary>
+		/// <remarks>
+		/// Flushes the state of all filters, writing any output to the underlying <see cref="Source"/>
+		/// stream and then calling <see cref="System.IO.Stream.Flush"/> on the <see cref="Source"/>.
+		/// </remarks>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void Flush ()
+		{
+			Flush (CancellationToken.None);
 		}
 
 		/// <summary>

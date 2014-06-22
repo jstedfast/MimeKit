@@ -520,22 +520,18 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			cancellationToken.ThrowIfCancellationRequested ();
-
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					cancellationToken.ThrowIfCancellationRequested ();
-
 					var name = Encoding.ASCII.GetBytes (header.Field);
 
-					filtered.Write (name, 0, name.Length);
-					filtered.WriteByte ((byte) ':');
-					filtered.Write (header.RawValue, 0, header.RawValue.Length);
+					filtered.Write (name, 0, name.Length, cancellationToken);
+					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+					filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
 				}
 
-				filtered.Flush ();
+				filtered.Flush (cancellationToken);
 			}
 		}
 

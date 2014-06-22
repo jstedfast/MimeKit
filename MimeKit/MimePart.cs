@@ -463,14 +463,21 @@ namespace MimeKit {
 			if (ContentObject == null)
 				return;
 
+			var cancellable = stream as ICancellableStream;
+
 			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
-					cancellationToken.ThrowIfCancellationRequested ();
-
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					if (cancellable != null) {
+						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 
 				// transcode the content into the desired Content-Transfer-Encoding
@@ -481,21 +488,26 @@ namespace MimeKit {
 						filtered.Add (options.CreateNewLineFilter ());
 
 					ContentObject.DecodeTo (filtered, cancellationToken);
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
-					cancellationToken.ThrowIfCancellationRequested ();
-
 					var buffer = Encoding.ASCII.GetBytes ("end");
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					if (cancellable != null) {
+						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 					ContentObject.WriteTo (filtered, cancellationToken);
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 			} else {
 				ContentObject.WriteTo (stream, cancellationToken);

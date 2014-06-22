@@ -37,6 +37,7 @@ using Encoding = Portable.Text.Encoding;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
+using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
@@ -299,14 +300,20 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes)
+		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
 		{
+			var cancellable = stream as ICancellableStream;
 			var filter = options.CreateNewLineFilter ();
 			int index, length;
 
 			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
 
-			stream.Write (output, index, length);
+			if (cancellable != null) {
+				cancellable.Write (output, index, length, cancellationToken);
+			} else {
+				cancellationToken.ThrowIfCancellationRequested ();
+				stream.Write (output, index, length);
+			}
 		}
 
 		/// <summary>
@@ -336,29 +343,39 @@ namespace MimeKit {
 
 			base.WriteTo (options, stream, cancellationToken);
 
-			if (RawPreamble != null && RawPreamble.Length > 0) {
-				cancellationToken.ThrowIfCancellationRequested ();
-				WriteBytes (options, stream, RawPreamble);
-			}
+			var cancellable = stream as ICancellableStream;
+
+			if (RawPreamble != null && RawPreamble.Length > 0)
+				WriteBytes (options, stream, RawPreamble, cancellationToken);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
-			foreach (var part in children) {
+			if (cancellable != null) {
+				for (int i = 0; i < children.Count; i++) {
+					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					children[i].WriteTo (options, stream, cancellationToken);
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				}
+
+				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
+				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+			} else {
+				for (int i = 0; i < children.Count; i++) {
+					cancellationToken.ThrowIfCancellationRequested ();
+					stream.Write (boundary, 0, boundary.Length - 2);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					children[i].WriteTo (options, stream, cancellationToken);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+
 				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (boundary, 0, boundary.Length - 2);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				part.WriteTo (options, stream, cancellationToken);
+				stream.Write (boundary, 0, boundary.Length);
 				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
-			cancellationToken.ThrowIfCancellationRequested ();
-			stream.Write (boundary, 0, boundary.Length);
-			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-
-			if (RawEpilogue != null && RawEpilogue.Length > 0) {
-				cancellationToken.ThrowIfCancellationRequested ();
-				WriteBytes (options, stream, RawEpilogue);
-			}
+			if (RawEpilogue != null && RawEpilogue.Length > 0)
+				WriteBytes (options, stream, RawEpilogue, cancellationToken);
 		}
 
 		#region ICollection implementation
