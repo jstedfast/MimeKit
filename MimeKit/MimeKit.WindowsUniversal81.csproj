@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -49,8 +51,8 @@
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
     <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj">
-      <Project>{b76a64f9-b00e-4243-ae89-5d024ca3b436}</Project>
-      <Name>Portable.Text.Encoding</Name>
+      <Project>{B76A64F9-B00E-4243-AE89-5D024CA3B436}</Project>
+      <Name>Portable.Text.Encoding.WindowsUniversal81</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
