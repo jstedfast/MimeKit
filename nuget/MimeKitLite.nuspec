@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.39.0.0</version>
+        <version>0.40.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,9 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Fixed Disposition-Notification-To header folding.
-* Modified AttachmentCollection to implement IList instead of ICollection.
-* Added new WriteTo(string fileName) methods to MimeMessage and MimeEntity for convenience.
-* Fixed logic bug in MemMove() - related to MailKit issue #23 and #58.
+        <releaseNotes>* Added a new MimeKit.IO.ICancellableStream interface, which, when implemented by custom streams, allows much finer-grained cancellation support in the MimeParser (this is mostly taken advantage of by MailKit).
+* Fixed support for euc-cn, gbk, and hz-gb-2312 on systems running Mono.
+* Added .NET 4.5 assemblies to the NuGet package.
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
