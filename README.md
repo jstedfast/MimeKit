@@ -132,11 +132,9 @@ files that I've added (to replace the Visual Studio 2003 project files). To swit
 
 In the top-level MimeKit source directory, there are several solution files:
 
-* MimeKit.Mobile.sln just includes the Xamarin.iOS and Xamarin.Android projects.
-* MimeKit.Net40.sln just includes the .NET Framework 4.0 C# project (MimeKit/MimeKit.csproj) and the UnitTests
-project (UnitTests/UnitTests.csproj).
-* MimeKit.sln includes everything that is in the MimeKit.Net40.sln solution as well as the projects for Xamarin.Android,
-Xamarin.iOS, and Xamarin.Mac.
+* MimeKit.sln includes projects for .NET 4.5, .NET 4.0, PCL (Profile7 and Profile111), Xamarin.Android, Xamarin.iOS, and Xamarin.Mac as well as the unit tests.
+* MimeKit.Mobile.sln just includes the Xamarin.Android and Xamarin.iOS projects.
+* MimeKit.Net40.sln just includes the .NET 4.0 project.
 
 If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net40.sln instead of MimeKit.sln.
 
