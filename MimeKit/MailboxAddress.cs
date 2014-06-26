@@ -208,7 +208,8 @@ namespace MimeKit {
 				}
 
 				if ((lineLength + route.Length + Address.Length + 3) > options.MaxLineLength) {
-					builder.Append ("\n\t<");
+					builder.Append (options.NewLine);
+					builder.Append ("\t<");
 					lineLength = 2;
 				} else {
 					builder.Append (" <");
@@ -223,7 +224,8 @@ namespace MimeKit {
 				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
 				if ((lineLength + route.Length + Address.Length + 2) > options.MaxLineLength) {
-					builder.Append ("\n\t<");
+					builder.Append (options.NewLine);
+					builder.Append ("\t<");
 					lineLength = 2;
 				} else {
 					builder.Append ('<');
