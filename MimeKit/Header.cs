@@ -286,7 +286,7 @@ namespace MimeKit {
 			InternetAddressList list;
 
 			if (!InternetAddressList.TryParse (options, value, out list))
-				return new byte[0];
+				return (byte[]) format.NewLineBytes.Clone ();
 
 			list.Encode (format, encoded, ref lineLength);
 			encoded.Append (format.NewLine);
