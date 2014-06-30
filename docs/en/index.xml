@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.40.0.0">
+    <Assembly Name="MimeKit" Version="0.41.0.0">
       <AssemblyPublicKey>[00 24 00 00 04 80 00 00 94 00 00 00 06 02 00 00 00 24 00 00 52 53 41 31 00 04 00 00 11 00 00 00 3f ef a5 18 70 22 72 7c 34 71 93 8d 10 df 4c 47 d5 d5 ec be 2f 36 46 56 c5 bf e4 c4 78 03 45 3a 91 ae 52 5f 72 3f 43 16 fd 90 a3 f8 73 66 f4 d9 48 59 32 77 e9 50 f6 d2 df 6e e2 60 68 18 77 a6 d9 e7 1c 3e a7 7e 87 e6 1f 38 78 af 1d 69 bf 10 dc e8 de be 92 c5 4c a8 a1 0a fc 44 dc 08 67 4f 3d b6 59 4e f5 45 d6 7d 31 cc 3e 18 b8 f9 0d 8f 22 0c 4b 67 d7 e8 7f 5b 7e 8d f4 10 ac 8f ae b3 ]</AssemblyPublicKey>
       <Attributes>
         <Attribute>
@@ -16,10 +16,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.40.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.41.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.40.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.41.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
