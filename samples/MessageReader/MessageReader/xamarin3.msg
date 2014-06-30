@@ -299,10 +299,6 @@ marin.com>
 
 +1 (855) 926-2746 <http://xamarin.com>
 
-Unsubscribe from all Xamarin emails at http://resources.xamarin.com/unsubsc=
-ribe.html?mkt_unsubscribe=3D1&mkt_tok=3D3RkMMJWWfF9wsRonsq7KZKXonjHpfsX54u4=
-lT%2Frn28M3109ad%2BrmPBy93oIAWp8na%2BqWCgseOrQ8mVsNV8q6RM0XrKw%3D.
-
 ------=_Part_-1536873954_1486546957.1401300129261
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: 7bit
