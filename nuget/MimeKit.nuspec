@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.40.0.0</version>
+        <version>0.41.0.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
