@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using HtmlAgilityPack;
 using MimeKit;
 
 namespace MessageReader
@@ -42,13 +44,74 @@ namespace MessageReader
 
 		void Render (MultipartRelated related)
 		{
-			// FIXME: need to figure out how to intercept the webBrowser control's
-			// requests for fetching images so that we can look up the URI in the
-			// multipart/related - if the image is included in the multipart/related,
-			// then we'll want to feed the webBrowser control the decoded
-			// content of the MimePart instead of allowing the webBrowser to try
-			// fetch the image from the internet.
-			Render (related.Root);
+			var text = related.Root as TextPart;
+
+			if (text != null && text.ContentType.Matches ("text", "html")) {
+				var doc = new HtmlAgilityPack.HtmlDocument ();
+				var saved = new Dictionary<MimePart, string> ();
+				TextPart html;
+
+				doc.LoadHtml (text.Text);
+
+				// find references to related MIME parts and replace them with links to links to the saved attachments
+				foreach (var img in doc.DocumentNode.SelectNodes ("//img[@src]")) {
+					var src = img.Attributes["src"];
+					int index;
+					Uri uri;
+
+					if (src == null || src.Value == null)
+						continue;
+
+					// parse the <img src=...> attribute value into a Uri
+					if (Uri.IsWellFormedUriString (src.Value, UriKind.Absolute))
+						uri = new Uri (src.Value, UriKind.Absolute);
+					else
+						uri = new Uri (src.Value, UriKind.Relative);
+
+					// locate the index of the attachment within the multipart/related (if it exists)
+					if ((index = related.IndexOf (uri)) != -1) {
+						var attachment = related[index] as MimePart;
+
+						// make sure the referenced part is a MimePart (as opposed to another Multipart or MessagePart)
+						if (attachment != null) {
+							string fileName;
+
+							// save the attachment (if we haven't already saved it)
+							if (!saved.TryGetValue (attachment, out fileName)) {
+								fileName = attachment.FileName;
+
+								if (string.IsNullOrEmpty (fileName))
+									fileName = Guid.NewGuid ().ToString ();
+
+								using (var stream = File.Create (fileName))
+									attachment.ContentObject.DecodeTo (stream);
+
+								saved.Add (attachment, fileName);
+							}
+
+							// replace the <img src=...> value with the local file name
+							src.Value = "file://" + Path.GetFullPath (fileName);
+						}
+					}
+				}
+
+				if (saved.Count > 0) {
+					// we had to make some modifications to the original html part, so create a new
+					// (temporary) text/html part to render
+					html = new TextPart ("html");
+					using (var writer = new StringWriter ()) {
+						doc.Save (writer);
+
+						html.Text = writer.GetStringBuilder ().ToString ();
+					}
+				} else {
+					html = text;
+				}
+
+				Render (html);
+			} else {
+				Render (related.Root);
+			}
 		}
 
 		void Render (TextPart text)

@@ -35,6 +35,9 @@
     <Reference Include="BouncyCastle">
       <HintPath>..\packages\MimeKit.0.41.0.0\lib\net45\BouncyCastle.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="MimeKit">
       <HintPath>..\packages\MimeKit.0.41.0.0\lib\net45\MimeKit.dll</HintPath>
     </Reference>
