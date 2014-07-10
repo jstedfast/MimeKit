@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -404,9 +403,8 @@ namespace MimeKit.Cryptography {
 			if (string.IsNullOrEmpty (fileName))
 				throw new ArgumentException ("The specified path is empty.", "fileName");
 
-			using (var file = File.Create (fileName)) {
+			using (var file = File.Create (fileName))
 				Export (file);
-			}
 		}
 
 		/// <summary>
@@ -496,9 +494,8 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			using (var file = File.Create (fileName)) {
+			using (var file = File.Create (fileName))
 				Export (file, password);
-			}
 		}
 
 		/// <summary>
@@ -533,10 +530,8 @@ namespace MimeKit.Cryptography {
 		{
 			var matches = new List<X509Certificate> ();
 
-			foreach (var certificate in certs) {
-				if (selector == null || selector.Match (certificate))
-					matches.Add (certificate);
-			}
+			foreach (var certificate in GetMatches (selector))
+				matches.Add (certificate);
 
 			return matches;
 		}

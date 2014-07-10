@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 			if (key == null)
 				throw new ArgumentNullException ("key");
 
-			CertificateChain = new List<X509Certificate> ();
+			CertificateChain = new X509CertificateChain ();
 			foreach (var entry in chain) {
 				CertificateChain.Add (entry.Certificate);
 				if (Certificate == null)
@@ -147,7 +147,7 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", "key");
 
-			CertificateChain = new List<X509Certificate> ();
+			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (certificate);
 			Certificate = certificate;
 			PrivateKey = key;
@@ -172,7 +172,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate chain.
 		/// </remarks>
 		/// <value>The certificate chain.</value>
-		public IList<X509Certificate> CertificateChain {
+		public X509CertificateChain CertificateChain {
 			get; private set;
 		}
 

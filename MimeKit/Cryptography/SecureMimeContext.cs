@@ -587,11 +587,12 @@ namespace MimeKit.Cryptography {
 			signedData.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
 				AddSecureMimeCapabilities (signer.SignedAttributes), signer.UnsignedAttributes);
 
+			signedData.AddCertificates (signer.CertificateChain);
+
 			var memory = new MemoryStream ();
 
-			using (var stream = signedData.Open (memory, encapsulate)) {
+			using (var stream = signedData.Open (memory, encapsulate))
 				content.CopyTo (stream, 4096);
-			}
 
 			memory.Position = 0;
 
