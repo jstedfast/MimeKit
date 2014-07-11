@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageReader.iOS", "MessageReader.iOS\MessageReader.iOS.csproj", "{60EA692F-305A-4CF7-97A8-3565CC81310A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Debug|iPhone = Debug|iPhone
+		Release|iPhone = Release|iPhone
+		Ad-Hoc|iPhone = Ad-Hoc|iPhone
+		AppStore|iPhone = AppStore|iPhone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhone.Build.0 = AppStore|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.Build.0 = Debug|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Release|iPhone.ActiveCfg = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Release|iPhone.Build.0 = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = MessageReader.iOS\MessageReader.iOS.csproj
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
