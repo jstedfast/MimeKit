@@ -12,6 +12,9 @@ clean:
 	xbuild /target:Clean /p:Configuration=Debug MimeKit.Net40.sln
 	xbuild /target:Clean /p:Configuration=Release MimeKit.Net40.sln
 
+check-docs:
+	@find docs/en -name "*.xml" -exec grep -l "To be added." {} \;
+
 update-docs: $(ASSEMBLY)
 	mdoc update --delete -o docs/en $(ASSEMBLY)
 

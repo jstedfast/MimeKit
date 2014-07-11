@@ -122,14 +122,14 @@
       </Docs>
     </Member>
     <Member MemberName="CertificateChain">
-      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain { get; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; CertificateChain" />
+      <MemberSignature Language="C#" Value="public MimeKit.Cryptography.X509CertificateChain CertificateChain { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Cryptography.X509CertificateChain CertificateChain" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.41.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
+        <ReturnType>MimeKit.Cryptography.X509CertificateChain</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>

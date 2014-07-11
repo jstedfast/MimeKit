@@ -269,6 +269,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes the specified certificate from the chain.
 		/// </remarks>
+		/// <returns><value>true</value> if the certificate was removed; otherwise <value>false</value>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
