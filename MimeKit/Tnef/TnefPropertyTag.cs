@@ -2903,58 +2903,429 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_MSG_STATUS.
 		/// </remarks>
 		public static readonly TnefPropertyTag MsgStatus = new TnefPropertyTag (TnefPropertyId.MsgStatus, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_NDR_DIAG_CODE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NDR_DIAG_CODE.
+		/// </remarks>
 		public static readonly TnefPropertyTag NdrDiagCode = new TnefPropertyTag (TnefPropertyId.NdrDiagCode, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_NDR_REASON_CODE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NDR_REASON_CODE.
+		/// </remarks>
 		public static readonly TnefPropertyTag NdrReasonCode = new TnefPropertyTag (TnefPropertyId.NdrReasonCode, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_NDR_STATUS_CODE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NDR_STATUS_CODE.
+		/// </remarks>
 		public static readonly TnefPropertyTag NdrStatusCode = new TnefPropertyTag (TnefPropertyId.NdrStatusCode, TnefPropertyType.Unspecified);
+
+		/// <summary>
+		/// The MAPI property PR_NEWSGROUP_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NEWSGROUP_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag NewsgroupNameA = new TnefPropertyTag (TnefPropertyId.NewsgroupName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_NEWSGROUP_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NEWSGROUP_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag NewsgroupNameW = new TnefPropertyTag (TnefPropertyId.NewsgroupName, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_NICKNAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NICKNAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag NicknameA = new TnefPropertyTag (TnefPropertyId.Nickname, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_NICKNAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NICKNAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag NicknameW = new TnefPropertyTag (TnefPropertyId.Nickname, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_NNTP_XREF.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NNTP_XREF.
+		/// </remarks>
 		public static readonly TnefPropertyTag NntpXrefA = new TnefPropertyTag (TnefPropertyId.NntpXref, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_NNTP_XREF.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NNTP_XREF.
+		/// </remarks>
 		public static readonly TnefPropertyTag NntpXrefW = new TnefPropertyTag (TnefPropertyId.NntpXref, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_NON_RECEIPT_NOTIFICATION_REQUESTED.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NON_RECEIPT_NOTIFICATION_REQUESTED.
+		/// </remarks>
 		public static readonly TnefPropertyTag NonReceiptNotificationRequested = new TnefPropertyTag (TnefPropertyId.NonReceiptNotificationRequested, TnefPropertyType.Boolean);
+
+		/// <summary>
+		/// The MAPI property PR_NON_RECEIPT_REASON.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NON_RECEIPT_REASON.
+		/// </remarks>
 		public static readonly TnefPropertyTag NonReceiptReason = new TnefPropertyTag (TnefPropertyId.NonReceiptReason, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_NORMALIZED_SUBJECT.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NORMALIZED_SUBJECT.
+		/// </remarks>
 		public static readonly TnefPropertyTag NormalizedSubjectA = new TnefPropertyTag (TnefPropertyId.NormalizedSubject, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_NORMALIZED_SUBJECT.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NORMALIZED_SUBJECT.
+		/// </remarks>
 		public static readonly TnefPropertyTag NormalizedSubjectW = new TnefPropertyTag (TnefPropertyId.NormalizedSubject, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_NT_SECURITY_DESCRIPTOR.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NT_SECURITY_DESCRIPTOR.
+		/// </remarks>
 		public static readonly TnefPropertyTag NtSecurityDescriptor = new TnefPropertyTag (TnefPropertyId.NtSecurityDescriptor, TnefPropertyType.Unspecified);
+
+		/// <summary>
+		/// The MAPI property PR_NULL.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_NULL.
+		/// </remarks>
 		public static readonly TnefPropertyTag Null = new TnefPropertyTag (TnefPropertyId.Null, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_OBJECT_TYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OBJECT_TYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag ObjectType = new TnefPropertyTag (TnefPropertyId.ObjectType, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_OBSOLETE_IPMS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OBSOLETE_IPMS.
+		/// </remarks>
 		public static readonly TnefPropertyTag ObsoletedIpms = new TnefPropertyTag (TnefPropertyId.ObsoletedIpms, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE2_TELEPHONE_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE2_TELEPHONE_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag Office2TelephoneNumberA = new TnefPropertyTag (TnefPropertyId.Office2TelephoneNumber, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE2_TELEPHONE_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE2_TELEPHONE_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag Office2TelephoneNumberW = new TnefPropertyTag (TnefPropertyId.Office2TelephoneNumber, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE_LOCATION.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE_LOCATION.
+		/// </remarks>
 		public static readonly TnefPropertyTag OfficeLocationA = new TnefPropertyTag (TnefPropertyId.OfficeLocation, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE_LOCATION.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE_LOCATION.
+		/// </remarks>
 		public static readonly TnefPropertyTag OfficeLocationW = new TnefPropertyTag (TnefPropertyId.OfficeLocation, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE_TELEPHONE_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE_TELEPHONE_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag OfficeTelephoneNumberA = new TnefPropertyTag (TnefPropertyId.OfficeTelephoneNumber, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_OFFICE_TELEPHONE_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OFFICE_TELEPHONE_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag OfficeTelephoneNumberW = new TnefPropertyTag (TnefPropertyId.OfficeTelephoneNumber, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_OOF_REPLY_TYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_OOF_REPLY_TYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag OofReplyType = new TnefPropertyTag (TnefPropertyId.OofReplyType, TnefPropertyType.Unspecified);
+
+		/// <summary>
+		/// The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag OrganizationalIdNumberA = new TnefPropertyTag (TnefPropertyId.OrganizationalIdNumber, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
+		/// </remarks>
 		public static readonly TnefPropertyTag OrganizationalIdNumberW = new TnefPropertyTag (TnefPropertyId.OrganizationalIdNumber, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIG_ENTRYID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIG_ENTRYID.
+		/// </remarks>
 		public static readonly TnefPropertyTag OrigEntryId = new TnefPropertyTag (TnefPropertyId.OrigEntryId, TnefPropertyType.Unspecified);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorAddrtypeA = new TnefPropertyTag (TnefPropertyId.OriginalAuthorAddrtype, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorAddrtypeW = new TnefPropertyTag (TnefPropertyId.OriginalAuthorAddrtype, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_EMAIL_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_EMAIL_ADDRESS.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorEmailAddressA = new TnefPropertyTag (TnefPropertyId.OriginalAuthorEmailAddress, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_EMAIL_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_EMAIL_ADDRESS.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorEmailAddressW = new TnefPropertyTag (TnefPropertyId.OriginalAuthorEmailAddress, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ENTRYID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_ENTRYID.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorEntryId = new TnefPropertyTag (TnefPropertyId.OriginalAuthorEntryId, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorNameA = new TnefPropertyTag (TnefPropertyId.OriginalAuthorName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorNameW = new TnefPropertyTag (TnefPropertyId.OriginalAuthorName, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_SEARCH_KEY.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_AUTHOR_SEARCH_KEY.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalAuthorSearchKey = new TnefPropertyTag (TnefPropertyId.OriginalAuthorSearchKey, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DELIVERY_TIME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DELIVERY_TIME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDeliveryTime = new TnefPropertyTag (TnefPropertyId.OriginalDeliveryTime, TnefPropertyType.SysTime);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_BCC.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_BCC.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayBccA = new TnefPropertyTag (TnefPropertyId.OriginalDisplayBcc, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_BCC.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_BCC.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayBccW = new TnefPropertyTag (TnefPropertyId.OriginalDisplayBcc, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_CC.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_CC.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayCcA = new TnefPropertyTag (TnefPropertyId.OriginalDisplayCc, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_CC.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_CC.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayCcW = new TnefPropertyTag (TnefPropertyId.OriginalDisplayCc, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayNameA = new TnefPropertyTag (TnefPropertyId.OriginalDisplayName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayNameW = new TnefPropertyTag (TnefPropertyId.OriginalDisplayName, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_TO.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_TO.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayToA = new TnefPropertyTag (TnefPropertyId.OriginalDisplayTo, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_TO.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_DISPLAY_TO.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalDisplayToW = new TnefPropertyTag (TnefPropertyId.OriginalDisplayTo, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_EITS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_EITS.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalEits = new TnefPropertyTag (TnefPropertyId.OriginalEits, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_ENTRYID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_ENTRYID.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalEntryId = new TnefPropertyTag (TnefPropertyId.OriginalEntryId, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADDRTYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADDRTYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipAddrtypeA = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipAddrtype, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADDRTYPE.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ADDRTYPE.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipAddrtypeW = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipAddrtype, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipEmailAddressA = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipEmailAddress, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_EMAIL_ADDRESS.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipEmailAddressW = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipEmailAddress, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ENTRYID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIP_ENTRYID.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipEntryId = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipEntryId, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIPIENT_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINALLY_INTENDED_RECIPIENT_NAME.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginallyIntendedRecipientName = new TnefPropertyTag (TnefPropertyId.OriginallyIntendedRecipientName, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_ORIGINAL_SEARCH_KEY.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ORIGINAL_SEARCH_KEY.
+		/// </remarks>
 		public static readonly TnefPropertyTag OriginalSearchKey = new TnefPropertyTag (TnefPropertyId.OriginalSearchKey, TnefPropertyType.Binary);
 		public static readonly TnefPropertyTag OriginalSenderAddrtypeA = new TnefPropertyTag (TnefPropertyId.OriginalSenderAddrtype, TnefPropertyType.String8);
 		public static readonly TnefPropertyTag OriginalSenderAddrtypeW = new TnefPropertyTag (TnefPropertyId.OriginalSenderAddrtype, TnefPropertyType.Unicode);
