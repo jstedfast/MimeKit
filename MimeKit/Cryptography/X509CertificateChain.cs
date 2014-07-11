@@ -273,12 +273,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public void Remove (X509Certificate certificate)
+		public bool Remove (X509Certificate certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			certificates.Remove (certificate);
+			return certificates.Remove (certificate);
 		}
 
 		/// <summary>
