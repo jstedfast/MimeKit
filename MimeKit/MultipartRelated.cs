@@ -221,6 +221,43 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>A stream for reading the decoded content of the MIME part specified by the provided URI.</returns>
 		/// <param name="uri">The URI.</param>
+		/// <param name="mimeType">The mime-type of the content.</param>
+		/// <param name="charset">The charset of the content (if the content is text-based)</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="uri"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The MIME part for the specified URI could not be found.
+		/// </exception>
+		public Stream Open (Uri uri, out string mimeType, out string charset)
+		{
+			if (uri == null)
+				throw new ArgumentNullException ("uri");
+
+			int index = IndexOf (uri);
+
+			if (index == -1)
+				throw new FileNotFoundException ();
+
+			var part = this[index] as MimePart;
+
+			if (part == null || part.ContentObject == null)
+				throw new FileNotFoundException ();
+
+			mimeType = part.ContentType.MimeType;
+			charset = part.ContentType.Charset;
+
+			return part.ContentObject.Open ();
+		}
+
+		/// <summary>
+		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+		/// </summary>
+		/// <remarks>
+		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+		/// </remarks>
+		/// <returns>A stream for reading the decoded content of the MIME part specified by the provided URI.</returns>
+		/// <param name="uri">The URI.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <c>null</c>.
 		/// </exception>

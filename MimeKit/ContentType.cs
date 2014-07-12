@@ -237,6 +237,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the simple mime-type.
+		/// </summary>
+		/// <remarks>
+		/// Gets the simple mime-type.
+		/// </remarks>
+		/// <value>The mime-type.</value>
+		public string MimeType {
+			get { return string.Format ("{0}/{1}", MediaType, MediaSubtype); }
+		}
+
+		/// <summary>
 		/// Gets or sets the name parameter.
 		/// </summary>
 		/// <remarks>
