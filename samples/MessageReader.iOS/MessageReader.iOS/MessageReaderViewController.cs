@@ -65,6 +65,8 @@ namespace MessageReader.iOS {
 		public override void ViewDidLoad ()
 		{
 			base.ViewDidLoad ();
+
+			webView.ScalesPageToFit = true;
 			
 			// Perform any additional setup after loading the view, typically from a nib.
 			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("xamarin3.msg"));
