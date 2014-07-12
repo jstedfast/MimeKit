@@ -1,5 +1,5 @@
 ﻿//
-// MessageReaderViewWindow.cs
+// MainActivity.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,35 +25,37 @@
 //
 
 using System;
-using System.IO;
-using System.Data;
-using System.Linq;
 using System.Text;
-using System.Drawing;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-using HtmlAgilityPack;
+using Android.App;
+using Android.Content;
+using Android.Runtime;
+using Android.Views;
+using Android.Webkit;
+using Android.Widget;
+using Android.OS;
+
 using MimeKit;
 
-namespace MessageReader
-{
-	public partial class MessageViewWindow : Form
+namespace MessageReader.Android {
+	[Activity (Label = "MessageReader.Android", MainLauncher = true, Icon = "@drawable/icon")]
+	public class MainActivity : Activity
 	{
 		MimeMessage message;
+		WebView webView;
 
-		public MessageViewWindow ()
+		protected override void OnCreate (Bundle bundle)
 		{
-			InitializeComponent ();
-		}
+			base.OnCreate (bundle);
 
-		protected override void OnShown (EventArgs e)
-		{
-			base.OnShown (e);
+			// Set our view from the "main" layout resource
+			SetContentView (Resource.Layout.Main);
 
-			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("MessageReader.xamarin3.msg"));
+			// Get our webView from the layout resource
+			webView = FindViewById<WebView> (Resource.Id.webView);
+
+			// Load the message
+			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("xamarin3.msg"));
 		}
 
 		public MimeMessage Message {
@@ -70,74 +72,11 @@ namespace MessageReader
 
 		void Render (MultipartRelated related)
 		{
-			var text = related.Root as TextPart;
+			var client = new MultipartRelatedWebViewClient (related);
 
-			if (text != null && text.ContentType.Matches ("text", "html")) {
-				var doc = new HtmlAgilityPack.HtmlDocument ();
-				var saved = new Dictionary<MimePart, string> ();
-				TextPart html;
+			webView.SetWebViewClient (client);
 
-				doc.LoadHtml (text.Text);
-
-				// find references to related MIME parts and replace them with links to links to the saved attachments
-				foreach (var img in doc.DocumentNode.SelectNodes ("//img[@src]")) {
-					var src = img.Attributes["src"];
-					int index;
-					Uri uri;
-
-					if (src == null || src.Value == null)
-						continue;
-
-					// parse the <img src=...> attribute value into a Uri
-					if (Uri.IsWellFormedUriString (src.Value, UriKind.Absolute))
-						uri = new Uri (src.Value, UriKind.Absolute);
-					else
-						uri = new Uri (src.Value, UriKind.Relative);
-
-					// locate the index of the attachment within the multipart/related (if it exists)
-					if ((index = related.IndexOf (uri)) != -1) {
-						var attachment = related[index] as MimePart;
-
-						// make sure the referenced part is a MimePart (as opposed to another Multipart or MessagePart)
-						if (attachment != null) {
-							string fileName;
-
-							// save the attachment (if we haven't already saved it)
-							if (!saved.TryGetValue (attachment, out fileName)) {
-								fileName = attachment.FileName;
-
-								if (string.IsNullOrEmpty (fileName))
-									fileName = Guid.NewGuid ().ToString ();
-
-								using (var stream = File.Create (fileName))
-									attachment.ContentObject.DecodeTo (stream);
-
-								saved.Add (attachment, fileName);
-							}
-
-							// replace the <img src=...> value with the local file name
-							src.Value = "file://" + Path.GetFullPath (fileName);
-						}
-					}
-				}
-
-				if (saved.Count > 0) {
-					// we had to make some modifications to the original html part, so create a new
-					// (temporary) text/html part to render
-					html = new TextPart ("html");
-					using (var writer = new StringWriter ()) {
-						doc.Save (writer);
-
-						html.Text = writer.GetStringBuilder ().ToString ();
-					}
-				} else {
-					html = text;
-				}
-
-				Render (html);
-			} else {
-				Render (related.Root);
-			}
+			Render (related.Root);
 		}
 
 		void Render (TextPart text)
@@ -184,7 +123,7 @@ namespace MessageReader
 				html = text.Text;
 			}
 
-			webBrowser.DocumentText = html;
+			webView.LoadData (html, "text/html", "utf-8");
 		}
 
 		void Render (MimeEntity entity)
