@@ -53,6 +53,7 @@ namespace MessageReader.Android {
 
 			// Get our webView from the layout resource
 			webView = FindViewById<WebView> (Resource.Id.webView);
+			webView.SetInitialScale (50);
 
 			// Load the message
 			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("xamarin3.msg"));
