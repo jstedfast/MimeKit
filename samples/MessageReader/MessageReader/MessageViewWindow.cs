@@ -70,7 +70,31 @@ namespace MessageReader
 
 		void Render (MultipartRelated related)
 		{
-			var text = related.Root as TextPart;
+			var root = related.Root;
+			var multipart = root as Multipart;
+			var text = root as TextPart;
+
+			if (multipart != null) {
+				// Note: the root document can sometimes be a multipart/alternative.
+				// A multipart/alternative is just a collection of alternate views.
+				// The last part is the format that most closely matches what the
+				// user saw in his or her email client's WYSIWYG editor.
+				for (int i = multipart.Count; i > 0; i--) {
+					var body = multipart[i - 1] as TextPart;
+
+					if (body == null)
+						continue;
+
+					// our preferred mime-type is text/html
+					if (body.ContentType.Matches ("text", "html")) {
+						text = body;
+						break;
+					}
+
+					if (text == null)
+						text = body;
+				}
+			}
 
 			if (text != null && text.ContentType.Matches ("text", "html")) {
 				var doc = new HtmlAgilityPack.HtmlDocument ();
