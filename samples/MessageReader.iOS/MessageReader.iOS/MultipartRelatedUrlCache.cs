@@ -50,8 +50,8 @@ namespace MessageReader.iOS {
 				var part = related[index] as MimePart;
 
 				if (part != null) {
-					var mimeType = string.Format ("{0}/{1}", part.ContentType.MediaType, part.ContentType.MediaSubtype);
-					string charset = part.ContentType.Charset;
+					var mimeType = part.ContentType.MimeType;
+					var charset = part.ContentType.Charset;
 					NSUrlResponse response;
 					NSData data;
 

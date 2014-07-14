@@ -50,7 +50,7 @@ namespace MessageReader.Android {
 				var part = related[index] as MimePart;
 
 				if (part != null) {
-					var mimeType = string.Format ("{0}/{1}", part.ContentType.MediaType, part.ContentType.MediaSubtype);
+					var mimeType = part.ContentType.MimeType;
 					var stream = part.ContentObject.Open ();
 					var charset = part.ContentType.Charset;
 
