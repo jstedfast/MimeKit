@@ -42,13 +42,13 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
+    <Reference Include="System.Data" />
     <Reference Include="BouncyCastle">
-      <HintPath>..\packages\MimeKit.0.41.0.0\lib\MonoAndroid\BouncyCastle.dll</HintPath>
+      <HintPath>..\packages\MimeKit.0.42.0.0\lib\MonoAndroid\BouncyCastle.dll</HintPath>
     </Reference>
     <Reference Include="MimeKit">
-      <HintPath>..\packages\MimeKit.0.41.0.0\lib\MonoAndroid\MimeKit.dll</HintPath>
+      <HintPath>..\packages\MimeKit.0.42.0.0\lib\MonoAndroid\MimeKit.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />

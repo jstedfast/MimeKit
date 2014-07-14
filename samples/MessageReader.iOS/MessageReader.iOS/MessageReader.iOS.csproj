@@ -9,6 +9,8 @@
     <RootNamespace>MessageReader.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>MessageReaderiOS</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,13 +86,13 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
+    <Reference Include="System.Data" />
     <Reference Include="BouncyCastle">
-      <HintPath>..\packages\MimeKit.0.41.0.0\lib\MonoTouch\BouncyCastle.dll</HintPath>
+      <HintPath>..\packages\MimeKit.0.42.0.0\lib\MonoTouch\BouncyCastle.dll</HintPath>
     </Reference>
     <Reference Include="MimeKit">
-      <HintPath>..\packages\MimeKit.0.41.0.0\lib\MonoTouch\MimeKit.dll</HintPath>
+      <HintPath>..\packages\MimeKit.0.42.0.0\lib\MonoTouch\MimeKit.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />
