@@ -137,13 +137,15 @@ namespace MessageReader.Android {
 			}
 
 			var multipart = entity as Multipart;
-			var text = entity as TextPart;
+			TextPart text;
 
 			if (multipart != null) {
 				if (multipart.ContentType.Matches ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
-					// The last part is the format that most closely matches what the
+					// The last part is the part that most closely matches what the
 					// user saw in his or her email client's WYSIWYG editor.
+					TextPart preferred = null;
+
 					for (int i = multipart.Count; i > 0; i--) {
 						related = multipart[i - 1] as MultipartRelated;
 
@@ -160,18 +162,32 @@ namespace MessageReader.Android {
 
 						text = multipart[i - 1] as TextPart;
 
-						if (text != null) {
-							Render (text);
-							return;
+						if (text == null)
+							continue;
+
+						if (text.ContentType.Matches ("text", "html")) {
+							preferred = text;
+							break;
 						}
+
+						if (preferred == null)
+							preferred = text;
 					}
+
+					if (preferred != null)
+						Render (preferred);
 				} else if (multipart.Count > 0) {
 					// The main message body is usually the first part of a multipart/mixed.
 					Render (multipart[0]);
 				}
-			} else if (text != null) {
-				Render (text);
+
+				return;
 			}
+
+			text = entity as TextPart;
+
+			if (text != null)
+				Render (text);
 		}
 	}
 }
