@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed RtfCompressionMode extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.41.0.0</AssemblyVersion>
+    <AssemblyVersion>0.42.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -22,7 +22,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.RtfCompressionMode Compressed = int32(1967544908)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.41.0.0</AssemblyVersion>
+        <AssemblyVersion>0.42.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.RtfCompressionMode</ReturnType>
@@ -38,7 +38,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.RtfCompressionMode Uncompressed = int32(1095517517)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.41.0.0</AssemblyVersion>
+        <AssemblyVersion>0.42.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.RtfCompressionMode</ReturnType>
@@ -54,7 +54,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.RtfCompressionMode Unknown = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.41.0.0</AssemblyVersion>
+        <AssemblyVersion>0.42.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.RtfCompressionMode</ReturnType>
