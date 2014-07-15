@@ -267,7 +267,7 @@ namespace MimeKit {
 		/// on a per-header basis.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
-		/// <param name="charset">Charset.</param>
+		/// <param name="charset">The fallback charset.</param>
 		public string GetValue (Encoding charset)
 		{
 			if (charset == null)
