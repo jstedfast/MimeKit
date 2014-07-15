@@ -37,6 +37,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 * [5322](http://www.ietf.org/rfc/rfc5322.txt): Internet Message Format (Obsoletes rfc2822) 
 * [5750](http://www.ietf.org/rfc/rfc5750.txt): S/MIME Version 3.2 Certificate Handling (Obsoletes rfc3850)
 * [5751](http://www.ietf.org/rfc/rfc5751.txt): S/MIME Version 3.2 Message Specification (Obsoletes rfc3851)
+* [6532](http://www.ietf.org/rfc/rfc6532.txt): Internationalized Email Headers
 
 #### Other RFCs of interest:
 
