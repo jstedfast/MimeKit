@@ -84,7 +84,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The maximum line length.</value>
 		public int MaxLineLength {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -152,7 +152,7 @@ namespace MimeKit {
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
 			WriteHeaders = true;
-			MaxLineLength = 72;
+			MaxLineLength = 78;
 
 			if (Environment.NewLine.Length == 1)
 				NewLineFormat = NewLineFormat.Unix;
