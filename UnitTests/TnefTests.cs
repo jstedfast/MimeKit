@@ -187,7 +187,15 @@ namespace UnitTests {
 					}
 					break;
 				default:
-					Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+					object value;
+
+					try {
+						value = prop.ReadValue ();
+					} catch {
+						value = null;
+					}
+
+					Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
 					break;
 				}
 			}
@@ -304,7 +312,7 @@ namespace UnitTests {
 					break;
 
 				if (reader.AttributeLevel != TnefAttributeLevel.Message)
-					Assert.Fail ("Unknown attribute level.");
+					Assert.Fail ("Unknown attribute level: {0}", reader.AttributeLevel);
 
 				var prop = reader.TnefPropertyReader;
 
@@ -399,7 +407,10 @@ namespace UnitTests {
 		[Test]
 		public void TestGarbageAtEnd ()
 		{
-			TestTnefParser ("../../TestData/tnef/garbage-at-end", TnefComplianceStatus.InvalidAttributeLevel | TnefComplianceStatus.StreamTruncated);
+			var errors = TnefComplianceStatus.InvalidAttributeChecksum | TnefComplianceStatus.InvalidAttributeLevel |
+				TnefComplianceStatus.StreamTruncated | TnefComplianceStatus.UnsupportedPropertyType;
+
+			TestTnefParser ("../../TestData/tnef/garbage-at-end", errors);
 		}
 
 		[Test]

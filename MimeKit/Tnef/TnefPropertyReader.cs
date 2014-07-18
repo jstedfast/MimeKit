@@ -749,10 +749,6 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.String8:
 			case TnefPropertyType.Binary:
 				length = 4 + GetPaddedLength (PeekInt32 ());
-				#if !PORTABLE
-				if (length > 1024000)
-					Console.WriteLine ("*** {0} value with a length of {1}???", propertyTag.Id, length);
-				#endif
 				break;
 			case TnefPropertyType.AppTime:
 			case TnefPropertyType.SysTime:
@@ -856,7 +852,6 @@ namespace MimeKit.Tnef {
 				break;
 			default:
 				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
-
 				value = null;
 				break;
 			}
