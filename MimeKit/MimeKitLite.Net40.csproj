@@ -136,6 +136,7 @@
     <Compile Include="MimeMessage.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="Multipart.cs" />
     <Compile Include="MultipartRelated.cs" />
     <Compile Include="Parameter.cs" />

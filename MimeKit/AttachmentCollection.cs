@@ -246,39 +246,11 @@ namespace MimeKit {
 			attachments.Add (attachment);
 		}
 
-		static ContentType GetMimeType (string extension)
+		static ContentType GetMimeType (string fileName)
 		{
-			switch (extension) {
-			case ".avi":   return new ContentType ("video", "x-msvideo");
-			case ".asf":   return new ContentType ("video", "x-ms-asf");
-			case ".asx":   return new ContentType ("video", "x-ms-asf");
-			case ".gif":   return new ContentType ("image", "gif");
-			case ".htm":   return new ContentType ("text", "html");
-			case ".html":  return new ContentType ("text", "html");
-			case ".ics":   return new ContentType ("text", "calendar");
-			case ".jpeg":  return new ContentType ("image", "jpeg");
-			case ".jpg":   return new ContentType ("image", "jpeg");
-			case ".mov":   return new ContentType ("video", "quicktime");
-			case ".mp2":   return new ContentType ("audio", "mpeg");
-			case ".mp3":   return new ContentType ("audio", "mpeg");
-			case ".mp4":   return new ContentType ("video", "mp4");
-			case ".mp4a":  return new ContentType ("audio", "mp4");
-			case ".mp4v":  return new ContentType ("video", "mp4");
-			case ".mpeg":  return new ContentType ("video", "mpeg");
-			case ".mpg":   return new ContentType ("video", "mpeg");
-			case ".mpg4":  return new ContentType ("video", "mp4");
-			case ".png":   return new ContentType ("image", "png");
-			case ".qt":    return new ContentType ("video", "quicktime");
-			case ".svg":   return new ContentType ("image", "svg+xml");
-			case ".txt":   return new ContentType ("text", "plain");
-			case ".vcard": return new ContentType ("text", "vcard");
-			case ".webm":  return new ContentType ("video", "webm");
-			case ".wmv":   return new ContentType ("video", "x-ms-wmv");
-			case ".wmx":   return new ContentType ("video", "x-ms-wmx");
-			case ".wvx":   return new ContentType ("video", "x-ms-wvx");
-			case ".xml":   return new ContentType ("text", "xml");
-			default:       return new ContentType ("application", "octet-stream");
-			}
+			var mimeType = MimeTypes.GetMimeType (fileName);
+
+			return ContentType.Parse (mimeType);
 		}
 
 		/// <summary>
@@ -309,7 +281,7 @@ namespace MimeKit {
 			if (data == null)
 				throw new ArgumentNullException ("data");
 
-			var attachment = new MimePart (GetMimeType (Path.GetExtension (fileName).ToLowerInvariant ())) {
+			var attachment = new MimePart (GetMimeType (fileName)) {
 				FileName = Path.GetFileName (fileName),
 				IsAttachment = true,
 			};
@@ -353,7 +325,7 @@ namespace MimeKit {
 			if (!stream.CanRead)
 				throw new ArgumentException ("The stream cannot be read.", "stream");
 
-			var attachment = new MimePart (GetMimeType (Path.GetExtension (fileName).ToLowerInvariant ())) {
+			var attachment = new MimePart (GetMimeType (fileName)) {
 				FileName = Path.GetFileName (fileName),
 				IsAttachment = true,
 			};
@@ -448,7 +420,7 @@ namespace MimeKit {
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", "fileName");
 
-			var attachment = new MimePart (GetMimeType (Path.GetExtension (fileName).ToLowerInvariant ())) {
+			var attachment = new MimePart (GetMimeType (fileName)) {
 				FileName = Path.GetFileName (fileName),
 				IsAttachment = true
 			};
