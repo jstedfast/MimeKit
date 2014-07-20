@@ -560,10 +560,10 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets the number of headers in the <see cref="MimeKit.HeaderList"/>.
+		/// Gets the number of headers in the list.
 		/// </summary>
 		/// <remarks>
-		/// Indicates the number of headers in the list.
+		/// Gets the number of headers in the list.
 		/// </remarks>
 		/// <value>The number of headers.</value>
 		public int Count {
@@ -571,7 +571,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Gets whether or not the header list is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="HeaderList"/> is never read-only.
