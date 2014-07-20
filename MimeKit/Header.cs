@@ -45,6 +45,7 @@ namespace MimeKit {
 	{
 		internal readonly ParserOptions Options;
 		string textValue;
+		byte[] rawValue;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
@@ -176,14 +177,14 @@ namespace MimeKit {
 		{
 			Id = field.ToHeaderId ();
 			Options = options;
-			RawValue = value;
+			rawValue = value;
 			Field = field;
 		}
 
 		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
 		{
 			Options = options;
-			RawValue = value;
+			rawValue = value;
 			Field = field;
 			Id = id;
 		}
@@ -230,7 +231,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The raw value of the header.</value>
 		public byte[] RawValue {
-			get; internal set;
+			get { return rawValue; }
 		}
 
 		/// <summary>
@@ -515,6 +516,68 @@ namespace MimeKit {
 			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
 		}
 
+		byte[] EncodeRawValue (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			switch (Id) {
+			case HeaderId.DispositionNotificationTo:
+			case HeaderId.ResentFrom:
+			case HeaderId.ResentBcc:
+			case HeaderId.ResentCc:
+			case HeaderId.ResentTo:
+			case HeaderId.From:
+			case HeaderId.Bcc:
+			case HeaderId.Cc:
+			case HeaderId.To:
+				return EncodeAddressHeader (options, format, charset, field, value);
+			case HeaderId.Received:
+				return EncodeReceivedHeader (options, format, charset, field, value);
+			case HeaderId.ResentMessageId:
+			case HeaderId.MessageId:
+			case HeaderId.ContentId:
+				return EncodeMessageIdHeader (options, format, charset, field, value);
+			case HeaderId.References:
+				return EncodeReferencesHeader (options, format, charset, field, value);
+			default:
+				return EncodeUnstructuredHeader (options, format, charset, field, value);
+			}
+		}
+
+		/// <summary>
+		/// Sets the header value using the specified charset.
+		/// </summary>
+		/// <remarks>
+		/// When a particular charset is desired for encoding the header value
+		/// according to the rules of rfc2047, this method should be used
+		/// instead of the <see cref="Value"/> setter.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="charset">A charset encoding.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SetValue (FormatOptions options, Encoding charset, string value)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			textValue = Unfold (value.Trim ());
+
+			rawValue = EncodeRawValue (Options, options, charset, Field, textValue);
+
+			OnChanged ();
+		}
+
 		/// <summary>
 		/// Sets the header value using the specified charset.
 		/// </summary>
@@ -532,43 +595,7 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (Encoding charset, string value)
 		{
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
-			textValue = Unfold (value.Trim ());
-
-			switch (Id) {
-			case HeaderId.DispositionNotificationTo:
-			case HeaderId.ResentFrom:
-			case HeaderId.ResentBcc:
-			case HeaderId.ResentCc:
-			case HeaderId.ResentTo:
-			case HeaderId.From:
-			case HeaderId.Bcc:
-			case HeaderId.Cc:
-			case HeaderId.To:
-				RawValue = EncodeAddressHeader (Options, FormatOptions.Default, charset, Field, textValue);
-				break;
-			case HeaderId.Received:
-				RawValue = EncodeReceivedHeader (Options, FormatOptions.Default, charset, Field, textValue);
-				break;
-			case HeaderId.ResentMessageId:
-			case HeaderId.MessageId:
-			case HeaderId.ContentId:
-				RawValue = EncodeMessageIdHeader (Options, FormatOptions.Default, charset, Field, textValue);
-				break;
-			case HeaderId.References:
-				RawValue = EncodeReferencesHeader (Options, FormatOptions.Default, charset, Field, textValue);
-				break;
-			default:
-				RawValue = EncodeUnstructuredHeader (Options, FormatOptions.Default, charset, Field, textValue);
-				break;
-			}
-
-			OnChanged ();
+			SetValue (FormatOptions.Default, charset, value);
 		}
 
 		internal event EventHandler Changed;

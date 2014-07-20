@@ -65,6 +65,8 @@ namespace MimeKit {
 			new byte[] { (byte) '\n' }, new byte[] { (byte) '\r', (byte) '\n' }
 		};
 
+		const int DefaultMaxLineLength = 78;
+
 		/// <summary>
 		/// The default formatting options.
 		/// </summary>
@@ -76,7 +78,7 @@ namespace MimeKit {
 		public static readonly FormatOptions Default;
 
 		/// <summary>
-		/// Gets or sets the maximum line length used by the encoders. The encoders
+		/// Gets the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
 		/// <remarks>
@@ -84,7 +86,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The maximum line length.</value>
 		public int MaxLineLength {
-			get; set;
+			get { return DefaultMaxLineLength; }
 		}
 
 		/// <summary>
@@ -151,8 +153,8 @@ namespace MimeKit {
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
+			//MaxLineLength = DefaultMaxLineLength;
 			WriteHeaders = true;
-			MaxLineLength = 78;
 
 			if (Environment.NewLine.Length == 1)
 				NewLineFormat = NewLineFormat.Unix;
@@ -170,7 +172,7 @@ namespace MimeKit {
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();
-			options.MaxLineLength = MaxLineLength;
+			//options.MaxLineLength = MaxLineLength;
 			options.NewLineFormat = NewLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.WriteHeaders = true;
