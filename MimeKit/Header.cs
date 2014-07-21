@@ -545,13 +545,17 @@ namespace MimeKit {
 
 		class BrokenWord
 		{
-			public readonly string Text;
-			public readonly int Length;
+			public readonly int StartIndex;
+			public readonly int CharCount;
+			public readonly int ByteCount;
+			public readonly char[] Text;
 
-			public BrokenWord (string text, int length)
+			public BrokenWord (char[] text, int startIndex, int charCount, int byteCount)
 			{
+				StartIndex = startIndex;
+				CharCount = charCount;
+				ByteCount = byteCount;
 				Text = text;
-				Length = length;
 			}
 		}
 
@@ -562,20 +566,20 @@ namespace MimeKit {
 
 			while (startIndex < word.Length) {
 				int index = startIndex;
-				int count = 0;
+				int byteCount = 0;
 
 				while (index < word.Length) {
 					int n = char.IsSurrogatePair (word, index) ? 2 : 1;
 					int bytes = encoding.GetByteCount (chars, index, n);
 
-					if (lineLength + count + bytes > format.MaxLineLength)
+					if (lineLength + byteCount + bytes > format.MaxLineLength)
 						break;
 
-					count += bytes;
+					byteCount += bytes;
 					index += n;
 				}
 
-				yield return new BrokenWord (new string (chars, startIndex, index - startIndex), count);
+				yield return new BrokenWord (chars, startIndex, index - startIndex, byteCount);
 
 				startIndex = index;
 				lineLength = 1;
@@ -625,14 +629,14 @@ namespace MimeKit {
 
 				if (length > format.MaxLineLength) {
 					foreach (var broken in WordBreak (format, Encoding.UTF8, word, lineLength)) {
-						if (lineLength + broken.Length > format.MaxLineLength) {
+						if (lineLength + broken.CharCount > format.MaxLineLength) {
 							folded.Append (format.NewLine);
 							folded.Append (' ');
 							lineLength = 1;
 						}
 
-						folded.Append (broken.Text);
-						lineLength += broken.Length;
+						folded.Append (broken.Text, broken.StartIndex, broken.CharCount);
+						lineLength += broken.ByteCount;
 					}
 				} else {
 					folded.Append (word);
