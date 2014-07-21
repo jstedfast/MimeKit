@@ -531,13 +531,10 @@ namespace MimeKit {
 
 				startIndex = index;
 
-				var lwsp = new StringBuilder ();
-				while (index < text.Length && IsWhiteSpace (text[index])) {
-					lwsp.Append (text[index]);
+				while (index < text.Length && IsWhiteSpace (text[index]))
 					index++;
-				}
 
-				yield return lwsp.ToString ();
+				yield return text.Substring (startIndex, index - startIndex);
 			}
 
 			yield break;
