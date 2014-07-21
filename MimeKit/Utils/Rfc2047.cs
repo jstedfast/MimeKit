@@ -748,12 +748,14 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input, bool structured)
+		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input)
 		{
-			var output = new StringBuilder (" ");
+			var output = new StringBuilder (input.Length + 2);
 			int lineLength = field.Length + 2;
 			int lwsp = 0, tab = 0;
 			Token token;
+
+			output.Append (' ');
 
 			for (int i = 0; i < tokens.Count; i++) {
 				token = tokens[i];
@@ -777,7 +779,7 @@ namespace MimeKit.Utils {
 					}
 
 					if (lineLength == 0 && i + 1 < tokens.Count) {
-						output.Append (structured ? '\t' : ' ');
+						output.Append (' ');
 						lineLength = 1;
 					}
 				} else if (token.Encoding != ContentEncoding.Default) {
@@ -795,7 +797,7 @@ namespace MimeKit.Utils {
 						} else if (lineLength > 1) {
 							// force a line break...
 							output.Append (options.NewLine);
-							output.Append (structured ? '\t' : ' ');
+							output.Append (' ');
 							lineLength = 1;
 						}
 					}
@@ -824,25 +826,23 @@ namespace MimeKit.Utils {
 					} else if (lineLength > 1) {
 						// force a line break...
 						output.Append (options.NewLine);
-						output.Append (structured ? '\t' : ' ');
+						output.Append (' ');
 						lineLength = 1;
 					}
 
 					if (token.Length >= options.MaxLineLength) {
-						// the token is longer than the allowable line length,
+						// the token is longer than the maximum allowable line length,
 						// so we'll have to break it apart...
-						int half = token.StartIndex + (options.MaxLineLength - lineLength);
+						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
+							if (lineLength >= options.MaxLineLength) {
+								output.Append (options.NewLine);
+								output.Append (' ');
+								lineLength = 1;
+							}
 
-						for (int n = token.StartIndex; n < half; n++)
 							output.Append ((char) input[n]);
-
-						output.Append (options.NewLine);
-						output.Append ('\t');
-
-						for (int n = half; n < token.StartIndex + token.Length; n++)
-							output.Append ((char) input[n]);
-
-						lineLength = (token.Length - half) + 1;
+							lineLength++;
+						}
 					} else {
 						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
 							output.Append ((char) input[n]);
@@ -874,7 +874,7 @@ namespace MimeKit.Utils {
 				fixed (byte* inbuf = text) {
 					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
 
-					return FoldTokens (options, tokens, field, text, false);
+					return FoldTokens (options, tokens, field, text);
 				}
 			}
 		}
