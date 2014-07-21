@@ -868,17 +868,6 @@ namespace MimeKit.Utils {
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
 
-		internal static byte[] FoldStructuredHeader (FormatOptions options, string field, byte[] text)
-		{
-			unsafe {
-				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
-
-					return FoldTokens (options, tokens, field, text, true);
-				}
-			}
-		}
-
 		internal static byte[] FoldUnstructuredHeader (FormatOptions options, string field, byte[] text)
 		{
 			unsafe {

@@ -521,14 +521,22 @@ namespace MimeKit {
 				throw new ArgumentNullException ("stream");
 
 			using (var filtered = new FilteredStream (stream)) {
-				filtered.Add (options.CreateNewLineFilter ());
+				if (options.NewLineFormat != FormatOptions.Default.NewLineFormat)
+					filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
 					var name = Encoding.ASCII.GetBytes (header.Field);
+					byte[] rawValue;
 
 					filtered.Write (name, 0, name.Length, cancellationToken);
 					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-					filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
+
+					if (options.InternationalizedEncoding)
+						rawValue = header.GetRawValue (options, Encoding.UTF8);
+					else
+						rawValue = header.RawValue;
+
+					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 				}
 
 				filtered.Flush (cancellationToken);

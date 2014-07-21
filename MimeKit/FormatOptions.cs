@@ -67,6 +67,9 @@ namespace MimeKit {
 
 		const int DefaultMaxLineLength = 78;
 
+		NewLineFormat newLineFormat;
+		bool internalizedEncoding;
+
 		/// <summary>
 		/// The default formatting options.
 		/// </summary>
@@ -97,8 +100,17 @@ namespace MimeKit {
 		/// or entity to a stream.
 		/// </remarks>
 		/// <value>The new-line format.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
 		public NewLineFormat NewLineFormat {
-			get; set;
+			get { return newLineFormat; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ();
+
+				newLineFormat = value;
+			}
 		}
 
 		internal IMimeFilter CreateNewLineFilter ()
@@ -138,6 +150,29 @@ namespace MimeKit {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets whether the new "Internationalized Email" encoding standards should be used.
+		/// </summary>
+		/// <remarks>
+		/// <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
+		/// <para>This feature should only be used when formatting messages meant to be sent via
+		/// SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
+		/// via UTF8 APPEND (rfc6855).</para>
+		/// </remarks>
+		/// <value><c>true</c> if the new internationalized encoding should be used; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
+		public bool InternationalizedEncoding {
+			get { return internalizedEncoding; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ();
+
+				internalizedEncoding = value;
+			}
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -153,13 +188,13 @@ namespace MimeKit {
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
-			//MaxLineLength = DefaultMaxLineLength;
+			//maxLineLength = DefaultMaxLineLength;
 			WriteHeaders = true;
 
 			if (Environment.NewLine.Length == 1)
-				NewLineFormat = NewLineFormat.Unix;
+				newLineFormat = NewLineFormat.Unix;
 			else
-				NewLineFormat = NewLineFormat.Dos;
+				newLineFormat = NewLineFormat.Dos;
 		}
 
 		/// <summary>
@@ -172,9 +207,10 @@ namespace MimeKit {
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();
-			//options.MaxLineLength = MaxLineLength;
-			options.NewLineFormat = NewLineFormat;
+			//options.maxLineLength = maxLineLength;
+			options.newLineFormat = newLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
+			options.internalizedEncoding = internalizedEncoding;
 			options.WriteHeaders = true;
 			return options;
 		}

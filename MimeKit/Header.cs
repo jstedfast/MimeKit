@@ -509,14 +509,34 @@ namespace MimeKit {
 			return charset.GetBytes (encoded.ToString ());
 		}
 
+		static string Fold (FormatOptions format, string field, string value)
+		{
+			var folded = new StringBuilder (value.Length);
+			int lineLength = field.Length + 2;
+
+			folded.Append (' ');
+
+			// FIXME: fold the value
+
+			folded.Append (format.NewLine);
+
+			return folded.ToString ();
+		}
+
 		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
+			if (format.InternationalizedEncoding) {
+				var folded = Fold (format, field, value);
+
+				return Encoding.UTF8.GetBytes (folded);
+			}
+
 			var encoded = Rfc2047.EncodeText (format, charset, value);
 
 			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
 		}
 
-		byte[] EncodeRawValue (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		internal byte[] GetRawValue (FormatOptions format, Encoding charset)
 		{
 			switch (Id) {
 			case HeaderId.DispositionNotificationTo:
@@ -528,54 +548,18 @@ namespace MimeKit {
 			case HeaderId.Bcc:
 			case HeaderId.Cc:
 			case HeaderId.To:
-				return EncodeAddressHeader (options, format, charset, field, value);
+				return EncodeAddressHeader (Options, format, charset, Field, textValue);
 			case HeaderId.Received:
-				return EncodeReceivedHeader (options, format, charset, field, value);
+				return EncodeReceivedHeader (Options, format, charset, Field, textValue);
 			case HeaderId.ResentMessageId:
 			case HeaderId.MessageId:
 			case HeaderId.ContentId:
-				return EncodeMessageIdHeader (options, format, charset, field, value);
+				return EncodeMessageIdHeader (Options, format, charset, Field, textValue);
 			case HeaderId.References:
-				return EncodeReferencesHeader (options, format, charset, field, value);
+				return EncodeReferencesHeader (Options, format, charset, Field, textValue);
 			default:
-				return EncodeUnstructuredHeader (options, format, charset, field, value);
+				return EncodeUnstructuredHeader (Options, format, charset, Field, textValue);
 			}
-		}
-
-		/// <summary>
-		/// Sets the header value using the specified charset.
-		/// </summary>
-		/// <remarks>
-		/// When a particular charset is desired for encoding the header value
-		/// according to the rules of rfc2047, this method should be used
-		/// instead of the <see cref="Value"/> setter.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="charset">A charset encoding.</param>
-		/// <param name="value">The header value.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
-		/// </exception>
-		public void SetValue (FormatOptions options, Encoding charset, string value)
-		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (charset == null)
-				throw new ArgumentNullException ("charset");
-
-			if (value == null)
-				throw new ArgumentNullException ("value");
-
-			textValue = Unfold (value.Trim ());
-
-			rawValue = EncodeRawValue (Options, options, charset, Field, textValue);
-
-			OnChanged ();
 		}
 
 		/// <summary>
@@ -595,7 +579,17 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (Encoding charset, string value)
 		{
-			SetValue (FormatOptions.Default, charset, value);
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			textValue = Unfold (value.Trim ());
+
+			rawValue = GetRawValue (FormatOptions.Default, charset);
+
+			OnChanged ();
 		}
 
 		internal event EventHandler Changed;
