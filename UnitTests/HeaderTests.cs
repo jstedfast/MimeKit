@@ -36,7 +36,7 @@ namespace UnitTests {
 	{
 		static string ByteArrayToString (byte[] text)
 		{
-			StringBuilder builder = new StringBuilder ();
+			var builder = new StringBuilder ();
 
 			for (int i = 0; i < text.Length; i++)
 				builder.Append ((char) text[i]);
@@ -54,26 +54,6 @@ namespace UnitTests {
 					i++;
 
 				if (text[i] == '\n') {
-					max = Math.Max (max, current);
-					current = 0;
-				} else {
-					current++;
-				}
-			}
-
-			return max;
-		}
-
-		static int GetMaxLineLength (byte[] text)
-		{
-			int current = 0;
-			int max = 0;
-
-			for (int i = 0; i < text.Length; i++) {
-				if (text[i] == (byte) '\r' && text[i + 1] == (byte) '\n')
-					i++;
-
-				if (text[i] == (byte) '\n') {
 					max = Math.Max (max, current);
 					current = 0;
 				} else {
