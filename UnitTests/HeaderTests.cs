@@ -172,17 +172,15 @@ namespace UnitTests {
 		{
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
-			byte[] raw;
 
 			options.InternationalizedEncoding = true;
 
 			original = "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.";
 			folded = Header.Fold (options, "Subject", original);
-			raw = Encoding.UTF8.GetBytes (folded);
 			unfolded = Header.Unfold (folded);
 
 			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
-			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
 			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 
@@ -191,17 +189,15 @@ namespace UnitTests {
 		{
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
-			byte[] raw;
 
 			options.InternationalizedEncoding = true;
 
 			original = "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟";
 			folded = Header.Fold (options, "Subject", original);
-			raw = Encoding.UTF8.GetBytes (folded);
 			unfolded = Header.Unfold (folded);
 
 			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
-			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
 			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 
@@ -210,17 +206,15 @@ namespace UnitTests {
 		{
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
-			byte[] raw;
 
 			options.InternationalizedEncoding = true;
 
 			original = "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。";
 			folded = Header.Fold (options, "Subject", original);
 			unfolded = Header.Unfold (folded).Replace (" ", "");
-			raw = Encoding.UTF8.GetBytes (folded);
 
 			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
-			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
 			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 

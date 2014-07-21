@@ -542,43 +542,34 @@ namespace MimeKit {
 
 		class BrokenWord
 		{
-			public readonly int StartIndex;
-			public readonly int CharCount;
-			public readonly int ByteCount;
 			public readonly char[] Text;
+			public readonly int StartIndex;
+			public readonly int Length;
 
-			public BrokenWord (char[] text, int startIndex, int charCount, int byteCount)
+			public BrokenWord (char[] text, int startIndex, int length)
 			{
 				StartIndex = startIndex;
-				CharCount = charCount;
-				ByteCount = byteCount;
+				Length = length;
 				Text = text;
 			}
 		}
 
-		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, Encoding encoding, string word, int lineLength)
+		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, string word, int lineLength)
 		{
 			var chars = word.ToCharArray ();
 			int startIndex = 0;
 
+			lineLength = Math.Max (lineLength, 1);
+
 			while (startIndex < word.Length) {
-				int index = startIndex;
-				int byteCount = 0;
+				int length = Math.Min (format.MaxLineLength - lineLength, word.Length);
 
-				while (index < word.Length) {
-					int n = char.IsSurrogatePair (word, index) ? 2 : 1;
-					int bytes = encoding.GetByteCount (chars, index, n);
+				if (char.IsSurrogatePair (word, startIndex + length - 1))
+					length--;
 
-					if (lineLength + byteCount + bytes > format.MaxLineLength)
-						break;
+				yield return new BrokenWord (chars, startIndex, length);
 
-					byteCount += bytes;
-					index += n;
-				}
-
-				yield return new BrokenWord (chars, startIndex, index - startIndex, byteCount);
-
-				startIndex = index;
+				startIndex += length;
 				lineLength = 1;
 			}
 
@@ -616,28 +607,26 @@ namespace MimeKit {
 					continue;
 				}
 
-				int length = Encoding.UTF8.GetByteCount (word);
-
-				if (lastLwsp != -1 && lineLength + length > format.MaxLineLength) {
+				if (lastLwsp != -1 && lineLength + word.Length > format.MaxLineLength) {
 					folded.Insert (lastLwsp, format.NewLine);
 					lineLength = 1;
 					lastLwsp = -1;
 				}
 
-				if (length > format.MaxLineLength) {
-					foreach (var broken in WordBreak (format, Encoding.UTF8, word, lineLength)) {
-						if (lineLength + broken.CharCount > format.MaxLineLength) {
+				if (word.Length > format.MaxLineLength) {
+					foreach (var broken in WordBreak (format, word, lineLength)) {
+						if (lineLength + broken.Length > format.MaxLineLength) {
 							folded.Append (format.NewLine);
 							folded.Append (' ');
 							lineLength = 1;
 						}
 
-						folded.Append (broken.Text, broken.StartIndex, broken.CharCount);
-						lineLength += broken.ByteCount;
+						folded.Append (broken.Text, broken.StartIndex, broken.Length);
+						lineLength += broken.Length;
 					}
 				} else {
+					lineLength += word.Length;
 					folded.Append (word);
-					lineLength += length;
 				}
 			}
 
