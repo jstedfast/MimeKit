@@ -559,38 +559,25 @@ namespace MimeKit {
 		{
 			var chars = word.ToCharArray ();
 			int startIndex = 0;
-			int count;
 
 			while (startIndex < word.Length) {
-				int max = startIndex + Math.Min (format.MaxLineLength - 1, word.Length - startIndex) + 1;
-				int min = startIndex;
-				int length;
+				int index = startIndex;
+				int count = 0;
 
-				do {
-					int endIndex = min + ((max - min) / 2);
+				while (index < word.Length) {
+					int n = char.IsSurrogatePair (word, index) ? 2 : 1;
+					int bytes = encoding.GetByteCount (chars, index, n);
 
-					if (char.IsSurrogatePair (word, endIndex - 1))
-						endIndex++;
-
-					length = endIndex - startIndex;
-
-					count = encoding.GetByteCount (chars, startIndex, length);
-
-					if (lineLength + count > format.MaxLineLength) {
-						max = Math.Min (max - 1, endIndex + 1);
-					} else if (lineLength + count < format.MaxLineLength) {
-						if (endIndex == word.Length)
-							break;
-
-						min = Math.Max (min + 1, endIndex);
-					} else {
+					if (lineLength + count + bytes > format.MaxLineLength)
 						break;
-					}
-				} while (min < max);
 
-				yield return new BrokenWord (new string (chars, startIndex, length), count);
+					count += bytes;
+					index += n;
+				}
 
-				startIndex += length;
+				yield return new BrokenWord (new string (chars, startIndex, index - startIndex), count);
+
+				startIndex = index;
 				lineLength = 1;
 			}
 
