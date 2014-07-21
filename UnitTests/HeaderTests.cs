@@ -64,6 +64,26 @@ namespace UnitTests {
 			return max;
 		}
 
+		static int GetMaxLineLength (byte[] text)
+		{
+			int current = 0;
+			int max = 0;
+
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == (byte) '\r' && text[i + 1] == (byte) '\n')
+					i++;
+
+				if (text[i] == (byte) '\n') {
+					max = Math.Max (max, current);
+					current = 0;
+				} else {
+					current++;
+				}
+			}
+
+			return max;
+		}
+
 		[Test]
 		public void TestAddressHeaderFolding ()
 		{
@@ -136,7 +156,7 @@ namespace UnitTests {
 		[Test]
 		public void TestUnstructuredHeaderFolding ()
 		{
-			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 72 character limit.");
+			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.");
 			var raw = ByteArrayToString (header.RawValue);
 
 			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
@@ -145,6 +165,63 @@ namespace UnitTests {
 
 			var unfolded = Header.Unfold (raw);
 			Assert.AreEqual (header.Value, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestSimpleInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+			byte[] raw;
+
+			options.InternationalizedEncoding = true;
+
+			original = "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.";
+			folded = Header.Fold (options, "Subject", original);
+			raw = Encoding.UTF8.GetBytes (folded);
+			unfolded = Header.Unfold (folded);
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestArabicInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+			byte[] raw;
+
+			options.InternationalizedEncoding = true;
+
+			original = "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟";
+			folded = Header.Fold (options, "Subject", original);
+			raw = Encoding.UTF8.GetBytes (folded);
+			unfolded = Header.Unfold (folded);
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestJapaneseInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+			byte[] raw;
+
+			options.InternationalizedEncoding = true;
+
+			original = "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。";
+			folded = Header.Fold (options, "Subject", original);
+			unfolded = Header.Unfold (folded).Replace (" ", "");
+			raw = Encoding.UTF8.GetBytes (folded);
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 
 		[Test]

@@ -390,7 +390,7 @@ namespace MimeKit {
 		class ReceivedTokenValue
 		{
 			public readonly int StartIndex;
-			public int Length;
+			public readonly int Length;
 
 			public ReceivedTokenValue (int startIndex, int length)
 			{
@@ -509,14 +509,149 @@ namespace MimeKit {
 			return charset.GetBytes (encoded.ToString ());
 		}
 
-		static string Fold (FormatOptions format, string field, string value)
+		static bool IsWhiteSpace (char c)
+		{
+			return c == ' ' || c == '\t';
+		}
+
+		static IEnumerable<string> TokenizeText (string text)
+		{
+			int index = 0;
+
+			while (index < text.Length) {
+				int startIndex = index;
+
+				while (index < text.Length && !IsWhiteSpace (text[index]))
+					index++;
+
+				yield return text.Substring (startIndex, index - startIndex);
+
+				if (index == text.Length)
+					break;
+
+				startIndex = index;
+
+				var lwsp = new StringBuilder ();
+				while (index < text.Length && IsWhiteSpace (text[index])) {
+					lwsp.Append (text[index]);
+					index++;
+				}
+
+				yield return lwsp.ToString ();
+			}
+
+			yield break;
+		}
+
+		class BrokenWord
+		{
+			public readonly string Text;
+			public readonly int Length;
+
+			public BrokenWord (string text, int length)
+			{
+				Text = text;
+				Length = length;
+			}
+		}
+
+		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, Encoding encoding, string word, int lineLength)
+		{
+			var chars = word.ToCharArray ();
+			int startIndex = 0;
+			int count;
+
+			while (startIndex < word.Length) {
+				int max = startIndex + Math.Min (format.MaxLineLength - 1, word.Length - startIndex) + 1;
+				int min = startIndex;
+				int length;
+
+				do {
+					int endIndex = min + ((max - min) / 2);
+
+					if (char.IsSurrogatePair (word, endIndex - 1))
+						endIndex++;
+
+					length = endIndex - startIndex;
+
+					count = encoding.GetByteCount (chars, startIndex, length);
+
+					if (lineLength + count > format.MaxLineLength) {
+						max = Math.Min (max - 1, endIndex + 1);
+					} else if (lineLength + count < format.MaxLineLength) {
+						if (endIndex == word.Length)
+							break;
+
+						min = Math.Max (min + 1, endIndex);
+					} else {
+						break;
+					}
+				} while (min < max);
+
+				yield return new BrokenWord (new string (chars, startIndex, length), count);
+
+				startIndex += length;
+				lineLength = 1;
+			}
+
+			yield break;
+		}
+
+		internal static string Fold (FormatOptions format, string field, string value)
 		{
 			var folded = new StringBuilder (value.Length);
 			int lineLength = field.Length + 2;
+			int lastLwsp = -1;
 
 			folded.Append (' ');
 
-			// FIXME: fold the value
+			var words = TokenizeText (value);
+
+			foreach (var word in words) {
+				if (IsWhiteSpace (word[0])) {
+					if (lineLength + word.Length > format.MaxLineLength) {
+						for (int i = 0; i < word.Length; i++) {
+							if (lineLength > format.MaxLineLength) {
+								folded.Append (format.NewLine);
+								lineLength = 0;
+							}
+
+							folded.Append (word[i]);
+							lineLength++;
+						}
+					} else {
+						lineLength += word.Length;
+						folded.Append (word);
+					}
+
+					lastLwsp = folded.Length - 1;
+					continue;
+				}
+
+				int length = Encoding.UTF8.GetByteCount (word);
+
+				if (lastLwsp != -1 && lineLength + length > format.MaxLineLength) {
+					folded.Insert (lastLwsp, format.NewLine);
+					lineLength = 1;
+					lastLwsp = -1;
+				}
+
+				if (length > format.MaxLineLength) {
+					foreach (var broken in WordBreak (format, Encoding.UTF8, word, lineLength)) {
+						if (lineLength + broken.Length > format.MaxLineLength) {
+							folded.Append (format.NewLine);
+							folded.Append (' ');
+							lineLength = 1;
+						}
+
+						folded.Append (broken.Text);
+						lineLength += broken.Length;
+					}
+				} else {
+					folded.Append (word);
+					lineLength += length;
+				}
+			}
 
 			folded.Append (format.NewLine);
 
