@@ -68,7 +68,7 @@ namespace MimeKit {
 		const int DefaultMaxLineLength = 78;
 
 		NewLineFormat newLineFormat;
-		bool internalizedEncoding;
+		bool international;
 
 		/// <summary>
 		/// The default formatting options.
@@ -151,7 +151,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets whether the new "Internationalized Email" encoding standards should be used.
+		/// Gets or sets whether the new "Internationalized Email" formatting standards should be used.
 		/// </summary>
 		/// <remarks>
 		/// <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
@@ -159,17 +159,17 @@ namespace MimeKit {
 		/// SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
 		/// via UTF8 APPEND (rfc6855).</para>
 		/// </remarks>
-		/// <value><c>true</c> if the new internationalized encoding should be used; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
 		/// <exception cref="System.InvalidOperationException">
 		/// <see cref="Default"/> cannot be changed.
 		/// </exception>
-		public bool InternationalizedEncoding {
-			get { return internalizedEncoding; }
+		public bool International {
+			get { return international; }
 			set {
 				if (this == Default)
 					throw new InvalidOperationException ();
 
-				internalizedEncoding = value;
+				international = value;
 			}
 		}
 
@@ -210,7 +210,7 @@ namespace MimeKit {
 			//options.maxLineLength = maxLineLength;
 			options.newLineFormat = newLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
-			options.internalizedEncoding = internalizedEncoding;
+			options.international = international;
 			options.WriteHeaders = true;
 			return options;
 		}

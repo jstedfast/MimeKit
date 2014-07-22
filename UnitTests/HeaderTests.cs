@@ -153,7 +153,7 @@ namespace UnitTests {
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
 
-			options.InternationalizedEncoding = true;
+			options.International = true;
 
 			original = "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.";
 			folded = Header.Fold (options, "Subject", original);
@@ -170,7 +170,7 @@ namespace UnitTests {
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
 
-			options.InternationalizedEncoding = true;
+			options.International = true;
 
 			original = "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟";
 			folded = Header.Fold (options, "Subject", original);
@@ -187,7 +187,7 @@ namespace UnitTests {
 			var options = FormatOptions.Default.Clone ();
 			string original, folded, unfolded;
 
-			options.InternationalizedEncoding = true;
+			options.International = true;
 
 			original = "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。";
 			folded = Header.Fold (options, "Subject", original);

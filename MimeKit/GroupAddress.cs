@@ -128,7 +128,7 @@ namespace MimeKit {
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
 
-				if (!options.InternationalizedEncoding) {
+				if (!options.International) {
 					var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
 					name = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
 				} else {

@@ -531,7 +531,7 @@ namespace MimeKit {
 					filtered.Write (name, 0, name.Length, cancellationToken);
 					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
 
-					if (options.InternationalizedEncoding)
+					if (options.International)
 						rawValue = header.GetRawValue (options, Encoding.UTF8);
 					else
 						rawValue = header.RawValue;

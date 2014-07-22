@@ -637,7 +637,7 @@ namespace MimeKit {
 
 		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
-			if (format.InternationalizedEncoding) {
+			if (format.International) {
 				var folded = Fold (format, field, value);
 
 				return Encoding.UTF8.GetBytes (folded);
