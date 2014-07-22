@@ -67,7 +67,6 @@ namespace MimeKit.Utils {
 							lwspIndex++;
 						}
 					}
-
 				} else {
 					// normal word
 					while (lwspIndex < value.Length && !char.IsWhiteSpace (value[lwspIndex]))

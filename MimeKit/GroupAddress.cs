@@ -126,13 +126,19 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException ("lineLength");
 
 			if (!string.IsNullOrEmpty (Name)) {
-				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-				var str = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
+				string name;
 
-				if (lineLength + str.Length > options.MaxLineLength) {
-					if (str.Length > options.MaxLineLength) {
+				if (!options.InternationalizedEncoding) {
+					var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
+					name = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
+				} else {
+					name = EncodeInternationalizedPhrase (Name);
+				}
+
+				if (lineLength + name.Length > options.MaxLineLength) {
+					if (name.Length > options.MaxLineLength) {
 						// we need to break up the name...
-						builder.AppendFolded (options, str, ref lineLength);
+						builder.AppendFolded (options, name, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
@@ -141,13 +147,13 @@ namespace MimeKit {
 							lineLength = 1;
 						}
 
-						lineLength += str.Length;
-						builder.Append (str);
+						lineLength += name.Length;
+						builder.Append (name);
 					}
 				} else {
 					// we can safely fit the name on this line...
-					lineLength += str.Length;
-					builder.Append (str);
+					lineLength += name.Length;
+					builder.Append (name);
 				}
 			}
 

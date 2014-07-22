@@ -51,6 +51,7 @@ namespace MimeKit {
 	/// </remarks>
 	public abstract class InternetAddress
 	{
+		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
 		string name;
 
@@ -116,6 +117,16 @@ namespace MimeKit {
 				name = value;
 				OnChanged ();
 			}
+		}
+
+		internal static string EncodeInternationalizedPhrase (string phrase)
+		{
+			for (int i = 0; i < phrase.Length; i++) {
+				if (char.IsControl (phrase[i]) || AtomSpecials.IndexOf (phrase[i]) != -1)
+					return MimeUtils.Quote (phrase);
+			}
+
+			return phrase;
 		}
 
 		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);

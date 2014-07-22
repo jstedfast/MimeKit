@@ -905,7 +905,7 @@ namespace MimeKit.Utils {
 			return ContentEncoding.Base64;
 		}
 
-		static void AppendEncodeWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		static void AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
 			var chars = new char[length];
 			IMimeEncoder encoder;
@@ -1339,7 +1339,7 @@ namespace MimeKit.Utils {
 						start = prev.StartIndex + prev.CharCount;
 						length = (word.StartIndex + word.CharCount) - start;
 
-						str.Append (' ');
+						str.Append (phrase ? '\t' : ' ');
 					} else {
 						start = word.StartIndex;
 						length = word.CharCount;
@@ -1347,13 +1347,13 @@ namespace MimeKit.Utils {
 
 					switch (word.Encoding) {
 					case 0: // us-ascii
-						AppendEncodeWord (str, Encoding.ASCII, text, start, length, mode);
+						AppendEncodedWord (str, Encoding.ASCII, text, start, length, mode);
 						break;
 					case 1: // iso-8859-1
-						AppendEncodeWord (str, latin1, text, start, length, mode);
+						AppendEncodedWord (str, latin1, text, start, length, mode);
 						break;
 					default: // custom charset
-						AppendEncodeWord (str, charset, text, start, length, mode);
+						AppendEncodedWord (str, charset, text, start, length, mode);
 						break;
 					}
 					break;
