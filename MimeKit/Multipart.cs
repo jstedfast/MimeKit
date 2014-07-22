@@ -343,6 +343,12 @@ namespace MimeKit {
 
 			base.WriteTo (options, stream, cancellationToken);
 
+			if (options.International && ContentType.Matches ("multipart", "signed")) {
+				// don't reformat the headers or content of any children of a multipart/signed
+				options = options.Clone ();
+				options.International = false;
+			}
+
 			var cancellable = stream as ICancellableStream;
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
