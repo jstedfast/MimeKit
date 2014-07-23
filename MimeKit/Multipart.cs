@@ -346,6 +346,7 @@ namespace MimeKit {
 			if (options.International && ContentType.Matches ("multipart", "signed")) {
 				// don't reformat the headers or content of any children of a multipart/signed
 				options = options.Clone ();
+				options.HiddenHeaders.Clear ();
 				options.International = false;
 			}
 
