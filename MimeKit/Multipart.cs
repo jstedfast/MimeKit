@@ -208,7 +208,7 @@ namespace MimeKit {
 
 				if (value != null) {
 					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
-					RawPreamble = Encoding.ASCII.GetBytes (folded);
+					RawPreamble = Encoding.UTF8.GetBytes (folded);
 					preamble = folded;
 				} else {
 					RawPreamble = null;
@@ -242,7 +242,7 @@ namespace MimeKit {
 
 				if (value != null) {
 					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
-					RawEpilogue = Encoding.ASCII.GetBytes (folded);
+					RawEpilogue = Encoding.UTF8.GetBytes (folded);
 					epilogue = folded;
 				} else {
 					RawEpilogue = null;

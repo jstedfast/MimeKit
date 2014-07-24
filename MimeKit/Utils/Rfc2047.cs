@@ -82,7 +82,7 @@ namespace MimeKit.Utils {
 
 		static bool IsAscii (byte c)
 		{
-			return c.IsAscii ();
+			return c < 128;
 		}
 
 		static bool IsAtom (byte c)
@@ -250,13 +250,16 @@ namespace MimeKit.Utils {
 							while (inptr < inend && IsAtom (*inptr)) {
 								if (inptr + 2 < inend && *inptr == '=' && *(inptr + 1) == '?')
 									break;
+								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
 						}
 					} else {
 						// encoded-word tokens are atoms
-						while (inptr < inend && IsAtom (*inptr))
+						while (inptr < inend && IsAtom (*inptr)) {
+							ascii = ascii && IsAscii (*inptr);
 							inptr++;
+						}
 					}
 
 					n = (int) (inptr - word);

@@ -350,7 +350,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
-			get { return Encoding.ASCII.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
 		}
 
 		/// <summary>

@@ -129,7 +129,7 @@ namespace MimeKit.Utils {
 						break;
 
 					yield return ((MailboxAddress) addr).Address;
-				} else if (!ParseUtils.Skip8bitWord (buffer, ref index, endIndex, false)) {
+				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}
 			} while (index < endIndex);

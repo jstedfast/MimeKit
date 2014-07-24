@@ -288,7 +288,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -519,7 +519,7 @@ namespace MimeKit {
 		void SerializeContentDisposition ()
 		{
 			var text = disposition.Encode (FormatOptions.Default, Encoding.UTF8);
-			var raw = Encoding.ASCII.GetBytes (text);
+			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Disposition", raw);
 		}
@@ -527,7 +527,7 @@ namespace MimeKit {
 		void SerializeContentType ()
 		{
 			var text = ContentType.Encode (FormatOptions.Default, Encoding.UTF8);
-			var raw = Encoding.ASCII.GetBytes (text);
+			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Type", raw);
 		}

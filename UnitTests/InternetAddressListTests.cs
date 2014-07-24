@@ -516,5 +516,24 @@ namespace UnitTests {
 				Assert.Fail ("Exception thrown parsing address with unsupported charset: {0}", ex);
 			}
 		}
+
+		[Test]
+		public void TestInternationalEmailAddresses ()
+		{
+			const string text = "伊昭傑@郵件.商務, राम@मोहन.ईन्फो, юзер@екзампл.ком, θσερ@εχαμπλε.ψομ";
+			InternetAddressList list;
+
+			Assert.IsTrue (InternetAddressList.TryParse (text, out list), "Failed to parse international email addresses.");
+			Assert.AreEqual (4, list.Count, "Unexpected number of international email addresses.");
+
+			var addresses = text.Split (',');
+			for (int i = 0; i < addresses.Length; i++) {
+				var mailbox = (MailboxAddress) list[i];
+
+				addresses[i] = addresses[i].Trim ();
+
+				Assert.AreEqual (addresses[i], mailbox.Address, "International address #{0} did not match.", i);
+			}
+		}
 	}
 }

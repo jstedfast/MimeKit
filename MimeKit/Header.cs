@@ -292,6 +292,9 @@ namespace MimeKit {
 			list.Encode (format, encoded, ref lineLength);
 			encoded.Append (format.NewLine);
 
+			if (format.International)
+				return Encoding.UTF8.GetBytes (encoded.ToString ());
+
 			return Encoding.ASCII.GetBytes (encoded.ToString ());
 		}
 

@@ -190,7 +190,14 @@ namespace MimeKit {
 				if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
 					return false;
 
-				token.Append (Encoding.ASCII.GetString (text, start, index - start));
+				try {
+					token.Append (Encoding.UTF8.GetString (text, start, index - start));
+				} catch (Exception ex) {
+					if (throwOnError)
+						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
+
+					return false;
+				}
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
@@ -390,7 +397,7 @@ namespace MimeKit {
 			int startIndex = index;
 			int length = 0;
 
-			while (index < endIndex && ParseUtils.Skip8bitWord (text, ref index, endIndex, throwOnError)) {
+			while (index < endIndex && ParseUtils.SkipWord (text, ref index, endIndex, throwOnError)) {
 				length = index - startIndex;
 
 				do {

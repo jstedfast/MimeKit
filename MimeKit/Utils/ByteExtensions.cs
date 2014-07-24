@@ -115,6 +115,8 @@ namespace MimeKit.Utils {
 				} else {
 					if (i == 127)
 						table[i] |= CharType.IsAscii;
+					else
+						table[i] |= CharType.IsAtom;
 
 					table[i] |= CharType.IsControl;
 				}

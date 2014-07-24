@@ -95,7 +95,7 @@ namespace MimeKit {
 
 		static string ValidateMessageId (string messageId)
 		{
-			var buffer = Encoding.ASCII.GetBytes (messageId);
+			var buffer = Encoding.UTF8.GetBytes (messageId);
 			InternetAddress addr;
 			int index = 0;
 

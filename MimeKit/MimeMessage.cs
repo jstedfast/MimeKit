@@ -253,7 +253,7 @@ namespace MimeKit {
 				value.Encode (FormatOptions.Default, builder, ref len);
 				builder.Append (FormatOptions.Default.NewLine);
 
-				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
 				ReplaceHeader (HeaderId.Sender, "Sender", raw);
 
@@ -287,7 +287,7 @@ namespace MimeKit {
 				value.Encode (FormatOptions.Default, builder, ref len);
 				builder.Append (FormatOptions.Default.NewLine);
 
-				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
 				ReplaceHeader (HeaderId.ResentSender, "Resent-Sender", raw);
 
@@ -526,7 +526,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -564,7 +564,7 @@ namespace MimeKit {
 				if (messageId == value)
 					return;
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -602,7 +602,7 @@ namespace MimeKit {
 				if (resentMessageId == value)
 					return;
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -1243,7 +1243,7 @@ namespace MimeKit {
 			list.Encode (FormatOptions.Default, builder, ref lineLength);
 			builder.Append (FormatOptions.Default.NewLine);
 
-			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+			var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
 			ReplaceHeader (field.ToHeaderId (), field, raw);
 		}
