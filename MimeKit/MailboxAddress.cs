@@ -170,6 +170,36 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets whether or not the address is an international address.
+		/// </summary>
+		/// <remarks>
+		/// <para>International addresses are addresses that contain international
+		/// characters in either their local-parts or their domains.</para>
+		/// <para>For more information, see http://tools.ietf.org/html/rfc6532#section-3.2</para>
+		/// </remarks>
+		/// <value><c>true</c> if th address is an international address; otherwise, <c>false</c>.</value>
+		public bool IsInternational {
+			get {
+				if (address == null)
+					return false;
+
+				for (int i = 0; i < address.Length; i++) {
+					if (address[i] > 127)
+						return true;
+				}
+
+				foreach (var domain in Route) {
+					for (int i = 0; i < domain.Length; i++) {
+						if (domain[i] > 127)
+							return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
