@@ -138,7 +138,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
 
 			for (int i = 0; i < field.Length; i++) {
-				if (field[i] > 127 || !IsAtom ((byte) field[i]))
+				if (!IsAsciiAtom ((byte) field[i]))
 					throw new ArgumentException ("Illegal characters in header field name.", "field");
 			}
 
@@ -777,9 +777,9 @@ namespace MimeKit {
 			return new string (chars, 0, count);
 		}
 
-		static bool IsAtom (byte c)
+		static bool IsAsciiAtom (byte c)
 		{
-			return c.IsAtom ();
+			return c.IsAsciiAtom ();
 		}
 
 		static bool IsBlankOrControl (byte c)
@@ -795,7 +795,7 @@ namespace MimeKit {
 
 			// find the end of the field name
 			if (strict) {
-				while (inptr < inend && IsAtom (*inptr))
+				while (inptr < inend && IsAsciiAtom (*inptr))
 					inptr++;
 			} else {
 				while (inptr < inend && *inptr != (byte) ':' && !IsBlankOrControl (*inptr))
