@@ -1201,7 +1201,7 @@ namespace MimeKit.Cryptography {
 
 							onepassList = new List<IDigitalSignature> ();
 
-							for (int i = 0; i < list.Count; i++) {
+							for (int i = 0; i < onepasses.Count; i++) {
 								var onepass = onepasses[i];
 								var pubkey = PublicKeyRingBundle.GetPublicKey (onepass.KeyId);
 
