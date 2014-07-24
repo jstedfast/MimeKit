@@ -85,6 +85,11 @@ namespace MimeKit.Utils {
 			return c < 128;
 		}
 
+		static bool IsAsciiAtom (byte c)
+		{
+			return c.IsAsciiAtom ();
+		}
+
 		static bool IsAtom (byte c)
 		{
 			return c.IsAtom ();
@@ -126,7 +131,7 @@ namespace MimeKit.Utils {
 
 			// find the end of the charset name
 			while (inptr < inend && *inptr != '?' && *inptr != '*') {
-				if (!IsAtom (*inptr))
+				if (!IsAsciiAtom (*inptr))
 					return false;
 
 				charset.Append ((char) *inptr);
@@ -139,7 +144,7 @@ namespace MimeKit.Utils {
 
 				// find the end of the language code
 				while (inptr < inend && *inptr != '?') {
-					if (!IsAtom (*inptr))
+					if (!IsAsciiAtom (*inptr))
 						return false;
 
 					culture.Append ((char) *inptr);
@@ -202,7 +207,7 @@ namespace MimeKit.Utils {
 
 				word = inptr;
 				ascii = true;
-				if (inptr < inend && IsAtom (*inptr)) {
+				if (inptr < inend && IsAsciiAtom (*inptr)) {
 					if (options.Rfc2047ComplianceMode == RfcComplianceMode.Loose) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
@@ -256,8 +261,8 @@ namespace MimeKit.Utils {
 						}
 					} else {
 						// encoded-word tokens are atoms
-						while (inptr < inend && IsAtom (*inptr)) {
-							ascii = ascii && IsAscii (*inptr);
+						while (inptr < inend && IsAsciiAtom (*inptr)) {
+							//ascii = ascii && IsAscii (*inptr);
 							inptr++;
 						}
 					}
@@ -289,9 +294,9 @@ namespace MimeKit.Utils {
 					if (lwsp != null)
 						tokens.Add (lwsp);
 
-					// append the non-atom token
+					// append the non-ascii atom token
 					ascii = true;
-					while (inptr < inend && !IsLwsp (*inptr) && !IsAtom (*inptr)) {
+					while (inptr < inend && !IsLwsp (*inptr) && !IsAsciiAtom (*inptr)) {
 						ascii = ascii && IsAscii (*inptr);
 						inptr++;
 					}

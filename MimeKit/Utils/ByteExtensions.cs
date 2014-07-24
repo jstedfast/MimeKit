@@ -44,6 +44,8 @@ namespace MimeKit.Utils {
 		IsTokenSpecial        = (1 << 11),
 		IsWhitespace          = (1 << 12),
 		IsXDigit              = (1 << 13),
+
+		IsAsciiAtom           = IsAscii | IsAtom,
 	}
 
 	static class ByteExtensions
@@ -139,6 +141,11 @@ namespace MimeKit.Utils {
 		public static bool IsAscii (this byte c)
 		{
 			return (table[c] & CharType.IsAscii) != 0;
+		}
+
+		public static bool IsAsciiAtom (this byte c)
+		{
+			return (table[c] & CharType.IsAsciiAtom) == CharType.IsAsciiAtom;
 		}
 
 		public static bool IsAtom (this byte c)
