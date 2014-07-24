@@ -74,7 +74,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The type is not allowed to be empty.", "mediaType");
 
 			for (int i = 0; i < mediaType.Length; i++) {
-				if (mediaType[i] >= 127 || !IsAtom ((byte) mediaType[i]))
+				if (mediaType[i] >= 127 || !IsAsciiAtom ((byte) mediaType[i]))
 					throw new ArgumentException ("Illegal characters in type.", "mediaType");
 			}
 
@@ -99,9 +99,9 @@ namespace MimeKit {
 			return c.IsToken ();
 		}
 
-		static bool IsAtom (byte c)
+		static bool IsAsciiAtom (byte c)
 		{
-			return c.IsAtom ();
+			return c.IsAsciiAtom ();
 		}
 
 		/// <summary>
@@ -129,7 +129,7 @@ namespace MimeKit {
 					throw new ArgumentException ("MediaType is not allowed to be empty.", "value");
 
 				for (int i = 0; i < value.Length; i++) {
-					if (value[i] > 127 || !IsAtom ((byte) value[i]))
+					if (value[i] > 127 || !IsAsciiAtom ((byte) value[i]))
 						throw new ArgumentException ("Illegal characters in media type.", "value");
 				}
 

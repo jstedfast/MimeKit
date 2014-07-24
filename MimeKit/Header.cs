@@ -138,7 +138,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
 
 			for (int i = 0; i < field.Length; i++) {
-				if (!IsAsciiAtom ((byte) field[i]))
+				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
 					throw new ArgumentException ("Illegal characters in header field name.", "field");
 			}
 
