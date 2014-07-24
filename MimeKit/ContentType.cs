@@ -380,7 +380,7 @@ namespace MimeKit {
 		{
 			int startIndex = index;
 
-			while (index < endIndex && text[index].IsAtom () && text[index] != (byte) '/')
+			while (index < endIndex && text[index].IsAsciiAtom () && text[index] != (byte) '/')
 				index++;
 
 			return index > startIndex;
