@@ -139,11 +139,19 @@ namespace MimeKit {
 				return EncodeMethod.Rfc2184;
 
 			for (int i = 0; i < value.Length; i++) {
-				if (value[i] >= 127 || ((byte) value[i]).IsCtrl ())
-					return EncodeMethod.Rfc2184;
+				if (value[i] < 128) {
+					var c = (byte) value[i];
 
-				if (!((byte) value[i]).IsAttr ())
+					if (c.IsCtrl ())
+						return EncodeMethod.Rfc2184;
+
+					if (!c.IsAttr ())
+						method = EncodeMethod.Quote;
+				} else if (options.International) {
 					method = EncodeMethod.Quote;
+				} else {
+					return EncodeMethod.Rfc2184;
+				}
 			}
 
 			if (method == EncodeMethod.Quote) {
