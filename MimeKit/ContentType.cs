@@ -847,6 +847,40 @@ namespace MimeKit {
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// The <paramref name="text"/> could not be parsed.
+		/// </exception>
+		public static ContentType Parse (ParserOptions options, string text)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			ContentType type;
+			int index = 0;
+
+			TryParse (options, buffer, ref index, buffer.Length, true, out type);
+
+			return type;
+		}
+
+		/// <summary>
+		/// Parse the specified text into a new instance of the <see cref="MimeKit.ContentType"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Parses a Content-Type value from the specified text.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.ContentType"/>.</returns>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <c>null</c>.
@@ -856,16 +890,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (string text)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var buffer = Encoding.UTF8.GetBytes (text);
-			ContentType type;
-			int index = 0;
-
-			TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, true, out type);
-
-			return type;
+			return Parse (ParserOptions.Default, text);
 		}
 	}
 }
