@@ -1215,10 +1215,9 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var content = recipient.GetContent (key);
+				var memory = new MemoryStream (content, false);
 
-				using (var memory = new MemoryStream (content, false)) {
-					return MimeEntity.Load (memory);
-				}
+				return MimeEntity.Load (memory, true);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");

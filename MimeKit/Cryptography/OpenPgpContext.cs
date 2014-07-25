@@ -1336,9 +1336,9 @@ namespace MimeKit.Cryptography {
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			using (var decrypted = GetDecryptedStream (encryptedData, out signatures)) {
-				return MimeEntity.Load (decrypted);
-			}
+			var decrypted = GetDecryptedStream (encryptedData, out signatures);
+
+			return MimeEntity.Load (decrypted, true);
 		}
 
 		/// <summary>

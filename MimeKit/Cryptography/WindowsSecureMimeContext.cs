@@ -538,9 +538,9 @@ namespace MimeKit.Cryptography {
 
 			var decryptedData = enveloped.Encode ();
 
-			using (var memory = new MemoryStream (decryptedData, false)) {
-				return MimeEntity.Load (memory);
-			}
+			var memory = new MemoryStream (decryptedData, false);
+
+			return MimeEntity.Load (memory, true);
 		}
 
 		/// <summary>
