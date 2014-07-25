@@ -634,6 +634,50 @@ namespace MimeKit {
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
 		/// <remarks>
+		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
+		/// </remarks>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
+
+			return parser.ParseEntity (cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
 		/// Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.
 		/// </remarks>
@@ -657,15 +701,40 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeEntity Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
+			return Load (options, stream, false, cancellationToken);
+		}
 
-			if (stream == null)
-				throw new ArgumentNullException ("stream");
-
-			var parser = new MimeParser (options, stream, MimeFormat.Entity);
-
-			return parser.ParseEntity (cancellationToken);
+		/// <summary>
+		/// Load a <see cref="MimeEntity"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
+		/// </remarks>
+		/// <returns>The parsed MIME entity.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeEntity Load (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Load (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
 
 		/// <summary>
@@ -692,7 +761,7 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeEntity Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return Load (ParserOptions.Default, stream, cancellationToken);
+			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
 #if !PORTABLE
