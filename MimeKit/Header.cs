@@ -638,6 +638,22 @@ namespace MimeKit {
 			return folded.ToString ();
 		}
 
+		static byte[] EncodeContentDisposition (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var disposition = ContentDisposition.Parse (options, value);
+			var encoded = disposition.Encode (format, charset);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
+		static byte[] EncodeContentType (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var contentType = ContentType.Parse (options, value);
+			var encoded = contentType.Encode (format, charset);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
 		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
 			if (format.International) {
@@ -672,6 +688,10 @@ namespace MimeKit {
 				return EncodeMessageIdHeader (Options, format, charset, Field, textValue);
 			case HeaderId.References:
 				return EncodeReferencesHeader (Options, format, charset, Field, textValue);
+			case HeaderId.ContentDisposition:
+				return EncodeContentDisposition (Options, format, charset, Field, textValue);
+			case HeaderId.ContentType:
+				return EncodeContentType (Options, format, charset, Field, textValue);
 			default:
 				return EncodeUnstructuredHeader (Options, format, charset, Field, textValue);
 			}
