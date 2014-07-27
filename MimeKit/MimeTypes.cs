@@ -28,6 +28,12 @@ using System;
 using System.Collections.Generic;
 
 namespace MimeKit {
+	/// <summary>
+	/// A mapping of file name extensions to the corresponding MIME-type.
+	/// </summary>
+	/// <remarks>
+	/// A mapping of file name extensions to the corresponding MIME-type.
+	/// </remarks>
 	public static class MimeTypes
 	{
 		static readonly Dictionary<string, string> mimeTypes;
