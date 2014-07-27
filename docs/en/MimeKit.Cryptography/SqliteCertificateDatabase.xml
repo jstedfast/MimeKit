@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Cryptography.SqlCertificateDatabase</BaseTypeName>
@@ -28,7 +28,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="connection" Type="System.Data.IDbConnection" />
@@ -58,7 +58,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -102,7 +102,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -128,7 +128,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>

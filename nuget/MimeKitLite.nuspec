@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.43.0.0</version>
+        <version>0.90.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,9 +22,10 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Changed FormatOptions.MaxLineLength to 78.
-* Added a Header.SetValue() that takes a FormatOptions argument.
-* Added a Windows Phone 8.1 assembly to the nuget package.
+        <releaseNotes>* Implemented support for the Internationalized Email standards.
+* Added some new MimeMessage and MimeEntity Load() methods that take a persistent argument.
+* Added new Parse() methods to ContentDisposition and ContentType.
+* Added a MimeTypes class for looking up mime-types based on file extensions.
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>

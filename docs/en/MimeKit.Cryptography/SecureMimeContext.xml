@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Cryptography.CryptographyContext</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -92,7 +92,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -124,7 +124,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -155,7 +155,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -186,7 +186,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -210,7 +210,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -234,7 +234,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
@@ -255,7 +255,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -293,7 +293,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -342,7 +342,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Mime</ReturnType>
@@ -380,7 +380,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -424,7 +424,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm[]</ReturnType>
@@ -445,7 +445,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -468,7 +468,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -506,7 +506,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -531,7 +531,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -555,7 +555,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsRecipient</ReturnType>
@@ -587,7 +587,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsRecipientCollection</ReturnType>
@@ -618,7 +618,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsSigner</ReturnType>
@@ -652,7 +652,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
@@ -680,7 +680,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -752,7 +752,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -783,7 +783,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -807,7 +807,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.EncryptionAlgorithm</ReturnType>
@@ -836,7 +836,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -861,7 +861,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Utilities.Collections.HashSet</ReturnType>
@@ -884,7 +884,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -911,7 +911,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -938,7 +938,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -970,7 +970,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1006,7 +1006,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1032,7 +1032,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1053,7 +1053,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.ApplicationPkcs7Signature</ReturnType>
@@ -1091,7 +1091,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimePart</ReturnType>
@@ -1140,7 +1140,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1163,7 +1163,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1193,7 +1193,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1226,7 +1226,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1254,7 +1254,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>
@@ -1287,7 +1287,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigitalSignatureCollection</ReturnType>

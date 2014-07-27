@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -28,7 +28,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -46,7 +46,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="args" Type="System.Object[]">
@@ -83,7 +83,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
@@ -105,7 +105,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -127,7 +127,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -152,7 +152,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
@@ -173,7 +173,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -196,7 +196,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -224,7 +224,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -246,7 +246,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -292,7 +292,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -317,7 +317,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -341,7 +341,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -367,7 +367,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -407,7 +407,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -461,7 +461,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -507,7 +507,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -561,13 +561,113 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (System.IO.Stream stream, bool persistent, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream, bool persistent, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>
+          <para>Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.</para>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.MimeMessage Load (MimeKit.ParserOptions options, System.IO.Stream stream, bool persistent, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, bool persistent, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="persistent" Type="System.Boolean" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream.</param>
+        <param name="persistent">
+          <c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.MimeMessage" /> from the specified stream.
+            </summary>
+        <returns>The parsed message.</returns>
+        <remarks>
+          <para>Loads a <see cref="T:MimeKit.MimeMessage" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.</para>
+          <para>If <paramref name="persistent" /> is <c>true</c> and <paramref name="stream" /> is seekable, then
+            the <see cref="T:MimeKit.MimeParser" /> will not copy the content of <see cref="T:MimeKit.MimePart" />s into memory. Instead,
+            it will use a <see cref="T:MimeKit.IO.BoundStream" /> to reference a substream of <paramref name="stream" />.
+            This has the potential to not only save mmeory usage, but also improve <see cref="T:MimeKit.MimeParser" />
+            performance.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="MessageId">
       <MemberSignature Language="C#" Value="public string MessageId { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string MessageId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -598,7 +698,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Version</ReturnType>
@@ -623,7 +723,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -649,7 +749,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MessageIdList</ReturnType>
@@ -671,7 +771,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -697,7 +797,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -719,7 +819,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -742,7 +842,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -763,7 +863,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -789,7 +889,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -820,7 +920,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -846,7 +946,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -868,7 +968,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -890,7 +990,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -912,7 +1012,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -953,7 +1053,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1002,7 +1102,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1057,7 +1157,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1120,7 +1220,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1145,7 +1245,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -1167,7 +1267,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1202,7 +1302,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1251,7 +1351,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1292,7 +1392,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

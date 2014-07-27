@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -46,7 +46,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="disposition" Type="System.String" />
@@ -74,7 +74,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -94,7 +94,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.DateTimeOffset&gt;</ReturnType>
@@ -117,7 +117,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -144,7 +144,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -166,7 +166,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -186,7 +186,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -208,7 +208,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.DateTimeOffset&gt;</ReturnType>
@@ -231,7 +231,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ParameterList</ReturnType>
@@ -255,7 +255,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -286,7 +286,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -317,7 +317,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -349,12 +349,48 @@
       </Docs>
     </Member>
     <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static MimeKit.ContentDisposition Parse (MimeKit.ParserOptions options, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.ContentDisposition Parse(class MimeKit.ParserOptions options, string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentDisposition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="text">The input text.</param>
+        <summary>
+            Parse the specified text into a new instance of the <see cref="T:MimeKit.ContentDisposition" /> class.
+            </summary>
+        <returns>The parsed <see cref="T:MimeKit.ContentDisposition" />.</returns>
+        <remarks>
+            Parses a Content-Disposition value from the specified text.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.ParseException">
+            The <paramref name="text" /> could not be parsed.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
       <MemberSignature Language="C#" Value="public static MimeKit.ContentDisposition Parse (byte[] buffer, int startIndex);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.ContentDisposition Parse(unsigned int8[] buffer, int32 startIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -390,7 +426,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -432,7 +468,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -472,7 +508,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentDisposition</ReturnType>
@@ -518,7 +554,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.DateTimeOffset&gt;</ReturnType>
@@ -541,7 +577,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;System.Int64&gt;</ReturnType>
@@ -564,7 +600,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -588,7 +624,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -617,7 +653,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -648,7 +684,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -679,7 +715,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -716,7 +752,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -752,7 +788,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -794,7 +830,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -834,7 +870,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>

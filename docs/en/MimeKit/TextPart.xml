@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.MimePart</BaseTypeName>
@@ -28,7 +28,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -47,7 +47,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
@@ -66,7 +66,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -91,7 +91,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="subtype" Type="System.String" />
@@ -138,7 +138,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -169,7 +169,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -204,7 +204,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

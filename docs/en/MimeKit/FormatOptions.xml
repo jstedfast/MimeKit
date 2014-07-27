@@ -4,7 +4,7 @@
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>0.42.0.0</AssemblyVersion>
-    <AssemblyVersion>0.43.0.0</AssemblyVersion>
+    <AssemblyVersion>0.90.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -26,7 +26,7 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -45,7 +45,7 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.FormatOptions</ReturnType>
@@ -67,7 +67,7 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.FormatOptions</ReturnType>
@@ -89,7 +89,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.HashSet&lt;MimeKit.HeaderId&gt;</ReturnType>
@@ -108,13 +108,40 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="International">
+      <MemberSignature Language="C#" Value="public bool International { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool International" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets whether the new "Internationalized Email" formatting standards should be used.
+            </summary>
+        <value>
+          <c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
+        <remarks>
+          <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
+          <para>This feature should only be used when formatting messages meant to be sent via
+            SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
+            via UTF8 APPEND (rfc6855).</para>
+        </remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <see cref="F:MimeKit.FormatOptions.Default" /> cannot be changed.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="MaxLineLength">
       <MemberSignature Language="C#" Value="public int MaxLineLength { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 MaxLineLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -136,7 +163,7 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.42.0.0</AssemblyVersion>
-        <AssemblyVersion>0.43.0.0</AssemblyVersion>
+        <AssemblyVersion>0.90.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
@@ -150,6 +177,9 @@
             Specifies the new-line encoding to use when writing the message
             or entity to a stream.
             </remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <see cref="F:MimeKit.FormatOptions.Default" /> cannot be changed.
+            </exception>
       </Docs>
     </Member>
   </Members>
