@@ -69,7 +69,7 @@ namespace MimeKit.Encodings {
 		{
 			var encoder = new UUEncoder ();
 
-			Array.Copy (uubuf, encoder.uubuf, uubuf.Length);
+			Buffer.BlockCopy (uubuf, 0, encoder.uubuf, 0, uubuf.Length);
 			encoder.nsaved = nsaved;
 			encoder.saved = saved;
 			encoder.uulen = uulen;
@@ -143,8 +143,10 @@ namespace MimeKit.Encodings {
 				
 				if (uulen > 0) {
 					// copy the previous call's uubuf to output
-					Array.Copy (uubuf, 0, outbuf, (int) (bufptr - outptr), ((uulen / 3) * 4));
-					bufptr += ((uulen / 3) * 4);
+					int n = (uulen / 3) * 4;
+
+					Buffer.BlockCopy (uubuf, 0, outbuf, (int) (bufptr - outbuf), n);
+					bufptr += n;
 				}
 			}
 			
@@ -299,17 +301,17 @@ namespace MimeKit.Encodings {
 			}
 			
 			if (uulen > 0) {
-				int copylen = ((uulen / 3) * 4);
+				int n = (uulen / 3) * 4;
 				
 				*outptr++ = Encode ((uulen - uufill) & 0xFF);
-				Array.Copy (uubuf, 0, outbuf, (int) (outptr - output), copylen);
-				outptr += copylen;
+				Buffer.BlockCopy (uubuf, 0, outbuf, (int) (outptr - output), n);
+				outptr += n;
 
 				*outptr++ = (byte) '\n';
 				uulen = 0;
 			}
 			
-			*outptr++ = Encode (uulen & 0xff);
+			*outptr++ = Encode (uulen & 0xFF);
 			*outptr++ = (byte) '\n';
 
 			Reset ();

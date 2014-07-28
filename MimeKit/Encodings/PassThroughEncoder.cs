@@ -130,7 +130,8 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			Array.Copy (input, startIndex, output, 0, length);
+			Buffer.BlockCopy (input, startIndex, output, 0, length);
+
 			return length;
 		}
 
@@ -163,7 +164,8 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			Array.Copy (input, startIndex, output, 0, length);
+			Buffer.BlockCopy (input, startIndex, output, 0, length);
+
 			return length;
 		}
 
