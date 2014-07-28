@@ -128,13 +128,13 @@ namespace MimeKit.Encodings {
 		{
 			if (length == 0)
 				return 0;
-			
+
 			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
 			byte* bufptr;
 			byte b0, b1, b2;
-			
+
 			if ((length + uulen) < 45) {
 				// not enough input to write a full uuencoded line
 				bufptr = uuptr + ((uulen / 3) * 4);
@@ -145,11 +145,11 @@ namespace MimeKit.Encodings {
 					// copy the previous call's uubuf to output
 					int n = (uulen / 3) * 4;
 
-					Buffer.BlockCopy (uubuf, 0, outbuf, (int) (bufptr - outbuf), n);
+					Buffer.BlockCopy (uubuf, 0, outbuf, (int) (bufptr - output), n);
 					bufptr += n;
 				}
 			}
-			
+
 			if (nsaved == 2) {
 				b0 = (byte) ((saved >> 8) & 0xFF);
 				b1 = (byte) (saved & 0xFF);
@@ -186,7 +186,7 @@ namespace MimeKit.Encodings {
 					}
 				}
 			}
-			
+
 			while (inptr < inend) {
 				while (uulen < 45 && (inptr + 3) <= inend) {
 					b0 = *inptr++;
