@@ -63,7 +63,7 @@ namespace UnitTests {
 				int n = Math.Min (bytes.Length - position, random.Next () % 4096);
 
 				var segment = new byte[n];
-				Array.Copy (bytes, position, segment, 0, n);
+				Buffer.BlockCopy (bytes, position, segment, 0, n);
 				lengths.Add (n);
 				position += n;
 

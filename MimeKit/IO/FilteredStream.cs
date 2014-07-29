@@ -354,7 +354,7 @@ namespace MimeKit.IO {
 			nread = Math.Min (filteredLength, count);
 
 			if (nread > 0) {
-				Array.Copy (filtered, filteredIndex, buffer, offset, nread);
+				Buffer.BlockCopy (filtered, filteredIndex, buffer, offset, nread);
 				filteredLength -= nread;
 				filteredIndex += nread;
 			}
