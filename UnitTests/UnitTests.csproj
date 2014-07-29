@@ -62,6 +62,7 @@
     <Compile Include="DateParserTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
+    <Compile Include="EncoderTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="MemoryBlockStreamTests.cs" />
@@ -77,6 +78,9 @@
     <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestData\encoders\photo.b64" />
+    <None Include="TestData\encoders\photo.jpg" />
+    <None Include="TestData\encoders\photo.uu" />
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
