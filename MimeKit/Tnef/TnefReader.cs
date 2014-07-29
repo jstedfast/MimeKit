@@ -292,28 +292,6 @@ namespace MimeKit.Tnef {
 			Dispose (false);
 		}
 
-		static void MemMove (byte[] buf, int sourceIndex, int destIndex, int length)
-		{
-			if (length == 0 || sourceIndex == destIndex)
-				return;
-
-			if (sourceIndex < destIndex) {
-				int src = sourceIndex + length - 1;
-				int dest = destIndex + length - 1;
-				int start = sourceIndex;
-
-				while (src >= start)
-					buf[dest--] = buf[src--];
-			} else {
-				int src = sourceIndex;
-				int dest = destIndex;
-				int end = length;
-
-				while (src < end)
-					buf[dest++] = buf[src++];
-			}
-		}
-
 		internal int ReadAhead (int atleast)
 		{
 			int left = inputEnd - inputIndex;
@@ -329,12 +307,12 @@ namespace MimeKit.Tnef {
 			// attempt to align the end of the remaining input with ReadAheadSize
 			if (index >= start) {
 				start -= Math.Min (ReadAheadSize, left);
-				MemMove (input, index, start, left);
+				Buffer.BlockCopy (input, index, input, start, left);
 				index = start;
 				start += left;
 			} else if (index > 0) {
 				int shift = Math.Min (index, end - start);
-				MemMove (input, index, index - shift, left);
+				Buffer.BlockCopy (input, index, input, index - shift, left);
 				index -= shift;
 				start = index + left;
 			} else {

@@ -407,8 +407,7 @@ namespace UnitTests {
 		[Test]
 		public void TestGarbageAtEnd ()
 		{
-			var errors = TnefComplianceStatus.InvalidAttributeChecksum | TnefComplianceStatus.InvalidAttributeLevel |
-				TnefComplianceStatus.StreamTruncated | TnefComplianceStatus.UnsupportedPropertyType;
+			const TnefComplianceStatus errors = TnefComplianceStatus.InvalidAttributeLevel | TnefComplianceStatus.StreamTruncated;
 
 			TestTnefParser ("../../TestData/tnef/garbage-at-end", errors);
 		}
