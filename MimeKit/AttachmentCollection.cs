@@ -125,7 +125,7 @@ namespace MimeKit {
 			}
 		}
 
-		void LoadContent (MimePart attachment, string fileName, Stream stream)
+		static void LoadContent (MimePart attachment, Stream stream)
 		{
 			var content = new MemoryBlockStream ();
 			var filter = new BestEncodingFilter ();
@@ -141,11 +141,40 @@ namespace MimeKit {
 			filter.Flush (buf, 0, 0, out index, out length);
 			content.Position = 0;
 
+			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+			attachment.ContentObject = new ContentObject (content);
+		}
+
+		static ContentType GetMimeType (string fileName)
+		{
+			var mimeType = MimeTypes.GetMimeType (fileName);
+
+			return ContentType.Parse (mimeType);
+		}
+
+		MimePart CreateAttachment (ContentType contentType, string fileName, Stream stream)
+		{
+			MimePart attachment;
+
+			if (contentType.Matches ("text", "*")) {
+				attachment = new TextPart (contentType.MediaSubtype);
+				foreach (var param in contentType.Parameters)
+					attachment.ContentType.Parameters.Add (param);
+
+				// TODO: should we try to auto-detect charsets if no charset parameter is specified?
+			} else {
+				attachment = new MimePart (contentType);
+			}
+
+			attachment.FileName = Path.GetFileName (fileName);
+			attachment.IsAttachment = true;
+
 			if (linked)
 				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
 
-			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			attachment.ContentObject = new ContentObject (content);
+			LoadContent (attachment, stream);
+
+			return attachment;
 		}
 
 		/// <summary>
@@ -184,15 +213,10 @@ namespace MimeKit {
 			if (contentType == null)
 				throw new ArgumentNullException ("contentType");
 
-			var attachment = new MimePart (contentType) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true
-			};
-
-			using (var stream = new MemoryStream (data, false))
-				LoadContent (attachment, fileName, stream);
-
-			attachments.Add (attachment);
+			using (var stream = new MemoryStream (data, false)) {
+				var attachment = CreateAttachment (contentType, fileName, stream);
+				attachments.Add (attachment);
+			}
 		}
 
 		/// <summary>
@@ -236,21 +260,9 @@ namespace MimeKit {
 			if (contentType == null)
 				throw new ArgumentNullException ("contentType");
 
-			var attachment = new MimePart (contentType) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true
-			};
-
-			LoadContent (attachment, fileName, stream);
+			var attachment = CreateAttachment (contentType, fileName, stream);
 
 			attachments.Add (attachment);
-		}
-
-		static ContentType GetMimeType (string fileName)
-		{
-			var mimeType = MimeTypes.GetMimeType (fileName);
-
-			return ContentType.Parse (mimeType);
 		}
 
 		/// <summary>
@@ -281,15 +293,10 @@ namespace MimeKit {
 			if (data == null)
 				throw new ArgumentNullException ("data");
 
-			var attachment = new MimePart (GetMimeType (fileName)) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true,
-			};
-
-			using (var stream = new MemoryStream (data, false))
-				LoadContent (attachment, fileName, stream);
-
-			attachments.Add (attachment);
+			using (var stream = new MemoryStream (data, false)) {
+				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+				attachments.Add (attachment);
+			}
 		}
 
 		/// <summary>
@@ -325,12 +332,7 @@ namespace MimeKit {
 			if (!stream.CanRead)
 				throw new ArgumentException ("The stream cannot be read.", "stream");
 
-			var attachment = new MimePart (GetMimeType (fileName)) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true,
-			};
-
-			LoadContent (attachment, fileName, stream);
+			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
 
 			attachments.Add (attachment);
 		}
@@ -374,15 +376,10 @@ namespace MimeKit {
 			if (contentType == null)
 				throw new ArgumentNullException ("contentType");
 
-			var attachment = new MimePart (contentType) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true
-			};
-
-			using (var stream = File.OpenRead (fileName))
-				LoadContent (attachment, fileName, stream);
-
-			attachments.Add (attachment);
+			using (var stream = File.OpenRead (fileName)) {
+				var attachment = CreateAttachment (contentType, fileName, stream);
+				attachments.Add (attachment);
+			}
 		}
 
 		/// <summary>
@@ -420,15 +417,10 @@ namespace MimeKit {
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", "fileName");
 
-			var attachment = new MimePart (GetMimeType (fileName)) {
-				FileName = Path.GetFileName (fileName),
-				IsAttachment = true
-			};
-
-			using (var stream = File.OpenRead (fileName))
-				LoadContent (attachment, fileName, stream);
-
-			attachments.Add (attachment);
+			using (var stream = File.OpenRead (fileName)) {
+				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+				attachments.Add (attachment);
+			}
 		}
 #endif
 
