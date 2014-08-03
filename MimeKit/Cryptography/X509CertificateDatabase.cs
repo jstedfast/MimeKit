@@ -939,7 +939,6 @@ namespace MimeKit.Cryptography {
 		{
 			var crls = new List<X509Crl> ();
 
-			// TODO: we could cache this...
 			using (var command = GetSelectAllCrlsCommand ()) {
 				var reader = command.ExecuteReader ();
 

@@ -24,14 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// Encryption algorithms supported by S/MIME.
+	/// Encryption algorithms supported by S/MIME and OpenPGP.
 	/// </summary>
 	/// <remarks>
-	/// <para>Represents the list of available encryption algorithms for use with S/MIME.</para>
+	/// <para>Represents the available encryption algorithms for use with S/MIME and OpenPGP.</para>
 	/// <para>RC-2/40 was required by all S/MIME v2 implementations. However, since the
 	/// mid-to-late 1990's, RC-2/40 has been considered to be extremely weak and starting with
 	/// S/MIME v3.0 (published in 1999), all S/MIME implementations are required to implement
@@ -104,7 +102,17 @@ namespace MimeKit.Cryptography {
 		Idea,
 
 		/// <summary>
-		/// The RC2 40-bit encryption algorithm.
+		/// The blowfish encryption algorithm (OpenPGP only).
+		/// </summary>
+		Blowfish,
+
+		/// <summary>
+		/// The twofish encryption algorithm (OpenPGP only).
+		/// </summary>
+		Twofish,
+
+		/// <summary>
+		/// The RC2 40-bit encryption algorithm (S/MIME only).
 		/// </summary>
 		/// <remarks>
 		/// This is extremely weak encryption and should not be used
@@ -113,7 +121,7 @@ namespace MimeKit.Cryptography {
 		RC240,
 
 		/// <summary>
-		/// The RC2 64-bit encryption algorithm.
+		/// The RC2 64-bit encryption algorithm (S/MIME only).
 		/// </summary>
 		/// <remarks>
 		/// This is very weak encryption and should not be used
@@ -122,7 +130,7 @@ namespace MimeKit.Cryptography {
 		RC264,
 
 		/// <summary>
-		/// The RC2 128-bit encryption algorithm.
+		/// The RC2 128-bit encryption algorithm (S/MIME only).
 		/// </summary>
 		RC2128,
 	}

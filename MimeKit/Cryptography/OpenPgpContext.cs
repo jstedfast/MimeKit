@@ -46,6 +46,26 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
+		EncryptionAlgorithm defaultAlgorithm = EncryptionAlgorithm.Cast5;
+
+		/// <summary>
+		/// Gets or sets the default encryption algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the default encryption algorithm.
+		/// </remarks>
+		/// <value>The encryption algorithm.</value>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		public EncryptionAlgorithm DefaultEncryptionAlgorithm {
+			get { return defaultAlgorithm; }
+			set {
+				GetSymmetricKeyAlgorithm (value);
+				defaultAlgorithm = value;
+			}
+		}
+
 		/// <summary>
 		/// Gets the public keyring path.
 		/// </summary>
@@ -852,7 +872,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
+			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
@@ -897,6 +917,79 @@ namespace MimeKit.Cryptography {
 			return memory;
 		}
 
+		static SymmetricKeyAlgorithmTag GetSymmetricKeyAlgorithm (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes128:      return SymmetricKeyAlgorithmTag.Aes128;
+			case EncryptionAlgorithm.Aes192:      return SymmetricKeyAlgorithmTag.Aes192;
+			case EncryptionAlgorithm.Aes256:      return SymmetricKeyAlgorithmTag.Aes256;
+			case EncryptionAlgorithm.Camellia128: return SymmetricKeyAlgorithmTag.Camellia128;
+			case EncryptionAlgorithm.Camellia192: return SymmetricKeyAlgorithmTag.Camellia192;
+			case EncryptionAlgorithm.Camellia256: return SymmetricKeyAlgorithmTag.Camellia256;
+			case EncryptionAlgorithm.Cast5:       return SymmetricKeyAlgorithmTag.Cast5;
+			case EncryptionAlgorithm.Des:         return SymmetricKeyAlgorithmTag.Des;
+			case EncryptionAlgorithm.TripleDes:   return SymmetricKeyAlgorithmTag.TripleDes;
+			case EncryptionAlgorithm.Idea:        return SymmetricKeyAlgorithmTag.Idea;
+			case EncryptionAlgorithm.Blowfish:    return SymmetricKeyAlgorithmTag.Blowfish;
+			case EncryptionAlgorithm.Twofish:     return SymmetricKeyAlgorithmTag.Twofish;
+			default: throw new NotSupportedException ();
+			}
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (algorithm), true);
+			int count = 0;
+
+			foreach (var recipient in recipients) {
+				if (!recipient.IsEncryptionKey)
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+
+				encrypter.AddMethod (recipient);
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			var encrypted = Encrypt (encrypter, content);
+
+			return new MimePart ("application", "octet-stream") {
+				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentObject = new ContentObject (encrypted),
+			};
+		}
+
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
 		/// </summary>
@@ -919,32 +1012,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
-			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
-			int count = 0;
-
-			foreach (var recipient in recipients) {
-				if (!recipient.IsEncryptionKey)
-					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
-
-				encrypter.AddMethod (recipient);
-				count++;
-			}
-
-			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
-
-			var encrypted = Encrypt (encrypter, content);
-
-			return new MimePart ("application", "octet-stream") {
-				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (encrypted),
-			};
+			return Encrypt (defaultAlgorithm, recipients, content);
 		}
 
 		/// <summary>
@@ -1015,6 +1083,7 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1031,15 +1100,18 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
+			// TODO: document the exceptions that can be thrown by BouncyCastle
 
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -1053,7 +1125,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (algorithm), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			int count = 0;
 
@@ -1124,6 +1196,43 @@ namespace MimeKit.Cryptography {
 					ContentObject = new ContentObject (memory)
 				};
 			}
+		}
+
+		/// <summary>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		{
+			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content);
 		}
 
 		/// <summary>

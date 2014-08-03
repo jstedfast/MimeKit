@@ -230,7 +230,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
-			// FIXME: need to keep track of CRLs
+			// TODO: figure out how other Windows apps keep track of CRLs...
 			var crls = new List<X509Crl> ();
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
@@ -405,7 +405,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="timestamp">The timestamp.</param>
 		protected override void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			// FIXME: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
 		byte[] ReadAllBytes (Stream stream)
@@ -580,7 +580,7 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			// FIXME: implement this
+			// TODO: figure out where to store the CRLs...
 		}
 
 		/// <summary>
