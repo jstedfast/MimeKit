@@ -1760,11 +1760,11 @@ namespace MimeKit {
 			if (item.ContentId != null)
 				part.ContentId = item.ContentId;
 
-			var stream = new MemoryStream ();
+			var stream = new MemoryBlockStream ();
 			item.ContentStream.CopyTo (stream);
 			stream.Position = 0;
 
-			part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+			part.ContentObject = new ContentObject (stream);
 
 			return part;
 		}

@@ -140,7 +140,7 @@ namespace MimeKit.Tnef {
 						rtf.ContentType.Name = "body.rtf";
 
 						var converter = new RtfCompressedToRtf ();
-						var content = new MemoryStream ();
+						var content = new MemoryBlockStream ();
 
 						using (var filtered = new FilteredStream (content)) {
 							filtered.Add (converter);

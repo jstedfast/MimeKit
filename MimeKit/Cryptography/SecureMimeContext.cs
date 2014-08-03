@@ -44,6 +44,8 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Nist;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
@@ -589,7 +591,7 @@ namespace MimeKit.Cryptography {
 
 			signedData.AddCertificates (signer.CertificateChain);
 
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var stream = signedData.Open (memory, encapsulate))
 				content.CopyTo (stream, 4096);
@@ -1280,7 +1282,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
 			var cms = new CmsSignedDataStreamGenerator ();
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			cms.AddCertificates (certificates);
 			cms.Open (memory).Close ();

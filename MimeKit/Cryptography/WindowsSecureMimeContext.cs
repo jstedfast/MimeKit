@@ -614,7 +614,7 @@ namespace MimeKit.Cryptography {
 			} else if (stream is MemoryStream) {
 				rawData = ((MemoryStream) stream).ToArray ();
 			} else {
-				using (var memory = new MemoryStream ()) {
+				using (var memory = new MemoryBlockStream ()) {
 					stream.CopyTo (memory, 4096);
 					rawData = memory.ToArray ();
 				}
