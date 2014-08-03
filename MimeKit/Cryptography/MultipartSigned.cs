@@ -141,7 +141,7 @@ namespace MimeKit.Cryptography {
 
 			PrepareEntityForSigning (entity);
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
@@ -227,7 +227,7 @@ namespace MimeKit.Cryptography {
 
 			PrepareEntityForSigning (entity);
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
@@ -341,7 +341,7 @@ namespace MimeKit.Cryptography {
 
 			PrepareEntityForSigning (entity);
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
@@ -455,11 +455,11 @@ namespace MimeKit.Cryptography {
 			if (!ctx.Supports (value))
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
-			using (var signatureData = new MemoryStream ()) {
+			using (var signatureData = new MemoryBlockStream ()) {
 				signature.ContentObject.DecodeTo (signatureData);
 				signatureData.Position = 0;
 
-				using (var cleartext = new MemoryStream ()) {
+				using (var cleartext = new MemoryBlockStream ()) {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;

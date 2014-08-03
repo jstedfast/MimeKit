@@ -136,7 +136,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -267,7 +267,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -344,7 +344,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -515,7 +515,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
@@ -611,7 +611,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
@@ -668,7 +668,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
@@ -827,7 +827,7 @@ namespace MimeKit.Cryptography {
 			if (!encrypted.ContentType.Matches ("application", "octet-stream"))
 				throw new FormatException ();
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				encrypted.ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
@@ -925,7 +925,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ();
 
 			using (var ctx = CryptographyContext.Create (protocol)) {
-				using (var memory = new MemoryStream ()) {
+				using (var memory = new MemoryBlockStream ()) {
 					var pgp = ctx as OpenPgpContext;
 
 					encrypted.ContentObject.DecodeTo (memory);
