@@ -812,12 +812,10 @@ namespace MimeKit.Cryptography {
 				var compressed = data as PgpCompressedData;
 				if (compressed != null) {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
-					signatureList = (PgpSignatureList) factory.NextPgpObject ();
-				} else {
-					// FIXME: this should probably throw a FormatException? Also needs docs.
-					if ((signatureList = data as PgpSignatureList) == null)
-						throw new Exception ("Unexpected pgp object");
+					data = factory.NextPgpObject ();
 				}
+
+				signatureList = (PgpSignatureList) data;
 
 				return GetDigitalSignatures (signatureList, content);
 			}
