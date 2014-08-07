@@ -551,28 +551,6 @@ namespace MimeKit {
 			SetStream (ParserOptions.Default, stream, MimeFormat.Default, false);
 		}
 
-		static unsafe void MemMove (byte *buf, int sourceIndex, int destIndex, int length)
-		{
-			if (length == 0 || sourceIndex == destIndex)
-				return;
-
-			if (sourceIndex < destIndex) {
-				byte* src = buf + sourceIndex + length - 1;
-				byte *dest = buf + destIndex + length - 1;
-				byte *start = buf + sourceIndex;
-
-				while (src >= start)
-					*dest-- = *src--;
-			} else {
-				byte* src = buf + sourceIndex;
-				byte* dest = buf + destIndex;
-				byte* end = src + length;
-
-				while (src < end)
-					*dest++ = *src++;
-			}
-		}
-
 #if DEBUG
 		static string ConvertToCString (byte[] buffer, int startIndex, int length)
 		{
@@ -587,38 +565,44 @@ namespace MimeKit {
 			return (need + 63) & ~63;
 		}
 
-		unsafe int ReadAhead (byte* inbuf, int atleast, int save)
+		unsafe int ReadAhead (int atleast, int save)
 		{
 			int left = inputEnd - inputIndex;
 
 			if (left >= atleast || eos)
 				return left;
 
-			int index = inputIndex - save;
 			int start = inputStart;
 			int end = inputEnd;
 			int nread;
 
 			left += save;
 
-			// attempt to align the end of the remaining input with ReadAheadSize
-			if (index >= start) {
-				start -= Math.Min (ReadAheadSize, left);
-				MemMove (inbuf, index, start, left);
-				index = start;
-				start += left;
-			} else if (index > 0) {
-				int shift = Math.Min (index, end - start);
-				MemMove (inbuf, index, index - shift, left);
-				index -= shift;
-				start = index + left;
-			} else {
-				// we can't shift...
-				start = end;
-			}
+			if (left > 0) {
+				int index = inputIndex - save;
 
-			inputIndex = index + save;
-			inputEnd = start;
+				// attempt to align the end of the remaining input with ReadAheadSize
+				if (index >= start) {
+					start -= Math.Min (ReadAheadSize, left);
+					Buffer.BlockCopy (input, index, input, start, left);
+					index = start;
+					start += left;
+				} else if (index > 0) {
+					int shift = Math.Min (index, end - start);
+					Buffer.BlockCopy (input, index, input, index - shift, left);
+					index -= shift;
+					start = index + left;
+				} else {
+					// we can't shift...
+					start = end;
+				}
+
+				inputIndex = index + save;
+				inputEnd = start;
+			} else {
+				inputIndex = start;
+				inputEnd = start;
+			}
 
 			end = input.Length - PadSize;
 
@@ -696,7 +680,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 
 			do {
-				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
@@ -819,7 +803,7 @@ namespace MimeKit {
 			headers.Clear ();
 
 			do {
-				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// EOF reached before we reached the end of the headers...
 					if (left == 0 && !midline && headers.Count > 0) {
 						// the last header we encountered has been parsed cleanly, so try to
@@ -981,7 +965,7 @@ namespace MimeKit {
 				}
 
 				inputIndex = inputEnd;
-				if (ReadAhead (inbuf, ReadAheadSize, 0) <= 0)
+				if (ReadAhead (ReadAheadSize, 0) <= 0)
 					return false;
 			} while (true);
 		}
@@ -1129,7 +1113,7 @@ namespace MimeKit {
 					content.Write (input, contentIndex, inputIndex - contentIndex);
 
 				nleft = inputEnd - inputIndex;
-				if (ReadAhead (inbuf, atleast, 2) <= 0) {
+				if (ReadAhead (atleast, 2) <= 0) {
 					contentIndex = inputIndex;
 					found = BoundaryType.Eos;
 					break;
@@ -1252,7 +1236,7 @@ namespace MimeKit {
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (ReadAhead (inbuf, atleast, 0) <= 0)
+				if (ReadAhead (atleast, 0) <= 0)
 					return BoundaryType.Eos;
 
 				byte* start = inbuf + inputIndex;
