@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TnefReader extends System.Object implements class System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.42.0.0</AssemblyVersion>
     <AssemblyVersion>0.92.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -28,7 +27,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream inputStream) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
@@ -52,7 +50,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream inputStream, int32 defaultMessageCodepage, valuetype MimeKit.Tnef.TnefComplianceMode complianceMode) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
@@ -94,7 +91,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int16 AttachmentKey" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -115,7 +111,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefAttributeLevel AttributeLevel" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -136,7 +131,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 AttributeRawValueLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -157,7 +151,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 AttributeRawValueStreamOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -178,7 +171,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefAttributeTag AttributeTag" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -199,7 +191,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Close() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -220,7 +211,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefComplianceMode ComplianceMode" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -241,7 +231,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefComplianceStatus ComplianceStatus" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -263,7 +252,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Dispose() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -285,7 +273,6 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void Dispose(bool disposing) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -313,7 +300,6 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Finalize() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -336,7 +322,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 MessageCodepage" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -357,7 +342,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadAttributeRawValue(unsigned int8[] buffer, int32 offset, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -404,7 +388,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextAttribute() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -430,7 +413,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void ResetComplianceStatus() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -451,7 +433,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 StreamOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -472,7 +453,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Tnef.TnefPropertyReader TnefPropertyReader" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -493,7 +473,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 TnefVersion" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>

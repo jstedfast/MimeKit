@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TnefPropertyReader extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.42.0.0</AssemblyVersion>
     <AssemblyVersion>0.92.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -24,7 +23,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool Equals(object obj) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -51,7 +49,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.Tnef.TnefReader GetEmbeddedMessageReader() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -78,7 +75,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance int32 GetHashCode() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -101,7 +97,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.IO.Stream GetRawValueReadStream() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -126,7 +121,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsComputedProperty" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -148,7 +142,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsEmbeddedMessage" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -170,7 +163,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsLargeValue" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -192,7 +184,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsMultiValuedProperty" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -214,7 +205,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsNamedProperty" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -236,7 +226,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsObjectProperty" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -258,7 +247,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Guid ObjectIid" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -279,7 +267,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 PropertyCount" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -300,7 +287,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefNameId PropertyNameId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -321,7 +307,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefPropertyTag PropertyTag" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -342,7 +327,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 RawValueLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -363,7 +347,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 RawValueStreamOffset" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -384,7 +367,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextProperty() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -410,7 +392,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextRow() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -436,7 +417,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextValue() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -462,7 +442,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadRawValue(unsigned int8[] buffer, int32 offset, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -505,7 +484,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadTextValue(char[] buffer, int32 offset, int32 count) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -549,7 +527,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance object ReadValue() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -577,7 +554,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadValueAsBoolean() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -605,7 +581,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance unsigned int8[] ReadValueAsBytes() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -633,7 +608,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype System.DateTime ReadValueAsDateTime() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -661,7 +635,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 ReadValueAsDouble() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -689,7 +662,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float32 ReadValueAsFloat() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -717,7 +689,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype System.Guid ReadValueAsGuid() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -745,7 +716,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int16 ReadValueAsInt16() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -773,7 +743,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadValueAsInt32() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -801,7 +770,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 ReadValueAsInt64() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -829,7 +797,6 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ReadValueAsString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -857,7 +824,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 RowCount" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -878,7 +844,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 ValueCount" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -899,7 +864,6 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Type ValueType" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>

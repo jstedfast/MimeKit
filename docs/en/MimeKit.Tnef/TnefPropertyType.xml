@@ -3,7 +3,6 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefPropertyType extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.42.0.0</AssemblyVersion>
     <AssemblyVersion>0.92.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
@@ -23,7 +22,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType AppTime = int16(7)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -40,7 +38,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Binary = int16(258)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -57,7 +54,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Boolean = int16(11)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -74,7 +70,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType ClassId = int16(72)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -91,7 +86,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Currency = int16(6)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -108,7 +102,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Double = int16(5)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -125,7 +118,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Error = int16(10)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -142,7 +134,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType I2 = int16(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -159,7 +150,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType I8 = int16(20)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -176,7 +166,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Long = int16(3)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -193,7 +182,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType MultiValued = int16(4096)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -210,7 +198,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Null = int16(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -227,7 +214,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Object = int16(13)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -244,7 +230,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType R4 = int16(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -261,7 +246,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType String8 = int16(30)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -278,7 +262,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType SysTime = int16(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -295,7 +278,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Unicode = int16(31)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
@@ -312,7 +294,6 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Unspecified = int16(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.42.0.0</AssemblyVersion>
         <AssemblyVersion>0.92.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
