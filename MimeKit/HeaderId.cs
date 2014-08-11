@@ -25,7 +25,9 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace MimeKit {
 	/// <summary>
@@ -162,6 +164,12 @@ namespace MimeKit {
 		Distribution,
 
 		/// <summary>
+		/// The DKIM-Signature header field.
+		/// </summary>
+		[HeaderName ("DKIM-Signature")]
+		DkimSignature,
+
+		/// <summary>
 		/// The Encoding header field.
 		/// </summary>
 		Encoding,
@@ -234,6 +242,7 @@ namespace MimeKit {
 		/// <summary>
 		/// The MIME-Version header field.
 		/// </summary>
+		[HeaderName ("MIME-Version")]
 		MimeVersion,
 
 		/// <summary>
@@ -372,11 +381,37 @@ namespace MimeKit {
 		Unknown = -1
 	}
 
+	[AttributeUsage (AttributeTargets.Field)]
+	class HeaderNameAttribute : Attribute {
+		public HeaderNameAttribute (string name)
+		{
+			HeaderName = name;
+		}
+
+		public string HeaderName {
+			get; protected set;
+		}
+	}
+
 	static class HeaderIdExtension
 	{
 		public static string ToHeaderName (this Enum value)
 		{
-			var builder = new StringBuilder (value.ToString ());
+			var name = value.ToString ();
+			var type = value.GetType ();
+
+#if PORTABLE
+			var field = type.GetTypeInfo ().GetDeclaredField (name);
+			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
+#else
+			var field = type.GetField (name);
+			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false);
+#endif
+
+			if (attrs != null && attrs.Length == 1)
+				return ((HeaderNameAttribute) attrs[0]).HeaderName;
+
+			var builder = new StringBuilder (name);
 
 			for (int i = 2; i < builder.Length; i++) {
 				if (char.IsUpper (builder[i]))
