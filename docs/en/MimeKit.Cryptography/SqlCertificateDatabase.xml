@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit SqlCertificateDatabase extends MimeKit.Cryptography.X509CertificateDatabase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.92.0.0</AssemblyVersion>
+    <AssemblyVersion>0.93.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Cryptography.X509CertificateDatabase</BaseTypeName>
@@ -26,7 +26,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class System.Data.IDbConnection connection, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="connection" Type="System.Data.IDbConnection" />
@@ -55,7 +55,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Dispose(bool disposing) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -82,7 +82,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class System.Data.IDbCommand GetCreateCertificatesTableCommand(class System.Data.IDbConnection connection) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -107,7 +107,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class System.Data.IDbCommand GetCreateCrlsTableCommand(class System.Data.IDbConnection connection) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -132,7 +132,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetDeleteCommand(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -156,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetDeleteCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -180,7 +180,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetInsertCommand(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -204,7 +204,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetInsertCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -228,7 +228,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectAllCrlsCommand() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -249,7 +249,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.Asn1.X509.X509Name issuer, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -275,7 +275,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -301,7 +301,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.X509Crl crl, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -327,7 +327,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class MimeKit.MailboxAddress mailbox, valuetype System.DateTime now, bool requirePrivateKey, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -357,7 +357,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.Store.IX509Selector selector, bool trustedOnly, bool requirePrivateKey, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -387,7 +387,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetUpdateCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
@@ -411,7 +411,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetUpdateCommand(class MimeKit.Cryptography.X509CertificateRecord record, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>

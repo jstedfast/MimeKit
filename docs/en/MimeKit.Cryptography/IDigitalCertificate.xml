@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract IDigitalCertificate" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.92.0.0</AssemblyVersion>
+    <AssemblyVersion>0.93.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Interfaces />
   <Docs>
@@ -20,7 +20,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime CreationDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -40,7 +40,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Email" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -60,7 +60,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTime ExpirationDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTime</ReturnType>
@@ -80,7 +80,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Fingerprint" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -100,7 +100,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -120,7 +120,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.PublicKeyAlgorithm PublicKeyAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.92.0.0</AssemblyVersion>
+        <AssemblyVersion>0.93.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.PublicKeyAlgorithm</ReturnType>
