@@ -424,6 +424,8 @@ namespace MimeKit.IO {
 					if (position < real)
 						current++;
 				}
+
+				eos = current >= streams.Count;
 			} else {
 				int max = Math.Min (streams.Count - 1, current);
 				int cur = 0;
@@ -448,6 +450,8 @@ namespace MimeKit.IO {
 				// reset any streams between our new current stream and our old current stream
 				while (cur <= max)
 					streams[cur++].Seek (0, SeekOrigin.Begin);
+
+				eos = false;
 			}
 
 			return position;

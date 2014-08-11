@@ -26,11 +26,13 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 using NUnit.Framework;
 
 using MimeKit.IO;
+using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
@@ -150,6 +152,30 @@ namespace UnitTests {
 			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
 
 			AssertSeekResults ("seeking to the first boundary");
+		}
+
+		[Test]
+		public void TestChainedHeadersAndContent ()
+		{
+			var buf = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\n");
+			var headers = new MemoryStream ();
+			var content = new MemoryStream ();
+
+			headers.Write (buf, 0, buf.Length);
+			headers.Position = 0;
+
+			buf = Encoding.ASCII.GetBytes ("Hello, world!\r\n");
+
+			content.Write (buf, 0, buf.Length);
+			content.Position = 0;
+
+			var chained = new ChainedStream ();
+			chained.Add (headers);
+			chained.Add (content);
+
+			var entity = MimeEntity.Load (chained, true) as TextPart;
+
+			Assert.AreEqual ("Hello, world!\r\n", entity.Text);
 		}
 	}
 }
