@@ -169,6 +169,9 @@ namespace MimeKit {
 		[HeaderName ("DKIM-Signature")]
 		DkimSignature,
 
+		[HeaderName ("DomainKey-Signature")]
+		DomainKeySignature,
+
 		/// <summary>
 		/// The Encoding header field.
 		/// </summary>
@@ -393,7 +396,13 @@ namespace MimeKit {
 		}
 	}
 
-	static class HeaderIdExtension
+	/// <summary>
+	/// <see cref="HeaderId"/> extension methods.
+	/// </summary>
+	/// <remarks>
+	/// <see cref="HeaderId"/> extension methods.
+	/// </remarks>
+	public static class HeaderIdExtension
 	{
 		public static string ToHeaderName (this Enum value)
 		{
