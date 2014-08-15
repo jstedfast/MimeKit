@@ -379,6 +379,17 @@ namespace MimeKit {
 		To,
 
 		/// <summary>
+		/// The X-MSMail-Priority header field.
+		/// </summary>
+		[HeaderName ("X-MSMail-Priority")]
+		XMSMailPriority,
+
+		/// <summary>
+		/// The X-Priority header field.
+		/// </summary>
+		XPriority,
+
+		/// <summary>
 		/// An unknown header field.
 		/// </summary>
 		Unknown = -1
