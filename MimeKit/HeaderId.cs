@@ -169,6 +169,9 @@ namespace MimeKit {
 		[HeaderName ("DKIM-Signature")]
 		DkimSignature,
 
+		/// <summary>
+		/// The DomainKey-Signature header field.
+		/// </summary>
 		[HeaderName ("DomainKey-Signature")]
 		DomainKeySignature,
 
@@ -413,8 +416,16 @@ namespace MimeKit {
 	/// <remarks>
 	/// <see cref="HeaderId"/> extension methods.
 	/// </remarks>
-	public static class HeaderIdExtension
+	public static class HeaderIdExtensions
 	{
+		/// <summary>
+		/// Converts the enum value into the equivalent header field name.
+		/// </summary>
+		/// <remarks>
+		/// Converts the enum value into the equivalent header field name.
+		/// </remarks>
+		/// <returns>The header name.</returns>
+		/// <param name="value">The enum value.</param>
 		public static string ToHeaderName (this Enum value)
 		{
 			var name = value.ToString ();
@@ -441,7 +452,7 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		public static HeaderId ToHeaderId (this string name)
+		internal static HeaderId ToHeaderId (this string name)
 		{
 			var canonical = new StringBuilder ();
 			bool dash = true;

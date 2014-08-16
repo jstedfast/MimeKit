@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit InternetAddress extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.93.0.0</AssemblyVersion>
+    <AssemblyVersion>0.94.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -31,7 +31,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string name) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="encoding" Type="System.Text.Encoding" />
@@ -56,7 +56,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Text.Encoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Text.Encoding</ReturnType>
@@ -80,7 +80,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -101,7 +101,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnChanged() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -121,7 +121,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -152,7 +152,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -183,7 +183,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -220,7 +220,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -257,7 +257,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer, int32 startIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -293,7 +293,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -335,7 +335,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -374,7 +374,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.InternetAddress Parse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddress</ReturnType>
@@ -419,7 +419,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance string ToString() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -440,7 +440,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string ToString(bool encode) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -468,7 +468,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -499,7 +499,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(string text, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -530,7 +530,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -567,7 +567,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, string text, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -600,7 +600,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -636,7 +636,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -678,7 +678,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -717,7 +717,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParse(class MimeKit.ParserOptions options, unsigned int8[] buffer, int32 startIndex, int32 length, class MimeKit.InternetAddress address) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.93.0.0</AssemblyVersion>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
