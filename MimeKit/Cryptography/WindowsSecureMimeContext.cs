@@ -607,19 +607,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			byte[] rawData;
-
-			if (stream is MemoryBlockStream) {
-				rawData = ((MemoryBlockStream) stream).ToArray ();
-			} else if (stream is MemoryStream) {
-				rawData = ((MemoryStream) stream).ToArray ();
-			} else {
-				using (var memory = new MemoryBlockStream ()) {
-					stream.CopyTo (memory, 4096);
-					rawData = memory.ToArray ();
-				}
-			}
-
+			var rawData = ReadAllBytes (stream);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
 
