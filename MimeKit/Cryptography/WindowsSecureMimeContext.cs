@@ -202,7 +202,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			var storeNames = new [] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
 			var intermediate = new X509CertificateStore ();
 
 			foreach (var storeName in storeNames) {
@@ -408,7 +408,7 @@ namespace MimeKit.Cryptography {
 			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
-		byte[] ReadAllBytes (Stream stream)
+		static byte[] ReadAllBytes (Stream stream)
 		{
 			if (stream is MemoryBlockStream)
 				return ((MemoryBlockStream) stream).ToArray ();
