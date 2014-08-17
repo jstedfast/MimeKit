@@ -198,7 +198,7 @@ namespace MimeKit {
 		/// <summary>
 		/// The Followup-To header field.
 		/// </summary>
-		FollowUpTo,
+		FollowupTo,
 
 		/// <summary>
 		/// The From header field.
@@ -252,9 +252,9 @@ namespace MimeKit {
 		MimeVersion,
 
 		/// <summary>
-		/// The News-Groups header field.
+		/// The Newsgroups header field.
 		/// </summary>
-		NewsGroups,
+		Newsgroups,
 
 		/// <summary>
 		/// The Nntp-Posting-Host header field.
@@ -362,6 +362,11 @@ namespace MimeKit {
 		Sensitivity,
 
 		/// <summary>
+		/// The Status header field.
+		/// </summary>
+		Status,
+
+		/// <summary>
 		/// The Subject header field.
 		/// </summary>
 		Subject,
@@ -372,14 +377,24 @@ namespace MimeKit {
 		Summary,
 
 		/// <summary>
-		/// The Supercedes header field.
+		/// The Supersedes header field.
 		/// </summary>
-		Supercedes,
+		Supersedes,
 
 		/// <summary>
 		/// The To header field.
 		/// </summary>
 		To,
+
+		/// <summary>
+		/// The User-Agent header field.
+		/// </summary>
+		UserAgent,
+
+		/// <summary>
+		/// The X-Mailer header field.
+		/// </summary>
+		XMailer,
 
 		/// <summary>
 		/// The X-MSMail-Priority header field.
@@ -391,6 +406,11 @@ namespace MimeKit {
 		/// The X-Priority header field.
 		/// </summary>
 		XPriority,
+
+		/// <summary>
+		/// The X-Status header field.
+		/// </summary>
+		XStatus,
 
 		/// <summary>
 		/// An unknown header field.
