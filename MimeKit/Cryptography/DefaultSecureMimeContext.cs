@@ -103,7 +103,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
 		/// </exception>
-		/// <exception cref="System.NotImplementedException">
+		/// <exception cref="System.NotSupportedException">
 		/// Mono.Data.Sqlite is not available.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 			if (SqliteCertificateDatabase.IsAvailable)
 				dbase = new SqliteCertificateDatabase (fileName, password);
 			else
-				throw new NotImplementedException ("Mono.Data.Sqlite is not available.");
+				throw new NotSupportedException ("Mono.Data.Sqlite is not available.");
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
