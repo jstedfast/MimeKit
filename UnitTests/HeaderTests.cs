@@ -245,5 +245,26 @@ namespace UnitTests {
 			Assert.AreEqual (0, headers.IndexOf ("From"), "From header not in the expected position.");
 			Assert.AreEqual (2, headers.IndexOf ("Cc"), "Cc header not in the expected position.");
 		}
+
+		[Test]
+		public void TestToHeaderId ()
+		{
+			HeaderId parsed;
+			string name;
+
+			foreach (HeaderId value in Enum.GetValues (typeof (HeaderId))) {
+				if (value == HeaderId.Unknown)
+					continue;
+
+				name = value.ToHeaderName ().ToUpperInvariant ();
+				parsed = name.ToHeaderId ();
+
+				Assert.AreEqual (value, parsed, "Failed to parse the HeaderId value for {0}", value);
+			}
+
+			parsed = "X-MadeUp-Header".ToHeaderId ();
+
+			Assert.AreEqual (HeaderId.Unknown, parsed, "Failed to parse the made-up header value");
+		}
 	}
 }

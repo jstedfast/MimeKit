@@ -28,6 +28,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	/// <summary>
@@ -438,6 +439,18 @@ namespace MimeKit {
 	/// </remarks>
 	public static class HeaderIdExtensions
 	{
+		static readonly Dictionary<string, HeaderId> dict;
+
+		static HeaderIdExtensions ()
+		{
+			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+
+			dict = new Dictionary<string, HeaderId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+
+			for (int i = 0; i < values.Length - 1; i++)
+				dict.Add (values[i].ToHeaderName (), values[i]);
+		}
+
 		/// <summary>
 		/// Converts the enum value into the equivalent header field name.
 		/// </summary>
@@ -464,7 +477,7 @@ namespace MimeKit {
 
 			var builder = new StringBuilder (name);
 
-			for (int i = 2; i < builder.Length; i++) {
+			for (int i = 1; i < builder.Length; i++) {
 				if (char.IsUpper (builder[i]))
 					builder.Insert (i++, '-');
 			}
@@ -474,29 +487,12 @@ namespace MimeKit {
 
 		internal static HeaderId ToHeaderId (this string name)
 		{
-			var canonical = new StringBuilder ();
-			bool dash = true;
-			HeaderId id;
-			char c;
+			HeaderId value;
 
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			for (int i = 0; i < name.Length; i++) {
-				if (name[i] == '-') {
-					dash = true;
-					continue;
-				}
-
-				c = dash ? char.ToUpperInvariant (name[i]) : char.ToLowerInvariant (name[i]);
-				canonical.Append (c);
-				dash = false;
-			}
-
-			if (!Enum.TryParse<HeaderId> (canonical.ToString (), out id))
+			if (!dict.TryGetValue (name, out value))
 				return HeaderId.Unknown;
 
-			return id;
+			return value;
 		}
 	}
 }
