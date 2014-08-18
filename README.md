@@ -79,14 +79,14 @@ Note: The Release build will generate the xml API documentation, but the Debug b
 One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
 There are two ways of accomplishing this task.
 
-The first way is to use one of the Load() methods on MimeKit.MimeMessage:
+The first way is to use one of the `Load()` methods on `MimeKit.MimeMessage`:
 
 ```csharp
 // Load a MimeMessage from a stream
 var message = MimeMessage.Load (stream);
 ```
 
-The second way is to use the MimeParser class. For the most part, using the MimeParser directly is not necessary
+The second way is to use the `MimeParser` class. For the most part, using the `MimeParser` directly is not necessary
 unless you wish to parse a Unix mbox file stream. However, this is how you would do it:
 
 ```csharp
@@ -109,10 +109,10 @@ while (!parser.IsEndOfStream) {
 
 ### Traversing a MimeMessage
 
-Once you have parsed a MimeMessage, you'll most likely want to traverse the tree of MIME entities.
+Once you have parsed a `MimeMessage`, you'll most likely want to traverse the tree of MIME entities.
 
-The MimeMessage.Body is the top-level MIME entity of the message. Generally, it will either be a
-TextPart or a Multipart.
+The `MimeMessage.Body` is the top-level MIME entity of the message. Generally, it will either be a
+`TextPart` or a `Multipart`.
 
 As an example, if you wanted to rip out all of the attachments of a message, your code might look
 something like this:
@@ -141,10 +141,10 @@ for (int i = 0; i < attachments.Count; i++)
 
 ### Getting the Decoded Content of a MIME Part
 
-At some point, you're going to want to extract the decoded content of a MimePart (such as an image) and
+At some point, you're going to want to extract the decoded content of a `MimePart` (such as an image) and
 save it to disk or feed it to a UI control to display it.
 
-Once you've found the MimePart object that you'd like to extract the content of, here's how you can
+Once you've found the `MimePart` object that you'd like to extract the content of, here's how you can
 save the decoded content to a file:
 
 ```csharp
@@ -157,9 +157,8 @@ using (var stream = File.Create (fileName)) {
 }
 ```
 
-You can also get access to the original encoded content and its encoding by "opening" the ContentObject.
-This might be useful if you want to pass the content off to a UI control that can do its own loading
-from a stream.
+You can also get access to the original raw content by "opening" the `ContentObject`. This might be useful
+if you want to pass the content off to a UI control that can do its own loading from a stream.
 
 ```csharp
 using (var stream = part.ContentObject.Open ()) {
@@ -170,8 +169,8 @@ using (var stream = part.ContentObject.Open ()) {
 }
 ```
 
-There are a number of useful filters that can be applied to a FilteredStream, so if you find this type of
-interface appealing, I suggest taking a look at the available filters in the MimeKit.IO.Filters namespace
+There are a number of useful filters that can be applied to a `FilteredStream`, so if you find this type of
+interface appealing, I suggest taking a look at the available filters in the `MimeKit.IO.Filters` namespace
 or even write your own! The possibilities are limited only by your imagination.
 
 ### Creating a Simple Message
@@ -197,15 +196,15 @@ Will you be my +1?
 };
 ```
 
-A TextPart is a leaf-node MIME part with a text media-type. The first argument to the TextPart constructor
+A `TextPart` is a leaf-node MIME part with a text media-type. The first argument to the `TextPart` constructor
 specifies the media-subtype, in this case, "plain". Another media subtype you are probably familiar with
-is the "html" subtype. Some other examples include "enriched" and "csv".
+is the "html" subtype. Some other examples include "enriched", "rtf", and "csv".
 
-The Text property is the easiest way to both get and set the string content of the MIME part.
+The `Text` property is the easiest way to both get and set the string content of the MIME part.
 
 ### Creating a Message with Attachments
 
-Attachments are just like any other MimePart, the only difference is that they typically have
+Attachments are just like any other `MimePart`, the only difference is that they typically have
 a Content-Disposition header with a value of "attachment" instead of "inline" or no
 Content-Disposition header at all.
 
@@ -252,8 +251,8 @@ message.Body = multipart;
 ```
 
 Of course, that is just a simple example. A lot of modern mail clients such as Outlook or Thunderbird will 
-send out both a text/html and a text/plain version of the message text. To do this, you'd create a TextPart
-for the text/plain part and a TextPart for the text/html part and then add them to a multipart/alternative
+send out both a text/html and a text/plain version of the message text. To do this, you'd create a `TextPart`
+for the text/plain part and a `TextPart` for the text/html part and then add them to a multipart/alternative
 like so:
 
 ```csharp
@@ -280,9 +279,9 @@ message.Body = multipart;
 
 ### Creating a Message Using a BodyBuilder (not Arnold Schwarzenegger)
 
-If you are used to System.Net.Mail's API for creating messages, you will probably find using a BodyBuilder
+If you are used to System.Net.Mail's API for creating messages, you will probably find using a `BodyBuilder`
 much more friendly than manually creating the tree of MIME parts. Here's how you could create a message body
-using a BodyBuilder:
+using a `BodyBuilder`:
 
 ```csharp
 var message = new MimeMessage ();
@@ -367,7 +366,7 @@ using MyAppNamespace {
 }
 ```
 
-Now that you've implemented your own SecureMimeContext, you'll want to register it with MimeKit:
+Now that you've implemented your own `SecureMimeContext`, you'll want to register it with MimeKit:
 
 ```csharp
 CryptographyContext.Register (typeof (MySecureMimeContext));
@@ -401,7 +400,7 @@ namespace MyAppNamespace {
 }
 ```
 
-Once again, to register your OpenPgpContext, you can use the following code snippet:
+Once again, to register your `OpenPgpContext`, you can use the following code snippet:
 
 ```csharp
 CryptographyContext.Register (typeof (MyGnuPGContext));
@@ -482,10 +481,10 @@ using (var ctx = new MyGnuPGContext ()) {
 
 As mentioned earlier, PGP/MIME uses a multipart/encrypted part to encapsulate the encrypted content.
 
-A multipart/encrtpted contains exactly 2 parts: the first MimeEntity is the version information while the second
-MimeEntity is the actual encrypted content and will typically be an application/octet-stream.
+A multipart/encrtpted contains exactly 2 parts: the first `MimeEntity` is the version information while the
+second `MimeEntity` is the actual encrypted content and will typically be an application/octet-stream.
 
-The first thing you must do is find the MultipartEncrypted part (see the section on traversing MIME parts).
+The first thing you must do is find the `MultipartEncrypted` part (see the section on traversing MIME parts).
 
 ```csharp
 if (entity is MultipartEncrypted) {
@@ -538,12 +537,12 @@ using (var ctx = new MySecureMimeContext ()) {
 
 If you'd prefer to use PGP instead of S/MIME, things work almost exactly the same except that you
 would use an OpenPGP cryptography context. For example, you might use a subclass of the
-GnuPGContext that comes with MimeKit if you want to re-use the user's GnuPG keyrings (you can't
-use GnuPGContext directly because it has no way of prompting the user for their passphrase).
+`GnuPGContext` that comes with MimeKit if you want to re-use the user's GnuPG keyrings (you can't
+use `GnuPGContext` directly because it has no way of prompting the user for their passphrase).
 
 For the sake of this example, let's pretend that you've written a minimal subclass of
-MimeKit.Cryptography.GnuPGContext that simply overrides the GetPassword() method and
-that this subclass is called MyGnuPGContext.
+`MimeKit.Cryptography.GnuPGContext` that simply overrides the `GetPassword()` method and
+that this subclass is called `MyGnuPGContext`.
 
 ```csharp
 // now to digitally sign our message body using our custom OpenPGP cryptography context
@@ -569,13 +568,13 @@ using (var ctx = new MyGnuPGContext ()) {
 As mentioned earlier, both S/MIME and PGP/MIME typically use a multipart/signed part to contain the
 signed content and the detached signature data.
 
-A multipart/signed contains exactly 2 parts: the first MimeEntity is the signed content while the second
-MimeEntity is the detached signature and, by default, will either be an ApplicationPgpSignature part or
-an ApplicationPkcs7Signature part (depending on whether the sending client signed using OpenPGP or S/MIME).
+A multipart/signed contains exactly 2 parts: the first `MimeEntity` is the signed content while the second
+`MimeEntity` is the detached signature and, by default, will either be an `ApplicationPgpSignature` part or
+an `ApplicationPkcs7Signature` part (depending on whether the sending client signed using OpenPGP or S/MIME).
 
 Because the multipart/signed part may have been signed by multiple signers, it is important to
 verify each of the digital signatures (one for each signer) that are returned by the
-MultipartSigned.Verify() method:
+`MultipartSigned.Verify()` method:
 
 ```csharp
 if (entity is MultipartSigned) {
