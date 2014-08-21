@@ -395,6 +395,39 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="ParseHeaders">
+      <MemberSignature Language="C#" Value="public MimeKit.HeaderList ParseHeaders (System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.HeaderList ParseHeaders(valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Parses a list of headers from the stream.
+            </summary>
+        <returns>The parsed list of headers.</returns>
+        <remarks>
+            Parses a list of headers from the stream.
+            </remarks>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the headers.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="ParseMessage">
       <MemberSignature Language="C#" Value="public MimeKit.MimeMessage ParseMessage (System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ParseMessage(valuetype System.Threading.CancellationToken cancellationToken) cil managed" />

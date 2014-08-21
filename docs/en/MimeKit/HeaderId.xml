@@ -514,9 +514,9 @@
             </summary>
       </Docs>
     </Member>
-    <Member MemberName="FollowUpTo">
-      <MemberSignature Language="C#" Value="FollowUpTo" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId FollowUpTo = int32(31)" />
+    <Member MemberName="FollowupTo">
+      <MemberSignature Language="C#" Value="FollowupTo" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId FollowupTo = int32(31)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -690,9 +690,9 @@
             </summary>
       </Docs>
     </Member>
-    <Member MemberName="NewsGroups">
-      <MemberSignature Language="C#" Value="NewsGroups" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId NewsGroups = int32(42)" />
+    <Member MemberName="Newsgroups">
+      <MemberSignature Language="C#" Value="Newsgroups" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Newsgroups = int32(42)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -702,7 +702,7 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The News-Groups header field.
+            The Newsgroups header field.
             </summary>
       </Docs>
     </Member>
@@ -1042,9 +1042,25 @@
             </summary>
       </Docs>
     </Member>
+    <Member MemberName="Status">
+      <MemberSignature Language="C#" Value="Status" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Status = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The Status header field.
+            </summary>
+      </Docs>
+    </Member>
     <Member MemberName="Subject">
       <MemberSignature Language="C#" Value="Subject" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Subject = int32(64)" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Subject = int32(65)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1060,7 +1076,7 @@
     </Member>
     <Member MemberName="Summary">
       <MemberSignature Language="C#" Value="Summary" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Summary = int32(65)" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Summary = int32(66)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1074,9 +1090,9 @@
             </summary>
       </Docs>
     </Member>
-    <Member MemberName="Supercedes">
-      <MemberSignature Language="C#" Value="Supercedes" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Supercedes = int32(66)" />
+    <Member MemberName="Supersedes">
+      <MemberSignature Language="C#" Value="Supersedes" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Supersedes = int32(67)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1086,13 +1102,13 @@
       </ReturnValue>
       <Docs>
         <summary>
-            The Supercedes header field.
+            The Supersedes header field.
             </summary>
       </Docs>
     </Member>
     <Member MemberName="To">
       <MemberSignature Language="C#" Value="To" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId To = int32(67)" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId To = int32(68)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1122,9 +1138,41 @@
             </summary>
       </Docs>
     </Member>
+    <Member MemberName="UserAgent">
+      <MemberSignature Language="C#" Value="UserAgent" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId UserAgent = int32(69)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The User-Agent header field.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="XMailer">
+      <MemberSignature Language="C#" Value="XMailer" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XMailer = int32(70)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The X-Mailer header field.
+            </summary>
+      </Docs>
+    </Member>
     <Member MemberName="XMSMailPriority">
       <MemberSignature Language="C#" Value="XMSMailPriority" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XMSMailPriority = int32(68)" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XMSMailPriority = int32(71)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1140,7 +1188,7 @@
     </Member>
     <Member MemberName="XPriority">
       <MemberSignature Language="C#" Value="XPriority" />
-      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XPriority = int32(69)" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XPriority = int32(72)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
@@ -1151,6 +1199,22 @@
       <Docs>
         <summary>
             The X-Priority header field.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="XStatus">
+      <MemberSignature Language="C#" Value="XStatus" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XStatus = int32(73)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The X-Status header field.
             </summary>
       </Docs>
     </Member>

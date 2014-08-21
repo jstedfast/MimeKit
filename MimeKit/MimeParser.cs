@@ -606,7 +606,7 @@ namespace MimeKit {
 
 			end = input.Length - PadSize;
 
-			// Note: if a perviously parsed MimePart's content has been read,
+			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
 			// reset.
 			if (persistent && stream.Position != offset)
@@ -1389,6 +1389,51 @@ namespace MimeKit {
 				return BoundaryType.ImmediateBoundary;
 
 			return found;
+		}
+
+		unsafe HeaderList ParseHeaders (byte* inbuf)
+		{
+			state = MimeParserState.Headers;
+			while (state < MimeParserState.Content) {
+				if (Step (inbuf) == MimeParserState.Error)
+					throw new FormatException ("Failed to parse entity headers.");
+			}
+
+			state = MimeParserState.Complete;
+
+			var parsed = new HeaderList (options);
+			foreach (var header in headers)
+				parsed.Add (header);
+
+			return parsed;
+		}
+
+		/// <summary>
+		/// Parses a list of headers from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Parses a list of headers from the stream.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the headers.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public HeaderList ParseHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		{
+			token = cancellationToken;
+
+			unsafe {
+				fixed (byte* inbuf = input) {
+					return ParseHeaders (inbuf);
+				}
+			}
 		}
 
 		unsafe MimeEntity ParseEntity (byte* inbuf)

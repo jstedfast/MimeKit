@@ -142,6 +142,9 @@
         <exception cref="T:System.NotImplementedException">
             Mono.Data.Sqlite is not available.
             </exception>
+        <exception cref="T:System.NotSupportedException">
+            Mono.Data.Sqlite is not available.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="DefaultDatabasePath">

@@ -982,5 +982,165 @@ namespace MimeKit {
 
 			return table.TryGetValue (field, out header);
 		}
+
+		/// <summary>
+		/// Load a <see cref="HeaderList"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="HeaderList"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the headers.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static HeaderList Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new MimeParser (options, stream, MimeFormat.Entity);
+
+			return parser.ParseHeaders (cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="HeaderList"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="HeaderList"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static HeaderList Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Load (ParserOptions.Default, stream, cancellationToken);
+		}
+
+#if !PORTABLE
+		/// <summary>
+		/// Load a <see cref="HeaderList"/> from the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="HeaderList"/> from the file at the give file path,
+		/// using the specified <see cref="ParserOptions"/>.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the headers.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static HeaderList Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenRead (fileName)) {
+				return Load (options, stream, cancellationToken);
+			}
+		}
+
+		/// <summary>
+		/// Load a <see cref="HeaderList"/> from the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="HeaderList"/> from the file at the give file path,
+		/// using the default <see cref="ParserOptions"/>.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="fileName">The name of the file to load.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the headers.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static HeaderList Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Load (ParserOptions.Default, fileName, cancellationToken);
+		}
+#endif // !PORTABLE
 	}
 }
