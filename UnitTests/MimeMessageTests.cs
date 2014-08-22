@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Net.Mail;
 
 using NUnit.Framework;
 
@@ -119,6 +120,28 @@ Just for fun....  -- Nathaniel<nl>
 			}
 
 			Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+		}
+
+		[Test]
+		public void TestMailMessageToMimeMessage ()
+		{
+			var mail = new MailMessage ();
+			mail.Body = null;
+
+			var text = new MemoryStream (Encoding.ASCII.GetBytes ("This is plain text."), false);
+			mail.AlternateViews.Add (new AlternateView (text, "text/plain"));
+
+			var html = new MemoryStream (Encoding.ASCII.GetBytes ("This is HTML."), false);
+			mail.AlternateViews.Add (new AlternateView (text, "text/html"));
+
+			var message = (MimeMessage) mail;
+
+			Assert.IsTrue (message.Body is Multipart, "THe top-level MIME part should be a multipart.");
+			Assert.IsTrue (message.Body.ContentType.Matches ("multipart", "alternative"), "The top-level MIME part should be multipart/alternative.");
+
+			var multipart = (Multipart) message.Body;
+
+			Assert.AreEqual (2, multipart.Count, "Expected 2 MIME parts within the multipart/alternative.");
 		}
 	}
 }
