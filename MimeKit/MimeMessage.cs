@@ -1817,7 +1817,7 @@ namespace MimeKit {
 				break;
 			}
 
-			if (message.Body != null) {
+			if (!string.IsNullOrEmpty (message.Body)) {
 				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
 				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
 				body = text;
@@ -1863,6 +1863,9 @@ namespace MimeKit {
 
 				body = alternative;
 			}
+
+			if (body == null)
+				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
 
 			if (message.Attachments.Count > 0) {
 				var mixed = new Multipart ("mixed");
