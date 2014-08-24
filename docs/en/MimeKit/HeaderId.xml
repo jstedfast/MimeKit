@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed HeaderId extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.94.0.0</AssemblyVersion>
+    <AssemblyVersion>0.95.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId AdHoc = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -39,7 +39,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ApparentlyTo = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -55,7 +55,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Approved = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -71,7 +71,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Article = int32(3)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -87,7 +87,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Bcc = int32(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -103,7 +103,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Bytes = int32(5)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -119,7 +119,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Cc = int32(6)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -135,7 +135,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Comments = int32(7)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -151,7 +151,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentBase = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -167,7 +167,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentClass = int32(9)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -183,7 +183,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentDescription = int32(10)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -199,7 +199,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentDisposition = int32(11)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -215,7 +215,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentDuration = int32(12)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -231,7 +231,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentId = int32(13)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -247,7 +247,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentLanguage = int32(14)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -263,7 +263,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentLength = int32(15)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -279,7 +279,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentLocation = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -295,7 +295,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentMd5 = int32(17)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -311,7 +311,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentTransferEncoding = int32(18)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -327,7 +327,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ContentType = int32(19)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -343,7 +343,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Control = int32(20)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -359,7 +359,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Date = int32(21)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -375,7 +375,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId DeferredDelivery = int32(22)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -391,7 +391,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId DispositionNotificationTo = int32(23)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -407,7 +407,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Distribution = int32(24)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -423,7 +423,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId DkimSignature = int32(25)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -439,7 +439,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId DomainKeySignature = int32(26)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -455,7 +455,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Encoding = int32(27)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -471,7 +471,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Encrypted = int32(28)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -487,7 +487,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Expires = int32(29)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -503,7 +503,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ExpiryDate = int32(30)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -519,7 +519,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId FollowupTo = int32(31)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -535,7 +535,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId From = int32(32)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -551,7 +551,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Importance = int32(33)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -567,7 +567,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId InReplyTo = int32(34)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -583,7 +583,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Keywords = int32(35)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -599,7 +599,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Lines = int32(36)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -615,7 +615,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ListHelp = int32(37)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -631,7 +631,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ListSubscribe = int32(38)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -647,7 +647,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ListUnsubscribe = int32(39)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -663,7 +663,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId MessageId = int32(40)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -679,7 +679,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId MimeVersion = int32(41)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -695,7 +695,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Newsgroups = int32(42)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -711,7 +711,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId NntpPostingHost = int32(43)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -727,7 +727,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Organization = int32(44)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -743,7 +743,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Path = int32(45)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -759,7 +759,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Precedence = int32(46)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -775,7 +775,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Priority = int32(47)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -791,7 +791,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Received = int32(48)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -807,7 +807,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId References = int32(49)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -823,7 +823,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ReplyBy = int32(50)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -839,7 +839,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ReplyTo = int32(51)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -855,7 +855,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentBcc = int32(52)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -871,7 +871,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentCc = int32(53)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -887,7 +887,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentDate = int32(54)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -903,7 +903,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentFrom = int32(55)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -919,7 +919,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentMessageId = int32(56)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -935,7 +935,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentReplyTo = int32(57)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -951,7 +951,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentSender = int32(58)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -967,7 +967,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ResentTo = int32(59)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -983,7 +983,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ReturnPath = int32(60)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -999,7 +999,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId ReturnReceiptTo = int32(61)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1015,7 +1015,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Sender = int32(62)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1031,7 +1031,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Sensitivity = int32(63)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1047,7 +1047,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Status = int32(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1063,7 +1063,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Subject = int32(65)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1079,7 +1079,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Summary = int32(66)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1095,7 +1095,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Supersedes = int32(67)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1111,7 +1111,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId To = int32(68)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1127,7 +1127,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId Unknown = int32(-1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1143,7 +1143,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId UserAgent = int32(69)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1159,7 +1159,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XMailer = int32(70)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1175,7 +1175,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XMSMailPriority = int32(71)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1191,7 +1191,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XPriority = int32(72)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>
@@ -1207,7 +1207,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.HeaderId XStatus = int32(73)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderId</ReturnType>

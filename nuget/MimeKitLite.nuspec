@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.94.0.0</version>
+        <version>0.95.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,11 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added X-Priority, X-MSMail-Priority, DKIM-Signature, and DomainKey-Signature to the HeaderId enum.
-* Made the HeaderIdExtensions class public.</releaseNotes>
+        <releaseNotes>* Fixed System.Net.Mail.MailMessage to MimeMessage conversion logic when the MailMessage Body is set to null or an empty string.
+* Fixed the spelling of the HeaderId.Supersedes field.
+* Added MimeParser.ParseHeaders() and various HeaderList.Load() methods.
+* Modified each AttachmentCollection.Add() method to return MimeEntity.
+* Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>

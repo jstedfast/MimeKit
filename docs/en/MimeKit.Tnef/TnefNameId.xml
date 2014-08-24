@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public sequential ansi sealed beforefieldinit TnefNameId extends System.ValueType" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.94.0.0</AssemblyVersion>
+    <AssemblyVersion>0.95.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.ValueType</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype System.Guid propertySetGuid, int32 id) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="propertySetGuid" Type="System.Guid" />
@@ -45,7 +45,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype System.Guid propertySetGuid, string name) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="propertySetGuid" Type="System.Guid" />
@@ -67,7 +67,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool Equals(object obj) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -93,7 +93,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance int32 GetHashCode() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -115,7 +115,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Id" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -135,7 +135,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefNameIdKind Kind" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefNameIdKind</ReturnType>
@@ -155,7 +155,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -175,7 +175,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.Guid PropertySetGuid" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Guid</ReturnType>

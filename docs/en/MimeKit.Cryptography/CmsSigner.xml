@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit CmsSigner extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.94.0.0</AssemblyVersion>
+    <AssemblyVersion>0.95.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -25,7 +25,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Org.BouncyCastle.X509.X509Certificate certificate, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
@@ -64,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Pkcs.X509CertificateEntry&gt; chain, class Org.BouncyCastle.Crypto.AsymmetricKeyParameter key) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="chain" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Pkcs.X509CertificateEntry&gt;" />
@@ -105,7 +105,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Certificate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -126,7 +126,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Cryptography.X509CertificateChain CertificateChain" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateChain</ReturnType>
@@ -146,7 +146,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Cryptography.DigestAlgorithm DigestAlgorithm" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.DigestAlgorithm</ReturnType>
@@ -167,7 +167,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -187,7 +187,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Asn1.Cms.AttributeTable SignedAttributes" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Asn1.Cms.AttributeTable</ReturnType>
@@ -207,7 +207,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.Asn1.Cms.AttributeTable UnsignedAttributes" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.94.0.0</AssemblyVersion>
+        <AssemblyVersion>0.95.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Asn1.Cms.AttributeTable</ReturnType>
