@@ -94,14 +94,14 @@
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -111,6 +111,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the specified file as an attachment.</para>
         </remarks>
@@ -122,6 +123,9 @@
             contains one or more invalid characters as defined by
             <see cref="F:System.IO.Path.InvalidPathChars" />.
             </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
         <exception cref="T:System.IO.FileNotFoundException">
             The specified file path could not be found.
             </exception>
@@ -131,20 +135,17 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
-        <exception cref="T:System.IO.DirectoryNotFoundException">
-          <paramref name="fileName" /> is an invalid file path.
-            </exception>
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName, MimeKit.ContentType contentType);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class MimeKit.ContentType contentType) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName, MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -156,6 +157,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the specified file as an attachment using the supplied Content-Type.</para>
           <para>For a list of known mime-types and their associated file extensions, see
@@ -183,14 +185,14 @@
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName, byte[] data);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName, byte[] data);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName, unsigned int8[] data) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -202,6 +204,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the data as an attachment, using the specified file name for deducing
             the mime-type by extension and for setting the Content-Location.</para>
@@ -219,14 +222,14 @@
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName, System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName, System.IO.Stream stream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -238,6 +241,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the stream as an attachment, using the specified file name for deducing
             the mime-type by extension and for setting the Content-Location.</para>
@@ -257,14 +261,14 @@
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName, byte[] data, MimeKit.ContentType contentType);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, unsigned int8[] data, class MimeKit.ContentType contentType) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName, byte[] data, MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName, unsigned int8[] data, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -278,6 +282,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
           <para>The file name parameter is used to set the Content-Location.</para>
@@ -300,14 +305,14 @@
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public void Add (string fileName, System.IO.Stream stream, MimeKit.ContentType contentType);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string fileName, class System.IO.Stream stream, class MimeKit.ContentType contentType) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.MimeEntity Add (string fileName, System.IO.Stream stream, MimeKit.ContentType contentType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeEntity Add(string fileName, class System.IO.Stream stream, class MimeKit.ContentType contentType) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.94.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
+        <ReturnType>MimeKit.MimeEntity</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -321,6 +326,7 @@
         <summary>
             Add the specified attachment.
             </summary>
+        <returns>The newly added attachment <see cref="T:MimeKit.MimeEntity" />.</returns>
         <remarks>
           <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
           <para>The file name parameter is used to set the Content-Location.</para>

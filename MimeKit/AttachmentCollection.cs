@@ -186,6 +186,7 @@ namespace MimeKit {
 		/// <para>For a list of known mime-types and their associated file extensions, see
 		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="data">The file data.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
@@ -199,7 +200,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
 		/// </exception>
-		public void Add (string fileName, byte[] data, ContentType contentType)
+		public MimeEntity Add (string fileName, byte[] data, ContentType contentType)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -215,7 +216,10 @@ namespace MimeKit {
 
 			using (var stream = new MemoryStream (data, false)) {
 				var attachment = CreateAttachment (contentType, fileName, stream);
+
 				attachments.Add (attachment);
+
+				return attachment;
 			}
 		}
 
@@ -228,6 +232,7 @@ namespace MimeKit {
 		/// <para>For a list of known mime-types and their associated file extensions, see
 		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="stream">The content stream.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
@@ -243,7 +248,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read.</para>
 		/// </exception>
-		public void Add (string fileName, Stream stream, ContentType contentType)
+		public MimeEntity Add (string fileName, Stream stream, ContentType contentType)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -263,6 +268,8 @@ namespace MimeKit {
 			var attachment = CreateAttachment (contentType, fileName, stream);
 
 			attachments.Add (attachment);
+
+			return attachment;
 		}
 
 		/// <summary>
@@ -272,6 +279,7 @@ namespace MimeKit {
 		/// <para>Adds the data as an attachment, using the specified file name for deducing
 		/// the mime-type by extension and for setting the Content-Location.</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="data">The file data to attach.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -282,7 +290,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
 		/// </exception>
-		public void Add (string fileName, byte[] data)
+		public MimeEntity Add (string fileName, byte[] data)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -295,7 +303,10 @@ namespace MimeKit {
 
 			using (var stream = new MemoryStream (data, false)) {
 				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+
 				attachments.Add (attachment);
+
+				return attachment;
 			}
 		}
 
@@ -306,6 +317,7 @@ namespace MimeKit {
 		/// <para>Adds the stream as an attachment, using the specified file name for deducing
 		/// the mime-type by extension and for setting the Content-Location.</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -318,7 +330,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read</para>
 		/// </exception>
-		public void Add (string fileName, Stream stream)
+		public MimeEntity Add (string fileName, Stream stream)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -335,6 +347,8 @@ namespace MimeKit {
 			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
 
 			attachments.Add (attachment);
+
+			return attachment;
 		}
 
 #if !PORTABLE
@@ -346,6 +360,7 @@ namespace MimeKit {
 		/// <para>For a list of known mime-types and their associated file extensions, see
 		/// http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -365,7 +380,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Add (string fileName, ContentType contentType)
+		public MimeEntity Add (string fileName, ContentType contentType)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -378,7 +393,10 @@ namespace MimeKit {
 
 			using (var stream = File.OpenRead (fileName)) {
 				var attachment = CreateAttachment (contentType, fileName, stream);
+
 				attachments.Add (attachment);
+
+				return attachment;
 			}
 		}
 
@@ -388,6 +406,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Adds the specified file as an attachment.</para>
 		/// </remarks>
+		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
@@ -409,7 +428,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Add (string fileName)
+		public MimeEntity Add (string fileName)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
@@ -419,7 +438,10 @@ namespace MimeKit {
 
 			using (var stream = File.OpenRead (fileName)) {
 				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+
 				attachments.Add (attachment);
+
+				return attachment;
 			}
 		}
 #endif
