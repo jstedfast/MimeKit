@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract sealed beforefieldinit MimeUtils extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.95.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
@@ -52,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class System.Collections.Generic.IEnumerable`1&lt;string&gt; EnumerateReferences(unsigned int8[] buffer, int32 startIndex, int32 length) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
@@ -90,7 +90,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -111,7 +111,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GenerateMessageId(string domain) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -138,7 +138,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Quote(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -166,7 +166,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(string text, class System.Version version) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -196,7 +196,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool TryParseVersion(unsigned int8[] buffer, int32 startIndex, int32 length, class System.Version version) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -235,7 +235,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string Unquote(string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.95.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
