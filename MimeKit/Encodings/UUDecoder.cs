@@ -127,8 +127,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the decoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding
-		{
+		public ContentEncoding Encoding {
 			get { return ContentEncoding.UUEncode; }
 		}
 

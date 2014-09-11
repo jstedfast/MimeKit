@@ -42,6 +42,12 @@
     <DefineConstants>ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
     <DocumentationFile>bin\Release\lib\MonoAndroid\MimeKitLite.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -63,9 +69,12 @@
     <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
     <Compile Include="Encodings\UUDecoder.cs" />
     <Compile Include="Encodings\UUEncoder.cs" />
+    <Compile Include="Encodings\YDecoder.cs" />
+    <Compile Include="Encodings\YEncoder.cs" />
     <Compile Include="IO\BoundStream.cs" />
     <Compile Include="IO\ChainedStream.cs" />
     <Compile Include="IO\FilteredStream.cs" />
+    <Compile Include="IO\ICancellableStream.cs" />
     <Compile Include="IO\MeasuringStream.cs" />
     <Compile Include="IO\MemoryBlockStream.cs" />
     <Compile Include="IO\Filters\ArmoredFromFilter.cs" />
@@ -80,8 +89,25 @@
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tnef\RtfCompressedToRtf.cs" />
+    <Compile Include="Tnef\RtfCompressionMode.cs" />
+    <Compile Include="Tnef\TnefAttributeLevel.cs" />
+    <Compile Include="Tnef\TnefAttributeTag.cs" />
+    <Compile Include="Tnef\TnefComplianceMode.cs" />
+    <Compile Include="Tnef\TnefComplianceStatus.cs" />
+    <Compile Include="Tnef\TnefException.cs" />
+    <Compile Include="Tnef\TnefNameId.cs" />
+    <Compile Include="Tnef\TnefNameIdKind.cs" />
+    <Compile Include="Tnef\TnefPart.cs" />
+    <Compile Include="Tnef\TnefPropertyId.cs" />
+    <Compile Include="Tnef\TnefPropertyReader.cs" />
+    <Compile Include="Tnef\TnefPropertyTag.cs" />
+    <Compile Include="Tnef\TnefPropertyType.cs" />
+    <Compile Include="Tnef\TnefReader.cs" />
+    <Compile Include="Tnef\TnefReaderStream.cs" />
     <Compile Include="Utils\ByteExtensions.cs" />
     <Compile Include="Utils\CharsetUtils.cs" />
+    <Compile Include="Utils\Crc32.cs" />
     <Compile Include="Utils\DateUtils.cs" />
     <Compile Include="Utils\MimeUtils.cs" />
     <Compile Include="Utils\PackedByteArray.cs" />
@@ -112,20 +138,25 @@
     <Compile Include="MimeEntity.cs" />
     <Compile Include="MimeEntityConstructorInfo.cs" />
     <Compile Include="MimeFormat.cs" />
+    <Compile Include="MimeIterator.cs" />
     <Compile Include="MimeMessage.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="Multipart.cs" />
+    <Compile Include="MultipartRelated.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
+    <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Encodings\" />
     <Folder Include="IO\Filters\" />
     <Folder Include="IO\" />
+    <Folder Include="Tnef\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

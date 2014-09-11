@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit HeaderList extends System.Object implements class System.Collections.Generic.ICollection`1&lt;class MimeKit.Header&gt;, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Header&gt;, class System.Collections.Generic.IList`1&lt;class MimeKit.Header&gt;, class System.Collections.IEnumerable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -34,7 +34,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -51,7 +51,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -77,7 +77,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -108,7 +108,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -143,7 +143,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -163,7 +163,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -192,7 +192,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -221,7 +221,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Contains(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -250,7 +250,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class MimeKit.Header[] array, int32 arrayIndex) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -282,18 +282,18 @@
       <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets the number of headers in the <see cref="T:MimeKit.HeaderList" />.
+            Gets the number of headers in the list.
             </summary>
         <value>The number of headers.</value>
         <remarks>
-            Indicates the number of headers in the list.
+            Gets the number of headers in the list.
             </remarks>
       </Docs>
     </Member>
@@ -302,7 +302,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class MimeKit.Header&gt; GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerator&lt;MimeKit.Header&gt;</ReturnType>
@@ -323,7 +323,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -350,7 +350,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -377,7 +377,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 IndexOf(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -404,7 +404,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -435,7 +435,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Insert(int32 index, valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -472,7 +472,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Insert(int32 index, string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -512,14 +512,14 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets a value indicating whether this instance is read only.
+            Gets whether or not the header list is read only.
             </summary>
         <value>
           <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
@@ -533,7 +533,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Item(valuetype MimeKit.HeaderId)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -562,7 +562,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Header Item(int32)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Header</ReturnType>
@@ -592,7 +592,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Item(string)" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -620,12 +620,208 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.HeaderList Load (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.HeaderList Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.HeaderList" /> from the specified stream.
+            </summary>
+        <returns>The parsed list of headers.</returns>
+        <remarks>
+            Loads a <see cref="T:MimeKit.HeaderList" /> from the given stream, using the
+            default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the entity.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.HeaderList Load (string fileName, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.HeaderList Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.HeaderList" /> from the specified file.
+            </summary>
+        <returns>The parsed list of headers.</returns>
+        <remarks>
+            Loads a <see cref="T:MimeKit.HeaderList" /> from the file at the give file path,
+            using the default <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="fileName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file path could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the headers.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.HeaderList Load (MimeKit.ParserOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.HeaderList Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="stream">The stream.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.HeaderList" /> from the specified stream.
+            </summary>
+        <returns>The parsed list of headers.</returns>
+        <remarks>
+            Loads a <see cref="T:MimeKit.HeaderList" /> from the given stream, using the
+            specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="stream" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the headers.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Load">
+      <MemberSignature Language="C#" Value="public static MimeKit.HeaderList Load (MimeKit.ParserOptions options, string fileName, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.HeaderList Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.HeaderList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="options" Type="MimeKit.ParserOptions" />
+        <Parameter Name="fileName" Type="System.String" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="options">The parser options.</param>
+        <param name="fileName">The name of the file to load.</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Load a <see cref="T:MimeKit.HeaderList" /> from the specified file.
+            </summary>
+        <returns>The parsed list of headers.</returns>
+        <remarks>
+            Loads a <see cref="T:MimeKit.HeaderList" /> from the file at the give file path,
+            using the specified <see cref="T:MimeKit.ParserOptions" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="options" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="fileName" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="fileName" /> is a zero-length string, contains only white space, or
+            contains one or more invalid characters as defined by
+            <see cref="F:System.IO.Path.InvalidPathChars" />.
+            </exception>
+        <exception cref="T:System.IO.DirectoryNotFoundException">
+          <paramref name="fileName" /> is an invalid file path.
+            </exception>
+        <exception cref="T:System.IO.FileNotFoundException">
+            The specified file path could not be found.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            The user does not have access to read the specified file.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.FormatException">
+            There was an error parsing the headers.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Remove">
       <MemberSignature Language="C#" Value="public bool Remove (MimeKit.Header header);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -654,7 +850,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Remove(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -683,7 +879,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Remove(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -712,7 +908,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveAll(valuetype MimeKit.HeaderId id) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -738,7 +934,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveAll(string field) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -764,7 +960,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -790,7 +986,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(class MimeKit.Header header) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -817,7 +1013,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -849,7 +1045,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(string field, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -885,7 +1081,7 @@
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.IEnumerator</ReturnType>
@@ -902,75 +1098,11 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="stream" Type="System.IO.Stream" />
-      </Parameters>
-      <Docs>
-        <param name="stream">The output stream.</param>
-        <summary>
-            Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
-            </summary>
-        <remarks>
-            Writes all of the headers to the output stream.
-            </remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <paramref name="stream" /> is <c>null</c>.
-            </exception>
-        <exception cref="T:System.IO.IOException">
-            An I/O error occurred.
-            </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="options" Type="MimeKit.FormatOptions" />
-        <Parameter Name="stream" Type="System.IO.Stream" />
-      </Parameters>
-      <Docs>
-        <param name="options">The formatting options.</param>
-        <param name="stream">The output stream.</param>
-        <summary>
-            Writes the <see cref="T:MimeKit.HeaderList" /> to the specified output stream.
-            </summary>
-        <remarks>
-            Writes all of the headers to the output stream.
-            </remarks>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="options" /> is <c>null</c>.</para>
-          <para>-or-</para>
-          <para>
-            <paramref name="stream" /> is <c>null</c>.</para>
-        </exception>
-        <exception cref="T:System.IO.IOException">
-            An I/O error occurred.
-            </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="C#" Value="public void WriteTo (System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1000,11 +1132,11 @@
       </Docs>
     </Member>
     <Member MemberName="WriteTo">
-      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="C#" Value="public void WriteTo (MimeKit.FormatOptions options, System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = null);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

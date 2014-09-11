@@ -170,6 +170,36 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets whether or not the address is an international address.
+		/// </summary>
+		/// <remarks>
+		/// <para>International addresses are addresses that contain international
+		/// characters in either their local-parts or their domains.</para>
+		/// <para>For more information, see http://tools.ietf.org/html/rfc6532#section-3.2</para>
+		/// </remarks>
+		/// <value><c>true</c> if th address is an international address; otherwise, <c>false</c>.</value>
+		public bool IsInternational {
+			get {
+				if (address == null)
+					return false;
+
+				for (int i = 0; i < address.Length; i++) {
+					if (address[i] > 127)
+						return true;
+				}
+
+				foreach (var domain in Route) {
+					for (int i = 0; i < domain.Length; i++) {
+						if (domain[i] > 127)
+							return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
@@ -183,13 +213,19 @@ namespace MimeKit {
 				route += ":";
 
 			if (!string.IsNullOrEmpty (Name)) {
-				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-				var str = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
+				string name;
 
-				if (lineLength + str.Length > options.MaxLineLength) {
-					if (str.Length > options.MaxLineLength) {
+				if (!options.International) {
+					var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
+					name = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
+				} else {
+					name = EncodeInternationalizedPhrase (Name);
+				}
+
+				if (lineLength + name.Length > options.MaxLineLength) {
+					if (name.Length > options.MaxLineLength) {
 						// we need to break up the name...
-						builder.AppendFolded (options, str, ref lineLength);
+						builder.AppendFolded (options, name, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
@@ -198,17 +234,18 @@ namespace MimeKit {
 							lineLength = 1;
 						}
 
-						lineLength += str.Length;
-						builder.Append (str);
+						lineLength += name.Length;
+						builder.Append (name);
 					}
 				} else {
 					// we can safely fit the name on this line...
-					lineLength += str.Length;
-					builder.Append (str);
+					lineLength += name.Length;
+					builder.Append (name);
 				}
 
 				if ((lineLength + route.Length + Address.Length + 3) > options.MaxLineLength) {
-					builder.Append ("\n\t<");
+					builder.Append (options.NewLine);
+					builder.Append ("\t<");
 					lineLength = 2;
 				} else {
 					builder.Append (" <");
@@ -223,7 +260,8 @@ namespace MimeKit {
 				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
 				if ((lineLength + route.Length + Address.Length + 2) > options.MaxLineLength) {
-					builder.Append ("\n\t<");
+					builder.Append (options.NewLine);
+					builder.Append ("\t<");
 					lineLength = 2;
 				} else {
 					builder.Append ('<');

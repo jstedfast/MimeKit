@@ -65,18 +65,23 @@ namespace MimeKit {
 			new byte[] { (byte) '\n' }, new byte[] { (byte) '\r', (byte) '\n' }
 		};
 
+		const int DefaultMaxLineLength = 78;
+
+		NewLineFormat newLineFormat;
+		bool international;
+
 		/// <summary>
 		/// The default formatting options.
 		/// </summary>
 		/// <remarks>
 		/// If a custom <see cref="FormatOptions"/> is not passed to methods such as
-		/// <see cref="MimeMessage.WriteTo(FormatOptions,System.IO.Stream)"/>, the default options
-		/// will be used.
+		/// <see cref="MimeMessage.WriteTo(FormatOptions,System.IO.Stream,System.Threading.CancellationToken)"/>,
+		/// the default options will be used.
 		/// </remarks>
 		public static readonly FormatOptions Default;
 
 		/// <summary>
-		/// Gets or sets the maximum line length used by the encoders. The encoders
+		/// Gets the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
 		/// <remarks>
@@ -84,7 +89,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The maximum line length.</value>
 		public int MaxLineLength {
-			get; private set;
+			get { return DefaultMaxLineLength; }
 		}
 
 		/// <summary>
@@ -95,8 +100,17 @@ namespace MimeKit {
 		/// or entity to a stream.
 		/// </remarks>
 		/// <value>The new-line format.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
 		public NewLineFormat NewLineFormat {
-			get; set;
+			get { return newLineFormat; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ();
+
+				newLineFormat = value;
+			}
 		}
 
 		internal IMimeFilter CreateNewLineFilter ()
@@ -110,12 +124,7 @@ namespace MimeKit {
 		}
 
 		internal string NewLine {
-			get {
-				if (NewLineFormat == NewLineFormat.Unix)
-					return "\n";
-
-				return "\r\n";
-			}
+			get { return NewLineFormat == NewLineFormat.Unix ? "\n" : "\r\n"; }
 		}
 
 		internal byte[] NewLineBytes {
@@ -141,6 +150,29 @@ namespace MimeKit {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets whether the new "Internationalized Email" formatting standards should be used.
+		/// </summary>
+		/// <remarks>
+		/// <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
+		/// <para>This feature should only be used when formatting messages meant to be sent via
+		/// SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
+		/// via UTF8 APPEND (rfc6855).</para>
+		/// </remarks>
+		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
+		public bool International {
+			get { return international; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ();
+
+				international = value;
+			}
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -151,18 +183,18 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a new set of formatting options for use with methods such as
-		/// <see cref="MimeMessage.WriteTo(System.IO.Stream)"/>.
+		/// <see cref="MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
 		/// </remarks>
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
+			//maxLineLength = DefaultMaxLineLength;
 			WriteHeaders = true;
-			MaxLineLength = 72;
 
 			if (Environment.NewLine.Length == 1)
-				NewLineFormat = NewLineFormat.Unix;
+				newLineFormat = NewLineFormat.Unix;
 			else
-				NewLineFormat = NewLineFormat.Dos;
+				newLineFormat = NewLineFormat.Dos;
 		}
 
 		/// <summary>
@@ -175,9 +207,10 @@ namespace MimeKit {
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();
-			options.MaxLineLength = MaxLineLength;
-			options.NewLineFormat = NewLineFormat;
+			//options.maxLineLength = maxLineLength;
+			options.newLineFormat = newLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
+			options.international = international;
 			options.WriteHeaders = true;
 			return options;
 		}

@@ -28,6 +28,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME part with a Content-Type of application/pkcs7-mime.
@@ -74,9 +76,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ApplicationPkcs7Mime (SecureMimeType type, Stream stream) : base ("application", "pkcs7-mime")
 		{
-			ContentObject = new ContentObject (stream, ContentEncoding.Default);
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.Base64;
+			ContentObject = new ContentObject (stream);
 
 			switch (type) {
 			case SecureMimeType.CompressedData:
@@ -153,7 +155,7 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
@@ -209,7 +211,7 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.EnvelopedData)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
@@ -255,7 +257,7 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
@@ -289,7 +291,7 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.SignedData)
 				throw new InvalidOperationException ();
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
@@ -345,7 +347,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -413,7 +415,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -491,7 +493,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -573,7 +575,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
@@ -657,7 +659,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			using (var memory = new MemoryStream ()) {
+			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 

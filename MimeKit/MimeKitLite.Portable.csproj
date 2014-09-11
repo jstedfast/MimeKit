@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{25C2DD3E-ED14-494F-9BD4-75536911C1BD}</ProjectGuid>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MimeKit</RootNamespace>
+    <AssemblyName>MimeKitLite</AssemblyName>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\lib\portable</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\portable</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\lib\portable</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\portable</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\lib\portable\MimeKitLite.xml</DocumentationFile>
+    <DefineConstants>TRACE;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj">
+      <Project>{EEE48C75-11BE-4B50-B759-F85B5052D473}</Project>
+      <Name>Portable.Text.Encoding</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cryptography\MD5.cs" />
+    <Compile Include="Encodings\Base64Decoder.cs" />
+    <Compile Include="Encodings\Base64Encoder.cs" />
+    <Compile Include="Encodings\HexDecoder.cs" />
+    <Compile Include="Encodings\HexEncoder.cs" />
+    <Compile Include="Encodings\IMimeDecoder.cs" />
+    <Compile Include="Encodings\IMimeEncoder.cs" />
+    <Compile Include="Encodings\PassThroughDecoder.cs" />
+    <Compile Include="Encodings\PassThroughEncoder.cs" />
+    <Compile Include="Encodings\QEncoder.cs" />
+    <Compile Include="Encodings\QuotedPrintableDecoder.cs" />
+    <Compile Include="Encodings\QuotedPrintableEncoder.cs" />
+    <Compile Include="Encodings\UUDecoder.cs" />
+    <Compile Include="Encodings\UUEncoder.cs" />
+    <Compile Include="Encodings\YDecoder.cs" />
+    <Compile Include="Encodings\YEncoder.cs" />
+    <Compile Include="IO\BoundStream.cs" />
+    <Compile Include="IO\ChainedStream.cs" />
+    <Compile Include="IO\FilteredStream.cs" />
+    <Compile Include="IO\ICancellableStream.cs" />
+    <Compile Include="IO\MeasuringStream.cs" />
+    <Compile Include="IO\MemoryBlockStream.cs" />
+    <Compile Include="IO\Filters\ArmoredFromFilter.cs" />
+    <Compile Include="IO\Filters\BestEncodingFilter.cs" />
+    <Compile Include="IO\Filters\CharsetFilter.cs" />
+    <Compile Include="IO\Filters\DecoderFilter.cs" />
+    <Compile Include="IO\Filters\Dos2UnixFilter.cs" />
+    <Compile Include="IO\Filters\EncoderFilter.cs" />
+    <Compile Include="IO\Filters\IMimeFilter.cs" />
+    <Compile Include="IO\Filters\MimeFilterBase.cs" />
+    <Compile Include="IO\Filters\PassThroughFilter.cs" />
+    <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
+    <Compile Include="IO\Filters\Unix2DosFilter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tnef\RtfCompressedToRtf.cs" />
+    <Compile Include="Tnef\RtfCompressionMode.cs" />
+    <Compile Include="Tnef\TnefAttributeLevel.cs" />
+    <Compile Include="Tnef\TnefAttributeTag.cs" />
+    <Compile Include="Tnef\TnefComplianceMode.cs" />
+    <Compile Include="Tnef\TnefComplianceStatus.cs" />
+    <Compile Include="Tnef\TnefException.cs" />
+    <Compile Include="Tnef\TnefNameId.cs" />
+    <Compile Include="Tnef\TnefNameIdKind.cs" />
+    <Compile Include="Tnef\TnefPart.cs" />
+    <Compile Include="Tnef\TnefPropertyId.cs" />
+    <Compile Include="Tnef\TnefPropertyReader.cs" />
+    <Compile Include="Tnef\TnefPropertyTag.cs" />
+    <Compile Include="Tnef\TnefPropertyType.cs" />
+    <Compile Include="Tnef\TnefReader.cs" />
+    <Compile Include="Tnef\TnefReaderStream.cs" />
+    <Compile Include="Utils\ByteExtensions.cs" />
+    <Compile Include="Utils\CharsetUtils.cs" />
+    <Compile Include="Utils\Crc32.cs" />
+    <Compile Include="Utils\DateUtils.cs" />
+    <Compile Include="Utils\MimeUtils.cs" />
+    <Compile Include="Utils\PackedByteArray.cs" />
+    <Compile Include="Utils\ParseUtils.cs" />
+    <Compile Include="Utils\Rfc2047.cs" />
+    <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="AttachmentCollection.cs" />
+    <Compile Include="BodyBuilder.cs" />
+    <Compile Include="ContentDisposition.cs" />
+    <Compile Include="ContentEncoding.cs" />
+    <Compile Include="ContentObject.cs" />
+    <Compile Include="ContentType.cs" />
+    <Compile Include="DomainList.cs" />
+    <Compile Include="EncodingConstraint.cs" />
+    <Compile Include="FormatOptions.cs" />
+    <Compile Include="GroupAddress.cs" />
+    <Compile Include="Header.cs" />
+    <Compile Include="HeaderId.cs" />
+    <Compile Include="HeaderList.cs" />
+    <Compile Include="HeaderListChangedEventArgs.cs" />
+    <Compile Include="IContentObject.cs" />
+    <Compile Include="InternetAddress.cs" />
+    <Compile Include="InternetAddressList.cs" />
+    <Compile Include="MailboxAddress.cs" />
+    <Compile Include="MessageIdList.cs" />
+    <Compile Include="MessagePart.cs" />
+    <Compile Include="MessagePartial.cs" />
+    <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimeEntityConstructorInfo.cs" />
+    <Compile Include="MimeFormat.cs" />
+    <Compile Include="MimeIterator.cs" />
+    <Compile Include="MimeMessage.cs" />
+    <Compile Include="MimeParser.cs" />
+    <Compile Include="MimePart.cs" />
+    <Compile Include="MimeTypes.cs" />
+    <Compile Include="Multipart.cs" />
+    <Compile Include="MultipartRelated.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterList.cs" />
+    <Compile Include="ParseException.cs" />
+    <Compile Include="ParserOptions.cs" />
+    <Compile Include="RfcComplianceMode.cs" />
+    <Compile Include="TextPart.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

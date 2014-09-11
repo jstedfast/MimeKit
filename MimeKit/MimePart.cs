@@ -115,7 +115,7 @@ namespace MimeKit {
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
 					// Use default as specified by ContentObject ctor when building a new MimePart.
-					content = new ContentObject (stream, ContentEncoding.Default);
+					content = new ContentObject (stream);
 					continue;
 				}
 
@@ -230,10 +230,7 @@ namespace MimeKit {
 				if (md5sum == value)
 					return;
 
-				if (value != null)
-					md5sum = value.Trim ();
-				else
-					md5sum = null;
+				md5sum = value != null ? value.Trim () : null;
 
 				if (value != null)
 					SetHeader ("Content-Md5", md5sum);
@@ -292,10 +289,8 @@ namespace MimeKit {
 				if (filename == null)
 					filename = ContentType.Name;
 
-				if (filename == null)
-					return null;
+				return filename != null ? filename.Trim () : null;
 
-				return filename.Trim ();
 			}
 			set {
 				if (value != null) {
@@ -359,7 +354,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken)
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
@@ -375,22 +370,6 @@ namespace MimeKit {
 					return filter.GetBestEncoding (constraint);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Calculates the most efficient content encoding given the specified constraint.
-		/// </summary>
-		/// <remarks>
-		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
-		/// </remarks>
-		/// <returns>The most efficient content encoding.</returns>
-		/// <param name="constraint">The encoding constraint.</param>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
-		{
-			return GetBestEncoding (constraint, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -477,21 +456,28 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
+		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			base.WriteTo (options, stream, cancellationToken);
 
 			if (ContentObject == null)
 				return;
 
+			var cancellable = stream as ICancellableStream;
+
 			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
-					cancellationToken.ThrowIfCancellationRequested ();
-
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					if (cancellable != null) {
+						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 
 				// transcode the content into the desired Content-Transfer-Encoding
@@ -502,21 +488,26 @@ namespace MimeKit {
 						filtered.Add (options.CreateNewLineFilter ());
 
 					ContentObject.DecodeTo (filtered, cancellationToken);
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
-					cancellationToken.ThrowIfCancellationRequested ();
-
 					var buffer = Encoding.ASCII.GetBytes ("end");
-					stream.Write (buffer, 0, buffer.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					if (cancellable != null) {
+						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (buffer, 0, buffer.Length);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 					ContentObject.WriteTo (filtered, cancellationToken);
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 			} else {
 				ContentObject.WriteTo (stream, cancellationToken);

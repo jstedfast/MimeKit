@@ -102,13 +102,29 @@ namespace MimeKit.Cryptography {
 		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
 		protected abstract IDbCommand GetCreateCrlsTableCommand (IDbConnection connection);
 
+		static void CreateIndex (IDbConnection connection, string tableName, string[] columnNames)
+		{
+			var indexName = string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
+			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
+
+			using (var command = connection.CreateCommand ()) {
+				command.CommandText = query;
+				command.ExecuteNonQuery ();
+			}
+		}
+
 		void CreateCertificatesTable ()
 		{
 			using (var command = GetCreateCertificatesTableCommand (connection)) {
 				command.ExecuteNonQuery ();
 			}
 
-			// FIXME: create some indexes as well?
+			CreateIndex (connection, "CERTIFICATES", new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
+			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "FINGERPRINT" });
+			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
+			CreateIndex (connection, "CERTIFICATES", new [] { "TRUSTED" });
+			CreateIndex (connection, "CERTIFICATES", new [] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
 		}
 
 		void CreateCrlsTable ()
@@ -117,7 +133,8 @@ namespace MimeKit.Cryptography {
 				command.ExecuteNonQuery ();
 			}
 
-			// FIXME: create some indexes as well?
+			CreateIndex (connection, "CRLS", new [] { "ISSUERNAME" });
+			CreateIndex (connection, "CRLS", new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
 		/// <summary>
@@ -132,12 +149,12 @@ namespace MimeKit.Cryptography {
 		protected override IDbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
-			var issuerName = certificate.IssuerDN.ToString ();
+			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
-			var fingerprint = certificate.GetFingerprint ();
+			var issuerName = certificate.IssuerDN.ToString ();
 			var command = connection.CreateCommand ();
 
-			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND lower(FINGERPRINT) = lower(@FINGERPRINT) LIMIT 1";
+			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
 			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
 			command.AddParameterWithValue ("@SERIALNUMBER", serialNumber);
 			command.AddParameterWithValue ("@FINGERPRINT", fingerprint);
@@ -164,27 +181,27 @@ namespace MimeKit.Cryptography {
 			var command = connection.CreateCommand ();
 			var constraints = " WHERE ";
 
-			command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
 			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
+			command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
+
+			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
+				if (secure.Fingerprint.Length < 40) {
+					constraints += "AND FINGERPRINT LIKE @FINGERPRINT ";
+					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant () + "%");
+				} else {
+					constraints += "AND FINGERPRINT = @FINGERPRINT ";
+					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant ());
+				}
+			} else {
+				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL ";
+				command.AddParameterWithValue ("@SUBJECTEMAIL", mailbox.Address.ToLowerInvariant ());
+			}
 
 			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
 			command.AddParameterWithValue ("@NOW", now);
 
 			if (requirePrivateKey)
-				constraints += "AND PRIVATEKEY IS NOT NULL ";
-
-			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				if (secure.Fingerprint.Length < 40) {
-					constraints += "AND FINGERPRINT LIKE @FINGERPRINT";
-					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant () + "%");
-				} else {
-					constraints += "AND FINGERPRINT = @FINGERPRINT";
-					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant ());
-				}
-			} else {
-				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
-				command.AddParameterWithValue ("@SUBJECTEMAIL", mailbox.Address.ToLowerInvariant ());
-			}
+				constraints += "AND PRIVATEKEY IS NOT NULL";
 
 			command.CommandText = query + constraints;
 			command.CommandType = CommandType.Text;
@@ -224,18 +241,6 @@ namespace MimeKit.Cryptography {
 					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
 				}
 
-				if (match.KeyUsage != null) {
-					var flags = X509CertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
-
-					if (flags != X509KeyUsageFlags.None) {
-						if (command.Parameters.Count > 0)
-							constraints += " AND ";
-
-						command.AddParameterWithValue ("@FLAGS", (int) flags);
-						constraints += "(KEYUSAGE & @FLAGS) != 0";
-					}
-				}
-
 				if (match.Issuer != null) {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
@@ -250,6 +255,18 @@ namespace MimeKit.Cryptography {
 
 					command.AddParameterWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
 					constraints += "SERIALNUMBER = @SERIALNUMBER";
+				}
+
+				if (match.KeyUsage != null) {
+					var flags = X509CertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
+
+					if (flags != X509KeyUsageFlags.None) {
+						if (command.Parameters.Count > 0)
+							constraints += " AND ";
+
+						command.AddParameterWithValue ("@FLAGS", (int) flags);
+						constraints += "(KEYUSAGE & @FLAGS) != 0";
+					}
 				}
 			}
 

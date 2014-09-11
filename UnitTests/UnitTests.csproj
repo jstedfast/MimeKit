@@ -3,13 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{0225FDB7-CF63-4402-BB30-9B149AC06C2E}</ProjectGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <OutputType>Library</OutputType>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
-    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="nunit.framework" />
@@ -39,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
-      <Project>{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}</Project>
+      <Project>{D5F54A4F-D84B-430F-9271-F7861E285B3E}</Project>
       <Name>MimeKit</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
@@ -55,17 +61,25 @@
     <Compile Include="DateParserTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
+    <Compile Include="EncoderTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="MemoryBlockStreamTests.cs" />
     <Compile Include="MessagePartialTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
+    <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
+    <Compile Include="RtfCompressedToRtfTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
+    <Compile Include="TnefTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
+    <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestData\encoders\photo.b64" />
+    <None Include="TestData\encoders\photo.jpg" />
+    <None Include="TestData\encoders\photo.uu" />
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
@@ -93,14 +107,33 @@
     <None Include="Npgsql.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestData\tnef\MAPI_ATTACH_DATA_OBJ.list" />
+    <None Include="TestData\tnef\MAPI_ATTACH_DATA_OBJ.tnef" />
+    <None Include="TestData\tnef\MAPI_OBJECT.list" />
+    <None Include="TestData\tnef\MAPI_OBJECT.tnef" />
+    <None Include="TestData\tnef\body.list" />
+    <None Include="TestData\tnef\body.tnef" />
+    <None Include="TestData\tnef\data-before-name.list" />
+    <None Include="TestData\tnef\data-before-name.tnef" />
+    <None Include="TestData\tnef\garbage-at-end.list" />
+    <None Include="TestData\tnef\garbage-at-end.tnef" />
+    <None Include="TestData\tnef\long-filename.list" />
+    <None Include="TestData\tnef\long-filename.tnef" />
+    <None Include="TestData\tnef\missing-filenames.list" />
+    <None Include="TestData\tnef\missing-filenames.tnef" />
+    <None Include="TestData\tnef\multi-name-property.list" />
+    <None Include="TestData\tnef\multi-name-property.tnef" />
+    <None Include="TestData\tnef\one-file.list" />
+    <None Include="TestData\tnef\one-file.tnef" />
+    <None Include="TestData\tnef\rtf.list" />
+    <None Include="TestData\tnef\rtf.tnef" />
+    <None Include="TestData\tnef\triples.list" />
+    <None Include="TestData\tnef\triples.tnef" />
+    <None Include="TestData\tnef\two-files.list" />
+    <None Include="TestData\tnef\two-files.tnef" />
+    <None Include="TestData\yenc\simple.msg" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestData\" />
-    <Folder Include="TestData\mbox\" />
-    <Folder Include="TestData\messages\" />
-    <Folder Include="TestData\openpgp\" />
-    <Folder Include="TestData\smime\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

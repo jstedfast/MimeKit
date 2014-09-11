@@ -1,0 +1,111 @@
+<Type Name="TnefPart" FullName="MimeKit.Tnef.TnefPart">
+  <TypeSignature Language="C#" Value="public class TnefPart : MimeKit.MimePart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TnefPart extends MimeKit.MimePart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.MimePart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A MIME part containing Microsoft TNEF data.
+            </summary>
+    <remarks>
+      <para>Represents an application/ms-tnef or application/vnd.ms-tnef part.</para>
+      <para>TNEF (Transport Neutral Encapsulation Format) attachments are most often
+            sent by Microsoft Outlook clients.</para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TnefPart ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Tnef.TnefPart" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Tnef.TnefPart" /> with a Content-Type of application/vnd.ms-tnef
+            and a Content-Disposition value of "attachment" and a filename paremeter with a
+            value of "winmail.dat".
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TnefPart (MimeKit.MimeEntityConstructorInfo entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorInfo entity) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="entity" Type="MimeKit.MimeEntityConstructorInfo" />
+      </Parameters>
+      <Docs>
+        <param name="entity">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Tnef.TnefPart" /> class.
+            </summary>
+        <remarks>This constructor is used by <see cref="T:MimeKit.MimeParser" />.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ConvertToMessage">
+      <MemberSignature Language="C#" Value="public MimeKit.MimeMessage ConvertToMessage ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.MimeMessage ConvertToMessage() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.MimeMessage</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Converts the TNEF content into a <see cref="T:MimeKit.MimeMessage" />.
+            </summary>
+        <returns>A message representing the TNEF data in MIME format.</returns>
+        <remarks>
+            TNEF data often contains properties that map to <see cref="T:MimeKit.MimeMessage" />
+            headers. TNEF data also often contains file attachments which will be
+            mapped to MIME parts.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The <see cref="P:MimeKit.MimePart.ContentObject" /> property is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtractAttachments">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; ExtractAttachments ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; ExtractAttachments() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Extracts the embedded attachments from the TNEF data.
+            </summary>
+        <returns>The attachments.</returns>
+        <remarks>
+            Parses the TNEF data and extracts all of the embedded file attachments.
+            </remarks>
+        <exception cref="T:System.InvalidOperationException">
+            The <see cref="P:MimeKit.MimePart.ContentObject" /> property is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

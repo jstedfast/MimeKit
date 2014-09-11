@@ -1,0 +1,124 @@
+<Type Name="ICancellableStream" FullName="MimeKit.IO.ICancellableStream">
+  <TypeSignature Language="C#" Value="public interface ICancellableStream" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract ICancellableStream" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces />
+  <Docs>
+    <summary>
+            An interface allowing for a cancellable stream reading operation.
+            </summary>
+    <remarks>
+      <para>This interface is meant to extend the functionality of a <see cref="T:System.IO.Stream" />,
+            allowing the <see cref="T:MimeKit.MimeParser" /> to have much finer-grained canellability.</para>
+      <para>When a custom stream implementation also implements this interface,
+            the <see cref="T:MimeKit.MimeParser" /> will opt to use this interface
+            instead of the normal <see cref="M:System.IO.Stream.Read(System.Byte[],System.Int32,System.Int32)" />
+            API to read data from the stream.</para>
+      <para>This is really useful when parsing a message or other MIME entity
+            directly from a network-based stream.</para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Flush">
+      <MemberSignature Language="C#" Value="public void Flush (System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Flush(valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="cancellationToken">The cancellation token.</param>
+        <summary>
+            Clears all buffers for this stream and causes any buffered data to be written
+            to the underlying device.
+            </summary>
+        <remarks>
+            Clears all buffers for this stream and causes any buffered data to be written
+            to the underlying device.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public int Read (byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Read(unsigned int8[] buffer, int32 offset, int32 count, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of bytes to read.</param>
+        <param name="cancellationToken">The cancellation token.</param>
+        <summary>
+            Reads a sequence of bytes from the stream and advances the position
+            within the stream by the number of bytes read.
+            </summary>
+        <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+            bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+        <remarks>
+          <para>When a custom stream implementation also implements this interface,
+            the <see cref="T:MimeKit.MimeParser" /> will opt to use this interface
+            instead of the normal <see cref="M:System.IO.Stream.Read(System.Byte[],System.Int32,System.Int32)" />
+            API to read data from the stream.</para>
+          <para>This is really useful when parsing a message or other MIME entity
+            directly from a network-based stream.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public void Write (byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellationToken);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Write(unsigned int8[] buffer, int32 offset, int32 count, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The buffer to write.</param>
+        <param name="offset">The offset of the first byte to write.</param>
+        <param name="count">The number of bytes to write.</param>
+        <param name="cancellationToken">The cancellation token</param>
+        <summary>
+            Writes a sequence of bytes to the stream and advances the current
+            position within this stream by the number of bytes written.
+            </summary>
+        <remarks>
+          <para>When a custom stream implementation also implements this interface,
+            writing a <see cref="T:MimeKit.MimeMessage" /> or <see cref="T:MimeKit.MimeEntity" />
+            to the custom stream will opt to use this interface
+            instead of the normal <see cref="M:System.IO.Stream.Write(System.Byte[],System.Int32,System.Int32)" />
+            API to write data to the stream.</para>
+          <para>This is really useful when writing a message or other MIME entity
+            directly to a network-based stream.</para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

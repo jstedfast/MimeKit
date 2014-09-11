@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Runtime.Serialization;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -33,8 +34,32 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a private key could not be found for a specified mailbox or key id.
 	/// </remarks>
+#if !PORTABLE
+	[Serializable]
+#endif
 	public class PrivateKeyNotFoundException : Exception
 	{
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		protected PrivateKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			KeyId = info.GetString ("KeyId");
+		}
+#endif
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
 		/// </summary>
@@ -72,6 +97,31 @@ namespace MimeKit.Cryptography {
 
 			KeyId = keyid;
 		}
+
+#if !PORTABLE
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			info.AddValue ("KeyId", KeyId);
+
+			base.GetObjectData (info, context);
+		}
+#endif
 
 		/// <summary>
 		/// Gets the key id that could not be found.

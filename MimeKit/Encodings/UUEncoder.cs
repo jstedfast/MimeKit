@@ -69,7 +69,7 @@ namespace MimeKit.Encodings {
 		{
 			var encoder = new UUEncoder ();
 
-			Array.Copy (uubuf, encoder.uubuf, uubuf.Length);
+			Buffer.BlockCopy (uubuf, 0, encoder.uubuf, 0, uubuf.Length);
 			encoder.nsaved = nsaved;
 			encoder.saved = saved;
 			encoder.uulen = uulen;
@@ -84,8 +84,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the encoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding
-		{
+		public ContentEncoding Encoding {
 			get { return ContentEncoding.UUEncode; }
 		}
 
@@ -129,13 +128,13 @@ namespace MimeKit.Encodings {
 		{
 			if (length == 0)
 				return 0;
-			
+
 			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
 			byte* bufptr;
 			byte b0, b1, b2;
-			
+
 			if ((length + uulen) < 45) {
 				// not enough input to write a full uuencoded line
 				bufptr = uuptr + ((uulen / 3) * 4);
@@ -144,11 +143,13 @@ namespace MimeKit.Encodings {
 				
 				if (uulen > 0) {
 					// copy the previous call's uubuf to output
-					Array.Copy (uubuf, 0, outbuf, (int) (bufptr - outptr), ((uulen / 3) * 4));
-					bufptr += ((uulen / 3) * 4);
+					int n = (uulen / 3) * 4;
+
+					Buffer.BlockCopy (uubuf, 0, outbuf, (int) (bufptr - output), n);
+					bufptr += n;
 				}
 			}
-			
+
 			if (nsaved == 2) {
 				b0 = (byte) ((saved >> 8) & 0xFF);
 				b1 = (byte) (saved & 0xFF);
@@ -185,7 +186,7 @@ namespace MimeKit.Encodings {
 					}
 				}
 			}
-			
+
 			while (inptr < inend) {
 				while (uulen < 45 && (inptr + 3) <= inend) {
 					b0 = *inptr++;
@@ -300,17 +301,17 @@ namespace MimeKit.Encodings {
 			}
 			
 			if (uulen > 0) {
-				int copylen = ((uulen / 3) * 4);
+				int n = (uulen / 3) * 4;
 				
 				*outptr++ = Encode ((uulen - uufill) & 0xFF);
-				Array.Copy (uubuf, 0, outbuf, (int) (outptr - output), copylen);
-				outptr += copylen;
+				Buffer.BlockCopy (uubuf, 0, outbuf, (int) (outptr - output), n);
+				outptr += n;
 
 				*outptr++ = (byte) '\n';
 				uulen = 0;
 			}
 			
-			*outptr++ = Encode (uulen & 0xff);
+			*outptr++ = Encode (uulen & 0xFF);
 			*outptr++ = (byte) '\n';
 
 			Reset ();

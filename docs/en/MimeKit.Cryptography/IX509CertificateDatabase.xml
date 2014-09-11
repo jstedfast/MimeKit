@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract IX509CertificateDatabase implements class Org.BouncyCastle.X509.Store.IX509Store, class System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Interfaces>
     <Interface>
@@ -29,7 +29,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -52,7 +52,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -75,7 +75,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.X509CrlRecord&gt; Find(class Org.BouncyCastle.Asn1.X509.X509Name issuer, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.X509CrlRecord&gt;</ReturnType>
@@ -102,7 +102,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Cryptography.X509CertificateRecord Find(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CertificateRecord</ReturnType>
@@ -129,7 +129,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Cryptography.X509CrlRecord Find(class Org.BouncyCastle.X509.X509Crl crl, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509CrlRecord</ReturnType>
@@ -156,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.X509CertificateRecord&gt; Find(class Org.BouncyCastle.X509.Store.IX509Selector selector, bool trustedOnly, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.X509CertificateRecord&gt;</ReturnType>
@@ -186,7 +186,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.Cryptography.X509CertificateRecord&gt; Find(class MimeKit.MailboxAddress mailbox, valuetype System.DateTime now, bool requirePrivateKey, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.Cryptography.X509CertificateRecord&gt;</ReturnType>
@@ -219,7 +219,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; FindCertificates(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
@@ -244,7 +244,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Crypto.AsymmetricKeyParameter&gt; FindPrivateKeys(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Crypto.AsymmetricKeyParameter&gt;</ReturnType>
@@ -269,7 +269,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetCrlStore() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -290,7 +290,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Remove(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -313,7 +313,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Remove(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -336,7 +336,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Update(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -359,7 +359,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Update(class MimeKit.Cryptography.X509CertificateRecord record, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

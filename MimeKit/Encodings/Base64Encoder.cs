@@ -165,7 +165,7 @@ namespace MimeKit.Encodings {
 					*outptr++ = base64_alphabet[c3 & 0x3f];
 
 					// encode 18 quartets per line
-					if (!rfc2047 && (++quartets) >= 18) {
+					if (!rfc2047 && (++quartets) >= QuartetsPerLine) {
 						*outptr++ = (byte) '\n';
 						quartets = 0;
 					}

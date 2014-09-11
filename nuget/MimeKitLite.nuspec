@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.32.0.0</version>
+        <version>0.96.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,13 +22,15 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Fixed a corner-case bug in MimeParser's header parser.
-* Added a work-around for mail clients that mistakenly quote rfc2184 encoded parameter values.
-* Now includes the Xamarin.Android and Xamarin.iOS assemblies.</releaseNotes>
+        <releaseNotes>* Modified the TextPart.Text getter to try UTF-8 before falling back to Latin1 if no charset is specified.
+* Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime mbox email parser net40 xamarin android ios monodroid monotouch</tags>
+        <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
         <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
@@ -45,5 +47,13 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
         <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.xml" target="lib\MonoTouch\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.dll" target="lib\net40\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.xml" target="lib\net40\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.xml" target="lib\net45\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\portable\MimeKitLite.dll" target="lib\portable-net45+win8\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\portable\MimeKitLite.xml" target="lib\portable-net45+win8\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win8\Portable.Text.Encoding.dll" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKitLite.dll" target="lib\wpa81\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKitLite.xml" target="lib\wpa81\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
     </files>
 </package>

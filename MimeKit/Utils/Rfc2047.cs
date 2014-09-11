@@ -82,7 +82,12 @@ namespace MimeKit.Utils {
 
 		static bool IsAscii (byte c)
 		{
-			return c.IsAscii ();
+			return c < 128;
+		}
+
+		static bool IsAsciiAtom (byte c)
+		{
+			return c.IsAsciiAtom ();
 		}
 
 		static bool IsAtom (byte c)
@@ -126,7 +131,7 @@ namespace MimeKit.Utils {
 
 			// find the end of the charset name
 			while (inptr < inend && *inptr != '?' && *inptr != '*') {
-				if (!IsAtom (*inptr))
+				if (!IsAsciiAtom (*inptr))
 					return false;
 
 				charset.Append ((char) *inptr);
@@ -139,7 +144,7 @@ namespace MimeKit.Utils {
 
 				// find the end of the language code
 				while (inptr < inend && *inptr != '?') {
-					if (!IsAtom (*inptr))
+					if (!IsAsciiAtom (*inptr))
 						return false;
 
 					culture.Append ((char) *inptr);
@@ -202,8 +207,8 @@ namespace MimeKit.Utils {
 
 				word = inptr;
 				ascii = true;
-				if (inptr < inend && IsAtom (*inptr)) {
-					if (options.EnableRfc2047Workarounds) {
+				if (inptr < inend && IsAsciiAtom (*inptr)) {
+					if (options.Rfc2047ComplianceMode == RfcComplianceMode.Loose) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;
@@ -250,13 +255,16 @@ namespace MimeKit.Utils {
 							while (inptr < inend && IsAtom (*inptr)) {
 								if (inptr + 2 < inend && *inptr == '=' && *(inptr + 1) == '?')
 									break;
+								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
 						}
 					} else {
 						// encoded-word tokens are atoms
-						while (inptr < inend && IsAtom (*inptr))
+						while (inptr < inend && IsAsciiAtom (*inptr)) {
+							//ascii = ascii && IsAscii (*inptr);
 							inptr++;
+						}
 					}
 
 					n = (int) (inptr - word);
@@ -286,9 +294,9 @@ namespace MimeKit.Utils {
 					if (lwsp != null)
 						tokens.Add (lwsp);
 
-					// append the non-atom token
+					// append the non-ascii atom token
 					ascii = true;
-					while (inptr < inend && !IsLwsp (*inptr) && !IsAtom (*inptr)) {
+					while (inptr < inend && !IsLwsp (*inptr) && !IsAsciiAtom (*inptr)) {
 						ascii = ascii && IsAscii (*inptr);
 						inptr++;
 					}
@@ -329,7 +337,7 @@ namespace MimeKit.Utils {
 					word = inptr;
 					ascii = true;
 
-					if (options.EnableRfc2047Workarounds) {
+					if (options.Rfc2047ComplianceMode == RfcComplianceMode.Loose) {
 						// Make an extra effort to detect and separate encoded-word
 						// tokens that have been merged with other words.
 						bool is_rfc2047 = false;
@@ -748,12 +756,14 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input, bool structured)
+		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input)
 		{
-			var output = new StringBuilder (" ");
+			var output = new StringBuilder (input.Length + 2);
 			int lineLength = field.Length + 2;
 			int lwsp = 0, tab = 0;
 			Token token;
+
+			output.Append (' ');
 
 			for (int i = 0; i < tokens.Count; i++) {
 				token = tokens[i];
@@ -777,7 +787,7 @@ namespace MimeKit.Utils {
 					}
 
 					if (lineLength == 0 && i + 1 < tokens.Count) {
-						output.Append (structured ? '\t' : ' ');
+						output.Append (' ');
 						lineLength = 1;
 					}
 				} else if (token.Encoding != ContentEncoding.Default) {
@@ -795,7 +805,7 @@ namespace MimeKit.Utils {
 						} else if (lineLength > 1) {
 							// force a line break...
 							output.Append (options.NewLine);
-							output.Append (structured ? '\t' : ' ');
+							output.Append (' ');
 							lineLength = 1;
 						}
 					}
@@ -824,25 +834,23 @@ namespace MimeKit.Utils {
 					} else if (lineLength > 1) {
 						// force a line break...
 						output.Append (options.NewLine);
-						output.Append (structured ? '\t' : ' ');
+						output.Append (' ');
 						lineLength = 1;
 					}
 
 					if (token.Length >= options.MaxLineLength) {
-						// the token is longer than the allowable line length,
+						// the token is longer than the maximum allowable line length,
 						// so we'll have to break it apart...
-						int half = token.StartIndex + (options.MaxLineLength - lineLength);
+						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
+							if (lineLength >= options.MaxLineLength) {
+								output.Append (options.NewLine);
+								output.Append (' ');
+								lineLength = 1;
+							}
 
-						for (int n = token.StartIndex; n < half; n++)
 							output.Append ((char) input[n]);
-
-						output.Append (options.NewLine);
-						output.Append ('\t');
-
-						for (int n = half; n < token.StartIndex + token.Length; n++)
-							output.Append ((char) input[n]);
-
-						lineLength = (token.Length - half) + 1;
+							lineLength++;
+						}
 					} else {
 						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
 							output.Append ((char) input[n]);
@@ -868,24 +876,13 @@ namespace MimeKit.Utils {
 			return Encoding.ASCII.GetBytes (output.ToString ());
 		}
 
-		internal static byte[] FoldStructuredHeader (FormatOptions options, string field, byte[] text)
-		{
-			unsafe {
-				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
-
-					return FoldTokens (options, tokens, field, text, true);
-				}
-			}
-		}
-
 		internal static byte[] FoldUnstructuredHeader (FormatOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
 					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
 
-					return FoldTokens (options, tokens, field, text, false);
+					return FoldTokens (options, tokens, field, text);
 				}
 			}
 		}
@@ -916,7 +913,7 @@ namespace MimeKit.Utils {
 			return ContentEncoding.Base64;
 		}
 
-		static void AppendEncodeWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		static void AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
 			var chars = new char[length];
 			IMimeEncoder encoder;
@@ -1350,7 +1347,7 @@ namespace MimeKit.Utils {
 						start = prev.StartIndex + prev.CharCount;
 						length = (word.StartIndex + word.CharCount) - start;
 
-						str.Append (' ');
+						str.Append (phrase ? '\t' : ' ');
 					} else {
 						start = word.StartIndex;
 						length = word.CharCount;
@@ -1358,13 +1355,13 @@ namespace MimeKit.Utils {
 
 					switch (word.Encoding) {
 					case 0: // us-ascii
-						AppendEncodeWord (str, Encoding.ASCII, text, start, length, mode);
+						AppendEncodedWord (str, Encoding.ASCII, text, start, length, mode);
 						break;
 					case 1: // iso-8859-1
-						AppendEncodeWord (str, latin1, text, start, length, mode);
+						AppendEncodedWord (str, latin1, text, start, length, mode);
 						break;
 					default: // custom charset
-						AppendEncodeWord (str, charset, text, start, length, mode);
+						AppendEncodedWord (str, charset, text, start, length, mode);
 						break;
 					}
 					break;

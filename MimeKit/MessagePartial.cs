@@ -216,7 +216,7 @@ namespace MimeKit {
 
 				foreach (var stream in streams) {
 					var part = new MessagePartial (id, number++, streams.Count);
-					part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+					part.ContentObject = new ContentObject (stream);
 
 					var submessage = CloneMessage (message);
 					submessage.MessageId = MimeUtils.GenerateMessageId ();

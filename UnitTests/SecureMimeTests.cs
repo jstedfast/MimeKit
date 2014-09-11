@@ -125,7 +125,7 @@ namespace UnitTests {
 					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[12], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -172,7 +172,7 @@ namespace UnitTests {
 					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[12], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -342,7 +342,7 @@ namespace UnitTests {
 					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[9], "Expected RC2-128 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[10], "Expected RC2-64 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[11], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[11], "Expected RC2-40 capability");
+					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[12], "Expected RC2-40 capability");
 				}
 			}
 		}

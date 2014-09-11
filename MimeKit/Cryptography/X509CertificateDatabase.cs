@@ -939,7 +939,6 @@ namespace MimeKit.Cryptography {
 		{
 			var crls = new List<X509Crl> ();
 
-			// TODO: we could cache this...
 			using (var command = GetSelectAllCrlsCommand ()) {
 				var reader = command.ExecuteReader ();
 
@@ -990,6 +989,8 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
+			for (int i = 0; i < passwd.Length; i++)
+				passwd[i] = '\0';
 		}
 
 		/// <summary>

@@ -72,19 +72,43 @@ namespace MimeKit.Utils {
 			// Chinese charsets (aliases for big5)
 			aliases.Add ("big5",           950);
 			aliases.Add ("big5-0",         950);
+			aliases.Add ("big5-hkscs",     950);
 			aliases.Add ("big5.eten-0",    950);
 			aliases.Add ("big5hkscs-0",    950);
 
-			// Chinese charsets (aliases for gbk / euc-cn)
-			// 'upgrade' gb2312 to GBK (aka euc-cn) since it is a superset
-			aliases.Add ("gb2312",         51936);
-			aliases.Add ("gb-2312",        51936);
-			aliases.Add ("gb2312-0",       51936);
-			aliases.Add ("gb2312-80",      51936);
-			aliases.Add ("gb2312.1980-0",  51936);
-			aliases.Add ("euc-cn",         51936);
-			aliases.Add ("gbk-0",          51936);
-			aliases.Add ("gbk",            51936);
+			// Chinese charsets (aliases for gb2312)
+			aliases.Add ("gb2312",         936);
+			aliases.Add ("gb-2312",        936);
+			aliases.Add ("gb2312-0",       936);
+			aliases.Add ("gb2312-80",      936);
+			aliases.Add ("gb2312.1980-0",  936);
+
+			// Chinese charsets (euc-cn and gbk not supported on Mono)
+			try {
+				Encoding.GetEncoding (51936);
+				aliases.Add ("euc-cn",     51936);
+				aliases.Add ("gbk-0",      51936);
+				aliases.Add ("x-gbk",      51936);
+				aliases.Add ("gbk",        51936);
+			} catch {
+				// https://bugzilla.mozilla.org/show_bug.cgi?id=844082 seems to suggest falling back to gb2312.
+				// fall back to gb2312
+				aliases.Add ("euc-cn",     936);
+				aliases.Add ("gbk-0",      936);
+				aliases.Add ("x-gbk",      936);
+				aliases.Add ("gbk",        936);
+			}
+
+			// Chinese charsets (hz-gb-2312 not suported on Mono)
+			try {
+				Encoding.GetEncoding (52936);
+				aliases.Add ("hz-gb-2312",  52936);
+				aliases.Add ("hz-gb2312",   52936);
+			} catch {
+				// fall back to gb2312
+				aliases.Add ("hz-gb-2312",  936);
+				aliases.Add ("hz-gb2312",   936);
+			}
 
 			// Chinese charsets (aliases for gb18030)
 			aliases.Add ("gb18030-0",      54936);
@@ -440,7 +464,7 @@ namespace MimeKit.Utils {
 
 			for (int i = 0; i < codepages.Length; i++) {
 				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
-				decoder = encoding.GetDecoder ();
+				decoder = (Decoder) encoding.GetDecoder ();
 
 				count = decoder.GetCharCount (input, startIndex, length, true);
 				if (invalid.InvalidByteCount < min) {
@@ -456,7 +480,7 @@ namespace MimeKit.Utils {
 			}
 
 			encoding = CharsetUtils.GetEncoding (best, "?");
-			decoder = encoding.GetDecoder ();
+			decoder = (Decoder) encoding.GetDecoder ();
 			output = new char[bestCharCount];
 
 			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);

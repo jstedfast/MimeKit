@@ -250,7 +250,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
 		/// at the specified <paramref name="offset"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
@@ -274,11 +274,15 @@ namespace MimeKit.IO {
 
 			int n, nread = 0;
 
-			while (current < streams.Count && nread < count) {
-				if ((n = streams[current].Read (buffer, offset + nread, count - nread)) > 0)
+			while (current < streams.Count) {
+				if ((n = streams[current].Read (buffer, offset + nread, count - nread)) > 0) {
 					nread += n;
-				else
-					current++;
+
+					if (nread == count)
+						break;
+				}
+
+				current++;
 			}
 
 			if (nread > 0)
@@ -308,7 +312,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes strting
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
 		/// at the specified <paramref name="offset"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
@@ -420,6 +424,8 @@ namespace MimeKit.IO {
 					if (position < real)
 						current++;
 				}
+
+				eos = current >= streams.Count;
 			} else {
 				int max = Math.Min (streams.Count - 1, current);
 				int cur = 0;
@@ -444,6 +450,8 @@ namespace MimeKit.IO {
 				// reset any streams between our new current stream and our old current stream
 				while (cur <= max)
 					streams[cur++].Seek (0, SeekOrigin.Begin);
+
+				eos = false;
 			}
 
 			return position;

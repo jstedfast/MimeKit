@@ -1,0 +1,492 @@
+<Type Name="TnefReader" FullName="MimeKit.Tnef.TnefReader">
+  <TypeSignature Language="C#" Value="public class TnefReader : IDisposable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit TnefReader extends System.Object implements class System.IDisposable" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            A TNEF reader.
+            </summary>
+    <remarks>
+            A TNEF reader.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TnefReader (System.IO.Stream inputStream);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream inputStream) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="inputStream" Type="System.IO.Stream" />
+      </Parameters>
+      <Docs>
+        <param name="inputStream">The input stream.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Tnef.TnefReader" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Tnef.TnefReader" /> for the specified input stream.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="inputStream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TnefReader (System.IO.Stream inputStream, int defaultMessageCodepage, MimeKit.Tnef.TnefComplianceMode complianceMode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.IO.Stream inputStream, int32 defaultMessageCodepage, valuetype MimeKit.Tnef.TnefComplianceMode complianceMode) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="inputStream" Type="System.IO.Stream" />
+        <Parameter Name="defaultMessageCodepage" Type="System.Int32" />
+        <Parameter Name="complianceMode" Type="MimeKit.Tnef.TnefComplianceMode" />
+      </Parameters>
+      <Docs>
+        <param name="inputStream">The input stream.</param>
+        <param name="defaultMessageCodepage">The default message codepage.</param>
+        <param name="complianceMode">The compliance mode.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Tnef.TnefReader" /> class.
+            </summary>
+        <remarks>
+          <para>When reading a TNEF stream using the <see cref="F:MimeKit.Tnef.TnefComplianceMode.Strict" /> mode,
+            a <see cref="T:MimeKit.Tnef.TnefException" /> will be thrown immediately at the first sign of
+            invalid or corrupted data.</para>
+          <para>When reading a TNEF stream using the <see cref="F:MimeKit.Tnef.TnefComplianceMode.Loose" /> mode,
+            however, compliance issues are accumulated in the <see cref="P:MimeKit.Tnef.TnefReader.ComplianceMode" />
+            property, but exceptions are not raised unless the stream is too corrupted to continue.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="inputStream" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="defaultMessageCodepage" /> is not a valid codepage.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="defaultMessageCodepage" /> is not a supported codepage.
+            </exception>
+        <exception cref="T:MimeKit.Tnef.TnefException">
+            The TNEF stream is corrupted or invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="AttachmentKey">
+      <MemberSignature Language="C#" Value="public short AttachmentKey { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int16 AttachmentKey" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the attachment key value.
+            </summary>
+        <value>The attachment key value.</value>
+        <remarks>
+            Gets the attachment key value.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AttributeLevel">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefAttributeLevel AttributeLevel { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefAttributeLevel AttributeLevel" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefAttributeLevel</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current attribute's level.
+            </summary>
+        <value>The current attribute's level.</value>
+        <remarks>
+            Gets the current attribute's level.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AttributeRawValueLength">
+      <MemberSignature Language="C#" Value="public int AttributeRawValueLength { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 AttributeRawValueLength" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the length of the current attribute's raw value.
+            </summary>
+        <value>The length of the current attribute's raw value.</value>
+        <remarks>
+            Gets the length of the current attribute's raw value.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AttributeRawValueStreamOffset">
+      <MemberSignature Language="C#" Value="public int AttributeRawValueStreamOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 AttributeRawValueStreamOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the stream offset of the current attribute's raw value.
+            </summary>
+        <value>The stream offset of the current attribute's raw value.</value>
+        <remarks>
+            Gets the stream offset of the current attribute's raw value.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AttributeTag">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefAttributeTag AttributeTag { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefAttributeTag AttributeTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefAttributeTag</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current attribute's tag.
+            </summary>
+        <value>The current attribute's tag.</value>
+        <remarks>
+            Gets the current attribute's tag.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Close">
+      <MemberSignature Language="C#" Value="public void Close ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Close() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Closes the TNEF reader and the underlying stream.
+            </summary>
+        <remarks>
+            Closes the TNEF reader and the underlying stream.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ComplianceMode">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefComplianceMode ComplianceMode { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefComplianceMode ComplianceMode" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceMode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the compliance mode.
+            </summary>
+        <value>The compliance mode.</value>
+        <remarks>
+            Gets the compliance mode.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ComplianceStatus">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefComplianceStatus ComplianceStatus { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Tnef.TnefComplianceStatus ComplianceStatus" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current compliance status of the TNEF stream.
+            </summary>
+        <value>The compliance status.</value>
+        <remarks>
+          <para>Gets the current compliance status of the TNEF stream.</para>
+          <para>As the reader progresses, this value may change if errors are encountered.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Dispose">
+      <MemberSignature Language="C#" Value="public void Dispose ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Dispose() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Releases all resource used by the <see cref="T:MimeKit.Tnef.TnefReader" /> object.
+            </summary>
+        <remarks>Call <see cref="M:MimeKit.Tnef.TnefReader.Dispose" /> when you are finished using the <see cref="T:MimeKit.Tnef.TnefReader" />. The
+            <see cref="M:MimeKit.Tnef.TnefReader.Dispose" /> method leaves the <see cref="T:MimeKit.Tnef.TnefReader" /> in an unusable state. After calling
+            <see cref="M:MimeKit.Tnef.TnefReader.Dispose" />, you must release all references to the <see cref="T:MimeKit.Tnef.TnefReader" /> so the garbage
+            collector can reclaim the memory that the <see cref="T:MimeKit.Tnef.TnefReader" /> was occupying.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Dispose">
+      <MemberSignature Language="C#" Value="protected virtual void Dispose (bool disposing);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void Dispose(bool disposing) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="disposing" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="disposing">
+          <c>true</c> to release both managed and unmanaged resources;
+            <c>false</c> to release only the unmanaged resources.</param>
+        <summary>
+            Releases the unmanaged resources used by the <see cref="T:MimeKit.Tnef.TnefReader" /> and
+            optionally releases the managed resources.
+            </summary>
+        <remarks>
+            Releases the unmanaged resources used by the <see cref="T:MimeKit.Tnef.TnefReader" /> and
+            optionally releases the managed resources.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Finalize">
+      <MemberSignature Language="C#" Value="~TnefReader ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Finalize() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Releases unmanaged resources and performs other cleanup operations before the
+            <see cref="T:MimeKit.Tnef.TnefReader" /> is reclaimed by garbage collection.
+            </summary>
+        <remarks>
+            Releases unmanaged resources and performs other cleanup operations before the
+            <see cref="T:MimeKit.Tnef.TnefReader" /> is reclaimed by garbage collection.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MessageCodepage">
+      <MemberSignature Language="C#" Value="public int MessageCodepage { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 MessageCodepage" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the message codepage.
+            </summary>
+        <value>The message codepage.</value>
+        <remarks>
+            Gets the message codepage.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadAttributeRawValue">
+      <MemberSignature Language="C#" Value="public int ReadAttributeRawValue (byte[] buffer, int offset, int count);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadAttributeRawValue(unsigned int8[] buffer, int32 offset, int32 count) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="count" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The buffer to read data into.</param>
+        <param name="offset">The offset into the buffer to start reading data.</param>
+        <param name="count">The number of bytes to read.</param>
+        <summary>
+            Reads the raw attribute value data from the underlying TNEF stream.
+            </summary>
+        <returns>The total number of bytes read into the buffer. This can be less than the number
+            of bytes requested if that many bytes are not available, or zero (0) if the end of the
+            value has been reached.</returns>
+        <remarks>
+            Reads the raw attribute value data from the underlying TNEF stream.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="buffer" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="offset" /> is less than zero or greater than the length of <paramref name="buffer" />.</para>
+          <para>-or-</para>
+          <para>The <paramref name="buffer" /> is not large enough to contain <paramref name="count" /> bytes starting
+            at the specified <paramref name="offset" />.</para>
+        </exception>
+        <exception cref="T:System.ObjectDisposedException">
+            The stream has been disposed.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadNextAttribute">
+      <MemberSignature Language="C#" Value="public bool ReadNextAttribute ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool ReadNextAttribute() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Advances to the next attribute in the TNEF stream.
+            </summary>
+        <returns>
+          <c>true</c> if there is another attribute available to be read; otherwise <c>false</c>.</returns>
+        <remarks>
+            Advances to the next attribute in the TNEF stream.
+            </remarks>
+        <exception cref="T:MimeKit.Tnef.TnefException">
+            The TNEF stream is corrupted or invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ResetComplianceStatus">
+      <MemberSignature Language="C#" Value="public void ResetComplianceStatus ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void ResetComplianceStatus() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Resets the compliance status.
+            </summary>
+        <remarks>
+            Resets the compliance status.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="StreamOffset">
+      <MemberSignature Language="C#" Value="public int StreamOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 StreamOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the current stream offset.
+            </summary>
+        <value>The stream offset.</value>
+        <remarks>
+            Gets the current stream offset.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TnefPropertyReader">
+      <MemberSignature Language="C#" Value="public MimeKit.Tnef.TnefPropertyReader TnefPropertyReader { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Tnef.TnefPropertyReader TnefPropertyReader" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyReader</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the TNEF property reader.
+            </summary>
+        <value>The TNEF property reader.</value>
+        <remarks>
+            Gets the TNEF property reader.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TnefVersion">
+      <MemberSignature Language="C#" Value="public int TnefVersion { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 TnefVersion" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the TNEF version.
+            </summary>
+        <value>The TNEF version.</value>
+        <remarks>
+            Gets the TNEF version.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

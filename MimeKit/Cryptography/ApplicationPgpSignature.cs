@@ -68,9 +68,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ApplicationPgpSignature (Stream stream) : base ("application", "pgp-signature")
 		{
-			ContentObject = new ContentObject (stream, ContentEncoding.Default);
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.SevenBit;
+			ContentObject = new ContentObject (stream);
 		}
 	}
 }

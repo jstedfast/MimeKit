@@ -36,7 +36,7 @@ namespace UnitTests {
 	{
 		static string ByteArrayToString (byte[] text)
 		{
-			StringBuilder builder = new StringBuilder ();
+			var builder = new StringBuilder ();
 
 			for (int i = 0; i < text.Length; i++)
 				builder.Append ((char) text[i]);
@@ -65,9 +65,78 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestHeaderFolding ()
+		public void TestAddressHeaderFolding ()
 		{
-			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 72 character limit.");
+			var expected = " Jeffrey Stedfast <jeff@xamarin.com>, \"Jeffrey A. Stedfast\"" + FormatOptions.Default.NewLine +
+				"\t<jeff@xamarin.com>, \"Dr. Gregory House, M.D.\"" + FormatOptions.Default.NewLine +
+				"\t<house@princeton-plainsboro-hospital.com>" + FormatOptions.Default.NewLine;
+			var header = new Header ("To", "Jeffrey Stedfast <jeff@xamarin.com>, \"Jeffrey A. Stedfast\" <jeff@xamarin.com>, \"Dr. Gregory House, M.D.\" <house@princeton-plainsboro-hospital.com>");
+			var raw = ByteArrayToString (header.RawValue);
+
+			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
+
+			Assert.IsTrue (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, "The RawValue is not folded properly.");
+			Assert.AreEqual (expected, raw, "The folded address header does not match the expected value.");
+		}
+
+		[Test]
+		public void TestMessageIdHeaderFolding ()
+		{
+			var header = new Header ("Message-Id", string.Format ("<{0}@princeton-plainsboro-hospital.com>", Guid.NewGuid ()));
+			var expected = " " + header.Value + FormatOptions.Default.NewLine;
+			var raw = ByteArrayToString (header.RawValue);
+
+			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
+
+			Assert.AreEqual (expected, raw, "The folded Message-Id header does not match the expected value.");
+		}
+
+		static readonly string[] ReceivedHeaderValues = {
+			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST",
+			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST",
+			" from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41" + FormatOptions.Default.NewLine + "\tvia MS.5.6.greenbush.galaxy.sun4_41; Fri, 12 Jun 1992 13:29:05 -0400 (EDT)",
+			" from sqhilton.pc.cs.cmu.edu by po3.andrew.cmu.edu (5.54/3.15)" + FormatOptions.Default.NewLine + "\tid <AA21478> for beatty@cosmos.vlsi.cs.cmu.edu; Wed, 26 Aug 92 22:14:07 EDT",
+		};
+
+		[Test]
+		public void TestReceivedHeaderFolding ()
+		{
+			var header = new Header ("Received", "");
+
+			foreach (var received in ReceivedHeaderValues) {
+				header.SetValue (Encoding.ASCII, received.Replace (FormatOptions.Default.NewLine + "\t", " ").Trim ());
+
+				var raw = ByteArrayToString (header.RawValue);
+
+				Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
+
+				Assert.AreEqual (received + FormatOptions.Default.NewLine, raw, "The folded Received header does not match the expected value.");
+			}
+		}
+
+		[Test]
+		public void TestReferencesHeaderFolding ()
+		{
+			var expected = new StringBuilder ();
+
+			expected.AppendFormat (" <{0}@princeton-plainsboro-hospital.com>", Guid.NewGuid ());
+			for (int i = 0; i < 5; i++)
+				expected.AppendFormat ("{0}\t<{1}@princeton-plainsboro-hospital.com>", FormatOptions.Default.NewLine, Guid.NewGuid ());
+
+			expected.Append (FormatOptions.Default.NewLine);
+
+			var header = new Header ("References", expected.ToString ());
+			var raw = ByteArrayToString (header.RawValue);
+
+			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
+
+			Assert.AreEqual (expected.ToString (), raw, "The folded References header does not match the expected value.");
+		}
+
+		[Test]
+		public void TestUnstructuredHeaderFolding ()
+		{
+			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.");
 			var raw = ByteArrayToString (header.RawValue);
 
 			Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
@@ -76,6 +145,57 @@ namespace UnitTests {
 
 			var unfolded = Header.Unfold (raw);
 			Assert.AreEqual (header.Value, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestSimpleInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+
+			options.International = true;
+
+			original = "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.";
+			folded = Header.Fold (options, "Subject", original);
+			unfolded = Header.Unfold (folded);
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestArabicInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+
+			options.International = true;
+
+			original = "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟" + "هل تتكلم اللغة الإنجليزية /العربية؟";
+			folded = Header.Fold (options, "Subject", original);
+			unfolded = Header.Unfold (folded);
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestJapaneseInternationalizedUnstructuredHeaderFolding ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			string original, folded, unfolded;
+
+			options.International = true;
+
+			original = "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。";
+			folded = Header.Fold (options, "Subject", original);
+			unfolded = Header.Unfold (folded).Replace (" ", "");
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 
 		[Test]
@@ -124,6 +244,27 @@ namespace UnitTests {
 			Assert.AreEqual (1, headers.IndexOf ("To"), "Replaced To header not in the expected position.");
 			Assert.AreEqual (0, headers.IndexOf ("From"), "From header not in the expected position.");
 			Assert.AreEqual (2, headers.IndexOf ("Cc"), "Cc header not in the expected position.");
+		}
+
+		[Test]
+		public void TestToHeaderId ()
+		{
+			HeaderId parsed;
+			string name;
+
+			foreach (HeaderId value in Enum.GetValues (typeof (HeaderId))) {
+				if (value == HeaderId.Unknown)
+					continue;
+
+				name = value.ToHeaderName ().ToUpperInvariant ();
+				parsed = name.ToHeaderId ();
+
+				Assert.AreEqual (value, parsed, "Failed to parse the HeaderId value for {0}", value);
+			}
+
+			parsed = "X-MadeUp-Header".ToHeaderId ();
+
+			Assert.AreEqual (HeaderId.Unknown, parsed, "Failed to parse the made-up header value");
 		}
 	}
 }

@@ -1,12 +1,12 @@
 <Type Name="SqliteCertificateDatabase" FullName="MimeKit.Cryptography.SqliteCertificateDatabase">
-  <TypeSignature Language="C#" Value="public class SqliteCertificateDatabase : MimeKit.Cryptography.X509CertificateDatabase" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi SqliteCertificateDatabase extends MimeKit.Cryptography.X509CertificateDatabase" />
+  <TypeSignature Language="C#" Value="public class SqliteCertificateDatabase : MimeKit.Cryptography.SqlCertificateDatabase" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi SqliteCertificateDatabase extends MimeKit.Cryptography.SqlCertificateDatabase" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
-    <BaseTypeName>MimeKit.Cryptography.X509CertificateDatabase</BaseTypeName>
+    <BaseTypeName>MimeKit.Cryptography.SqlCertificateDatabase</BaseTypeName>
   </Base>
   <Interfaces />
   <Docs>
@@ -26,7 +26,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Data.IDbConnection connection, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="connection" Type="System.Data.IDbConnection" />
@@ -55,7 +55,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string fileName, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -93,335 +93,53 @@
             </exception>
       </Docs>
     </Member>
-    <Member MemberName="Dispose">
-      <MemberSignature Language="C#" Value="protected override void Dispose (bool disposing);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Dispose(bool disposing) cil managed" />
+    <Member MemberName="GetCreateCertificatesTableCommand">
+      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetCreateCertificatesTableCommand (System.Data.IDbConnection connection);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetCreateCertificatesTableCommand(class System.Data.IDbConnection connection) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="disposing" Type="System.Boolean" />
-      </Parameters>
-      <Docs>
-        <param name="disposing">
-          <c>true</c> to release both managed and unmanaged resources;
-            <c>false</c> to release only the unmanaged resources.</param>
-        <summary>
-            Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> and
-            optionally releases the managed resources.
-            </summary>
-        <remarks>
-            Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.SqliteCertificateDatabase" /> and
-            optionally releases the managed resources.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetDeleteCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetDeleteCommand (MimeKit.Cryptography.X509CertificateRecord record);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetDeleteCommand(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CertificateRecord" />
+        <Parameter Name="connection" Type="System.Data.IDbConnection" />
       </Parameters>
       <Docs>
-        <param name="record">The certificate record.</param>
+        <param name="connection">The <see cref="T:System.Data.IDbConnection" />.</param>
         <summary>
-            Gets the database command to delete the specified certificate record.
+            Gets the command to create the certificates table.
             </summary>
-        <returns>The database command.</returns>
+        <returns>The <see cref="T:System.Data.IDbCommand" />.</returns>
         <remarks>
-            Gets the database command to delete the specified certificate record.
+            Constructs the command to create a certificates table suitable for storing
+            <see cref="T:MimeKit.Cryptography.X509CertificateRecord" /> objects.
             </remarks>
       </Docs>
     </Member>
-    <Member MemberName="GetDeleteCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetDeleteCommand (MimeKit.Cryptography.X509CrlRecord record);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetDeleteCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
+    <Member MemberName="GetCreateCrlsTableCommand">
+      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetCreateCrlsTableCommand (System.Data.IDbConnection connection);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetCreateCrlsTableCommand(class System.Data.IDbConnection connection) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Data.IDbCommand</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CrlRecord" />
+        <Parameter Name="connection" Type="System.Data.IDbConnection" />
       </Parameters>
       <Docs>
-        <param name="record">The record.</param>
+        <param name="connection">The <see cref="T:System.Data.IDbConnection" />.</param>
         <summary>
-            Gets the database command to delete the specified CRL record.
+            Gets the command to create the CRLs table.
             </summary>
-        <returns>The database command.</returns>
+        <returns>The <see cref="T:System.Data.IDbCommand" />.</returns>
         <remarks>
-            Gets the database command to delete the specified CRL record.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetInsertCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetInsertCommand (MimeKit.Cryptography.X509CertificateRecord record);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetInsertCommand(class MimeKit.Cryptography.X509CertificateRecord record) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CertificateRecord" />
-      </Parameters>
-      <Docs>
-        <param name="record">The certificate record.</param>
-        <summary>
-            Gets the database command to insert the specified certificate record.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to insert the specified certificate record.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetInsertCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetInsertCommand (MimeKit.Cryptography.X509CrlRecord record);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetInsertCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CrlRecord" />
-      </Parameters>
-      <Docs>
-        <param name="record">The CRL record.</param>
-        <summary>
-            Gets the database command to insert the specified CRL record.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to insert the specified CRL record.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectAllCrlsCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectAllCrlsCommand ();" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectAllCrlsCommand() cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters />
-      <Docs>
-        <summary>
-            Gets the database command to select all CRLs in the table.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select all CRLs in the table.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectCommand (Org.BouncyCastle.Asn1.X509.X509Name issuer, MimeKit.Cryptography.X509CrlRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.Asn1.X509.X509Name issuer, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="issuer" Type="Org.BouncyCastle.Asn1.X509.X509Name" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CrlRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="issuer">The issuer.</param>
-        <param name="fields">The fields to return.</param>
-        <summary>
-            Gets the database command to select the CRL records matching the specified issuer.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select the CRL records matching the specified issuer.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectCommand (Org.BouncyCastle.X509.X509Certificate certificate, MimeKit.Cryptography.X509CertificateRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CertificateRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="certificate">The certificate.</param>
-        <param name="fields">The fields to return.</param>
-        <summary>
-            Gets the database command to select the record matching the specified certificate.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select the record matching the specified certificate.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectCommand (Org.BouncyCastle.X509.X509Crl crl, MimeKit.Cryptography.X509CrlRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.X509Crl crl, valuetype MimeKit.Cryptography.X509CrlRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="crl" Type="Org.BouncyCastle.X509.X509Crl" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CrlRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="crl">The X.509 CRL.</param>
-        <param name="fields">The fields to return.</param>
-        <summary>
-            Gets the database command to select the record for the specified CRL.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select the record for the specified CRL.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectCommand (MimeKit.MailboxAddress mailbox, DateTime now, bool requirePrivateKey, MimeKit.Cryptography.X509CertificateRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class MimeKit.MailboxAddress mailbox, valuetype System.DateTime now, bool requirePrivateKey, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="mailbox" Type="MimeKit.MailboxAddress" />
-        <Parameter Name="now" Type="System.DateTime" />
-        <Parameter Name="requirePrivateKey" Type="System.Boolean" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CertificateRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="mailbox">The mailbox.</param>
-        <param name="now">The date and time for which the certificate should be valid.</param>
-        <param name="requirePrivateKey">true</param>
-        <param name="fields">The fields to return.</param>
-        <summary>
-            Gets the database command to select the certificate records for the specified mailbox.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select the certificate records for the specified mailbox.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetSelectCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetSelectCommand (Org.BouncyCastle.X509.Store.IX509Selector selector, bool trustedOnly, bool requirePrivateKey, MimeKit.Cryptography.X509CertificateRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetSelectCommand(class Org.BouncyCastle.X509.Store.IX509Selector selector, bool trustedOnly, bool requirePrivateKey, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
-        <Parameter Name="trustedOnly" Type="System.Boolean" />
-        <Parameter Name="requirePrivateKey" Type="System.Boolean" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CertificateRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="selector">Selector.</param>
-        <param name="trustedOnly">If set to <c>true</c> trusted only.</param>
-        <param name="requirePrivateKey">true</param>
-        <param name="fields">The fields to return.</param>
-        <summary>
-            Gets the database command to select the certificate records for the specified mailbox.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to select the certificate records for the specified mailbox.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetUpdateCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetUpdateCommand (MimeKit.Cryptography.X509CrlRecord record);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetUpdateCommand(class MimeKit.Cryptography.X509CrlRecord record) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CrlRecord" />
-      </Parameters>
-      <Docs>
-        <param name="record">The CRL record.</param>
-        <summary>
-            Gets the database command to update the specified CRL record.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to update the specified CRL record.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="GetUpdateCommand">
-      <MemberSignature Language="C#" Value="protected override System.Data.IDbCommand GetUpdateCommand (MimeKit.Cryptography.X509CertificateRecord record, MimeKit.Cryptography.X509CertificateRecordFields fields);" />
-      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class System.Data.IDbCommand GetUpdateCommand(class MimeKit.Cryptography.X509CertificateRecord record, valuetype MimeKit.Cryptography.X509CertificateRecordFields fields) cil managed" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Data.IDbCommand</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="record" Type="MimeKit.Cryptography.X509CertificateRecord" />
-        <Parameter Name="fields" Type="MimeKit.Cryptography.X509CertificateRecordFields" />
-      </Parameters>
-      <Docs>
-        <param name="record">The certificate record.</param>
-        <param name="fields">The fields to update.</param>
-        <summary>
-            Gets the database command to update the specified record.
-            </summary>
-        <returns>The database command.</returns>
-        <remarks>
-            Gets the database command to update the specified record.
+            Constructs the command to create a CRLs table suitable for storing
+            <see cref="T:MimeKit.Cryptography.X509CertificateRecord" /> objects.
             </remarks>
       </Docs>
     </Member>

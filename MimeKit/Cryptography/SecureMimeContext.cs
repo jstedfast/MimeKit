@@ -44,6 +44,8 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Nist;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
@@ -587,11 +589,12 @@ namespace MimeKit.Cryptography {
 			signedData.AddSigner (signer.PrivateKey, signer.Certificate, GetDigestOid (signer.DigestAlgorithm),
 				AddSecureMimeCapabilities (signer.SignedAttributes), signer.UnsignedAttributes);
 
-			var memory = new MemoryStream ();
+			signedData.AddCertificates (signer.CertificateChain);
 
-			using (var stream = signedData.Open (memory, encapsulate)) {
+			var memory = new MemoryBlockStream ();
+
+			using (var stream = signedData.Open (memory, encapsulate))
 				content.CopyTo (stream, 4096);
-			}
 
 			memory.Position = 0;
 
@@ -1214,10 +1217,9 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var content = recipient.GetContent (key);
+				var memory = new MemoryStream (content, false);
 
-				using (var memory = new MemoryStream (content, false)) {
-					return MimeEntity.Load (memory);
-				}
+				return MimeEntity.Load (memory, true);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");
@@ -1280,7 +1282,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
 
 			var cms = new CmsSignedDataStreamGenerator ();
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			cms.AddCertificates (certificates);
 			cms.Open (memory).Close ();

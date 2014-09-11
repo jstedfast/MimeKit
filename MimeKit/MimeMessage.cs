@@ -242,9 +242,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.Sender);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.Sender);
 					sender = null;
 					return;
 				}
@@ -255,11 +253,9 @@ namespace MimeKit {
 				value.Encode (FormatOptions.Default, builder, ref len);
 				builder.Append (FormatOptions.Default.NewLine);
 
-				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "Sender", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.Sender, "Sender", raw);
 
 				sender = value;
 			}
@@ -280,9 +276,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.ResentSender);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.ResentSender);
 					resentSender = null;
 					return;
 				}
@@ -293,11 +287,9 @@ namespace MimeKit {
 				value.Encode (FormatOptions.Default, builder, ref len);
 				builder.Append (FormatOptions.Default.NewLine);
 
-				var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "Resent-Sender", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.ResentSender, "Resent-Sender", raw);
 
 				resentSender = value;
 			}
@@ -457,9 +449,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Subject"] = value;
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Subject", value);
 			}
 		}
 
@@ -477,10 +467,7 @@ namespace MimeKit {
 				if (date == value)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Date"] = DateUtils.FormatDate (value);
-				Headers.Changed += HeadersChanged;
-
+				SetHeader ("Date", DateUtils.FormatDate (value));
 				date = value;
 			}
 		}
@@ -498,10 +485,7 @@ namespace MimeKit {
 				if (resentDate == value)
 					return;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Date"] = DateUtils.FormatDate (value);
-				Headers.Changed += HeadersChanged;
-
+				SetHeader ("Resent-Date", DateUtils.FormatDate (value));
 				resentDate = value;
 			}
 		}
@@ -537,14 +521,12 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					Headers.Changed -= HeadersChanged;
-					Headers.RemoveAll (HeaderId.InReplyTo);
-					Headers.Changed += HeadersChanged;
+					RemoveHeader (HeaderId.InReplyTo);
 					inreplyto = null;
 					return;
 				}
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -553,9 +535,7 @@ namespace MimeKit {
 
 				inreplyto = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["In-Reply-To"] = "<" + inreplyto + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
 			}
 		}
 
@@ -584,7 +564,7 @@ namespace MimeKit {
 				if (messageId == value)
 					return;
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -593,9 +573,7 @@ namespace MimeKit {
 
 				messageId = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Message-Id"] = "<" + messageId + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Message-Id", "<" + messageId + ">");
 			}
 		}
 
@@ -624,7 +602,7 @@ namespace MimeKit {
 				if (resentMessageId == value)
 					return;
 
-				var buffer = Encoding.ASCII.GetBytes (value);
+				var buffer = Encoding.UTF8.GetBytes (value);
 				InternetAddress addr;
 				int index = 0;
 
@@ -633,9 +611,7 @@ namespace MimeKit {
 
 				resentMessageId = ((MailboxAddress) addr).Address;
 
-				Headers.Changed -= HeadersChanged;
-				Headers["Resent-Message-Id"] = "<" + resentMessageId + ">";
-				Headers.Changed += HeadersChanged;
+				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
 			}
 		}
 
@@ -659,11 +635,8 @@ namespace MimeKit {
 				if (version != null && version.CompareTo (value) == 0)
 					return;
 
+				SetHeader ("MIME-Version", value.ToString ());
 				version = value;
-
-				Headers.Changed -= HeadersChanged;
-				Headers["MIME-Version"] = version.ToString ();
-				Headers.Changed += HeadersChanged;
 			}
 		}
 
@@ -755,7 +728,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken)
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -766,14 +739,18 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
+			var cancellable = stream as ICancellableStream;
+
 			if (Body == null) {
 				Headers.WriteTo (options, stream, cancellationToken);
 
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (cancellable != null) {
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
 			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -781,42 +758,19 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						cancellationToken.ThrowIfCancellationRequested ();
-
 						var name = Encoding.ASCII.GetBytes (header.Field);
 
-						filtered.Write (name, 0, name.Length);
-						filtered.WriteByte ((byte) ':');
-						filtered.Write (header.RawValue, 0, header.RawValue.Length);
+						filtered.Write (name, 0, name.Length, cancellationToken);
+						filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+						filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
 					}
 
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 
 				options.WriteHeaders = false;
 				Body.WriteTo (options, stream, cancellationToken);
 			}
-		}
-
-		/// <summary>
-		/// Writes the message to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes the message to the output stream using the provided formatting options.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream)
-		{
-			WriteTo (options, stream, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -836,28 +790,98 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken)
+		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
+		#if !PORTABLE
 		/// <summary>
-		/// Writes the message to the specified output stream.
+		/// Writes the message to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the output stream using the default formatting options.
+		/// Writes the message to the specified file using the provided formatting options.
 		/// </remarks>
-		/// <param name="stream">The output stream.</param>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream)
+		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream);
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenWrite (fileName))
+				WriteTo (options, stream, cancellationToken);
 		}
+
+		/// <summary>
+		/// Writes the message to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the specified file using the default formatting options.
+		/// </remarks>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.OpenWrite (fileName))
+				WriteTo (FormatOptions.Default, stream, cancellationToken);
+		}
+		#endif
 
 		MailboxAddress GetMessageSigner ()
 		{
@@ -1178,6 +1202,39 @@ namespace MimeKit {
 				yield return Body.Headers[bodyIndex++];
 		}
 
+		void RemoveHeader (HeaderId id)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers.RemoveAll (id);
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		void ReplaceHeader (HeaderId id, string name, byte[] raw)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers.Replace (new Header (Headers.Options, id, name, raw));
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
+		void SetHeader (string name, string value)
+		{
+			Headers.Changed -= HeadersChanged;
+
+			try {
+				Headers[name] = value;
+			} finally {
+				Headers.Changed += HeadersChanged;
+			}
+		}
+
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
 			var builder = new StringBuilder (" ");
@@ -1186,11 +1243,9 @@ namespace MimeKit {
 			list.Encode (FormatOptions.Default, builder, ref lineLength);
 			builder.Append (FormatOptions.Default.NewLine);
 
-			var raw = Encoding.ASCII.GetBytes (builder.ToString ());
+			var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-			Headers.Changed -= HeadersChanged;
-			Headers.Replace (new Header (Headers.Options, field, raw));
-			Headers.Changed += HeadersChanged;
+			ReplaceHeader (field.ToHeaderId (), field, raw);
 		}
 
 		void InternetAddressListChanged (object addrlist, EventArgs e)
@@ -1230,13 +1285,9 @@ namespace MimeKit {
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-				Headers.Changed -= HeadersChanged;
-				Headers.Replace (new Header (Headers.Options, "References", raw));
-				Headers.Changed += HeadersChanged;
+				ReplaceHeader (HeaderId.References, "References", raw);
 			} else {
-				Headers.Changed -= HeadersChanged;
-				Headers.RemoveAll (HeaderId.References);
-				Headers.Changed += HeadersChanged;
+				RemoveHeader (HeaderId.References);
 			}
 		}
 
@@ -1455,12 +1506,18 @@ namespace MimeKit {
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
 		/// <remarks>
-		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
-		/// specified <see cref="ParserOptions"/>.
+		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
@@ -1476,7 +1533,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeMessage Load (ParserOptions options, Stream stream, CancellationToken cancellationToken)
+		public static MimeMessage Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1484,7 +1541,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			var parser = new MimeParser (options, stream, MimeFormat.Entity);
+			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
 
 			return parser.ParseMessage (cancellationToken);
 		}
@@ -1494,6 +1551,69 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// specified <see cref="ParserOptions"/>.
+		/// </remarks>
+		/// <returns>The parsed message.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Load (options, stream, false, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
+		/// default <see cref="ParserOptions"/>.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
+		/// </remarks>
+		/// <returns>The parsed message.</returns>
+		/// <param name="stream">The stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public static MimeMessage Load (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Load (ParserOptions.Default, stream, persistent, cancellationToken);
+		}
+
+		/// <summary>
+		/// Load a <see cref="MimeMessage"/> from the specified stream.
+		/// </summary>
+		/// <remarks>
+		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
@@ -1511,58 +1631,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeMessage Load (Stream stream, CancellationToken cancellationToken)
+		public static MimeMessage Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return Load (ParserOptions.Default, stream, cancellationToken);
-		}
-
-		/// <summary>
-		/// Load a <see cref="MimeMessage"/> from the specified stream.
-		/// </summary>
-		/// <remarks>
-		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
-		/// specified <see cref="ParserOptions"/>.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public static MimeMessage Load (ParserOptions options, Stream stream)
-		{
-			return Load (options, stream, CancellationToken.None);
-		}
-
-		/// <summary>
-		/// Load a <see cref="MimeMessage"/> from the specified stream.
-		/// </summary>
-		/// <remarks>
-		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
-		/// default <see cref="ParserOptions"/>.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <param name="stream">The stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public static MimeMessage Load (Stream stream)
-		{
-			return Load (ParserOptions.Default, stream, CancellationToken.None);
+			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
 #if !PORTABLE
@@ -1583,10 +1654,15 @@ namespace MimeKit {
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file could not be found.
+		/// The specified file path could not be found.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
@@ -1600,7 +1676,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeMessage Load (ParserOptions options, string fileName, CancellationToken cancellationToken)
+		public static MimeMessage Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1627,10 +1703,15 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file could not be found.
+		/// The specified file path could not be found.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
@@ -1644,76 +1725,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeMessage Load (string fileName, CancellationToken cancellationToken)
+		public static MimeMessage Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, fileName, cancellationToken);
-		}
-
-		/// <summary>
-		/// Load a <see cref="MimeMessage"/> from the specified file.
-		/// </summary>
-		/// <remarks>
-		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
-		/// specified <see cref="ParserOptions"/>.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <param name="options">The parser options.</param>
-		/// <param name="fileName">The name of the file to load.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
-		/// </exception>
-		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file could not be found.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// The user does not have access to read the specified file.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public static MimeMessage Load (ParserOptions options, string fileName)
-		{
-			return Load (options, fileName, CancellationToken.None);
-		}
-
-		/// <summary>
-		/// Load a <see cref="MimeMessage"/> from the specified file.
-		/// </summary>
-		/// <remarks>
-		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
-		/// default <see cref="ParserOptions"/>.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <param name="fileName">The name of the file to load.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
-		/// </exception>
-		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file could not be found.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// The user does not have access to read the specified file.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public static MimeMessage Load (string fileName)
-		{
-			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
 #endif // !PORTABLE
 
@@ -1746,11 +1760,11 @@ namespace MimeKit {
 			if (item.ContentId != null)
 				part.ContentId = item.ContentId;
 
-			var stream = new MemoryStream ();
+			var stream = new MemoryBlockStream ();
 			item.ContentStream.CopyTo (stream);
 			stream.Position = 0;
 
-			part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+			part.ContentObject = new ContentObject (stream);
 
 			return part;
 		}
@@ -1803,7 +1817,7 @@ namespace MimeKit {
 				break;
 			}
 
-			if (message.Body != null) {
+			if (!string.IsNullOrEmpty (message.Body)) {
 				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
 				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
 				body = text;
@@ -1849,6 +1863,9 @@ namespace MimeKit {
 
 				body = alternative;
 			}
+
+			if (body == null)
+				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
 
 			if (message.Attachments.Count > 0) {
 				var mixed = new Multipart ("mixed");

@@ -174,8 +174,14 @@ namespace MimeKit {
 						}
 					}
 
-					if (encoding == null)
-						encoding = Encoding.GetEncoding (28591); // iso-8859-1
+					if (encoding == null) {
+						try {
+							return Encoding.UTF8.GetString (content, 0, (int) memory.Length);
+						} catch {
+							// fall back to iso-8859-1
+							encoding = Encoding.GetEncoding (28591); // iso-8859-1
+						}
+					}
 
 					return encoding.GetString (content, 0, (int) memory.Length);
 				}
@@ -246,10 +252,10 @@ namespace MimeKit {
 
 			if (text == null)
 				throw new ArgumentNullException ("text");
-
-			var content = new MemoryStream (charset.GetBytes (text));
-			ContentObject = new ContentObject (content, ContentEncoding.Default);
+				
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (charset);
+			var content = new MemoryStream (charset.GetBytes (text));
+			ContentObject = new ContentObject (content);
 		}
 	}
 }

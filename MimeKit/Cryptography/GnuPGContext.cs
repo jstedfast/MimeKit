@@ -46,7 +46,7 @@ namespace MimeKit.Cryptography {
 			if (gnupg == null) {
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
-					gnupg = Path.Combine (appData, "Roaming", "gnupg");
+					gnupg = Path.Combine (appData, "gnupg");
 				} else {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
 					gnupg = Path.Combine (home, ".gnupg");

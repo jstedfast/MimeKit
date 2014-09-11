@@ -51,6 +51,7 @@ namespace MimeKit {
 	/// </remarks>
 	public abstract class InternetAddress
 	{
+		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
 		string name;
 
@@ -118,6 +119,16 @@ namespace MimeKit {
 			}
 		}
 
+		internal static string EncodeInternationalizedPhrase (string phrase)
+		{
+			for (int i = 0; i < phrase.Length; i++) {
+				if (char.IsControl (phrase[i]) || AtomSpecials.IndexOf (phrase[i]) != -1)
+					return MimeUtils.Quote (phrase);
+			}
+
+			return phrase;
+		}
+
 		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);
 
 		/// <summary>
@@ -179,7 +190,14 @@ namespace MimeKit {
 				if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
 					return false;
 
-				token.Append (Encoding.ASCII.GetString (text, start, index - start));
+				try {
+					token.Append (Encoding.UTF8.GetString (text, start, index - start));
+				} catch (Exception ex) {
+					if (throwOnError)
+						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
+
+					return false;
+				}
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
@@ -206,7 +224,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte sentinel, bool throwOnError, out string addrspec)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte sentinel, bool throwOnError, out string addrspec)
 		{
 			int startIndex = index;
 
@@ -255,10 +273,16 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParseMailbox (byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
+		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
-			Encoding encoding = Encoding.GetEncoding (codepage);
 			DomainList route = null;
+			Encoding encoding;
+
+			try {
+				encoding = Encoding.GetEncoding (codepage);
+			} catch {
+				encoding = Encoding.UTF8;
+			}
 
 			address = null;
 
@@ -297,10 +321,14 @@ namespace MimeKit {
 				return false;
 
 			if (index >= endIndex || text[index] != (byte) '>') {
-				if (throwOnError)
-					throw new ParseException (string.Format ("Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
 
-				return false;
+					return false;
+				}
+			} else {
+				index++;
 			}
 
 			if (route != null)
@@ -308,15 +336,19 @@ namespace MimeKit {
 			else
 				address = new MailboxAddress (encoding, name, addrspec);
 
-			index++;
-
 			return true;
 		}
 
 		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
-			Encoding encoding = Encoding.GetEncoding (codepage);
 			List<InternetAddress> members;
+			Encoding encoding;
+
+			try {
+				encoding = Encoding.GetEncoding (codepage);
+			} catch {
+				encoding = Encoding.UTF8;
+			}
 
 			address = null;
 
@@ -365,7 +397,7 @@ namespace MimeKit {
 			int startIndex = index;
 			int length = 0;
 
-			while (index < endIndex && ParseUtils.Skip8bitWord (text, ref index, endIndex, throwOnError)) {
+			while (index < endIndex && ParseUtils.SkipWord (text, ref index, endIndex, throwOnError)) {
 				length = index - startIndex;
 
 				do {
@@ -453,7 +485,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseMailbox (text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
+				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (text[index] == (byte) '@') {

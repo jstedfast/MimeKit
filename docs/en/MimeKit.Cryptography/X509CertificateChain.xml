@@ -1,0 +1,504 @@
+<Type Name="X509CertificateChain" FullName="MimeKit.Cryptography.X509CertificateChain">
+  <TypeSignature Language="C#" Value="public class X509CertificateChain : Org.BouncyCastle.X509.Store.IX509Store, System.Collections.Generic.ICollection&lt;Org.BouncyCastle.X509.X509Certificate&gt;, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;, System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt;" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit X509CertificateChain extends System.Object implements class Org.BouncyCastle.X509.Store.IX509Store, class System.Collections.Generic.ICollection`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt;, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt;, class System.Collections.Generic.IList`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt;, class System.Collections.IEnumerable" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Org.BouncyCastle.X509.Store.IX509Store</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.ICollection&lt;Org.BouncyCastle.X509.X509Certificate&gt;</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.Collections.Generic.IList&lt;Org.BouncyCastle.X509.X509Certificate&gt;</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Docs>
+    <summary>
+            An X.509 certificate chain.
+            </summary>
+    <remarks>
+            An X.509 certificate chain.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public X509CertificateChain ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.X509CertificateChain" /> class.
+            </summary>
+        <remarks>
+            Creates a new X.509 certificate chain.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public X509CertificateChain (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; collection);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; collection) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="collection" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="collection">A collection of certificates.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.X509CertificateChain" /> class.
+            </summary>
+        <remarks>
+            Creates a new X.509 certificate chain based on the specified collection of certificates.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Add(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <summary>
+            Adds the specified certificate to the chain.
+            </summary>
+        <remarks>
+            Adds the specified certificate to the chain.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="AddRange">
+      <MemberSignature Language="C#" Value="public void AddRange (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; certificates);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddRange(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; certificates) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificates" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="certificates">The certificates.</param>
+        <summary>
+            Adds the specified range of certificates to the chain.
+            </summary>
+        <remarks>
+            Adds the specified range of certificates to the chain.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificates" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Clear">
+      <MemberSignature Language="C#" Value="public void Clear ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Clears the certificate chain.
+            </summary>
+        <remarks>
+            Removes all of the certificates from the chain.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Contains">
+      <MemberSignature Language="C#" Value="public bool Contains (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Contains(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <summary>
+            Checks if the chain contains the specified certificate.
+            </summary>
+        <returns>
+          <value>true</value> if the specified certificate exists;
+            otherwise <value>false</value>.</returns>
+        <remarks>
+            Determines whether or not the certificate chain contains the specified certificate.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="CopyTo">
+      <MemberSignature Language="C#" Value="public void CopyTo (Org.BouncyCastle.X509.X509Certificate[] array, int arrayIndex);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CopyTo(class Org.BouncyCastle.X509.X509Certificate[] array, int32 arrayIndex) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="array" Type="Org.BouncyCastle.X509.X509Certificate[]" />
+        <Parameter Name="arrayIndex" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="array">The array to copy the certificates to.</param>
+        <param name="arrayIndex">The index into the array.</param>
+        <summary>
+            Copies all of the certificates in the chain to the specified array.
+            </summary>
+        <remarks>
+            Copies all of the certificates within the chain into the array,
+            starting at the specified array index.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="array" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="arrayIndex" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Count">
+      <MemberSignature Language="C#" Value="public int Count { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Count" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the number of certificates in the chain.
+            </summary>
+        <value>The number of certificates.</value>
+        <remarks>
+            Indicates the number of certificates in the chain.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEnumerator">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerator&lt;Org.BouncyCastle.X509.X509Certificate&gt; GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerator&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets an enumerator for the list of certificates.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of certificates.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetMatches">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
+      </Parameters>
+      <Docs>
+        <param name="selector">The match criteria.</param>
+        <summary>
+            Gets an enumerator of matching X.509 certificates based on the specified selector.
+            </summary>
+        <returns>The matching certificates.</returns>
+        <remarks>
+            Gets an enumerator of matching X.509 certificates based on the specified selector.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IndexOf">
+      <MemberSignature Language="C#" Value="public int IndexOf (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOf(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate to get the index of.</param>
+        <summary>
+            Gets the index of the specified certificate within the chain.
+            </summary>
+        <returns>The index of the specified certificate if found; otherwise <c>-1</c>.</returns>
+        <remarks>
+            Finds the index of the specified certificate, if it exists.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Insert">
+      <MemberSignature Language="C#" Value="public void Insert (int index, Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Insert(int32 index, class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index to insert the certificate.</param>
+        <param name="certificate">The certificate.</param>
+        <summary>
+            Inserts the certificate at the specified index.
+            </summary>
+        <remarks>
+            Inserts the certificate at the specified index in the certificates.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IsReadOnly">
+      <MemberSignature Language="C#" Value="public bool IsReadOnly { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsReadOnly" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets a value indicating whether this instance is read only.
+            </summary>
+        <value>
+          <c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+        <remarks>
+            A <see cref="T:MimeKit.Cryptography.X509CertificateChain" /> is never read-only.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Item">
+      <MemberSignature Language="C#" Value="public Org.BouncyCastle.X509.X509Certificate this[int index] { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.BouncyCastle.X509.X509Certificate Item(int32)" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index of the certificate to get or set.</param>
+        <summary>
+            Gets or sets the certificate at the specified index.
+            </summary>
+        <value>The internet certificate at the specified index.</value>
+        <remarks>
+            Gets or sets the certificate at the specified index.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="value" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Org.BouncyCastle.X509.Store.IX509Store.GetMatches">
+      <MemberSignature Language="C#" Value="System.Collections.ICollection IX509Store.GetMatches (Org.BouncyCastle.X509.Store.IX509Selector selector);" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.ICollection Org.BouncyCastle.X509.Store.IX509Store.GetMatches(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.ICollection</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="selector" Type="Org.BouncyCastle.X509.Store.IX509Selector" />
+      </Parameters>
+      <Docs>
+        <param name="selector">The match criteria.</param>
+        <summary>
+            Gets a collection of matching X.509 certificates based on the specified selector.
+            </summary>
+        <returns>The matching certificates.</returns>
+        <remarks>
+            Gets a collection of matching X.509 certificates based on the specified selector.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Remove">
+      <MemberSignature Language="C#" Value="public bool Remove (Org.BouncyCastle.X509.X509Certificate certificate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Remove(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificate" Type="Org.BouncyCastle.X509.X509Certificate" />
+      </Parameters>
+      <Docs>
+        <param name="certificate">The certificate.</param>
+        <summary>
+            Removes the specified certificate from the chain.
+            </summary>
+        <returns>
+          <value>true</value> if the certificate was removed; otherwise <value>false</value>.</returns>
+        <remarks>
+            Removes the specified certificate from the chain.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificate" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveAt">
+      <MemberSignature Language="C#" Value="public void RemoveAt (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index of the certificate to remove.</param>
+        <summary>
+            Removes the certificate at the specified index.
+            </summary>
+        <remarks>
+            Removes the certificate at the specified index.
+            </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="index" /> is out of range.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveRange">
+      <MemberSignature Language="C#" Value="public void RemoveRange (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt; certificates);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveRange(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.X509.X509Certificate&gt; certificates) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="certificates" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.X509.X509Certificate&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="certificates">The certificates.</param>
+        <summary>
+            Removes the specified range of certificates from the chain.
+            </summary>
+        <remarks>
+            Removes the specified range of certificates from the chain.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="certificates" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
+      <MemberSignature Language="C#" Value="System.Collections.IEnumerator IEnumerable.GetEnumerator ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.IEnumerator</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+            Gets an enumerator for the list of certificates.
+            </summary>
+        <returns>The enumerator.</returns>
+        <remarks>
+            Gets an enumerator for the list of certificates.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

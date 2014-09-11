@@ -49,9 +49,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
-		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
-		/// tables.</para>
+		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties
+		/// will be initialized to empty tables.</para>
 		/// </remarks>
 		CmsSigner ()
 		{
@@ -65,9 +65,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
-		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
-		/// tables.</para>
+		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties
+		/// will be initialized to empty tables.</para>
 		/// </remarks>
 		/// <param name="chain">The chain of certificates starting with the signer's certificate back to the root.</param>
 		/// <param name="key">The signer's private key.</param>
@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 			if (key == null)
 				throw new ArgumentNullException ("key");
 
-			CertificateChain = new List<X509Certificate> ();
+			CertificateChain = new X509CertificateChain ();
 			foreach (var entry in chain) {
 				CertificateChain.Add (entry.Certificate);
 				if (Certificate == null)
@@ -115,10 +115,10 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="DigestAlgorithm.Sha1"/> and both the <see cref="SignedAttributes"/>
-		/// and <see cref="UnsignedAttributes"/> properties will be initialized to empty
-		/// tables.</para>
+		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
+		/// initialized to empty tables.</para>
 		/// </remarks>
 		/// <param name="certificate">The signer's certificate.</param>
 		/// <param name="key">The signer's private key.</param>
@@ -147,7 +147,7 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", "key");
 
-			CertificateChain = new List<X509Certificate> ();
+			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (certificate);
 			Certificate = certificate;
 			PrivateKey = key;
@@ -172,7 +172,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate chain.
 		/// </remarks>
 		/// <value>The certificate chain.</value>
-		public IList<X509Certificate> CertificateChain {
+		public X509CertificateChain CertificateChain {
 			get; private set;
 		}
 

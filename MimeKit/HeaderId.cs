@@ -25,8 +25,10 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	/// <summary>
@@ -163,6 +165,18 @@ namespace MimeKit {
 		Distribution,
 
 		/// <summary>
+		/// The DKIM-Signature header field.
+		/// </summary>
+		[HeaderName ("DKIM-Signature")]
+		DkimSignature,
+
+		/// <summary>
+		/// The DomainKey-Signature header field.
+		/// </summary>
+		[HeaderName ("DomainKey-Signature")]
+		DomainKeySignature,
+
+		/// <summary>
 		/// The Encoding header field.
 		/// </summary>
 		Encoding,
@@ -185,7 +199,7 @@ namespace MimeKit {
 		/// <summary>
 		/// The Followup-To header field.
 		/// </summary>
-		FollowUpTo,
+		FollowupTo,
 
 		/// <summary>
 		/// The From header field.
@@ -235,12 +249,13 @@ namespace MimeKit {
 		/// <summary>
 		/// The MIME-Version header field.
 		/// </summary>
+		[HeaderName ("MIME-Version")]
 		MimeVersion,
 
 		/// <summary>
-		/// The News-Groups header field.
+		/// The Newsgroups header field.
 		/// </summary>
-		NewsGroups,
+		Newsgroups,
 
 		/// <summary>
 		/// The Nntp-Posting-Host header field.
@@ -348,6 +363,11 @@ namespace MimeKit {
 		Sensitivity,
 
 		/// <summary>
+		/// The Status header field.
+		/// </summary>
+		Status,
+
+		/// <summary>
 		/// The Subject header field.
 		/// </summary>
 		Subject,
@@ -358,9 +378,9 @@ namespace MimeKit {
 		Summary,
 
 		/// <summary>
-		/// The Supercedes header field.
+		/// The Supersedes header field.
 		/// </summary>
-		Supercedes,
+		Supersedes,
 
 		/// <summary>
 		/// The To header field.
@@ -368,18 +388,96 @@ namespace MimeKit {
 		To,
 
 		/// <summary>
+		/// The User-Agent header field.
+		/// </summary>
+		UserAgent,
+
+		/// <summary>
+		/// The X-Mailer header field.
+		/// </summary>
+		XMailer,
+
+		/// <summary>
+		/// The X-MSMail-Priority header field.
+		/// </summary>
+		[HeaderName ("X-MSMail-Priority")]
+		XMSMailPriority,
+
+		/// <summary>
+		/// The X-Priority header field.
+		/// </summary>
+		XPriority,
+
+		/// <summary>
+		/// The X-Status header field.
+		/// </summary>
+		XStatus,
+
+		/// <summary>
 		/// An unknown header field.
 		/// </summary>
 		Unknown = -1
 	}
 
-	static class HeaderIdExtension
+	[AttributeUsage (AttributeTargets.Field)]
+	class HeaderNameAttribute : Attribute {
+		public HeaderNameAttribute (string name)
+		{
+			HeaderName = name;
+		}
+
+		public string HeaderName {
+			get; protected set;
+		}
+	}
+
+	/// <summary>
+	/// <see cref="HeaderId"/> extension methods.
+	/// </summary>
+	/// <remarks>
+	/// <see cref="HeaderId"/> extension methods.
+	/// </remarks>
+	public static class HeaderIdExtensions
 	{
+		static readonly Dictionary<string, HeaderId> dict;
+
+		static HeaderIdExtensions ()
+		{
+			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+
+			dict = new Dictionary<string, HeaderId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+
+			for (int i = 0; i < values.Length - 1; i++)
+				dict.Add (values[i].ToHeaderName (), values[i]);
+		}
+
+		/// <summary>
+		/// Converts the enum value into the equivalent header field name.
+		/// </summary>
+		/// <remarks>
+		/// Converts the enum value into the equivalent header field name.
+		/// </remarks>
+		/// <returns>The header name.</returns>
+		/// <param name="value">The enum value.</param>
 		public static string ToHeaderName (this Enum value)
 		{
-			var builder = new StringBuilder (value.ToString ());
+			var name = value.ToString ();
+			var type = value.GetType ();
 
-			for (int i = 2; i < builder.Length; i++) {
+#if PORTABLE
+			var field = type.GetTypeInfo ().GetDeclaredField (name);
+			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
+#else
+			var field = type.GetField (name);
+			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false);
+#endif
+
+			if (attrs != null && attrs.Length == 1)
+				return ((HeaderNameAttribute) attrs[0]).HeaderName;
+
+			var builder = new StringBuilder (name);
+
+			for (int i = 1; i < builder.Length; i++) {
 				if (char.IsUpper (builder[i]))
 					builder.Insert (i++, '-');
 			}
@@ -387,31 +485,14 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		public static HeaderId ToHeaderId (this string name)
+		internal static HeaderId ToHeaderId (this string name)
 		{
-			var canonical = new StringBuilder ();
-			bool dash = true;
-			HeaderId id;
-			char c;
+			HeaderId value;
 
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			for (int i = 0; i < name.Length; i++) {
-				if (name[i] == '-') {
-					dash = true;
-					continue;
-				}
-
-				c = dash ? char.ToUpperInvariant (name[i]) : char.ToLowerInvariant (name[i]);
-				canonical.Append (c);
-				dash = false;
-			}
-
-			if (!Enum.TryParse<HeaderId> (canonical.ToString (), out id))
+			if (!dict.TryGetValue (name, out value))
 				return HeaderId.Unknown;
 
-			return id;
+			return value;
 		}
 	}
 }

@@ -202,7 +202,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var storeNames = new StoreName[] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			var storeNames = new [] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
 			var intermediate = new X509CertificateStore ();
 
 			foreach (var storeName in storeNames) {
@@ -230,7 +230,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate revocation lists.</returns>
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
-			// FIXME: need to keep track of CRLs
+			// TODO: figure out how other Windows apps keep track of CRLs...
 			var crls = new List<X509Crl> ();
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
@@ -405,10 +405,10 @@ namespace MimeKit.Cryptography {
 		/// <param name="timestamp">The timestamp.</param>
 		protected override void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			// FIXME: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
-		byte[] ReadAllBytes (Stream stream)
+		static byte[] ReadAllBytes (Stream stream)
 		{
 			if (stream is MemoryBlockStream)
 				return ((MemoryBlockStream) stream).ToArray ();
@@ -538,9 +538,9 @@ namespace MimeKit.Cryptography {
 
 			var decryptedData = enveloped.Encode ();
 
-			using (var memory = new MemoryStream (decryptedData, false)) {
-				return MimeEntity.Load (memory);
-			}
+			var memory = new MemoryStream (decryptedData, false);
+
+			return MimeEntity.Load (memory, true);
 		}
 
 		/// <summary>
@@ -580,7 +580,7 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException ("crl");
 
-			// FIXME: implement this
+			// TODO: figure out where to store the CRLs...
 		}
 
 		/// <summary>
@@ -607,19 +607,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			byte[] rawData;
-
-			if (stream is MemoryBlockStream) {
-				rawData = ((MemoryBlockStream) stream).ToArray ();
-			} else if (stream is MemoryStream) {
-				rawData = ((MemoryStream) stream).ToArray ();
-			} else {
-				using (var memory = new MemoryStream ()) {
-					stream.CopyTo (memory, 4096);
-					rawData = memory.ToArray ();
-				}
-			}
-
+			var rawData = ReadAllBytes (stream);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
 

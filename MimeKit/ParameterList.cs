@@ -585,12 +585,8 @@ namespace MimeKit {
 			#region IComparable implementation
 			public int CompareTo (NameValuePair other)
 			{
-				if (!Id.HasValue) {
-					if (other.Id.HasValue)
-						return -1;
-
-					return 0;
-				}
+				if (!Id.HasValue)
+					return other.Id.HasValue ? -1 : 0;
 
 				if (!other.Id.HasValue)
 					return 1;
@@ -763,16 +759,16 @@ namespace MimeKit {
 				if (TryGetCharset (text, ref index, endIndex, out charset)) {
 					try {
 						var encoding = CharsetUtils.GetEncoding (charset, "?");
-						decoder = encoding.GetDecoder ();
+						decoder = (Decoder) encoding.GetDecoder ();
 					} catch (NotSupportedException) {
 						var encoding = Encoding.GetEncoding (28591); // iso-8859-1
-						decoder = encoding.GetDecoder ();
+						decoder = (Decoder) encoding.GetDecoder ();
 					}
 				} else {
 					// When no charset is specified, it should be safe to assume US-ASCII...
 					// but we all know what assume means, right??
 					var encoding = Encoding.GetEncoding (28591); // iso-8859-1
-					decoder = encoding.GetDecoder ();
+					decoder = (Decoder) encoding.GetDecoder ();
 				}
 			}
 

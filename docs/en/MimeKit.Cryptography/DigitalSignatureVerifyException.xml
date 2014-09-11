@@ -1,9 +1,9 @@
 <Type Name="DigitalSignatureVerifyException" FullName="MimeKit.Cryptography.DigitalSignatureVerifyException">
   <TypeSignature Language="C#" Value="public class DigitalSignatureVerifyException : Exception" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DigitalSignatureVerifyException extends System.Exception" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi serializable beforefieldinit DigitalSignatureVerifyException extends System.Exception" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -17,5 +17,31 @@
             For more information about the error condition, check the <see cref="P:System.Exception.InnerException" /> property.
             </remarks>
   </Docs>
-  <Members />
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected DigitalSignatureVerifyException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class System.Runtime.Serialization.SerializationInfo info, valuetype System.Runtime.Serialization.StreamingContext context) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
+        <Parameter Name="context" Type="System.Runtime.Serialization.StreamingContext" />
+      </Parameters>
+      <Docs>
+        <param name="info">The serialization info.</param>
+        <param name="context">The stream context.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="info" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
 </Type>

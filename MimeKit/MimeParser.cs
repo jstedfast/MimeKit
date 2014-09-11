@@ -350,7 +350,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
-			get { return Encoding.ASCII.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
 		}
 
 		/// <summary>
@@ -551,25 +551,6 @@ namespace MimeKit {
 			SetStream (ParserOptions.Default, stream, MimeFormat.Default, false);
 		}
 
-		static unsafe void MemMove (byte *buf, int sourceIndex, int destIndex, int length)
-		{
-			if (sourceIndex + length > destIndex) {
-				byte* src = buf + sourceIndex + length - 1;
-				byte *dest = buf + destIndex + length - 1;
-				byte *start = buf + sourceIndex;
-
-				while (src >= start)
-					*dest-- = *src--;
-			} else {
-				byte* src = buf + sourceIndex;
-				byte* dest = buf + destIndex;
-				byte* end = src + length;
-
-				while (src < end)
-					*dest++ = *src++;
-			}
-		}
-
 #if DEBUG
 		static string ConvertToCString (byte[] buffer, int startIndex, int length)
 		{
@@ -584,50 +565,63 @@ namespace MimeKit {
 			return (need + 63) & ~63;
 		}
 
-		unsafe int ReadAhead (byte* inbuf, int atleast, int save)
+		unsafe int ReadAhead (int atleast, int save)
 		{
 			int left = inputEnd - inputIndex;
 
 			if (left >= atleast || eos)
 				return left;
 
-			int index = inputIndex - save;
 			int start = inputStart;
 			int end = inputEnd;
 			int nread;
 
 			left += save;
 
-			// attempt to align the end of the remaining input with ReadAheadSize
-			if (index >= start) {
-				start -= Math.Min (ReadAheadSize, left);
-				MemMove (inbuf, index, start, left);
-				index = start;
-				start += left;
-			} else if (index > 0) {
-				int shift = Math.Min (index, end - start);
-				MemMove (inbuf, index, index - shift, left);
-				index -= shift;
-				start = index + left;
-			} else {
-				// we can't shift...
-				start = end;
-			}
+			if (left > 0) {
+				int index = inputIndex - save;
 
-			inputIndex = index + save;
-			inputEnd = start;
+				// attempt to align the end of the remaining input with ReadAheadSize
+				if (index >= start) {
+					start -= Math.Min (ReadAheadSize, left);
+					Buffer.BlockCopy (input, index, input, start, left);
+					index = start;
+					start += left;
+				} else if (index > 0) {
+					int shift = Math.Min (index, end - start);
+					Buffer.BlockCopy (input, index, input, index - shift, left);
+					index -= shift;
+					start = index + left;
+				} else {
+					// we can't shift...
+					start = end;
+				}
+
+				inputIndex = index + save;
+				inputEnd = start;
+			} else {
+				inputIndex = start;
+				inputEnd = start;
+			}
 
 			end = input.Length - PadSize;
 
-			// Note: if a perviously parsed MimePart's content has been read,
+			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
 			// reset.
 			if (persistent && stream.Position != offset)
 				stream.Seek (offset, SeekOrigin.Begin);
 
-			token.ThrowIfCancellationRequested ();
+			// use the cancellable stream interface if available...
+			var cancellable = stream as ICancellableStream;
+			if (cancellable != null) {
+				nread = cancellable.Read (input, start, end - start, token);
+			} else {
+				token.ThrowIfCancellationRequested ();
+				nread = stream.Read (input, start, end - start);
+			}
 
-			if ((nread = stream.Read (input, start, end - start)) > 0) {
+			if (nread > 0) {
 				inputEnd += nread;
 				offset += nread;
 			} else {
@@ -686,7 +680,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 
 			do {
-				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
@@ -809,7 +803,7 @@ namespace MimeKit {
 			headers.Clear ();
 
 			do {
-				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
+				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// EOF reached before we reached the end of the headers...
 					if (left == 0 && !midline && headers.Count > 0) {
 						// the last header we encountered has been parsed cleanly, so try to
@@ -971,7 +965,7 @@ namespace MimeKit {
 				}
 
 				inputIndex = inputEnd;
-				if (ReadAhead (inbuf, ReadAheadSize, 0) <= 0)
+				if (ReadAhead (ReadAheadSize, 0) <= 0)
 					return false;
 			} while (true);
 		}
@@ -1119,7 +1113,7 @@ namespace MimeKit {
 					content.Write (input, contentIndex, inputIndex - contentIndex);
 
 				nleft = inputEnd - inputIndex;
-				if (ReadAhead (inbuf, atleast, 2) <= 0) {
+				if (ReadAhead (atleast, 2) <= 0) {
 					contentIndex = inputIndex;
 					found = BoundaryType.Eos;
 					break;
@@ -1242,7 +1236,7 @@ namespace MimeKit {
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (ReadAhead (inbuf, atleast, 0) <= 0)
+				if (ReadAhead (atleast, 0) <= 0)
 					return BoundaryType.Eos;
 
 				byte* start = inbuf + inputIndex;
@@ -1397,6 +1391,51 @@ namespace MimeKit {
 			return found;
 		}
 
+		unsafe HeaderList ParseHeaders (byte* inbuf)
+		{
+			state = MimeParserState.Headers;
+			while (state < MimeParserState.Content) {
+				if (Step (inbuf) == MimeParserState.Error)
+					throw new FormatException ("Failed to parse entity headers.");
+			}
+
+			state = MimeParserState.Complete;
+
+			var parsed = new HeaderList (options);
+			foreach (var header in headers)
+				parsed.Add (header);
+
+			return parsed;
+		}
+
+		/// <summary>
+		/// Parses a list of headers from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Parses a list of headers from the stream.
+		/// </remarks>
+		/// <returns>The parsed list of headers.</returns>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the headers.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public HeaderList ParseHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		{
+			token = cancellationToken;
+
+			unsafe {
+				fixed (byte* inbuf = input) {
+					return ParseHeaders (inbuf);
+				}
+			}
+		}
+
 		unsafe MimeEntity ParseEntity (byte* inbuf)
 		{
 			state = MimeParserState.Headers;
@@ -1443,7 +1482,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity ParseEntity (CancellationToken cancellationToken)
+		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1452,24 +1491,6 @@ namespace MimeKit {
 					return ParseEntity (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses an entity from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses an entity from the stream.
-		/// </remarks>
-		/// <returns>The parsed entity.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeEntity ParseEntity ()
-		{
-			return ParseEntity (CancellationToken.None);
 		}
 
 		unsafe MimeMessage ParseMessage (byte* inbuf)
@@ -1554,7 +1575,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeMessage ParseMessage (CancellationToken cancellationToken)
+		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1563,24 +1584,6 @@ namespace MimeKit {
 					return ParseMessage (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the message.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeMessage ParseMessage ()
-		{
-			return ParseMessage (CancellationToken.None);
 		}
 
 		#region IEnumerable implementation

@@ -63,7 +63,7 @@ namespace MimeKit.Utils {
 				random.NextBytes (guid);
 			}
 
-			return string.Format ("<{0}@{1}>", new Guid (guid), domain);
+			return string.Format ("{0}@{1}", new Guid (guid), domain);
 		}
 
 		/// <summary>
@@ -125,11 +125,11 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (!InternetAddress.TryParseMailbox (buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
+					if (!InternetAddress.TryParseMailbox (ParserOptions.Default, buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
 						break;
 
 					yield return ((MailboxAddress) addr).Address;
-				} else if (!ParseUtils.Skip8bitWord (buffer, ref index, endIndex, false)) {
+				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}
 			} while (index < endIndex);
@@ -265,17 +265,17 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			var sb = new StringBuilder ();
+			var quoted = new StringBuilder ();
 
-			sb.Append ("\"");
+			quoted.Append ("\"");
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
-					sb.Append ('\\');
-				sb.Append (text[i]);
+					quoted.Append ('\\');
+				quoted.Append (text[i]);
 			}
-			sb.Append ("\"");
+			quoted.Append ("\"");
 
-			return sb.ToString ();
+			return quoted.ToString ();
 		}
 
 		/// <summary>

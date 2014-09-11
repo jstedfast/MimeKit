@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	/// <summary>
 	/// A message body builder.
@@ -120,13 +122,13 @@ namespace MimeKit {
 				var text = new TextPart ("html");
 				MimeEntity html;
 
+				text.ContentId = MimeUtils.GenerateMessageId ();
 				text.Text = HtmlBody;
 
 				if (LinkedResources.Count > 0) {
-					var related = new Multipart ("related");
-
-					related.ContentType.Parameters["type"] = "text/html";
-					related.Add (text);
+					var related = new MultipartRelated {
+						Root = text
+					};
 
 					foreach (var resource in LinkedResources)
 						related.Add (resource);

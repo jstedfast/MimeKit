@@ -1,0 +1,298 @@
+<Type Name="TnefComplianceStatus" FullName="MimeKit.Tnef.TnefComplianceStatus">
+  <TypeSignature Language="C#" Value="public enum TnefComplianceStatus" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefComplianceStatus extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Attributes>
+    <Attribute>
+      <AttributeName>System.Flags</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>
+            A bitfield of potential TNEF compliance issues.
+            </summary>
+    <remarks>
+            A bitfield of potential TNEF compliance issues.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="AttributeOverflow">
+      <MemberSignature Language="C#" Value="AttributeOverflow" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus AttributeOverflow = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has too many attributes.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Compliant">
+      <MemberSignature Language="C#" Value="Compliant" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus Compliant = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has no errors.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidAttribute">
+      <MemberSignature Language="C#" Value="InvalidAttribute" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttribute = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more invalid attributes.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidAttributeChecksum">
+      <MemberSignature Language="C#" Value="InvalidAttributeChecksum" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeChecksum = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more attributes with invalid checksums.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidAttributeLength">
+      <MemberSignature Language="C#" Value="InvalidAttributeLength" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeLength = int32(8)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one more more attributes with an invalid length.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidAttributeLevel">
+      <MemberSignature Language="C#" Value="InvalidAttributeLevel" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeLevel = int32(16)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more attributes with an invalid level.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidAttributeValue">
+      <MemberSignature Language="C#" Value="InvalidAttributeValue" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeValue = int32(32)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more attributes with an invalid value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidDate">
+      <MemberSignature Language="C#" Value="InvalidDate" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidDate = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more attributes with an invalid date value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidMessageClass">
+      <MemberSignature Language="C#" Value="InvalidMessageClass" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidMessageClass = int32(128)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more invalid MessageClass attributes.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidMessageCodepage">
+      <MemberSignature Language="C#" Value="InvalidMessageCodepage" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidMessageCodepage = int32(256)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more invalid MessageCodepage attributes.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidPropertyLength">
+      <MemberSignature Language="C#" Value="InvalidPropertyLength" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidPropertyLength = int32(512)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more invalid property lengths.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidRowCount">
+      <MemberSignature Language="C#" Value="InvalidRowCount" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidRowCount = int32(1024)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more invalid row counts.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidTnefSignature">
+      <MemberSignature Language="C#" Value="InvalidTnefSignature" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidTnefSignature = int32(2048)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has an invalid signature value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="InvalidTnefVersion">
+      <MemberSignature Language="C#" Value="InvalidTnefVersion" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidTnefVersion = int32(4096)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has an invalid version value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NestingTooDeep">
+      <MemberSignature Language="C#" Value="NestingTooDeep" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus NestingTooDeep = int32(8192)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream is nested too deeply.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="StreamTruncated">
+      <MemberSignature Language="C#" Value="StreamTruncated" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus StreamTruncated = int32(16384)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream is truncated.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="UnsupportedPropertyType">
+      <MemberSignature Language="C#" Value="UnsupportedPropertyType" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus UnsupportedPropertyType = int32(32768)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The TNEF stream has one or more unsupported property types.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

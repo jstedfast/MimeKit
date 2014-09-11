@@ -1,0 +1,309 @@
+<Type Name="TnefPropertyType" FullName="MimeKit.Tnef.TnefPropertyType">
+  <TypeSignature Language="C#" Value="public enum TnefPropertyType" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefPropertyType extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            The type of value that a TNEF property contains.
+            </summary>
+    <remarks>
+            The type of value that a TNEF property contains.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="AppTime">
+      <MemberSignature Language="C#" Value="AppTime" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType AppTime = int16(7)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a 64-bit integer value specifying the number of 100ns periods since Jan 1, 1601.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Binary">
+      <MemberSignature Language="C#" Value="Binary" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Binary = int16(258)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a binary blob value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Boolean">
+      <MemberSignature Language="C#" Value="Boolean" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Boolean = int16(11)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a boolean value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="ClassId">
+      <MemberSignature Language="C#" Value="ClassId" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType ClassId = int16(72)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has an OLE GUID value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Currency">
+      <MemberSignature Language="C#" Value="Currency" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Currency = int16(6)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a 64-bit integer value representing 1/10000th of a monetary unit (i.e., 1/100th of a cent).
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Double">
+      <MemberSignature Language="C#" Value="Double" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Double = int16(5)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a 64-bit floating point value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Error">
+      <MemberSignature Language="C#" Value="Error" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Error = int16(10)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a 32-bit error value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="I2">
+      <MemberSignature Language="C#" Value="I2" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType I2 = int16(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a signed 16-bit value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="I8">
+      <MemberSignature Language="C#" Value="I8" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType I8 = int16(20)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a signed 64-bit value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Long">
+      <MemberSignature Language="C#" Value="Long" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Long = int16(3)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a signed 32-bit value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="MultiValued">
+      <MemberSignature Language="C#" Value="MultiValued" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType MultiValued = int16(4096)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            A flag indicating that the property contains multiple values.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Null">
+      <MemberSignature Language="C#" Value="Null" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Null = int16(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a null value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Object">
+      <MemberSignature Language="C#" Value="Object" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Object = int16(13)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has an embedded object value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="R4">
+      <MemberSignature Language="C#" Value="R4" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType R4 = int16(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            THe property has a 32-bit floating point value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="String8">
+      <MemberSignature Language="C#" Value="String8" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType String8 = int16(30)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a null-terminated 8-bit character string value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="SysTime">
+      <MemberSignature Language="C#" Value="SysTime" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType SysTime = int16(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a 64-bit integer value specifying the number of 100ns periods since Jan 1, 1601.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Unicode">
+      <MemberSignature Language="C#" Value="Unicode" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Unicode = int16(31)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The property has a null-terminated unicode character string value.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Unspecified">
+      <MemberSignature Language="C#" Value="Unspecified" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefPropertyType Unspecified = int16(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Tnef.TnefPropertyType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The type of the property is unspecified.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

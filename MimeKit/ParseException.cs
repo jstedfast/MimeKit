@@ -74,6 +74,22 @@ namespace MimeKit {
 		/// <param name="message">The error message.</param>
 		/// <param name="tokenIndex">The byte offset of the token.</param>
 		/// <param name="errorIndex">The byte offset of the error.</param>
+		/// <param name="innerException">The inner exception.</param>
+		public ParseException (string message, int tokenIndex, int errorIndex, Exception innerException) : base (message, innerException)
+		{
+			TokenIndex = tokenIndex;
+			ErrorIndex = errorIndex;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ParseException"/>.
+		/// </remarks>
+		/// <param name="message">The error message.</param>
+		/// <param name="tokenIndex">The byte offset of the token.</param>
+		/// <param name="errorIndex">The byte offset of the error.</param>
 		public ParseException (string message, int tokenIndex, int errorIndex) : base (message)
 		{
 			TokenIndex = tokenIndex;

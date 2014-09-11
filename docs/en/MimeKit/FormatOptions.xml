@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi FormatOptions extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.32.0.0</AssemblyVersion>
+    <AssemblyVersion>0.96.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -24,7 +24,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -33,7 +33,7 @@
             </summary>
         <remarks>
             Creates a new set of formatting options for use with methods such as
-            <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream)" />.
+            <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)" />.
             </remarks>
       </Docs>
     </Member>
@@ -42,7 +42,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class MimeKit.FormatOptions Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.FormatOptions</ReturnType>
@@ -63,7 +63,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static initonly class MimeKit.FormatOptions Default" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.FormatOptions</ReturnType>
@@ -74,8 +74,8 @@
             </summary>
         <remarks>
             If a custom <see cref="T:MimeKit.FormatOptions" /> is not passed to methods such as
-            <see cref="M:MimeKit.MimeMessage.WriteTo(MimeKit.FormatOptions,System.IO.Stream)" />, the default options
-            will be used.
+            <see cref="M:MimeKit.MimeMessage.WriteTo(MimeKit.FormatOptions,System.IO.Stream,System.Threading.CancellationToken)" />,
+            the default options will be used.
             </remarks>
       </Docs>
     </Member>
@@ -84,7 +84,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.HashSet`1&lt;valuetype MimeKit.HeaderId&gt; HiddenHeaders" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.HashSet&lt;MimeKit.HeaderId&gt;</ReturnType>
@@ -103,19 +103,46 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="International">
+      <MemberSignature Language="C#" Value="public bool International { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool International" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets whether the new "Internationalized Email" formatting standards should be used.
+            </summary>
+        <value>
+          <c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
+        <remarks>
+          <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
+          <para>This feature should only be used when formatting messages meant to be sent via
+            SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
+            via UTF8 APPEND (rfc6855).</para>
+        </remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <see cref="F:MimeKit.FormatOptions.Default" /> cannot be changed.
+            </exception>
+      </Docs>
+    </Member>
     <Member MemberName="MaxLineLength">
       <MemberSignature Language="C#" Value="public int MaxLineLength { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int32 MaxLineLength" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
         <summary>
-            Gets or sets the maximum line length used by the encoders. The encoders
+            Gets the maximum line length used by the encoders. The encoders
             use this value to determine where to place line breaks.
             </summary>
         <value>The maximum line length.</value>
@@ -129,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.NewLineFormat NewLineFormat" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.32.0.0</AssemblyVersion>
+        <AssemblyVersion>0.96.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.NewLineFormat</ReturnType>
@@ -143,6 +170,9 @@
             Specifies the new-line encoding to use when writing the message
             or entity to a stream.
             </remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <see cref="F:MimeKit.FormatOptions.Default" /> cannot be changed.
+            </exception>
       </Docs>
     </Member>
   </Members>

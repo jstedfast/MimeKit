@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.IO;
 using System.Threading;
 
@@ -52,8 +51,8 @@ namespace MimeKit {
 		/// Opens the decoded content stream.
 		/// </summary>
 		/// <remarks>
-		/// Provides a means of reading the decoded content without having to first
-		/// write it to another stream using <see cref="DecodeTo(Stream)"/>.
+		/// Provides a means of reading the decoded content without having to first write it to another
+		/// stream using <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
 		/// </remarks>
 		/// <returns>The decoded content stream.</returns>
 		Stream Open ();
@@ -76,23 +75,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void DecodeTo (Stream stream, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Decodes the content stream into another stream.
-		/// </summary>
-        /// <remarks>
-        /// If the content stream is encoded, this method will decode it into the
-        /// output stream using a suitable decoder.
-        /// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		void DecodeTo (Stream stream);
+		void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Copies the content stream to the specified output stream.
@@ -111,21 +94,6 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void WriteTo (Stream stream, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Copies the content stream to the specified output stream.
-		/// </summary>
-        /// <remarks>
-        /// Copies the data from <see cref="Stream"/> into <paramref name="stream"/>.
-        /// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		void WriteTo (Stream stream);
+		void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 	}
 }

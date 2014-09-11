@@ -33,6 +33,8 @@ using System.Collections.Generic;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
@@ -44,6 +46,26 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
+		EncryptionAlgorithm defaultAlgorithm = EncryptionAlgorithm.Cast5;
+
+		/// <summary>
+		/// Gets or sets the default encryption algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the default encryption algorithm.
+		/// </remarks>
+		/// <value>The encryption algorithm.</value>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		public EncryptionAlgorithm DefaultEncryptionAlgorithm {
+			get { return defaultAlgorithm; }
+			set {
+				GetSymmetricKeyAlgorithm (value);
+				defaultAlgorithm = value;
+			}
+		}
+
 		/// <summary>
 		/// Gets the public keyring path.
 		/// </summary>
@@ -637,7 +659,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
@@ -751,11 +773,28 @@ namespace MimeKit.Cryptography {
 				signatures.Add (signature);
 			}
 
-			while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-				for (int i = 0; i < signatures.Count; i++) {
-					if (signatures[i].SignerCertificate != null) {
-						var pgp = (OpenPgpDigitalSignature) signatures[i];
-						pgp.Signature.Update (buf, 0, nread);
+			var memory = content as MemoryStream;
+			if (memory != null) {
+				// We can optimize things a bit if we've got a memory stream...
+				var buffer = memory.GetBuffer ();
+
+				for (int index = (int) memory.Position; index < (int) memory.Length; index++) {
+					byte c = buffer[index];
+
+					for (int i = 0; i < signatures.Count; i++) {
+						if (signatures[i].SignerCertificate != null) {
+							var pgp = (OpenPgpDigitalSignature) signatures[i];
+							pgp.Signature.Update (c);
+						}
+					}
+				}
+			} else {
+				while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+					for (int i = 0; i < signatures.Count; i++) {
+						if (signatures[i].SignerCertificate != null) {
+							var pgp = (OpenPgpDigitalSignature) signatures[i];
+							pgp.Signature.Update (buf, 0, nread);
+						}
 					}
 				}
 			}
@@ -793,11 +832,10 @@ namespace MimeKit.Cryptography {
 				var compressed = data as PgpCompressedData;
 				if (compressed != null) {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
-					signatureList = (PgpSignatureList) factory.NextPgpObject ();
-				} else {
-					if ((signatureList = data as PgpSignatureList) == null)
-						throw new Exception ("Unexpected pgp object");
+					data = factory.NextPgpObject ();
 				}
+
+				signatureList = (PgpSignatureList) data;
 
 				return GetDigitalSignatures (signatureList, content);
 			}
@@ -834,14 +872,14 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
+			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
 		static Stream Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var compressed = compresser.Open (memory)) {
 				var literalGenerator = new PgpLiteralDataGenerator ();
@@ -861,7 +899,7 @@ namespace MimeKit.Cryptography {
 
 		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
 		{
-			var memory = new MemoryStream ();
+			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
 				using (var compressed = Compress (content)) {
@@ -877,6 +915,79 @@ namespace MimeKit.Cryptography {
 			memory.Position = 0;
 
 			return memory;
+		}
+
+		static SymmetricKeyAlgorithmTag GetSymmetricKeyAlgorithm (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes128:      return SymmetricKeyAlgorithmTag.Aes128;
+			case EncryptionAlgorithm.Aes192:      return SymmetricKeyAlgorithmTag.Aes192;
+			case EncryptionAlgorithm.Aes256:      return SymmetricKeyAlgorithmTag.Aes256;
+			case EncryptionAlgorithm.Camellia128: return SymmetricKeyAlgorithmTag.Camellia128;
+			case EncryptionAlgorithm.Camellia192: return SymmetricKeyAlgorithmTag.Camellia192;
+			case EncryptionAlgorithm.Camellia256: return SymmetricKeyAlgorithmTag.Camellia256;
+			case EncryptionAlgorithm.Cast5:       return SymmetricKeyAlgorithmTag.Cast5;
+			case EncryptionAlgorithm.Des:         return SymmetricKeyAlgorithmTag.Des;
+			case EncryptionAlgorithm.TripleDes:   return SymmetricKeyAlgorithmTag.TripleDes;
+			case EncryptionAlgorithm.Idea:        return SymmetricKeyAlgorithmTag.Idea;
+			case EncryptionAlgorithm.Blowfish:    return SymmetricKeyAlgorithmTag.Blowfish;
+			case EncryptionAlgorithm.Twofish:     return SymmetricKeyAlgorithmTag.Twofish;
+			default: throw new NotSupportedException ();
+			}
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (algorithm), true);
+			int count = 0;
+
+			foreach (var recipient in recipients) {
+				if (!recipient.IsEncryptionKey)
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+
+				encrypter.AddMethod (recipient);
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No recipients specified.", "recipients");
+
+			var encrypted = Encrypt (encrypter, content);
+
+			return new MimePart ("application", "octet-stream") {
+				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentObject = new ContentObject (encrypted),
+			};
 		}
 
 		/// <summary>
@@ -901,32 +1012,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
-			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
-			int count = 0;
-
-			foreach (var recipient in recipients) {
-				if (!recipient.IsEncryptionKey)
-					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
-
-				encrypter.AddMethod (recipient);
-				count++;
-			}
-
-			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
-
-			var encrypted = Encrypt (encrypter, content);
-
-			return new MimePart ("application", "octet-stream") {
-				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (encrypted, ContentEncoding.Default),
-			};
+			return Encrypt (defaultAlgorithm, recipients, content);
 		}
 
 		/// <summary>
@@ -997,6 +1083,7 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="cipherAlgo">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1013,15 +1100,18 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
+			// TODO: document the exceptions that can be thrown by BouncyCastle
 
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -1035,7 +1125,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var encrypter = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes256, true);
+			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (cipherAlgo), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			int count = 0;
 
@@ -1052,7 +1142,7 @@ namespace MimeKit.Cryptography {
 
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
-			using (var compressed = new MemoryStream ()) {
+			using (var compressed = new MemoryBlockStream ()) {
 				using (var signed = compresser.Open (compressed)) {
 					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
 					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
@@ -1089,7 +1179,7 @@ namespace MimeKit.Cryptography {
 
 				compressed.Position = 0;
 
-				var memory = new MemoryStream ();
+				var memory = new MemoryBlockStream ();
 				using (var armored = new ArmoredOutputStream (memory)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 						compressed.CopyTo (encrypted, 4096);
@@ -1103,9 +1193,225 @@ namespace MimeKit.Cryptography {
 
 				return new MimePart ("application", "octet-stream") {
 					ContentDisposition = new ContentDisposition ("attachment"),
-					ContentObject = new ContentObject (memory, ContentEncoding.Default)
+					ContentObject = new ContentObject (memory)
 				};
 			}
+		}
+
+		/// <summary>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		{
+			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content);
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// </remarks>
+		/// <returns>The decrypted stream.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
+		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			using (var armored = new ArmoredInputStream (encryptedData)) {
+				var factory = new PgpObjectFactory (armored);
+				var obj = factory.NextPgpObject ();
+				var list = obj as PgpEncryptedDataList;
+
+				if (list == null) {
+					// probably a PgpMarker...
+					obj = factory.NextPgpObject ();
+
+					list = obj as PgpEncryptedDataList;
+
+					if (list == null)
+						throw new PgpException ("Unexpected OpenPGP packet.");
+				}
+
+				PgpPublicKeyEncryptedData encrypted = null;
+				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
+					if ((encrypted = data as PgpPublicKeyEncryptedData) != null)
+						break;
+				}
+
+				if (encrypted == null)
+					throw new PgpException ("No encrypted data objects found.");
+
+				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
+				List<IDigitalSignature> onepassList = null;
+				PgpSignatureList signatureList = null;
+				PgpCompressedData compressed = null;
+				var memory = new MemoryBlockStream ();
+
+				obj = factory.NextPgpObject ();
+				while (obj != null) {
+					if (obj is PgpCompressedData) {
+						if (compressed != null)
+							throw new PgpException ("Recursive compression packets are not supported.");
+
+						compressed = (PgpCompressedData) obj;
+						factory = new PgpObjectFactory (compressed.GetDataStream ());
+					} else if (obj is PgpOnePassSignatureList) {
+						if (memory.Length == 0) {
+							var onepasses = (PgpOnePassSignatureList) obj;
+
+							onepassList = new List<IDigitalSignature> ();
+
+							for (int i = 0; i < onepasses.Count; i++) {
+								var onepass = onepasses[i];
+								var pubkey = PublicKeyRingBundle.GetPublicKey (onepass.KeyId);
+
+								if (pubkey == null) {
+									// too messy, pretend we never found a one-pass signature list
+									onepassList = null;
+									break;
+								}
+
+								onepass.InitVerify (pubkey);
+
+								var signature = new OpenPgpDigitalSignature (pubkey, onepass) {
+									PublicKeyAlgorithm = GetPublicKeyAlgorithm (onepass.KeyAlgorithm),
+									DigestAlgorithm = GetDigestAlgorithm (onepass.HashAlgorithm),
+								};
+
+								onepassList.Add (signature);
+							}
+						}
+					} else if (obj is PgpSignatureList) {
+						signatureList = (PgpSignatureList) obj;
+					} else if (obj is PgpLiteralData) {
+						var literal = (PgpLiteralData) obj;
+
+						using (var stream = literal.GetDataStream ()) {
+							var buffer = new byte[4096];
+							int nread;
+
+							while ((nread = stream.Read (buffer, 0, buffer.Length)) > 0) {
+								if (onepassList != null) {
+									// update our one-pass signatures...
+									for (int index = 0; index < nread; index++) {
+										byte c = buffer[index];
+
+										for (int i = 0; i < onepassList.Count; i++) {
+											var pgp = (OpenPgpDigitalSignature) onepassList[i];
+											pgp.OnePassSignature.Update (c);
+										}
+									}
+								}
+
+								memory.Write (buffer, 0, nread);
+							}
+						}
+					}
+
+					obj = factory.NextPgpObject ();
+				}
+
+				memory.Position = 0;
+
+				if (signatureList != null) {
+					if (onepassList != null && signatureList.Count == onepassList.Count) {
+						for (int i = 0; i < onepassList.Count; i++) {
+							var pgp = (OpenPgpDigitalSignature) onepassList[i];
+							pgp.CreationDate = signatureList[i].CreationTime;
+							pgp.Signature = signatureList[i];
+						}
+
+						signatures = new DigitalSignatureCollection (onepassList);
+					} else {
+						signatures = GetDigitalSignatures (signatureList, memory);
+						memory.Position = 0;
+					}
+				} else {
+					signatures = null;
+				}
+
+				return memory;
+			}
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData.
+		/// </remarks>
+		/// <returns>The decrypted stream.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
+		public Stream GetDecryptedStream (Stream encryptedData)
+		{
+			DigitalSignatureCollection signatures;
+
+			if (encryptedData == null)
+				throw new ArgumentNullException ("encryptedData");
+
+			return GetDecryptedStream (encryptedData, out signatures);
 		}
 
 		/// <summary>
@@ -1129,83 +1435,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
 		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			// FIXME: document the exceptions that can be thrown by BouncyCastle
-			using (var armored = new ArmoredInputStream (encryptedData)) {
-				var factory = new PgpObjectFactory (armored);
-				var obj = factory.NextPgpObject ();
-				var list = obj as PgpEncryptedDataList;
+			var decrypted = GetDecryptedStream (encryptedData, out signatures);
 
-				if (list == null) {
-					// probably a PgpMarker...
-					obj = factory.NextPgpObject ();
-
-					list = obj as PgpEncryptedDataList;
-					if (list == null)
-						throw new Exception ("Unexpected pgp object");
-				}
-
-				PgpPublicKeyEncryptedData encrypted = null;
-				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
-					if ((encrypted = data as PgpPublicKeyEncryptedData) != null)
-						break;
-				}
-
-				if (encrypted == null)
-					throw new Exception ("no encrypted data objects found?");
-
-				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
-				//PgpOnePassSignatureList onepassList = null;
-				PgpSignatureList signatureList = null;
-				PgpCompressedData compressed = null;
-
-				using (var memory = new MemoryStream ()) {
-					obj = factory.NextPgpObject ();
-					while (obj != null) {
-						if (obj is PgpCompressedData) {
-							if (compressed != null)
-								throw new Exception ("recursive compression detected.");
-
-							compressed = (PgpCompressedData) obj;
-							factory = new PgpObjectFactory (compressed.GetDataStream ());
-						//} else if (obj is PgpOnePassSignatureList) {
-							//onepassList = (PgpOnePassSignatureList) obj;
-						} else if (obj is PgpSignatureList) {
-							signatureList = (PgpSignatureList) obj;
-						} else if (obj is PgpLiteralData) {
-							var literal = (PgpLiteralData) obj;
-
-							using (var stream = literal.GetDataStream ()) {
-								stream.CopyTo (memory, 4096);
-							}
-						}
-
-						obj = factory.NextPgpObject ();
-					}
-
-					memory.Position = 0;
-
-					// FIXME: validate the OnePass signatures... and do what with them?
-//					if (onepassList != null) {
-//						for (int i = 0; i < onepassList.Count; i++) {
-//							var onepass = onepassList[i];
-//						}
-//					}
-
-					if (signatureList != null) {
-						signatures = GetDigitalSignatures (signatureList, memory);
-						memory.Position = 0;
-					} else {
-						signatures = null;
-					}
-
-					return MimeEntity.Load (memory);
-				}
-			}
+			return MimeEntity.Load (decrypted, true);
 		}
 
 		/// <summary>
@@ -1227,6 +1467,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
@@ -1438,7 +1681,7 @@ namespace MimeKit.Cryptography {
 			if (keys == null)
 				throw new ArgumentNullException ("keys");
 
-			var content = new MemoryStream ();
+			var content = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (content)) {
 				keys.Encode (armored);
@@ -1449,7 +1692,7 @@ namespace MimeKit.Cryptography {
 
 			return new MimePart ("application", "pgp-keys") {
 				ContentDisposition = new ContentDisposition ("attachment"),
-				ContentObject = new ContentObject (content, ContentEncoding.Default)
+				ContentObject = new ContentObject (content)
 			};
 		}
 	}

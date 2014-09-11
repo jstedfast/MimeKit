@@ -1,0 +1,1683 @@
+
+
+
+
+
+
+Network Working Group                                     T. Hansen, Ed.
+Request for Comments: 3798                             AT&T Laboratories
+Obsoletes: 2298                                        G. Vaudreuil, Ed.
+Updates: 3461, 2046                                  Lucent Technologies
+Category: Standards Track                                       May 2004
+
+
+                   Message Disposition Notification
+
+Status of this Memo
+
+   This document specifies an Internet standards track protocol for the
+   Internet community, and requests discussion and suggestions for
+   improvements.  Please refer to the current edition of the "Internet
+   Official Protocol Standards" (STD 1) for the standardization state
+   and status of this protocol.  Distribution of this memo is unlimited.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2004).  All Rights Reserved.
+
+Abstract
+
+   This memo defines a MIME content-type that may be used by a mail user
+   agent (MUA) or electronic mail gateway to report the disposition of a
+   message after it has been successfully delivered to a recipient.
+   This content-type is intended to be machine-processable.  Additional
+   message headers are also defined to permit Message Disposition
+   Notifications (MDNs) to be requested by the sender of a message.  The
+   purpose is to extend Internet Mail to support functionality often
+   found in other messaging systems, such as X.400 and the proprietary
+   "LAN-based" systems, and often referred to as "read receipts,"
+   "acknowledgements", or "receipt notifications."  The intention is to
+   do this while respecting privacy concerns, which have often been
+   expressed when such functions have been discussed in the past.
+
+   Because many messages are sent between the Internet and other
+   messaging systems (such as X.400 or the proprietary "LAN-based"
+   systems), the MDN protocol is designed to be useful in a multi-
+   protocol messaging environment.  To this end, the protocol described
+   in this memo provides for the carriage of "foreign" addresses, in
+   addition to those normally used in Internet Mail.  Additional
+   attributes may also be defined to support "tunneling" of foreign
+   notifications through Internet Mail.
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 1]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+       1.1.  Purposes . . . . . . . . . . . . . . . . . . . . . . . .  3
+       1.2.  Requirements . . . . . . . . . . . . . . . . . . . . . .  3
+       1.3.  Terminology. . . . . . . . . . . . . . . . . . . . . . .  4
+   2.  Requesting Message Disposition Notifications . . . . . . . . .  4
+       2.1.  The Disposition-Notification-To Header . . . . . . . . .  4
+       2.2.  The Disposition-Notification-Options Header. . . . . . .  6
+       2.3.  The Original-Recipient Header. . . . . . . . . . . . . .  7
+       2.4.  Use with the Message/Partial Content Type. . . . . . . .  8
+   3.  FORMAT OF A MESSAGE DISPOSITION NOTIFICATION . . . . . . . . .  8
+       3.1.  The message/disposition-notification content-type. . . .  9
+       3.2.  Message/disposition-notification Fields. . . . . . . . . 11
+       3.3.  Extension-fields . . . . . . . . . . . . . . . . . . . . 16
+   4.  Timeline of Events . . . . . . . . . . . . . . . . . . . . . . 17
+   5.  Conformance and Usage Requirements . . . . . . . . . . . . . . 18
+   6.  Security Considerations. . . . . . . . . . . . . . . . . . . . 19
+       6.1.  Forgery. . . . . . . . . . . . . . . . . . . . . . . . . 19
+       6.2.  Privacy. . . . . . . . . . . . . . . . . . . . . . . . . 19
+       6.3.  Non-Repudiation. . . . . . . . . . . . . . . . . . . . . 20
+       6.4.  Mail Bombing . . . . . . . . . . . . . . . . . . . . . . 20
+   7.  Collected Grammar. . . . . . . . . . . . . . . . . . . . . . . 20
+   8.  Guidelines for Gatewaying MDNS . . . . . . . . . . . . . . . . 22
+       8.1.  Gatewaying from other mail systems to MDNs . . . . . . . 23
+       8.2.  Gatewaying from MDNs to other mail systems . . . . . . . 23
+       8.3.  Gatewaying of MDN-requests to other mail systems . . . . 24
+   9.  Example. . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+   10. IANA Considerations. . . . . . . . . . . . . . . . . . . . . . 25
+       10.1. Disposition-Notification-Options header parameter names. 26
+       10.2. Disposition modifier names . . . . . . . . . . . . . . . 26
+       10.3. MDN extension field names. . . . . . . . . . . . . . . . 26
+   11. Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 27
+   12. References . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+       12.1. Normative References . . . . . . . . . . . . . . . . . . 27
+       12.2. Informative References . . . . . . . . . . . . . . . . . 28
+   Appendix A - Changes from RFC 2298 . . . . . . . . . . . . . . . . 29
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 29
+   Full Copyright Statement . . . . . . . . . . . . . . . . . . . . . 30
+
+
+
+
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 2]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+1.  Introduction
+
+   This memo defines a [RFC-MIME-MEDIA] content-type for message
+   disposition notifications (MDNs).  An MDN can be used to notify the
+   sender of a message of any of several conditions that may occur after
+   successful delivery, such as display of the message contents,
+   printing of the message, deletion (without display) of the message,
+   or the recipient's refusal to provide MDNs.  The
+   "message/disposition-notification" content-type defined herein is
+   intended for use within the framework of the "multipart/report"
+   content type defined in [RFC-REPORT].
+
+   This memo defines the format of the notifications and the [RFC-
+   MSGFMT] headers used to request them.
+
+1.1.  Purposes
+
+   The MDNs defined in this memo are expected to serve several purposes:
+
+   (a)  Inform human beings of the disposition of messages after
+        successful delivery, in a manner that is largely independent of
+        human language;
+
+   (b)  Allow mail user agents to keep track of the disposition of
+        messages sent, by associating returned MDNs with earlier message
+        transmissions;
+
+   (c)  Convey disposition notification requests and disposition
+        notifications between Internet Mail and "foreign" mail systems
+        via a gateway;
+
+   (d)  Allow "foreign" notifications to be tunneled through a MIME-
+        capable message system and back into the original messaging
+        system that issued the original notification, or even to a third
+        messaging system;
+
+   (e)  Allow language-independent, yet reasonably precise, indications
+        of the disposition of a message to be delivered.
+
+1.2.  Requirements
+
+   These purposes place the following constraints on the notification
+   protocol:
+
+   (a)  It must be readable by humans, and must be machine-parsable.
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 3]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   (b)  It must provide enough information to allow message senders (or
+        their user agents) to unambiguously associate an MDN with the
+        message that was sent and the original recipient address for
+        which the MDN was issued (if such information is available),
+        even if the message was forwarded to another recipient address.
+
+   (c)  It must also be able to describe the disposition of a message
+        independent of any particular human language or of the
+        terminology of any particular mail system.
+
+   (d)  The specification must be extensible in order to accommodate
+        future requirements.
+
+1.3.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC-KEYWORDS].
+
+   All syntax descriptions use the ABNF specified by [RFC-MSGFMT], in
+   which the lexical tokens (used below) are defined: "atom", "CRLF",
+   "mailbox", "msg-id", and "text".  The following lexical tokens are
+   defined in the definition of the Content-Type header in [RFC-MIME-
+   BODY]: "attribute" and "value".
+
+2.  Requesting Message Disposition Notifications
+
+   Message disposition notifications are requested by including a
+   Disposition-Notification-To header in the message.  Further
+   information to be used by the recipient's MUA in generating the MDN
+   may be provided by also including Original-Recipient and/or
+   Disposition-Notification-Options headers in the message.
+
+2.1.  The Disposition-Notification-To Header
+
+   A request for the receiving user agent to issue message disposition
+   notifications is made by placing a Disposition-Notification-To header
+   into the message.  The syntax of the header is
+
+   mdn-request-header = "Disposition-Notification-To" ":"
+             mailbox *("," mailbox)
+
+   The presence of a Disposition-Notification-To header in a message is
+   merely a request for an MDN.  The recipients' user agents are always
+   free to silently ignore such a request.  Alternatively, an explicit
+   denial of the request for information about the disposition of the
+   message may be sent using the "denied" disposition in an MDN.
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 4]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   An MDN MUST NOT itself have a Disposition-Notification-To header.  An
+   MDN MUST NOT be generated in response to an MDN.
+
+   A user agent MUST NOT issue more than one MDN on behalf of each
+   particular recipient.  That is, once an MDN has been issued on behalf
+   of a recipient, no further MDNs may be issued on behalf of that
+   recipient, even if another disposition is performed on the message.
+   However, if a message is forwarded, an MDN may have been issued for
+   the recipient doing the forwarding and the recipient of the forwarded
+   message may also cause an MDN to be generated.
+
+   While Internet standards normally do not specify the behavior of user
+   interfaces, it is strongly recommended that the user agent obtain the
+   user's consent before sending an MDN.  This consent could be obtained
+   for each message through some sort of prompt or dialog box, or
+   globally through the user's setting of a preference.  The user might
+   also indicate globally that MDNs are to never be sent or that a
+   "denied" MDN is always sent in response to a request for an MDN.
+
+   MDNs SHOULD NOT be sent automatically if the address in the
+   Disposition-Notification-To header differs from the address in the
+   Return-Path header (see [RFC-MSGFMT]).  In this case, confirmation
+   from the user SHOULD be obtained, if possible.  If obtaining consent
+   is not possible (e.g., because the user is not online at the time),
+   then an MDN SHOULD NOT be sent.
+
+   Confirmation from the user SHOULD be obtained (or no MDN sent) if
+   there is no Return-Path header in the message, or if there is more
+   than one distinct address in the Disposition-Notification-To header.
+
+   The comparison of the addresses should be done using only the addr-
+   spec (local-part "@" domain) portion, excluding any phrase and route.
+   The comparison MUST be case-sensitive for the local-part and case-
+   insensitive for the domain part.
+
+   If the message contains more than one Return-Path header, the
+   implementation may pick one to use for the comparison, or treat the
+   situation as a failure of the comparison.
+
+   The reason for not automatically sending an MDN if the comparison
+   fails or more than one address is specified is to reduce the
+   possibility of mail loops and of MDNs being used for mail bombing.
+
+   A message that contains a Disposition-Notification-To header SHOULD
+   also contain a Message-ID header as specified in [RFC-MSGFMT].  This
+   will permit automatic correlation of MDNs with their original
+   messages by user agents.
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 5]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   If the request for message disposition notifications for some
+   recipients and not others is desired, two copies of the message
+   should be sent, one with a Disposition-Notification-To header and one
+   without.  Many of the other headers of the message (e.g., To, Cc)
+   will be the same in both copies.  The recipients in the respective
+   message envelopes determine for whom message disposition
+   notifications are requested and for whom they are not.  If desired,
+   the Message-ID header may be the same in both copies of the message.
+   Note that there are other situations (e.g., Bcc) in which it is
+   necessary to send multiple copies of a message with slightly
+   different headers.  The combination of such situations and the need
+   to request MDNs for a subset of all recipients may result in more
+   than two copies of a message being sent, some with a Disposition-
+   Notification-To header and some without.
+
+   Messages posted to newsgroups SHOULD NOT have a Disposition-
+   Notification-To header.
+
+2.2.  The Disposition-Notification-Options Header
+
+   Future extensions to this specification may require that information
+   be supplied to the recipient's MUA for additional control over how
+   and what MDNs are generated.  The Disposition-Notification-Options
+   header provides an extensible mechanism for such information.  The
+   syntax of this header is as follows:
+
+   Disposition-Notification-Options =
+             "Disposition-Notification-Options" ":"
+                            disposition-notification-parameters
+
+   disposition-notification-parameters = parameter *(";" parameter)
+
+   parameter = attribute "=" importance "," value *("," value)
+
+   importance = "required" / "optional"
+
+   An importance of "required" indicates that interpretation of the
+   parameter is necessary for proper generation of an MDN in response to
+   this request.  If an MUA does not understand the meaning of the
+   parameter, it MUST NOT generate an MDN with any disposition type
+   other than "failed" in response to the request.  An importance of
+   "optional" indicates that an MUA that does not understand the meaning
+   of this parameter MAY generate an MDN in response anyway, ignoring
+   the value of the parameter.
+
+   No parameters are defined in this specification.  Parameters may be
+   defined in the future by later revisions or extensions to this
+   specification.  Parameter attribute names beginning with "X-" will
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 6]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   never be defined as standard names; such names are reserved for
+   experimental use.  MDN parameter names not beginning with "X-" MUST
+   be registered with the Internet Assigned Numbers Authority (IANA) and
+   described in a standards-track RFC or an experimental RFC approved by
+   the IESG.  (See Section 10 for a registration form.)
+
+   If a required parameter is not understood or contains some sort of
+   error, the receiving MUA SHOULD issue an MDN with a disposition type
+   of "failed" (see Section 3.2.6), and include a Failure field (see
+   Section 3.2.7) that further describes the problem.  MDNs with the
+   disposition type of "failed" and a "Failure" field MAY also be
+   generated when other types of errors are detected in the parameters
+   of the Disposition-Notification-Options header.
+
+   However, an MDN with a disposition type of "failed" MUST NOT be
+   generated if the user has indicated a preference that MDNs are not to
+   be sent.  If user consent would be required for an MDN of some other
+   disposition type to be sent, user consent SHOULD also be obtained
+   before sending an MDN with a disposition type of "failed".
+
+2.3.  The Original-Recipient Header
+
+   Since electronic mail addresses may be rewritten while the message is
+   in transit, it is useful for the original recipient address to be
+   made available by the delivering MTA.  The delivering MTA may be able
+   to obtain this information from the ORCPT parameter of the SMTP RCPT
+   TO command, as defined in [RFC-SMTP] and [RFC-DSN-SMTP].
+
+   [RFC-DSN-SMTP] is amended as follows: If the ORCPT information is
+   available, the delivering MTA SHOULD insert an Original-Recipient
+   header at the beginning of the message (along with the Return-Path
+   header).  The delivering MTA MAY delete any other Original-Recipient
+   headers that occur in the message.  The syntax of this header is as
+   follows:
+
+   original-recipient-header =
+               "Original-Recipient" ":" address-type ";" generic-address
+
+   The address-type and generic-address token are as specified in the
+   description of the Original-Recipient field in section 3.2.3.
+
+   The purpose of carrying the original recipient information and
+   returning it in the MDN is to permit automatic correlation of MDNs
+   with the original message on a per-recipient basis.
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 7]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+2.4.  Use with the Message/Partial Content Type
+
+   The use of the headers Disposition-Notification-To, Disposition-
+   Notification-Options, and Original-Recipient with the MIME
+   message/partial content type ([RFC-MIME-MEDIA]) requires further
+   definition.
+
+   When a message is segmented into two or more message/partial
+   fragments, the three headers mentioned in the above paragraph SHOULD
+   be placed in the "inner" or "enclosed" message (using the terms of
+   [RFC-MIME-MEDIA]).  These headers SHOULD NOT be used in the headers
+   of any of the fragments themselves.
+
+   When the multiple message/partial fragments are reassembled, the
+   following applies.  If these headers occur along with the other
+   headers of a message/partial fragment message, they pertain to an MDN
+   that will be generated for the fragment.  If these headers occur in
+   the headers of the "inner" or "enclosed" message (using the terms of
+   [RFC-MIME-MEDIA]), they pertain to an MDN that will be generated for
+   the reassembled message.  Section 5.2.2.1 of [RFC-MIME-MEDIA]) is
+   amended to specify that, in addition to the headers specified there,
+   the three headers described in this specification are to be appended,
+   in order, to the headers of the reassembled message.  Any occurrences
+   of the three headers defined here in the headers of the initial
+   enclosing message must not be copied to the reassembled message.
+
+3.  Format of a Message Disposition Notification
+
+   A message disposition notification is a MIME message with a top-level
+   content-type of multipart/report (defined in [RFC-REPORT]).  When
+   multipart/report content is used to transmit an MDN:
+
+   (a)  The report-type parameter of the multipart/report content is
+        "disposition-notification".
+
+   (b)  The first component of the multipart/report contains a human-
+        readable explanation of the MDN, as described in [RFC-REPORT].
+
+   (c)  The second component of the multipart/report is of content-type
+        message/disposition-notification, described in section 3.1 of
+        this document.
+
+   (d)  If the original message or a portion of the message is to be
+        returned to the sender, it appears as the third component of the
+        multipart/report.  The decision of whether or not to return the
+        message or part of the message is up to the MUA generating the
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 8]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+        MDN.  However, in the case of encrypted messages requesting
+        MDNs, encrypted message text MUST be returned, if it is returned
+        at all, only in its original encrypted form.
+
+    NOTE:  For message disposition notifications gatewayed from foreign
+    systems, the headers of the original message may not be available.
+    In this case, the third component of the MDN may be omitted, or it
+    may contain "simulated" [RFC-MSGFMT] headers that contain equivalent
+    information.  In particular, it is very desirable to preserve the
+    subject and date fields from the original message.
+
+   The MDN MUST be addressed (in both the message header and the
+   transport envelope) to the address(es) from the Disposition-
+   Notification-To header from the original message for which the MDN is
+   being generated.
+
+   The From field of the message header of the MDN MUST contain the
+   address of the person for whom the message disposition notification
+   is being issued.
+
+   The envelope sender address (i.e., SMTP MAIL FROM) of the MDN MUST be
+   null (<>), specifying that no Delivery Status Notification messages
+   or other messages indicating successful or unsuccessful delivery are
+   to be sent in response to an MDN.
+
+   A message disposition notification MUST NOT itself request an MDN.
+   That is, it MUST NOT contain a Disposition-Notification-To header.
+
+   The Message-ID header (if present) for an MDN MUST be different from
+   the Message-ID of the message for which the MDN is being issued.
+
+   A particular MDN describes the disposition of exactly one message for
+   exactly one recipient.  Multiple MDNs may be generated as a result of
+   one message submission, one per recipient.  However, due to the
+   circumstances described in Section 2.1, MDNs may not be generated for
+   some recipients for which MDNs were requested.
+
+3.1.  The message/disposition-notification content-type
+
+   The message/disposition-notification content-type is defined as
+   follows:
+
+   MIME type name:      message
+
+   MIME subtype name:   disposition-notification
+
+   Optional parameters: none
+
+
+
+
+Hansen & Vaudreuil          Standards Track                     [Page 9]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   Encoding considerations:  "7bit" encoding is sufficient and
+                             MUST be used to maintain readability
+                             when viewed by non-MIME mail readers.
+
+   Security considerations:  discussed in section 6 of this memo.
+
+   The message/disposition-notification report type for use in the
+   multipart/report is "disposition-notification".
+
+   The body of a message/disposition-notification consists of one or
+   more "fields" formatted according to the ABNF of [RFC-MSGFMT] header
+   "fields".  The syntax of the message/disposition-notification content
+   is as follows:
+
+   disposition-notification-content = [ reporting-ua-field CRLF ]
+      [ mdn-gateway-field CRLF ]
+      [ original-recipient-field CRLF ]
+      final-recipient-field CRLF
+      [ original-message-id-field CRLF ]
+      disposition-field CRLF
+      *( failure-field CRLF )
+      *( error-field CRLF )
+      *( warning-field CRLF )
+      *( extension-field CRLF )
+
+3.1.1.  General conventions for fields
+
+   Since these fields are defined according to the rules of [RFC-
+   MSGFMT], the same conventions for continuation lines and comments
+   apply. Notification fields may be continued onto multiple lines by
+   beginning each additional line with a SPACE or HTAB.  Text that
+   appears in parentheses is considered a comment and not part of the
+   contents of that notification field.  Field names are case-
+   insensitive, so the names of notification fields may be spelled in
+   any combination of upper and lower case letters.  Comments in
+   notification fields may use the "encoded-word" construct defined in
+   [RFC-MIME-HEADER].
+
+3.1.2.  "*-type" subfields
+
+   Several fields consist of a "-type" subfield, followed by a semi-
+   colon, followed by "*text".  For these fields, the keyword used in
+   the address-type or MTA-type subfield indicates the expected format
+   of the address or MTA-name that follows.
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 10]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   The "-type" subfields are defined as follows:
+
+   (a)  An "address-type" specifies the format of a mailbox address.
+        For example, Internet Mail addresses use the "rfc822" address-
+        type.
+
+        address-type = atom
+
+   (b)  An "MTA-name-type" specifies the format of a mail transfer agent
+        name.  For example, for an SMTP server on an Internet host, the
+        MTA name is the domain name of that host, and the "dns" MTA-
+        name-type is used.
+
+        mta-name-type = atom
+
+   Values for address-type and mta-name-type are case-insensitive.
+   Thus, address-type values of "RFC822" and "rfc822" are equivalent.
+
+   The Internet Assigned Numbers Authority (IANA) maintains a registry
+   of address-type and mta-name-type values, along with descriptions of
+   the meanings of each, or a reference to one or more specifications
+   that provide such descriptions.  (The "rfc822" address-type is
+   defined in [RFC-DSN-SMTP].)  Registration forms for address-type and
+   mta-name-type appear in [RFC-DSN-FORMAT].
+
+3.2.  Message/disposition-notification Fields
+
+3.2.1.  The Reporting-UA field
+
+    reporting-ua-field = "Reporting-UA" ":" ua-name
+              [ ";" ua-product ]
+
+    ua-name = *text
+
+    ua-product = *text
+
+   The Reporting-UA field is defined as follows:
+
+   An MDN describes the disposition of a message after it has been
+   delivered to a recipient.  In all cases, the Reporting-UA is the MUA
+   that performed the disposition described in the MDN.  This field is
+   optional, but recommended.  For Internet Mail user agents, it is
+   recommended that this field contain both: the DNS name of the
+   particular instance of the MUA that generated the MDN, and the name
+   of the product.  For example,
+
+    Reporting-UA:  pc.example.com; Foomail 97.1
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 11]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   If the reporting MUA consists of more than one component (e.g., a
+   base program and plug-ins), this may be indicated by including a list
+   of product names.
+
+3.2.2.  The MDN-Gateway field
+
+   The MDN-Gateway field indicates the name of the gateway or MTA that
+   translated a foreign (non-Internet) message disposition notification
+   into this MDN.  This field MUST appear in any MDN that was translated
+   by a gateway from a foreign system into MDN format, and MUST NOT
+   appear otherwise.
+
+    mdn-gateway-field = "MDN-Gateway" ":" mta-name-type ";" mta-name
+
+    mta-name = *text
+
+   For gateways into Internet Mail, the MTA-name-type will normally be
+   "smtp", and the mta-name will be the Internet domain name of the
+   gateway.
+
+3.2.3.  Original-Recipient field
+
+   The Original-Recipient field indicates the original recipient address
+   as specified by the sender of the message for which the MDN is being
+   issued.  For Internet Mail messages, the value of the Original-
+   Recipient field is obtained from the Original-Recipient header from
+   the message for which the MDN is being generated.  If there is no
+   Original-Recipient header in the message, then the Original-Recipient
+   field MUST be omitted, unless the same information is reliably
+   available some other way.  If there is an Original-Recipient header
+   in the original message (or original recipient information is
+   reliably available some other way), then the Original-Recipient field
+   must be supplied.  If there is more than one Original-Recipient
+   header in the message, the MUA may choose the one to use, or act as
+   if no Original-Recipient header is present.
+
+    original-recipient-field =
+              "Original-Recipient" ":" address-type ";"
+              generic-address
+
+    generic-address = *text
+
+   The address-type field indicates the type of the original recipient
+   address.  If the message originated within the Internet, the
+   address-type field will normally be "rfc822", and the address will be
+   according to the syntax specified in [RFC-MSGFMT].  The value
+   "unknown" should be used if the Reporting MUA cannot determine the
+   type of the original recipient address from the message envelope.
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 12]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   This address is the same as that provided by the sender and can be
+   used to automatically correlate MDN reports with original messages on
+   a per recipient basis.
+
+3.2.4.  Final-Recipient field
+
+   The Final-Recipient field indicates the recipient for which the MDN
+   is being issued.  This field MUST be present.
+
+   The syntax of the field is as follows:
+
+    final-recipient-field =
+              "Final-Recipient" ":" address-type ";" generic-address
+
+   The generic-address subfield of the Final-Recipient field MUST
+   contain the mailbox address of the recipient (from the From header of
+   the MDN) as it was when the MDN was generated by the MUA.
+
+   The Final-Recipient address may differ from the address originally
+   provided by the sender, because it may have been transformed during
+   forwarding and gatewaying into a totally unrecognizable mess.
+   However, in the absence of the optional Original-Recipient field, the
+   Final-Recipient field and any returned content may be the only
+   information available with which to correlate the MDN with a
+   particular message recipient.
+
+   The address-type subfield indicates the type of address expected by
+   the reporting MTA in that context.  Recipient addresses obtained via
+   SMTP will normally be of address-type "rfc822".
+
+   Since mailbox addresses (including those used in the Internet) may be
+   case sensitive, the case of alphabetic characters in the address MUST
+   be preserved.
+
+3.2.5.  Original-Message-ID field
+
+   The Original-Message-ID field indicates the message-ID of the message
+   for which the MDN is being issued.  It is obtained from the Message-
+   ID header of the message for which the MDN is issued.  This field
+   MUST be present if the original message contained a Message-ID
+   header.  The syntax of the field is as follows:
+
+    original-message-id-field =
+       "Original-Message-ID" ":" msg-id
+
+   The msg-id token is as specified in [RFC-MSGFMT].
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 13]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+3.2.6.  Disposition field
+
+   The Disposition field indicates the action performed by the
+   Reporting-MUA on behalf of the user.  This field MUST be present.
+
+   The syntax for the Disposition field is:
+
+    disposition-field =
+              "Disposition" ":" disposition-mode ";"
+              disposition-type
+              [ "/" disposition-modifier
+              *( "," disposition-modifier ) ]
+
+    disposition-mode = action-mode "/" sending-mode
+
+    action-mode = "manual-action" / "automatic-action"
+
+    sending-mode = "MDN-sent-manually" / "MDN-sent-automatically"
+
+    disposition-type = "displayed"
+               / "deleted"
+
+    disposition-modifier = "error"
+              / disposition-modifier-extension
+
+    disposition-modifier-extension = atom
+
+   The disposition-mode, disposition-type, and disposition-modifier may
+   be spelled in any combination of upper and lower case characters.
+
+3.2.6.1.  Disposition modes
+
+   The following disposition modes are defined:
+
+    "manual-action"        The disposition described by the disposition
+                           type was a result of an explicit instruction
+                           by the user rather than some sort of
+                           automatically performed action.
+
+    "automatic-action"     The disposition described by the disposition
+                           type was a result of an automatic action,
+                           rather than an explicit instruction by the
+                           user for this message.
+
+   "Manual-action" and "automatic-action" are mutually exclusive.  One
+   or the other MUST be specified.
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 14]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+    "MDN-sent-manually"    The user explicitly gave permission for this
+                           particular MDN to be sent.
+
+    "MDN-sent-automatically"
+                           The MDN was sent because the MUA had
+                           previously been configured to do so
+                           automatically.
+
+   "MDN-sent-manually" and "MDN-sent-automatically" are mutually
+   exclusive.  One or the other MUST be specified.
+
+3.2.6.2.  Disposition types
+
+   The following disposition-types are defined:
+
+    "displayed"            The message has been displayed by the MUA
+                           to someone reading the recipient's mailbox.
+                           There is no guarantee that the content has
+                           been read or understood.
+
+    "deleted"              The message has been deleted.  The
+                           recipient may or may not have seen the
+                           message.  The recipient might "undelete"
+                           the message at a later time and read the
+                           message.
+
+3.2.6.3.  Disposition modifiers
+
+   Only the extension disposition modifiers is defined:
+
+    disposition-modifier-extension
+                           Disposition modifiers may be defined
+                           in the future by later revisions
+                           or extensions to this specification.
+                           Disposition value names beginning with "X-"
+                           will never be defined as standard values;
+                           such names are reserved for experimental
+                           use.  MDN disposition value names NOT
+                           beginning with "X-" MUST be registered with
+                           the Internet Assigned Numbers Authority
+                           (IANA) and described in a standards-track
+                           RFC or an experimental RFC approved by the
+                           IESG.  (See Section 10 for a registration
+                           form.)  MDNs with disposition modifier
+                           names not understood by the receiving MUA
+                           MAY be silently ignored or placed in the
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 15]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+                           user's mailbox without special
+                           interpretation.  They MUST not cause any
+                           error message to be sent to the sender of
+                           the MDN.
+
+   If an MUA developer does not wish to register the meanings of such
+   disposition modifier extensions, "X-" modifiers may be used for this
+   purpose.  To avoid name collisions, the name of the MUA
+   implementation should follow the "X-", (e.g., "X-Foomail-").
+
+   It is not required that an MUA be able to generate all of the
+   possible values of the Disposition field.
+
+   A user agent MUST NOT issue more than one MDN on behalf of each
+   particular recipient.  That is, once an MDN has been issued on behalf
+   of a recipient, no further MDNs may be issued on behalf of that
+   recipient, even if another disposition is performed on the message.
+   However, if a message is forwarded, a "dispatched" MDN may be issued
+   for the recipient doing the forwarding and the recipient of the
+   forwarded message may also cause an MDN to be generated.
+
+3.2.7.  Failure, Error, and Warning fields
+
+   The Failure, Error, and Warning fields are used to supply additional
+   information in the form of text messages when the "failure"
+   disposition type, "error" disposition modifier, and/or the "warning"
+   disposition modifier appear.  The syntax is as follows:
+
+      failure-field = "Failure" ":" *text
+
+      error-field = "Error" ":" *text
+
+      warning-field = "Warning" ":" *text
+
+3.3.  Extension-fields
+
+   Additional MDN fields may be defined in the future by later revisions
+   or extensions to this specification.  Extension-field names beginning
+   with "X-" will never be defined as standard fields; such names are
+   reserved for experimental use.  MDN field names NOT beginning with
+   "X-" MUST be registered with the Internet Assigned Numbers Authority
+   (IANA) and described in a standards-track RFC or an experimental RFC
+   approved by the IESG.  (See Section 10 for a registration form.)
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 16]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   MDN Extension-fields may be defined for the following reasons:
+
+   (a)  To allow additional information from foreign disposition reports
+        to be tunneled through Internet MDNs.  The names of such MDN
+        fields should begin with an indication of the foreign
+        environment name (e.g., X400-Physical-Forwarding-Address).
+
+   (b)  To allow transmission of diagnostic information that is specific
+        to a particular mail user agent (MUA).  The names of such MDN
+        fields should begin with an indication of the MUA implementation
+        that produced the MDN (e.g., Foomail-information).
+
+   If an application developer does not wish to register the meanings of
+   such extension fields, "X-" fields may be used for this purpose.  To
+   avoid name collisions, the name of the application implementation
+   should follow the "X-", (e.g., "X-Foomail-Log-ID" or "X-Foomail-EDI-
+   info").
+
+4.  Timeline of events
+
+   The following timeline shows when various events in the processing of
+   a message and generation of MDNs take place:
+
+   -- User composes message
+
+   -- User tells MUA to send message
+
+   -- MUA passes message to MTA (original recipient information passed
+      along)
+
+   -- MTA sends message to next MTA
+
+   -- Final MTA receives message
+
+   -- Final MTA delivers message to MUA (possibly generating a DSN)
+
+   -- MUA performs automatic processing and generates corresponding MDNs
+      ("dispatched", "processed", "deleted", "denied", or "failed"
+      disposition type with "automatic-action" and "MDN-sent-
+      automatically" disposition modes)
+
+   -- MUA displays list of messages to user
+
+   -- User selects a message and requests that some action be performed
+      on it.
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 17]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   -- MUA performs requested action and, with user's permission, sends
+      an appropriate MDN ("displayed", "dispatched", "processed",
+      "deleted", "denied", or "failed" disposition type, with "manual-
+      action" and "MDN-sent-manually" or "MDN-sent-automatically"
+      disposition mode).
+
+   -- User possibly performs other actions on message, but no further
+      MDNs are generated.
+
+5.  Conformance and Usage Requirements
+
+   An MUA or gateway conforms to this specification if it generates MDNs
+   according to the protocol defined in this memo.  It is not necessary
+   to be able to generate all of the possible values of the Disposition
+   field.
+
+   MUAs and gateways MUST NOT generate the Original-Recipient field of
+   an MDN unless the mail protocols provide the address originally
+   specified by the sender at the time of submission.  Ordinary SMTP
+   does not make that guarantee, but the SMTP extension defined in
+   [RFC-DSN-SMTP] permits such information to be carried in the envelope
+   if it is available.  The Original-Recipient header defined in this
+   document provides a way for the MTA to pass the original recipient
+   address to the MUA.
+
+   Each sender-specified recipient address may result in more than one
+   MDN.  If an MDN is requested for a recipient that is forwarded to
+   multiple recipients of an "alias" (as defined in [RFC-DSN-SMTP],
+   section 6.2.7.3), each of the recipients may issue an MDN.
+
+   Successful distribution of a message to a mailing list exploder
+   SHOULD be considered the final disposition of the message.  A mailing
+   list exploder MAY issue an MDN with a disposition type of "processed"
+   and disposition modes of "automatic-action" and "MDN-sent-
+   automatically" indicating that the message has been forwarded to the
+   list.  In this case, the request for MDNs is not propagated to the
+   members of the list.
+
+   Alternatively, the mailing list exploder MAY issue no MDN and
+   propagate the request for MDNs to all members of the list.  The
+   latter behavior is not recommended for any but small, closely knit
+   lists, as it might cause large numbers of MDNs to be generated and
+   may cause confidential subscribers to the list to be revealed.  The
+   mailing list exploder MAY also direct MDNs to itself, correlate them,
+   and produce a report to the original sender of the message.
+
+   This specification places no restrictions on the processing of MDNs
+   received by user agents or mailing lists.
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 18]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+6.  Security Considerations
+
+   The following security considerations apply when using MDNs:
+
+6.1.  Forgery
+
+   MDNs may be forged as easily as ordinary Internet electronic mail.
+   User agents and automatic mail handling facilities (such as mail
+   distribution list exploders) that wish to make automatic use of MDNs
+   should take appropriate precautions to minimize the potential damage
+   from denial-of-service attacks.
+
+   Security threats related to forged MDNs include the sending of:
+
+   (a)  A falsified disposition notification when the indicated
+        disposition of the message has not actually occurred,
+
+   (b)  Unsolicited MDNs
+
+6.2.  Privacy
+
+   Another dimension of security is privacy.  There may be cases in
+   which a message recipient does not wish the disposition of messages
+   addressed to him to be known, or is concerned that the sending of
+   MDNs may reveal other sensitive information (e.g., when the message
+   was read).  In this situation, it is acceptable for the MUA to issue
+   "denied" MDNs or to silently ignore requests for MDNs.
+
+   If the Disposition-Notification-To header is passed on unmodified
+   when a message is distributed to the subscribers of a mailing list,
+   the subscribers to the list may be revealed to the sender of the
+   original message by the generation of MDNs.
+
+   Headers of the original message returned in part 3 of the
+   multipart/report could reveal confidential information about host
+   names and/or network topology inside a firewall.
+
+   An unencrypted MDN could reveal confidential information about an
+   encrypted message, especially if all or part of the original message
+   is returned in part 3 of the multipart/report.  Encrypted MDNs are
+   not defined in this specification.
+
+   In general, any optional MDN field may be omitted if the Reporting
+   MUA site or user determines that inclusion of the field would impose
+   too great a compromise of site confidentiality.  The need for such
+   confidentiality must be balanced against the utility of the omitted
+   information in MDNs.
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 19]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   In some cases, someone with access to the message stream may use the
+   MDN request mechanism to monitor the mail reading habits of a target.
+   If the target is known to generate MDN reports, they could add a
+   disposition-notification-to field containing the envelope from
+   address along with a source route.  The source route is ignored in
+   the comparison so the addresses will always match.  But if the source
+   route is honored when the notification is sent, it could direct the
+   message to some other destination.  This risk can be minimized by not
+   sending MDN's automatically.
+
+6.3.  Non-Repudiation
+
+   MDNs do not provide non-repudiation with proof of delivery.  Within
+   the framework of today's Internet Mail, the MDNs defined in this
+   document provide valuable information to the mail user; however, MDNs
+   cannot be relied upon as a guarantee that a message was or was not
+   seen by the recipient.  Even if MDNs are not actively forged, they
+   may be lost in transit.  The recipient may bypass the MDN issuing
+   mechanism in some manner.
+
+   One possible solution for this purpose can be found in RFC 2634
+   [SEC-SERVICES].
+
+6.4.  Mail Bombing
+
+   The MDN request mechanism introduces an additional way of mailbombing
+   a mailbox.  The MDN request notification provides an address to which
+   MDN's should be sent.  It is possible for an attacking agent to send
+   a potentially large set of messages to otherwise unsuspecting third
+   party recipients with a false "disposition-notification-to:" address.
+   Automatic, or simplistic processing of such requests would result in
+   a flood of MDN notifications to the target of the attack.  Such an
+   attack could overrun the capacity of the targeted mailbox and deny
+   service.
+
+   For that reason, MDN's SHOULD NOT be sent automatically where the
+   "disposition-notification-to:" address is different from the envelope
+   MAIL FROM address.  See section 2.1 for further discussion.
+
+7.  Collected Grammar
+
+   NOTE:  The following lexical tokens are defined in [RFC-MSGFMT]:
+   atom, CRLF, mailbox, msg-id, text.  The definitions of attribute and
+   value are as in the definition of the Content-Type header in [RFC-
+   MIME-BODY].
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 20]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+Message headers:
+
+  mdn-request-header =
+     "Disposition-Notification-To" ":"
+            mailbox *("," mailbox)
+
+  Disposition-Notification-Options =
+            "Disposition-Notification-Options" ":"
+            disposition-notification-parameters
+
+  disposition-notification-parameters =
+            parameter *(";" parameter)
+
+  parameter = attribute "=" importance "," value *("," value)
+
+  importance = "required" / "optional"
+
+  original-recipient-header =
+            "Original-Recipient" ":" address-type ";" generic-address
+
+Report content:
+
+  disposition-notification-content =
+            [ reporting-ua-field CRLF ]
+            [ mdn-gateway-field CRLF ]
+            [ original-recipient-field CRLF ]
+            final-recipient-field CRLF
+            [ original-message-id-field CRLF ]
+            disposition-field CRLF
+            *( failure-field CRLF )
+            *( error-field CRLF )
+            *( warning-field CRLF )
+            *( extension-field CRLF )
+
+  address-type = atom
+
+  mta-name-type = atom
+
+  reporting-ua-field = "Reporting-UA" ":" ua-name [ ";" ua-product ]
+
+  ua-name = *text
+
+  ua-product = *text
+
+  mdn-gateway-field = "MDN-Gateway" ":" mta-name-type ";" mta-name
+
+  mta-name = *text
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 21]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+  original-recipient-field
+            = "Original-Recipient" ":" address-type ";"
+            generic-address
+
+  generic-address = *text
+
+  final-recipient-field =
+            "Final-Recipient" ":" address-type ";" generic-address
+
+  disposition-field =
+            "Disposition" ":" disposition-mode ";"
+            disposition-type
+            [ "/" disposition-modifier
+            *( "," disposition-modifier ) ]
+
+  disposition-mode = action-mode "/" sending-mode
+
+  action-mode = "manual-action" / "automatic-action"
+
+  sending-mode = "MDN-sent-manually" / "MDN-sent-automatically"
+
+  disposition-type = "displayed"
+            / "deleted"
+
+  disposition-modifier =  "error" / disposition-modifier-extension
+
+  disposition-modifier-extension = atom
+
+  original-message-id-field = "Original-Message-ID" ":" msg-id
+
+  failure-field = "Failure" ":" *text
+
+  error-field = "Error" ":" *text
+
+  warning-field = "Warning" ":" *text
+
+  extension-field = extension-field-name ":" *text
+
+  extension-field-name = atom
+
+8.  Guidelines for Gatewaying MDNs
+
+   NOTE:  This section provides non-binding recommendations for the
+   construction of mail gateways that wish to provide semi-transparent
+   disposition notifications between the Internet and another electronic
+   mail system.  Specific MDN gateway requirements for a particular pair
+   of mail systems may be defined by other documents.
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 22]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+8.1.  Gatewaying from other mail systems to MDNs
+
+   A mail gateway may issue an MDN to convey the contents of a "foreign"
+   disposition notification over Internet Mail.  When there are
+   appropriate mappings from the foreign notification elements to MDN
+   fields, the information may be transmitted in those MDN fields.
+   Additional information (such as might be needed to tunnel the foreign
+   notification through the Internet) may be defined in extension MDN
+   fields.  (Such fields should be given names that identify the foreign
+   mail protocol, e.g., X400-* for X.400 protocol elements).
+
+   The gateway must attempt to supply reasonable values for the
+   Reporting-UA, Final-Recipient, and Disposition fields.  These will
+   normally be obtained by translating the values from the foreign
+   notification into their Internet-style equivalents.  However, some
+   loss of information is to be expected.
+
+   The sender-specified recipient address and the original message-id,
+   if present in the foreign notification, should be preserved in the
+   Original-Recipient and Original-Message-ID fields.
+
+   The gateway should also attempt to preserve the "final" recipient
+   address from the foreign system.  Whenever possible, foreign protocol
+   elements should be encoded as meaningful printable ASCII strings.
+
+   For MDNs produced from foreign disposition notifications, the name of
+   the gateway MUST appear in the MDN-Gateway field of the MDN.
+
+8.2.  Gatewaying from MDNs to other mail systems
+
+   It may be possible to gateway MDNs from the Internet into a foreign
+   mail system.  The primary purpose of such gatewaying is to convey
+   disposition information in a form that is usable by the destination
+   system.  A secondary purpose is to allow "tunneling" of MDNs through
+   foreign mail systems in case the MDN may be gatewayed back into the
+   Internet.
+
+   In general, the recipient of the MDN (i.e., the sender of the
+   original message) will want to know, for each recipient:  the closest
+   available approximation to the original recipient address, and the
+   disposition (displayed, printed, etc.).
+
+   If possible, the gateway should attempt to preserve the Original-
+   Recipient address and Original-Message-ID (if present) in the
+   resulting foreign disposition report.
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 23]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   If it is possible to tunnel an MDN through the destination
+   environment, the gateway specification may define a means of
+   preserving the MDN information in the disposition reports used by
+   that environment.
+
+8.3.  Gatewaying of MDN-requests to other mail systems
+
+   By use of the separate disposition-notification-to request header,
+   this specification offers a richer functionality than most, if not
+   all, other email systems.  In most other email systems, the
+   notification recipient is identical to the message sender as
+   indicated in the "from" address.  There are two interesting cases
+   when gatewaying into such systems:
+
+   1) If the address in the disposition-notification-to header is
+      identical to the address in the SMTP "MAIL FROM", the expected
+      behavior will result, even if the disposition-notification-to
+      information is lost.  Systems should propagate the MDN request.
+
+   2) If the address in the disposition-notification-to header is
+      different from the address in the SMTP "MAIL FROM", gatewaying
+      into a foreign system without a separate notification address will
+      result in unintended behavior.  This is especially important when
+      the message arrives via a mailing list expansion software that may
+      specifically replace the SMTP "MAIL FROM" address with an
+      alternate address.  In such cases, the MDN request should not be
+      gatewayed and should be silently dropped.  This is consistent with
+      other forms of non-support for MDN.
+
+9.  Example
+
+   NOTE:  This example is provided as illustration only, and is not
+   considered part of the MDN protocol specification.  If the example
+   conflicts with the protocol definition above, the example is wrong.
+
+   Likewise, the use of *-type subfield names or extension fields in
+   this example is not to be construed as a definition for those type
+   names or extension fields.
+
+   This is an MDN issued after a message has been displayed to the user
+   of an Internet Mail user agent.
+
+   Date: Wed, 20 Sep 1995 00:19:00 (EDT) -0400
+   From: Joe Recipient <Joe_Recipient@example.com>
+   Message-Id: <199509200019.12345@example.com>
+   Subject: Disposition notification
+   To: Jane Sender <Jane_Sender@example.org>
+   MIME-Version: 1.0
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 24]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   Content-Type: multipart/report; report-type=disposition-notification;
+      boundary="RAA14128.773615765/example.com"
+
+   --RAA14128.773615765/example.com
+
+   The message sent on 1995 Sep 19 at 13:30:00 (EDT) -0400 to Joe
+   Recipient <Joe_Recipient@example.com> with subject "First draft of
+   report" has been displayed.  This is no guarantee that the message
+   has been read or understood.
+
+   --RAA14128.773615765/example.com
+   content-type: message/disposition-notification
+
+   Reporting-UA: joes-pc.cs.example.com; Foomail 97.1
+   Original-Recipient: rfc822;Joe_Recipient@example.com
+   Final-Recipient: rfc822;Joe_Recipient@example.com
+   Original-Message-ID: <199509192301.23456@example.org>
+   Disposition: manual-action/MDN-sent-manually; displayed
+
+   --RAA14128.773615765/example.com
+   content-type: message/rfc822
+
+   [original message optionally goes here]
+
+   --RAA14128.773615765/example.com--
+
+10.  IANA Considerations
+
+   This document specifies three types of parameters that must be
+   registered with the Internet Assigned Numbers Authority (IANA).
+
+   The forms below are for use when registering a new parameter name for
+   the Disposition-Notification-Options header, a new disposition
+   modifier name, or a new MDN extension field.  Each piece of
+   information required by a registration form may be satisfied either
+   by providing the information on the form itself, or by including a
+   reference to a published, publicly available specification that
+   includes the necessary information.  IANA MAY reject registrations
+   because of incomplete registration forms or incomplete
+   specifications.
+
+   To register, complete the following applicable form and send it via
+   electronic mail to <IANA@IANA.ORG>.
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 25]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+10.1.  Disposition-Notification-Options header parameter names
+
+   A registration for a Disposition-Notification-Options header
+   parameter name MUST include the following information:
+
+   (a)  The proposed parameter name.
+
+   (b)  The syntax for parameter values, specified using BNF, ABNF,
+        regular expressions, or other non-ambiguous language.
+
+   (c)  If parameter values are not composed entirely of graphic
+        characters from the US-ASCII repertoire, a specification for how
+        they are to be encoded as graphic US-ASCII characters in a
+        Disposition-Notification-Options header.
+
+   (d)  A reference to a standards track RFC or experimental RFC
+        approved by the IESG that describes the semantics of the
+        parameter values.
+
+10.2.  Disposition modifier names
+
+   A registration for a disposition-modifier name (used in the
+   Disposition field of a message/disposition-notification) MUST include
+   the following information:
+
+   (a)  The proposed disposition-modifier name.
+
+   (b)  A reference to a standards track RFC or experimental RFC
+        approved by the IESG that describes the semantics of the
+        disposition modifier.
+
+10.3.  MDN extension field names
+
+   A registration for an MDN extension-field name MUST include the
+   following information:
+
+   (a)  The proposed extension field name.
+
+   (b)  The syntax for extension values, specified using BNF, ABNF,
+        regular expressions, or other non-ambiguous language.
+
+   (c)  If extension-field values are not composed entirely of graphic
+        characters from the US-ASCII repertoire, a specification for how
+        they are to be encoded as graphic US-ASCII characters in a
+        Disposition-Notification-Options header.
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 26]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   (d)  A reference to a standards track RFC or experimental RFC
+        approved by the IESG that describes the semantics of the
+        extension field.
+
+11.  Acknowledgments
+
+   This document is an updated version of the original document written
+   by Roger Fajman.  His contributions to the definition of Message
+   Disposition Notifications are greatly appreciated.
+
+   RFC 2298 was based on the Delivery Status Notifications document
+   [RFC-DSN-FORMAT] by Keith Moore and Greg Vaudreuil.  Contributions
+   were made by members of the IETF Receipt Working Group, including
+   Harald Alvestrand, Ian Bell, Urs Eppenberger, Claus Andri Faerber,
+   Ned Freed, Jim Galvin, Carl Hage, Mike Lake, Keith Moore, Paul
+   Overell, Pete Resnick, and Chuck Shih.
+
+12.  References
+
+12.1.  Normative References
+
+   [RFC-SMTP]        Klensin, J., Ed., "Simple Mail Transfer Protocol",
+                     RFC 2821, April 2001.
+
+   [RFC-MSGFMT]      Resnick, P., Ed., "Internet Message Format", RFC
+                     2822, April 2001.
+
+   [RFC-MIME-BODY]   Freed, N. and N. Borenstein, "Multipurpose Internet
+                     Mail Extensions (MIME) Part One: Format of Internet
+                     Message Bodies", RFC 2045, November 1996.
+
+   [RFC-MIME-MEDIA]  Freed, N. and N. Borenstein, "Multipurpose Internet
+                     Mail Extensions (MIME) Part Two: Media Types", RFC
+                     2046, November 1996.
+
+   [RFC-MIME-HEADER] Moore, K., "MIME (Multipurpose Internet Mail
+                     Extensions) Part Three: Message Header Extensions
+                     for Non-ASCII Text", RFC 2047, November 1996.
+
+   [RFC-REPORT]      Vaudreuil, G., "The Multipart/Report Content Type
+                     for the Reporting of Mail System Administrative
+                     Messages", RFC 3462, January 2003.
+
+   [RFC-DSN-SMTP]    Moore, K., "Simple Mail Transfer Protocol (SMTP)
+                     Service Extension for Delivery Status
+                     Notifications", RFC 3461, January 2003.
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 27]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+   [RFC-DSN-FORMAT]  Moore, K., and G. Vaudreuil, "An Extensible Format
+                     for Delivery Status Notifications (DSNs)", RFC
+                     3464, January 2003.
+
+   [RFC-KEYWORDS]    Bradner, S., "Key Words for Use in RFCs to Indicate
+                     Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+12.2.  Informative References
+
+   [SEC-SERVICES]    Hoffman, P., Ed., "Enhanced Security Services for
+                     S/MIME", RFC 2634, June 1999.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 28]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+Appendix A - Changes from RFC 2298
+
+   The document has new editors.
+
+   The dispositions "denied", and "failed" were removed from the
+   document reflecting the lack of implementation or usage at this time.
+
+   The disposition modifiers "warning", "superseded", "expired",
+   "mailbox-terminated" have not seen actual implementation.  They have
+   been deleted from this document.  The extension modifier, as of yet
+   unused, has been retained for future extension.
+
+   General editorial cleanups include spelling, grammar, and consistency
+   in usage of terms.
+
+   The document has modified BNF for disposition notification options to
+   eliminate the need for dummy values where not otherwise needed.
+
+Authors' Addresses
+
+   Tony Hansen
+   AT&T Laboratories
+   Middletown, NJ 07748
+   USA
+   Voice: +1-732-420-8934
+   EMail: tony+rfc3798@maillennium.att.com
+
+   Gregory M. Vaudreuil
+   Lucent Technologies
+   7291 Williamson Rd
+   Dallas, TX 75214
+   USA
+   Voice: +1 214 823 9325
+   EMail: GregV@ieee.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 29]
+
+RFC 3798            Message Disposition Notification            May 2004
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2004).  This document is subject
+   to the rights, licenses and restrictions contained in BCP 78, and
+   except as set forth therein, the authors retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at ietf-
+   ipr@ietf.org.
+
+Acknowledgement
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+Hansen & Vaudreuil          Standards Track                    [Page 30]
+

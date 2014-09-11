@@ -100,6 +100,6 @@ namespace MimeKit {
 		/// This is an obsolete encoding meant for encoding binary
 		/// data and has largely been superceeded by <see cref="Base64"/>.
 		/// </remarks>
-		UUEncode
+		UUEncode,
 	}
 }

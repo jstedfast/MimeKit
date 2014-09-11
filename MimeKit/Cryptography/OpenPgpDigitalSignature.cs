@@ -40,6 +40,12 @@ namespace MimeKit.Cryptography {
 		DigitalSignatureVerifyException vex;
 		bool? valid;
 
+		internal OpenPgpDigitalSignature (PgpPublicKey pubkey, PgpOnePassSignature signature)
+		{
+			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
+			OnePassSignature = signature;
+		}
+
 		internal OpenPgpDigitalSignature (PgpPublicKey pubkey, PgpSignature signature)
 		{
 			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
@@ -50,8 +56,12 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		internal PgpSignature Signature {
+		internal PgpOnePassSignature OnePassSignature {
 			get; private set;
+		}
+
+		internal PgpSignature Signature {
+			get; set;
 		}
 
 		#region IDigitalSignature implementation
@@ -125,7 +135,10 @@ namespace MimeKit.Cryptography {
 			}
 
 			try {
-				valid = Signature.Verify ();
+				if (OnePassSignature != null)
+					valid = OnePassSignature.Verify (Signature);
+				else
+					valid = Signature.Verify ();
 				return valid.Value;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);

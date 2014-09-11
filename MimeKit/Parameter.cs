@@ -139,11 +139,19 @@ namespace MimeKit {
 				return EncodeMethod.Rfc2184;
 
 			for (int i = 0; i < value.Length; i++) {
-				if (value[i] >= 127 || ((byte) value[i]).IsCtrl ())
-					return EncodeMethod.Rfc2184;
+				if (value[i] < 128) {
+					var c = (byte) value[i];
 
-				if (!((byte) value[i]).IsAttr ())
+					if (c.IsCtrl ())
+						return EncodeMethod.Rfc2184;
+
+					if (!c.IsAttr ())
+						method = EncodeMethod.Quote;
+				} else if (options.International) {
 					method = EncodeMethod.Quote;
+				} else {
+					return EncodeMethod.Rfc2184;
+				}
 			}
 
 			if (method == EncodeMethod.Quote) {
@@ -156,16 +164,24 @@ namespace MimeKit {
 			return method;
 		}
 
-		static EncodeMethod GetEncodeMethod (char[] value, int startIndex, int length)
+		static EncodeMethod GetEncodeMethod (FormatOptions options, char[] value, int startIndex, int length)
 		{
 			var method = EncodeMethod.None;
 
 			for (int i = startIndex; i < startIndex + length; i++) {
-				if (value[i] >= 127 || ((byte) value[i]).IsCtrl ())
-					return EncodeMethod.Rfc2184;
+				if (value[i] < 128) {
+					var c = (byte) value[i];
 
-				if (!((byte) value[i]).IsAttr ())
+					if (c.IsCtrl ())
+						return EncodeMethod.Rfc2184;
+
+					if (!c.IsAttr ())
+						method = EncodeMethod.Quote;
+				} else if (options.International) {
 					method = EncodeMethod.Quote;
+				} else {
+					return EncodeMethod.Rfc2184;
+				}
 			}
 
 			return method;
@@ -213,13 +229,13 @@ namespace MimeKit {
 			}
 		}
 
-		static bool GetNextValue (string charset, Encoder encoder, HexEncoder hex, char[] chars, ref int index,
+		static bool GetNextValue (FormatOptions options, string charset, Encoder encoder, HexEncoder hex, char[] chars, ref int index,
 		                          ref byte[] bytes, ref byte[] encoded, int maxLength, out string value)
 		{
 			int length = chars.Length - index;
 
 			if (length < maxLength) {
-				switch (GetEncodeMethod (chars, index, length)) {
+				switch (GetEncodeMethod (options, chars, index, length)) {
 				case EncodeMethod.Quote:
 					value = MimeUtils.Quote (new string (chars, index, length));
 					index += length;
@@ -305,12 +321,16 @@ namespace MimeKit {
 				quoted = Value;
 
 			if (method != EncodeMethod.Rfc2184) {
-				if (lineLength + 2 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
-					builder.Append (";\n\t");
+				builder.Append (';');
+				lineLength++;
+
+				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
+					builder.Append (options.NewLine);
+					builder.Append ('\t');
 					lineLength = 1;
 				} else {
-					builder.Append ("; ");
-					lineLength += 2;
+					builder.Append (' ');
+					lineLength++;
 				}
 
 				lineLength += Name.Length + 1 + quoted.Length;
@@ -320,12 +340,12 @@ namespace MimeKit {
 				return;
 			}
 
+			var bestEncoding = options.International ? Encoding.UTF8 : GetBestEncoding (Value, encoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
-			var bestEncoding = GetBestEncoding (Value, encoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
+			var encoder = (Encoder) bestEncoding.GetEncoder ();
 			var bytes = new byte[Math.Max (maxLength, 6)];
 			var hexbuf = new byte[bytes.Length * 3 + 3];
-			var encoder = bestEncoding.GetEncoder ();
 			var chars = Value.ToCharArray ();
 			var hex = new HexEncoder ();
 			int index = 0, i = 0;
@@ -334,16 +354,20 @@ namespace MimeKit {
 			int length;
 
 			do {
-				encoded = GetNextValue (charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out value);
+				builder.Append (';');
+				lineLength++;
+
+				encoded = GetNextValue (options, charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out value);
 				length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
-					if (lineLength + 2 + length >= options.MaxLineLength) {
-						builder.Append (";\n\t");
+					if (lineLength + 1 + length >= options.MaxLineLength) {
+						builder.Append (options.NewLine);
+						builder.Append ('\t');
 						lineLength = 1;
 					} else {
-						builder.Append ("; ");
-						lineLength += 2;
+						builder.Append (' ');
+						lineLength++;
 					}
 
 					builder.Append (Name);
@@ -355,7 +379,8 @@ namespace MimeKit {
 					return;
 				}
 
-				builder.Append (";\n\t");
+				builder.Append (options.NewLine);
+				builder.Append ('\t');
 				lineLength = 1;
 
 				id = i.ToString ();

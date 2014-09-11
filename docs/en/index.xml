@@ -1,6 +1,7 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.32.0.0">
+    <Assembly Name="MimeKit" Version="0.96.0.0">
+      <AssemblyPublicKey>[00 24 00 00 04 80 00 00 94 00 00 00 06 02 00 00 00 24 00 00 52 53 41 31 00 04 00 00 11 00 00 00 3f ef a5 18 70 22 72 7c 34 71 93 8d 10 df 4c 47 d5 d5 ec be 2f 36 46 56 c5 bf e4 c4 78 03 45 3a 91 ae 52 5f 72 3f 43 16 fd 90 a3 f8 73 66 f4 d9 48 59 32 77 e9 50 f6 d2 df 6e e2 60 68 18 77 a6 d9 e7 1c 3e a7 7e 87 e6 1f 38 78 af 1d 69 bf 10 dc e8 de be 92 c5 4c a8 a1 0a fc 44 dc 08 67 4f 3d b6 59 4e f5 45 d6 7d 31 cc 3e 18 b8 f9 0d 8f 22 0c 4b 67 d7 e8 7f 5b 7e 8d f4 10 ac 8f ae b3 ]</AssemblyPublicKey>
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("Xamarin Inc.")</AttributeName>
@@ -15,10 +16,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.32.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.96.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.32.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.96.0.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -28,6 +29,9 @@
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyTrademark("Xamarin Inc.")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.InternalsVisibleTo("UnitTests, PublicKey=00240000048000009400000006020000002400005253413100040000110000003fefa5187022727c3471938d10df4c47d5d5ecbe2f364656c5bfe4c47803453a91ae525f723f4316fd90a3f87366f4d948593277e950f6d2df6ee260681877a6d9e71c3ea77e87e61f3878af1d69bf10dce8debe92c54ca8a10afc44dc08674f3db6594ef545d67d31cc3e18b8f90d8f220c4b67d7e87f5b7e8df410ac8faeb3")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
@@ -59,6 +63,7 @@
       <Type Name="GroupAddress" Kind="Class" />
       <Type Name="Header" Kind="Class" />
       <Type Name="HeaderId" Kind="Enumeration" />
+      <Type Name="HeaderIdExtensions" Kind="Class" />
       <Type Name="HeaderList" Kind="Class" />
       <Type Name="HeaderListChangedAction" Kind="Enumeration" />
       <Type Name="IContentObject" Kind="Interface" />
@@ -71,15 +76,19 @@
       <Type Name="MimeEntity" Kind="Class" />
       <Type Name="MimeEntityConstructorInfo" Kind="Class" />
       <Type Name="MimeFormat" Kind="Enumeration" />
+      <Type Name="MimeIterator" Kind="Class" />
       <Type Name="MimeMessage" Kind="Class" />
       <Type Name="MimeParser" Kind="Class" />
       <Type Name="MimePart" Kind="Class" />
+      <Type Name="MimeTypes" Kind="Class" />
       <Type Name="Multipart" Kind="Class" />
+      <Type Name="MultipartRelated" Kind="Class" />
       <Type Name="NewLineFormat" Kind="Enumeration" />
       <Type Name="Parameter" Kind="Class" />
       <Type Name="ParameterList" Kind="Class" />
       <Type Name="ParseException" Kind="Class" />
       <Type Name="ParserOptions" Kind="Class" />
+      <Type Name="RfcComplianceMode" Kind="Enumeration" />
       <Type Name="TextPart" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.Cryptography">
@@ -103,6 +112,7 @@
       <Type Name="IX509CertificateDatabase" Kind="Interface" />
       <Type Name="MultipartEncrypted" Kind="Class" />
       <Type Name="MultipartSigned" Kind="Class" />
+      <Type Name="NpgsqlCertificateDatabase" Kind="Class" />
       <Type Name="OpenPgpContext" Kind="Class" />
       <Type Name="OpenPgpDigitalCertificate" Kind="Class" />
       <Type Name="OpenPgpDigitalSignature" Kind="Class" />
@@ -114,10 +124,12 @@
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />
       <Type Name="SecureMimeType" Kind="Enumeration" />
+      <Type Name="SqlCertificateDatabase" Kind="Class" />
       <Type Name="SqliteCertificateDatabase" Kind="Class" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
       <Type Name="TemporarySecureMimeContext" Kind="Class" />
       <Type Name="WindowsSecureMimeContext" Kind="Class" />
+      <Type Name="X509CertificateChain" Kind="Class" />
       <Type Name="X509CertificateDatabase" Kind="Class" />
       <Type Name="X509CertificateExtensions" Kind="Class" />
       <Type Name="X509CertificateRecord" Kind="Class" />
@@ -142,11 +154,14 @@
       <Type Name="QuotedPrintableEncoder" Kind="Class" />
       <Type Name="UUDecoder" Kind="Class" />
       <Type Name="UUEncoder" Kind="Class" />
+      <Type Name="YDecoder" Kind="Class" />
+      <Type Name="YEncoder" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.IO">
       <Type Name="BoundStream" Kind="Class" />
       <Type Name="ChainedStream" Kind="Class" />
       <Type Name="FilteredStream" Kind="Class" />
+      <Type Name="ICancellableStream" Kind="Interface" />
       <Type Name="MeasuringStream" Kind="Class" />
       <Type Name="MemoryBlockStream" Kind="Class" />
     </Namespace>
@@ -162,6 +177,23 @@
       <Type Name="PassThroughFilter" Kind="Class" />
       <Type Name="TrailingWhitespaceFilter" Kind="Class" />
       <Type Name="Unix2DosFilter" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.Tnef">
+      <Type Name="RtfCompressedToRtf" Kind="Class" />
+      <Type Name="RtfCompressionMode" Kind="Enumeration" />
+      <Type Name="TnefAttributeLevel" Kind="Enumeration" />
+      <Type Name="TnefAttributeTag" Kind="Enumeration" />
+      <Type Name="TnefComplianceMode" Kind="Enumeration" />
+      <Type Name="TnefComplianceStatus" Kind="Enumeration" />
+      <Type Name="TnefException" Kind="Class" />
+      <Type Name="TnefNameId" Kind="Structure" />
+      <Type Name="TnefNameIdKind" Kind="Enumeration" />
+      <Type Name="TnefPart" Kind="Class" />
+      <Type Name="TnefPropertyId" Kind="Enumeration" />
+      <Type Name="TnefPropertyReader" Kind="Class" />
+      <Type Name="TnefPropertyTag" Kind="Structure" />
+      <Type Name="TnefPropertyType" Kind="Enumeration" />
+      <Type Name="TnefReader" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.Utils">
       <Type Name="DateUtils" Kind="Class" />
@@ -334,6 +366,29 @@
             </summary>
         </Docs>
         <Link Type="MimeKit.Cryptography.X509CertificateExtensions" Member="M:MimeKit.Cryptography.X509CertificateExtensions.GetSubjectNameInfo(Org.BouncyCastle.X509.X509Certificate,Org.BouncyCastle.Asn1.DerObjectIdentifier)" />
+      </Member>
+    </ExtensionMethod>
+    <ExtensionMethod>
+      <Targets>
+        <Target Type="T:System.Enum" />
+      </Targets>
+      <Member MemberName="ToHeaderName">
+        <MemberSignature Language="C#" Value="public static string ToHeaderName (this Enum value);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string ToHeaderName(class System.Enum value) cil managed" />
+        <MemberType>ExtensionMethod</MemberType>
+        <ReturnValue>
+          <ReturnType>System.String</ReturnType>
+        </ReturnValue>
+        <Parameters>
+          <Parameter Name="value" Type="System.Enum" RefType="this" />
+        </Parameters>
+        <Docs>
+          <param name="value">The enum value.</param>
+          <summary>
+            Converts the enum value into the equivalent header field name.
+            </summary>
+        </Docs>
+        <Link Type="MimeKit.HeaderIdExtensions" Member="M:MimeKit.HeaderIdExtensions.ToHeaderName(System.Enum)" />
       </Member>
     </ExtensionMethod>
   </ExtensionMethods>

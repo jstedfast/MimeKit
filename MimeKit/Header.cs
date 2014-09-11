@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -44,6 +45,7 @@ namespace MimeKit {
 	{
 		internal readonly ParserOptions Options;
 		string textValue;
+		byte[] rawValue;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
@@ -136,7 +138,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
 
 			for (int i = 0; i < field.Length; i++) {
-				if (field[i] > 127 || !IsAtom ((byte) field[i]))
+				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
 					throw new ArgumentException ("Illegal characters in header field name.", "field");
 			}
 
@@ -171,13 +173,20 @@ namespace MimeKit {
 		{
 		}
 
-		// Note: this ctor is only used by the parser
 		internal Header (ParserOptions options, string field, byte[] value)
 		{
 			Id = field.ToHeaderId ();
 			Options = options;
-			RawValue = value;
+			rawValue = value;
 			Field = field;
+		}
+
+		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
+		{
+			Options = options;
+			rawValue = value;
+			Field = field;
+			Id = id;
 		}
 
 		/// <summary>
@@ -222,7 +231,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The raw value of the header.</value>
 		public byte[] RawValue {
-			get; internal set;
+			get { return rawValue; }
 		}
 
 		/// <summary>
@@ -259,7 +268,7 @@ namespace MimeKit {
 		/// on a per-header basis.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
-		/// <param name="charset">Charset.</param>
+		/// <param name="charset">The fallback charset.</param>
 		public string GetValue (Encoding charset)
 		{
 			if (charset == null)
@@ -269,6 +278,423 @@ namespace MimeKit {
 			options.CharsetEncoding = charset;
 
 			return Unfold (Rfc2047.DecodeText (options, RawValue));
+		}
+
+		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var encoded = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
+			InternetAddressList list;
+
+			if (!InternetAddressList.TryParse (options, value, out list))
+				return (byte[]) format.NewLineBytes.Clone ();
+
+			list.Encode (format, encoded, ref lineLength);
+			encoded.Append (format.NewLine);
+
+			if (format.International)
+				return Encoding.UTF8.GetBytes (encoded.ToString ());
+
+			return Encoding.ASCII.GetBytes (encoded.ToString ());
+		}
+
+		static byte[] EncodeMessageIdHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			return charset.GetBytes (" " + value + format.NewLine);
+		}
+
+		delegate void ReceivedTokenSkipValueFunc (byte[] text, ref int index);
+
+		static void ReceivedTokenSkipAtom (byte[] text, ref int index)
+		{
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			ParseUtils.SkipAtom (text, ref index, text.Length);
+		}
+
+		static void ReceivedTokenSkipDomain (byte[] text, ref int index)
+		{
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false))
+				return;
+
+			if (text[index] == (byte) '[') {
+				while (index < text.Length && text[index] != (byte) ']')
+					index++;
+
+				if (index < text.Length)
+					index++;
+
+				return;
+			}
+
+			while (ParseUtils.SkipAtom (text, ref index, text.Length) && index < text.Length && text[index] == (byte) '.')
+				index++;
+		}
+
+		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
+		{
+			string addrspec;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			if (text[index] == (byte) '<') {
+				index++;
+
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+
+				if (index < text.Length && text[index] == (byte) '>')
+					index++;
+			} else {
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) ';', false, out addrspec);
+			}
+		}
+
+		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
+		{
+			string addrspec;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
+				return;
+
+			if (text[index] == (byte) '<') {
+				index++;
+
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+
+				if (index < text.Length && text[index] == (byte) '>')
+					index++;
+			} else {
+				ParseUtils.SkipAtom (text, ref index, text.Length);
+			}
+		}
+
+		struct ReceivedToken {
+			public readonly ReceivedTokenSkipValueFunc Skip;
+			public readonly string Atom;
+
+			public ReceivedToken (string atom, ReceivedTokenSkipValueFunc skip)
+			{
+				Atom = atom;
+				Skip = skip;
+			}
+		}
+
+		static readonly ReceivedToken[] ReceivedTokens = {
+			new ReceivedToken ("from", ReceivedTokenSkipDomain),
+			new ReceivedToken ("by", ReceivedTokenSkipDomain),
+			new ReceivedToken ("via", ReceivedTokenSkipDomain),
+			new ReceivedToken ("with", ReceivedTokenSkipAtom),
+			new ReceivedToken ("id", ReceivedTokenSkipMessageId),
+			new ReceivedToken ("for", ReceivedTokenSkipAddress),
+		};
+
+		class ReceivedTokenValue
+		{
+			public readonly int StartIndex;
+			public readonly int Length;
+
+			public ReceivedTokenValue (int startIndex, int length)
+			{
+				StartIndex = startIndex;
+				Length = length;
+			}
+		}
+
+		static byte[] EncodeReceivedHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var tokens = new List<ReceivedTokenValue> ();
+			var rawValue = charset.GetBytes (value);
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+			bool date = false;
+			int index = 0;
+			int count = 0;
+
+			while (index < rawValue.Length) {
+				ReceivedTokenValue token = null;
+				int startIndex = index;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false) || index >= rawValue.Length) {
+					tokens.Add (new ReceivedTokenValue (startIndex, index - startIndex));
+					break;
+				}
+
+				while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
+					index++;
+
+				var atom = charset.GetString (rawValue, startIndex, index - startIndex);
+
+				for (int i = 0; i < ReceivedTokens.Length; i++) {
+					if (atom == ReceivedTokens[i].Atom) {
+						ReceivedTokens[i].Skip (rawValue, ref index);
+
+						if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
+							if (index < rawValue.Length && rawValue[index] == (byte) ';') {
+								date = true;
+								index++;
+							}
+						}
+
+						token = new ReceivedTokenValue (startIndex, index - startIndex);
+						break;
+					}
+				}
+
+				if (token == null) {
+					if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
+						while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
+							index++;
+					}
+
+					token = new ReceivedTokenValue (startIndex, index - startIndex);
+				}
+
+				tokens.Add (token);
+
+				ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
+
+				if (date && index < rawValue.Length) {
+					// slurp up the date (the final token)
+					tokens.Add (new ReceivedTokenValue (index, rawValue.Length - index));
+					break;
+				}
+			}
+
+			foreach (var token in tokens) {
+				var text = charset.GetString (rawValue, token.StartIndex, token.Length).TrimEnd ();
+
+				if (count > 0 && lineLength + text.Length + 1 > format.MaxLineLength) {
+					encoded.Append (format.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+					count = 0;
+				} else {
+					encoded.Append (' ');
+					lineLength++;
+				}
+
+				lineLength += text.Length;
+				encoded.Append (text);
+				count++;
+			}
+
+			encoded.Append (format.NewLine);
+
+			return charset.GetBytes (encoded.ToString ());
+		}
+
+		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+			int count = 0;
+
+			foreach (var reference in MimeUtils.EnumerateReferences (value)) {
+				if (count > 0 && lineLength + reference.Length + 3 > format.MaxLineLength) {
+					encoded.Append (format.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+					count = 0;
+				} else {
+					encoded.Append (' ');
+					lineLength++;
+				}
+
+				encoded.Append ('<').Append (reference).Append ('>');
+				lineLength += reference.Length + 2;
+				count++;
+			}
+
+			encoded.Append (format.NewLine);
+
+			return charset.GetBytes (encoded.ToString ());
+		}
+
+		static bool IsWhiteSpace (char c)
+		{
+			return c == ' ' || c == '\t';
+		}
+
+		static IEnumerable<string> TokenizeText (string text)
+		{
+			int index = 0;
+
+			while (index < text.Length) {
+				int startIndex = index;
+
+				while (index < text.Length && !IsWhiteSpace (text[index]))
+					index++;
+
+				yield return text.Substring (startIndex, index - startIndex);
+
+				if (index == text.Length)
+					break;
+
+				startIndex = index;
+
+				while (index < text.Length && IsWhiteSpace (text[index]))
+					index++;
+
+				yield return text.Substring (startIndex, index - startIndex);
+			}
+
+			yield break;
+		}
+
+		class BrokenWord
+		{
+			public readonly char[] Text;
+			public readonly int StartIndex;
+			public readonly int Length;
+
+			public BrokenWord (char[] text, int startIndex, int length)
+			{
+				StartIndex = startIndex;
+				Length = length;
+				Text = text;
+			}
+		}
+
+		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, string word, int lineLength)
+		{
+			var chars = word.ToCharArray ();
+			int startIndex = 0;
+
+			lineLength = Math.Max (lineLength, 1);
+
+			while (startIndex < word.Length) {
+				int length = Math.Min (format.MaxLineLength - lineLength, word.Length);
+
+				if (char.IsSurrogatePair (word, startIndex + length - 1))
+					length--;
+
+				yield return new BrokenWord (chars, startIndex, length);
+
+				startIndex += length;
+				lineLength = 1;
+			}
+
+			yield break;
+		}
+
+		internal static string Fold (FormatOptions format, string field, string value)
+		{
+			var folded = new StringBuilder (value.Length);
+			int lineLength = field.Length + 2;
+			int lastLwsp = -1;
+
+			folded.Append (' ');
+
+			var words = TokenizeText (value);
+
+			foreach (var word in words) {
+				if (IsWhiteSpace (word[0])) {
+					if (lineLength + word.Length > format.MaxLineLength) {
+						for (int i = 0; i < word.Length; i++) {
+							if (lineLength > format.MaxLineLength) {
+								folded.Append (format.NewLine);
+								lineLength = 0;
+							}
+
+							folded.Append (word[i]);
+							lineLength++;
+						}
+					} else {
+						lineLength += word.Length;
+						folded.Append (word);
+					}
+
+					lastLwsp = folded.Length - 1;
+					continue;
+				}
+
+				if (lastLwsp != -1 && lineLength + word.Length > format.MaxLineLength) {
+					folded.Insert (lastLwsp, format.NewLine);
+					lineLength = 1;
+					lastLwsp = -1;
+				}
+
+				if (word.Length > format.MaxLineLength) {
+					foreach (var broken in WordBreak (format, word, lineLength)) {
+						if (lineLength + broken.Length > format.MaxLineLength) {
+							folded.Append (format.NewLine);
+							folded.Append (' ');
+							lineLength = 1;
+						}
+
+						folded.Append (broken.Text, broken.StartIndex, broken.Length);
+						lineLength += broken.Length;
+					}
+				} else {
+					lineLength += word.Length;
+					folded.Append (word);
+				}
+			}
+
+			folded.Append (format.NewLine);
+
+			return folded.ToString ();
+		}
+
+		static byte[] EncodeContentDisposition (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var disposition = ContentDisposition.Parse (options, value);
+			var encoded = disposition.Encode (format, charset);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
+		static byte[] EncodeContentType (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var contentType = ContentType.Parse (options, value);
+			var encoded = contentType.Encode (format, charset);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
+		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			if (format.International) {
+				var folded = Fold (format, field, value);
+
+				return Encoding.UTF8.GetBytes (folded);
+			}
+
+			var encoded = Rfc2047.EncodeText (format, charset, value);
+
+			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
+		}
+
+		internal byte[] GetRawValue (FormatOptions format, Encoding charset)
+		{
+			switch (Id) {
+			case HeaderId.DispositionNotificationTo:
+			case HeaderId.ResentFrom:
+			case HeaderId.ResentBcc:
+			case HeaderId.ResentCc:
+			case HeaderId.ResentTo:
+			case HeaderId.From:
+			case HeaderId.Bcc:
+			case HeaderId.Cc:
+			case HeaderId.To:
+				return EncodeAddressHeader (Options, format, charset, Field, textValue);
+			case HeaderId.Received:
+				return EncodeReceivedHeader (Options, format, charset, Field, textValue);
+			case HeaderId.ResentMessageId:
+			case HeaderId.MessageId:
+			case HeaderId.ContentId:
+				return EncodeMessageIdHeader (Options, format, charset, Field, textValue);
+			case HeaderId.References:
+				return EncodeReferencesHeader (Options, format, charset, Field, textValue);
+			case HeaderId.ContentDisposition:
+				return EncodeContentDisposition (Options, format, charset, Field, textValue);
+			case HeaderId.ContentType:
+				return EncodeContentType (Options, format, charset, Field, textValue);
+			default:
+				return EncodeUnstructuredHeader (Options, format, charset, Field, textValue);
+			}
 		}
 
 		/// <summary>
@@ -296,9 +722,8 @@ namespace MimeKit {
 
 			textValue = Unfold (value.Trim ());
 
-			var encoded = Rfc2047.EncodeText (FormatOptions.Default, charset, textValue);
+			rawValue = GetRawValue (FormatOptions.Default, charset);
 
-			RawValue = Rfc2047.FoldUnstructuredHeader (FormatOptions.Default, Field, encoded);
 			OnChanged ();
 		}
 
@@ -372,9 +797,9 @@ namespace MimeKit {
 			return new string (chars, 0, count);
 		}
 
-		static bool IsAtom (byte c)
+		static bool IsAsciiAtom (byte c)
 		{
-			return c.IsAtom ();
+			return c.IsAsciiAtom ();
 		}
 
 		static bool IsBlankOrControl (byte c)
@@ -390,7 +815,7 @@ namespace MimeKit {
 
 			// find the end of the field name
 			if (strict) {
-				while (inptr < inend && IsAtom (*inptr))
+				while (inptr < inend && IsAsciiAtom (*inptr))
 					inptr++;
 			} else {
 				while (inptr < inend && *inptr != (byte) ':' && !IsBlankOrControl (*inptr))
