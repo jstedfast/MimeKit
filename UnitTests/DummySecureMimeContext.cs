@@ -142,8 +142,8 @@ namespace UnitTests {
 				if (certificate.NotBefore > now || certificate.NotAfter < now)
 					continue;
 
-				var keyUsage = certificate.GetKeyUsage ();
-				if (keyUsage != null && !keyUsage[4])
+				var keyUsage = certificate.GetKeyUsageFlags ();
+				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
 					continue;
 
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {
@@ -179,8 +179,8 @@ namespace UnitTests {
 				if (certificate.NotBefore > now || certificate.NotAfter < now)
 					continue;
 
-				var keyUsage = certificate.GetKeyUsage ();
-				if (keyUsage != null && !keyUsage[7])
+				var keyUsage = certificate.GetKeyUsageFlags ();
+				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
 					continue;
 
 				if (!keys.TryGetValue (certificate, out key))
