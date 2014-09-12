@@ -1007,24 +1007,17 @@ namespace MimeKit {
 			case MimeParserState.Error:
 				break;
 			case MimeParserState.Initialized:
+				if (!StepByteOrderMark (inbuf)) {
+					state = MimeParserState.Eos;
+					break;
+				}
+
 				state = format == MimeFormat.Mbox ? MimeParserState.MboxMarker : MimeParserState.MessageHeaders;
 				break;
 			case MimeParserState.MboxMarker:
-				if (!StepByteOrderMark (inbuf)) {
-					state = MimeParserState.Eos;
-					break;
-				}
-
 				StepMboxMarker (inbuf);
 				break;
 			case MimeParserState.MessageHeaders:
-				if (!StepByteOrderMark (inbuf)) {
-					state = MimeParserState.Eos;
-					break;
-				}
-
-				StepHeaders (inbuf);
-				break;
 			case MimeParserState.Headers:
 				StepHeaders (inbuf);
 				break;
