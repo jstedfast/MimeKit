@@ -132,7 +132,7 @@ Just for fun....  -- Nathaniel<nl>
 			mail.AlternateViews.Add (new AlternateView (text, "text/plain"));
 
 			var html = new MemoryStream (Encoding.ASCII.GetBytes ("This is HTML."), false);
-			mail.AlternateViews.Add (new AlternateView (text, "text/html"));
+			mail.AlternateViews.Add (new AlternateView (html, "text/html"));
 
 			var message = (MimeMessage) mail;
 
