@@ -108,7 +108,7 @@ namespace MimeKit.Utils {
 			case 0x0D: text.Append ("\\r"); break;
 			default:
 				if (c < 020 || c > 0x7e) {
-					text.AppendFormat ("\\x{0:x,2}", c);
+					text.AppendFormat ("\\x{0:x2}", c);
 				} else {
 					text.Append ((char) c);
 				}
