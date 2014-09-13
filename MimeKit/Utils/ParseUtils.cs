@@ -35,8 +35,22 @@ namespace MimeKit.Utils {
 
 			value = 0;
 
-			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9')
-				value = (value * 10) + (text[index++] - (byte) '0');
+			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9') {
+				int digit = text[index] - (byte) '0';
+
+				if (value > int.MaxValue / 10) {
+					// integer overflow
+					return false;
+				}
+
+				if (value == int.MaxValue / 10 && digit > int.MaxValue % 10) {
+					// integer overflow
+					return false;
+				}
+
+				value = (value * 10) + digit;
+				index++;
+			}
 
 			return index > startIndex;
 		}
