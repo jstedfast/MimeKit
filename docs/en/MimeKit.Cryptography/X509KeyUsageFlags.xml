@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed X509KeyUsageFlags extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+    <AssemblyVersion>0.97.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -31,7 +31,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags CrlSign = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -48,7 +48,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DataEncipherment = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -64,7 +64,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DecipherOnly = int32(32768)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -86,7 +86,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags DigitalSignature = int32(128)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -102,7 +102,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags EncipherOnly = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -124,7 +124,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyAgreement = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -140,7 +140,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyCertSign = int32(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -156,7 +156,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags KeyEncipherment = int32(32)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -172,7 +172,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags None = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>
@@ -191,7 +191,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Cryptography.X509KeyUsageFlags NonRepudiation = int32(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>0.97.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.X509KeyUsageFlags</ReturnType>

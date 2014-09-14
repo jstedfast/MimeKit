@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.96.0.0</version>
+        <version>0.97.0.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,7 +22,8 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Modified the TextPart.Text getter to try UTF-8 before falling back to Latin1 if no charset is specified.
+        <releaseNotes>* Fixed the MimeParser to ignore unicode BOMs at the beginning of input streams (issue #77).
+* Improved robustness of the parser.
 * Improved documentation.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
