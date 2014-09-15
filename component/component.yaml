@@ -1,12 +1,12 @@
 id: mimekit
 name: MimeKit
-version: 0.14
+version: 0.97.0.0
 publisher: Jeffrey Stedfast
 publisher-url: http://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
 details: Details.md
 license: ../License.md
-summary: A complete MIME creation and parser library with full support for S/MIME and PGP.
+summary: A complete MIME library with support for S/MIME and PGP.
 icons:
   - mimekit.png
   - mime-kit-128.png
