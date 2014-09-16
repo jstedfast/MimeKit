@@ -18,5 +18,10 @@ libraries:
   android:
     - ../MimeKit/bin/Release/lib/MonoAndroid/BouncyCastle.dll
     - ../MimeKit/bin/Release/lib/MonoAndroid/MimeKit.dll
+samples:
+  - name: "Android Sample"
+    path: ../samples/MessageReader.Android/MessageReader.Android.sln
+  - name: "iOS Sample"
+    path: ../samples/MessageReader.iOS/MessageReader.iOS.sln
 build:
   - ../MimeKit.Mobile.sln
