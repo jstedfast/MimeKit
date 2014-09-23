@@ -709,6 +709,30 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
+		public override string ToString ()
+		{
+			using (var memory = new MemoryStream ()) {
+				WriteTo (memory);
+
+				var latin1 = Encoding.GetEncoding (28591);
+				#if !PORTABLE
+				var buffer = memory.GetBuffer ();
+				#else
+				var buffer = memory.ToArray ();
+				#endif
+				int count = (int) memory.Length;
+
+				return latin1.GetString (buffer, 0, count);
+			}
+		}
+
+		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
 		/// <remarks>
