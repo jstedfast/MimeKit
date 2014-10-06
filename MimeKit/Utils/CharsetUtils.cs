@@ -54,6 +54,10 @@ namespace MimeKit.Utils {
 			// treated the same as US-ASCII.
 			aliases.Add ("ansi_x3.4-1968", 20127);
 
+			// ANSI_X3.110-1983 is another odd-ball charset that appears
+			// every once in a while and seems closest to ISO-8859-1.
+			aliases.Add ("ansi_x3.110-1983", 28591);
+
 			// Macintosh aliases
 			aliases.Add ("macintosh", 10000);
 			aliases.Add ("x-mac-icelandic", 10079);
