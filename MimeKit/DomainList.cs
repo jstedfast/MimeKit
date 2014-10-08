@@ -40,6 +40,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class DomainList : IList<string>
 	{
+		readonly static byte[] DomainSentinels = new [] { (byte) ',', (byte) ':' };
 		readonly List<string> domains;
 
 		/// <summary>
@@ -385,7 +386,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, throwOnError, out domain))
+				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, DomainSentinels, throwOnError, out domain))
 					return false;
 
 				domains.Add (domain);

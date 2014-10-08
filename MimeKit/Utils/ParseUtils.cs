@@ -175,7 +175,17 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, bool throwOnError, string tokenType, out string dotatom)
+		static bool IsSentinel (byte c, byte[] sentinels)
+		{
+			for (int i = 0; i < sentinels.Length; i++) {
+				if (c == sentinels[i])
+					return true;
+			}
+
+			return false;
+		}
+
+		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, string tokenType, out string dotatom)
 		{
 			var token = new StringBuilder ();
 			int startIndex = index;
@@ -213,18 +223,19 @@ namespace MimeKit.Utils {
 					break;
 				}
 
-				token.Append ('.');
+				// skip over the '.'
 				index++;
 
 				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete {0} token at offset {1}", tokenType, startIndex), startIndex, index);
+				// allow domains to end with a '.', but strip it off
+				if (index >= endIndex || IsSentinel (text[index], sentinels))
+					break;
 
-					return false;
-				}
+				for (int i = 0; i < sentinels.Length; i++)
+
+				token.Append ('.');
 			} while (true);
 
 			dotatom = token.ToString ();
@@ -275,12 +286,12 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
+		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string domain)
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
 
-			return TryParseDotAtom (text, ref index, endIndex, throwOnError, "domain", out domain);
+			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 	}
 }

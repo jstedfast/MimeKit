@@ -265,7 +265,7 @@ namespace MimeKit {
 			}
 
 			string domain;
-			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, throwOnError, out domain))
+			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, new [] { sentinel }, throwOnError, out domain))
 				return false;
 
 			addrspec = localpart + "@" + domain;

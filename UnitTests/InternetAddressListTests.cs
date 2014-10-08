@@ -103,6 +103,33 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSimpleAddrSpecWithTrailingDot ()
+		{
+			var expected = new InternetAddressList ();
+			var mailbox = new MailboxAddress ("", "");
+			InternetAddressList result;
+			string text;
+
+			expected.Add (mailbox);
+
+			text = "fejj@helixcode.com.";
+			mailbox.Address = "fejj@helixcode.com";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			text = "fejj";
+			mailbox.Address = "fejj";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+		}
+
+		[Test]
 		public void TestExampleAddrSpecWithQuotedLocalPartAndCommentsFromRfc822 ()
 		{
 			var expected = new InternetAddressList ();
@@ -205,6 +232,15 @@ namespace UnitTests {
 			mailbox.Name = "Jeffrey Stedfast";
 			mailbox.Address = "fejj@helixcode.com";
 			text = "Jeffrey Stedfast <fejj(recursive (comment) block)@helixcode.(and a comment here)com>";
+			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			result = InternetAddressList.Parse (text);
+			AssertInternetAddressListsEqual (text, expected, result);
+
+			mailbox.Name = "Jeffrey Stedfast";
+			mailbox.Address = "fejj@helixcode.com";
+			text = "Jeffrey Stedfast <fejj@helixcode.com.>";
 			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
 			AssertInternetAddressListsEqual (text, expected, result);
 
