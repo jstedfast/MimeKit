@@ -534,7 +534,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new PrivateKeyNotFoundException (keyId.ToString ("X"), "The private key could not be found.");
+			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
 		}
 
 		/// <summary>
@@ -1288,7 +1288,11 @@ namespace MimeKit.Cryptography {
 				if (encrypted == null)
 					throw new PgpException ("No encrypted data objects found.");
 
-				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
+				var privateKey = GetPrivateKey (encrypted.KeyId);
+				if (privateKey == null)
+					throw new PrivateKeyNotFoundException (encrypted.KeyId, "The private key could not be found.");
+
+				factory = new PgpObjectFactory (encrypted.GetDataStream (privateKey));
 				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;

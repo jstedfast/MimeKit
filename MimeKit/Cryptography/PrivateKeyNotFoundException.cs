@@ -98,6 +98,22 @@ namespace MimeKit.Cryptography {
 			KeyId = keyid;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
+		/// </remarks>
+		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
+		/// <param name="message">A message explaining the error.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyid"/> is <c>null</c>.
+		/// </exception>
+		public PrivateKeyNotFoundException (long keyid, string message) : base (message)
+		{
+			KeyId = keyid.ToString ("X");
+		}
+
 #if !PORTABLE
 		/// <summary>
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
