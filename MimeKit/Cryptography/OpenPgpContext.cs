@@ -495,7 +495,13 @@ namespace MimeKit.Cryptography {
 					throw new OperationCanceledException ();
 
 				try {
-					return key.ExtractPrivateKey (password.ToCharArray ());
+					var privateKey = key.ExtractPrivateKey (password.ToCharArray ());
+
+					// Note: the private key will be null if the private key is empty.
+					if (privateKey == null)
+						break;
+
+					return privateKey;
 				} catch (Exception ex) {
 					Debug.WriteLine ("Failed to extract secret key: {0}", ex);
 				}
@@ -530,7 +536,10 @@ namespace MimeKit.Cryptography {
 					if (key.KeyId != keyId)
 						continue;
 
-					return GetPrivateKey (key);
+					var privateKey = GetPrivateKey (key);
+
+					if (privateKey != null)
+						return privateKey;
 				}
 			}
 
@@ -1288,11 +1297,7 @@ namespace MimeKit.Cryptography {
 				if (encrypted == null)
 					throw new PgpException ("No encrypted data objects found.");
 
-				var privateKey = GetPrivateKey (encrypted.KeyId);
-				if (privateKey == null)
-					throw new PrivateKeyNotFoundException (encrypted.KeyId, "The private key could not be found.");
-
-				factory = new PgpObjectFactory (encrypted.GetDataStream (privateKey));
+				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
 				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
