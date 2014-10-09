@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 			case "NOTAFTER": return record.NotAfter;
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
-			case "SUBJECTEMAIL": return record.SubjectEmail.ToLowerInvariant ();
+			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
 			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
