@@ -150,3 +150,54 @@ static Stream DecryptEmbeddedPgp (TextPart text)
 
 What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
 (is it text? a jpeg image? a video?) and how to display it to the user.
+
+### How would I parse multipart/form-data from an HTTP web request?
+
+Since classes like `HttpWebRequest` take care of parsing the HTTP headers (which includes the `Content-Type`
+header) and only offer a content stream to consume, MimeKit provides a way to deal with this using the following
+two static methods on `MimeEntity`:
+
+```csharp
+public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+
+public static MimeEntity Load (ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+```
+
+Here's how you might use these methods:
+
+```csharp
+MimeEntity ParseMultipartFormData (HttpWebResponse response)
+{
+    var contentType = ContentType.Parse (response.ContentType);
+
+    return MimeEntity.Parse (contentType, response.GetResponseStream ());
+}
+```
+
+If the `multipart/form-data` HTTP response is expected to be large and you do not wish for the content to be
+read into memory, you do instead use the following approach:
+
+```csharp
+MimeEntity ParseMultipartFormData (HttpWebResponse response)
+{
+    // create a temporary file to store our large HTTP data stream
+    var tmp = Path.GetTempFileName ();
+
+    using (var stream = File.Open (tmp, FileMode.Open, FileAccess.ReadWrite)) {
+        // create a header for the multipart/form-data MIME entity based on the Content-Type value of the HTTP response
+        var header = Encoding.UTF8.GetBytes (string.Format ("Content-Type: {0}\r\n\r\n", response.ContentType));
+
+        // write the header to the stream
+        stream.Write (header, 0, header.Length);
+
+        // copy the content of the HTTP response to our temporary stream
+        response.GetResponseStream ().CopyTo (stream);
+
+        // reset the stream back to the beginning
+        stream.Position = 0;
+
+        // parse the MIME entity with persistent = true, telling the parser not to load the content into memory
+        return MimeEntity.Load (stream, persistent: true);
+    }
+}
+```
