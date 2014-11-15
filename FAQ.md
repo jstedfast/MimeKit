@@ -3,7 +3,7 @@
 ### How do I get the message body text?
 
 MIME is a tree structure of parts. There are multiparts which contain other parts (even other multiparts).
-There are message parts which contain messages. And there are leaf-node parts which contain content.
+There are message parts which contain messages. And finally, there are leaf-node parts which contain content.
 
 There are a few common message structures:
 
