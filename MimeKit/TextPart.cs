@@ -143,6 +143,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets whether or not this text part contains plain text.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is text/plain.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsPlain {
+			get { return ContentType.Matches ("text", "plain"); }
+		}
+
+		/// <summary>
+		/// Gets whether or not this text part contains HTML.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is text/html.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsHtml {
+			get { return ContentType.Matches ("text", "html"); }
+		}
+
+		/// <summary>
 		/// Gets the decoded text content.
 		/// </summary>
 		/// <remarks>
