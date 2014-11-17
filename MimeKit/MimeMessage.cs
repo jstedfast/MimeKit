@@ -655,6 +655,110 @@ namespace MimeKit {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets the text body of the message if it exists.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
+		/// search order) which is not an attachment.</para>
+		/// </remarks>
+		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
+		public string TextBody {
+			get {
+				if (Body == null)
+					return null;
+
+				foreach (var part in BodyParts) {
+					var text = part as TextPart;
+
+					if (text != null && !text.IsAttachment && text.IsPlain)
+						return text.Text;
+				}
+
+				return null;
+			}
+		}
+
+		static bool TryGetHtmlBody (Multipart multipart, out string html)
+		{
+			var related = multipart as MultipartRelated;
+
+			if (multipart.ContentType.Matches ("multipart", "alternative")) {
+				// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
+				for (int i = multipart.Count - 1; i >= 0; i--) {
+					related = multipart[i] as MultipartRelated;
+					TextPart part;
+
+					if (related != null) {
+						part = related.Root as TextPart;
+					} else {
+						part = multipart[i] as TextPart;
+					}
+
+					if (part != null && part.IsHtml) {
+						html = part.Text;
+						return true;
+					}
+				}
+			} else if (related != null) {
+				// if the multipart/related root document is HTML, then this is the droid we are looking for
+				var root = related.Root as TextPart;
+
+				if (root != null && root.IsHtml) {
+					html = root.Text;
+					return true;
+				}
+			} else {
+				// this is probably a multipart/mixed... and if not, we can still treat it like it is
+				for (int i = 0; i < multipart.Count; i++) {
+					var multi = multipart[i] as Multipart;
+
+					if (multi != null) {
+						if (TryGetHtmlBody (multi, out html))
+							return true;
+					} else {
+						var part = multipart[i] as TextPart;
+
+						if (part != null && part.IsHtml) {
+							html = part.Text;
+							return true;
+						}
+					}
+				}
+			}
+
+			html = null;
+
+			return false;
+		}
+
+		/// <summary>
+		/// Gets the html body of the message if it exists.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
+		/// </remarks>
+		/// <value>The html body if it exists; otherwise, <c>null</c>.</value>
+		public string HtmlBody {
+			get {
+				var multipart = Body as Multipart;
+
+				if (multipart != null) {
+					string html;
+
+					if (TryGetHtmlBody (multipart, out html))
+						return html;
+				} else {
+					var part = Body as TextPart;
+
+					if (part != null && part.IsHtml)
+						return part.Text;
+				}
+
+				return null;
+			}
+		}
+
 		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
 		{
 			if (entity == null)
