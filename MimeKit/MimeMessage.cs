@@ -655,31 +655,7 @@ namespace MimeKit {
 			get; set;
 		}
 
-		/// <summary>
-		/// Gets the text body of the message if it exists.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
-		/// search order) which is not an attachment.</para>
-		/// </remarks>
-		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
-		public string TextBody {
-			get {
-				if (Body == null)
-					return null;
-
-				foreach (var part in BodyParts) {
-					var text = part as TextPart;
-
-					if (text != null && !text.IsAttachment && text.IsPlain)
-						return text.Text;
-				}
-
-				return null;
-			}
-		}
-
-		static bool TryGetHtmlBody (Multipart multipart, out string html)
+		static bool TryGetMessageBody (Multipart multipart, bool html, out string body)
 		{
 			var related = multipart as MultipartRelated;
 			TextPart part;
@@ -689,15 +665,15 @@ namespace MimeKit {
 				part = related.Root as TextPart;
 
 				if (part != null) {
-					html = part.IsHtml ? part.Text : null;
-					return html != null;
+					body = (html ? part.IsHtml : part.IsPlain) ? part.Text : null;
+					return body != null;
 				}
 
 				// maybe the root is another multipart (like multipart/alternative)?
 				var root = related.Root as Multipart;
 
-				if (root == null)
-					return TryGetHtmlBody (root, out html);
+				if (root != null)
+					return TryGetMessageBody (root, html, out body);
 			} else if (multipart.ContentType.Matches ("multipart", "alternative")) {
 				// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 				for (int i = multipart.Count - 1; i >= 0; i--) {
@@ -709,8 +685,8 @@ namespace MimeKit {
 						part = multipart[i] as TextPart;
 					}
 
-					if (part != null && part.IsHtml) {
-						html = part.Text;
+					if (part != null && (html ? part.IsHtml : part.IsPlain)) {
+						body = part.Text;
 						return true;
 					}
 				}
@@ -720,22 +696,50 @@ namespace MimeKit {
 					var multi = multipart[i] as Multipart;
 
 					if (multi != null) {
-						if (TryGetHtmlBody (multi, out html))
+						if (TryGetMessageBody (multi, html, out body))
 							return true;
 					} else {
 						part = multipart[i] as TextPart;
 
-						if (part != null && part.IsHtml) {
-							html = part.Text;
+						if (part != null && (html ? part.IsHtml : part.IsPlain)) {
+							body = part.Text;
 							return true;
 						}
 					}
 				}
 			}
 
-			html = null;
+			body = null;
 
 			return false;
+		}
+
+		/// <summary>
+		/// Gets the text body of the message if it exists.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
+		/// search order) which is not an attachment.</para>
+		/// </remarks>
+		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
+		public string TextBody {
+			get {
+				var multipart = Body as Multipart;
+
+				if (multipart != null) {
+					string plain;
+
+					if (TryGetMessageBody (multipart, false, out plain))
+						return plain;
+				} else {
+					var part = Body as TextPart;
+
+					if (part != null && part.IsPlain)
+						return part.Text;
+				}
+
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -752,7 +756,7 @@ namespace MimeKit {
 				if (multipart != null) {
 					string html;
 
-					if (TryGetHtmlBody (multipart, out html))
+					if (TryGetMessageBody (multipart, true, out html))
 						return html;
 				} else {
 					var part = Body as TextPart;
