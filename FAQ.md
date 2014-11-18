@@ -65,14 +65,11 @@ There are a few common message structures:
 Now, if you don't care about any of that and just want to get the text of the first `text/plain` or
 `text/html` part you can find, that's easy.
 
-Just look for a node that is of type `TextPart` and then get the `Text` property value.
-For example, using LINQ, you could do this:
+`MimeMessage` has two convenience properties for this: `TextBody` and `HtmlBody`.
 
-```csharp
-var body = message.BodyParts.OfType<TextPart> ().FirstOrDefault ();
-```
-
-Now that you've got the body, you can just use `body.Text`.
+`MimeMessage.HtmlBody`, as the name implies, will traverse the MIME structure for you and find the most
+appropriate body part with a `Content-Type` of `text/html` that can be interpreted as the message body.
+Likewise, the `TextBody` property can be used to get the `text/plain` version of the message body.
 
 ### How do I decrypt PGP messages that are embedded in the main message text?
 
