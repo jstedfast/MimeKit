@@ -196,6 +196,16 @@ an HTML version of the message body that references the sibling video and images
 Now that you have a rough idea of how a message is structured and how to interpret various MIME nodes,
 the next step is learning how to traverse the MIME tree using MimeKit.
 
+For your convenience, MimeKit's `MimeMessage` class has two properties that can help you get the
+`text/plain` or `text/html` version of the message body. These are `TextBody` and `HtmlBody`,
+respectively.
+
+Keep in mind, however, that at least with the `HtmlBody` property, it may be that the HTML part is
+a child of a `multipart/related`, allowing it to refer to images and other types of media that
+are also contained within that `multipart/related` entity. This property is really only a convenience
+property and is not a really good substitute for traversing the MIME structure yourself so that you
+may properly interpret related content.
+
 ### Traversing a MimeMessage
 
 The `MimeMessage.Body` is the top-level MIME entity of the message. Generally, it will either be a
@@ -242,16 +252,6 @@ foreach (var part in message.BodyParts) {
 Another helper property on the MimeMessage class is the `Attachments` property which works
 much the same way as the `BodyParts` property except that it will only contain MIME parts
 which have a `Content-Disposition` header value that is set to `attachment`.
-
-### Getting the Body of a Message the Quick and Dirty Way
-
-Since, in general, the first `text/*` part within a MimeMessage will be what is commonly considered to be
-the message text, you can use the `BodyParts` property combined with some simple LINQ to get it:
-
-```csharp
-var body = message.BodyParts.OfType<TextPart> ().FirstOrDefault ();
-var text = body.Text;
-```
 
 ### Getting the Decoded Content of a MIME Part
 
