@@ -161,9 +161,9 @@ The reason for sending the message text in both formats is that not all mail cli
 HTML.
 
 The receiving client should only display one of the alternative views contained within the `multipart/alternative`
-container. Since alternative views are listed in order of least consistent to most consistent with what the
-sender saw in his or her WYSIWYG editor, the receiving client *should* walk over the list of alternative views
-starting at the end and working backwards until it finds a part that it is capable of displaying.
+container. Since alternative views are listed in order of least faithful to most faithful with what the sender
+saw in his or her WYSIWYG editor, the receiving client *should* walk over the list of alternative views starting
+at the end and working backwards until it finds a part that it is capable of displaying.
 
 Example:
 ```
@@ -172,7 +172,7 @@ multipart/alternative
   text/html
 ```
 
-As seen in the example above, the `text/html` part is listed last because it is the most consistent with
+As seen in the example above, the `text/html` part is listed last because it is the most faithful to
 what the sender saw in his or her WYSIWYG editor when writing the message.
 
 To make matters even more complicated, sometimes modern mail clients will use a `multipart/related`
@@ -193,10 +193,10 @@ multipart/alternative
 In the example above, one of the alternative views is a `multipart/related` container which contains
 an HTML version of the message body that references the sibling video and images.
 
-Now that you have a rough idea of how a message is structured and how to interpret various MIME nodes,
+Now that you have a rough idea of how a message is structured and how to interpret various MIME entities,
 the next step is learning how to traverse the MIME tree using MimeKit.
 
-For your convenience, MimeKit's `MimeMessage` class has two properties that can help you get the
+Note: For your convenience, MimeKit's `MimeMessage` class has two properties that can help you get the
 `text/plain` or `text/html` version of the message body. These are `TextBody` and `HtmlBody`,
 respectively.
 
