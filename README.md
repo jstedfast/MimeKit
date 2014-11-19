@@ -137,7 +137,7 @@ much like a file system.
 
 Luckily, MIME does define a set of general rules for how mail clients should interpret this tree
 structure of MIME parts. The `Content-Disposition` header is meant to provide hints to the receiving
-client as to which parts are meant to be displayed as part of the emssage body and which are meant
+client as to which parts are meant to be displayed as part of the message body and which are meant
 to be interpreted as attachments.
 
 The `Content-Disposition` header will generally have one of two values: `inline` or `attachment`.
