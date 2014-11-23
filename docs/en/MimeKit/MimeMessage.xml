@@ -322,6 +322,26 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="HtmlBody">
+      <MemberSignature Language="C#" Value="public string HtmlBody { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string HtmlBody" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the html body of the message if it exists.
+            </summary>
+        <value>The html body if it exists; otherwise, <c>null</c>.</value>
+        <remarks>
+          <para>Gets the HTML-formatted body of the message if it exists.</para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="InReplyTo">
       <MemberSignature Language="C#" Value="public string InReplyTo { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string InReplyTo" />
@@ -1200,6 +1220,27 @@
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
             </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TextBody">
+      <MemberSignature Language="C#" Value="public string TextBody { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string TextBody" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the text body of the message if it exists.
+            </summary>
+        <value>The text body if it exists; otherwise, <c>null</c>.</value>
+        <remarks>
+          <para>Gets the text content of the first text/plain body part that is found (in depth-first
+            search order) which is not an attachment.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="To">
