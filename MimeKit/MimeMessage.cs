@@ -655,42 +655,47 @@ namespace MimeKit {
 			get; set;
 		}
 
+		static bool TryGetMultipartAlternativeBody (Multipart multipart, bool html, out string body)
+		{
+			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
+			for (int i = multipart.Count - 1; i >= 0; i--) {
+				var related = multipart[i] as MultipartRelated;
+				TextPart part;
+
+				if (related != null) {
+					part = related.Root as TextPart;
+				} else {
+					var mpart = multipart[i] as Multipart;
+
+					part = multipart[i] as TextPart;
+
+					if (mpart != null && mpart.ContentType.Matches ("multipart", "alternative")) {
+						// Note: nested multipart/alternatives make no sense... yet here we are.
+						if (TryGetMultipartAlternativeBody (mpart, html, out body))
+							return true;
+					}
+				}
+
+				if (part != null && (html ? part.IsHtml : part.IsPlain)) {
+					body = part.Text;
+					return true;
+				}
+			}
+
+			body = null;
+
+			return false;
+		}
+
 		static bool TryGetMessageBody (Multipart multipart, bool html, out string body)
 		{
 			var related = multipart as MultipartRelated;
 			TextPart part;
 
-			if (related != null) {
-				// if the multipart/related root document is HTML, then this is the droid we are looking for
-				part = related.Root as TextPart;
+			if (related == null) {
+				if (multipart.ContentType.Matches ("multipart", "alternative"))
+					return TryGetMultipartAlternativeBody (multipart, html, out body);
 
-				if (part != null) {
-					body = (html ? part.IsHtml : part.IsPlain) ? part.Text : null;
-					return body != null;
-				}
-
-				// maybe the root is another multipart (like multipart/alternative)?
-				var root = related.Root as Multipart;
-
-				if (root != null)
-					return TryGetMessageBody (root, html, out body);
-			} else if (multipart.ContentType.Matches ("multipart", "alternative")) {
-				// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
-				for (int i = multipart.Count - 1; i >= 0; i--) {
-					related = multipart[i] as MultipartRelated;
-
-					if (related != null) {
-						part = related.Root as TextPart;
-					} else {
-						part = multipart[i] as TextPart;
-					}
-
-					if (part != null && (html ? part.IsHtml : part.IsPlain)) {
-						body = part.Text;
-						return true;
-					}
-				}
-			} else {
 				// this is probably a multipart/mixed... and if not, we can still treat it like it is
 				for (int i = 0; i < multipart.Count; i++) {
 					var multi = multipart[i] as Multipart;
@@ -707,6 +712,20 @@ namespace MimeKit {
 						}
 					}
 				}
+			} else {
+				// if the multipart/related root document is HTML, then this is the droid we are looking for
+				part = related.Root as TextPart;
+
+				if (part != null) {
+					body = (html ? part.IsHtml : part.IsPlain) ? part.Text : null;
+					return body != null;
+				}
+
+				// maybe the root is another multipart (like multipart/alternative)?
+				var root = related.Root as Multipart;
+
+				if (root != null)
+					return TryGetMessageBody (root, html, out body);
 			}
 
 			body = null;
