@@ -696,24 +696,36 @@ namespace MimeKit {
 				if (multipart.ContentType.Matches ("multipart", "alternative"))
 					return TryGetMultipartAlternativeBody (multipart, html, out body);
 
-				// this is probably a multipart/mixed... and if not, we can still treat it like it is
+				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
 					var multi = multipart[i] as Multipart;
 
+					// descend into nested multiparts, if there are any...
 					if (multi != null) {
 						if (TryGetMessageBody (multi, html, out body))
 							return true;
-					} else {
-						part = multipart[i] as TextPart;
 
-						if (part != null && (html ? part.IsHtml : part.IsPlain)) {
+						// The text body should never come after a multipart.
+						break;
+					}
+
+					part = multipart[i] as TextPart;
+
+					// Look for the first non-attachment text part (realistically, the body text will
+					// preceed any attachments, but I'm not sure we can rely on that assumption).
+					if (part != null && !part.IsAttachment) {
+						if (html ? part.IsHtml : part.IsPlain) {
 							body = part.Text;
 							return true;
 						}
+
+						// Note: the first text/* part in a multipart/mixed is the text body.
+						// If it's not in the format we're looking for, then it doesn't exist.
+						break;
 					}
 				}
 			} else {
-				// if the multipart/related root document is HTML, then this is the droid we are looking for
+				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
 				part = related.Root as TextPart;
 
 				if (part != null) {
