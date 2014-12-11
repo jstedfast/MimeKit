@@ -214,6 +214,38 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the decoded text content using the provided charset encoding to
+		/// override the charset specified in the Content-Type parameters.
+		/// </summary>
+		/// <remarks>
+		/// Uses the provided charset encoding to convert the raw text content
+		/// into a unicode string, overriding any charset specified in the
+		/// Content-Type header.
+		/// </remarks>
+		/// <returns>The decoded text.</returns>
+		/// <param name="encoding">The charset encoding to use.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoding"/> is <c>null</c>.
+		/// </exception>
+		public string GetText (Encoding encoding)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+
+#if PORTABLE
+				var buffer = memory.ToArray ();
+#else
+				var buffer = memory.GetBuffer ();
+#endif
+
+				return encoding.GetString (buffer, 0, (int) memory.Length);
+			}
+		}
+
+		/// <summary>
 		/// Gets the decoded text content using the provided charset to override
 		/// the charset specified in the Content-Type parameters.
 		/// </summary>
@@ -227,29 +259,43 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="charset"/> is <c>null</c>.
 		/// </exception>
-		public string GetText (Encoding charset)
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		public string GetText (string charset)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			using (var memory = new MemoryStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new CharsetFilter (charset, Encoding.UTF8));
+			return GetText (CharsetUtils.GetEncoding (charset));
+		}
 
-					ContentObject.DecodeTo (filtered);
-					filtered.Flush ();
+		/// <summary>
+		/// Sets the text content and the charset parameter in the Content-Type header.
+		/// </summary>
+		/// <remarks>
+		/// This method is similar to setting the <see cref="Text"/> property, but allows
+		/// specifying a charset encoding to use. Also updates the
+		/// <see cref="ContentType.Charset"/> property.
+		/// </remarks>
+		/// <param name="encoding">The charset encoding.</param>
+		/// <param name="text">The text content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SetText (Encoding encoding, string text)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
 
-#if PORTABLE
-					var buffer = memory.ToArray ();
-					int length = buffer.Length;
-#else
-					var buffer = memory.GetBuffer ();
-					int length = (int) memory.Length;
-#endif
+			if (text == null)
+				throw new ArgumentNullException ("text");
 
-					return Encoding.UTF8.GetString (buffer, 0, length);
-				}
-			}
+			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
+			var content = new MemoryStream (encoding.GetBytes (text));
+			ContentObject = new ContentObject (content);
 		}
 
 		/// <summary>
@@ -267,17 +313,18 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <c>null</c>.</para>
 		/// </exception>
-		public void SetText (Encoding charset, string text)
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		public void SetText (string charset, string text)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
 			if (text == null)
 				throw new ArgumentNullException ("text");
-				
-			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (charset);
-			var content = new MemoryStream (charset.GetBytes (text));
-			ContentObject = new ContentObject (content);
+
+			SetText (CharsetUtils.GetEncoding (charset), text);
 		}
 	}
 }
