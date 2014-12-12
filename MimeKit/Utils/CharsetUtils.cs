@@ -31,6 +31,8 @@ using System.Collections.Generic;
 #if PORTABLE
 using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
 using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
 using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
 using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
@@ -41,6 +43,9 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
+		// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
+		// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
+		public static readonly Encoding UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()

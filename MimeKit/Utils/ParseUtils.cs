@@ -206,8 +206,8 @@ namespace MimeKit.Utils {
 					index++;
 
 				try {
-					token.Append (Encoding.UTF8.GetString (text, start, index - start));
-				} catch (ParseException ex) {
+					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
 						throw new ParseException ("Internationalized domains may only contain UTF-8 characters.", start, start, ex);
 

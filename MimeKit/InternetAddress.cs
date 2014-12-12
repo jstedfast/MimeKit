@@ -191,8 +191,8 @@ namespace MimeKit {
 					return false;
 
 				try {
-					token.Append (Encoding.UTF8.GetString (text, start, index - start));
-				} catch (Exception ex) {
+					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
 						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
 
