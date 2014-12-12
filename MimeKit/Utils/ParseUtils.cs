@@ -26,6 +26,20 @@
 
 using System.Text;
 
+#if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
+#endif
+
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{

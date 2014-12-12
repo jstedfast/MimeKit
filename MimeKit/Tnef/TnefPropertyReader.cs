@@ -26,13 +26,20 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 #if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
-#else
-using Encoding = System.Text.Encoding;
-using Decoder = System.Text.Decoder;
 #endif
 
 namespace MimeKit.Tnef {
@@ -411,7 +418,7 @@ namespace MimeKit.Tnef {
 
 			if (codepage != 0 && codepage != 1252) {
 				try {
-					return Encoding.GetEncoding (codepage);
+					return Encoding.GetEncoding (codepage, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 				} catch {
 					return DefaultEncoding;
 				}
