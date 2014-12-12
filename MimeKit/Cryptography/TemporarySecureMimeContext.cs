@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var keyUsage = certificate.GetKeyUsageFlags ();
-				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
+				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
 				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {

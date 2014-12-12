@@ -249,7 +249,7 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
-					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.DataEncipherment) == 0)
+					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.KeyEncipherment) == 0)
 						continue;
 
 					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)

@@ -316,7 +316,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, CmsRecipientFields)) {
-				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
+				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
 				var recipient = new CmsRecipient (record.Certificate);
