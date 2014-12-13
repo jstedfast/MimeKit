@@ -128,8 +128,8 @@
       </Docs>
     </Member>
     <Member MemberName="GetText">
-      <MemberSignature Language="C#" Value="public string GetText (System.Text.Encoding charset);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetText(class System.Text.Encoding charset) cil managed" />
+      <MemberSignature Language="C#" Value="public string GetText (string charset);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetText(string charset) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -138,7 +138,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="charset" Type="System.String" />
       </Parameters>
       <Docs>
         <param name="charset">The charset encoding to use.</param>
@@ -154,6 +154,39 @@
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="charset" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetText">
+      <MemberSignature Language="C#" Value="public string GetText (System.Text.Encoding encoding);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetText(class System.Text.Encoding encoding) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The charset encoding to use.</param>
+        <summary>
+            Gets the decoded text content using the provided charset encoding to
+            override the charset specified in the Content-Type parameters.
+            </summary>
+        <returns>The decoded text.</returns>
+        <remarks>
+            Uses the provided charset encoding to convert the raw text content
+            into a unicode string, overriding any charset specified in the
+            Content-Type header.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="encoding" /> is <c>null</c>.
             </exception>
       </Docs>
     </Member>
@@ -200,8 +233,8 @@
       </Docs>
     </Member>
     <Member MemberName="SetText">
-      <MemberSignature Language="C#" Value="public void SetText (System.Text.Encoding charset, string text);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetText(class System.Text.Encoding charset, string text) cil managed" />
+      <MemberSignature Language="C#" Value="public void SetText (string charset, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetText(string charset, string text) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -210,7 +243,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="charset" Type="System.String" />
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
@@ -227,6 +260,43 @@
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="text" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetText">
+      <MemberSignature Language="C#" Value="public void SetText (System.Text.Encoding encoding, string text);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetText(class System.Text.Encoding encoding, string text) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="text" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The charset encoding.</param>
+        <param name="text">The text content.</param>
+        <summary>
+            Sets the text content and the charset parameter in the Content-Type header.
+            </summary>
+        <remarks>
+            This method is similar to setting the <see cref="P:MimeKit.TextPart.Text" /> property, but allows
+            specifying a charset encoding to use. Also updates the
+            <see cref="P:MimeKit.ContentType.Charset" /> property.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="text" /> is <c>null</c>.</para>
@@ -253,7 +323,8 @@
             is set, it will be used in order to convert the raw content into unicode.
             If that fails or if the charset parameter is not set, iso-8859-1 will be
             used instead.</para>
-          <para>For more control, use the <see cref="M:MimeKit.TextPart.GetText(System.Text.Encoding)" /> method.</para>
+          <para>For more control, use <see cref="M:MimeKit.TextPart.GetText(System.Text.Encoding)" />
+            or <see cref="M:MimeKit.TextPart.GetText(System.String)" />.</para>
         </remarks>
       </Docs>
     </Member>
