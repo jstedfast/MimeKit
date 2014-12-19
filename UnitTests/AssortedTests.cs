@@ -205,5 +205,13 @@ namespace UnitTests {
 			actual = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (cp1260));
 			Assert.AreEqual ("hola", actual, "Unexpected decoding of cp1260.");
 		}
+
+		[Test]
+		public void TestInvalidDoubleDomainMessageId ()
+		{
+			var msgid = MimeUtils.EnumerateReferences ("<local-part@domain1@domain2>").FirstOrDefault ();
+
+			Assert.AreEqual ("local-part@domain1@domain2", msgid);
+		}
 	}
 }

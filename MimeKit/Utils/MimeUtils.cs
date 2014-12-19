@@ -104,9 +104,11 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
+			byte[] sentinels = new byte[] { (byte) '>' };
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			InternetAddress addr;
+			string msgid;
 
 			if (buffer == null)
 				throw new ArgumentNullException ("buffer");
@@ -128,7 +130,25 @@ namespace MimeKit.Utils {
 					if (!InternetAddress.TryParseMailbox (ParserOptions.Default, buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
 						break;
 
-					yield return ((MailboxAddress) addr).Address;
+					msgid = ((MailboxAddress) addr).Address;
+
+					// Note: some message-id's are broken and in the form local-part@domain@domain
+					// https://github.com/jstedfast/MailKit/issues/138
+					while (index < endIndex && buffer[index] == (byte) '@') {
+						int saved = index;
+						string domain;
+
+						index++;
+
+						if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain)) {
+							index = saved;
+							break;
+						}
+
+						msgid += "@" + domain;
+					}
+
+					yield return msgid;
 				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}

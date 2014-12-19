@@ -247,8 +247,6 @@ namespace MimeKit.Utils {
 				if (index >= endIndex || IsSentinel (text[index], sentinels))
 					break;
 
-				for (int i = 0; i < sentinels.Length; i++)
-
 				token.Append ('.');
 			} while (true);
 
