@@ -104,7 +104,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
-			byte[] sentinels = new byte[] { (byte) '>' };
+			byte[] sentinels = { (byte) '>' };
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			InternetAddress addr;
