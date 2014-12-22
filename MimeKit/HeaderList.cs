@@ -364,6 +364,73 @@ namespace MimeKit {
 		/// <para>If no headers with the specified field name exist, it is simply added.</para>
 		/// </remarks>
 		/// <param name="id">The header identifier.</param>
+		/// <param name="encoding">The character encoding to use for the value.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public void Replace (HeaderId id, Encoding encoding, string value)
+		{
+			if (id == HeaderId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Replace (new Header (encoding, id, value));
+		}
+
+		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="charset">The charset to use for the value.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <param name="charset"> is not supported.
+		/// </exception>
+		public void Replace (HeaderId id, string charset, string value)
+		{
+			if (id == HeaderId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Replace (new Header (charset, id, value));
+		}
+
+		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
+		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -380,6 +447,74 @@ namespace MimeKit {
 				throw new ArgumentNullException ("value");
 
 			Replace (new Header (id, value));
+		}
+
+		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="encoding">The character encoding to use for the value.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		public void Replace (string field, Encoding encoding, string value)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Replace (new Header (encoding, field, value));
+		}
+
+		/// <summary>
+		/// Replaces all headers with identical field names with the single specified header.
+		/// </summary>
+		/// <remarks>
+		/// <para>Replaces all headers with identical field names with the single specified header.</para>
+		/// <para>If no headers with the specified field name exist, it is simply added.</para>
+		/// </remarks>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="charset">The charset to use for the value.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public void Replace (string field, string charset, string value)
+		{
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Replace (new Header (charset, field, value));
 		}
 
 		/// <summary>
