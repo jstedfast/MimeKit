@@ -55,6 +55,44 @@ namespace MimeKit {
 		/// value pair. The encoding is used to determine which charset to use
 		/// when encoding the value according to the rules of rfc2047.
 		/// </remarks>
+		/// <param name="encoding">The character encoding that should be used to
+		/// encode the header value.</param>
+		/// <param name="id">The header identifier.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
+		/// </exception>
+		public Header (Encoding encoding, HeaderId id, string value)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (id == HeaderId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Options = ParserOptions.Default.Clone ();
+			Field = id.ToHeaderName ();
+			Id = id;
+
+			SetValue (encoding, value);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair. The encoding is used to determine which charset to use
+		/// when encoding the value according to the rules of rfc2047.
+		/// </remarks>
 		/// <param name="charset">The charset that should be used to encode the
 		/// header value.</param>
 		/// <param name="id">The header identifier.</param>
@@ -67,10 +105,19 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
 		/// </exception>
-		public Header (Encoding charset, HeaderId id, string value)
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="charset"/> cannot be empty.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public Header (string charset, HeaderId id, string value)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
+
+			if (charset.Length == 0)
+				throw new ArgumentException ("The charset name cannot be empty.", "charset");
 
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException ("id");
@@ -78,11 +125,12 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
+			var encoding = CharsetUtils.GetEncoding (charset);
 			Options = ParserOptions.Default.Clone ();
 			Field = id.ToHeaderName ();
 			Id = id;
 
-			SetValue (charset, value);
+			SetValue (encoding, value);
 		}
 
 		/// <summary>
@@ -90,7 +138,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
-		/// value pair.
+		/// value pair with the UTF-8 encoding.
 		/// </remarks>
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The value of the header.</param>
@@ -102,6 +150,54 @@ namespace MimeKit {
 		/// </exception>
 		public Header (HeaderId id, string value) : this (Encoding.UTF8, id, value)
 		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new message or entity header for the specified field and
+		/// value pair. The encoding is used to determine which charset to use
+		/// when encoding the value according to the rules of rfc2047.
+		/// </remarks>
+		/// <param name="encoding">The character encoding that should be used
+		/// to encode the header value.</param>
+		/// <param name="field">The name of the header field.</param>
+		/// <param name="value">The value of the header.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The <paramref name="field"/> contains illegal characters.
+		/// </exception>
+		public Header (Encoding encoding, string field, string value)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (field == null)
+				throw new ArgumentNullException ("field");
+
+			if (field.Length == 0)
+				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
+
+			for (int i = 0; i < field.Length; i++) {
+				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
+					throw new ArgumentException ("Illegal characters in header field name.", "field");
+			}
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Options = ParserOptions.Default.Clone ();
+			Id = field.ToHeaderId ();
+			Field = field;
+
+			SetValue (encoding, value);
 		}
 
 		/// <summary>
@@ -124,12 +220,20 @@ namespace MimeKit {
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The <paramref name="field"/> contains illegal characters.
+		/// <para><paramref name="charset"/> cannot be empty.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="field"/> contains illegal characters.</para>
 		/// </exception>
-		public Header (Encoding charset, string field, string value)
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public Header (string charset, string field, string value)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
+
+			if (charset.Length == 0)
+				throw new ArgumentException ("The charset name cannot be empty.", "charset");
 
 			if (field == null)
 				throw new ArgumentNullException ("field");
@@ -145,11 +249,12 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
+			var encoding = CharsetUtils.GetEncoding (charset);
 			Options = ParserOptions.Default.Clone ();
 			Id = field.ToHeaderId ();
 			Field = field;
 
-			SetValue (charset, value);
+			SetValue (encoding, value);
 		}
 
 		/// <summary>
@@ -157,7 +262,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
-		/// value pair.
+		/// value pair with the UTF-8 encoding.
 		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
@@ -257,6 +362,30 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the header value using the specified character encoding.
+		/// </summary>
+		/// <remarks>
+		/// <para>If the raw header value does not properly encode non-ASCII text, the decoder
+		/// will fall back to a default charset encoding. Sometimes, however, this
+		/// default charset fallback is wrong and the mail client may wish to override
+		/// that default charset on a per-header basis.</para>
+		/// <para>By using this method, the client is able to override the fallback charset
+		/// on a per-header basis.</para>
+		/// </remarks>
+		/// <returns>The value.</returns>
+		/// <param name="encoding">The character encoding to use as a fallback.</param>
+		public string GetValue (Encoding encoding)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			var options = Options.Clone ();
+			options.CharsetEncoding = encoding;
+
+			return Unfold (Rfc2047.DecodeText (options, RawValue));
+		}
+
+		/// <summary>
 		/// Gets the header value using the specified charset.
 		/// </summary>
 		/// <remarks>
@@ -268,16 +397,15 @@ namespace MimeKit {
 		/// on a per-header basis.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
-		/// <param name="charset">The fallback charset.</param>
-		public string GetValue (Encoding charset)
+		/// <param name="charset">The charset to use as a fallback.</param>
+		public string GetValue (string charset)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			var options = Options.Clone ();
-			options.CharsetEncoding = charset;
+			var encoding = CharsetUtils.GetEncoding (charset);
 
-			return Unfold (Rfc2047.DecodeText (options, RawValue));
+			return GetValue (encoding);
 		}
 
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
@@ -698,6 +826,36 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Sets the header value using the specified character encoding.
+		/// </summary>
+		/// <remarks>
+		/// When a particular charset is desired for encoding the header value
+		/// according to the rules of rfc2047, this method should be used
+		/// instead of the <see cref="Value"/> setter.
+		/// </remarks>
+		/// <param name="encoding">A character encoding.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SetValue (Encoding encoding, string value)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			textValue = Unfold (value.Trim ());
+
+			rawValue = GetRawValue (FormatOptions.Default, encoding);
+
+			OnChanged ();
+		}
+
+		/// <summary>
 		/// Sets the header value using the specified charset.
 		/// </summary>
 		/// <remarks>
@@ -712,19 +870,17 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
-		public void SetValue (Encoding charset, string value)
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public void SetValue (string charset, string value)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			if (value == null)
-				throw new ArgumentNullException ("value");
+			var encoding = CharsetUtils.GetEncoding (charset);
 
-			textValue = Unfold (value.Trim ());
-
-			rawValue = GetRawValue (FormatOptions.Default, charset);
-
-			OnChanged ();
+			SetValue (encoding, value);
 		}
 
 		internal event EventHandler Changed;
