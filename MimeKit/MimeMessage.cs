@@ -865,7 +865,6 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (memory);
 
-				var latin1 = Encoding.GetEncoding (28591);
 				#if !PORTABLE
 				var buffer = memory.GetBuffer ();
 				#else
@@ -873,7 +872,7 @@ namespace MimeKit {
 				#endif
 				int count = (int) memory.Length;
 
-				return latin1.GetString (buffer, 0, count);
+				return CharsetUtils.Latin1.GetString (buffer, 0, count);
 			}
 		}
 

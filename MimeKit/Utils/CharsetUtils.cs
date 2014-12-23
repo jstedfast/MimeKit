@@ -47,6 +47,7 @@ namespace MimeKit.Utils {
 	{
 		// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
 		// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
+		public static readonly Encoding Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 		public static readonly Encoding UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 		static readonly Dictionary<string, int> aliases;
 
