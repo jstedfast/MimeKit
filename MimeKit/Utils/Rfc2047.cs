@@ -1086,7 +1086,7 @@ namespace MimeKit.Utils {
 
 					if (c < 127) {
 						if (IsCtrl (c)) {
-							word.Encoding = Math.Max (word.Encoding, 1);
+							word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
 						} else if (phrase && !IsAtom (c)) {
@@ -1103,7 +1103,7 @@ namespace MimeKit.Utils {
 						nchars = 1;
 					} else if (c < 256) {
 						// iso-8859-1
-						word.Encoding = Math.Max (word.Encoding, 1);
+						word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
 						word.Type = WordType.EncodedWord;
 						word.EncodeCount++;
 						word.ByteCount++;
