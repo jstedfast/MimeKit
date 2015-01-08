@@ -291,9 +291,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Returns a string containing the formatted mailbox address. If the <paramref name="encode"/>
-        /// parameter is <c>true</c>, then the mailbox name will be encoded according to the rules defined
-        /// in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
-        /// for display purposes.
+		/// parameter is <c>true</c>, then the mailbox name will be encoded according to the rules defined
+		/// in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
+		/// for display purposes.
 		/// </remarks>
 		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>

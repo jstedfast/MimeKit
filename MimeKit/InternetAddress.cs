@@ -68,9 +68,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddress"/> class.
 		/// </summary>
-        /// <remarks>
-        /// Initializes the <see cref="Encoding"/> and <see cref="Name"/> properties of the internet address.
-        /// </remarks>
+		/// <remarks>
+		/// Initializes the <see cref="Encoding"/> and <see cref="Name"/> properties of the internet address.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox or group.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -88,10 +88,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the character encoding to use when encoding the name of the address.
 		/// </summary>
-        /// <remarks>
-        /// The character encoding is used to convert the <see cref="Name"/> property, if it is set,
-        /// to a stream of bytes when encoding the internet address for transport.
-        /// </remarks>
+		/// <remarks>
+		/// The character encoding is used to convert the <see cref="Name"/> property, if it is set,
+		/// to a stream of bytes when encoding the internet address for transport.
+		/// </remarks>
 		/// <value>The character encoding.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -113,10 +113,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the display name of the address.
 		/// </summary>
-        /// <remarks>
-        /// A name is optional and is typically set to the name of the person
-        /// or group that own the internet address.
-        /// </remarks>
+		/// <remarks>
+		/// A name is optional and is typically set to the name of the person
+		/// or group that own the internet address.
+		/// </remarks>
 		/// <value>The name of the address.</value>
 		public string Name {
 			get { return name; }
@@ -145,12 +145,12 @@ namespace MimeKit {
 		/// Returns a string representation of the <see cref="InternetAddress"/>,
 		/// optionally encoding it for transport.
 		/// </summary>
-        /// <remarks>
-        /// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
-        /// an encoded version of the internet address according to the rules described in rfc2047.</para>
-        /// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
-        /// return a string suitable only for display purposes.</para>
-        /// </remarks>
+		/// <remarks>
+		/// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
+		/// an encoded version of the internet address according to the rules described in rfc2047.</para>
+		/// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
+		/// return a string suitable only for display purposes.</para>
+		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
 		public abstract string ToString (bool encode);
@@ -158,9 +158,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Returns a string representation of a <see cref="InternetAddress"/> suitable for display.
 		/// </summary>
-        /// <remarks>
-        /// The string returned by this method is suitable only for display purposes.
-        /// </remarks>
+		/// <remarks>
+		/// The string returned by this method is suitable only for display purposes.
+		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
@@ -172,9 +172,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Raises the internal changed event used by <see cref="MimeKit.MimeMessage"/> to keep headers in sync.
 		/// </summary>
-        /// <remarks>
-        /// This method is called whenever a property of the internet address is changed.
-        /// </remarks>
+		/// <remarks>
+		/// This method is called whenever a property of the internet address is changed.
+		/// </remarks>
 		protected virtual void OnChanged ()
 		{
 			if (Changed != null)
