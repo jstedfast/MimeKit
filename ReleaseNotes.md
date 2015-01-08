@@ -1,5 +1,14 @@
 # Release Notes
 
+### MimeKit 1.0.4
+
+* Added workaround for msg-id tokens with multiple domains
+  (e.g. id@domain1@domain2).
+* Added convenience methods to Header to allow the use of charset strings.
+* Added more HeaderList.Replace() method overloads for convenience.
+* Added a FormatOptions property to disallow the use of mixed charsets when
+  encoding headers (issue #139).
+
 ### MimeKit 1.0.3
 
 * Improved MimeMessage.TextBody and MimeMessage.HtmlBody logic. (issue #87)

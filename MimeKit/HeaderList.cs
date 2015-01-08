@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc.
+// Copyright (c) 2013-2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -407,7 +407,7 @@ namespace MimeKit {
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <param name="charset"> is not supported.
+		/// <paramref name="charset"/> is not supported.
 		/// </exception>
 		public void Replace (HeaderId id, string charset, string value)
 		{

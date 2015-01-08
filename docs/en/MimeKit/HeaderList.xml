@@ -1076,6 +1076,167 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="Replace">
+      <MemberSignature Language="C#" Value="public void Replace (MimeKit.HeaderId id, string charset, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(valuetype MimeKit.HeaderId id, string charset, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="id" Type="MimeKit.HeaderId" />
+        <Parameter Name="charset" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="id">The header identifier.</param>
+        <param name="charset">The charset to use for the value.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            </summary>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Replace">
+      <MemberSignature Language="C#" Value="public void Replace (MimeKit.HeaderId id, System.Text.Encoding encoding, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(valuetype MimeKit.HeaderId id, class System.Text.Encoding encoding, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="id" Type="MimeKit.HeaderId" />
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="id">The header identifier.</param>
+        <param name="encoding">The character encoding to use for the value.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            </summary>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Replace">
+      <MemberSignature Language="C#" Value="public void Replace (string field, string charset, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(string field, string charset, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="field" Type="System.String" />
+        <Parameter Name="charset" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="field">The name of the header field.</param>
+        <param name="charset">The charset to use for the value.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            </summary>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            The <paramref name="field" /> contains illegal characters.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Replace">
+      <MemberSignature Language="C#" Value="public void Replace (string field, System.Text.Encoding encoding, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Replace(string field, class System.Text.Encoding encoding, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="field" Type="System.String" />
+        <Parameter Name="encoding" Type="System.Text.Encoding" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="field">The name of the header field.</param>
+        <param name="encoding">The character encoding to use for the value.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Replaces all headers with identical field names with the single specified header.
+            </summary>
+        <remarks>
+          <para>Replaces all headers with identical field names with the single specified header.</para>
+          <para>If no headers with the specified field name exist, it is simply added.</para>
+        </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+      </Docs>
+    </Member>
     <Member MemberName="System.Collections.IEnumerable.GetEnumerator">
       <MemberSignature Language="C#" Value="System.Collections.IEnumerator IEnumerable.GetEnumerator ();" />
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance class System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() cil managed" />

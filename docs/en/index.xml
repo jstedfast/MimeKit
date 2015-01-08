@@ -10,16 +10,16 @@
           <AttributeName>System.Reflection.AssemblyConfiguration("")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2013-2014 Xamarin Inc. (www.xamarin.com)")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyCopyright("Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.3.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.4.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.3.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.4.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>

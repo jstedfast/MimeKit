@@ -37,7 +37,7 @@
             </summary>
         <remarks>
             Creates a new message or entity header for the specified field and
-            value pair.
+            value pair with the UTF-8 encoding.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="value" /> is <c>null</c>.
@@ -66,7 +66,7 @@
             </summary>
         <remarks>
             Creates a new message or entity header for the specified field and
-            value pair.
+            value pair with the UTF-8 encoding.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
@@ -81,14 +81,14 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding charset, MimeKit.HeaderId id, string value);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, valuetype MimeKit.HeaderId id, string value) cil managed" />
+      <MemberSignature Language="C#" Value="public Header (string charset, MimeKit.HeaderId id, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string charset, valuetype MimeKit.HeaderId id, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="charset" Type="System.String" />
         <Parameter Name="id" Type="MimeKit.HeaderId" />
         <Parameter Name="value" Type="System.String" />
       </Parameters>
@@ -115,17 +115,23 @@
         <exception cref="T:System.ArgumentOutOfRangeException">
           <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
             </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="charset" /> cannot be empty.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="charset" /> is not supported.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding charset, string field, string value);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding charset, string field, string value) cil managed" />
+      <MemberSignature Language="C#" Value="public Header (string charset, string field, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string charset, string field, string value) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
-        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="charset" Type="System.String" />
         <Parameter Name="field" Type="System.String" />
         <Parameter Name="value" Type="System.String" />
       </Parameters>
@@ -145,6 +151,89 @@
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="field" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="charset" /> cannot be empty.</para>
+          <para>-or-</para>
+          <para>The <paramref name="field" /> contains illegal characters.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding encoding, MimeKit.HeaderId id, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, valuetype MimeKit.HeaderId id, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="id" Type="MimeKit.HeaderId" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding that should be used to
+            encode the header value.</param>
+        <param name="id">The header identifier.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair. The encoding is used to determine which charset to use
+            when encoding the value according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid <see cref="T:MimeKit.HeaderId" />.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Header (System.Text.Encoding encoding, string field, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Text.Encoding encoding, string field, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="field" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">The character encoding that should be used
+            to encode the header value.</param>
+        <param name="field">The name of the header field.</param>
+        <param name="value">The value of the header.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Header" /> class.
+            </summary>
+        <remarks>
+            Creates a new message or entity header for the specified field and
+            value pair. The encoding is used to determine which charset to use
+            when encoding the value according to the rules of rfc2047.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="field" /> is <c>null</c>.</para>
@@ -178,8 +267,37 @@
       </Docs>
     </Member>
     <Member MemberName="GetValue">
-      <MemberSignature Language="C#" Value="public string GetValue (System.Text.Encoding charset);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetValue(class System.Text.Encoding charset) cil managed" />
+      <MemberSignature Language="C#" Value="public string GetValue (string charset);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetValue(string charset) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="charset">The charset to use as a fallback.</param>
+        <summary>
+            Gets the header value using the specified charset.
+            </summary>
+        <returns>The value.</returns>
+        <remarks>
+          <para>If the raw header value does not properly encode non-ASCII text, the decoder
+            will fall back to a default charset encoding. Sometimes, however, this
+            default charset fallback is wrong and the mail client may wish to override
+            that default charset on a per-header basis.</para>
+          <para>By using this method, the client is able to override the fallback charset
+            on a per-header basis.</para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetValue">
+      <MemberSignature Language="C#" Value="public string GetValue (System.Text.Encoding encoding);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetValue(class System.Text.Encoding encoding) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -191,9 +309,9 @@
         <Parameter Name="charset" Type="System.Text.Encoding" />
       </Parameters>
       <Docs>
-        <param name="charset">The fallback charset.</param>
+        <param name="encoding">The character encoding to use as a fallback.</param>
         <summary>
-            Gets the header value using the specified charset.
+            Gets the header value using the specified character encoding.
             </summary>
         <returns>The value.</returns>
         <remarks>
@@ -268,8 +386,8 @@
       </Docs>
     </Member>
     <Member MemberName="SetValue">
-      <MemberSignature Language="C#" Value="public void SetValue (System.Text.Encoding charset, string value);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetValue(class System.Text.Encoding charset, string value) cil managed" />
+      <MemberSignature Language="C#" Value="public void SetValue (string charset, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetValue(string charset, string value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -278,7 +396,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="charset" Type="System.String" />
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
@@ -295,6 +413,43 @@
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="charset" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="value" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+          <paramref name="charset" /> is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetValue">
+      <MemberSignature Language="C#" Value="public void SetValue (System.Text.Encoding encoding, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetValue(class System.Text.Encoding encoding, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="charset" Type="System.Text.Encoding" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="encoding">A character encoding.</param>
+        <param name="value">The header value.</param>
+        <summary>
+            Sets the header value using the specified character encoding.
+            </summary>
+        <remarks>
+            When a particular charset is desired for encoding the header value
+            according to the rules of rfc2047, this method should be used
+            instead of the <see cref="P:MimeKit.Header.Value" /> setter.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="encoding" /> is <c>null</c>.</para>
           <para>-or-</para>
           <para>
             <paramref name="value" /> is <c>null</c>.</para>
