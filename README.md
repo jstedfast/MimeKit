@@ -1,5 +1,10 @@
 # MimeKit
 
+<a href="https://scan.coverity.com/projects/3201">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/3201/badge.svg"/>
+</a>
+
 ## What is MimeKit?
 
 MimeKit is a C# library which may be used for the creation and parsing of messages using the Multipurpose Internet Mail Extension (MIME), as defined by [numerous IETF specifications](https://github.com/jstedfast/MimeKit/blob/master/RFCs.md).
