@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.0.5
+
+* Fixed out-of-memory error when encoding some long non-ASCII parameter values in
+  Content-Type and Content-Disposition headers.
+
 ### MimeKit 1.0.4
 
 * Added workaround for msg-id tokens with multiple domains
