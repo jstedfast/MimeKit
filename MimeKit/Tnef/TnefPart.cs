@@ -236,10 +236,30 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition.Disposition = text;
 							break;
 						case TnefPropertyId.AttachData:
-							// TODO: implement this...
+							// TODO: is this what we should be doing?
+							if (prop.IsEmbeddedMessage) {
+								var stream = prop.GetRawValueReadStream ();
+								using (var tnef = new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode)) {
+									var embedded = ExtractTnefMessage (tnef);
+									foreach (var part in embedded.BodyParts)
+										builder.Attachments.Add (part);
+								}
+							}
 							break;
 						}
 					}
+					break;
+				case TnefAttributeTag.AttachModifyDate:
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
+					}
+					break;
+				case TnefAttributeTag.AttachTitle:
+					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+						attachment.FileName = prop.ReadValueAsString ();
 					break;
 				case TnefAttributeTag.AttachData:
 					if (attachment == null)

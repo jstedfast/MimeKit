@@ -208,6 +208,7 @@ namespace UnitTests {
 			MimePart attachment = null;
 			int outIndex, outLength;
 			byte[] attachData;
+			DateTime mtime;
 			string text;
 
 			Console.WriteLine ("Extracting attachments...");
@@ -278,6 +279,26 @@ namespace UnitTests {
 							} else {
 								Console.WriteLine ("Attachment Property: {0} is not an EmbeddedMessage", prop.PropertyTag.Id);
 							}
+							break;
+						case TnefAttributeTag.AttachModifyDate:
+							mtime = prop.ReadValueAsDateTime ();
+
+							if (attachment != null) {
+								if (attachment.ContentDisposition == null)
+									attachment.ContentDisposition = new ContentDisposition ();
+
+								attachment.ContentDisposition.ModificationDate = mtime;
+							}
+
+							Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, mtime);
+							break;
+						case TnefAttributeTag.AttachTitle:
+							text = prop.ReadValueAsString ();
+
+							if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+								attachment.FileName = text;
+
+							Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
 							break;
 						default:
 							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
