@@ -208,7 +208,7 @@ namespace UnitTests {
 			MimePart attachment = null;
 			int outIndex, outLength;
 			byte[] attachData;
-			DateTime mtime;
+			DateTime time;
 			string text;
 
 			Console.WriteLine ("Extracting attachments...");
@@ -303,17 +303,30 @@ namespace UnitTests {
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
 					break;
-				case TnefAttributeTag.AttachModifyDate:
-					mtime = prop.ReadValueAsDateTime ();
+				case TnefAttributeTag.AttachCreateDate:
+					time = prop.ReadValueAsDateTime ();
 
 					if (attachment != null) {
 						if (attachment.ContentDisposition == null)
 							attachment.ContentDisposition = new ContentDisposition ();
 
-						attachment.ContentDisposition.ModificationDate = mtime;
+						attachment.ContentDisposition.CreationDate = time;
 					}
 
-					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, mtime);
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
+					break;
+					break;
+				case TnefAttributeTag.AttachModifyDate:
+					time = prop.ReadValueAsDateTime ();
+
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.ModificationDate = time;
+					}
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
 					break;
 				case TnefAttributeTag.AttachTitle:
 					text = prop.ReadValueAsString ();

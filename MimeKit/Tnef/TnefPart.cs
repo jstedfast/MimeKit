@@ -252,6 +252,14 @@ namespace MimeKit.Tnef {
 						}
 					}
 					break;
+				case TnefAttributeTag.AttachCreateDate:
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
+					}
+					break;
 				case TnefAttributeTag.AttachModifyDate:
 					if (attachment != null) {
 						if (attachment.ContentDisposition == null)
