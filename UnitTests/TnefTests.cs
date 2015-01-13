@@ -315,7 +315,6 @@ namespace UnitTests {
 
 					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
 					break;
-					break;
 				case TnefAttributeTag.AttachModifyDate:
 					time = prop.ReadValueAsDateTime ();
 
