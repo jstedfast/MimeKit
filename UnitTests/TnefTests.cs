@@ -219,10 +219,12 @@ namespace UnitTests {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					attachment = new MimePart ();
 					builder.Attachments.Add (attachment);
 					break;
 				case TnefAttributeTag.Attachment:
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					if (attachment == null)
 						break;
 
@@ -280,25 +282,9 @@ namespace UnitTests {
 								Console.WriteLine ("Attachment Property: {0} is not an EmbeddedMessage", prop.PropertyTag.Id);
 							}
 							break;
-						case TnefAttributeTag.AttachModifyDate:
-							mtime = prop.ReadValueAsDateTime ();
-
-							if (attachment != null) {
-								if (attachment.ContentDisposition == null)
-									attachment.ContentDisposition = new ContentDisposition ();
-
-								attachment.ContentDisposition.ModificationDate = mtime;
-							}
-
-							Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, mtime);
-							break;
-						case TnefAttributeTag.AttachTitle:
-							text = prop.ReadValueAsString ();
-
-							if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
-								attachment.FileName = text;
-
-							Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
+						case TnefPropertyId.DisplayName:
+							attachment.ContentType.Name = prop.ReadValueAsString ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
 							break;
 						default:
 							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
@@ -307,6 +293,7 @@ namespace UnitTests {
 					}
 					break;
 				case TnefAttributeTag.AttachData:
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					if (attachment == null)
 						break;
 
@@ -315,6 +302,26 @@ namespace UnitTests {
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
+					break;
+				case TnefAttributeTag.AttachModifyDate:
+					mtime = prop.ReadValueAsDateTime ();
+
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.ModificationDate = mtime;
+					}
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, mtime);
+					break;
+				case TnefAttributeTag.AttachTitle:
+					text = prop.ReadValueAsString ();
+
+					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+						attachment.FileName = text;
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
 					break;
 				default:
 					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());

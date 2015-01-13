@@ -246,6 +246,9 @@ namespace MimeKit.Tnef {
 								}
 							}
 							break;
+						case TnefPropertyId.DisplayName:
+							attachment.ContentType.Name = prop.ReadValueAsString ();
+							break;
 						}
 					}
 					break;
@@ -260,6 +263,12 @@ namespace MimeKit.Tnef {
 				case TnefAttributeTag.AttachTitle:
 					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
 						attachment.FileName = prop.ReadValueAsString ();
+					break;
+				case TnefAttributeTag.AttachMetaFile:
+					if (attachment == null)
+						break;
+
+					// TODO: what to do with the meta data?
 					break;
 				case TnefAttributeTag.AttachData:
 					if (attachment == null)
