@@ -286,6 +286,13 @@ namespace UnitTests {
 							attachment.ContentType.Name = prop.ReadValueAsString ();
 							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
 							break;
+						case TnefPropertyId.AttachSize:
+							if (attachment.ContentDisposition == null)
+								attachment.ContentDisposition = new ContentDisposition ();
+
+							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentDisposition.Size.Value);
+							break;
 						default:
 							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 							break;
