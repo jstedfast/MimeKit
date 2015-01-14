@@ -293,6 +293,7 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
+				case TnefPropertyType.Object:
 					if (reader.StreamOffset == RawValueStreamOffset)
 						ReadInt32 ();
 					break;
@@ -749,8 +750,10 @@ namespace MimeKit.Tnef {
 				length = 8;
 				break;
 			case TnefPropertyType.ClassId:
-			case TnefPropertyType.Object:
 				length = 16;
+				break;
+			case TnefPropertyType.Object:
+				length = 4 + GetPaddedLength (PeekInt32 ());
 				break;
 			case TnefPropertyType.Unicode:
 			case TnefPropertyType.String8:
@@ -988,10 +991,10 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
+				case TnefPropertyType.Object:
 					bytes = ReadByteArray ();
 					break;
 				case TnefPropertyType.ClassId:
-				case TnefPropertyType.Object:
 					bytes = ReadBytes (16);
 					break;
 				default:

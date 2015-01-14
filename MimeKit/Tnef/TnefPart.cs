@@ -189,6 +189,7 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			int outIndex, outLength;
+			long attachMethod = -1;
 			byte[] attachData;
 			string text;
 
@@ -199,7 +200,7 @@ namespace MimeKit.Tnef {
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
 					attachment = new MimePart ();
-					builder.Attachments.Add (attachment);
+					attachMethod = -1;
 					break;
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
@@ -236,15 +237,39 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition.Disposition = text;
 							break;
 						case TnefPropertyId.AttachData:
-							// TODO: is this what we should be doing?
-							if (prop.IsEmbeddedMessage) {
-								var stream = prop.GetRawValueReadStream ();
-								using (var tnef = new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode)) {
-									var embedded = ExtractTnefMessage (tnef);
-									foreach (var part in embedded.BodyParts)
-										builder.Attachments.Add (part);
-								}
+							var stream = prop.GetRawValueReadStream ();
+							var content = new MemoryStream ();
+							var guid = new byte[16];
+
+							if (attachMethod == 5) {
+								var tnef = new TnefPart ();
+
+								foreach (var param in attachment.ContentType.Parameters)
+									tnef.ContentType.Parameters.Add (param.Name, param.Value);
+
+								if (attachment.ContentDisposition != null)
+									tnef.ContentDisposition = attachment.ContentDisposition;
+
+								attachment = tnef;
 							}
+
+							// read the GUID
+							stream.Read (guid, 0, 16);
+
+							// the rest is content
+							stream.CopyTo (content, 4096);
+
+#if !PORTABLE
+							var buffer = content.GetBuffer ();
+#else
+							var buffer = content.ToArray ();
+#endif
+							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
+							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+							attachment.ContentObject = new ContentObject (content);
+							filter.Reset ();
+
+							builder.Attachments.Add (attachment);
 							break;
 						case TnefPropertyId.AttachSize:
 							if (attachment.ContentDisposition == null)
@@ -293,6 +318,8 @@ namespace MimeKit.Tnef {
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
+
+					builder.Attachments.Add (attachment);
 					break;
 				}
 			} while (reader.ReadNextAttribute ());

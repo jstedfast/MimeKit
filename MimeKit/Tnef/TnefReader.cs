@@ -41,6 +41,8 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public class TnefReader : IDisposable
 	{
+		internal const int TnefSignature = 0x223e9f78;
+
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 0;
@@ -374,7 +376,7 @@ namespace MimeKit.Tnef {
 			try {
 				// read the TNEFSignature
 				int signature = ReadInt32 ();
-				if (signature != 0x223e9f78)
+				if (signature != TnefSignature)
 					SetComplianceError (TnefComplianceStatus.InvalidTnefSignature);
 
 				// read the LegacyKey (ignore this value)
