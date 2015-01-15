@@ -288,14 +288,13 @@ namespace MimeKit.Tnef {
 
 			int end = RawValueStreamOffset + RawValueLength;
 
-			if (propertyCount > 0) {
+			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+					ReadInt32 ();
 					break;
 				}
 			}
@@ -648,6 +647,7 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
+				case TnefPropertyType.Object:
 					ReadInt32 ();
 					break;
 				}
@@ -698,17 +698,16 @@ namespace MimeKit.Tnef {
 			if (reader.StreamOffset == RawValueStreamOffset && decoder == null)
 				throw new InvalidOperationException ();
 
-			if (propertyCount > 0) {
+			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+					ReadInt32 ();
 					decoder = (Decoder) Encoding.Unicode.GetDecoder ();
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+				case TnefPropertyType.Object:
+					ReadInt32 ();
 					decoder = (Decoder) GetMessageEncoding ().GetDecoder ();
 					break;
 				}
@@ -752,12 +751,10 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.ClassId:
 				length = 16;
 				break;
-			case TnefPropertyType.Object:
-				length = 4 + GetPaddedLength (PeekInt32 ());
-				break;
 			case TnefPropertyType.Unicode:
 			case TnefPropertyType.String8:
 			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
 				length = 4 + GetPaddedLength (PeekInt32 ());
 				break;
 			case TnefPropertyType.AppTime:
