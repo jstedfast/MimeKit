@@ -203,11 +203,11 @@ namespace UnitTests {
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
+			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			int outIndex, outLength;
-			long attachMethod = -1;
 			byte[] attachData;
 			DateTime time;
 			string text;
@@ -221,8 +221,8 @@ namespace UnitTests {
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
 					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					attachMethod = TnefAttachMethod.ByValue;
 					attachment = new MimePart ();
-					attachMethod = -1;
 					break;
 				case TnefAttributeTag.Attachment:
 					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
@@ -270,7 +270,7 @@ namespace UnitTests {
 							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachMethod:
-							attachMethod = prop.ReadValueAsInt64 ();
+							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
 							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachMethod);
 							break;
 						case TnefPropertyId.AttachData:
@@ -278,7 +278,7 @@ namespace UnitTests {
 							var content = new MemoryStream ();
 							var guid = new byte[16];
 
-							if (attachMethod == 5) {
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
 
 								foreach (var param in attachment.ContentType.Parameters)
@@ -323,7 +323,7 @@ namespace UnitTests {
 					break;
 				case TnefAttributeTag.AttachData:
 					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
-					if (attachment == null)
+					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
 						break;
 
 					attachData = prop.ReadValueAsBytes ();
@@ -540,7 +540,7 @@ namespace UnitTests {
 		[Test]
 		public void TestWinMail ()
 		{
-			TestTnefParser ("../../TestData/tnef/winmail");
+			TestTnefParser ("../../TestData/tnef/winmail", TnefComplianceStatus.AttributeOverflow);
 		}
 	}
 }

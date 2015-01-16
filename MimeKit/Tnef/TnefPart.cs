@@ -185,11 +185,11 @@ namespace MimeKit.Tnef {
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
+			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			int outIndex, outLength;
-			long attachMethod = -1;
 			byte[] attachData;
 			string text;
 
@@ -199,8 +199,8 @@ namespace MimeKit.Tnef {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
+					attachMethod = TnefAttachMethod.ByValue;
 					attachment = new MimePart ();
-					attachMethod = -1;
 					break;
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
@@ -241,7 +241,7 @@ namespace MimeKit.Tnef {
 							var content = new MemoryStream ();
 							var guid = new byte[16];
 
-							if (attachMethod == 5) {
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
 
 								foreach (var param in attachment.ContentType.Parameters)
@@ -270,6 +270,9 @@ namespace MimeKit.Tnef {
 							filter.Reset ();
 
 							builder.Attachments.Add (attachment);
+							break;
+						case TnefPropertyId.AttachMethod:
+							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
 							break;
 						case TnefPropertyId.AttachSize:
 							if (attachment.ContentDisposition == null)
@@ -310,7 +313,7 @@ namespace MimeKit.Tnef {
 					// TODO: what to do with the meta data?
 					break;
 				case TnefAttributeTag.AttachData:
-					if (attachment == null)
+					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
 						break;
 
 					attachData = prop.ReadValueAsBytes ();
