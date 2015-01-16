@@ -540,7 +540,7 @@ namespace UnitTests {
 		[Test]
 		public void TestWinMail ()
 		{
-			TestTnefParser ("../../TestData/tnef/winmail", TnefComplianceStatus.AttributeOverflow);
+			TestTnefParser ("../../TestData/tnef/winmail");
 		}
 	}
 }
