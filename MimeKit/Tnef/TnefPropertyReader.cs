@@ -787,8 +787,8 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.Unicode:  return typeof (string);
 			case TnefPropertyType.String8:  return typeof (string);
 			case TnefPropertyType.Binary:   return typeof (byte[]);
-			case TnefPropertyType.ClassId:  return typeof (byte[]);
-			case TnefPropertyType.Object:   return typeof (Guid);
+			case TnefPropertyType.ClassId:  return typeof (Guid);
+			case TnefPropertyType.Object:   return typeof (byte[]);
 			default:                        return typeof (object);
 			}
 		}
@@ -852,10 +852,10 @@ namespace MimeKit.Tnef {
 				value = ReadByteArray ();
 				break;
 			case TnefPropertyType.ClassId:
-				value = ReadBytes (16);
+				value = new Guid (ReadBytes (16));
 				break;
 			case TnefPropertyType.Object:
-				value = new Guid (ReadBytes (16));
+				value = ReadByteArray ();
 				break;
 			default:
 				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
@@ -1178,7 +1178,7 @@ namespace MimeKit.Tnef {
 		/// Reads the value as a GUID.
 		/// </summary>
 		/// <remarks>
-		/// Reads any Class ID or Object value as a GUID.
+		/// Reads any Class ID value as a GUID.
 		/// </remarks>
 		/// <returns>The value as a GUID.</returns>
 		/// <exception cref="System.InvalidOperationException">
@@ -1197,7 +1197,6 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.ClassId:
-				case TnefPropertyType.Object:
 					guid = new Guid (ReadBytes (16));
 					break;
 				default:
