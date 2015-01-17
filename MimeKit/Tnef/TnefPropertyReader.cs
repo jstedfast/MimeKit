@@ -65,6 +65,10 @@ namespace MimeKit.Tnef {
 		int rowIndex;
 		int rowCount;
 
+		internal TnefAttachMethod AttachMethod {
+			get; set;
+		}
+
 		/// <summary>
 		/// Gets a value indicating whether the current property is a computed property.
 		/// </summary>
@@ -84,7 +88,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value><c>true</c> if the current property is an embedded TNEF message; otherwise, <c>false</c>.</value>
 		public bool IsEmbeddedMessage {
-			get { return propertyTag.Id == TnefPropertyId.AttachData && propertyTag.ValueTnefType == TnefPropertyType.Object; }
+			get { return propertyTag.Id == TnefPropertyId.AttachData && AttachMethod == TnefAttachMethod.EmbeddedMessage; }
 		}
 
 		/// <summary>
@@ -538,6 +542,12 @@ namespace MimeKit.Tnef {
 					return false;
 
 				rawValueOffset = reader.StreamOffset;
+
+				switch (id) {
+				case TnefPropertyId.AttachMethod:
+					AttachMethod = (TnefAttachMethod) PeekInt32 ();
+					break;
+				}
 			} catch (EndOfStreamException) {
 				return false;
 			}

@@ -414,7 +414,6 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.Attachment:
 			case TnefAttributeTag.AttachMetaFile:
 			case TnefAttributeTag.AttachModifyDate:
-			case TnefAttributeTag.AttachRenderData:
 			case TnefAttributeTag.AttachTitle:
 			case TnefAttributeTag.AttachTransportFilename:
 			case TnefAttributeTag.Body:
@@ -439,6 +438,9 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.RequestResponse:
 			case TnefAttributeTag.SentFor:
 			case TnefAttributeTag.Subject:
+				break;
+			case TnefAttributeTag.AttachRenderData:
+				TnefPropertyReader.AttachMethod = TnefAttachMethod.ByValue;
 				break;
 			case TnefAttributeTag.OemCodepage:
 				MessageCodepage = PeekInt32 ();
