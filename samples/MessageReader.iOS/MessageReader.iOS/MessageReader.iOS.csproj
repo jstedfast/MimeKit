@@ -82,12 +82,12 @@
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle">
+      <HintPath>..\packages\MimeKit.1.0.6.1\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
+    </Reference>
     <Reference Include="MimeKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MimeKit.1.0.6.0\lib\portable-net45+win8\MimeKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Portable.Text.Encoding">
-      <HintPath>..\packages\MimeKit.1.0.6.0\lib\portable-net45+win8\Portable.Text.Encoding.dll</HintPath>
+      <HintPath>..\packages\MimeKit.1.0.6.1\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
