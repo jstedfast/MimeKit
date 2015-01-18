@@ -1,4 +1,4 @@
-﻿//
+//
 // AppDelegate.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 
 namespace MessageReader.iOS {
 	// The UIApplicationDelegate for the application. This class is responsible for launching the
 	// User Interface of the application, as well as listening (and optionally responding) to
 	// application events from iOS.
-	[Register ("AppDelegate")]
+	[Foundation.Register ("AppDelegate")]
 	public partial class AppDelegate : UIApplicationDelegate
 	{
 		// class-level declarations

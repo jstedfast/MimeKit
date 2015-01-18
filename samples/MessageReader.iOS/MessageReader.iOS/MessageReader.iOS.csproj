@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
-    <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{60EA692F-305A-4CF7-97A8-3565CC81310A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>MessageReader.iOS</RootNamespace>
@@ -82,18 +82,17 @@
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle, Version=1.8.5452.18178, Culture=neutral, PublicKeyToken=eec3120e64a3fcba, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MimeKit.1.0.2.0\lib\MonoTouch\BouncyCastle.dll</HintPath>
-    </Reference>
     <Reference Include="MimeKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MimeKit.1.0.2.0\lib\MonoTouch\MimeKit.dll</HintPath>
+      <HintPath>..\packages\MimeKit.1.0.6.0\lib\portable-net45+win8\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Portable.Text.Encoding">
+      <HintPath>..\packages\MimeKit.1.0.6.0\lib\portable-net45+win8\Portable.Text.Encoding.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="monotouch" />
+    <Reference Include="Xamarin.iOS" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
@@ -116,7 +115,7 @@
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <EmbeddedResource Include="xamarin3.msg">
       <LogicalName>xamarin3.msg</LogicalName>

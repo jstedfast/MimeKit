@@ -1,4 +1,4 @@
-﻿//
+//
 // MultipartRelatedUrlCache.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 
-using MonoTouch.Foundation;
+using Foundation;
 
 using MimeKit;
 
@@ -58,7 +58,7 @@ namespace MessageReader.iOS {
 					using (var content = part.ContentObject.Open ())
 						data = NSData.FromStream (content);
 
-					response = new NSUrlResponse (request.Url, mimeType, (int) data.Length, charset);
+					response = new NSUrlResponse (request.Url, mimeType, (int) (uint)data.Length, charset);
 
 					return new NSCachedUrlResponse (response, data);
 				}
