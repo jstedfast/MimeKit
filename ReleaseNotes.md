@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 1.0.6
+
+* Vastly improved MS-TNEF support. In addition to being fixed to properly extract
+  the AttachData property of an Attachment attribute, more metadata is captured
+  and translated to the MIME equivalents (such as attachment creation and
+  modification times, the size of the attachment, and the display name).
+* Migrated the iOS assemblies to Xamarin.iOS Unified API for 64-bit support.
+
+Note: If you are not yet ready to port your iOS application to the Unified API,
+      you will need to stick with the 1.0.5 release. The Classic MonoTouch API
+      is no longer supported.
+
 ### MimeKit 1.0.5
 
 * Fixed out-of-memory error when encoding some long non-ASCII parameter values in

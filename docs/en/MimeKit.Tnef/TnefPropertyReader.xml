@@ -701,7 +701,7 @@
             </summary>
         <returns>The value as a GUID.</returns>
         <remarks>
-            Reads any Class ID or Object value as a GUID.
+            Reads any Class ID value as a GUID.
             </remarks>
         <exception cref="T:System.InvalidOperationException">
             There are no more values to read or the value could not be read as a GUID.
