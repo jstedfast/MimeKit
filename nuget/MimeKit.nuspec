@@ -42,18 +42,18 @@ Note: If you are not yet ready to port your iOS application to the Unified API, 
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid0.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
         </frameworkAssemblies>
     </metadata>
     <files>
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid\MimeKit.xml" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.dll" target="lib\MonoTouch\BouncyCastle.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.dll" target="lib\MonoTouch\MimeKit.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.xml" target="lib\MonoTouch\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\BouncyCastle.dll" target="lib\Xamarin.iOS10\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.dll" target="lib\Xamarin.iOS10\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.xml" target="lib\Xamarin.iOS10\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.dll" target="lib\net40\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />

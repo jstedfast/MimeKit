@@ -39,15 +39,15 @@ Note: If you are not yet ready to port your iOS application to the Unified API, 
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
         </frameworkAssemblies>
     </metadata>
     <files>
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.dll" target="lib\MonoAndroid\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.xml" target="lib\MonoAndroid\MimeKitLite.xml" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.dll" target="lib\MonoTouch\MimeKitLite.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.xml" target="lib\MonoTouch\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKitLite.dll" target="lib\Xamarin.iOS10\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKitLite.xml" target="lib\Xamarin.iOS10\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.dll" target="lib\net40\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.xml" target="lib\net40\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
