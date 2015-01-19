@@ -272,7 +272,12 @@ namespace MimeKit.Tnef {
 			if (!IsEmbeddedMessage)
 				throw new InvalidOperationException ();
 
-			return new TnefReader (GetRawValueReadStream (), reader.MessageCodepage, reader.ComplianceMode);
+			var stream = GetRawValueReadStream ();
+			var guid = new byte[16];
+
+			stream.Read (guid, 0, 16);
+
+			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
 		}
 
 		/// <summary>
