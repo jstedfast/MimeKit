@@ -1292,11 +1292,14 @@ namespace MimeKit.Cryptography {
 
 				PgpPublicKeyEncryptedData encrypted = null;
 				PrivateKeyNotFoundException pkex = null;
+				bool hasEncryptedPackets = false;
 				PgpSecretKey secret = null;
 
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
 					if ((encrypted = data as PgpPublicKeyEncryptedData) == null)
 						continue;
+
+					hasEncryptedPackets = true;
 
 					try {
 						secret = GetSecretKey (encrypted.KeyId);
@@ -1306,8 +1309,8 @@ namespace MimeKit.Cryptography {
 					}
 				}
 
-				if (encrypted == null)
-					throw new PgpException ("No encrypted data objects found.");
+				if (!hasEncryptedPackets)
+					throw new PgpException ("No encrypted packets found.");
 
 				if (secret == null)
 					throw pkex;
