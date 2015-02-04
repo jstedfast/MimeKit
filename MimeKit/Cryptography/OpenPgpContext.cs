@@ -512,6 +512,18 @@ namespace MimeKit.Cryptography {
 			throw new UnauthorizedAccessException ();
 		}
 
+		PgpSecretKey GetSecretKey (long keyId)
+		{
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
+				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
+					if (key.KeyId == keyId)
+						return key;
+				}
+			}
+
+			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
+		}
+
 		/// <summary>
 		/// Gets the private key.
 		/// </summary>
@@ -531,19 +543,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected PgpPrivateKey GetPrivateKey (long keyId)
 		{
-			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
-				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
-					if (key.KeyId != keyId)
-						continue;
+			var secret = GetSecretKey (keyId);
 
-					var privateKey = GetPrivateKey (key);
-
-					if (privateKey != null)
-						return privateKey;
-				}
-			}
-
-			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
+			return GetPrivateKey (secret);
 		}
 
 		/// <summary>
@@ -1289,15 +1291,28 @@ namespace MimeKit.Cryptography {
 				}
 
 				PgpPublicKeyEncryptedData encrypted = null;
+				PrivateKeyNotFoundException pkex = null;
+				PgpSecretKey secret = null;
+
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
-					if ((encrypted = data as PgpPublicKeyEncryptedData) != null)
+					if ((encrypted = data as PgpPublicKeyEncryptedData) == null)
+						continue;
+
+					try {
+						secret = GetSecretKey (encrypted.KeyId);
 						break;
+					} catch (PrivateKeyNotFoundException ex) {
+						pkex = ex;
+					}
 				}
 
 				if (encrypted == null)
 					throw new PgpException ("No encrypted data objects found.");
 
-				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
+				if (secret == null)
+					throw pkex;
+
+				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
 				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
