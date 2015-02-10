@@ -239,6 +239,7 @@ namespace MimeKit.Cryptography {
 		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
 			var store = new X509Store (StoreName.My, StoreLocation);
+			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.Now;
 
 			store.Open (OpenFlags.ReadOnly);
@@ -252,8 +253,13 @@ namespace MimeKit.Cryptography {
 					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.KeyEncipherment) == 0)
 						continue;
 
-					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-						continue;
+					if (secure != null) {
+						if (certificate.Thumbprint != secure.Fingerprint)
+							continue;
+					} else {
+						if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+							continue;
+					}
 
 					return certificate;
 				}
@@ -336,6 +342,7 @@ namespace MimeKit.Cryptography {
 		X509Certificate2 GetCmsSignerCertificate (MailboxAddress mailbox)
 		{
 			var store = new X509Store (StoreName.My, StoreLocation);
+			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.Now;
 
 			store.Open (OpenFlags.ReadOnly);
@@ -352,8 +359,13 @@ namespace MimeKit.Cryptography {
 					if (!certificate.HasPrivateKey)
 						continue;
 
-					if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
-						continue;
+					if (secure != null) {
+						if (certificate.Thumbprint != secure.Fingerprint)
+							continue;
+					} else {
+						if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+							continue;
+					}
 
 					return certificate;
 				}
