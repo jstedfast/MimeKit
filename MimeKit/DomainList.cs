@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class DomainList : IList<string>
 	{
+		readonly static byte[] DomainSentinels = new [] { (byte) ',', (byte) ':' };
 		readonly List<string> domains;
 
 		/// <summary>
@@ -49,9 +50,9 @@ namespace MimeKit {
 		/// Creates a new <see cref="DomainList"/> based on the domains provided.
 		/// </remarks>
 		/// <param name="domains">A domain list.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// <paramref name="domains"/> is <c>null</c>.
-        /// </exception>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="domains"/> is <c>null</c>.
+		/// </exception>
 		public DomainList (IEnumerable<string> domains)
 		{
             if (domains == null)
@@ -385,7 +386,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, throwOnError, out domain))
+				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, DomainSentinels, throwOnError, out domain))
 					return false;
 
 				domains.Add (domain);

@@ -64,11 +64,12 @@ namespace MessageReader
 
 				message = value;
 
-				Render (message.Body);
+				// render the message body
+				RenderEntity (message.Body);
 			}
 		}
 
-		void Render (MultipartRelated related)
+		void RenderMultipartRelated (MultipartRelated related)
 		{
 			var root = related.Root;
 			var multipart = root as Multipart;
@@ -96,6 +97,7 @@ namespace MessageReader
 				}
 			}
 
+			// check if we have a text/html document
 			if (text != null && text.ContentType.Matches ("text", "html")) {
 				var doc = new HtmlAgilityPack.HtmlDocument ();
 				var saved = new Dictionary<MimePart, string> ();
@@ -158,16 +160,18 @@ namespace MessageReader
 					html = text;
 				}
 
-				Render (html);
+				RenderTextPart (html);
 			} else {
-				Render (related.Root);
+				// we don't know what we have, so render it as an entity
+				RenderEntity (related.Root);
 			}
 		}
 
-		void Render (TextPart text)
+		void RenderTextPart (TextPart text)
 		{
 			string html;
 
+			// if we don't have text/html content, try to html'ify the text
 			if (!text.ContentType.Matches ("text", "html")) {
 				var builder = new StringBuilder ("<html><body><p>");
 				var plain = text.Text;
@@ -211,18 +215,19 @@ namespace MessageReader
 			webBrowser.DocumentText = html;
 		}
 
-		void Render (MimeEntity entity)
+		void RenderEntity (MimeEntity entity)
 		{
 			var related = entity as MultipartRelated;
 			if (related != null) {
 				if (related.Root != null)
-					Render (related);
+					RenderMultipartRelated (related);
 				return;
 			}
 
 			var multipart = entity as Multipart;
 			var text = entity as TextPart;
 
+			// check if the entity is a multipart
 			if (multipart != null) {
 				if (multipart.ContentType.Matches ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
@@ -235,7 +240,7 @@ namespace MessageReader
 							var root = related.Root;
 
 							if (root != null && root.ContentType.Matches ("text", "html")) {
-								Render (related);
+								RenderMultipartRelated (related);
 								return;
 							}
 
@@ -245,16 +250,28 @@ namespace MessageReader
 						text = multipart[i - 1] as TextPart;
 
 						if (text != null) {
-							Render (text);
+							RenderTextPart (text);
 							return;
 						}
 					}
 				} else if (multipart.Count > 0) {
-					// The main message body is usually the first part of a multipart/mixed.
-					Render (multipart[0]);
+					// At this point we know we're not dealing with a multipart/related or a
+					// multipart/alternative, so we can safely treat this as a multipart/mixed
+					// even if it's not.
+
+					// The main message body is usually the first part of a multipart/mixed. I
+					// suppose that it might be better to render the first text/* part instead
+					// (in case it's not the first part), but that's rare and probably also
+					// indicates that the text is meant to be displayed between the other parts
+					// (probably images or video?) in some sort of pseudo-multimedia "document"
+					// layout. Modern clients don't do this, they use HTML or RTF instead.
+					RenderEntity (multipart[0]);
 				}
 			} else if (text != null) {
-				Render (text);
+				// render the text part
+				RenderTextPart (text);
+			} else {
+				// message/rfc822 part
 			}
 		}
 	}

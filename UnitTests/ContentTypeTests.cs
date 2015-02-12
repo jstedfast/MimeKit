@@ -37,7 +37,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSimpleContentType ()
 		{
-			string text = "text/plain";
+			const string text = "text/plain";
 			ContentType type;
 
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
@@ -48,7 +48,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSimpleContentTypeWithVendorExtension ()
 		{
-			string text = "application/x-vnd.msdoc";
+			const string text = "application/x-vnd.msdoc";
 			ContentType type;
 
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
@@ -59,7 +59,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSimpleContentTypeWithParameter ()
 		{
-			string text = "multipart/mixed; boundary=\"boundary-text\"";
+			const string text = "multipart/mixed; boundary=\"boundary-text\"";
 			ContentType type;
 
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
@@ -73,10 +73,9 @@ namespace UnitTests {
 		[Test]
 		public void TestMultipartParameterExampleFromRfc2184 ()
 		{
+			const string text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
 			ContentType type;
-			string text;
 
-			text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "message", "Media type does not match: {0}", text);
 			Assert.AreEqual (type.MediaSubtype, "external-body", "Media subtype does not match: {0}", text);
@@ -90,10 +89,9 @@ namespace UnitTests {
 		[Test]
 		public void TestContentTypeWithEmptyParameter ()
 		{
+			const string text = "multipart/mixed;;\n                Boundary=\"===========================_ _= 1212158(26598)\"";
 			ContentType type;
-			string text;
 
-			text = "multipart/mixed;;\n                Boundary=\"===========================_ _= 1212158(26598)\"";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
 			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
@@ -103,12 +101,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestContentTypeAndContentTrafserEncodingOnOneLine ()
+		{
+			const string text = "text/plain; charset = \"iso-8859-1\" Content-Transfer-Encoding: 8bit";
+			ContentType type;
+
+			Assert.IsFalse (ContentType.TryParse (text, out type), "Content-Type should have failed to parse");
+			Assert.IsNotNull (type, "ContentType should not be null");
+			Assert.IsTrue (type.Matches ("text", "plain"), "ContenType should match text/plain");
+		}
+
+		[Test]
 		public void TestEncodedParameterExampleFromRfc2184 ()
 		{
+			const string text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
 			ContentType type;
-			string text;
 
-			text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
 			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
@@ -120,10 +128,9 @@ namespace UnitTests {
 		[Test]
 		public void TestMultipartEncodedParameterExampleFromRfc2184 ()
 		{
+			const string text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
 			ContentType type;
-			string text;
 
-			text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
 			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
@@ -135,10 +142,9 @@ namespace UnitTests {
 		[Test]
 		public void TestRfc2047EncodedParameter ()
 		{
+			const string text = "application/x-stuff;\n    title=\"some chinese characters =?utf-8?q?=E4=B8=AD=E6=96=87?= and stuff\"\n";
 			ContentType type;
-			string text;
 
-			text = "application/x-stuff;\n    title=\"some chinese characters =?utf-8?q?=E4=B8=AD=E6=96=87?= and stuff\"\n";
 			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
 			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
@@ -215,8 +221,8 @@ namespace UnitTests {
 				"filename*2*=\"%64%6F%63\"";
 			ContentDisposition disposition;
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse fourth Content-Disposition");
-			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The fourth filename value does not match.");
+			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The filename value does not match.");
 		}
 	}
 }

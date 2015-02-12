@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,17 @@ using System.IO;
 using System.Text;
 
 #if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
 #endif
 
 using MimeKit.IO;
@@ -112,8 +122,10 @@ namespace MimeKit {
 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
 
-			if (text != null)
-				SetText (encoding ?? Encoding.UTF8, text);
+			if (text != null) {
+				encoding = encoding ?? Encoding.UTF8;
+				SetText (encoding, text);
+			}
 		}
 
 		/// <summary>
@@ -143,6 +155,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets whether or not this text part contains plain text.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is text/plain.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsPlain {
+			get { return ContentType.Matches ("text", "plain"); }
+		}
+
+		/// <summary>
+		/// Gets whether or not this text part contains HTML.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is text/html.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsHtml {
+			get { return ContentType.Matches ("text", "html"); }
+		}
+
+		/// <summary>
 		/// Gets the decoded text content.
 		/// </summary>
 		/// <remarks>
@@ -150,7 +184,8 @@ namespace MimeKit {
 		/// is set, it will be used in order to convert the raw content into unicode.
 		/// If that fails or if the charset parameter is not set, iso-8859-1 will be
 		/// used instead.</para>
-		/// <para>For more control, use the <see cref="GetText"/> method.</para>
+		/// <para>For more control, use <see cref="GetText(System.Text.Encoding)"/>
+		/// or <see cref="GetText(System.String)"/>.</para>
 		/// </remarks>
 		/// <value>The text.</value>
 		public string Text {
@@ -176,8 +211,8 @@ namespace MimeKit {
 
 					if (encoding == null) {
 						try {
-							return Encoding.UTF8.GetString (content, 0, (int) memory.Length);
-						} catch {
+							return CharsetUtils.UTF8.GetString (content, 0, (int) memory.Length);
+						} catch (DecoderFallbackException) {
 							// fall back to iso-8859-1
 							encoding = Encoding.GetEncoding (28591); // iso-8859-1
 						}
@@ -188,6 +223,38 @@ namespace MimeKit {
 			}
 			set {
 				SetText (Encoding.UTF8, value);
+			}
+		}
+
+		/// <summary>
+		/// Gets the decoded text content using the provided charset encoding to
+		/// override the charset specified in the Content-Type parameters.
+		/// </summary>
+		/// <remarks>
+		/// Uses the provided charset encoding to convert the raw text content
+		/// into a unicode string, overriding any charset specified in the
+		/// Content-Type header.
+		/// </remarks>
+		/// <returns>The decoded text.</returns>
+		/// <param name="encoding">The charset encoding to use.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoding"/> is <c>null</c>.
+		/// </exception>
+		public string GetText (Encoding encoding)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			using (var memory = new MemoryStream ()) {
+				ContentObject.DecodeTo (memory);
+
+#if PORTABLE
+				var buffer = memory.ToArray ();
+#else
+				var buffer = memory.GetBuffer ();
+#endif
+
+				return encoding.GetString (buffer, 0, (int) memory.Length);
 			}
 		}
 
@@ -205,29 +272,43 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="charset"/> is <c>null</c>.
 		/// </exception>
-		public string GetText (Encoding charset)
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		public string GetText (string charset)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
-			using (var memory = new MemoryStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new CharsetFilter (charset, Encoding.UTF8));
+			return GetText (CharsetUtils.GetEncoding (charset));
+		}
 
-					ContentObject.DecodeTo (filtered);
-					filtered.Flush ();
+		/// <summary>
+		/// Sets the text content and the charset parameter in the Content-Type header.
+		/// </summary>
+		/// <remarks>
+		/// This method is similar to setting the <see cref="Text"/> property, but allows
+		/// specifying a charset encoding to use. Also updates the
+		/// <see cref="ContentType.Charset"/> property.
+		/// </remarks>
+		/// <param name="encoding">The charset encoding.</param>
+		/// <param name="text">The text content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SetText (Encoding encoding, string text)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
 
-#if PORTABLE
-					var buffer = memory.ToArray ();
-					int length = buffer.Length;
-#else
-					var buffer = memory.GetBuffer ();
-					int length = (int) memory.Length;
-#endif
+			if (text == null)
+				throw new ArgumentNullException ("text");
 
-					return Encoding.UTF8.GetString (buffer, 0, length);
-				}
-			}
+			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
+			var content = new MemoryStream (encoding.GetBytes (text));
+			ContentObject = new ContentObject (content);
 		}
 
 		/// <summary>
@@ -245,17 +326,18 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <c>null</c>.</para>
 		/// </exception>
-		public void SetText (Encoding charset, string text)
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		public void SetText (string charset, string text)
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
 			if (text == null)
 				throw new ArgumentNullException ("text");
-				
-			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (charset);
-			var content = new MemoryStream (charset.GetBytes (text));
-			ContentObject = new ContentObject (content);
+
+			SetText (CharsetUtils.GetEncoding (charset), text);
 		}
 	}
 }

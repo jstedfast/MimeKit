@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,17 @@ using System.Text;
 using System.Collections.Generic;
 
 #if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
 #endif
 
 using MimeKit.Utils;
@@ -58,9 +68,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.InternetAddress"/> class.
 		/// </summary>
-        /// <remarks>
-        /// Initializes the <see cref="Encoding"/> and <see cref="Name"/> properties of the internet address.
-        /// </remarks>
+		/// <remarks>
+		/// Initializes the <see cref="Encoding"/> and <see cref="Name"/> properties of the internet address.
+		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox or group.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -78,10 +88,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the character encoding to use when encoding the name of the address.
 		/// </summary>
-        /// <remarks>
-        /// The character encoding is used to convert the <see cref="Name"/> property, if it is set,
-        /// to a stream of bytes when encoding the internet address for transport.
-        /// </remarks>
+		/// <remarks>
+		/// The character encoding is used to convert the <see cref="Name"/> property, if it is set,
+		/// to a stream of bytes when encoding the internet address for transport.
+		/// </remarks>
 		/// <value>The character encoding.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -103,10 +113,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the display name of the address.
 		/// </summary>
-        /// <remarks>
-        /// A name is optional and is typically set to the name of the person
-        /// or group that own the internet address.
-        /// </remarks>
+		/// <remarks>
+		/// A name is optional and is typically set to the name of the person
+		/// or group that own the internet address.
+		/// </remarks>
 		/// <value>The name of the address.</value>
 		public string Name {
 			get { return name; }
@@ -135,12 +145,12 @@ namespace MimeKit {
 		/// Returns a string representation of the <see cref="InternetAddress"/>,
 		/// optionally encoding it for transport.
 		/// </summary>
-        /// <remarks>
-        /// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
-        /// an encoded version of the internet address according to the rules described in rfc2047.</para>
-        /// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
-        /// return a string suitable only for display purposes.</para>
-        /// </remarks>
+		/// <remarks>
+		/// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
+		/// an encoded version of the internet address according to the rules described in rfc2047.</para>
+		/// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
+		/// return a string suitable only for display purposes.</para>
+		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
 		public abstract string ToString (bool encode);
@@ -148,9 +158,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Returns a string representation of a <see cref="InternetAddress"/> suitable for display.
 		/// </summary>
-        /// <remarks>
-        /// The string returned by this method is suitable only for display purposes.
-        /// </remarks>
+		/// <remarks>
+		/// The string returned by this method is suitable only for display purposes.
+		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
@@ -162,9 +172,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Raises the internal changed event used by <see cref="MimeKit.MimeMessage"/> to keep headers in sync.
 		/// </summary>
-        /// <remarks>
-        /// This method is called whenever a property of the internet address is changed.
-        /// </remarks>
+		/// <remarks>
+		/// This method is called whenever a property of the internet address is changed.
+		/// </remarks>
 		protected virtual void OnChanged ()
 		{
 			if (Changed != null)
@@ -191,8 +201,8 @@ namespace MimeKit {
 					return false;
 
 				try {
-					token.Append (Encoding.UTF8.GetString (text, start, index - start));
-				} catch (Exception ex) {
+					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
 						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
 
@@ -265,7 +275,7 @@ namespace MimeKit {
 			}
 
 			string domain;
-			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, throwOnError, out domain))
+			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, new [] { sentinel }, throwOnError, out domain))
 				return false;
 
 			addrspec = localpart + "@" + domain;

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>0.96.0.0</version>
+        <version>1.0.6.1</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,11 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Modified the TextPart.Text getter to try UTF-8 before falling back to Latin1 if no charset is specified.
-* Improved documentation.</releaseNotes>
+        <releaseNotes>* Vastly improved MS-TNEF support. In addition to being fixed to properly extract the AttachData property of an Attachment attribute, more metadata is captured and translated to the MIME equivalents (such as attachment creation and modification times, the size of the attachment, and the display name).
+* Migrated the iOS assemblies to Xamarin.iOS Unified API for 64-bit support.
+* Improved documentation.
+
+Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
@@ -36,15 +39,15 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
         </frameworkAssemblies>
     </metadata>
     <files>
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.dll" target="lib\MonoAndroid\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKitLite.xml" target="lib\MonoAndroid\MimeKitLite.xml" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.dll" target="lib\MonoTouch\MimeKitLite.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKitLite.xml" target="lib\MonoTouch\MimeKitLite.xml" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKitLite.dll" target="lib\Xamarin.iOS10\MimeKitLite.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKitLite.xml" target="lib\Xamarin.iOS10\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.dll" target="lib\net40\MimeKitLite.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKitLite.xml" target="lib\net40\MimeKitLite.xml" />
         <file src="..\MimeKit\bin\Release\lib\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />

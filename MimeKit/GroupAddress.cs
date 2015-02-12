@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -168,12 +168,12 @@ namespace MimeKit {
 		/// Returns a string representation of the <see cref="GroupAddress"/>,
 		/// optionally encoding it for transport.
 		/// </summary>
-        /// <remarks>
-        /// Returns a string containing the formatted group of addresses. If the <paramref name="encode"/>
-        /// parameter is <c>true</c>, then the name of the group and all member addresses will be encoded
-        /// according to the rules defined in rfc2047, otherwise the names will not be encoded at all and
-        /// will therefor only be suitable for display purposes.
-        /// </remarks>
+		/// <remarks>
+		/// Returns a string containing the formatted group of addresses. If the <paramref name="encode"/>
+		/// parameter is <c>true</c>, then the name of the group and all member addresses will be encoded
+		/// according to the rules defined in rfc2047, otherwise the names will not be encoded at all and
+		/// will therefor only be suitable for display purposes.
+		/// </remarks>
 		/// <returns>A string representing the <see cref="GroupAddress"/>.</returns>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="GroupAddress"/> will be encoded.</param>
 		public override string ToString (bool encode)

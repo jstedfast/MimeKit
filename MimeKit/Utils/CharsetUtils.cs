@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc.
+// Copyright (c) 2013-2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,10 @@ using System.Collections.Generic;
 #if PORTABLE
 using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
 using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
 using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
 using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
@@ -41,6 +45,10 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
+		// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
+		// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
+		public static readonly Encoding Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+		public static readonly Encoding UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 		static readonly Dictionary<string, int> aliases;
 
 		static CharsetUtils ()
@@ -53,6 +61,10 @@ namespace MimeKit.Utils {
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
 			aliases.Add ("ansi_x3.4-1968", 20127);
+
+			// ANSI_X3.110-1983 is another odd-ball charset that appears
+			// every once in a while and seems closest to ISO-8859-1.
+			aliases.Add ("ansi_x3.110-1983", 28591);
 
 			// Macintosh aliases
 			aliases.Add ("macintosh", 10000);

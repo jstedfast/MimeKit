@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>0.96.0.0</version>
+        <version>1.0.6.1</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,11 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Modified the TextPart.Text getter to try UTF-8 before falling back to Latin1 if no charset is specified.
-* Improved documentation.</releaseNotes>
+	<releaseNotes>* Vastly improved MS-TNEF support. In addition to being fixed to properly extract the AttachData property of an Attachment attribute, more metadata is captured and translated to the MIME equivalents (such as attachment creation and modification times, the size of the attachment, and the display name).
+* Migrated the iOS assemblies to Xamarin.iOS Unified API for 64-bit support.
+* Improved documentation.
+
+Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime encryption security smime s/mime openpgp pgp mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
@@ -39,18 +42,18 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid0.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="MonoTouch0.0" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework="MonoTouch0.0" />
+            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
         </frameworkAssemblies>
     </metadata>
     <files>
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid\MimeKit.xml" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\BouncyCastle.dll" target="lib\MonoTouch\BouncyCastle.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.dll" target="lib\MonoTouch\MimeKit.dll" />
-        <file src="..\MimeKit\bin\Release\lib\MonoTouch\MimeKit.xml" target="lib\MonoTouch\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\BouncyCastle.dll" target="lib\Xamarin.iOS10\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.dll" target="lib\Xamarin.iOS10\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.xml" target="lib\Xamarin.iOS10\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.dll" target="lib\net40\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\net40\BouncyCastle.xml" target="lib\net40\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />

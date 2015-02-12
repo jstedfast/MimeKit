@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -316,7 +316,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, CmsRecipientFields)) {
-				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
+				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
 				var recipient = new CmsRecipient (record.Certificate);

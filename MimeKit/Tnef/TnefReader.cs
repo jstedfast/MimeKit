@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,8 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public class TnefReader : IDisposable
 	{
+		internal const int TnefSignature = 0x223e9f78;
+
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 0;
@@ -374,7 +376,7 @@ namespace MimeKit.Tnef {
 			try {
 				// read the TNEFSignature
 				int signature = ReadInt32 ();
-				if (signature != 0x223e9f78)
+				if (signature != TnefSignature)
 					SetComplianceError (TnefComplianceStatus.InvalidTnefSignature);
 
 				// read the LegacyKey (ignore this value)
@@ -412,7 +414,6 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.Attachment:
 			case TnefAttributeTag.AttachMetaFile:
 			case TnefAttributeTag.AttachModifyDate:
-			case TnefAttributeTag.AttachRenderData:
 			case TnefAttributeTag.AttachTitle:
 			case TnefAttributeTag.AttachTransportFilename:
 			case TnefAttributeTag.Body:
@@ -437,6 +438,9 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.RequestResponse:
 			case TnefAttributeTag.SentFor:
 			case TnefAttributeTag.Subject:
+				break;
+			case TnefAttributeTag.AttachRenderData:
+				TnefPropertyReader.AttachMethod = TnefAttachMethod.ByValue;
 				break;
 			case TnefAttributeTag.OemCodepage:
 				MessageCodepage = PeekInt32 ();

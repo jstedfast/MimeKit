@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc.
+// Copyright (c) 2013-2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -298,6 +298,29 @@ namespace MimeKit {
 				contentId = ((MailboxAddress) addr).Address;
 
 				SetHeader ("Content-Id", "<" + contentId + ">");
+			}
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
+		public override string ToString ()
+		{
+			using (var memory = new MemoryStream ()) {
+				WriteTo (memory);
+
+				#if !PORTABLE
+				var buffer = memory.GetBuffer ();
+				#else
+				var buffer = memory.ToArray ();
+				#endif
+				int count = (int) memory.Length;
+
+				return CharsetUtils.Latin1.GetString (buffer, 0, count);
 			}
 		}
 

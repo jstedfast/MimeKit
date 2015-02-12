@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc.
+// Copyright (c) 2013-2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -253,8 +253,10 @@ namespace MimeKit {
 			do {
 				count = encoder.GetByteCount (chars, index, length, true);
 				if (count > maxLength && length > 1) {
-					ratio = (int) Math.Round ((double) count / (double) length);
-					length -= Math.Max ((count - maxLength) / ratio, 1);
+					if ((ratio = (int) Math.Round ((double) count / (double) length)) > 1)
+						length -= Math.Max ((count - maxLength) / ratio, 1);
+					else
+						length--;
 					continue;
 				}
 
@@ -298,8 +300,10 @@ namespace MimeKit {
 							x++;
 					}
 
-					ratio = (int) Math.Round ((double) count / (double) length);
-					length -= Math.Max (x / ratio, 1);
+					if ((ratio = (int) Math.Round ((double) count / (double) length)) > 1)
+						length -= Math.Max (x / ratio, 1);
+					else
+						length--;
 					continue;
 				}
 

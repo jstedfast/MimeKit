@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 			case "NOTAFTER": return record.NotAfter;
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
-			case "SUBJECTEMAIL": return record.SubjectEmail.ToLowerInvariant ();
+			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
 			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;

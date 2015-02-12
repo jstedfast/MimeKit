@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -185,6 +185,7 @@ namespace MimeKit.Tnef {
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
+			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
@@ -198,8 +199,8 @@ namespace MimeKit.Tnef {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
+					attachMethod = TnefAttachMethod.ByValue;
 					attachment = new MimePart ();
-					builder.Attachments.Add (attachment);
 					break;
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
@@ -236,13 +237,83 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition.Disposition = text;
 							break;
 						case TnefPropertyId.AttachData:
-							// TODO: implement this...
+							var stream = prop.GetRawValueReadStream ();
+							var content = new MemoryStream ();
+							var guid = new byte[16];
+
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+								var tnef = new TnefPart ();
+
+								foreach (var param in attachment.ContentType.Parameters)
+									tnef.ContentType.Parameters.Add (param.Name, param.Value);
+
+								if (attachment.ContentDisposition != null)
+									tnef.ContentDisposition = attachment.ContentDisposition;
+
+								attachment = tnef;
+							}
+
+							// read the GUID
+							stream.Read (guid, 0, 16);
+
+							// the rest is content
+							stream.CopyTo (content, 4096);
+
+#if !PORTABLE
+							var buffer = content.GetBuffer ();
+#else
+							var buffer = content.ToArray ();
+#endif
+							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
+							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+							attachment.ContentObject = new ContentObject (content);
+							filter.Reset ();
+
+							builder.Attachments.Add (attachment);
+							break;
+						case TnefPropertyId.AttachMethod:
+							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+							break;
+						case TnefPropertyId.AttachSize:
+							if (attachment.ContentDisposition == null)
+								attachment.ContentDisposition = new ContentDisposition ();
+
+							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
+							break;
+						case TnefPropertyId.DisplayName:
+							attachment.ContentType.Name = prop.ReadValueAsString ();
 							break;
 						}
 					}
 					break;
-				case TnefAttributeTag.AttachData:
+				case TnefAttributeTag.AttachCreateDate:
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
+					}
+					break;
+				case TnefAttributeTag.AttachModifyDate:
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
+					}
+					break;
+				case TnefAttributeTag.AttachTitle:
+					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+						attachment.FileName = prop.ReadValueAsString ();
+					break;
+				case TnefAttributeTag.AttachMetaFile:
 					if (attachment == null)
+						break;
+
+					// TODO: what to do with the meta data?
+					break;
+				case TnefAttributeTag.AttachData:
+					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
 						break;
 
 					attachData = prop.ReadValueAsBytes ();
@@ -250,6 +321,8 @@ namespace MimeKit.Tnef {
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
+
+					builder.Attachments.Add (attachment);
 					break;
 				}
 			} while (reader.ReadNextAttribute ());

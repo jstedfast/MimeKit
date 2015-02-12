@@ -203,11 +203,13 @@ namespace UnitTests {
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
+			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			int outIndex, outLength;
 			byte[] attachData;
+			DateTime time;
 			string text;
 
 			Console.WriteLine ("Extracting attachments...");
@@ -218,10 +220,12 @@ namespace UnitTests {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					attachMethod = TnefAttachMethod.ByValue;
 					attachment = new MimePart ();
-					builder.Attachments.Add (attachment);
 					break;
 				case TnefAttributeTag.Attachment:
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					if (attachment == null)
 						break;
 
@@ -265,19 +269,51 @@ namespace UnitTests {
 								attachment.ContentDisposition.Disposition = text;
 							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
+						case TnefPropertyId.AttachMethod:
+							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachMethod);
+							break;
 						case TnefPropertyId.AttachData:
-							if (prop.IsEmbeddedMessage) {
-								Console.WriteLine ("Attachment Property: {0} is an EmbeddedMessage", prop.PropertyTag.Id);
-								var stream = prop.GetRawValueReadStream ();
-								using (var tnef = new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode)) {
-									var embedded = ExtractTnefMessage (tnef);
-									Console.WriteLine ("embedded attachments = {0}", embedded.BodyParts.Count ());
-									foreach (var part in embedded.BodyParts)
-										builder.Attachments.Add (part);
-								}
-							} else {
-								Console.WriteLine ("Attachment Property: {0} is not an EmbeddedMessage", prop.PropertyTag.Id);
+							var stream = prop.GetRawValueReadStream ();
+							var content = new MemoryStream ();
+							var guid = new byte[16];
+
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+								var tnef = new TnefPart ();
+
+								foreach (var param in attachment.ContentType.Parameters)
+									tnef.ContentType.Parameters.Add (param.Name, param.Value);
+
+								if (attachment.ContentDisposition != null)
+									tnef.ContentDisposition = attachment.ContentDisposition;
+
+								attachment = tnef;
 							}
+
+							stream.Read (guid, 0, 16);
+
+							stream.CopyTo (content, 4096);
+
+							var buffer = content.GetBuffer ();
+							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
+							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+							attachment.ContentObject = new ContentObject (content);
+							filter.Reset ();
+
+							Console.WriteLine ("Attachment Property: {0} has GUID {1}", prop.PropertyTag.Id, new Guid (guid));
+
+							builder.Attachments.Add (attachment);
+							break;
+						case TnefPropertyId.DisplayName:
+							attachment.ContentType.Name = prop.ReadValueAsString ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
+							break;
+						case TnefPropertyId.AttachSize:
+							if (attachment.ContentDisposition == null)
+								attachment.ContentDisposition = new ContentDisposition ();
+
+							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
+							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentDisposition.Size.Value);
 							break;
 						default:
 							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
@@ -286,7 +322,8 @@ namespace UnitTests {
 					}
 					break;
 				case TnefAttributeTag.AttachData:
-					if (attachment == null)
+					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
 						break;
 
 					attachData = prop.ReadValueAsBytes ();
@@ -294,6 +331,40 @@ namespace UnitTests {
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
 					filter.Reset ();
+
+					builder.Attachments.Add (attachment);
+					break;
+				case TnefAttributeTag.AttachCreateDate:
+					time = prop.ReadValueAsDateTime ();
+
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.CreationDate = time;
+					}
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
+					break;
+				case TnefAttributeTag.AttachModifyDate:
+					time = prop.ReadValueAsDateTime ();
+
+					if (attachment != null) {
+						if (attachment.ContentDisposition == null)
+							attachment.ContentDisposition = new ContentDisposition ();
+
+						attachment.ContentDisposition.ModificationDate = time;
+					}
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
+					break;
+				case TnefAttributeTag.AttachTitle:
+					text = prop.ReadValueAsString ();
+
+					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+						attachment.FileName = text;
+
+					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
 					break;
 				default:
 					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
@@ -421,10 +492,10 @@ namespace UnitTests {
 		[Test]
 		public void TestMapiAttachDataObj ()
 		{
-			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ", TnefComplianceStatus.InvalidAttributeValue);
+			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ");
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void TestMapiObject ()
 		{
 			TestTnefParser ("../../TestData/tnef/MAPI_OBJECT");
@@ -464,6 +535,12 @@ namespace UnitTests {
 		public void TestTwoFiles ()
 		{
 			TestTnefParser ("../../TestData/tnef/two-files");
+		}
+
+		[Test]
+		public void TestWinMail ()
+		{
+			TestTnefParser ("../../TestData/tnef/winmail");
 		}
 	}
 }

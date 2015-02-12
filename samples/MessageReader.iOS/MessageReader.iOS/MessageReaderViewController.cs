@@ -1,4 +1,4 @@
-﻿//
+//
 // MessageReaderViewController.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
@@ -27,8 +27,8 @@
 using System;
 using System.Text;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 
 using MimeKit;
 

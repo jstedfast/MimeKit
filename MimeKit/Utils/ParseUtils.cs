@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,20 @@
 
 using System.Text;
 
+#if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
+#endif
+
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
@@ -35,8 +49,22 @@ namespace MimeKit.Utils {
 
 			value = 0;
 
-			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9')
-				value = (value * 10) + (text[index++] - (byte) '0');
+			while (index < endIndex && text[index] >= (byte) '0' && text[index] <= (byte) '9') {
+				int digit = text[index] - (byte) '0';
+
+				if (value > int.MaxValue / 10) {
+					// integer overflow
+					return false;
+				}
+
+				if (value == int.MaxValue / 10 && digit > int.MaxValue % 10) {
+					// integer overflow
+					return false;
+				}
+
+				value = (value * 10) + digit;
+				index++;
+			}
 
 			return index > startIndex;
 		}
@@ -161,7 +189,17 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, bool throwOnError, string tokenType, out string dotatom)
+		static bool IsSentinel (byte c, byte[] sentinels)
+		{
+			for (int i = 0; i < sentinels.Length; i++) {
+				if (c == sentinels[i])
+					return true;
+			}
+
+			return false;
+		}
+
+		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, string tokenType, out string dotatom)
 		{
 			var token = new StringBuilder ();
 			int startIndex = index;
@@ -182,8 +220,8 @@ namespace MimeKit.Utils {
 					index++;
 
 				try {
-					token.Append (Encoding.UTF8.GetString (text, start, index - start));
-				} catch (ParseException ex) {
+					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
 						throw new ParseException ("Internationalized domains may only contain UTF-8 characters.", start, start, ex);
 
@@ -199,18 +237,17 @@ namespace MimeKit.Utils {
 					break;
 				}
 
-				token.Append ('.');
+				// skip over the '.'
 				index++;
 
 				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete {0} token at offset {1}", tokenType, startIndex), startIndex, index);
+				// allow domains to end with a '.', but strip it off
+				if (index >= endIndex || IsSentinel (text[index], sentinels))
+					break;
 
-					return false;
-				}
+				token.Append ('.');
 			} while (true);
 
 			dotatom = token.ToString ();
@@ -261,12 +298,12 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
+		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string domain)
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
 
-			return TryParseDotAtom (text, ref index, endIndex, throwOnError, "domain", out domain);
+			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 	}
 }

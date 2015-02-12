@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -108,7 +108,7 @@ namespace MimeKit.Utils {
 			case 0x0D: text.Append ("\\r"); break;
 			default:
 				if (c < 020 || c > 0x7e) {
-					text.AppendFormat ("\\x{0:x,2}", c);
+					text.AppendFormat ("\\x{0:x2}", c);
 				} else {
 					text.Append ((char) c);
 				}

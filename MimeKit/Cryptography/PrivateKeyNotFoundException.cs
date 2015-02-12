@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,14 +48,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <c>null</c>.
-		/// </exception>
 		protected PrivateKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
-			if (info == null)
-				throw new ArgumentNullException ("info");
-
 			KeyId = info.GetString ("KeyId");
 		}
 #endif
@@ -96,6 +90,22 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("keyid");
 
 			KeyId = keyid;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
+		/// </remarks>
+		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
+		/// <param name="message">A message explaining the error.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyid"/> is <c>null</c>.
+		/// </exception>
+		public PrivateKeyNotFoundException (long keyid, string message) : base (message)
+		{
+			KeyId = keyid.ToString ("X");
 		}
 
 #if !PORTABLE

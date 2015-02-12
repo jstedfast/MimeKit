@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed TnefComplianceStatus extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.96.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -27,7 +27,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus AttributeOverflow = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -43,7 +43,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus Compliant = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -59,7 +59,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttribute = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -75,7 +75,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeChecksum = int32(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -91,7 +91,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeLength = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -107,7 +107,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeLevel = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -123,7 +123,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidAttributeValue = int32(32)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -139,7 +139,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidDate = int32(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -155,7 +155,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidMessageClass = int32(128)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -171,7 +171,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidMessageCodepage = int32(256)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -187,7 +187,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidPropertyLength = int32(512)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -203,7 +203,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidRowCount = int32(1024)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -219,7 +219,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidTnefSignature = int32(2048)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -235,7 +235,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus InvalidTnefVersion = int32(4096)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -251,7 +251,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus NestingTooDeep = int32(8192)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -267,7 +267,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus StreamTruncated = int32(16384)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>
@@ -283,7 +283,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Tnef.TnefComplianceStatus UnsupportedPropertyType = int32(32768)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.96.0.0</AssemblyVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Tnef.TnefComplianceStatus</ReturnType>

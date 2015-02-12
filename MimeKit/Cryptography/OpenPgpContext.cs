@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -495,7 +495,13 @@ namespace MimeKit.Cryptography {
 					throw new OperationCanceledException ();
 
 				try {
-					return key.ExtractPrivateKey (password.ToCharArray ());
+					var privateKey = key.ExtractPrivateKey (password.ToCharArray ());
+
+					// Note: the private key will be null if the private key is empty.
+					if (privateKey == null)
+						break;
+
+					return privateKey;
 				} catch (Exception ex) {
 					Debug.WriteLine ("Failed to extract secret key: {0}", ex);
 				}
@@ -504,6 +510,18 @@ namespace MimeKit.Cryptography {
 			} while (attempts < 3);
 
 			throw new UnauthorizedAccessException ();
+		}
+
+		PgpSecretKey GetSecretKey (long keyId)
+		{
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
+				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
+					if (key.KeyId == keyId)
+						return key;
+				}
+			}
+
+			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
 		}
 
 		/// <summary>
@@ -525,16 +543,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected PgpPrivateKey GetPrivateKey (long keyId)
 		{
-			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
-				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
-					if (key.KeyId != keyId)
-						continue;
+			var secret = GetSecretKey (keyId);
 
-					return GetPrivateKey (key);
-				}
-			}
-
-			throw new PrivateKeyNotFoundException (keyId.ToString ("X"), "The private key could not be found.");
+			return GetPrivateKey (secret);
 		}
 
 		/// <summary>
@@ -1280,15 +1291,31 @@ namespace MimeKit.Cryptography {
 				}
 
 				PgpPublicKeyEncryptedData encrypted = null;
+				PrivateKeyNotFoundException pkex = null;
+				bool hasEncryptedPackets = false;
+				PgpSecretKey secret = null;
+
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
-					if ((encrypted = data as PgpPublicKeyEncryptedData) != null)
+					if ((encrypted = data as PgpPublicKeyEncryptedData) == null)
+						continue;
+
+					hasEncryptedPackets = true;
+
+					try {
+						secret = GetSecretKey (encrypted.KeyId);
 						break;
+					} catch (PrivateKeyNotFoundException ex) {
+						pkex = ex;
+					}
 				}
 
-				if (encrypted == null)
-					throw new PgpException ("No encrypted data objects found.");
+				if (!hasEncryptedPackets)
+					throw new PgpException ("No encrypted packets found.");
 
-				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (encrypted.KeyId)));
+				if (secret == null)
+					throw pkex;
+
+				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
 				List<IDigitalSignature> onepassList = null;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;

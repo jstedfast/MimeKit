@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -781,12 +781,43 @@ namespace MimeKit {
 			return c.IsType (CharType.IsBlank | CharType.IsControl);
 		}
 
+		static bool IsControl (byte c)
+		{
+			return c.IsCtrl ();
+		}
+
+		static bool IsBlank (byte c)
+		{
+			return c.IsBlank ();
+		}
+
 		static unsafe bool IsEoln (byte *text)
 		{
 			if (*text == (byte) '\r')
 				text++;
 
 			return *text == (byte) '\n';
+		}
+
+		unsafe bool StepByteOrderMark (byte* inbuf)
+		{
+			do {
+				if (ReadAhead (ReadAheadSize, 0) <= 0) {
+					// failed to read any data... EOF
+					inputIndex = inputEnd;
+					return false;
+				}
+
+				byte* inptr = inbuf + inputIndex;
+				byte* inend = inbuf + inputEnd;
+
+				while (inptr < inend && IsControl (*inptr))
+					inptr++;
+
+				inputIndex = (int) (inptr - inbuf);
+			} while (inputIndex == inputEnd);
+
+			return true;
 		}
 
 		unsafe void StepHeaders (byte* inbuf)
@@ -835,7 +866,7 @@ namespace MimeKit {
 					byte* start = inptr;
 
 					// if we are scanning a new line, check for a folded header
-					if (!midline && checkFolded && !(*inptr).IsBlank ()) {
+					if (!midline && checkFolded && !IsBlank (*inptr)) {
 						ParseAndAppendHeader ();
 
 						headerOffset = GetOffset ((int) (inptr - inbuf));
@@ -976,6 +1007,11 @@ namespace MimeKit {
 			case MimeParserState.Error:
 				break;
 			case MimeParserState.Initialized:
+				if (!StepByteOrderMark (inbuf)) {
+					state = MimeParserState.Eos;
+					break;
+				}
+
 				state = format == MimeFormat.Mbox ? MimeParserState.MboxMarker : MimeParserState.MessageHeaders;
 				break;
 			case MimeParserState.MboxMarker:
@@ -1006,7 +1042,7 @@ namespace MimeKit {
 				if (icase.Compare (headers[i].Field, "Content-Type") != 0)
 					continue;
 
-				if (!ContentType.TryParse (options, headers[i].RawValue, out type))
+				if (!ContentType.TryParse (options, headers[i].RawValue, out type) && type == null)
 					return new ContentType ("application", "octet-stream");
 
 				return type;

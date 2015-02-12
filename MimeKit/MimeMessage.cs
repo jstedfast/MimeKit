@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -655,6 +655,151 @@ namespace MimeKit {
 			get; set;
 		}
 
+		static bool TryGetMultipartAlternativeBody (Multipart multipart, bool html, out string body)
+		{
+			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
+			for (int i = multipart.Count - 1; i >= 0; i--) {
+				var related = multipart[i] as MultipartRelated;
+				TextPart part;
+
+				if (related != null) {
+					part = related.Root as TextPart;
+				} else {
+					var mpart = multipart[i] as Multipart;
+
+					part = multipart[i] as TextPart;
+
+					if (mpart != null && mpart.ContentType.Matches ("multipart", "alternative")) {
+						// Note: nested multipart/alternatives make no sense... yet here we are.
+						if (TryGetMultipartAlternativeBody (mpart, html, out body))
+							return true;
+					}
+				}
+
+				if (part != null && (html ? part.IsHtml : part.IsPlain)) {
+					body = part.Text;
+					return true;
+				}
+			}
+
+			body = null;
+
+			return false;
+		}
+
+		static bool TryGetMessageBody (Multipart multipart, bool html, out string body)
+		{
+			var related = multipart as MultipartRelated;
+			TextPart part;
+
+			if (related == null) {
+				if (multipart.ContentType.Matches ("multipart", "alternative"))
+					return TryGetMultipartAlternativeBody (multipart, html, out body);
+
+				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
+				for (int i = 0; i < multipart.Count; i++) {
+					var multi = multipart[i] as Multipart;
+
+					// descend into nested multiparts, if there are any...
+					if (multi != null) {
+						if (TryGetMessageBody (multi, html, out body))
+							return true;
+
+						// The text body should never come after a multipart.
+						break;
+					}
+
+					part = multipart[i] as TextPart;
+
+					// Look for the first non-attachment text part (realistically, the body text will
+					// preceed any attachments, but I'm not sure we can rely on that assumption).
+					if (part != null && !part.IsAttachment) {
+						if (html ? part.IsHtml : part.IsPlain) {
+							body = part.Text;
+							return true;
+						}
+
+						// Note: the first text/* part in a multipart/mixed is the text body.
+						// If it's not in the format we're looking for, then it doesn't exist.
+						break;
+					}
+				}
+			} else {
+				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
+				part = related.Root as TextPart;
+
+				if (part != null) {
+					body = (html ? part.IsHtml : part.IsPlain) ? part.Text : null;
+					return body != null;
+				}
+
+				// maybe the root is another multipart (like multipart/alternative)?
+				var root = related.Root as Multipart;
+
+				if (root != null)
+					return TryGetMessageBody (root, html, out body);
+			}
+
+			body = null;
+
+			return false;
+		}
+
+		/// <summary>
+		/// Gets the text body of the message if it exists.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
+		/// search order) which is not an attachment.</para>
+		/// </remarks>
+		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
+		public string TextBody {
+			get {
+				var multipart = Body as Multipart;
+
+				if (multipart != null) {
+					string plain;
+
+					if (TryGetMessageBody (multipart, false, out plain))
+						return plain;
+				} else {
+					var part = Body as TextPart;
+
+					if (part != null && part.IsPlain)
+						return part.Text;
+				}
+
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Gets the html body of the message if it exists.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
+		/// </remarks>
+		/// <value>The html body if it exists; otherwise, <c>null</c>.</value>
+		public string HtmlBody {
+			get {
+				var multipart = Body as Multipart;
+
+				if (multipart != null) {
+					string html;
+
+					if (TryGetMessageBody (multipart, true, out html))
+						return html;
+				} else {
+					var part = Body as TextPart;
+
+					if (part != null && part.IsHtml)
+						return part.Text;
+				}
+
+				return null;
+			}
+		}
+
 		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
 		{
 			if (entity == null)
@@ -706,6 +851,29 @@ namespace MimeKit {
 		/// <value>The attachments.</value>
 		public IEnumerable<MimePart> Attachments {
 			get { return EnumerateMimeParts (Body).Where (part => part.IsAttachment); }
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
+		public override string ToString ()
+		{
+			using (var memory = new MemoryStream ()) {
+				WriteTo (memory);
+
+				#if !PORTABLE
+				var buffer = memory.GetBuffer ();
+				#else
+				var buffer = memory.ToArray ();
+				#endif
+				int count = (int) memory.Length;
+
+				return CharsetUtils.Latin1.GetString (buffer, 0, count);
+			}
 		}
 
 		/// <summary>

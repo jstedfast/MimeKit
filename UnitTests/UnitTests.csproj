@@ -132,6 +132,8 @@
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
     <None Include="TestData\yenc\simple.msg" />
+    <None Include="TestData\tnef\winmail.tnef" />
+    <None Include="TestData\tnef\winmail.list" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

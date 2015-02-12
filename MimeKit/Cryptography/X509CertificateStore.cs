@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -436,16 +436,25 @@ namespace MimeKit.Cryptography {
 				if (keys.ContainsKey (certificate))
 					continue;
 
-				var entry = new X509CertificateEntry (certificate);
 				var alias = certificate.GetCommonName ();
+
+				if (alias == null)
+					continue;
+
+				var entry = new X509CertificateEntry (certificate);
+
 				store.SetCertificateEntry (alias, entry);
 			}
 
 			foreach (var kvp in keys) {
+				var alias = kvp.Key.GetCommonName ();
+
+				if (alias == null)
+					continue;
+
 				var entry = new AsymmetricKeyEntry (kvp.Value);
 				var cert = new X509CertificateEntry (kvp.Key);
 				var chain = new List<X509CertificateEntry> ();
-				var alias = kvp.Key.GetCommonName ();
 
 				chain.Add (cert);
 

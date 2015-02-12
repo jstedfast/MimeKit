@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +26,20 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 #if PORTABLE
+using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
+using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
+using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
+using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
+using EncoderFallbackException = Portable.Text.EncoderFallbackException;
+using DecoderFallbackException = Portable.Text.DecoderFallbackException;
+using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
+using DecoderFallback = Portable.Text.DecoderFallback;
 using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
-#else
-using Encoding = System.Text.Encoding;
-using Decoder = System.Text.Decoder;
 #endif
 
 namespace MimeKit.Tnef {
@@ -58,6 +65,10 @@ namespace MimeKit.Tnef {
 		int rowIndex;
 		int rowCount;
 
+		internal TnefAttachMethod AttachMethod {
+			get; set;
+		}
+
 		/// <summary>
 		/// Gets a value indicating whether the current property is a computed property.
 		/// </summary>
@@ -77,7 +88,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value><c>true</c> if the current property is an embedded TNEF message; otherwise, <c>false</c>.</value>
 		public bool IsEmbeddedMessage {
-			get { return propertyTag.Id == TnefPropertyId.AttachData && propertyTag.ValueTnefType == TnefPropertyType.Object; }
+			get { return propertyTag.Id == TnefPropertyId.AttachData && AttachMethod == TnefAttachMethod.EmbeddedMessage; }
 		}
 
 		/// <summary>
@@ -261,7 +272,12 @@ namespace MimeKit.Tnef {
 			if (!IsEmbeddedMessage)
 				throw new InvalidOperationException ();
 
-			return new TnefReader (GetRawValueReadStream (), reader.MessageCodepage, reader.ComplianceMode);
+			var stream = GetRawValueReadStream ();
+			var guid = new byte[16];
+
+			stream.Read (guid, 0, 16);
+
+			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
 		}
 
 		/// <summary>
@@ -281,13 +297,13 @@ namespace MimeKit.Tnef {
 
 			int end = RawValueStreamOffset + RawValueLength;
 
-			if (propertyCount > 0) {
+			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+				case TnefPropertyType.Object:
+					ReadInt32 ();
 					break;
 				}
 			}
@@ -411,7 +427,7 @@ namespace MimeKit.Tnef {
 
 			if (codepage != 0 && codepage != 1252) {
 				try {
-					return Encoding.GetEncoding (codepage);
+					return Encoding.GetEncoding (codepage, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 				} catch {
 					return DefaultEncoding;
 				}
@@ -531,6 +547,12 @@ namespace MimeKit.Tnef {
 					return false;
 
 				rawValueOffset = reader.StreamOffset;
+
+				switch (id) {
+				case TnefPropertyId.AttachMethod:
+					AttachMethod = (TnefAttachMethod) PeekInt32 ();
+					break;
+				}
 			} catch (EndOfStreamException) {
 				return false;
 			}
@@ -640,6 +662,7 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
+				case TnefPropertyType.Object:
 					ReadInt32 ();
 					break;
 				}
@@ -690,17 +713,16 @@ namespace MimeKit.Tnef {
 			if (reader.StreamOffset == RawValueStreamOffset && decoder == null)
 				throw new InvalidOperationException ();
 
-			if (propertyCount > 0) {
+			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+					ReadInt32 ();
 					decoder = (Decoder) Encoding.Unicode.GetDecoder ();
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
-					if (reader.StreamOffset == RawValueStreamOffset)
-						ReadInt32 ();
+				case TnefPropertyType.Object:
+					ReadInt32 ();
 					decoder = (Decoder) GetMessageEncoding ().GetDecoder ();
 					break;
 				}
@@ -742,12 +764,12 @@ namespace MimeKit.Tnef {
 				length = 8;
 				break;
 			case TnefPropertyType.ClassId:
-			case TnefPropertyType.Object:
 				length = 16;
 				break;
 			case TnefPropertyType.Unicode:
 			case TnefPropertyType.String8:
 			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
 				length = 4 + GetPaddedLength (PeekInt32 ());
 				break;
 			case TnefPropertyType.AppTime:
@@ -780,8 +802,8 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.Unicode:  return typeof (string);
 			case TnefPropertyType.String8:  return typeof (string);
 			case TnefPropertyType.Binary:   return typeof (byte[]);
-			case TnefPropertyType.ClassId:  return typeof (byte[]);
-			case TnefPropertyType.Object:   return typeof (Guid);
+			case TnefPropertyType.ClassId:  return typeof (Guid);
+			case TnefPropertyType.Object:   return typeof (byte[]);
 			default:                        return typeof (object);
 			}
 		}
@@ -845,10 +867,10 @@ namespace MimeKit.Tnef {
 				value = ReadByteArray ();
 				break;
 			case TnefPropertyType.ClassId:
-				value = ReadBytes (16);
+				value = new Guid (ReadBytes (16));
 				break;
 			case TnefPropertyType.Object:
-				value = new Guid (ReadBytes (16));
+				value = ReadByteArray ();
 				break;
 			default:
 				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
@@ -981,10 +1003,10 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Unicode:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
+				case TnefPropertyType.Object:
 					bytes = ReadByteArray ();
 					break;
 				case TnefPropertyType.ClassId:
-				case TnefPropertyType.Object:
 					bytes = ReadBytes (16);
 					break;
 				default:
@@ -1171,7 +1193,7 @@ namespace MimeKit.Tnef {
 		/// Reads the value as a GUID.
 		/// </summary>
 		/// <remarks>
-		/// Reads any Class ID or Object value as a GUID.
+		/// Reads any Class ID value as a GUID.
 		/// </remarks>
 		/// <returns>The value as a GUID.</returns>
 		/// <exception cref="System.InvalidOperationException">
@@ -1190,7 +1212,6 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.ClassId:
-				case TnefPropertyType.Object:
 					guid = new Guid (ReadBytes (16));
 					break;
 				default:

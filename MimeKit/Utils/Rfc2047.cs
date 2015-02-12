@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013-2014 Xamarin Inc.
+// Copyright (c) 2013-2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -1086,7 +1086,7 @@ namespace MimeKit.Utils {
 
 					if (c < 127) {
 						if (IsCtrl (c)) {
-							word.Encoding = Math.Max (word.Encoding, 1);
+							word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
 						} else if (phrase && !IsAtom (c)) {
@@ -1103,7 +1103,7 @@ namespace MimeKit.Utils {
 						nchars = 1;
 					} else if (c < 256) {
 						// iso-8859-1
-						word.Encoding = Math.Max (word.Encoding, 1);
+						word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
 						word.Type = WordType.EncodedWord;
 						word.EncodeCount++;
 						word.ByteCount++;
@@ -1319,7 +1319,6 @@ namespace MimeKit.Utils {
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
 			var words = Merge (options, charset, GetRfc822Words (options, charset, text, phrase));
-			var latin1 = Encoding.GetEncoding (28591);
 			var str = new StringBuilder ();
 			int start, length;
 			Word prev = null;
@@ -1358,7 +1357,7 @@ namespace MimeKit.Utils {
 						AppendEncodedWord (str, Encoding.ASCII, text, start, length, mode);
 						break;
 					case 1: // iso-8859-1
-						AppendEncodedWord (str, latin1, text, start, length, mode);
+						AppendEncodedWord (str, CharsetUtils.Latin1, text, start, length, mode);
 						break;
 					default: // custom charset
 						AppendEncodedWord (str, charset, text, start, length, mode);

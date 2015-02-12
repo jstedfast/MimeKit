@@ -1,22 +1,23 @@
 id: mimekit
 name: MimeKit
-version: 0.14
+version: 1.0.6.1
 publisher: Jeffrey Stedfast
 publisher-url: http://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
 details: Details.md
 license: ../License.md
-summary: A complete MIME creation and parser library with full support for S/MIME and PGP.
+summary: A complete MIME library with support for S/MIME and PGP.
 icons:
-  - mimekit.png
-  - mime-kit-128.png
-monodoc: docs/
-libraries:
-  ios:
-    - ../MimeKit/bin/Release/lib/MonoTouch/BouncyCastle.iOS.dll
-    - ../MimeKit/bin/Release/lib/MonoTouch/MimeKit.iOS.dll
+  - mimekit_512x512.png
+  - mimekit_128x128.png
+packages:
+  ios-unified:
+    - MimeKit, Version=1.0.6.1
   android:
-    - ../MimeKit/bin/Release/lib/MonoAndroid/BouncyCastle.Android.dll
-    - ../MimeKit/bin/Release/lib/MonoAndroid/MimeKit.Android.dll
-build:
-  - ../MimeKit.Mobile.sln
+    - MimeKit, Version=1.0.6.1
+samples:
+  - name: "Android Sample"
+    path: ../samples/MessageReader.Android/MessageReader.Android.sln
+  - name: "iOS Sample"
+    path: ../samples/MessageReader.iOS/MessageReader.iOS.sln
+no_build: true
