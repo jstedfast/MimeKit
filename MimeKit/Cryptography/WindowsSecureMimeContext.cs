@@ -402,6 +402,7 @@ namespace MimeKit.Cryptography {
 		{
 			var signer = new RealCmsSigner (GetCmsSignerCertificate (mailbox));
 			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
+			signer.SignedAttributes.Add (new Pkcs9SigningTime ());
 			signer.IncludeOption = X509IncludeOption.ExcludeRoot;
 			return signer;
 		}
