@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 1.0.7
+
+* Fixed TnefPropertyReader.GetEmbeddedMessageReader() to skip the Guid.
+* When decrypting PGP data, iterate over all encrypted packets to find one that
+  can be decrypted (i.e. the private key exists in the user's keychain).
+* Updated WindowsSecureMimeContext to respect SecureMailboxAddresses like the
+  other backends. (issue #100)
+* Added a Pkcs9SigningTime attribute to the CmsSigner for WindowsSecureMimeContext.
+  (issue #101)
+
 ### MimeKit 1.0.6
 
 * Vastly improved MS-TNEF support. In addition to being fixed to properly extract
