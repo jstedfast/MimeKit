@@ -213,5 +213,22 @@ namespace UnitTests {
 
 			Assert.AreEqual ("local-part@domain1@domain2", msgid);
 		}
+
+		[Test]
+		public void TestInvalidAtNoDomainMessageId ()
+		{
+			// https://github.com/jstedfast/MimeKit/issues/102
+			var msgid = MimeUtils.EnumerateReferences ("<local-part@>").FirstOrDefault ();
+
+			Assert.AreEqual ("local-part@", msgid);
+		}
+
+		[Test]
+		public void TestInvalidNoDomainMessageId ()
+		{
+			var msgid = MimeUtils.EnumerateReferences ("<local-part>").FirstOrDefault ();
+
+			Assert.AreEqual ("local-part", msgid);
+		}
 	}
 }

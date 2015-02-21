@@ -181,7 +181,7 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, bool throwOnError, out string localpart)
+		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, bool throwOnError, out string localpart)
 		{
 			var token = new StringBuilder ();
 			int startIndex = index;

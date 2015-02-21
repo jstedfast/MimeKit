@@ -107,7 +107,6 @@ namespace MimeKit.Utils {
 			byte[] sentinels = { (byte) '>' };
 			int endIndex = startIndex + length;
 			int index = startIndex;
-			InternetAddress addr;
 			string msgid;
 
 			if (buffer == null)
@@ -127,16 +126,64 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (!InternetAddress.TryParseMailbox (ParserOptions.Default, buffer, startIndex, ref index, endIndex, "", 65001, false, out addr))
+					int tokenIndex = index;
+
+					// skip over the '<'
+					index++;
+
+					if (index >= endIndex)
 						break;
 
-					msgid = ((MailboxAddress) addr).Address;
+					string localpart;
+					if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, false, out localpart))
+						continue;
 
-					// Note: some message-id's are broken and in the form local-part@domain@domain
+					if (index >= endIndex)
+						break;
+
+					if (buffer[index] == (byte) '>') {
+						// The msgid token did not contain an @domain. Technically this is illegal, but for the
+						// sake of maximum compatibility, I guess we have no choice but to accept it...
+						index++;
+
+						yield return localpart;
+						continue;
+					}
+
+					if (buffer[index] != (byte) '@') {
+						// who the hell knows what we have here... ignore it and continue on?
+						continue;
+					}
+
+					// skip over the '@'
+					index++;
+
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
+						break;
+
+					if (index >= endIndex)
+						break;
+
+					if (buffer[index] == (byte) '>') {
+						// The msgid token was in the form "<local-part@>". Technically this is illegal, but for
+						// the sake of maximum compatibility, I guess we have no choice but to accept it...
+						// https://github.com/jstedfast/MimeKit/issues/102
+						index++;
+
+						yield return localpart + "@";
+						continue;
+					}
+
+					string domain;
+					if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
+						continue;
+
+					msgid = localpart + "@" + domain;
+
+					// Note: some Message-Id's are broken and in the form "<local-part@domain@domain>"
 					// https://github.com/jstedfast/MailKit/issues/138
 					while (index < endIndex && buffer[index] == (byte) '@') {
 						int saved = index;
-						string domain;
 
 						index++;
 
