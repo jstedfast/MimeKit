@@ -818,7 +818,7 @@ namespace MimeKit {
 
 			var msgpart = entity as MessagePart;
 
-			if (msgpart != null) {
+			if (msgpart != null && msgpart.Message != null) {
 				var message = msgpart.Message;
 
 				foreach (var part in EnumerateMimeParts (message.Body))
