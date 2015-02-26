@@ -38,6 +38,7 @@ using MimeKit.Cryptography;
 #endif
 
 using MimeKit.Tnef;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -225,7 +226,30 @@ namespace MimeKit {
 			mimeTypes[mimeType] = ctor;
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IEnumerable<Header> headers, bool toplevel)
+		static bool IsEncoded (IList<Header> headers)
+		{
+			ContentEncoding encoding;
+
+			for (int i = 0; i < headers.Count; i++) {
+				if (headers[i].Id != HeaderId.ContentTransferEncoding)
+					continue;
+
+				MimeUtils.TryParse (headers[i].Value, out encoding);
+
+				switch (encoding) {
+				case ContentEncoding.SevenBit:
+				case ContentEncoding.EightBit:
+				case ContentEncoding.Binary:
+					return false;
+				default:
+					return true;
+				}
+			}
+
+			return true;
+		}
+
+		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel)
 		{
 			var entity = new MimeEntityConstructorInfo (this, contentType, headers, toplevel);
 			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
@@ -239,7 +263,11 @@ namespace MimeKit {
 					return (MimeEntity) ctor.Invoke (new object[] { entity });
 			}
 
-			if (type == "message") {
+			// Note: message/rfc822 and message/partial are not allowed to be encoded according to rfc2046
+			// (sections 5.2.1 and 5.2.2, respectively). Since some broken clients will encode them anyway,
+			// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
+			// parse them as normal MimeParts instead of MessageParts.
+			if (type == "message" && !IsEncoded (headers)) {
 				if (subtype == "partial")
 					return new MessagePartial (entity);
 
