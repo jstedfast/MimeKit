@@ -126,8 +126,6 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					int tokenIndex = index;
-
 					// skip over the '<'
 					index++;
 

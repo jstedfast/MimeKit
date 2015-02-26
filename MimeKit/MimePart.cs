@@ -526,7 +526,6 @@ namespace MimeKit {
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
-			string text;
 			int value;
 
 			base.OnHeadersChanged (action, header);

@@ -1543,7 +1543,7 @@ namespace MimeKit {
 
 				switch (id) {
 				case HeaderId.MimeVersion:
-					if (MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version))
+					if (MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version))
 						return;
 					break;
 				case HeaderId.References:
@@ -1607,7 +1607,7 @@ namespace MimeKit {
 
 				switch (e.Header.Id) {
 				case HeaderId.MimeVersion:
-					MimeUtils.TryParseVersion (rawValue, 0, rawValue.Length, out version);
+					MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version);
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
