@@ -742,6 +742,49 @@ namespace MimeKit.Utils {
 			return TryParse (text, out date);
 		}
 
+		// Note: this method exists because BouncyCastle's DerUtcTime.ParseDateString() fails
+		// to parse date strings where the seconds value is not in the range 0 -> 59.
+		// See https://github.com/jstedfast/MimeKit/issues/103 for details.
+		internal static DateTime Parse (string text, string format)
+		{
+			int hour = 0, minute = 0, second = 0;
+			int year = 0, month = 0, day = 0;
+			TimeSpan offset;
+			int timezone;
+			int i = 0;
+
+			while (i < text.Length && i < format.Length && format[i] != 'z') {
+				if (text[i] < '0' || text[i] > '9')
+					throw new FormatException ();
+
+				int digit = text[i] - '0';
+
+				switch (format[i]) {
+				case 'y': year = (year * 10) + digit; break;
+				case 'M': month = (month * 10) + digit; break;
+				case 'd': day = (day * 10) + digit; break;
+				case 'H': hour = (hour * 10) + digit; break;
+				case 'm': minute = (minute * 10) + digit; break;
+				case 's': second = (second * 10) + digit; break;
+				}
+
+				i++;
+			}
+
+			minute += second / 60;
+			second = second % 60;
+
+			hour += minute / 60;
+			minute = minute % 60;
+
+			if (!timezones.TryGetValue (text.Substring (i), out timezone))
+				timezone = 0;
+
+			offset = new TimeSpan (timezone / 100, timezone % 100, 0);
+
+			return new DateTime (year, month, day, hour, minute, second, DateTimeKind.Utc).Add (offset);
+		}
+
 		/// <summary>
 		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc822 date string.
 		/// </summary>

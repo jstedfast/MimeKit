@@ -45,6 +45,7 @@ using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Nist;
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -902,7 +903,7 @@ namespace MimeKit.Cryptography {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
 					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
 						var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
-						signature.CreationDate = signingTime.ToAdjustedDateTime ();
+						signature.CreationDate = DateUtils.Parse (signingTime.AdjustedTimeString, "yyyyMMddHHmmsszzz");
 						signedDate = signature.CreationDate;
 						break;
 					}
