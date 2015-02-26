@@ -197,7 +197,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				DateTimeOffset ctime;
 
-				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out ctime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out ctime))
 					return null;
 
 				return ctime;
@@ -228,7 +228,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				DateTimeOffset mtime;
 
-				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out mtime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out mtime))
 					return null;
 
 				return mtime;
@@ -259,7 +259,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				DateTimeOffset atime;
 
-				if (!DateUtils.TryParseDateTime (buffer, 0, buffer.Length, out atime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out atime))
 					return null;
 
 				return atime;

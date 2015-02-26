@@ -73,7 +73,7 @@ namespace UnitTests {
 				var text = Encoding.UTF8.GetBytes (dates[i]);
 				DateTimeOffset date;
 
-				Assert.IsTrue (DateUtils.TryParseDateTime (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
+				Assert.IsTrue (DateUtils.TryParse (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
 				var parsed = DateUtils.FormatDate (date);
 
 				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);

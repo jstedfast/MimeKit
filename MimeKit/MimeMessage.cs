@@ -1578,11 +1578,11 @@ namespace MimeKit {
 						return;
 					break;
 				case HeaderId.ResentDate:
-					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate))
+					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate))
 						return;
 					break;
 				case HeaderId.Date:
-					if (DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date))
+					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out date))
 						return;
 					break;
 				}
@@ -1633,10 +1633,10 @@ namespace MimeKit {
 						sender = address as MailboxAddress;
 					break;
 				case HeaderId.ResentDate:
-					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out resentDate);
+					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
 					break;
 				case HeaderId.Date:
-					DateUtils.TryParseDateTime (rawValue, 0, rawValue.Length, out date);
+					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
 					break;
 				}
 				break;
