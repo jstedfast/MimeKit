@@ -38,6 +38,7 @@ using MD5 = System.Security.Cryptography.MD5CryptoServiceProvider;
 
 using MimeKit.IO.Filters;
 using MimeKit.Encodings;
+using MimeKit.Utils;
 using MimeKit.IO;
 
 namespace MimeKit {
@@ -535,18 +536,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Changed:
 				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
-					text = header.Value.Trim ().ToLowerInvariant ();
-
-					switch (text) {
-					case "7bit":             encoding = ContentEncoding.SevenBit; break;
-					case "8bit":             encoding = ContentEncoding.EightBit; break;
-					case "binary":           encoding = ContentEncoding.Binary; break;
-					case "base64":           encoding = ContentEncoding.Base64; break;
-					case "quoted-printable": encoding = ContentEncoding.QuotedPrintable; break;
-					case "x-uuencode":       encoding = ContentEncoding.UUEncode; break;
-					case "uuencode":         encoding = ContentEncoding.UUEncode; break;
-					default:                 encoding = ContentEncoding.Default; break;
-					}
+					MimeUtils.TryParse (header.Value, out encoding);
 					break;
 				case HeaderId.ContentDuration:
 					if (int.TryParse (header.Value, out value))
