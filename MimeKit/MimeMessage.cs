@@ -818,11 +818,13 @@ namespace MimeKit {
 
 			var msgpart = entity as MessagePart;
 
-			if (msgpart != null && msgpart.Message != null) {
+			if (msgpart != null) {
 				var message = msgpart.Message;
 
-				foreach (var part in EnumerateMimeParts (message.Body))
-					yield return part;
+				if (message != null) {
+					foreach (var part in EnumerateMimeParts (message.Body))
+						yield return part;
+				}
 
 				yield break;
 			}
