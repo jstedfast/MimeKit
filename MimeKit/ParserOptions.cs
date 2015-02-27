@@ -246,7 +246,7 @@ namespace MimeKit {
 				}
 			}
 
-			return true;
+			return false;
 		}
 
 		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel)
