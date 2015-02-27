@@ -878,6 +878,15 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
+		static DateTime ToAdjustedDateTime (DerUtcTime time)
+		{
+			try {
+				return time.ToAdjustedDateTime ();
+			} catch {
+				return DateUtils.Parse (time.AdjustedTimeString, "yyyyMMddHHmmsszzz");
+			}
+		}
+
 		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
 		{
 			var certificates = parser.GetCertificates ("Collection");
@@ -903,7 +912,7 @@ namespace MimeKit.Cryptography {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
 					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
 						var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
-						signature.CreationDate = DateUtils.Parse (signingTime.AdjustedTimeString, "yyyyMMddHHmmsszzz");
+						signature.CreationDate = ToAdjustedDateTime (signingTime);
 						signedDate = signature.CreationDate;
 						break;
 					}
