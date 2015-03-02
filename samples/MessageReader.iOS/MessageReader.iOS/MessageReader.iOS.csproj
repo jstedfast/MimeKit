@@ -83,11 +83,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle">
-      <HintPath>..\packages\MimeKit.1.0.6.1\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
+      <HintPath>..\packages\MimeKit.1.0.8.0\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
     </Reference>
-    <Reference Include="MimeKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MimeKit.1.0.6.1\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
+    <Reference Include="MimeKit">
+      <HintPath>..\packages\MimeKit.1.0.8.0\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
