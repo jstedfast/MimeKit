@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.0.7.0</version>
+        <version>1.0.8.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,10 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Fixed TnefPropertyReader.GetEmbeddedMessageReader() to skip the Guid.
-* When decrypting PGP data, iterate over all encrypted packets to find one that can be decrypted (i.e. the private key exists in the user's keychain).
-* Updated WindowsSecureMimeContext to respect SecureMailboxAddresses like the other backends. (issue #100)
-* Added a Pkcs9SigningTime attribute to the CmsSigner for WindowsSecureMimeContext. (issue #101)
+        <releaseNotes>* Modified the parser to accept Message-Id values without a domain (i.e. "&lt;local-part@&gt;").
+* Fixed a NullReferenceException in MimeMessage.BodyParts in cases where a MessagePart has a null Message.
+* Renamed DateUtils.TryParseDateTime() to DateUtils.TryParse() (the old API still exists but has been marked [Obsolete]).
+* Renamed MimeUtils.TryParseVersion() to MimeUtils.TryParse() (the old API still exists but has been marked [Obsolete]).
 
 Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>

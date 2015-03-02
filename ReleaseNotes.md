@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 1.0.8
+
+* Modified the parser to accept Message-Id values without a domain (i.e. "<local-part@>").
+* Fixed a NullReferenceException in MimeMessage.BodyParts in cases where a MessagePart
+  has a null Message.
+* Renamed DateUtils.TryParseDateTime() to DateUtils.TryParse() (the old API still exists
+  but has been marked [Obsolete]).
+* Renamed MimeUtils.TryParseVersion() to MimeUtils.TryParse() (the old API still exists
+  but has been marked [Obsolete]).
+* Fixed S/MIME support to gracefully deal with badly formatted signature timestamps
+  which incrorectly use leap seconds. (issue #103)
+
 ### MimeKit 1.0.7
 
 * Fixed TnefPropertyReader.GetEmbeddedMessageReader() to skip the Guid.
