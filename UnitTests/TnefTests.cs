@@ -282,7 +282,7 @@ namespace UnitTests {
 								var tnef = new TnefPart ();
 
 								foreach (var param in attachment.ContentType.Parameters)
-									tnef.ContentType.Parameters.Add (param.Name, param.Value);
+									tnef.ContentType.Parameters[param.Name] = param.Value;
 
 								if (attachment.ContentDisposition != null)
 									tnef.ContentDisposition = attachment.ContentDisposition;
