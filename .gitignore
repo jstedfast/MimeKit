@@ -2,6 +2,7 @@ Mono.Data.Sqlite/Documentation
 *~
 *.userprefs
 *.suo
+.DS_Store
 test-results
 obj
 bin
