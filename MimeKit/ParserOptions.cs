@@ -268,10 +268,14 @@ namespace MimeKit {
 			// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
 			// parse them as normal MimeParts instead of MessageParts.
 			if (type == "message" && !IsEncoded (headers)) {
-				if (subtype == "partial")
+				switch (subtype) {
+				case "partial":
 					return new MessagePartial (entity);
-
-				return new MessagePart (entity);
+				case "rfc2822":
+				case "rfc822":
+				case "news":
+					return new MessagePart (entity);
+				}
 			}
 
 			if (type == "multipart") {
