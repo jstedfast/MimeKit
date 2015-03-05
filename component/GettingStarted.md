@@ -33,9 +33,84 @@ while (!parser.IsEndOfStream) {
 }
 ```
 
-### Traversing a MimeMessage
+### Getting the Body of a Message
 
-Once you have parsed a `MimeMessage`, you'll most likely want to traverse the tree of MIME entities.
+A common misunderstanding about email is that there is a well-defined message body and then a list
+of attachments. This is not really the case. The reality is that MIME is a tree structure of content,
+much like a file system.
+
+Luckily, MIME does define a set of general rules for how mail clients should interpret this tree
+structure of MIME parts. The `Content-Disposition` header is meant to provide hints to the receiving
+client as to which parts are meant to be displayed as part of the message body and which are meant
+to be interpreted as attachments.
+
+The `Content-Disposition` header will generally have one of two values: `inline` or `attachment`.
+
+The meaning of these value should be fairly obvious. If the value is `attachment`, then the content
+of said MIME part is meant to be presented as a file attachment separate from the core message.
+However, if the value is `inline`, then the content of that MIME part is meant to be displayed inline
+within the mail client's rendering of the core message body. If the `Content-Disposition` header does
+not exist, then it should be treated as if the value were `inline`.
+
+Technically, every part that lacks a `Content-Disposition` header or that is marked as `inline`, then,
+is part of the core message body.
+
+There's a bit more to it than that, though.
+
+Modern MIME messages will often contain a `multipart/alternative` MIME container which will generally contain
+a `text/plain` and `text/html` version of the text that the sender wrote. The `text/html` version is typically
+formatted much closer to what the sender saw in his or her WYSIWYG editor than the `text/plain` version.
+
+The reason for sending the message text in both formats is that not all mail clients are capable of displaying
+HTML.
+
+The receiving client should only display one of the alternative views contained within the `multipart/alternative`
+container. Since alternative views are listed in order of least faithful to most faithful with what the sender
+saw in his or her WYSIWYG editor, the receiving client *should* walk over the list of alternative views starting
+at the end and working backwards until it finds a part that it is capable of displaying.
+
+Example:
+```
+multipart/alternative
+  text/plain
+  text/html
+```
+
+As seen in the example above, the `text/html` part is listed last because it is the most faithful to
+what the sender saw in his or her WYSIWYG editor when writing the message.
+
+To make matters even more complicated, sometimes modern mail clients will use a `multipart/related`
+MIME container instead of a simple `text/html` part in order to embed images and other content
+within the HTML.
+
+Example:
+```
+multipart/alternative
+  text/plain
+  multipart/related
+    text/html
+    image/jpeg
+    video/mp4
+    image/png
+```
+
+In the example above, one of the alternative views is a `multipart/related` container which contains
+an HTML version of the message body that references the sibling video and images.
+
+Now that you have a rough idea of how a message is structured and how to interpret various MIME entities,
+the next step is learning how to traverse the MIME tree using MimeKit.
+
+Note: For your convenience, MimeKit's `MimeMessage` class has two properties that can help you get the
+`text/plain` or `text/html` version of the message body. These are `TextBody` and `HtmlBody`,
+respectively.
+
+Keep in mind, however, that at least with the `HtmlBody` property, it may be that the HTML part is
+a child of a `multipart/related`, allowing it to refer to images and other types of media that
+are also contained within that `multipart/related` entity. This property is really only a convenience
+property and is not a really good substitute for traversing the MIME structure yourself so that you
+may properly interpret related content.
+
+### Traversing a MimeMessage
 
 The `MimeMessage.Body` is the top-level MIME entity of the message. Generally, it will either be a
 `TextPart` or a `Multipart`.
@@ -64,6 +139,23 @@ while (iter.MoveNext ()) {
 for (int i = 0; i < attachments.Count; i++)
     multiparts[i].Remove (attachments[i]);
 ```
+
+### Quick and Dirty Enumeration of Message Body Parts
+
+If you would rather skip the proper way of traversing a MIME tree, another option that MimeKit provides
+is a simple enumerator over the message's body parts in a flat (depth-first) list.
+
+You can access this flat list via the `BodyParts` property, like so:
+
+```csharp
+foreach (var part in message.BodyParts) {
+   // do something
+}
+```
+
+Another helper property on the MimeMessage class is the `Attachments` property which works
+much the same way as the `BodyParts` property except that it will only contain MIME parts
+which have a `Content-Disposition` header value that is set to `attachment`.
 
 ### Getting the Decoded Content of a MIME Part
 
