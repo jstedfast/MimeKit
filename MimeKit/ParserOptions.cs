@@ -267,14 +267,25 @@ namespace MimeKit {
 			// (sections 5.2.1 and 5.2.2, respectively). Since some broken clients will encode them anyway,
 			// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
 			// parse them as normal MimeParts instead of MessageParts.
-			if (type == "message" && !IsEncoded (headers)) {
+			//
+			// Technically message/disposition-notification is only allowed to have use the 7bit encoding
+			// as well, but since MessageDispositionNotification is a MImePart subclass rather than a
+			// MessagePart subclass, it means that the content won't be parsed until later and so we can
+			// actually handle that w/o any problems.
+			if (type == "message") {
 				switch (subtype) {
+				case "disposition-notification":
+					return new MessageDispositionNotification (entity);
 				case "partial":
-					return new MessagePartial (entity);
+					if (!IsEncoded (headers))
+						return new MessagePartial (entity);
+					break;
 				case "rfc2822":
 				case "rfc822":
 				case "news":
-					return new MessagePart (entity);
+					if (!IsEncoded (headers))
+						return new MessagePart (entity);
+					break;
 				}
 			}
 
