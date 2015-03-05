@@ -156,20 +156,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestISO885913Rfc2047BEcnodedText ()
-		{
-			var options = ParserOptions.Default.Clone ();
-			var input = "=?ISO-8859-13?Q?jaut=E2jums_=EE=EE=EE=FB=FB=EC=F0?=";
-			string actual;
-
-			options.Rfc2047ComplianceMode = RfcComplianceMode.Strict;
-			actual = Rfc2047.DecodeText (options, Encoding.ASCII.GetBytes (input));
-
-
-		}
-
-
-		[Test]
 		public void TestRfc2047DecodeInvalidMultibyteBreak ()
 		{
 			const string japanese = "狂ったこの世で狂うなら気は確かだ。";
