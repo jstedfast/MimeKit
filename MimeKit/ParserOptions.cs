@@ -280,6 +280,7 @@ namespace MimeKit {
 					if (!IsEncoded (headers))
 						return new MessagePartial (entity);
 					break;
+				case "external-body":
 				case "rfc2822":
 				case "rfc822":
 				case "news":
