@@ -71,6 +71,54 @@ Now, if you don't care about any of that and just want to get the text of the fi
 appropriate body part with a `Content-Type` of `text/html` that can be interpreted as the message body.
 Likewise, the `TextBody` property can be used to get the `text/plain` version of the message body.
 
+### How do I get the email addresses in the From/To/Cc headers?
+
+The `From`, `To`, and `Cc` properties of a `MimeMessage` are all of type `InternetAddressList`. An
+`InternetAddressList` is a list of `InternetAddress` items. This is where most people start to get
+lost because an `InternetAddress` is an abstract class that only really has a `Name` property.
+
+As you've probably already discovered, the `Name` property contains the name of the person
+(if available), but what you want is his or her email address, not their name.
+
+To get the email address, you'll need to figure out what subclass of address each `InternetAddress`
+really is. There are 2 subclasses of `InternetAddress`: `GroupAddress` and `MailboxAddress`.
+
+A `GroupAddress` is a named group of more `InternetAddress` items that are contained within the
+`Members` property. To get an idea of what a group address represents, consider the following
+examples:
+
+```
+To: My Friends: Joey <joey@friends.com>, Monica <monica@friends.com>, "Mrs. Chanandler Bong"
+    <chandler@friends.com>, Ross <ross@friends.com>, Rachel <rachel@friends.com>;
+```
+
+In the above example, the `To` header's `InternetAddressList` will contain only 1 item which will be a
+`GroupAddress` with a `Name` value of `My Friends`. The `Members` property of the `GroupAddress` will
+contain 5 more `InternetAddress` items (which will all be instances of `MailboxAddress`).
+
+The above example, however, is not very likely to ever be seen in messages you deal with. A far more
+common example would be the one below:
+
+```
+To: undisclosed-recipients:;
+```
+
+Most of the time, the `From`, `To`, and `Cc` headers will only contain mailbox addresses. As you will
+notice, a `MailboxAddress` has an `Address` property which will contain the email address of the
+mailbox. In the following example, the `Address` property will contain the value `john@smith.com`:
+
+```
+To: John Smith <john@smith.com>
+```
+
+If you only care about getting a flattened list of the mailbox addresses in a `From`, `To`, or `Cc`
+header, you can simply do something like this:
+
+```csharp
+foreach (var mailbox in message.To.Mailboxes)
+    Console.WriteLine ("{0}'s email address is {1}", mailbox.Name, mailbox.Address);
+```
+
 ### How do I decrypt PGP messages that are embedded in the main message text?
 
 Some PGP-enabled mail clients, such as Thunderbird, embed encrypted PGP blurbs within the text/plain body
