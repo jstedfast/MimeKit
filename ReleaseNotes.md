@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 1.0.9
+
+* Added a new MessageDispositionNotification MimePart subclass to represent
+  message/disposition-notification parts.
+* Fixed the TNEF parser to gracefully deal with duplicate attachment properties.
+
 ### MimeKit 1.0.8
 
 * Modified the parser to accept Message-Id values without a domain (i.e. "<local-part@>").

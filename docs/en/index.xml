@@ -16,10 +16,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.8.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.9.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.8.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.9.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -70,6 +70,7 @@
       <Type Name="InternetAddress" Kind="Class" />
       <Type Name="InternetAddressList" Kind="Class" />
       <Type Name="MailboxAddress" Kind="Class" />
+      <Type Name="MessageDispositionNotification" Kind="Class" />
       <Type Name="MessageIdList" Kind="Class" />
       <Type Name="MessagePart" Kind="Class" />
       <Type Name="MessagePartial" Kind="Class" />
