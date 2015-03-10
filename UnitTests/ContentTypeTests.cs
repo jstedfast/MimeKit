@@ -224,5 +224,19 @@ namespace UnitTests {
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
 			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The filename value does not match.");
 		}
+
+		[Test]
+		public void TestUnquotedParameter ()
+		{
+			const string text = "application/octet-stream; name=Test;";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
+			Assert.AreEqual (type.Parameters["name"], "Test", "name values do not match: {0}", text);
+		}
 	}
 }
