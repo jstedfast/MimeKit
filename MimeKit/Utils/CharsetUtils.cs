@@ -294,18 +294,14 @@ namespace MimeKit.Utils {
 							codepage = encoding.CodePage;
 
 							aliases[encoding.HeaderName] = codepage;
-						} catch (ArgumentException) {
-							codepage = -1;
-						} catch (NotSupportedException) {
+						} catch {
 							codepage = -1;
 						}
 					} else {
 						try {
 							encoding = Encoding.GetEncoding (codepage);
 							aliases[encoding.HeaderName] = codepage;
-						} catch (ArgumentOutOfRangeException) {
-							codepage = -1;
-						} catch (NotSupportedException) {
+						} catch {
 							codepage = -1;
 						}
 					}
