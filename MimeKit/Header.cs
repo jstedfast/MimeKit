@@ -44,6 +44,7 @@ namespace MimeKit {
 	public class Header
 	{
 		internal readonly ParserOptions Options;
+		readonly byte[] rawField;
 		string textValue;
 		byte[] rawValue;
 
@@ -82,6 +83,7 @@ namespace MimeKit {
 			Field = id.ToHeaderName ();
 			Id = id;
 
+			rawField = Encoding.ASCII.GetBytes (Field);
 			SetValue (encoding, value);
 		}
 
@@ -130,6 +132,7 @@ namespace MimeKit {
 			Field = id.ToHeaderName ();
 			Id = id;
 
+			rawField = Encoding.ASCII.GetBytes (Field);
 			SetValue (encoding, value);
 		}
 
@@ -197,6 +200,7 @@ namespace MimeKit {
 			Id = field.ToHeaderId ();
 			Field = field;
 
+			rawField = Encoding.ASCII.GetBytes (field);
 			SetValue (encoding, value);
 		}
 
@@ -254,6 +258,7 @@ namespace MimeKit {
 			Id = field.ToHeaderId ();
 			Field = field;
 
+			rawField = Encoding.ASCII.GetBytes (field);
 			SetValue (encoding, value);
 		}
 
@@ -278,17 +283,28 @@ namespace MimeKit {
 		{
 		}
 
-		internal Header (ParserOptions options, string field, byte[] value)
+		internal Header (ParserOptions options, byte[] field, byte[] value)
 		{
-			Id = field.ToHeaderId ();
+			var chars = new char[field.Length];
+			int count = 0;
+
+			while (count < field.Length && !field[count].IsBlank ()) {
+				chars[count] = (char) field[count];
+				count++;
+			}
+
 			Options = options;
+			rawField = field;
 			rawValue = value;
-			Field = field;
+
+			Field = new string (chars, 0, count);
+			Id = Field.ToHeaderId ();
 		}
 
 		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
 		{
 			Options = options;
+			rawField = Encoding.ASCII.GetBytes (field);
 			rawValue = value;
 			Field = field;
 			Id = id;
@@ -326,6 +342,17 @@ namespace MimeKit {
 		/// <value>The header identifier.</value>
 		public HeaderId Id {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Gets the raw field name of the header.
+		/// </summary>
+		/// <remarks>
+		/// Contains the raw field name of the header.
+		/// </remarks>
+		/// <value>The raw field name of the header.</value>
+		public byte[] RawField {
+			get { return rawField; }
 		}
 
 		/// <summary>
@@ -958,9 +985,14 @@ namespace MimeKit {
 			return c.IsAsciiAtom ();
 		}
 
-		static bool IsBlankOrControl (byte c)
+		static bool IsControl (byte c)
 		{
-			return c.IsType (CharType.IsBlank | CharType.IsControl);
+			return c.IsCtrl ();
+		}
+
+		static bool IsBlank (byte c)
+		{
+			return c.IsBlank ();
 		}
 
 		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header header)
@@ -974,24 +1006,25 @@ namespace MimeKit {
 				while (inptr < inend && IsAsciiAtom (*inptr))
 					inptr++;
 			} else {
-				while (inptr < inend && *inptr != (byte) ':' && !IsBlankOrControl (*inptr))
+				while (inptr < inend && *inptr != (byte) ':' && !IsControl (*inptr))
 					inptr++;
 			}
+
+			while (inptr < inend && IsBlank (*inptr))
+				inptr++;
 
 			if (inptr == inend || *inptr != ':') {
 				header = null;
 				return false;
 			}
 
-			var chars = new char[(int) (inptr - start)];
-			fixed (char* outbuf = chars) {
-				char* outptr = outbuf;
+			var field = new byte[(int) (inptr - start)];
+			fixed (byte* outbuf = field) {
+				byte* outptr = outbuf;
 
 				while (start < inptr)
-					*outptr++ = (char) *start++;
+					*outptr++ = *start++;
 			}
-
-			var field = new string (chars);
 
 			inptr++;
 

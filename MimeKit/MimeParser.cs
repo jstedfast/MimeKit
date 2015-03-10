@@ -776,11 +776,6 @@ namespace MimeKit {
 			}
 		}
 
-		static bool IsBlankOrControl (byte c)
-		{
-			return c.IsType (CharType.IsBlank | CharType.IsControl);
-		}
-
 		static bool IsControl (byte c)
 		{
 			return c.IsCtrl ();
@@ -825,6 +820,7 @@ namespace MimeKit {
 			bool scanningFieldName = true;
 			bool checkFolded = false;
 			bool midline = false;
+			bool blank = false;
 			bool valid = true;
 			int left = 0;
 			long length;
@@ -872,6 +868,7 @@ namespace MimeKit {
 						headerOffset = GetOffset ((int) (inptr - inbuf));
 						scanningFieldName = true;
 						checkFolded = false;
+						blank = false;
 						valid = true;
 					}
 
@@ -882,7 +879,17 @@ namespace MimeKit {
 							*inend = (byte) ':';
 
 							while (*inptr != (byte) ':') {
-								if (IsBlankOrControl (*inptr)) {
+								// Blank spaces are allowed between the field name and
+								// the ':', but field names themselves are not allowed
+								// to contain spaces.
+								if (IsBlank (*inptr)) {
+									if (!blank) {
+										valid = false;
+										break;
+									}
+
+									blank = true;
+								} else if (blank || IsControl (*inptr)) {
 									valid = false;
 									break;
 								}

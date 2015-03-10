@@ -528,7 +528,7 @@ namespace MimeKit {
 		/// <param name="rawValue">The raw value of the header.</param>
 		protected void SetHeader (string name, byte[] rawValue)
 		{
-			var header = new Header (Headers.Options, name, rawValue);
+			var header = new Header (Headers.Options, name.ToHeaderId (), name, rawValue);
 
 			Headers.Changed -= HeadersChanged;
 
