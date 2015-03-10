@@ -49,93 +49,61 @@ namespace MimeKit.Utils {
 		// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
 		public static readonly Encoding Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 		public static readonly Encoding UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
-		static readonly Dictionary<string, int> aliases;
+		static readonly Dictionary<string, int> aliases = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase);
 
 		static CharsetUtils ()
 		{
-			aliases = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase);
+			int gb2312;
 
-			aliases.Add ("utf-8", 65001);
-			aliases.Add ("utf8", 65001);
+			AddAliases (65001, -1, "utf-8", "utf8");
 
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
-			aliases.Add ("ansi_x3.4-1968", 20127);
+			AddAliases (20127, -1, "ansi_x3.4-1968");
 
 			// ANSI_X3.110-1983 is another odd-ball charset that appears
 			// every once in a while and seems closest to ISO-8859-1.
-			aliases.Add ("ansi_x3.110-1983", 28591);
+			AddAliases (28591, -1, "ansi_x3.110-1983", "latin1");
 
 			// Macintosh aliases
-			aliases.Add ("macintosh", 10000);
-			aliases.Add ("x-mac-icelandic", 10079);
+			AddAliases (10000, -1, "macintosh");
+			AddAliases (10079, -1, "x-mac-icelandic");
 
 			// Korean charsets (aliases for euc-kr)
 			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
-			aliases.Add ("ks_c_5601-1987", 51949);
-			aliases.Add ("5601",           51949);
-			aliases.Add ("ksc-5601",       51949);
-			aliases.Add ("ksc-5601-1987",  51949);
-			aliases.Add ("ksc-5601_1987",  51949);
-			aliases.Add ("ks_c_5861-1992", 51949);
-			aliases.Add ("euckr-0",        51949);
-			aliases.Add ("euc-kr",         51949);
+			AddAliases (51949, -1,
+				"ks_c_5601-1987",
+				"ksc-5601-1987",
+				"ksc-5601_1987",
+				"ksc-5601",
+				"5601",
+				"ks_c_5861-1992",
+				"ksc-5861-1992",
+				"ksc-5861_1992",
+				"euckr-0",
+				"euc-kr");
 
 			// Chinese charsets (aliases for big5)
-			aliases.Add ("big5",           950);
-			aliases.Add ("big5-0",         950);
-			aliases.Add ("big5-hkscs",     950);
-			aliases.Add ("big5.eten-0",    950);
-			aliases.Add ("big5hkscs-0",    950);
+			AddAliases (950, -1, "big5", "big5-0", "big5-hkscs", "big5.eten-0", "big5hkscs-0");
 
 			// Chinese charsets (aliases for gb2312)
-			aliases.Add ("gb2312",         936);
-			aliases.Add ("gb-2312",        936);
-			aliases.Add ("gb2312-0",       936);
-			aliases.Add ("gb2312-80",      936);
-			aliases.Add ("gb2312.1980-0",  936);
+			gb2312 = AddAliases (936, -1, "gb2312", "gb-2312", "gb2312-0", "gb2312-80", "gb2312.1980-0");
 
 			// Chinese charsets (euc-cn and gbk not supported on Mono)
-			try {
-				Encoding.GetEncoding (51936);
-				aliases.Add ("euc-cn",     51936);
-				aliases.Add ("gbk-0",      51936);
-				aliases.Add ("x-gbk",      51936);
-				aliases.Add ("gbk",        51936);
-			} catch {
-				// https://bugzilla.mozilla.org/show_bug.cgi?id=844082 seems to suggest falling back to gb2312.
-				// fall back to gb2312
-				aliases.Add ("euc-cn",     936);
-				aliases.Add ("gbk-0",      936);
-				aliases.Add ("x-gbk",      936);
-				aliases.Add ("gbk",        936);
-			}
+			// https://bugzilla.mozilla.org/show_bug.cgi?id=844082 seems to suggest falling back to gb2312.
+			AddAliases (51936, gb2312, "euc-cn", "gbk-0", "x-gbk", "gbk");
 
 			// Chinese charsets (hz-gb-2312 not suported on Mono)
-			try {
-				Encoding.GetEncoding (52936);
-				aliases.Add ("hz-gb-2312",  52936);
-				aliases.Add ("hz-gb2312",   52936);
-			} catch {
-				// fall back to gb2312
-				aliases.Add ("hz-gb-2312",  936);
-				aliases.Add ("hz-gb2312",   936);
-			}
+			AddAliases (52936, gb2312, "hz-gb-2312", "hz-gb2312");
 
 			// Chinese charsets (aliases for gb18030)
-			aliases.Add ("gb18030-0",      54936);
-			aliases.Add ("gb18030",        54936);
+			AddAliases (54936, -1, "gb18030-0", "gb18030");
 
 			// Japanese charsets (aliases for euc-jp)
-			aliases.Add ("eucjp-0",        51932);
-			aliases.Add ("euc-jp",         51932);
-			aliases.Add ("ujis-0",         51932);
-			aliases.Add ("ujis",           51932);
+			AddAliases (51932, -1, "eucjp-0", "euc-jp", "ujis-0", "ujis");
 
 			// Japanese charsets (aliases for Shift_JIS)
-			aliases.Add ("jisx0208.1983-0", 932);
-			aliases.Add ("jisx0212.1990-0", 932);
-			aliases.Add ("pck",             932);
+			AddAliases (932, -1, "jisx0208.1983-0", "jisx0212.1990-0", "pck");
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
 			// Encodings 50220 and 50222 are both associated with the name "iso-2022-jp", but they
@@ -148,6 +116,26 @@ namespace MimeKit.Utils {
 			// If your application requests the encoding name "iso-2022-jp", the .NET Framework
 			// returns encoding 50220. However, the encoding that is appropriate for your application
 			// will depend on the preferred treatment of the half-width Katakana characters.
+		}
+
+		static bool ProbeCharset (int codepage)
+		{
+			try {
+				Encoding.GetEncoding (codepage);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		static int AddAliases (int codepage, int fallback, params string[] names)
+		{
+			int value = ProbeCharset (codepage) ? codepage : fallback;
+
+			for (int i = 0; i < names.Length; i++)
+				aliases.Add (names[i], value);
+
+			return value;
 		}
 
 		public static string GetMimeCharset (Encoding encoding)
