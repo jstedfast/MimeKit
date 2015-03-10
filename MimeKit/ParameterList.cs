@@ -596,7 +596,7 @@ namespace MimeKit {
 			#endregion
 		}
 
-		static bool TryParseNameValuePair (byte[] text, ref int index, int endIndex, bool throwOnError, out NameValuePair pair)
+		static bool TryParseNameValuePair (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out NameValuePair pair)
 		{
 			int valueIndex, startIndex;
 			bool encoded = false;
@@ -700,10 +700,17 @@ namespace MimeKit {
 
 			valueIndex = index;
 
-			if (text[index] == (byte) '"')
+			if (text[index] == (byte) '"') {
 				ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError);
-			else
+			} else if (options.ParameterComplianceMode == RfcComplianceMode.Strict) {
 				ParseUtils.SkipToken (text, ref index, endIndex);
+			} else {
+				// Note: Google Docs, for example, does not always quote name/filename parameters
+				// with spaces in the name. See https://github.com/jstedfast/MimeKit/issues/106
+				// for details.
+				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
+					index++;
+			}
 
 			pair = new NameValuePair {
 				ValueLength = index - valueIndex,
@@ -808,7 +815,7 @@ namespace MimeKit {
 				}
 
 				NameValuePair pair;
-				if (!TryParseNameValuePair (text, ref index, endIndex, throwOnError, out pair))
+				if (!TryParseNameValuePair (options, text, ref index, endIndex, throwOnError, out pair))
 					return false;
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))

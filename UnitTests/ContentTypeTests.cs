@@ -238,5 +238,26 @@ namespace UnitTests {
 			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
 			Assert.AreEqual (type.Parameters["name"], "Test", "name values do not match: {0}", text);
 		}
+
+		[Test]
+		public void TestUnquotedParameterWithSpaces ()
+		{
+			const string text = "application/octet-stream; name=Test Name.pdf;";
+			var options = ParserOptions.Default.Clone ();
+			var buffer = Encoding.ASCII.GetBytes (text);
+			ContentType type;
+
+			// it should fail using the strict parser...
+			options.ParameterComplianceMode = RfcComplianceMode.Strict;
+			Assert.IsFalse (ContentType.TryParse (options, buffer, out type), "Should not have parsed (strict mode): {0}", text);
+
+			options.ParameterComplianceMode = RfcComplianceMode.Loose;
+			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
+			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
+			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
+			Assert.AreEqual (type.Parameters["name"], "Test Name.pdf", "name values do not match: {0}", text);
+		}
 	}
 }

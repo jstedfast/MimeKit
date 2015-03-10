@@ -70,10 +70,25 @@ namespace MimeKit {
 		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
 		/// and other mail software such as sloppily written perl scripts (aka spambots).</para>
 		/// <para>It should be noted that even in <see cref="RfcComplianceMode.Strict"/> mode, the address
-		/// parser is fairly liberal in what it accepts.</para>
+		/// parser is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
+		/// just makes it try harder to deal with garbage input.</para>
 		/// </remarks>
 		/// <value>The RFC compliance mode.</value>
 		public RfcComplianceMode AddressParserComplianceMode { get; set; }
+
+		/// <summary>
+		/// Gets or sets the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
+		/// </summary>
+		/// <remarks>
+		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
+		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
+		/// and other mail software such as sloppily written perl scripts (aka spambots).</para>
+		/// <para>It should be noted that even in <see cref="RfcComplianceMode.Strict"/> mode, the parameter
+		/// parser is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
+		/// just makes it try harder to deal with garbage input.</para>
+		/// </remarks>
+		/// <value>The RFC compliance mode.</value>
+		public RfcComplianceMode ParameterComplianceMode { get; set; }
 
 		/// <summary>
 		/// Gets or sets the compliance mode that should be used when decoding rfc2047 encoded words.
@@ -122,6 +137,7 @@ namespace MimeKit {
 		public ParserOptions ()
 		{
 			AddressParserComplianceMode = RfcComplianceMode.Loose;
+			ParameterComplianceMode = RfcComplianceMode.Loose;
 			Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			CharsetEncoding = Encoding.Default;
 			RespectContentLength = false;
@@ -139,6 +155,7 @@ namespace MimeKit {
 		{
 			var options = new ParserOptions ();
 			options.AddressParserComplianceMode = AddressParserComplianceMode;
+			options.ParameterComplianceMode = ParameterComplianceMode;
 			options.Rfc2047ComplianceMode = Rfc2047ComplianceMode;
 			options.RespectContentLength = RespectContentLength;
 			options.CharsetEncoding = CharsetEncoding;
