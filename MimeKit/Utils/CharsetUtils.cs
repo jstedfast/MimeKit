@@ -364,8 +364,8 @@ namespace MimeKit.Utils {
 			{
 				readonly InvalidByteCountFallback fallback;
 				const string replacement = "?";
-				int current = 0;
 				bool invalid;
+				int current;
 
 				public InvalidByteCountFallbackBuffer (InvalidByteCountFallback fallback)
 				{
@@ -507,7 +507,7 @@ namespace MimeKit.Utils {
 		{
 			var decoder = encoding.GetDecoder ();
 			int count = decoder.GetCharCount (input, startIndex, length, true);
-			char[] output = new char[count];
+			var output = new char[count];
 
 			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
 
