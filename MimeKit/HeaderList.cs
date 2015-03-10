@@ -660,10 +660,9 @@ namespace MimeKit {
 					filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					var rawField = header.RawField;
 					byte[] rawValue;
 
-					filtered.Write (rawField, 0, rawField.Length, cancellationToken);
+					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
 					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
 
 					if (options.International)

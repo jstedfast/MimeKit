@@ -928,9 +928,7 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						var name = Encoding.ASCII.GetBytes (header.Field);
-
-						filtered.Write (name, 0, name.Length, cancellationToken);
+						filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
 						filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
 						filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
 					}

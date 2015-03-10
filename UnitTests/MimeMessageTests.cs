@@ -40,11 +40,11 @@ namespace UnitTests {
 		[Test]
 		public void TestReserialization ()
 		{
-			string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
+			const string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
 Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
           via MS.5.6.greenbush.galaxy.sun4_41;
           Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
-Message-ID: <UeCBvVq0M2Yt4oUA83@thumper.bellcore.com>
+Message-ID : <UeCBvVq0M2Yt4oUA83@thumper.bellcore.com>
 Date: Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
 From: Nathaniel Borenstein <nsb>
 X-Andrew-Message-Size: 152+1
