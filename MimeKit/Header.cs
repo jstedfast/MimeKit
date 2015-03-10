@@ -283,6 +283,15 @@ namespace MimeKit {
 		{
 		}
 
+		internal Header (ParserOptions options, HeaderId id, string name, byte[] field, byte[] value)
+		{
+			Options = options;
+			rawField = field;
+			rawValue = value;
+			Field = name;
+			Id = id;
+		}
+
 		internal Header (ParserOptions options, byte[] field, byte[] value)
 		{
 			var chars = new char[field.Length];
@@ -308,6 +317,22 @@ namespace MimeKit {
 			rawValue = value;
 			Field = field;
 			Id = id;
+		}
+
+		/// <summary>
+		/// Clone the header.
+		/// </summary>
+		/// <remarks>
+		/// Clones the header, copying the current RawValue.
+		/// </remarks>
+		public Header Clone ()
+		{
+			var header = new Header (Options, Id, Field, RawField, RawValue);
+
+			// if the textValue has already been calculated, set it on the cloned header as well.
+			header.textValue = textValue;
+
+			return header;
 		}
 
 		/// <summary>

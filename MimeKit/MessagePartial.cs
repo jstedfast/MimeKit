@@ -146,7 +146,7 @@ namespace MimeKit {
 			var clone = new MimeMessage (options);
 
 			foreach (var header in message.Headers)
-				clone.Headers.Add (new Header (options, header.RawField, header.RawValue));
+				clone.Headers.Add (header.Clone ());
 
 			return clone;
 		}
