@@ -373,7 +373,23 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			switch (text.Trim ().ToLowerInvariant ()) {
+			var value = new char[text.Length];
+			int i = 0, n = 0;
+			string name;
+
+			// trim leading whitespace
+			while (i < text.Length && char.IsWhiteSpace (text[i]))
+				i++;
+
+			// copy the encoding name
+			// Note: Google Docs tacks a ';' on the end... *sigh*
+			// See https://github.com/jstedfast/MimeKit/issues/106 for an example.
+			while (i < text.Length && text[i] != ';' && !char.IsWhiteSpace (text[i]))
+				value[n++] = char.ToLowerInvariant (text[i++]);
+
+			name = new string (value, 0, n);
+
+			switch (name) {
 			case "7bit":             encoding = ContentEncoding.SevenBit; break;
 			case "8bit":             encoding = ContentEncoding.EightBit; break;
 			case "binary":           encoding = ContentEncoding.Binary; break;
