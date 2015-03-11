@@ -660,14 +660,14 @@ namespace MimeKit {
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 			for (int i = multipart.Count - 1; i >= 0; i--) {
 				var related = multipart[i] as MultipartRelated;
-				TextPart part;
+				TextPart text;
 
 				if (related != null) {
-					part = related.Root as TextPart;
+					text = related.Root as TextPart;
 				} else {
 					var mpart = multipart[i] as Multipart;
 
-					part = multipart[i] as TextPart;
+					text = multipart[i] as TextPart;
 
 					if (mpart != null && mpart.ContentType.Matches ("multipart", "alternative")) {
 						// Note: nested multipart/alternatives make no sense... yet here we are.
@@ -676,8 +676,8 @@ namespace MimeKit {
 					}
 				}
 
-				if (part != null && (html ? part.IsHtml : part.IsPlain)) {
-					body = part.Text;
+				if (text != null && (html ? text.IsHtml : text.IsPlain)) {
+					body = text.Text;
 					return true;
 				}
 			}
@@ -690,7 +690,8 @@ namespace MimeKit {
 		static bool TryGetMessageBody (Multipart multipart, bool html, out string body)
 		{
 			var related = multipart as MultipartRelated;
-			TextPart part;
+			Multipart multi;
+			TextPart text;
 
 			if (related == null) {
 				if (multipart.ContentType.Matches ("multipart", "alternative"))
@@ -698,7 +699,7 @@ namespace MimeKit {
 
 				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
-					var multi = multipart[i] as Multipart;
+					multi = multipart[i] as Multipart;
 
 					// descend into nested multiparts, if there are any...
 					if (multi != null) {
@@ -709,13 +710,13 @@ namespace MimeKit {
 						break;
 					}
 
-					part = multipart[i] as TextPart;
+					text = multipart[i] as TextPart;
 
 					// Look for the first non-attachment text part (realistically, the body text will
 					// preceed any attachments, but I'm not sure we can rely on that assumption).
-					if (part != null && !part.IsAttachment) {
-						if (html ? part.IsHtml : part.IsPlain) {
-							body = part.Text;
+					if (text != null && !text.IsAttachment) {
+						if (html ? text.IsHtml : text.IsPlain) {
+							body = text.Text;
 							return true;
 						}
 
@@ -726,18 +727,20 @@ namespace MimeKit {
 				}
 			} else {
 				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
-				part = related.Root as TextPart;
+				var root = related.Root;
 
-				if (part != null) {
-					body = (html ? part.IsHtml : part.IsPlain) ? part.Text : null;
+				text = root as TextPart;
+
+				if (text != null) {
+					body = (html ? text.IsHtml : text.IsPlain) ? text.Text : null;
 					return body != null;
 				}
 
 				// maybe the root is another multipart (like multipart/alternative)?
-				var root = related.Root as Multipart;
+				multi = root as Multipart;
 
-				if (root != null)
-					return TryGetMessageBody (root, html, out body);
+				if (multi != null)
+					return TryGetMessageBody (multi, html, out body);
 			}
 
 			body = null;
@@ -763,10 +766,10 @@ namespace MimeKit {
 					if (TryGetMessageBody (multipart, false, out plain))
 						return plain;
 				} else {
-					var part = Body as TextPart;
+					var text = Body as TextPart;
 
-					if (part != null && part.IsPlain)
-						return part.Text;
+					if (text != null && text.IsPlain)
+						return text.Text;
 				}
 
 				return null;
@@ -790,10 +793,10 @@ namespace MimeKit {
 					if (TryGetMessageBody (multipart, true, out html))
 						return html;
 				} else {
-					var part = Body as TextPart;
+					var text = Body as TextPart;
 
-					if (part != null && part.IsHtml)
-						return part.Text;
+					if (text != null && text.IsHtml)
+						return text.Text;
 				}
 
 				return null;
