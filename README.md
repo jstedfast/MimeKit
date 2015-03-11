@@ -452,7 +452,7 @@ configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
 provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
 Once you've made your choice and installed it (via NuGet or however), you'll need to
-implement your own `SecureMimeContext` class. Luckily, it's very simple to do. Assuming
+implement your own `SecureMimeContext` subclass. Luckily, it's very simple to do. Assuming
 you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
 class:
 
