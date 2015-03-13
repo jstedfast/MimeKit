@@ -83,8 +83,8 @@ namespace MimeKit.Cryptography {
 
 				switch (part.ContentTransferEncoding) {
 				case ContentEncoding.SevenBit:
-					// need to make sure that "From "-lines are properly armored
-					part.ContentTransferEncoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
+					// need to make sure that "From "-lines are properly armored and wrapped at 78 bytes
+					part.ContentTransferEncoding = part.GetBestEncoding (EncodingConstraint.SevenBit, 78);
 					break;
 				case ContentEncoding.EightBit:
 					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
