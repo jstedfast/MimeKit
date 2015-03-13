@@ -103,6 +103,9 @@ namespace MimeKit.IO.Filters {
 				if (count0 > 0)
 					return ContentEncoding.Binary;
 
+				if (maxline > maxLineLength)
+					return ContentEncoding.QuotedPrintable;
+
 				if (count8 > 0)
 					return ContentEncoding.EightBit;
 
