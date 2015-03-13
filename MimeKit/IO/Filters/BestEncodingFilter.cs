@@ -61,8 +61,17 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <returns>The best encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint)
+		/// <param name="maxLineLength">The maximum allowable line length (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="constraint"/> is not a valid value.</para>
+		/// </exception>
+		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength = 78)
 		{
+			if (maxLineLength < 72 || maxLineLength > 998)
+				throw new ArgumentOutOfRangeException ("maxLineLength");
+
 			switch (constraint) {
 			case EncodingConstraint.SevenBit:
 				if (count0 > 0)
@@ -75,7 +84,7 @@ namespace MimeKit.IO.Filters {
 					return ContentEncoding.QuotedPrintable;
 				}
 
-				if (maxline > 998)
+				if (maxline > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				break;
@@ -83,7 +92,7 @@ namespace MimeKit.IO.Filters {
 				if (count0 > 0)
 					return ContentEncoding.Base64;
 
-				if (maxline > 998)
+				if (maxline > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				if (count8 > 0)
@@ -98,6 +107,8 @@ namespace MimeKit.IO.Filters {
 					return ContentEncoding.EightBit;
 
 				break;
+			default:
+				throw new ArgumentOutOfRangeException ("constraint");
 			}
 
 			if (hasMarker)
