@@ -198,7 +198,7 @@ What you do with that decrypted stream is up to you. It's up to you to figure ou
 
 ### How would I parse multipart/form-data from an HTTP web request?
 
-Since classes like `HttpWebRequest` take care of parsing the HTTP headers (which includes the `Content-Type`
+Since classes like `HttpWebResponse` take care of parsing the HTTP headers (which includes the `Content-Type`
 header) and only offer a content stream to consume, MimeKit provides a way to deal with this using the following
 two static methods on `MimeEntity`:
 
@@ -220,7 +220,7 @@ MimeEntity ParseMultipartFormData (HttpWebResponse response)
 ```
 
 If the `multipart/form-data` HTTP response is expected to be large and you do not wish for the content to be
-read into memory, you do instead use the following approach:
+read into memory, you can use the following approach:
 
 ```csharp
 MimeEntity ParseMultipartFormData (HttpWebResponse response)
