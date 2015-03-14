@@ -839,7 +839,7 @@ namespace MimeKit {
 		/// Gets the body parts of the message.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all  of the <see cref="MimePart"/> objects.
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects.
 		/// </remarks>
 		/// <value>The body parts.</value>
 		public IEnumerable<MimePart> BodyParts {

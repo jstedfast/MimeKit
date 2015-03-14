@@ -355,6 +355,50 @@
         <exception cref="T:System.IO.IOException">
             An I/O error occurred.
             </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="constraint" /> is not a valid value.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetBestEncoding">
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, int maxLineLength, System.Threading.CancellationToken cancellationToken = null);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, int32 maxLineLength, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.ContentEncoding</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+        <Parameter Name="maxLineLength" Type="System.Int32" />
+        <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
+      </Parameters>
+      <Docs>
+        <param name="constraint">The encoding constraint.</param>
+        <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+        <param name="cancellationToken">A cancellation token.</param>
+        <summary>
+            Calculates the most efficient content encoding given the specified constraint.
+            </summary>
+        <returns>The most efficient content encoding.</returns>
+        <remarks>
+            If no <see cref="T:MimeKit.ContentObject" /> is set, <see cref="F:MimeKit.ContentEncoding.SevenBit" /> will be returned.
+            </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="maxLineLength" /> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="constraint" /> is not a valid value.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The operation was canceled via the cancellation token.
+            </exception>
+        <exception cref="T:System.IO.IOException">
+            An I/O error occurred.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="IsAttachment">

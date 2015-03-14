@@ -156,7 +156,7 @@
             </summary>
         <value>The body parts.</value>
         <remarks>
-            Traverses over the MIME tree, enumerating all  of the <see cref="T:MimeKit.MimePart" /> objects.
+            Traverses over the MIME tree, enumerating all of the <see cref="T:MimeKit.MimePart" /> objects.
             </remarks>
       </Docs>
     </Member>

@@ -121,8 +121,8 @@
       </Docs>
     </Member>
     <Member MemberName="GetBestEncoding">
-      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint) cil managed" />
+      <MemberSignature Language="C#" Value="public MimeKit.ContentEncoding GetBestEncoding (MimeKit.EncodingConstraint constraint, int maxLineLength = 78);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype MimeKit.ContentEncoding GetBestEncoding(valuetype MimeKit.EncodingConstraint constraint, int32 maxLineLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -132,9 +132,11 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="constraint" Type="MimeKit.EncodingConstraint" />
+        <Parameter Name="maxLineLength" Type="System.Int32" />
       </Parameters>
       <Docs>
         <param name="constraint">The encoding constraint.</param>
+        <param name="maxLineLength">The maximum allowable line length (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
         <summary>
             Gets the best encoding given the specified constraints.
             </summary>
@@ -142,6 +144,13 @@
         <remarks>
             Gets the best encoding given the specified constraints.
             </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <para>
+            <paramref name="maxLineLength" /> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="constraint" /> is not a valid value.</para>
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Reset">

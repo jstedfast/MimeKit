@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.0.9.0</version>
+        <version>1.0.10.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,11 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added a new MessageDispositionNotification MimePart subclass to represent message/disposition-notification parts.
-* Fixed the TNEF parser to gracefully deal with duplicate attachment properties.
+        <releaseNotes>* Ignore semi-colons in Content-Transfer-Encoding headers to work around broken mailers.
+* Added ParserOptions.ParameterComplianceMode (defaults to RfcComoplianceMode.Loose) which works around unquoted parameter values in Content-Type and Content-Disposition headers. (issue #106)
+* Modified the MimeParser to handle whitespace between header field names and the ':'.
+* Probe to make sure that various System.Text.Encodings are available before adding aliases for them (some may not be available depending on the platform).
+* Added a MimePart.GetBestEncoding() overload that takes a maxLineLength argument.
 
 Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>

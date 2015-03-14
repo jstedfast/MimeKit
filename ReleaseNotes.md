@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 1.0.10
+
+* Ignore semi-colons in Content-Transfer-Encoding headers to work around broken mailers.
+* Added ParserOptions.ParameterComplianceMode (defaults to RfcComoplianceMode.Loose)
+  which works around unquoted parameter values in Content-Type and Content-Disposition
+  headers. (issue #106)
+* Modified the MimeParser to handle whitespace between header field names and the ':'.
+* Probe to make sure that various System.Text.Encodings are available before adding
+  aliases for them (some may not be available depending on the platform).
+* Added a MimePart.GetBestEncoding() overload that takes a maxLineLength argument.
+* Modified MultipartSigned to use 78 characters as the max line length rather than 998
+  characters. (issue #107)
+
 ### MimeKit 1.0.9
 
 * Added a new MessageDispositionNotification MimePart subclass to represent
