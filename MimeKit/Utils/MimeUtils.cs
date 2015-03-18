@@ -27,8 +27,11 @@
 using System;
 using System.Net;
 using System.Text;
-using System.Diagnostics;
 using System.Collections.Generic;
+
+#if !PORTABLE
+using System.Security.Cryptography;
+#endif
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -39,7 +42,22 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
+#if PORTABLE
 		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
+#endif
+		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		internal static void GetRandomBytes (byte[] buffer)
+		{
+#if !PORTABLE
+			using (var random = new RNGCryptoServiceProvider ())
+				random.GetBytes (buffer);
+#else
+			lock (random) {
+				random.NextBytes (buffer);
+			}
+#endif
+		}
 
 		/// <summary>
 		/// Generates a Message-Id.
@@ -57,13 +75,31 @@ namespace MimeKit.Utils {
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			var guid = new byte[16];
+			ulong value = (ulong) DateTime.Now.Ticks;
+			var id = new StringBuilder ();
+			var block = new byte[8];
 
-			lock (random) {
-				random.NextBytes (guid);
-			}
+			GetRandomBytes (block);
 
-			return string.Format ("{0}@{1}", new Guid (guid), domain);
+			do {
+				id.Append (base36[(int) (value % 36)]);
+				value /= 36;
+			} while (value != 0);
+
+			id.Append ('.');
+
+			value = 0;
+			for (int i = 0; i < 8; i++)
+				value = (value << 8) | (ulong) block[i];
+
+			do {
+				id.Append (base36[(int) (value % 36)]);
+				value /= 36;
+			} while (value != 0);
+
+			id.Append ('@').Append (domain);
+
+			return id.ToString ();
 		}
 
 		/// <summary>

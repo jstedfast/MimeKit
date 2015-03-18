@@ -66,7 +66,6 @@ namespace MimeKit {
 	/// </remarks>
 	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
 	{
-		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
 		readonly List<MimeEntity> children;
 		string preamble, epilogue;
 
@@ -148,9 +147,7 @@ namespace MimeKit {
 			var buf = new byte[24];
 			int length;
 
-			lock (random) {
-				random.NextBytes (digest);
-			}
+			MimeUtils.GetRandomBytes (digest);
 
 			length = base64.Flush (digest, 0, digest.Length, buf);
 
