@@ -57,6 +57,7 @@
     <Compile Include="AssortedTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
     <Compile Include="ConstructorTests.cs" />
+    <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DateParserTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />

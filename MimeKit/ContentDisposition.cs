@@ -53,6 +53,14 @@ namespace MimeKit {
 		public const string Attachment = "attachment";
 
 		/// <summary>
+		/// The form-data disposition.
+		/// </summary>
+		/// <remarks>
+		/// Indicates that the <see cref="MimePart"/> should be treated as form data.
+		/// </remarks>
+		public const string FormData = "form-data";
+
+		/// <summary>
 		/// The inline disposition.
 		/// </summary>
 		/// <remarks>
@@ -95,6 +103,11 @@ namespace MimeKit {
 		{
 		}
 
+		static bool IsAsciiAtom (byte c)
+		{
+			return c.IsAsciiAtom ();
+		}
+
 		/// <summary>
 		/// Gets or sets the disposition.
 		/// </summary>
@@ -106,7 +119,7 @@ namespace MimeKit {
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="value"/> is not <c>"attachment"</c> or <c>"inline"</c>.
+		/// <paramref name="value"/> is an invalid disposition value.
 		/// </exception>
 		public string Disposition {
 			get { return disposition; }
@@ -117,8 +130,10 @@ namespace MimeKit {
 				if (value.Length == 0)
 					throw new ArgumentException ("The disposition is not allowed to be empty.", "value");
 
-				if (icase.Compare ("attachment", value) != 0 && icase.Compare ("inline", value) != 0)
-					throw new ArgumentException ("The disposition is only allowed to be either 'attachment' or 'inline'.", "value");
+				for (int i = 0; i < value.Length; i++) {
+					if (value[i] >= 127 || !IsAsciiAtom ((byte) value[i]))
+						throw new ArgumentException ("Illegal characters in disposition value.", "value");
+				}
 
 				if (disposition == value)
 					return;
