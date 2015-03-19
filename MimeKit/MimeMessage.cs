@@ -1965,26 +1965,34 @@ namespace MimeKit {
 			var msg = new MimeMessage (ParserOptions.Default, headers);
 			MimeEntity body = null;
 
-			if (message.Sender != null)
+			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
+			// then the following MailMessage properties will have been merged into the Headers, so
+			// check to make sure our MimeMessage properties are empty before adding them.
+			if (msg.Sender == null && message.Sender != null)
 				msg.Sender = (MailboxAddress) message.Sender;
-			if (message.From != null)
+			if (msg.From.Count == 0 && message.From != null)
 				msg.From.Add ((MailboxAddress) message.From);
-			msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
-			msg.To.AddRange ((InternetAddressList) message.To);
-			msg.Cc.AddRange ((InternetAddressList) message.CC);
-			msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
-			msg.Subject = message.Subject ?? string.Empty;
+			if (msg.ReplyTo.Count == 0)
+				msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			if (msg.To.Count == 0)
+				msg.To.AddRange ((InternetAddressList) message.To);
+			if (msg.Cc.Count == 0)
+				msg.Cc.AddRange ((InternetAddressList) message.CC);
+			if (msg.Bcc.Count == 0)
+				msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+			if (string.IsNullOrEmpty (msg.Subject))
+				msg.Subject = message.Subject ?? string.Empty;
 
 			switch (message.Priority) {
 			case MailPriority.High:
-				msg.Headers.Add (HeaderId.Priority, "urgent");
-				msg.Headers.Add (HeaderId.Importance, "high");
-				msg.Headers.Add ("X-Priority", "1");
+				msg.Headers.Replace (HeaderId.Priority, "urgent");
+				msg.Headers.Replace (HeaderId.Importance, "high");
+				msg.Headers.Replace ("X-Priority", "1");
 				break;
 			case MailPriority.Low:
-				msg.Headers.Add (HeaderId.Priority, "non-urgent");
-				msg.Headers.Add (HeaderId.Importance, "low");
-				msg.Headers.Add ("X-Priority", "5");
+				msg.Headers.Replace (HeaderId.Priority, "non-urgent");
+				msg.Headers.Replace (HeaderId.Importance, "low");
+				msg.Headers.Replace ("X-Priority", "5");
 				break;
 			}
 
