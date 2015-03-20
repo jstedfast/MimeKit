@@ -220,7 +220,12 @@ namespace UnitTests {
 			// it should fail using the strict parser...
 			options.ParameterComplianceMode = RfcComplianceMode.Strict;
 			Assert.IsFalse (ContentType.TryParse (options, buffer, out type), "Should not have parsed (strict mode): {0}", text);
+			// however, it should preserve at least the type/subtype info... (I call this a feature!)
+			Assert.IsNotNull (type, "Even though parsing failed, the content type should not be null.");
+			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
 
+			// it *should* pass with the loose parser
 			options.ParameterComplianceMode = RfcComplianceMode.Loose;
 			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
 			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
