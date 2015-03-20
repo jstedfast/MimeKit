@@ -297,12 +297,10 @@ or even write your own! The possibilities are limited only by your imagination.
 Creating MIME messages using MimeKit is really trivial.
 
 ```csharp
-var message = new MimeMessage ();
-message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
-message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
-message.Subject = "How you doin?";
-
-message.Body = new TextPart ("plain") {
+var from = new[] { new MailboxAddress ("Joey", "joey@friends.com") };
+var to = new[] { new MailboxAddress ("Alice", "alice@wonderland.com") };
+var subject = "How you doin?";
+var body = new TextPart ("plain") {
     Text = @"Hey Alice,
 
 What are you up to this weekend? Monica is throwing one of her parties on
@@ -313,6 +311,8 @@ Will you be my +1?
 -- Joey
 "
 };
+
+var message = new MimeMessage (from, to, subject, body);
 ```
 
 A `TextPart` is a leaf-node MIME part with a text media-type. The first argument to the `TextPart` constructor
