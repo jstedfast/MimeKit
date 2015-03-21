@@ -201,13 +201,13 @@ namespace MimeKit {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new MIME message, specifying details at creation time.
+		/// </remarks>
 		/// <param name="from">The list of addresses in the From header.</param>
 		/// <param name="to">The list of addresses in the To header.</param>
 		/// <param name="subject">The subject of the message.</param>
 		/// <param name="body">The body of the message.</param>
-		/// <remarks>
-		/// Creates a new MIME message, specifying details at creation time.
-		/// </remarks>
 		public MimeMessage (IEnumerable<InternetAddress> from, IEnumerable<InternetAddress> to, string subject, MimeEntity body) : this ()
 		{
 			From.AddRange (from);
