@@ -128,7 +128,7 @@
           <paramref name="value" /> is <c>null</c>.
             </exception>
         <exception cref="T:System.ArgumentException">
-          <paramref name="value" /> is not <c>"attachment"</c> or <c>"inline"</c>.
+          <paramref name="value" /> is an invalid disposition value.
             </exception>
       </Docs>
     </Member>
@@ -150,6 +150,25 @@
         <remarks>
             When set, this can provide a useful hint for a default file name for the
             content when the user decides to save it to disk.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FormData">
+      <MemberSignature Language="C#" Value="public const string FormData;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string FormData" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The form-data disposition.
+            </summary>
+        <remarks>
+            Indicates that the <see cref="T:MimeKit.MimePart" /> should be treated as form data.
             </remarks>
       </Docs>
     </Member>

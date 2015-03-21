@@ -325,6 +325,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Clones the header, copying the current RawValue.
 		/// </remarks>
+		/// <returns>A copy of the header with its current state.</returns>
 		public Header Clone ()
 		{
 			var header = new Header (Options, Id, Field, RawField, RawValue);

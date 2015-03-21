@@ -74,6 +74,32 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MimeMessage (System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt; from, System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt; to, string subject, MimeKit.MimeEntity body);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; from, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.InternetAddress&gt; to, string subject, class MimeKit.MimeEntity body) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="from" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
+        <Parameter Name="to" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.InternetAddress&gt;" />
+        <Parameter Name="subject" Type="System.String" />
+        <Parameter Name="body" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="from">The list of addresses in the From header.</param>
+        <param name="to">The list of addresses in the To header.</param>
+        <param name="subject">The subject of the message.</param>
+        <param name="body">The body of the message.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MimeMessage" /> class.
+            </summary>
+        <remarks>
+            Creates a new MIME message, specifying details at creation time.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Attachments">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; Attachments { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; Attachments" />
@@ -1281,8 +1307,10 @@
             </summary>
         <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MimeMessage" />.</returns>
         <remarks>
-            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MimeMessage" />.
-            </remarks>
+          <para>Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MimeMessage" />.</para>
+          <para>Note: In general, the string returned from this method should not be used for serializing the message
+            to disk. Instead, it is recommended that you use <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)" /> instead.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteTo">

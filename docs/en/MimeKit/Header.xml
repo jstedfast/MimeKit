@@ -261,7 +261,7 @@
         <summary>
             Clone the header.
             </summary>
-        <returns>To be added.</returns>
+        <returns>A copy of the header with its current state.</returns>
         <remarks>
             Clones the header, copying the current RawValue.
             </remarks>

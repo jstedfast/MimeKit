@@ -1,5 +1,19 @@
 # Release Notes
 
+### MimeKit 1.0.11
+
+* Added the ContentDisposition.FormData string constant.
+* Allow the ContentDisposition.Disposition property to be set to values other than
+  "attachment" and "inline". (issue #112)
+* Shortened the length of the local-part of auto-generated Message-Ids.
+* Fixed MimeMessage.CreateFromMailMessage() to not duplicate From/To/Cc/etc addresses
+  if the System.Net.Mail.MailMessage has been sent via System.Net.Mail.SmtpClient
+  prior to calling MimeMessage.CreateFromMailMessage(). (issue #115)
+* When parsing S/MIME digital signatures, don't import the full certificate chain.
+  (issue #110)
+* Added immutability-friendly .ctor to MimeMessage for use with languages such as F#.
+  (issue #116)
+
 ### MimeKit 1.0.10
 
 * Ignore semi-colons in Content-Transfer-Encoding headers to work around broken mailers.
