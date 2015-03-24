@@ -59,7 +59,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
-	public abstract class InternetAddress : IEquatable<InternetAddress>
+	public abstract class InternetAddress : IComparable<InternetAddress>, IEquatable<InternetAddress>
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
@@ -128,6 +128,66 @@ namespace MimeKit {
 				OnChanged ();
 			}
 		}
+
+		#region IComparable implementation
+
+		/// <summary>
+		/// Compares two internet addresses.
+		/// </summary>
+		/// <remarks>
+		/// Compares two internet addresses for the purpose of sorting.
+		/// </remarks>
+		/// <returns>The sort order of the current internet address compared to the other internet address.</returns>
+		/// <param name="other">The internet address to compare to.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="other"/> is <c>null</c>.
+		/// </exception>
+		public int CompareTo (InternetAddress other)
+		{
+			int rv;
+
+			if (other == null)
+				throw new ArgumentNullException ("other");
+
+			if ((rv = string.Compare (Name, other.Name, StringComparison.OrdinalIgnoreCase)) != 0)
+				return rv;
+
+			var otherMailbox = other as MailboxAddress;
+			var mailbox = this as MailboxAddress;
+
+			if (mailbox != null && otherMailbox != null) {
+				string otherAddress = otherMailbox.Address;
+				int otherAt = otherAddress.IndexOf ('@');
+				string address = mailbox.Address;
+				int at = address.IndexOf ('@');
+
+				if (at != -1 && otherAt != -1) {
+					int length = Math.Min (address.Length - (at + 1), otherAddress.Length - (otherAt + 1));
+
+					rv = string.Compare (address, at + 1, otherAddress, otherAt + 1, length, StringComparison.OrdinalIgnoreCase);
+				}
+
+				if (rv == 0) {
+					string otherUser = otherAt != -1 ? otherAddress.Substring (0, otherAt) : otherAddress;
+					string user = at != -1 ? address.Substring (0, at) : address;
+
+					rv = string.Compare (user, otherUser, StringComparison.OrdinalIgnoreCase);
+				}
+
+				return rv;
+			}
+
+			// sort mailbox addresses before group addresses
+			if (mailbox != null && otherMailbox == null)
+				return -1;
+
+			if (mailbox == null && otherMailbox != null)
+				return 1;
+
+			return 0;
+		}
+
+		#endregion
 
 		#region IEquatable implementation
 

@@ -571,5 +571,33 @@ namespace UnitTests {
 				Assert.AreEqual (addresses[i], mailbox.Address, "International address #{0} did not match.", i);
 			}
 		}
+
+		[Test]
+		public void TestEquality ()
+		{
+			var list1 = new InternetAddressList ();
+
+			list1.Add (new GroupAddress ("Local recipients", new InternetAddress[] {
+				new MailboxAddress ("", "phil"),
+				new MailboxAddress ("", "joe"),
+				new MailboxAddress ("", "alex"),
+				new MailboxAddress ("", "bob"),
+			}));
+			list1.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+			list1.Add (new MailboxAddress ("Chandler", "chandler@friends.com"));
+
+			var list2 = new InternetAddressList ();
+
+			list2.Add (new MailboxAddress ("Chandler", "chandler@friends.com"));
+			list2.Add (new GroupAddress ("Local recipients", new InternetAddress[] {
+				new MailboxAddress ("", "phil"),
+				new MailboxAddress ("", "joe"),
+				new MailboxAddress ("", "alex"),
+				new MailboxAddress ("", "bob"),
+			}));
+			list2.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+
+			Assert.IsTrue (list1.Equals (list2), "The 2 lists should be equal.");
+		}
 	}
 }

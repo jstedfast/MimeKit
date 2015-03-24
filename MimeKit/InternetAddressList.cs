@@ -405,8 +405,14 @@ namespace MimeKit {
 			if (other.Count != Count)
 				return false;
 
-			for (int i = 0; i < Count; i++) {
-				if (!list[i].Equals (other[i]))
+			var otherSorted = new List<InternetAddress> (other);
+			otherSorted.Sort ();
+
+			var sorted = new List<InternetAddress> (this);
+			sorted.Sort ();
+
+			for (int i = 0; i < sorted.Count; i++) {
+				if (!sorted[i].Equals (otherSorted[i]))
 					return false;
 			}
 
