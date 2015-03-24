@@ -59,7 +59,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
-	public abstract class InternetAddress
+	public abstract class InternetAddress : IEquatable<InternetAddress>
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
@@ -128,6 +128,21 @@ namespace MimeKit {
 				OnChanged ();
 			}
 		}
+
+		#region IEquatable implementation
+
+		/// <summary>
+		/// Determines whether the specified <see cref="MimeKit.InternetAddress"/> is equal to the current <see cref="MimeKit.InternetAddress"/>.
+		/// </summary>
+		/// <remarks>
+		/// Compares two internet addresses to determine if they are identical or not.
+		/// </remarks>
+		/// <param name="other">The <see cref="MimeKit.InternetAddress"/> to compare with the current <see cref="MimeKit.InternetAddress"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="MimeKit.InternetAddress"/> is equal to the current
+		/// <see cref="MimeKit.InternetAddress"/>; otherwise, <c>false</c>.</returns>
+		public abstract bool Equals (InternetAddress other);
+
+		#endregion
 
 		internal static string EncodeInternationalizedPhrase (string phrase)
 		{

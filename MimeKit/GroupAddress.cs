@@ -42,7 +42,7 @@ namespace MimeKit {
 	/// Group addresses are rarely used anymore. Typically, if you see a group address,
 	/// it will be of the form: <c>"undisclosed-recipients: ;"</c>.
 	/// </remarks>
-	public class GroupAddress : InternetAddress, IEquatable<GroupAddress>
+	public class GroupAddress : InternetAddress
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.GroupAddress"/> class.
@@ -213,12 +213,14 @@ namespace MimeKit {
 		/// <param name="other">The <see cref="MimeKit.GroupAddress"/> to compare with the current <see cref="MimeKit.GroupAddress"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.GroupAddress"/> is equal to the current
 		/// <see cref="MimeKit.GroupAddress"/>; otherwise, <c>false</c>.</returns>
-		public bool Equals (GroupAddress other)
+		public override bool Equals (InternetAddress other)
 		{
-			if (other == null)
+			var group = other as GroupAddress;
+
+			if (group == null)
 				return false;
 
-			return Name == other.Name && Members == other.Members;
+			return Name == group.Name && Members.Equals (group.Members);
 		}
 
 		#endregion

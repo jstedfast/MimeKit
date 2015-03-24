@@ -46,7 +46,7 @@ namespace MimeKit {
 	/// Represents a mailbox address (commonly referred to as an email address)
 	/// for a single recipient.
 	/// </remarks>
-	public class MailboxAddress : InternetAddress, IEquatable<MailboxAddress>
+	public class MailboxAddress : InternetAddress
 	{
 		string address;
 
@@ -332,12 +332,14 @@ namespace MimeKit {
 		/// <param name="other">The <see cref="MimeKit.MailboxAddress"/> to compare with the current <see cref="MimeKit.MailboxAddress"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="MimeKit.MailboxAddress"/> is equal to the current
 		/// <see cref="MimeKit.MailboxAddress"/>; otherwise, <c>false</c>.</returns>
-		public bool Equals (MailboxAddress other)
+		public override bool Equals (InternetAddress other)
 		{
-			if (other == null)
+			var mailbox = other as MailboxAddress;
+
+			if (mailbox == null)
 				return false;
 
-			return Name == other.Name && Address == other.Address;
+			return Name == mailbox.Name && Address == mailbox.Address;
 		}
 
 		#endregion
