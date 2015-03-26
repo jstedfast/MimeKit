@@ -58,6 +58,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SecureMimeContext : CryptographyContext
 	{
+		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
 		static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
 		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank;
 		int enabled;
@@ -894,6 +895,7 @@ namespace MimeKit.Cryptography {
 			var crls = parser.GetCrls ("Collection");
 			var store = parser.GetSignerInfos ();
 
+			// FIXME: we might not want to import these...
 			foreach (X509Crl crl in crls.GetMatches (null))
 				Import (crl);
 

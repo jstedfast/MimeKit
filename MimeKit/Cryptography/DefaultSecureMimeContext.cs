@@ -357,7 +357,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, CmsSignerFields)) {
-				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
+				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
 				var signer = new CmsSigner (record.Certificate, record.PrivateKey);

@@ -60,6 +60,14 @@ namespace MimeKit.Cryptography {
 			DigestAlgorithm = DigestAlgorithm.Sha1;
 		}
 
+		static void CheckCertificateCanBeUsedForSigning (X509Certificate certificate)
+		{
+			var flags = certificate.GetKeyUsageFlags ();
+
+			if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				throw new ArgumentException ("The certificate cannot be used for signing.");
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
@@ -101,9 +109,7 @@ namespace MimeKit.Cryptography {
 			if (CertificateChain.Count == 0)
 				throw new ArgumentException ("The certificate chain was empty.", "chain");
 
-			var flags = Certificate.GetKeyUsageFlags ();
-			if (flags != X509KeyUsageFlags.None && (flags & X509KeyUsageFlags.DigitalSignature) == 0)
-				throw new ArgumentException ("The certificate cannot be used for signing.");
+			CheckCertificateCanBeUsedForSigning (Certificate);
 
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", "key");
@@ -137,9 +143,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
 
-			var flags = certificate.GetKeyUsageFlags ();
-			if (flags != X509KeyUsageFlags.None && (flags & X509KeyUsageFlags.DigitalSignature) == 0)
-				throw new ArgumentException ("The certificate cannot be used for signing.", "certificate");
+			CheckCertificateCanBeUsedForSigning (certificate);
 
 			if (key == null)
 				throw new ArgumentNullException ("key");

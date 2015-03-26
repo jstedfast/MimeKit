@@ -235,7 +235,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var keyUsage = certificate.GetKeyUsageFlags ();
-				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
+				if (keyUsage != 0 && (keyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
 				if (!keys.TryGetValue (certificate, out key))
