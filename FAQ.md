@@ -9,7 +9,7 @@
 
 ### <a name="MessageBody">How do I get the message body text?</a>
 
-(For the TL;DR version, skip to [the end](#MessageBodyTLDR).)
+(Note: for the TL;DR version, skip to [the end](#MessageBodyTLDR))
 
 MIME is a tree structure of parts. There are multiparts which contain other parts (even other multiparts).
 There are message parts which contain messages. And finally, there are leaf-node parts which contain content.
