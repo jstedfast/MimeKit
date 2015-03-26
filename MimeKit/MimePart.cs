@@ -291,7 +291,6 @@ namespace MimeKit {
 					filename = ContentType.Name;
 
 				return filename != null ? filename.Trim () : null;
-
 			}
 			set {
 				if (value != null) {
