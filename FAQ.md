@@ -1,6 +1,15 @@
-## Frequently Asked Questions
+# Frequently Asked Questions
 
-### How do I get the message body text?
+## Question Index
+
+* [How do I get the message body text?](#MessageBody)
+* [How do I get the email addresses in the From, To, and Cc headers?](#AddressHeaders)
+* [How do I decrypt PGP messages that are embedded in the main message text?](#DecryptInlinePGP)
+* [How would I parse multipart/form-data from an HTTP web request?](#ParseWebRequestFormData)
+
+### <a name="MessageBody">How do I get the message body text?</a>
+
+(For the TL;DR version, skip to [the end](#MessageBodyTLDR).)
 
 MIME is a tree structure of parts. There are multiparts which contain other parts (even other multiparts).
 There are message parts which contain messages. And finally, there are leaf-node parts which contain content.
@@ -62,8 +71,8 @@ There are a few common message structures:
        application/zip
     ```
 
-Now, if you don't care about any of that and just want to get the text of the first `text/plain` or
-`text/html` part you can find, that's easy.
+<a name="MessageBodyTLDR"></a>Now, if you don't care about any of that and just want to get the text of
+the first `text/plain` or `text/html` part you can find, that's easy.
 
 `MimeMessage` has two convenience properties for this: `TextBody` and `HtmlBody`.
 
@@ -71,7 +80,7 @@ Now, if you don't care about any of that and just want to get the text of the fi
 appropriate body part with a `Content-Type` of `text/html` that can be interpreted as the message body.
 Likewise, the `TextBody` property can be used to get the `text/plain` version of the message body.
 
-### How do I get the email addresses in the From/To/Cc headers?
+### <a name="AddressHeaders">How do I get the email addresses in the From, To, and Cc headers?</a>
 
 The `From`, `To`, and `Cc` properties of a `MimeMessage` are all of type `InternetAddressList`. An
 `InternetAddressList` is a list of `InternetAddress` items. This is where most people start to get
@@ -119,7 +128,7 @@ foreach (var mailbox in message.To.Mailboxes)
     Console.WriteLine ("{0}'s email address is {1}", mailbox.Name, mailbox.Address);
 ```
 
-### How do I decrypt PGP messages that are embedded in the main message text?
+### <a name="DecryptInlinePGP">How do I decrypt PGP messages that are embedded in the main message text?</a>
 
 Some PGP-enabled mail clients, such as Thunderbird, embed encrypted PGP blurbs within the text/plain body
 of the message rather than using the PGP/MIME format that MimeKit prefers.
@@ -176,7 +185,8 @@ public Stream GetDecryptedStream (Stream encryptedData)
 The first variant is useful in cases where the encrypted PGP blurb is also digitally signed, allowing you to get
 your hands on the list of digitial signatures in order for you to verify each of them.
 
-To decrypt the content of the message, you'll want to locate the `TextPart` (in this case, it'll just be `message.Body`)
+To decrypt the content of the message, you'll want to locate the `TextPart` (in this case, it'll just be 
+`message.Body`)
 and then do this:
 
 ```
@@ -196,7 +206,7 @@ static Stream DecryptEmbeddedPgp (TextPart text)
 What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
 (is it text? a jpeg image? a video?) and how to display it to the user.
 
-### How would I parse multipart/form-data from an HTTP web request?
+### <a name="ParseWebRequestFormData">How would I parse multipart/form-data from an HTTP web request?</a>
 
 Since classes like `HttpWebResponse` take care of parsing the HTTP headers (which includes the `Content-Type`
 header) and only offer a content stream to consume, MimeKit provides a way to deal with this using the following
@@ -229,7 +239,8 @@ MimeEntity ParseMultipartFormData (HttpWebResponse response)
     var tmp = Path.GetTempFileName ();
 
     using (var stream = File.Open (tmp, FileMode.Open, FileAccess.ReadWrite)) {
-        // create a header for the multipart/form-data MIME entity based on the Content-Type value of the HTTP response
+        // create a header for the multipart/form-data MIME entity based on the Content-Type value of the HTTP
+        // response
         var header = Encoding.UTF8.GetBytes (string.Format ("Content-Type: {0}\r\n\r\n", response.ContentType));
 
         // write the header to the stream
