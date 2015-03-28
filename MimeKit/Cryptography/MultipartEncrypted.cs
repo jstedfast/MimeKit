@@ -61,32 +61,6 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		static void PrepareEntityForEncrypting (MimeEntity entity)
-		{
-			if (entity is Multipart) {
-				// Note: we do not want to modify multipart/signed parts
-				if (entity is MultipartSigned)
-					return;
-
-				var multipart = (Multipart) entity;
-
-				foreach (var subpart in multipart)
-					PrepareEntityForEncrypting (subpart);
-			} else if (entity is MessagePart) {
-				var mpart = (MessagePart) entity;
-
-				if (mpart.Message != null && mpart.Message.Body != null)
-					PrepareEntityForEncrypting (mpart.Message.Body);
-			} else {
-				var part = (MimePart) entity;
-
-				if (part.ContentTransferEncoding == ContentEncoding.Binary)
-					part.ContentTransferEncoding = ContentEncoding.Base64;
-				else if (part.ContentTransferEncoding != ContentEncoding.Base64)
-					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
-			}
-		}
-
 		/// <summary>
 		/// Creates a new <see cref="MultipartEncrypted"/>.
 		/// </summary>
@@ -140,7 +114,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -271,7 +244,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -348,7 +320,6 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				PrepareEntityForEncrypting (entity);
 				entity.WriteTo (options, memory);
 				memory.Position = 0;
 
@@ -519,7 +490,6 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					PrepareEntityForEncrypting (entity);
 					entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
@@ -615,7 +585,6 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					PrepareEntityForEncrypting (entity);
 					entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
@@ -672,7 +641,6 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					PrepareEntityForEncrypting (entity);
 					entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
