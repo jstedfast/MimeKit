@@ -456,7 +456,7 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException ("text");
 
-			var quoted = new StringBuilder ();
+			var quoted = new StringBuilder (text.Length + 2, (text.Length * 2) + 2);
 
 			quoted.Append ("\"");
 			for (int i = 0; i < text.Length; i++) {
