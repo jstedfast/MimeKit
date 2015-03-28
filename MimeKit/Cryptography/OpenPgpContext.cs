@@ -309,8 +309,24 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		static string GetFingerprint (long keyId, int length)
+		{
+			if (length < 16)
+				return ((int) keyId).ToString ("X2");
+
+			return keyId.ToString ("X2");
+		}
+
 		static bool PgpPublicKeyMatches (PgpPublicKey key, MailboxAddress mailbox)
 		{
+			var secure = mailbox as SecureMailboxAddress;
+
+			if (secure != null) {
+				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
+
+				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
+			}
+
 			foreach (string userId in key.GetUserIds ()) {
 				MailboxAddress email;
 
@@ -344,10 +360,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("mailbox");
 
 			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ()) {
-				if (!PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
-					continue;
-
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
+					if (!PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
+						continue;
+
 					if (!key.IsEncryptionKey || key.IsRevoked ())
 						continue;
 
@@ -394,6 +410,14 @@ namespace MimeKit.Cryptography {
 
 		static bool PgpSecretKeyMatches (PgpSecretKey key, MailboxAddress mailbox)
 		{
+			var secure = mailbox as SecureMailboxAddress;
+
+			if (secure != null) {
+				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
+
+				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
+			}
+
 			foreach (string userId in key.UserIds) {
 				MailboxAddress email;
 
@@ -427,10 +451,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("mailbox");
 
 			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
-				if (!PgpSecretKeyMatches (keyring.GetSecretKey (), mailbox))
-					continue;
-
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
+					if (!PgpSecretKeyMatches (keyring.GetSecretKey (), mailbox))
+						continue;
+
 					if (!key.IsSigningKey)
 						continue;
 
