@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.0.11.0</version>
+        <version>1.0.12.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,11 +22,7 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added the ContentDisposition.FormData string constant.
-* Allow the ContentDisposition.Disposition property to be set to values other than "attachment" and "inline". (issue #112)
-* Shortened the length of the local-part of auto-generated Message-Ids.
-* Fixed MimeMessage.CreateFromMailMessage() to not duplicate From/To/Cc/etc addresses if the System.Net.Mail.MailMessage has been sent via System.Net.Mail.SmtpClient prior to calling MimeMessage.CreateFromMailMessage(). (issue #115)
-* Added immutability-friendly .ctor to MimeMessage for use with languages such as F#. (issue #116)
+        <releaseNotes>* Modified InternetAddressList.Equals() to return true if the lists contain the same addresses even if they are in different orders. (issue #118)
 
 Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>

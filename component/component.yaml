@@ -1,6 +1,6 @@
 id: mimekit
 name: MimeKit
-version: 1.0.11.0
+version: 1.0.12.0
 publisher: Jeffrey Stedfast
 publisher-url: http://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
@@ -19,9 +19,9 @@ libraries:
     - ../MimeKit/bin/Release/lib/MonoAndroid/MimeKit.dll
 packages:
   ios-unified:
-    - MimeKit, Version=1.0.11.0
+    - MimeKit, Version=1.0.12.0
   android:
-    - MimeKit, Version=1.0.11.0
+    - MimeKit, Version=1.0.12.0
 samples:
   - name: "Android Sample"
     path: ../samples/MessageReader.Android/MessageReader.Android.sln

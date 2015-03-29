@@ -1,6 +1,6 @@
 <Type Name="GroupAddress" FullName="MimeKit.GroupAddress">
-  <TypeSignature Language="C#" Value="public class GroupAddress : MimeKit.InternetAddress, IEquatable&lt;MimeKit.GroupAddress&gt;" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit GroupAddress extends MimeKit.InternetAddress implements class System.IEquatable`1&lt;class MimeKit.GroupAddress&gt;" />
+  <TypeSignature Language="C#" Value="public class GroupAddress : MimeKit.InternetAddress" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit GroupAddress extends MimeKit.InternetAddress" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -9,9 +9,6 @@
     <BaseTypeName>MimeKit.InternetAddress</BaseTypeName>
   </Base>
   <Interfaces>
-    <Interface>
-      <InterfaceName>System.IEquatable&lt;MimeKit.GroupAddress&gt;</InterfaceName>
-    </Interface>
   </Interfaces>
   <Docs>
     <summary>
@@ -120,8 +117,8 @@
       </Docs>
     </Member>
     <Member MemberName="Equals">
-      <MemberSignature Language="C#" Value="public bool Equals (MimeKit.GroupAddress other);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(class MimeKit.GroupAddress other) cil managed" />
+      <MemberSignature Language="C#" Value="public override bool Equals (MimeKit.InternetAddress other);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool Equals(class MimeKit.InternetAddress other) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -130,19 +127,13 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="other" Type="MimeKit.GroupAddress" />
+        <Parameter Name="other" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="other">The <see cref="T:MimeKit.GroupAddress" /> to compare with the current <see cref="T:MimeKit.GroupAddress" />.</param>
-        <summary>
-            Determines whether the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current <see cref="T:MimeKit.GroupAddress" />.
-            </summary>
-        <returns>
-          <c>true</c> if the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current
-            <see cref="T:MimeKit.GroupAddress" />; otherwise, <c>false</c>.</returns>
-        <remarks>
-            Compares two group addresses to determine if they are identical or not.
-            </remarks>
+        <param name="other">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Members">

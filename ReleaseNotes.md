@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 1.0.12
+
+* Modified InternetAddressList.Equals() to return true if the lists contain the same
+  addresses even if they are in different orders. (issue #118)
+* Allow S/MIME certificates with the NonRepudiation key usage to be used for signing.
+  (issue #119)
+* Don't change the Content-Transfer-Encoding of MIME parts being encrypted as part of
+  a multipart/encrypted. (issue #122)
+* Fixed logic to decide if a PGP secret key is expired. (issue #120)
+* Added support for SecureMailboxAddresses to OpenPgpContext to allow key lookups by
+  fingerprints instead of email addresses.
+
 ### MimeKit 1.0.11
 
 * Added the ContentDisposition.FormData string constant.
