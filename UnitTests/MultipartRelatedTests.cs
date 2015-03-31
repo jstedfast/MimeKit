@@ -61,9 +61,10 @@ namespace UnitTests {
 			Assert.IsNotNull (root, "The root document should not be null.");
 			Assert.IsTrue (root.ContentType.Matches ("text", "html"), "The root document has an unexpected mime-type.");
 
-			var start = "<" + root.ContentId + ">";
+			// Note: MimeKit no longer sets the "start" parameter if the root is the first MIME part due to a bug in Thunderbird.
+			//var start = "<" + root.ContentId + ">";
 
-			Assert.AreEqual (start, related.ContentType.Parameters["start"], "The start parameter does not match.");
+			//Assert.AreEqual (start, related.ContentType.Parameters["start"], "The start parameter does not match.");
 
 			for (int i = 0; i < related.Count; i++) {
 				var cid = new Uri (string.Format ("cid:{0}", related[i].ContentId));
@@ -95,9 +96,10 @@ namespace UnitTests {
 			Assert.IsNotNull (root, "The root document should not be null.");
 			Assert.IsTrue (root.ContentType.Matches ("text", "html"), "The root document has an unexpected mime-type.");
 
-			var start = "<" + root.ContentId + ">";
+			// Note: MimeKit no longer sets the "start" parameter if the root is the first MIME part due to a bug in Thunderbird.
+			//var start = "<" + root.ContentId + ">";
 
-			Assert.AreEqual (start, related.ContentType.Parameters["start"], "The start parameter does not match.");
+			//Assert.AreEqual (start, related.ContentType.Parameters["start"], "The start parameter does not match.");
 
 			for (int i = 1; i < related.Count; i++)
 				Assert.AreEqual (i, related.IndexOf (related[i].ContentLocation), "IndexOf did not return the expected index.");
