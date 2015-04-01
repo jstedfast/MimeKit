@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.0.13 (Pending)
+
+* Added a work-around for a bug in Thunderbird's multipart/related implementation.
+  (issue #124)
+
 ### MimeKit 1.0.12
 
 * Modified InternetAddressList.Equals() to return true if the lists contain the same
