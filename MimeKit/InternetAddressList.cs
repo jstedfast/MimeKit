@@ -264,12 +264,16 @@ namespace MimeKit {
 			if (addresses == null)
 				throw new ArgumentNullException ("addresses");
 
+			bool changed = false;
+
 			foreach (var address in addresses) {
 				address.Changed += AddressChanged;
 				list.Add (address);
+				changed = true;
 			}
 
-			OnChanged ();
+			if (changed)
+				OnChanged ();
 		}
 
 		/// <summary>
@@ -280,8 +284,11 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
-			foreach (var address in list)
-				address.Changed -= AddressChanged;
+			if (list.Count == 0)
+				return;
+
+			for (int i = 0; i < list.Count; i++)
+				list[i].Changed -= AddressChanged;
 
 			list.Clear ();
 			OnChanged ();
