@@ -2023,13 +2023,13 @@ namespace MimeKit {
 				msg.Sender = (MailboxAddress) message.Sender;
 			if (msg.From.Count == 0 && message.From != null)
 				msg.From.Add ((MailboxAddress) message.From);
-			if (msg.ReplyTo.Count == 0)
+			if (msg.ReplyTo.Count == 0 && message.ReplyToList.Count > 0)
 				msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
-			if (msg.To.Count == 0)
+			if (msg.To.Count == 0 && message.To.Count > 0)
 				msg.To.AddRange ((InternetAddressList) message.To);
-			if (msg.Cc.Count == 0)
+			if (msg.Cc.Count == 0 && message.CC.Count > 0)
 				msg.Cc.AddRange ((InternetAddressList) message.CC);
-			if (msg.Bcc.Count == 0)
+			if (msg.Bcc.Count == 0 && message.Bcc.Count > 0)
 				msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
 			if (string.IsNullOrEmpty (msg.Subject))
 				msg.Subject = message.Subject ?? string.Empty;
