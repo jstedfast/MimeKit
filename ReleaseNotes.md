@@ -4,6 +4,8 @@
 
 * Added a work-around for a bug in Thunderbird's multipart/related implementation.
   (issue #124)
+* Improved MimeMessage.CreateFromMailMessage() a bit more to avoid creating empty
+  From, Reply-To, To, Cc and/or Bcc headers.
 
 ### MimeKit 1.0.12
 
