@@ -459,16 +459,15 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The header name.</returns>
 		/// <param name="value">The enum value.</param>
-		public static string ToHeaderName (this Enum value)
+		public static string ToHeaderName (this HeaderId value)
 		{
 			var name = value.ToString ();
-			var type = value.GetType ();
 
 #if PORTABLE
-			var field = type.GetTypeInfo ().GetDeclaredField (name);
+			var field = typeof (HeaderId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
 #else
-			var field = type.GetField (name);
+			var field = typeof (HeaderId).GetField (name);
 			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false);
 #endif
 
