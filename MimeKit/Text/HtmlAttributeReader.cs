@@ -1,5 +1,5 @@
 ﻿//
-// TextFormat.cs
+// HtmlAttributeReader.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -24,47 +24,13 @@
 // THE SOFTWARE.
 //
 
+using System;
+
 namespace MimeKit.Text {
-	/// <summary>
-	/// An enumeration of text formats.
-	/// </summary>
-	/// <remarks>
-	/// An enumeration of text formats.
-	/// </remarks>
-	public enum TextFormat {
-		/// <summary>
-		/// The plain text format.
-		/// </summary>
-		Text,
-
-		/// <summary>
-		/// The HTML text format.
-		/// </summary>
-		Html,
-
-		/// <summary>
-		/// The flowed text format (as described in rfc3676).
-		/// </summary>
-		Flowed,
-
-		/// <summary>
-		/// THe markdown format.
-		/// </summary>
-		Markdown,
-
-		/// <summary>
-		/// The enriched text format.
-		/// </summary>
-		Enriched,
-
-		/// <summary>
-		/// The compressed rich text format.
-		/// </summary>
-		CompressedRichText,
-
-		/// <summary>
-		/// The rich text format.
-		/// </summary>
-		RichText,
+	public class HtmlAttributeReader
+	{
+		public HtmlAttributeReader ()
+		{
+		}
 	}
 }

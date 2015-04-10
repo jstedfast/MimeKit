@@ -1,5 +1,5 @@
 ﻿//
-// TextFormat.cs
+// HtmlUtils.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,46 +25,48 @@
 //
 
 namespace MimeKit.Text {
-	/// <summary>
-	/// An enumeration of text formats.
-	/// </summary>
-	/// <remarks>
-	/// An enumeration of text formats.
-	/// </remarks>
-	public enum TextFormat {
-		/// <summary>
-		/// The plain text format.
-		/// </summary>
-		Text,
+	static class HtmlUtils
+	{
+		static bool IsValidStartCharacter (char c)
+		{
+			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
+		}
 
-		/// <summary>
-		/// The HTML text format.
-		/// </summary>
-		Html,
+		static bool IsValidNameCharacter (char c)
+		{
+			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
+		}
 
-		/// <summary>
-		/// The flowed text format (as described in rfc3676).
-		/// </summary>
-		Flowed,
+		public static bool IsValidAttributeName (string name)
+		{
+			if (string.IsNullOrEmpty (name))
+				return false;
 
-		/// <summary>
-		/// THe markdown format.
-		/// </summary>
-		Markdown,
+			if (!IsValidStartCharacter (name[0]))
+				return false;
 
-		/// <summary>
-		/// The enriched text format.
-		/// </summary>
-		Enriched,
+			for (int i = 0; i < name.Length; i++) {
+				if (!IsValidNameCharacter (name[i]))
+					return false;
+			}
 
-		/// <summary>
-		/// The compressed rich text format.
-		/// </summary>
-		CompressedRichText,
+			return true;
+		}
 
-		/// <summary>
-		/// The rich text format.
-		/// </summary>
-		RichText,
+		public static bool IsValidTagName (string name)
+		{
+			if (string.IsNullOrEmpty (name))
+				return false;
+
+			if (!IsValidStartCharacter (name[0]))
+				return false;
+
+			for (int i = 0; i < name.Length; i++) {
+				if (!IsValidNameCharacter (name[i]))
+					return false;
+			}
+
+			return true;
+		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// TextFormat.cs
+// HtmlWriterState.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,45 +26,28 @@
 
 namespace MimeKit.Text {
 	/// <summary>
-	/// An enumeration of text formats.
+	/// An enumeration of possible states of a <see cref="HtmlWriter"/>.
 	/// </summary>
 	/// <remarks>
-	/// An enumeration of text formats.
+	/// An enumeration of possible states of a <see cref="HtmlWriter"/>.
 	/// </remarks>
-	public enum TextFormat {
+	public enum HtmlWriterState {
 		/// <summary>
-		/// The plain text format.
+		/// The <see cref="HtmlWriter"/> is not within a tag. In this state, the <see cref="HtmlWriter"/>
+		/// can only write a tag or text.
 		/// </summary>
-		Text,
+		Default,
 
 		/// <summary>
-		/// The HTML text format.
+		/// The <see cref="HtmlWriter"/> is inside a tag but has not started to write an attribute. In this
+		/// state, the <see cref="HtmlWriter"/> can write an attribute, another tag, or text.
 		/// </summary>
-		Html,
+		Tag,
 
 		/// <summary>
-		/// The flowed text format (as described in rfc3676).
+		/// The <see cref="HtmlWriter"/> is inside an attribute. In this state, the <see cref="HtmlWriter"/>
+		/// can append a value to the current attribute, start the next attribute, or write another tag or text.
 		/// </summary>
-		Flowed,
-
-		/// <summary>
-		/// THe markdown format.
-		/// </summary>
-		Markdown,
-
-		/// <summary>
-		/// The enriched text format.
-		/// </summary>
-		Enriched,
-
-		/// <summary>
-		/// The compressed rich text format.
-		/// </summary>
-		CompressedRichText,
-
-		/// <summary>
-		/// The rich text format.
-		/// </summary>
-		RichText,
+		Attribute
 	}
 }
