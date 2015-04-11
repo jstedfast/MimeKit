@@ -19,8 +19,8 @@
   </Docs>
   <Members>
     <Member MemberName="ToHeaderName">
-      <MemberSignature Language="C#" Value="public static string ToHeaderName (this Enum value);" />
-      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string ToHeaderName(class System.Enum value) cil managed" />
+      <MemberSignature Language="C#" Value="public static string ToHeaderName (this MimeKit.HeaderId value);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string ToHeaderName(valuetype MimeKit.HeaderId value) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -29,7 +29,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="value" Type="System.Enum" RefType="this" />
+        <Parameter Name="value" Type="MimeKit.HeaderId" RefType="this" />
       </Parameters>
       <Docs>
         <param name="value">The enum value.</param>

@@ -16,10 +16,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.12.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.13.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.12.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.13.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -372,17 +372,17 @@
     </ExtensionMethod>
     <ExtensionMethod>
       <Targets>
-        <Target Type="T:System.Enum" />
+        <Target Type="T:MimeKit.HeaderId" />
       </Targets>
       <Member MemberName="ToHeaderName">
-        <MemberSignature Language="C#" Value="public static string ToHeaderName (this Enum value);" />
-        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string ToHeaderName(class System.Enum value) cil managed" />
+        <MemberSignature Language="C#" Value="public static string ToHeaderName (this MimeKit.HeaderId value);" />
+        <MemberSignature Language="ILAsm" Value=".method public static hidebysig string ToHeaderName(valuetype MimeKit.HeaderId value) cil managed" />
         <MemberType>ExtensionMethod</MemberType>
         <ReturnValue>
           <ReturnType>System.String</ReturnType>
         </ReturnValue>
         <Parameters>
-          <Parameter Name="value" Type="System.Enum" RefType="this" />
+          <Parameter Name="value" Type="MimeKit.HeaderId" RefType="this" />
         </Parameters>
         <Docs>
           <param name="value">The enum value.</param>
@@ -390,7 +390,7 @@
             Converts the enum value into the equivalent header field name.
             </summary>
         </Docs>
-        <Link Type="MimeKit.HeaderIdExtensions" Member="M:MimeKit.HeaderIdExtensions.ToHeaderName(System.Enum)" />
+        <Link Type="MimeKit.HeaderIdExtensions" Member="M:MimeKit.HeaderIdExtensions.ToHeaderName(MimeKit.HeaderId)" />
       </Member>
     </ExtensionMethod>
   </ExtensionMethods>

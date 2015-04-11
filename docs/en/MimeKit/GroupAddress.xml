@@ -130,10 +130,16 @@
         <Parameter Name="other" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="other">The <see cref="T:MimeKit.GroupAddress" /> to compare with the current <see cref="T:MimeKit.GroupAddress" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current <see cref="T:MimeKit.GroupAddress" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.GroupAddress" /> is equal to the current
+            <see cref="T:MimeKit.GroupAddress" />; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Compares two group addresses to determine if they are identical or not.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Members">

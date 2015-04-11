@@ -72,10 +72,17 @@
         <Parameter Name="other" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="other">The internet address to compare to.</param>
+        <summary>
+            Compares two internet addresses.
+            </summary>
+        <returns>The sort order of the current internet address compared to the other internet address.</returns>
+        <remarks>
+            Compares two internet addresses for the purpose of sorting.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="other" /> is <c>null</c>.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="Encoding">
@@ -116,10 +123,16 @@
         <Parameter Name="other" Type="MimeKit.InternetAddress" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="other">The <see cref="T:MimeKit.InternetAddress" /> to compare with the current <see cref="T:MimeKit.InternetAddress" />.</param>
+        <summary>
+            Determines whether the specified <see cref="T:MimeKit.InternetAddress" /> is equal to the current <see cref="T:MimeKit.InternetAddress" />.
+            </summary>
+        <returns>
+          <c>true</c> if the specified <see cref="T:MimeKit.InternetAddress" /> is equal to the current
+            <see cref="T:MimeKit.InternetAddress" />; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Compares two internet addresses to determine if they are identical or not.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
