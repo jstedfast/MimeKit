@@ -10,13 +10,6 @@ summary: A complete MIME library with support for S/MIME and PGP.
 icons:
   - mimekit_512x512.png
   - mimekit_128x128.png
-libraries: 
-  ios-unified:
-    - ../MimeKit/bin/Release/lib/Xamarin.iOS/BouncyCastle.dll
-    - ../MimeKit/bin/Release/lib/Xamarin.iOS/MimeKit.dll
-  android:
-    - ../MimeKit/bin/Release/lib/MonoAndroid/BouncyCastle.dll
-    - ../MimeKit/bin/Release/lib/MonoAndroid/MimeKit.dll
 packages:
   ios-unified:
     - MimeKit, Version=1.0.13.0
