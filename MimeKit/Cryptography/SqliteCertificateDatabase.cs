@@ -64,7 +64,7 @@ namespace MimeKit.Cryptography {
 
 			try {
 				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
-				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || !Environment.Is64BitProcess) {
+				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
 					sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
 					if (sqliteAssembly != null) {
 						sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");

@@ -764,7 +764,7 @@ namespace MimeKit {
 
 				if (!Header.TryParse (options, buf, headerIndex, false, out header)) {
 #if DEBUG
-					Debug.WriteLine ("Invalid header at offset {0}: {1}", headerOffset, ConvertToCString (headerBuffer, 0, headerIndex));
+					Debug.WriteLine (string.Format ("Invalid header at offset {0}: {1}", headerOffset, ConvertToCString (headerBuffer, 0, headerIndex)));
 #endif
 					headerIndex = 0;
 					return;
@@ -1402,7 +1402,9 @@ namespace MimeKit {
 			var boundary = multipart.Boundary;
 
 			if (boundary == null) {
+#if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
+#endif
 
 				// Note: this will scan all content into the preamble...
 				return MultipartScanPreamble (multipart, inbuf);

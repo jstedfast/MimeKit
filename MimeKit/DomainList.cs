@@ -315,6 +315,19 @@ namespace MimeKit {
 
 		#endregion
 
+		static bool IsNullOrWhiteSpace (string value)
+		{
+			if (string.IsNullOrEmpty (value))
+				return true;
+
+			for (int i = 0; i < value.Length; i++) {
+				if (!char.IsWhiteSpace (value[i]))
+					return false;
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Returns a string representation of the list of domains.
 		/// </summary>
@@ -328,13 +341,13 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			for (int i = 0; i < domains.Count; i++) {
-				if (string.IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
+				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
 					continue;
 
 				if (builder.Length > 0)
 					builder.Append (',');
 
-				if (!string.IsNullOrWhiteSpace (domains[i]))
+				if (!IsNullOrWhiteSpace (domains[i]))
 					builder.Append ('@');
 
 				builder.Append (domains[i]);

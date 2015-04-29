@@ -436,6 +436,19 @@ namespace MimeKit {
 			}
 		}
 
+		static bool IsNullOrWhiteSpace (string value)
+		{
+			if (string.IsNullOrEmpty (value))
+				return true;
+
+			for (int i = 0; i < value.Length; i++) {
+				if (!char.IsWhiteSpace (value[i]))
+					return false;
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Verifies the Content-Md5 value against an independently computed md5sum.
 		/// </summary>
@@ -447,7 +460,7 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
 		public bool VerifyContentMd5 ()
 		{
-			if (string.IsNullOrWhiteSpace (md5sum) || ContentObject == null)
+			if (IsNullOrWhiteSpace (md5sum) || ContentObject == null)
 				return false;
 
 			return md5sum == ComputeContentMd5 ();

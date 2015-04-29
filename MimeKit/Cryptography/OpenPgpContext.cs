@@ -527,7 +527,9 @@ namespace MimeKit.Cryptography {
 
 					return privateKey;
 				} catch (Exception ex) {
-					Debug.WriteLine ("Failed to extract secret key: {0}", ex);
+#if DEBUG
+					Debug.WriteLine (string.Format ("Failed to extract secret key: {0}", ex));
+#endif
 				}
 
 				attempts++;

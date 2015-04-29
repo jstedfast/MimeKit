@@ -237,8 +237,17 @@ namespace MimeKit.Cryptography {
 			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
 				EncryptionAlgorithm algorithm;
 
-				if (Enum.TryParse (token.Trim (), out algorithm))
+#if NET_3_5
+				try {
+					algorithm = (EncryptionAlgorithm) Enum.Parse (typeof (EncryptionAlgorithm), token.Trim (), true);
 					algorithms.Add (algorithm);
+				} catch (ArgumentException) {
+				} catch (OverflowException) {
+				}
+#else
+				if (Enum.TryParse (token.Trim (), true, out algorithm))
+					algorithms.Add (algorithm);
+#endif
 			}
 
 			return algorithms.ToArray ();
