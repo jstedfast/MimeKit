@@ -2023,7 +2023,7 @@ namespace MimeKit {
 				msg.Sender = (MailboxAddress) message.Sender;
 			if (msg.From.Count == 0 && message.From != null)
 				msg.From.Add ((MailboxAddress) message.From);
-#if NET_2_0
+#if NET_3_5
 			if (msg.ReplyTo.Count == 0 && message.ReplyTo != null)
 				msg.ReplyTo.Add ((MailboxAddress) message.ReplyTo);
 #else
