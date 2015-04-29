@@ -49,7 +49,7 @@ namespace MimeKit.Utils {
 
 		internal static void GetRandomBytes (byte[] buffer)
 		{
-#if NET_3_5
+#if NET_2_0
 			var random = new RNGCryptoServiceProvider ();
 			random.GetBytes (buffer);
 #elif !PORTABLE

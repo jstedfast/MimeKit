@@ -11,28 +11,28 @@
     <RootNamespace>MimeKit</RootNamespace>
     <AssemblyName>MimeKit</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\lib\net35</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\net35</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <OutputPath>bin\Debug\lib\net20</OutputPath>
+    <IntermediateOutputPath>obj\Debug\lib\net20</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_2_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
-    <OutputPath>bin\Release\lib\net35</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\net35</IntermediateOutputPath>
-    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <OutputPath>bin\Release\lib\net20</OutputPath>
+    <IntermediateOutputPath>obj\Release\lib\net20</IntermediateOutputPath>
+    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_2_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\lib\net35\MimeKit.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\lib\net20\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
