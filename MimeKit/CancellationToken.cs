@@ -31,10 +31,6 @@ namespace System.Threading {
 	{
 		public static readonly CancellationToken None = new CancellationToken ();
 
-		public CancellationToken ()
-		{
-		}
-
 		public bool CanBeCancelled {
 			get { return false; }
 		}
