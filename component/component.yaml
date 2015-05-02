@@ -21,3 +21,4 @@ samples:
   - name: "iOS Sample"
     path: ../samples/MessageReader.iOS/MessageReader.iOS.sln
 no_build: true
+is_shell: true
