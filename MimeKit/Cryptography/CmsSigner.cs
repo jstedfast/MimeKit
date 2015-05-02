@@ -32,6 +32,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -156,6 +157,43 @@ namespace MimeKit.Cryptography {
 			Certificate = certificate;
 			PrivateKey = key;
 		}
+
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
+		/// initialized to empty tables.</para>
+		/// </remarks>
+		/// <param name="certificate">The signer's certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="certificate"/> cannot be used for signing.
+		/// </exception>
+		public CmsSigner (System.Security.Cryptography.X509Certificates.X509Certificate2 certificate) : this ()
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			if (!certificate.HasPrivateKey)
+				throw new ArgumentException ("The certificate does not contain a private key.", "certificate");
+
+			var cert = DotNetUtilities.FromX509Certificate (certificate);
+			var key = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+
+			CheckCertificateCanBeUsedForSigning (cert);
+
+			CertificateChain = new X509CertificateChain ();
+			CertificateChain.Add (cert);
+			Certificate = cert;
+			PrivateKey = key.Private;
+		}
+#endif
 
 		/// <summary>
 		/// Gets the signer's certificate.
