@@ -24,6 +24,10 @@
 // THE SOFTWARE.
 //
 
+using System;
+using System.IO;
+using System.Globalization;
+
 namespace MimeKit.Text {
 	static class HtmlUtils
 	{
@@ -67,6 +71,122 @@ namespace MimeKit.Text {
 			}
 
 			return true;
+		}
+
+		static int IndexOfHtmlEncodeAttributeChar (char[] value, int startIndex, int endIndex)
+		{
+			for (int i = startIndex; i < endIndex; i++) {
+				switch (value[i]) {
+				case '\'': case '"': case '&': case '<': case '>':
+					return i;
+				}
+			}
+
+			return endIndex;
+		}
+
+		public static void HtmlEncodeAttribute (TextWriter writer, char[] value, int startIndex, int count)
+		{
+			int endIndex = startIndex + count;
+			int index;
+
+			index = IndexOfHtmlEncodeAttributeChar (value, startIndex, endIndex);
+
+			if (index > startIndex)
+				writer.Write (value, startIndex, index - startIndex);
+
+			while (index < endIndex) {
+				char c = value[index++];
+				int nextIndex;
+
+				switch (c) {
+				case '\'': writer.Write ("&#39;"); break;
+				case '"': writer.Write ("&quot;"); break;
+				case '&': writer.Write ("&amp;"); break;
+				case '<': writer.Write ("&lt;"); break;
+				case '>': writer.Write ("&gt;"); break;
+				default:
+					writer.Write (c);
+					break;
+				}
+
+				if (index >= endIndex)
+					break;
+
+				if ((nextIndex = IndexOfHtmlEncodeAttributeChar (value, index, endIndex)) > index) {
+					writer.Write (value, index, nextIndex - index);
+					index = nextIndex;
+				}
+			}
+		}
+
+		static int IndexOfHtmlEncodeChar (char[] value, int startIndex, int endIndex)
+		{
+			for (int i = startIndex; i < endIndex; i++) {
+				switch (value[i]) {
+				case '\'': case '"': case '&': case '<': case '>':
+					return i;
+				default:
+					if (value[i] >= 160 && value[i] < 256)
+						return i;
+
+					if (char.IsSurrogate (value[i]))
+						return i;
+
+					break;
+				}
+			}
+
+			return endIndex;
+		}
+
+		public static void HtmlEncode (TextWriter writer, char[] value, int startIndex, int count)
+		{
+			int endIndex = startIndex + count;
+			int index;
+
+			index = IndexOfHtmlEncodeChar (value, startIndex, endIndex);
+
+			if (index > startIndex)
+				writer.Write (value, startIndex, index - startIndex);
+
+			while (index < endIndex) {
+				char c = value[index++];
+				int unichar, nextIndex;
+
+				switch (c) {
+				case '\'': writer.Write ("&#39;"); break;
+				case '"': writer.Write ("&quot;"); break;
+				case '&': writer.Write ("&amp;"); break;
+				case '<': writer.Write ("&lt;"); break;
+				case '>': writer.Write ("&gt;"); break;
+				default:
+					if (c >= 160 && c < 256) {
+						unichar = c;
+					} else if (char.IsSurrogate (c)) {
+						if (index + 1 < value.Length && char.IsSurrogatePair (c, value[index])) {
+							unichar = char.ConvertToUtf32 (c, value[index]);
+							index++;
+						} else {
+							unichar = c;
+						}
+					} else {
+						writer.Write (c);
+						break;
+					}
+
+					writer.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
+					break;
+				}
+
+				if (index >= endIndex)
+					break;
+
+				if ((nextIndex = IndexOfHtmlEncodeChar (value, index, endIndex)) > index) {
+					writer.Write (value, index, nextIndex - index);
+					index = nextIndex;
+				}
+			}
 		}
 	}
 }

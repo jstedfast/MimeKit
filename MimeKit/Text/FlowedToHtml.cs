@@ -239,9 +239,9 @@ namespace MimeKit.Text {
 			using (var htmlWriter = new HtmlWriter (writer)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<FlowedToHtmlTagContext> ();
+				int currentQuoteDepth = 0, quoteDepth;
 				var para = new StringBuilder ();
 				FlowedToHtmlTagContext ctx;
-				int currentQuoteDepth = 0;
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
@@ -254,8 +254,6 @@ namespace MimeKit.Text {
 
 					if (line.Length == 0 || line[line.Length - 1] != ' ') {
 						// line did not end with a space, so the next line will start a new paragraph
-						int quoteDepth;
-
 						line = Unquote (para.ToString (), out quoteDepth);
 
 						while (currentQuoteDepth < quoteDepth) {
