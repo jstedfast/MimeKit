@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Globalization;
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -83,16 +82,16 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Creates a new <see cref="HtmlWriter"/>.
 		/// </remarks>
-		/// <param name="writer">The text writer.</param>
+		/// <param name="output">The output text writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="writer"/> is <c>null</c>.
+		/// <paramref name="output"/> is <c>null</c>.
 		/// </exception>
-		public HtmlWriter (TextWriter writer)
+		public HtmlWriter (TextWriter output)
 		{
-			if (writer == null)
-				throw new ArgumentNullException ("writer");
+			if (output == null)
+				throw new ArgumentNullException ("output");
 
-			this.writer = writer;
+			writer = output;
 		}
 
 		/// <summary>
@@ -227,16 +226,17 @@ namespace MimeKit.Text {
 		/// <param name="index">The starting index of the attribute value.</param>
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="id"/> is invalid.
+		/// <paramref name="id"/> is not a valid HTML attribute identifier.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="index"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para><paramref name="index"/> is less than zero or greater than the length of
+		/// <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
-		/// at the specified <paramref name="index"/>.</para>
+		/// <para><paramref name="index"/> and <paramref name="count"/> do not specify
+		/// a valid range in the <paramref name="buffer"/>.</para>
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attributes.
@@ -272,10 +272,11 @@ namespace MimeKit.Text {
 		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="index"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para><paramref name="index"/> is less than zero or greater than the length of
+		/// <paramref name="buffer"/>.</para>
 		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
-		/// at the specified <paramref name="index"/>.</para>
+		/// <para><paramref name="index"/> and <paramref name="count"/> do not specify
+		/// a valid range in the <paramref name="buffer"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is an invalid attribute name.
@@ -308,7 +309,7 @@ namespace MimeKit.Text {
 		/// <param name="id">The attribute identifier.</param>
 		/// <param name="value">The attribute value.</param>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="id"/> is invalid.
+		/// <paramref name="id"/> is not a valid HTML attribute identifier.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -378,7 +379,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="id">The attribute identifier.</param>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="id"/> is invalid.
+		/// <paramref name="id"/> is not a valid HTML attribute identifier.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attributes.
@@ -430,6 +431,31 @@ namespace MimeKit.Text {
 			EncodeAttributeName (name);
 		}
 
+		/// <summary>
+		/// Write the attribute value to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the attribute value to the output stream.
+		/// </remarks>
+		/// <param name="buffer">A buffer containing the attribute value.</param>
+		/// <param name="index">The starting index of the attribute value.</param>
+		/// <param name="count">The number of characters in the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="index"/> is less than zero or greater than the length of
+		/// <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="index"/> and <paramref name="count"/> do not specify
+		/// a valid range in the <paramref name="buffer"/>.</para>
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attribute values.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteAttributeValue (char[] buffer, int index, int count)
 		{
 			ValidateArguments (buffer, index, count);
@@ -438,10 +464,26 @@ namespace MimeKit.Text {
 			EncodeAttributeValue (buffer, index, count);
 		}
 
-		public void WriteAttributeValue (HtmlAttributeReader attributeReader)
-		{
-		}
+		//public void WriteAttributeValue (HtmlAttributeReader attributeReader)
+		//{
+		//}
 
+		/// <summary>
+		/// Write the attribute value to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the attribute value to the output stream.
+		/// </remarks>
+		/// <param name="value">The attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attribute values.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteAttributeValue (string value)
 		{
 			if (value == null)
@@ -452,6 +494,19 @@ namespace MimeKit.Text {
 			EncodeAttributeValue (value);
 		}
 
+		/// <summary>
+		/// Write an empty element tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes an empty element tag.
+		/// </remarks>
+		/// <param name="id">The HTML tag identifier.</param>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="id"/> is not a valid HTML tag identifier.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteEmptyElementTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
@@ -470,6 +525,22 @@ namespace MimeKit.Text {
 			writer.Write (string.Format ("<{0}/>", id.ToHtmlTagName ()));
 		}
 
+		/// <summary>
+		/// Write an empty element tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes an empty element tag.
+		/// </remarks>
+		/// <param name="name">The name of the HTML tag.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="name"/> is not a valid HTML tag.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteEmptyElementTag (string name)
 		{
 			ValidateTagName (name);
@@ -483,6 +554,19 @@ namespace MimeKit.Text {
 			writer.Write (string.Format ("<{0}/>", name));
 		}
 
+		/// <summary>
+		/// Write an end tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes an end tag.
+		/// </remarks>
+		/// <param name="id">The HTML tag identifier.</param>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="id"/> is not a valid HTML tag identifier.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteEndTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
@@ -498,6 +582,22 @@ namespace MimeKit.Text {
 			writer.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
 		}
 
+		/// <summary>
+		/// Write an end tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes an end tag.
+		/// </remarks>
+		/// <param name="name">The name of the HTML tag.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="name"/> is not a valid HTML tag.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteEndTag (string name)
 		{
 			ValidateTagName (name);
@@ -520,6 +620,19 @@ namespace MimeKit.Text {
 		/// <param name="buffer">The buffer containing HTML markup.</param>
 		/// <param name="index">The index of the first character to write.</param>
 		/// <param name="count">The number of characters to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="index"/> is less than zero or greater than the length of
+		/// <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="index"/> and <paramref name="count"/> do not specify
+		/// a valid range in the <paramref name="buffer"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteMarkupText (char[] buffer, int index, int count)
 		{
 			ValidateArguments (buffer, index, count);
@@ -544,6 +657,12 @@ namespace MimeKit.Text {
 		/// Writes a string containing HTML markup directly to the output, without escaping special characters.
 		/// </remarks>
 		/// <param name="value">The string containing HTML markup.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteMarkupText (string value)
 		{
 			if (value == null)
@@ -559,6 +678,19 @@ namespace MimeKit.Text {
 			writer.Write (value);
 		}
 
+		/// <summary>
+		/// Write a start tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes a start tag.
+		/// </remarks>
+		/// <param name="id">The HTML tag identifier.</param>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="id"/> is not a valid HTML tag identifier.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteStartTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
@@ -573,6 +705,22 @@ namespace MimeKit.Text {
 			WriterState = HtmlWriterState.Tag;
 		}
 
+		/// <summary>
+		/// Write a start tag.
+		/// </summary>
+		/// <remarks>
+		/// Writes a start tag.
+		/// </remarks>
+		/// <param name="name">The name of the HTML tag.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="name"/> is not a valid HTML tag.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteStartTag (string name)
 		{
 			ValidateTagName (name);
@@ -589,6 +737,28 @@ namespace MimeKit.Text {
 		//{
 		//}
 
+		/// <summary>
+		/// Write text to the output stream, escaping special characters.
+		/// </summary>
+		/// <remarks>
+		/// Writes text to the output stream, escaping special characters.
+		/// </remarks>
+		/// <param name="buffer">The text buffer.</param>
+		/// <param name="index">The index of the first character to write.</param>
+		/// <param name="count">The number of characters to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="index"/> is less than zero or greater than the length of
+		/// <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="index"/> and <paramref name="count"/> do not specify
+		/// a valid range in the <paramref name="buffer"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteText (char[] buffer, int index, int count)
 		{
 			ValidateArguments (buffer, index, count);
@@ -607,6 +777,19 @@ namespace MimeKit.Text {
 		//{
 		//}
 
+		/// <summary>
+		/// Write text to the output stream, escaping special characters.
+		/// </summary>
+		/// <remarks>
+		/// Writes text to the output stream, escaping special characters.
+		/// </remarks>
+		/// <param name="value">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void WriteText (string value)
 		{
 			if (value == null)
@@ -623,6 +806,15 @@ namespace MimeKit.Text {
 				HtmlUtils.HtmlEncode (writer, value.ToCharArray (), 0, value.Length);
 		}
 
+		/// <summary>
+		/// Flush any remaining state to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Flushes any remaining state to the output stream.
+		/// </remarks>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
 		public void Flush ()
 		{
 			CheckDisposed ();
