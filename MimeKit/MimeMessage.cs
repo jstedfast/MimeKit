@@ -903,7 +903,7 @@ namespace MimeKit {
 
 						charset = charset != null ? charset.ToLowerInvariant () : "utf-8";
 
-						if (charset == "utf-8" && charset == "us-ascii")
+						if (charset == "utf-8" || charset == "us-ascii")
 							continue;
 
 						isUnicodeSafe = false;
