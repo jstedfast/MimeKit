@@ -156,7 +156,7 @@ namespace MimeKit {
 				body = mixed;
 			}
 
-			return body ?? new TextPart ("plain");
+			return body ?? new TextPart ("plain") { Text = string.Empty };
 		}
 	}
 }
