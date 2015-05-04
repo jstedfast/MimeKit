@@ -35,10 +35,10 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
     public abstract class MimeFilterBase : IMimeFilter
     {
-		byte[] output = new byte[4096];
-		byte[] preload = null;
-		byte[] inbuf = null;
 		int preloadLength;
+		byte[] preload;
+		byte[] output;
+		byte[] inbuf;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.MimeFilterBase"/> class.
@@ -221,15 +221,12 @@ namespace MimeKit.IO.Filters {
 		/// <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
 		protected void EnsureOutputSize (int size, bool keep)
 		{
-			if (size == 0)
-				return;
-
-			int outputSize = output != null ? output.Length : 0;
+			int outputSize = output != null ? output.Length : -1;
 
 			if (outputSize >= size)
 				return;
 
-			if (keep)
+			if (keep && output != null)
 				Array.Resize<byte> (ref output, GetIdealBufferSize (size));
 			else
 				output = new byte[GetIdealBufferSize (size)];
