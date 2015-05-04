@@ -190,6 +190,9 @@ namespace MimeKit {
 		/// <value>The text.</value>
 		public string Text {
 			get {
+				if (ContentObject == null)
+					return string.Empty;
+
 				var charset = ContentType.Parameters["charset"];
 
 				using (var memory = new MemoryStream ()) {
@@ -244,6 +247,9 @@ namespace MimeKit {
 		{
 			if (encoding == null)
 				throw new ArgumentNullException ("encoding");
+
+			if (ContentObject == null)
+				return string.Empty;
 
 			using (var memory = new MemoryStream ()) {
 				ContentObject.DecodeTo (memory);
