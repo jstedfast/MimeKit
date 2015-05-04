@@ -35,8 +35,8 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
     public abstract class MimeFilterBase : IMimeFilter
     {
+		byte[] output = new byte[4096];
 		byte[] preload = null;
-		byte[] output = null;
 		byte[] inbuf = null;
 		int preloadLength;
 
