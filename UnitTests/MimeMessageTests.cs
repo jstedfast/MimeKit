@@ -143,5 +143,21 @@ Just for fun....  -- Nathaniel<nl>
 
 			Assert.AreEqual (2, multipart.Count, "Expected 2 MIME parts within the multipart/alternative.");
 		}
+
+		[Test]
+		public void TestIssue135 ()
+		{
+			var message = new MimeMessage ();
+			message.Body = new TextPart ("plain") {
+				ContentTransferEncoding = ContentEncoding.Base64,
+				ContentObject = new ContentObject (new MemoryStream (new byte[1], false))
+			};
+
+			try {
+				message.ToString ();
+			} catch (Exception ex) {
+				Assert.Fail (ex.Message);
+			}
+		}
 	}
 }
