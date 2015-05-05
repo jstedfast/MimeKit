@@ -191,13 +191,12 @@ namespace MimeKit.Text {
 				return false;
 
 			while (index < endIndex && text[index] == '.') {
-				index++;
+				int subdomain = index++;
 
-				if (index == endIndex)
-					return false;
-
-				if (!SkipSubDomain (text, endIndex, ref index))
-					return false;
+				if (index == endIndex || !SkipSubDomain (text, endIndex, ref index)) {
+					index = subdomain;
+					break;
+				}
 			}
 
 			return true;
