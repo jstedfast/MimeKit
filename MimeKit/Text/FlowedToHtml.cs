@@ -39,6 +39,8 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class FlowedToHtml : TextConverter
 	{
+		readonly UrlScanner scanner;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.FlowedToHtml"/> class.
 		/// </summary>
@@ -47,6 +49,10 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public FlowedToHtml ()
 		{
+			scanner = new UrlScanner ();
+
+			for (int i = 0; i < UrlPatterns.Count; i++)
+				scanner.Add (UrlPatterns[i]);
 		}
 
 		/// <summary>
@@ -149,12 +155,20 @@ namespace MimeKit.Text {
 
 		class FlowedToHtmlTagContext : HtmlTagContext
 		{
+			HtmlAttributeCollection attrs;
+
+			public FlowedToHtmlTagContext (HtmlTagId tag, HtmlAttribute attr) : base (tag)
+			{
+				attrs = new HtmlAttributeCollection (new [] { attr });
+			}
+
 			public FlowedToHtmlTagContext (HtmlTagId tag) : base (tag)
 			{
+				attrs = HtmlAttributeCollection.Empty;
 			}
 
 			public override HtmlAttributeCollection Attributes {
-				get { return HtmlAttributeCollection.Empty; }
+				get { return attrs; }
 			}
 
 			public override bool IsEmptyElementTag {
@@ -200,6 +214,50 @@ namespace MimeKit.Text {
 			}
 
 			return false;
+		}
+
+		void WriteText (HtmlWriter htmlWriter, string text)
+		{
+			var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
+			var content = text.ToCharArray ();
+			int endIndex = content.Length;
+			int startIndex = 0;
+			UrlMatch match;
+			int count;
+
+			do {
+				count = endIndex - startIndex;
+
+				if (scanner.Scan (content, startIndex, count, out match)) {
+					count = match.EndIndex - match.StartIndex;
+
+					if (match.StartIndex > startIndex) {
+						// write everything up to the match
+						htmlWriter.WriteText (content, startIndex, match.StartIndex);
+					}
+
+					var href = match.Prefix + new string (content, match.StartIndex, count);
+					var ctx = new FlowedToHtmlTagContext (HtmlTagId.A, new HtmlAttribute (HtmlAttributeId.Href, href));
+					callback (ctx, htmlWriter);
+
+					if (!ctx.SuppressInnerContent)
+						htmlWriter.WriteText (content, match.StartIndex, count);
+
+					if (!ctx.DeleteEndTag) {
+						ctx.SetIsEndTag (true);
+
+						if (ctx.InvokeCallbackForEndTag)
+							callback (ctx, htmlWriter);
+						else
+							ctx.WriteTag (htmlWriter);
+					}
+
+					startIndex = match.EndIndex;
+				} else {
+					htmlWriter.WriteText (content, startIndex, count);
+					break;
+				}
+			} while (startIndex < endIndex);
 		}
 
 		/// <summary>
@@ -285,7 +343,7 @@ namespace MimeKit.Text {
 							callback (ctx, htmlWriter);
 
 							if (!ctx.SuppressInnerContent)
-								htmlWriter.WriteText (line);
+								WriteText (htmlWriter, line);
 
 							if (!ctx.DeleteEndTag) {
 								ctx.SetIsEndTag (true);

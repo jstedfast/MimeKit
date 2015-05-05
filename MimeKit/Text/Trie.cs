@@ -89,7 +89,7 @@ namespace MimeKit.Text {
 			root = new TrieState (null);
 		}
 
-		static void ValidateArguments (string text, int startIndex, int count)
+		static void ValidateArguments (char[] text, int startIndex, int count)
 		{
 			if (text == null)
 				throw new ArgumentNullException ("text");
@@ -259,7 +259,7 @@ namespace MimeKit.Text {
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
 		/// a valid range in the <paramref name="text"/> string.
 		/// </exception>
-		public int Search (string text, int startIndex, int count, out string pattern)
+		public int Search (char[] text, int startIndex, int count, out string pattern)
 		{
 			ValidateArguments (text, startIndex, count);
 
@@ -322,7 +322,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public int Search (string text, int startIndex, out string pattern)
+		public int Search (char[] text, int startIndex, out string pattern)
 		{
 			return Search (text, startIndex, text.Length - startIndex, out pattern);
 		}
@@ -339,7 +339,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <c>null</c>.
 		/// </exception>
-		public int Search (string text, out string pattern)
+		public int Search (char[] text, out string pattern)
 		{
 			return Search (text, 0, text.Length, out pattern);
 		}

@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -46,10 +47,33 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public abstract class TextConverter
 	{
+		internal readonly static List<UrlPattern> UrlPatterns;
 		Encoding outputEncoding = Encoding.UTF8;
 		Encoding inputEncoding = Encoding.UTF8;
 		int outputStreamBufferSize = 4096;
 		int inputStreamBufferSize = 4096;
+
+		static TextConverter ()
+		{
+			UrlPatterns = new List<UrlPattern> (new [] {
+				new UrlPattern ("file://",   "",        UrlScanner.GetFileStartIndex,     UrlScanner.GetFileEndIndex),
+				new UrlPattern ("ftp://",    "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("sftp://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("http://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("https://",  "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("news://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("nntp://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("telnet://", "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("webcal://", "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("callto:",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("h323:",     "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("sip:",      "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("www.",      "http://", UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("ftp.",      "ftp://",  UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
+				new UrlPattern ("mailto:",   "",        UrlScanner.GetMailToStartIndex,   UrlScanner.GetMailToEndIndex),
+				new UrlPattern ("@",         "mailto:", UrlScanner.GetAddrspecStartIndex, UrlScanner.GetAddrspecEndIndex)
+			});
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.TextConverter"/> class.

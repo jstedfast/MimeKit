@@ -29,16 +29,33 @@ using System.Collections.Generic;
 
 namespace MimeKit.Text {
 	/// <summary>
-	/// A collection of HTML attributes.
+	/// A readonly collection of HTML attributes.
 	/// </summary>
 	/// <remarks>
-	/// A collection of HTML attributes.
+	/// A readonly collection of HTML attributes.
 	/// </remarks>
 	public class HtmlAttributeCollection : IEnumerable<HtmlAttribute>
 	{
 		internal static readonly HtmlAttributeCollection Empty = new HtmlAttributeCollection ();
 
 		readonly List<HtmlAttribute> attributes = new List<HtmlAttribute> ();
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlAttributeCollection"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlAttributeCollection"/>.
+		/// </remarks>
+		/// <param name="collection">A collection of attributes.</param>
+		public HtmlAttributeCollection (IEnumerable<HtmlAttribute> collection)
+		{
+			attributes = new List<HtmlAttribute> (collection);
+		}
+
+		HtmlAttributeCollection ()
+		{
+			attributes = new List<HtmlAttribute> ();
+		}
 
 		/// <summary>
 		/// Get the number of attributes in the collection.
