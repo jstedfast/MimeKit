@@ -56,22 +56,22 @@ namespace MimeKit.Text {
 		static TextConverter ()
 		{
 			UrlPatterns = new List<UrlPattern> (new [] {
-				new UrlPattern ("file://",   "",        UrlScanner.GetFileStartIndex,     UrlScanner.GetFileEndIndex),
-				new UrlPattern ("ftp://",    "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("sftp://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("http://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("https://",  "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("news://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("nntp://",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("telnet://", "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("webcal://", "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("callto:",   "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("h323:",     "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("sip:",      "",        UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("www.",      "http://", UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("ftp.",      "ftp://",  UrlScanner.GetWebStartIndex,      UrlScanner.GetWebEndIndex),
-				new UrlPattern ("mailto:",   "",        UrlScanner.GetMailToStartIndex,   UrlScanner.GetMailToEndIndex),
-				new UrlPattern ("@",         "mailto:", UrlScanner.GetAddrspecStartIndex, UrlScanner.GetAddrspecEndIndex)
+				new UrlPattern (UrlPatternType.Addrspec, "@",         "mailto:"),
+				new UrlPattern (UrlPatternType.MailTo,   "mailto:",   ""),
+				new UrlPattern (UrlPatternType.Web,      "www.",      "http://"),
+				new UrlPattern (UrlPatternType.Web,      "ftp.",      "ftp://"),
+				new UrlPattern (UrlPatternType.File,     "file://",   ""),
+				new UrlPattern (UrlPatternType.Web,      "ftp://",    ""),
+				new UrlPattern (UrlPatternType.Web,      "sftp://",   ""),
+				new UrlPattern (UrlPatternType.Web,      "http://",   ""),
+				new UrlPattern (UrlPatternType.Web,      "https://",  ""),
+				new UrlPattern (UrlPatternType.Web,      "news://",   ""),
+				new UrlPattern (UrlPatternType.Web,      "nntp://",   ""),
+				new UrlPattern (UrlPatternType.Web,      "telnet://", ""),
+				new UrlPattern (UrlPatternType.Web,      "webcal://", ""),
+				new UrlPattern (UrlPatternType.Web,      "callto:",   ""),
+				new UrlPattern (UrlPatternType.Web,      "h323:",     ""),
+				new UrlPattern (UrlPatternType.Web,      "sip:",      "")
 			});
 		}
 

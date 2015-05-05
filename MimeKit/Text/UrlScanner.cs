@@ -43,26 +43,30 @@ namespace MimeKit.Text {
 		}
 	}
 
-	delegate bool UrlMatchGetIndexDelegate (UrlMatch match, char[] input, int startIndex, int matchIndex, int endIndex);
+	enum UrlPatternType {
+		Addrspec,
+		MailTo,
+		File,
+		Web
+	}
 
 	class UrlPattern
 	{
+		public readonly UrlPatternType Type;
 		public readonly string Pattern;
 		public readonly string Prefix;
-		public readonly UrlMatchGetIndexDelegate GetStartIndex;
-		public readonly UrlMatchGetIndexDelegate GetEndIndex;
 
-		public UrlPattern (string pattern, string prefix, UrlMatchGetIndexDelegate start, UrlMatchGetIndexDelegate end)
+		public UrlPattern (UrlPatternType type, string pattern, string prefix)
 		{
 			Pattern = pattern;
 			Prefix = prefix;
-			GetStartIndex = start;
-			GetEndIndex = end;
+			Type = type;
 		}
 	}
 
 	class UrlScanner
 	{
+		delegate bool GetIndexDelegate (UrlMatch match, char[] input, int startIndex, int matchIndex, int endIndex);
 		const string AtomCharacters = "!#$%&'*+-/=?^_`{|}~";
 		const string UrlSafeCharacters = "$-_.+!*'(),{}|\\^~[]`#%\";/?:@&=";
 
@@ -81,6 +85,7 @@ namespace MimeKit.Text {
 
 		public bool Scan (char[] text, int startIndex, int count, out UrlMatch match)
 		{
+			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
 			UrlPattern url;
 			string pattern;
@@ -98,12 +103,31 @@ namespace MimeKit.Text {
 
 			match = new UrlMatch (url.Pattern, url.Prefix);
 
-			if (!url.GetStartIndex (match, text, startIndex, index, endIndex)) {
+			switch (url.Type) {
+			case UrlPatternType.Addrspec:
+				getStartIndex = GetAddrspecStartIndex;
+				getEndIndex = GetAddrspecEndIndex;
+				break;
+			case UrlPatternType.MailTo:
+				getStartIndex = GetMailToStartIndex;
+				getEndIndex = GetMailToEndIndex;
+				break;
+			case UrlPatternType.File:
+				getStartIndex = GetFileStartIndex;
+				getEndIndex = GetFileEndIndex;
+				break;
+			default:
+				getStartIndex = GetWebStartIndex;
+				getEndIndex = GetWebEndIndex;
+				break;
+			}
+
+			if (!getStartIndex (match, text, startIndex, index, endIndex)) {
 				match = null;
 				return false;
 			}
 
-			if (!url.GetEndIndex (match, text, startIndex, index, endIndex)) {
+			if (!getEndIndex (match, text, startIndex, index, endIndex)) {
 				match = null;
 				return false;
 			}
@@ -392,7 +416,7 @@ namespace MimeKit.Text {
 			return colons < 7;
 		}
 
-		public static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			int index = matchIndex - 1;
 
@@ -420,7 +444,7 @@ namespace MimeKit.Text {
 			return true;
 		}
 
-		public static bool GetAddrspecEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetAddrspecEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			int index = matchIndex + 1;
 
@@ -461,13 +485,13 @@ namespace MimeKit.Text {
 			return true;
 		}
 
-		public static bool GetFileStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetFileStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			match.StartIndex = matchIndex;
 			return true;
 		}
 
-		public static bool GetFileEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetFileEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
@@ -480,13 +504,13 @@ namespace MimeKit.Text {
 			return index > matchIndex + match.Pattern.Length;
 		}
 
-		public static bool GetMailToStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetMailToStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			match.StartIndex = matchIndex;
 			return true;
 		}
 
-		public static bool GetMailToEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetMailToEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			int index = matchIndex + match.Pattern.Length;
 
@@ -542,13 +566,13 @@ namespace MimeKit.Text {
 			return true;
 		}
 
-		public static bool GetWebStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetWebStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			match.StartIndex = matchIndex;
 			return true;
 		}
 
-		public static bool GetWebEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool GetWebEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
