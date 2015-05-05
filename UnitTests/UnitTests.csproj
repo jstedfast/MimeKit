@@ -74,6 +74,7 @@
     <Compile Include="RtfCompressedToRtfTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="TnefTests.cs" />
+    <Compile Include="TrieTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
