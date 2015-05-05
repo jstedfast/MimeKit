@@ -190,6 +190,7 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			int outIndex, outLength;
+			TnefAttachFlags flags;
 			byte[] attachData;
 			string text;
 
@@ -273,6 +274,15 @@ namespace MimeKit.Tnef {
 							break;
 						case TnefPropertyId.AttachMethod:
 							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+							break;
+						case TnefPropertyId.AttachFlags:
+							flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
+							if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
+								if (attachment.ContentDisposition == null)
+									attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
+								else
+									attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
+							}
 							break;
 						case TnefPropertyId.AttachSize:
 							if (attachment.ContentDisposition == null)
