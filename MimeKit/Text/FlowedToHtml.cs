@@ -355,7 +355,7 @@ namespace MimeKit.Text {
 							}
 						}
 
-						para.Clear ();
+						para.Length = 0;
 					} else if (DeleteSpace) {
 						// Note: lines ending with a space mean that the next line is a continuation
 						para.Length--;
