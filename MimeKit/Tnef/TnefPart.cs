@@ -191,6 +191,7 @@ namespace MimeKit.Tnef {
 			MimePart attachment = null;
 			int outIndex, outLength;
 			TnefAttachFlags flags;
+			string[] mimeType;
 			byte[] attachData;
 			string text;
 
@@ -274,6 +275,13 @@ namespace MimeKit.Tnef {
 							break;
 						case TnefPropertyId.AttachMethod:
 							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+							break;
+						case TnefPropertyId.AttachMimeTag:
+							mimeType = prop.ReadValueAsString ().Split ('/');
+							if (mimeType.Length == 2) {
+								attachment.ContentType.MediaType = mimeType[0].Trim ();
+								attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
+							}
 							break;
 						case TnefPropertyId.AttachFlags:
 							flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
