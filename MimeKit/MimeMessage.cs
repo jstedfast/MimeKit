@@ -925,8 +925,12 @@ namespace MimeKit {
 				#endif
 				int count = (int) memory.Length;
 
-				if (isUnicodeSafe)
-					return CharsetUtils.UTF8.GetString (buffer, 0, count);
+				if (isUnicodeSafe) {
+					try {
+						return CharsetUtils.UTF8.GetString (buffer, 0, count);
+					} catch (DecoderFallbackException) {
+					}
+				}
 
 				return CharsetUtils.Latin1.GetString (buffer, 0, count);
 			}
