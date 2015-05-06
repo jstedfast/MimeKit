@@ -217,7 +217,7 @@ namespace MimeKit {
 							return CharsetUtils.UTF8.GetString (content, 0, (int) memory.Length);
 						} catch (DecoderFallbackException) {
 							// fall back to iso-8859-1
-							encoding = Encoding.GetEncoding (28591); // iso-8859-1
+							encoding = CharsetUtils.Latin1;
 						}
 					}
 
