@@ -73,6 +73,7 @@
     <Compile Include="PgpMimeTests.cs" />
     <Compile Include="RtfCompressedToRtfTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
+    <Compile Include="TextConverterTests.cs" />
     <Compile Include="TnefTests.cs" />
     <Compile Include="TrieTests.cs" />
     <Compile Include="UrlScannerTests.cs" />

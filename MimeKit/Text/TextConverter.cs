@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -304,5 +305,31 @@ namespace MimeKit.Text {
 		/// <para><paramref name="writer"/> is <c>null</c>.</para>
 		/// </exception>
 		public abstract void Convert (TextReader reader, TextWriter writer);
+
+		/// <summary>
+		/// Convert text from the <see cref="InputFormat"/> to the <see cref="OutputFormat"/>.
+		/// </summary>
+		/// <remarks>
+		/// Converts text from the <see cref="InputFormat"/> to the <see cref="OutputFormat"/>.
+		/// </remarks>
+		/// <returns>The converted text.</returns>
+		/// <param name="text">The text to convert.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public virtual string Convert (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			using (var reader = new StringReader (text)) {
+				var output = new StringBuilder ();
+
+				using (var writer = new StringWriter (output))
+					Convert (reader, writer);
+
+				return output.ToString ();
+			}
+		}
 	}
 }
