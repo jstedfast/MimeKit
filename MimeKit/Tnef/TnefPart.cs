@@ -259,14 +259,14 @@ namespace MimeKit.Tnef {
 							stream.Read (guid, 0, 16);
 
 							// the rest is content
-							stream.CopyTo (content, 4096);
+							using (var filtered = new FilteredStream (content)) {
+								filtered.Add (filter);
+								stream.CopyTo (filtered, 4096);
+								filtered.Flush ();
+							}
 
-#if !PORTABLE
-							var buffer = content.GetBuffer ();
-#else
-							var buffer = content.ToArray ();
-#endif
-							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
+							content.Position = 0;
+
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 							attachment.ContentObject = new ContentObject (content);
 							filter.Reset ();
