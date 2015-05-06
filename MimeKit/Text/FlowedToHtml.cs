@@ -192,18 +192,15 @@ namespace MimeKit.Text {
 
 			quoteDepth = 0;
 
-			if (line.Length == 0 || line[0] != '>')
+			if (line.Length == 0)
 				return line;
 
-			do {
+			while (line[index] == '>') {
 				quoteDepth++;
 				index++;
+			}
 
-				if (index < line.Length && line[index] == ' ')
-					index++;
-			} while (index < line.Length && line[index] == '>');
-
-			return line.Substring (index);
+			return index > 0 ? line.Substring (index) : line;
 		}
 
 		static bool SuppressContent (IList<FlowedToHtmlTagContext> stack)
