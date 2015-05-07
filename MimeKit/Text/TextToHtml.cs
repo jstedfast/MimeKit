@@ -319,6 +319,17 @@ namespace MimeKit.Text {
 						callback (ctx, htmlWriter);
 					}
 				}
+
+				for (int i = stack.Count; i > 0; i--) {
+					ctx = stack[i - 1];
+
+					ctx.SetIsEndTag (true);
+
+					if (ctx.InvokeCallbackForEndTag)
+						callback (ctx, htmlWriter);
+					else
+						ctx.WriteTag (htmlWriter);
+				}
 			}
 
 			if (!string.IsNullOrEmpty (Footer)) {
