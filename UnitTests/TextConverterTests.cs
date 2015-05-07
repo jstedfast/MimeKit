@@ -50,6 +50,59 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestQuotedFlowedToText ()
+		{
+			string expected = "> Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed " + Environment.NewLine +
+				"> reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered " + Environment.NewLine +
+				">> dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe " + Environment.NewLine +
+				">>> unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly " + Environment.NewLine +
+				">>>> enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
+				">>>>> styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			var converter = new FlowedToText ();
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestBrokenQuotedFlowedToText ()
+		{
+			// Note: this is the brokenly quoted sample from rfc3676 at the end of section 4.5
+			string expected = "> Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg! " + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed " + Environment.NewLine +
+				"> reeky elf-skinned pigeon-egg! " + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered " + Environment.NewLine +
+				">> dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe " + Environment.NewLine +
+				">>> unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly " + Environment.NewLine +
+				">>>> enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
+				">>>>> styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			var converter = new FlowedToText ();
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
 		public void TestSimpleFlowedToHTML ()
 		{
 			const string expected = "<p>This is some sample text that has been formatted " +
@@ -58,6 +111,59 @@ namespace UnitTests {
 			string text = "This is some sample text that has been formatted " + Environment.NewLine +
 				"according to the format=flowed rules defined in rfc3676. " + Environment.NewLine +
 				"This text, once converted, should all be on a single line." + Environment.NewLine;
+			var converter = new FlowedToHtml ();
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestQuotedFlowedToHTML ()
+		{
+			const string expected = "<blockquote><p>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!</p>" +
+				"<blockquote><p>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!</p>" +
+				"<blockquote><p>Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!</p>" +
+				"<blockquote><p>Henceforth, the coding style is to be strictly enforced, including the use of only upper case.</p>" +
+				"<blockquote><p>I&#39;ve noticed a lack of adherence to the coding styles, of late.</p>" +
+				"<blockquote><p>Any complaints?</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>";
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed " + Environment.NewLine +
+				"> reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered " + Environment.NewLine +
+				">> dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe " + Environment.NewLine +
+				">>> unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly " + Environment.NewLine +
+				">>>> enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
+				">>>>> styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			var converter = new FlowedToHtml ();
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestBrokenQuotedFlowedToHTML ()
+		{
+			// Note: this is the brokenly quoted sample from rfc3676 at the end of section 4.5
+			const string expected = "<blockquote><p>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg! </p>" +
+				"<blockquote><p>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!</p>" +
+				"<blockquote><p>Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!</p>" +
+				"<blockquote><p>Henceforth, the coding style is to be strictly enforced, including the use of only upper case.</p>" +
+				"<blockquote><p>I&#39;ve noticed a lack of adherence to the coding styles, of late.</p>" +
+				"<blockquote><p>Any complaints?</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>";
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed " + Environment.NewLine +
+				"> reeky elf-skinned pigeon-egg! " + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered " + Environment.NewLine +
+				">> dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe " + Environment.NewLine +
+				">>> unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly " + Environment.NewLine +
+				">>>> enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
+				">>>>> styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
 			var converter = new FlowedToHtml ();
 			var result = converter.Convert (text);
 

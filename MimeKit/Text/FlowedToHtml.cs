@@ -195,10 +195,13 @@ namespace MimeKit.Text {
 			if (line.Length == 0)
 				return line;
 
-			while (line[index] == '>') {
+			while (index < line.Length && line[index] == '>') {
 				quoteDepth++;
 				index++;
 			}
+
+			if (index > 0 && index < line.Length && line[index] == ' ')
+				index++;
 
 			return index > 0 ? line.Substring (index) : line;
 		}
@@ -257,6 +260,53 @@ namespace MimeKit.Text {
 			} while (startIndex < endIndex);
 		}
 
+		void WriteParagraph (HtmlWriter htmlWriter, IList<FlowedToHtmlTagContext> stack, ref int currentQuoteDepth, StringBuilder para, int quoteDepth)
+		{
+			var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
+			FlowedToHtmlTagContext ctx;
+
+			while (currentQuoteDepth < quoteDepth) {
+				ctx = new FlowedToHtmlTagContext (HtmlTagId.BlockQuote);
+				callback (ctx, htmlWriter);
+				currentQuoteDepth++;
+				stack.Add (ctx);
+			}
+
+			while (quoteDepth < currentQuoteDepth) {
+				ctx = stack[stack.Count - 1];
+				stack.RemoveAt (stack.Count - 1);
+
+				if (!SuppressContent (stack) && !ctx.DeleteEndTag) {
+					ctx.SetIsEndTag (true);
+
+					if (ctx.InvokeCallbackForEndTag)
+						callback (ctx, htmlWriter);
+					else
+						ctx.WriteTag (htmlWriter);
+				}
+
+				if (ctx.TagId == HtmlTagId.BlockQuote)
+					currentQuoteDepth--;
+			}
+
+			if (!SuppressContent (stack)) {
+				ctx = new FlowedToHtmlTagContext (HtmlTagId.P);
+				callback (ctx, htmlWriter);
+
+				if (!ctx.SuppressInnerContent)
+					WriteText (htmlWriter, para.ToString ());
+
+				if (!ctx.DeleteEndTag) {
+					ctx.SetIsEndTag (true);
+
+					if (ctx.InvokeCallbackForEndTag)
+						callback (ctx, htmlWriter);
+					else
+						ctx.WriteTag (htmlWriter);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Convert the contents of <paramref name="reader"/> from the <see cref="InputFormat"/> to the
 		/// <see cref="OutputFormat"/> and uses the <paramref name="writer"/> to write the resulting text.
@@ -294,69 +344,53 @@ namespace MimeKit.Text {
 			using (var htmlWriter = new HtmlWriter (writer)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<FlowedToHtmlTagContext> ();
-				int currentQuoteDepth = 0, quoteDepth;
 				var para = new StringBuilder ();
-				FlowedToHtmlTagContext ctx;
+				int currentQuoteDepth = 0;
+				int paraQuoteDepth = -1;
+				int quoteDepth;
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
-					var stuffed = line.Length > 0 && line[0] == ' ';
+					// unquote the line
+					line = Unquote (line, out quoteDepth);
 
-					if (stuffed)
+					// remove space-stuffing
+					if (line.Length > 0 && line[0] == ' ')
 						line = line.Substring (1);
+
+					if (para.Length == 0) {
+						paraQuoteDepth = quoteDepth;
+					} else if (quoteDepth != paraQuoteDepth) {
+						// Note: according to rfc3676, when a folded line has a different quote
+						// depth than the previous line, then quote-depth rules win and we need
+						// to treat this as a new paragraph.
+						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+						paraQuoteDepth = quoteDepth;
+						para.Length = 0;
+					}
 
 					para.Append (line);
 
 					if (line.Length == 0 || line[line.Length - 1] != ' ') {
 						// line did not end with a space, so the next line will start a new paragraph
-						line = Unquote (para.ToString (), out quoteDepth);
-
-						while (currentQuoteDepth < quoteDepth) {
-							ctx = new FlowedToHtmlTagContext (HtmlTagId.BlockQuote);
-							callback (ctx, htmlWriter);
-							currentQuoteDepth++;
-							stack.Add (ctx);
-						}
-
-						while (quoteDepth < currentQuoteDepth) {
-							ctx = stack[stack.Count - 1];
-							stack.RemoveAt (stack.Count - 1);
-
-							if (!SuppressContent (stack) && !ctx.DeleteEndTag) {
-								ctx.SetIsEndTag (true);
-
-								if (ctx.InvokeCallbackForEndTag)
-									callback (ctx, htmlWriter);
-								else
-									ctx.WriteTag (htmlWriter);
-							}
-
-							if (ctx.TagId == HtmlTagId.BlockQuote)
-								currentQuoteDepth--;
-						}
-
-						if (!SuppressContent (stack)) {
-							ctx = new FlowedToHtmlTagContext (HtmlTagId.P);
-							callback (ctx, htmlWriter);
-
-							if (!ctx.SuppressInnerContent)
-								WriteText (htmlWriter, line);
-
-							if (!ctx.DeleteEndTag) {
-								ctx.SetIsEndTag (true);
-
-								if (ctx.InvokeCallbackForEndTag)
-									callback (ctx, htmlWriter);
-								else
-									ctx.WriteTag (htmlWriter);
-							}
-						}
-
+						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+						paraQuoteDepth = 0;
 						para.Length = 0;
 					} else if (DeleteSpace) {
 						// Note: lines ending with a space mean that the next line is a continuation
 						para.Length--;
 					}
+				}
+
+				for (int i = stack.Count; i > 0; i--) {
+					var ctx = stack[i - 1];
+
+					ctx.SetIsEndTag (true);
+
+					if (ctx.InvokeCallbackForEndTag)
+						callback (ctx, htmlWriter);
+					else
+						ctx.WriteTag (htmlWriter);
 				}
 			}
 

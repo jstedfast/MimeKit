@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -107,6 +108,26 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		static string Unquote (string line, out int quoteDepth)
+		{
+			int index = 0;
+
+			quoteDepth = 0;
+
+			if (line.Length == 0)
+				return line;
+
+			while (index < line.Length && line[index] == '>') {
+				quoteDepth++;
+				index++;
+			}
+
+			if (index > 0 && index < line.Length && line[index] == ' ')
+				index++;
+
+			return index > 0 ? line.Substring (index) : line;
+		}
+
 		/// <summary>
 		/// Convert the contents of <paramref name="reader"/> from the <see cref="InputFormat"/> to the
 		/// <see cref="OutputFormat"/> and uses the <paramref name="writer"/> to write the resulting text.
@@ -124,6 +145,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
+			StringBuilder para = new StringBuilder ();
+			int currentQuoteDepth = 0;
+			int paraQuoteDepth = -1;
+			int quoteDepth;
 			string line;
 
 			if (reader == null)
@@ -136,20 +161,37 @@ namespace MimeKit.Text {
 				writer.Write (Header);
 
 			while ((line = reader.ReadLine ()) != null) {
-				var stuffed = line.Length > 0 && line[0] == ' ';
+				line = Unquote (line, out quoteDepth);
 
-				if (stuffed)
+				// if there is a leading space, it was stuffed
+				if (line.Length > 0 && line[0] == ' ')
 					line = line.Substring (1);
 
-				if (line.Length == 0 || line[line.Length - 1] != ' ') {
-					// line did not end with a space, so the next line will not be a continuation
-					writer.WriteLine (line);
-				} else {
-					// Note: lines ending with a space mean that the next line is a continuation
-					if (DeleteSpace)
-						line = line.Substring (0, line.Length - 1);
+				if (paraQuoteDepth == -1) {
+					paraQuoteDepth = quoteDepth;
+				} else if (quoteDepth != paraQuoteDepth) {
+					// Note: according to rfc3676, when a folded line has a different quote
+					// depth than the previous line, then quote-depth rules win and we need
+					// to treat this as a new paragraph.
+					if (paraQuoteDepth > 0)
+						writer.Write (new string ('>', paraQuoteDepth) + " ");
+					writer.WriteLine (para);
+					paraQuoteDepth = quoteDepth;
+					para.Length = 0;
+				}
 
-					writer.Write (line);
+				para.Append (line);
+
+				if (line.Length == 0 || line[line.Length - 1] != ' ') {
+					// when a line does not end with a space, then the paragraph has ended
+					if (paraQuoteDepth > 0)
+						writer.Write (new string ('>', paraQuoteDepth) + " ");
+					writer.WriteLine (para);
+					paraQuoteDepth = -1;
+					para.Length = 0;
+				} else if (DeleteSpace) {
+					// Note: lines ending with a space mean that the next line is a continuation
+					para.Length--;
 				}
 			}
 
