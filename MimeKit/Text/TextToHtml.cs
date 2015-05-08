@@ -217,7 +217,7 @@ namespace MimeKit.Text {
 
 					if (match.StartIndex > startIndex) {
 						// write everything up to the match
-						htmlWriter.WriteText (content, startIndex, match.StartIndex);
+						htmlWriter.WriteText (content, startIndex, match.StartIndex - startIndex);
 					}
 
 					var href = match.Prefix + new string (content, match.StartIndex, count);
