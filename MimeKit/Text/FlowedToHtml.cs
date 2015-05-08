@@ -172,7 +172,7 @@ namespace MimeKit.Text {
 			}
 
 			public override bool IsEmptyElementTag {
-				get { return false; }
+				get { return TagId == HtmlTagId.Br; }
 			}
 
 			public void SetIsEndTag (bool value)
@@ -289,10 +289,13 @@ namespace MimeKit.Text {
 					currentQuoteDepth--;
 			}
 
-			if (!SuppressContent (stack)) {
-				ctx = new FlowedToHtmlTagContext (HtmlTagId.P);
-				callback (ctx, htmlWriter);
+			if (SuppressContent (stack))
+				return;
 
+			ctx = new FlowedToHtmlTagContext (para.Length == 0 ? HtmlTagId.Br : HtmlTagId.P);
+			callback (ctx, htmlWriter);
+
+			if (para.Length > 0) {
 				if (!ctx.SuppressInnerContent)
 					WriteText (htmlWriter, para.ToString ());
 
@@ -305,6 +308,9 @@ namespace MimeKit.Text {
 						ctx.WriteTag (htmlWriter);
 				}
 			}
+
+			if (!ctx.DeleteTag)
+				htmlWriter.WriteMarkupText (Environment.NewLine);
 		}
 
 		/// <summary>
