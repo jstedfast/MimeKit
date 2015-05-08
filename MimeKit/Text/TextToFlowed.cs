@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -97,63 +98,72 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
-		static bool LineRequiresSpaceStuffing (string line, int startIndex = 0)
+		static string Unquote (string line, out int quoteDepth)
 		{
-			if (line.Length <= startIndex || (line[startIndex] != ' ' && line[startIndex] != '>' && line[startIndex] != 'F'))
+			int index = 0;
+
+			quoteDepth = 0;
+
+			if (line.Length == 0 || line[0] != '>')
+				return line;
+
+			do {
+				quoteDepth++;
+				index++;
+
+				if (index < line.Length && line[index] == ' ')
+					index++;
+			} while (index < line.Length && line[index] == '>');
+
+			return line.Substring (index);
+		}
+
+		static bool StartsWith (string text, int startIndex, string value)
+		{
+			if (startIndex + value.Length > text.Length)
 				return false;
 
-			if (line[startIndex] == 'F') {
-				int index = startIndex + 1;
-
-				if (index >= line.Length || line[index++] != 'r')
-					return false;
-
-				if (index >= line.Length || line[index++] != 'o')
-					return false;
-
-				if (index >= line.Length || line[index++] != 'm')
-					return false;
-
-				if (index >= line.Length || line[index] != ' ')
+			for (int i = 0; i < value.Length; i++) {
+				if (text[startIndex + i] != value[i])
 					return false;
 			}
 
 			return true;
 		}
 
-		static string GetFlowedLine (char[] flowed, string line, ref int index)
+		static string GetFlowedLine (StringBuilder flowed, string line, ref int index, int quoteDepth)
 		{
-			int length = 0;
+			flowed.Length = 0;
 
-			// Space-stuff lines which start with a space, "From ", or ">".
-			if (LineRequiresSpaceStuffing (line, index))
-				flowed[length++] = ' ';
+			if (quoteDepth > 0)
+				flowed.Append ('>', quoteDepth);
+
+			// Space-stuffed lines which start with a space, "From ", or ">".
+			if (quoteDepth > 0 || StartsWith (line, index, "From "))
+				flowed.Append (' ');
+
+			if (flowed.Length + (line.Length - index) <= MaxLineLength) {
+				flowed.Append (line.Substring (index));
+				index = line.Length;
+
+				return flowed.ToString ();
+			}
 
 			do {
-				while (length < flowed.Length && index < line.Length && line[index] != ' ')
-					flowed[length++] = line[index++];
+				do {
+					flowed.Append (line[index++]);
+				} while (flowed.Length + 1 < MaxLineLength && index < line.Length && line[index] != ' ');
 
-				if (length == flowed.Length) {
-					flowed[length - 1] = ' ';
-					index--;
+				if (flowed.Length >= OptimalLineLength) {
+					flowed.Append (' ');
 					break;
 				}
 
-				if (length >= OptimalLineLength) {
-					flowed[length++] = ' ';
-					break;
-				}
+				while (flowed.Length + 1 < MaxLineLength && index < line.Length && line[index] == ' ')
+					flowed.Append (line[index++]);
+			} while (index < line.Length && flowed.Length < OptimalLineLength);
 
-				while (length < flowed.Length && index < line.Length && line[index] == ' ')
-					flowed[length++] = line[index++];
-
-				if (length == flowed.Length) {
-					index--;
-					break;
-				}
-			} while (index < line.Length && length < MaxLineLength);
-
-			return new string (flowed, 0, length);
+			return flowed.ToString ();
 		}
 
 		/// <summary>
@@ -173,7 +183,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
-			char[] flowed;
+			StringBuilder flowed;
 			string line;
 
 			if (reader == null)
@@ -185,28 +195,25 @@ namespace MimeKit.Text {
 			if (!string.IsNullOrEmpty (Header))
 				writer.Write (Header);
 
-			flowed = new char[MaxLineLength];
+			flowed = new StringBuilder (MaxLineLength);
 
 			while ((line = reader.ReadLine ()) != null) {
+				int quoteDepth;
 				int index = 0;
 
 				// Trim spaces before user-inserted hard line breaks.
 				line.TrimEnd (' ');
+
+				line = Unquote (line, out quoteDepth);
 
 				// Ensure all lines (fixed and flowed) are 78 characters or fewer in
 				// length, counting any trailing space as well as a space added as
 				// stuffing, but not counting the CRLF, unless a word by itself
 				// exceeds 78 characters.
 				do {
-					var flowedLine = GetFlowedLine (flowed, line, ref index);
-
-					if (index >= line.Length) {
-						writer.WriteLine (flowedLine);
-						break;
-					}
-
-					writer.Write (flowedLine);
-				} while (true);
+					var flowedLine = GetFlowedLine (flowed, line, ref index, quoteDepth);
+					writer.WriteLine (flowedLine);
+				} while (index < line.Length);
 			}
 
 			if (!string.IsNullOrEmpty (Footer))

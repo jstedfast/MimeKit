@@ -38,19 +38,14 @@ namespace MimeKit.Text {
 		Text,
 
 		/// <summary>
-		/// The HTML text format.
-		/// </summary>
-		Html,
-
-		/// <summary>
 		/// The flowed text format (as described in rfc3676).
 		/// </summary>
 		Flowed,
 
 		/// <summary>
-		/// THe markdown format.
+		/// The HTML text format.
 		/// </summary>
-		Markdown,
+		Html,
 
 		/// <summary>
 		/// The enriched text format.

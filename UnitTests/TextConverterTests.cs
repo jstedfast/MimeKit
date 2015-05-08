@@ -197,6 +197,34 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSimpleTextToFlowed ()
+		{
+			string expected = "> Thou art a villainous ill-breeding spongy dizzy-eyed reeky elf-skinned " + Environment.NewLine +
+				">  pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including " + Environment.NewLine +
+				">>>>  the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			string text = "> Thou art a villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+
+			converter = new FlowedToText { DeleteSpace = true };
+			result = converter.Convert (expected);
+
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
 		public void TestSimpleTextToHTML ()
 		{
 			const string expected = "This is some sample text. This is line #1.<br/>" +

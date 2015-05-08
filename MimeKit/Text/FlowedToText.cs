@@ -164,7 +164,7 @@ namespace MimeKit.Text {
 				line = Unquote (line, out quoteDepth);
 
 				// if there is a leading space, it was stuffed
-				if (line.Length > 0 && line[0] == ' ')
+				if (quoteDepth == 0 && line.Length > 0 && line[0] == ' ')
 					line = line.Substring (1);
 
 				if (paraQuoteDepth == -1) {

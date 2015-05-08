@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -57,10 +58,11 @@ namespace MimeKit.Text {
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
 
-		// attribute buffer
-		char[] tokenBuffer = new char[512];
-		char attributeValueQuote;
-		int tokenIndex;
+		// other buffers
+		readonly StringBuilder attributeValue = new StringBuilder ();
+		readonly StringBuilder attributeName = new StringBuilder ();
+		readonly StringBuilder tagName = new StringBuilder ();
+		char attributeQuoteChar;
 
 		readonly IList<HtmlAttribute> attributes = new List<HtmlAttribute> ();
 		readonly IList<string> openTags = new List<string> ();
@@ -74,6 +76,8 @@ namespace MimeKit.Text {
 		{
 			// Note: These are tags that auto-close when an identical tag is encountered and/or when a parent node is closed.
 			AutoCloseTags = new HashSet<string> (StringComparer.OrdinalIgnoreCase);
+			AutoCloseTags.Add ("tr");
+			AutoCloseTags.Add ("td");
 			AutoCloseTags.Add ("li");
 			AutoCloseTags.Add ("p");
 		}
