@@ -16,10 +16,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.13.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("1.0.14.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.13.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("1.0.14.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -182,6 +182,7 @@
     <Namespace Name="MimeKit.Tnef">
       <Type Name="RtfCompressedToRtf" Kind="Class" />
       <Type Name="RtfCompressionMode" Kind="Enumeration" />
+      <Type Name="TnefAttachFlags" Kind="Enumeration" />
       <Type Name="TnefAttachMethod" Kind="Enumeration" />
       <Type Name="TnefAttributeLevel" Kind="Enumeration" />
       <Type Name="TnefAttributeTag" Kind="Enumeration" />
