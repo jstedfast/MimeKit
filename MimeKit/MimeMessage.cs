@@ -265,11 +265,12 @@ namespace MimeKit {
 					return;
 				}
 
+				var options = FormatOptions.Default.Clone ();
 				var builder = new StringBuilder ();
 				int len = "Sender: ".Length;
 
-				value.Encode (FormatOptions.Default, builder, ref len);
-				builder.Append (FormatOptions.Default.NewLine);
+				value.Encode (options, builder, ref len);
+				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
@@ -299,11 +300,12 @@ namespace MimeKit {
 					return;
 				}
 
+				var options = FormatOptions.Default.Clone ();
 				var builder = new StringBuilder ();
 				int len = "Resent-Sender: ".Length;
 
-				value.Encode (FormatOptions.Default, builder, ref len);
-				builder.Append (FormatOptions.Default.NewLine);
+				value.Encode (options, builder, ref len);
+				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
@@ -1018,7 +1020,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default.Clone (), stream, cancellationToken);
 		}
 
 		#if !PORTABLE
@@ -1105,7 +1107,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.OpenWrite (fileName))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+				WriteTo (FormatOptions.Default.Clone (), stream, cancellationToken);
 		}
 		#endif
 
@@ -1463,11 +1465,12 @@ namespace MimeKit {
 
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
+			var options = FormatOptions.Default.Clone ();
 			var builder = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
-			list.Encode (FormatOptions.Default, builder, ref lineLength);
-			builder.Append (FormatOptions.Default.NewLine);
+			list.Encode (options, builder, ref lineLength);
+			builder.Append (options.NewLine);
 
 			var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 

@@ -1425,7 +1425,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static byte[] EncodePhrase (Encoding charset, string phrase)
 		{
-			return EncodePhrase (FormatOptions.Default, charset, phrase);
+			return EncodePhrase (FormatOptions.Default.Clone (), charset, phrase);
 		}
 
 		/// <summary>
@@ -1477,7 +1477,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static byte[] EncodeText (Encoding charset, string text)
 		{
-			return EncodeText (FormatOptions.Default, charset, text);
+			return EncodeText (FormatOptions.Default.Clone (), charset, text);
 		}
 	}
 }

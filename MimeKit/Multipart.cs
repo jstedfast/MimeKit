@@ -204,7 +204,8 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					var options = FormatOptions.Default.Clone ();
+					var folded = FoldPreambleOrEpilogue (options, value);
 					RawPreamble = Encoding.UTF8.GetBytes (folded);
 					preamble = folded;
 				} else {
@@ -238,7 +239,8 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					var options = FormatOptions.Default.Clone ();
+					var folded = FoldPreambleOrEpilogue (options, value);
 					RawEpilogue = Encoding.UTF8.GetBytes (folded);
 					epilogue = folded;
 				} else {
@@ -340,11 +342,13 @@ namespace MimeKit {
 
 			base.WriteTo (options, stream, cancellationToken);
 
-			if (options.International && ContentType.Matches ("multipart", "signed")) {
+			if (ContentType.Matches ("multipart", "signed")) {
 				// don't reformat the headers or content of any children of a multipart/signed
-				options = options.Clone ();
-				options.HiddenHeaders.Clear ();
-				options.International = false;
+				if (options.International || options.HiddenHeaders.Count > 0) {
+					options = options.Clone ();
+					options.HiddenHeaders.Clear ();
+					options.International = false;
+				}
 			}
 
 			var cancellable = stream as ICancellableStream;

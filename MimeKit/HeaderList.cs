@@ -656,8 +656,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("stream");
 
 			using (var filtered = new FilteredStream (stream)) {
-				if (options.NewLineFormat != FormatOptions.Default.NewLineFormat)
-					filtered.Add (options.CreateNewLineFilter ());
+				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
 					byte[] rawValue;
@@ -696,7 +695,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default.Clone (), stream, cancellationToken);
 		}
 
 		#region ICollection implementation

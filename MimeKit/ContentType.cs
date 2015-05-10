@@ -339,9 +339,10 @@ namespace MimeKit {
 			value.Append (MediaSubtype);
 
 			if (encode) {
+				var options = FormatOptions.Default.Clone ();
 				int lineLength = value.Length;
 
-				Parameters.Encode (FormatOptions.Default, value, ref lineLength, charset);
+				Parameters.Encode (options, value, ref lineLength, charset);
 			} else {
 				value.Append (Parameters.ToString ());
 			}
