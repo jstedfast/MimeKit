@@ -361,7 +361,7 @@ namespace MimeKit {
 			value.Append (disposition);
 
 			if (encode) {
-				var options = FormatOptions.Default.Clone ();
+				var options = FormatOptions.GetDefault ();
 				int lineLength = value.Length;
 
 				Parameters.Encode (options, value, ref lineLength, charset);

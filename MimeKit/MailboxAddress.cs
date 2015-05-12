@@ -303,7 +303,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 				int lineLength = 0;
 
-				Encode (FormatOptions.Default.Clone (), builder, ref lineLength);
+				Encode (FormatOptions.GetDefault (), builder, ref lineLength);
 
 				return builder.ToString ();
 			}

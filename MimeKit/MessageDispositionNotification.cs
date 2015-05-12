@@ -85,7 +85,7 @@ namespace MimeKit {
 
 		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
 		{
-			var options = FormatOptions.Default.Clone ();
+			var options = FormatOptions.GetDefault ();
 			var stream = new MemoryBlockStream ();
 
 			fields.WriteTo (options, stream);

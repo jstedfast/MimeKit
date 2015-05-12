@@ -485,7 +485,7 @@ namespace MimeKit {
 		/// <param name="encode">If set to <c>true</c>, each <see cref="InternetAddress"/> in the list will be encoded.</param>
 		public string ToString (bool encode)
 		{
-			return ToString (FormatOptions.Default.Clone (), encode);
+			return ToString (FormatOptions.GetDefault (), encode);
 		}
 
 		/// <summary>
@@ -497,7 +497,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (FormatOptions.Default.Clone (), false);
+			return ToString (FormatOptions.GetDefault (), false);
 		}
 
 		internal event EventHandler Changed;

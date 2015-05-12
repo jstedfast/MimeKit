@@ -181,7 +181,7 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			if (encode) {
-				var options = FormatOptions.Default.Clone ();
+				var options = FormatOptions.GetDefault ();
 				int lineLength = 0;
 
 				Encode (options, builder, ref lineLength);

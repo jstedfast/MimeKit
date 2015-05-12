@@ -265,7 +265,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var options = FormatOptions.Default.Clone ();
+				var options = FormatOptions.GetDefault ();
 				var builder = new StringBuilder ();
 				int len = "Sender: ".Length;
 
@@ -300,7 +300,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var options = FormatOptions.Default.Clone ();
+				var options = FormatOptions.GetDefault ();
 				var builder = new StringBuilder ();
 				int len = "Resent-Sender: ".Length;
 
@@ -915,7 +915,7 @@ namespace MimeKit {
 			}
 
 			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
+				var options = FormatOptions.GetDefault ();
 				options.International = false;
 
 				WriteTo (options, memory);
@@ -1020,7 +1020,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default.Clone (), stream, cancellationToken);
+			WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
 		}
 
 		#if !PORTABLE
@@ -1107,7 +1107,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.OpenWrite (fileName))
-				WriteTo (FormatOptions.Default.Clone (), stream, cancellationToken);
+				WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
 		}
 		#endif
 
@@ -1465,7 +1465,7 @@ namespace MimeKit {
 
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
-			var options = FormatOptions.Default.Clone ();
+			var options = FormatOptions.GetDefault ();
 			var builder = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
