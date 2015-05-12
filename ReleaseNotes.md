@@ -1,5 +1,9 @@
 # Release Notes
 
+### MimeKit 1.0.15
+
+* Fixed MimeMessage.WriteTo() to be thread-safe. (issue #138)
+
 ### MimeKit 1.0.14
 
 * Added support for .NET 3.5.
