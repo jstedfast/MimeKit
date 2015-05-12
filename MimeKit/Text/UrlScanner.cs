@@ -510,14 +510,9 @@ namespace MimeKit.Text {
 			return true;
 		}
 
-		static bool GetMailToEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		static bool SkipAddrspec (char[] text, int endIndex, ref int index)
 		{
-			int index = matchIndex + match.Pattern.Length;
-
-			if (index == endIndex)
-				return false;
-
-			if (!SkipWord (text, startIndex, ref index) || index >= endIndex)
+			if (!SkipWord (text, endIndex, ref index) || index >= endIndex)
 				return false;
 
 			while (text[index] == '.') {
@@ -547,7 +542,7 @@ namespace MimeKit.Text {
 				// we need at least 8 more characters
 				if (index + 8 >= endIndex)
 					return false;
-				
+
 				if (IsIPv6 (text, index)) {
 					index += "IPv6:".Length;
 					if (!SkipIPv6Literal (text, endIndex, ref index))
@@ -561,9 +556,31 @@ namespace MimeKit.Text {
 					return false;
 			}
 
+			return true;
+		}
+
+		static bool GetMailToEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
+		{
+			char close = GetClosingBrace (match, text, startIndex);
+			int contentIndex = matchIndex + match.Pattern.Length;
+			int index = contentIndex;
+
+			if (contentIndex == endIndex)
+				return false;
+
+			if (!SkipAddrspec (text, endIndex, ref index))
+				index = contentIndex;
+
+			if (text[index] == '?') {
+				index++;
+
+				while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
+					index++;
+			}
+
 			match.EndIndex = index;
 
-			return true;
+			return index > contentIndex;
 		}
 
 		static bool GetWebStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)

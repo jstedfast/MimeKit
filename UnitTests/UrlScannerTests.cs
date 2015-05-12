@@ -90,6 +90,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSimpleMailToUrl ()
+		{
+			TestUrlScanner ("This is some text with a mailto:simple.addrspec@example.com in the text...", "mailto:simple.addrspec@example.com");
+		}
+
+		[Test]
+		public void TestMailToUrlWithoutAddrspec ()
+		{
+			TestUrlScanner ("This is some text with a mailto:?subject=Shake%20it%20off,%20shake%20it%20off in the text...", "mailto:?subject=Shake%20it%20off,%20shake%20it%20off");
+		}
+
+		[Test]
+		public void TestMailToUrlWithAddrspecAndSubject ()
+		{
+			TestUrlScanner ("This is some text with a mailto:taylor.swift@mtv.com?subject=Shake%20it%20off,%20shake%20it%20off in the text...", "mailto:taylor.swift@mtv.com?subject=Shake%20it%20off,%20shake%20it%20off");
+		}
+
+		[Test]
 		public void TestFileUrl ()
 		{
 			TestUrlScanner ("This is some text with a file:///path/to/some/filename.txt url in it...", "file:///path/to/some/filename.txt");
