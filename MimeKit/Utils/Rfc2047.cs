@@ -913,6 +913,15 @@ namespace MimeKit.Utils {
 			return ContentEncoding.Base64;
 		}
 
+		static bool CharsetRequiresBase64 (Encoding encoding)
+		{
+			// https://tools.ietf.org/rfc/rfc1468.txt
+			//
+			// ISO-2022-JP may also be used in MIME Part 2 headers.  The "B"
+			// encoding should be used with ISO-2022-JP text.
+			return encoding.CodePage == 50220 || encoding.CodePage == 50222;
+		}
+
 		static void AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
 			var chars = new char[length];
@@ -930,7 +939,7 @@ namespace MimeKit.Utils {
 				word = CharsetConvert (charset, chars, length, out len);
 			}
 
-			if (GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
+			if (CharsetRequiresBase64 (charset) || GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
 				encoder = new Base64Encoder (true);
 				encoding = 'b';
 			} else {
