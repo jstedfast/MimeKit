@@ -53,8 +53,13 @@ namespace MimeKit.Text {
 		EmptyElementTag,
 
 		/// <summary>
-		/// The current token is a special HTML tag, such as a comment.
+		/// The current token is an HTML comment.
 		/// </summary>
-		SpecialTag
+		Comment,
+
+		/// <summary>
+		/// The current token is an HTML DOCTYPE tag.
+		/// </summary>
+		DocType,
 	}
 }

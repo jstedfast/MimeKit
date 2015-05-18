@@ -31,27 +31,25 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit.Text {
+	enum HtmlReaderState {
+		Initial,
+		Error,
+		EndOfFile,
+		Closed,
+
+		ReadTag,
+		ReadText
+	}
+
 	class HtmlReader : IDisposable
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-		static readonly HashSet<string> AutoClosingTags;
+		//static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		//static readonly HashSet<string> AutoClosingTags;
 		static readonly HashSet<string> SelfClosingTags;
 		const string PlainTextEndTag = "</plaintext>";
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 1;
-
-		enum HtmlParserState {
-			Initial,
-			Error,
-			EndOfFile,
-			Closed,
-
-			ReadText,
-			ReadTagName,
-			ReadAttributeName,
-			ReadAttributeValue,
-		}
 
 		// I/O buffering
 		readonly char[] input = new char[ReadAheadSize + BlockSize + PadSize];
@@ -60,28 +58,23 @@ namespace MimeKit.Text {
 		int inputEnd = ReadAheadSize;
 
 		// other buffers
-		readonly StringBuilder attributeValue = new StringBuilder ();
-		readonly StringBuilder attributeName = new StringBuilder ();
-		readonly StringBuilder tagName = new StringBuilder ();
-		char attributeQuoteChar;
+		readonly StringBuilder value = new StringBuilder ();
+		readonly StringBuilder name = new StringBuilder ();
 
-		readonly IList<HtmlAttribute> attributes = new List<HtmlAttribute> ();
-		readonly IList<string> openTags = new List<string> ();
-
-		HtmlParserState state;
 		TextReader reader;
 		int position;
+		bool plaintext;
 		bool eof;
 
 		static HtmlReader ()
 		{
 			// Note: These are tags that auto-close when an identical tag is encountered and/or when a parent node is closed.
-			AutoClosingTags = new HashSet<string> (new [] {
-				"li",
-				"p",
-				"td",
-				"tr"
-			}, StringComparer.OrdinalIgnoreCase);
+			//AutoClosingTags = new HashSet<string> (new [] {
+			//	"li",
+			//	"p",
+			//	"td",
+			//	"tr"
+			//}, StringComparer.OrdinalIgnoreCase);
 
 			// Note: These tags are considered to be Empty Elements even if they do not end with "/>".
 			SelfClosingTags = new HashSet<string> (new [] {
@@ -131,20 +124,8 @@ namespace MimeKit.Text {
 
 		void CheckDisposed ()
 		{
-			if (state == HtmlParserState.Closed)
+			if (State == HtmlReaderState.Closed)
 				throw new ObjectDisposedException ("HtmlReader");
-		}
-
-		/// <summary>
-		/// Get an attribute reader for the current HTML tag.
-		/// </summary>
-		/// <remarks>
-		/// Gets an attribute reader for the current HTML tag.
-		/// </remarks>
-		/// <value>The attribute reader.</value>
-		public HtmlAttributeReader AttributeReader {
-			// FIXME: this should probably throw an exception if not in the proper state
-			get; private set;
 		}
 
 		/// <summary>
@@ -170,25 +151,14 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get the identifier for the current HTNL tag.
+		/// Get the current state of the HTML reader.
 		/// </summary>
 		/// <remarks>
-		/// Gets the identifier for the current HTNL tag.
+		/// Gets the current state of the HTML reader.
 		/// </remarks>
-		/// <value>The tag identifier.</value>
-		public HtmlTagId TagId {
-			get; private set;
-		}
-
-		/// <summary>
-		/// Get the kind of the token currently being processed.
-		/// </summary>
-		/// <remarks>
-		/// Gets the kind of the token currently being processed.
-		/// </remarks>
-		/// <value>The kind of the token.</value>
-		public HtmlTokenKind TokenKind {
-			get; private set;
+		/// <value>The state of the reader.</value>
+		public HtmlReaderState State {
+			get; internal set;
 		}
 
 		int ReadAhead (int save = 0)
@@ -266,6 +236,135 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		bool SkipWhiteSpace ()
+		{
+			do {
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				input[inputEnd] = '>';
+				while (char.IsWhiteSpace (input[inputIndex]))
+					inputIndex++;
+			} while (inputIndex >= inputEnd);
+
+			return true;
+		}
+
+		bool ReadAttributeName ()
+		{
+			if (inputIndex >= inputEnd && ReadAhead () == 0) {
+				State = HtmlReaderState.EndOfFile;
+				return false;
+			}
+
+			if (!HtmlUtils.IsValidStartCharacter (input[inputIndex])) {
+				State = HtmlReaderState.Error;
+				return false;
+			}
+
+			value.Append (input[inputIndex++]);
+
+			do {
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				input[inputEnd] = ' ';
+				while (HtmlUtils.IsValidNameCharacter (input[inputIndex]))
+					value.Append (input[inputIndex++]);
+			} while (inputIndex >= inputEnd);
+
+			return true;
+		}
+
+		bool ReadAttributeValue ()
+		{
+			if (inputIndex >= inputEnd && ReadAhead () == 0) {
+				State = HtmlReaderState.EndOfFile;
+				return false;
+			}
+
+			if (input[inputIndex] == '\'' || input[inputIndex] == '"') {
+				char quote = input[inputIndex++];
+
+				value.Append (quote);
+
+				do {
+					if (inputIndex >= inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					input[inputEnd] = quote;
+					while (input[inputIndex] != quote)
+						value.Append (input[inputIndex++]);
+				} while (inputIndex >= inputEnd);
+
+				value.Append (quote);
+				inputIndex++;
+			} else {
+				do {
+					if (inputIndex >= inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					input[inputEnd] = ' ';
+					while (!char.IsWhiteSpace (input[inputIndex]) && input[inputIndex] != '>')
+						value.Append (input[inputIndex++]);
+				} while (inputIndex >= inputEnd);
+			}
+
+			return true;
+		}
+
+		bool ReadTagName ()
+		{
+			if (inputIndex >= inputEnd && ReadAhead () == 0) {
+				State = HtmlReaderState.EndOfFile;
+				return false;
+			}
+
+			if (!HtmlUtils.IsValidStartCharacter (input[inputIndex])) {
+				State = HtmlReaderState.Error;
+				return false;
+			}
+
+			value.Append (input[inputIndex]);
+			name.Append (input[inputIndex]);
+			inputIndex++;
+
+			do {
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				input[inputEnd] = ' ';
+				while (HtmlUtils.IsValidNameCharacter (input[inputIndex])) {
+					value.Append (input[inputIndex]);
+					name.Append (input[inputIndex]);
+					inputIndex++;
+				}
+			} while (inputIndex >= inputEnd);
+
+			return true;
+		}
+
+		internal HtmlReaderState GetNextState ()
+		{
+			if (inputIndex >= inputEnd && ReadAhead () == 0)
+				return HtmlReaderState.EndOfFile;
+
+			if (input[inputIndex] == '<')
+				return HtmlReaderState.ReadTag;
+
+			return HtmlReaderState.ReadText;
+		}
+
 		/// <summary>
 		/// Advance the reader to the next HTML token.
 		/// </summary>
@@ -273,15 +372,209 @@ namespace MimeKit.Text {
 		/// Advances the reader to the next HTML token.
 		/// </remarks>
 		/// <returns><c>true</c> on success; otherwise, <c>false</c>.</returns>
-		public bool ReadNextToken ()
+		public bool ReadNextToken (out HtmlToken token)
 		{
 			CheckDisposed ();
 
-			switch (state) {
-			case HtmlParserState.EndOfFile:
-			case HtmlParserState.Closed:
-			case HtmlParserState.Error:
+			switch (State) {
+			case HtmlReaderState.EndOfFile:
+			case HtmlReaderState.Closed:
+			case HtmlReaderState.Error:
+				token = null;
 				return false;
+			default:
+				if (ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					token = null;
+					return false;
+				}
+
+				if (input[inputIndex] == '<')
+					goto case HtmlReaderState.ReadTag;
+
+				goto case HtmlReaderState.ReadText;
+			case HtmlReaderState.ReadText:
+				token = new HtmlTokenText (HtmlTokenKind.Text, this);
+				break;
+			case HtmlReaderState.ReadTag:
+				var kind = HtmlTokenKind.StartTag;
+
+				value.Length = 0;
+				name.Length = 0;
+				token = null;
+
+				// read the '<'
+				value.Append (input[inputIndex++]);
+
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				if (input[inputIndex] == '!') {
+					kind = HtmlTokenKind.Comment;
+					value.Append ('!');
+					inputIndex++;
+
+					if (inputIndex == inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					value.Append (input[inputIndex]);
+					name.Append (input[inputIndex]);
+					inputIndex++;
+
+					if (inputIndex == inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					value.Append (input[inputIndex]);
+					name.Append (input[inputIndex]);
+					inputIndex++;
+
+					if (name[0] == '-' && name[1] == '-') {
+						do {
+							if (inputIndex == inputEnd && ReadAhead () == 0) {
+								State = HtmlReaderState.EndOfFile;
+								return false;
+							}
+
+							while (inputIndex < inputEnd) {
+								if (input[inputIndex] == '>' && value.Length > 6 &&
+									value[value.Length - 2] == '-' && value[value.Length - 1] == '-') {
+									value.Append (input[inputIndex++]);
+									break;
+								}
+
+								value.Append (input[inputIndex++]);
+							}
+						} while (inputIndex >= inputEnd);
+
+						token = new HtmlTokenComment (HtmlTokenKind.Comment, value.ToString ());
+						State = GetNextState ();
+
+						return true;
+					}
+
+					do {
+						if (inputIndex == inputEnd && ReadAhead () == 0) {
+							State = HtmlReaderState.EndOfFile;
+							return false;
+						}
+
+						input[inputEnd] = '>';
+						while (input[inputIndex] != '>')
+							value.Append (input[inputIndex++]);
+					} while (inputIndex >= inputEnd);
+
+					value.Append ('>');
+					inputIndex++;
+
+					token = new HtmlTokenDocType (HtmlTokenKind.DocType, value.ToString ());
+					State = GetNextState ();
+
+					return true;
+				}
+
+				if (!SkipWhiteSpace ())
+					return false;
+
+				if (input[inputIndex] == '/') {
+					kind = HtmlTokenKind.EndTag;
+					value.Append ('/');
+					inputIndex++;
+
+					if (!SkipWhiteSpace ())
+						return false;
+				}
+
+				// read the tag name
+				if (!ReadTagName ())
+					return false;
+
+				// read white space after the tag name
+				if (!SkipWhiteSpace ())
+					return false;
+
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				// read attributes
+				while (input[inputIndex] != '/' && input[inputIndex] != '>') {
+					value.Append (' ');
+
+					if (!ReadAttributeName ())
+						return false;
+					
+					if (!SkipWhiteSpace ())
+						return false;
+					
+					if (inputIndex >= inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					if (input[inputIndex] != '=') {
+						if (!SkipWhiteSpace ())
+							return false;
+						
+						continue;
+					}
+
+					value.Append ('=');
+					inputIndex++;
+
+					if (!SkipWhiteSpace ())
+						return false;
+					
+					if (!ReadAttributeValue ())
+						return false;
+					
+					if (!SkipWhiteSpace ())
+						return false;
+				}
+
+				if (input[inputIndex] == '/') {
+					kind = HtmlTokenKind.EmptyElementTag;
+					value.Append ('/');
+					inputIndex++;
+
+					if (!SkipWhiteSpace ())
+						return false;
+				}
+
+				if (inputIndex >= inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				if (input[inputIndex] != '>') {
+					State = HtmlReaderState.Error;
+					return false;
+				}
+
+				value.Append ('>');
+				inputIndex++;
+
+				var tag = name.ToString ();
+
+				if (kind == HtmlTokenKind.StartTag && SelfClosingTags.Contains (tag))
+					kind = HtmlTokenKind.EmptyElementTag;
+				
+				token = new HtmlTokenTag (kind, tag, value.ToString ());
+
+				if (kind == HtmlTokenKind.StartTag) {
+					plaintext = tag.ToHtmlTagId () == HtmlTagId.PlainText;
+				} else if (kind == HtmlTokenKind.EndTag && plaintext) {
+					plaintext = false;
+				}
+
+				State = GetNextState ();
+				break;
 			}
 
 			return true;
@@ -340,11 +633,11 @@ namespace MimeKit.Text {
 
 			if (index < end && !eof) {
 				if ((n = reader.Read (buffer, index, end - index)) > 0) {
-					state = HtmlParserState.Initial;
+					State = HtmlReaderState.Initial;
 					position += n;
 					index += n;
 				} else {
-					state = HtmlParserState.EndOfFile;
+					State = HtmlReaderState.EndOfFile;
 					eof = true;
 				}
 			}
@@ -383,11 +676,11 @@ namespace MimeKit.Text {
 			ValidateArguments (buffer, offset, count);
 			CheckDisposed ();
 
-			if (TokenKind != HtmlTokenKind.Text)
-				throw new InvalidOperationException ("The HtmlReader is not currently at a text token.");
-
-			if (state == HtmlParserState.Initial)
+			if (State == HtmlReaderState.Initial)
 				throw new InvalidOperationException ("You must call HtmlReader.ReadNextToken() before you can read text.");
+
+			if (State != HtmlReaderState.ReadText)
+				return 0;
 			
 			int end = offset + count;
 			int index = offset;
@@ -401,32 +694,17 @@ namespace MimeKit.Text {
 					break;
 
 				if (inputIndex < inputEnd) {
-					if (TagId != HtmlTagId.PlainText || CheckAtPlainTextEndTag ())
+					if (!plaintext || CheckAtPlainTextEndTag ()) {
+						State = HtmlReaderState.ReadTag;
 						break;
-				}
-
-				if (ReadAhead () == 0)
+					}
+				} else if (ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
 					break;
+				}
 			} while (true);
 
 			return index - offset;
-		}
-
-		/// <summary>
-		/// Read the name of the current HTML tag.
-		/// </summary>
-		/// <remarks>
-		/// Reads the name of the current HTML tag.
-		/// </remarks>
-		/// <returns>The name of the HTML tag.</returns>
-		public string ReadTagName ()
-		{
-			CheckDisposed ();
-
-			if (TokenKind == HtmlTokenKind.Text)
-				throw new InvalidOperationException ("The HtmlReader is not currently at an HTML tag token.");
-
-			return null;
 		}
 
 		/// <summary>
@@ -442,7 +720,7 @@ namespace MimeKit.Text {
 		protected virtual void Dispose (bool disposing)
 		{
 			if (disposing) {
-				state = HtmlParserState.Closed;
+				State = HtmlReaderState.Closed;
 				reader = null;
 			}
 		}

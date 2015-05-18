@@ -145,6 +145,7 @@
     <Compile Include="Text\HtmlTagContext.cs" />
     <Compile Include="Text\HtmlTagId.cs" />
     <Compile Include="Text\HtmlToHtml.cs" />
+    <Compile Include="Text\HtmlToken.cs" />
     <Compile Include="Text\HtmlTokenKind.cs" />
     <Compile Include="Text\HtmlUtils.cs" />
     <Compile Include="Text\HtmlWriter.cs" />

@@ -26,17 +26,18 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Globalization;
 
 namespace MimeKit.Text {
 	static class HtmlUtils
 	{
-		static bool IsValidStartCharacter (char c)
+		public static bool IsValidStartCharacter (char c)
 		{
 			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 		}
 
-		static bool IsValidNameCharacter (char c)
+		public static bool IsValidNameCharacter (char c)
 		{
 			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
 		}
@@ -187,6 +188,62 @@ namespace MimeKit.Text {
 					index = nextIndex;
 				}
 			}
+		}
+
+		public static string HtmlDecode (string value, int startIndex, int count)
+		{
+			var decoded = new StringBuilder ();
+			int endIndex = startIndex + count;
+			int index = startIndex;
+
+			while (index < endIndex) {
+				if (value[index] == '&') {
+					int semicolon = value.IndexOf (';', index + 1);
+
+					if (semicolon != -1) {
+						if (value[index + 1] == '#' && index + 2 < semicolon) {
+							int offset = index + 2;
+							char c = '\0';
+
+							while (char.IsDigit (value[offset]))
+								c = (char) ((c * 10) + (value[offset++] - '0'));
+
+							if (offset < semicolon) {
+								decoded.Append ("&#");
+								index += 2;
+							} else {
+								decoded.Append (c);
+								index = offset + 1;
+							}
+						} else {
+							var entity = value.Substring (index, (semicolon - index) + 1).ToLowerInvariant ();
+
+							switch (entity) {
+							case "&pound;": decoded.Append ((char) 163); index = semicolon; break;
+							case "&cent;": decoded.Append ((char) 162); index = semicolon; break;
+							case "&euro;": decoded.Append ((char) 8364); index = semicolon; break;
+							case "&yen;": decoded.Append ((char) 165); index = semicolon; break;
+							case "&copy;": decoded.Append ((char) 169); index = semicolon; break;
+							case "&nbsp;": decoded.Append ((char) 160); index = semicolon; break;
+							case "&quot;": decoded.Append ('"'); index = semicolon; break;
+							case "&amp;": decoded.Append ('&'); index = semicolon; break;
+							case "&reg;": decoded.Append ((char) 174); index = semicolon; break;
+							case "&lt;": decoded.Append ('<'); index = semicolon; break;
+							case "&gt;": decoded.Append ('>'); index = semicolon; break;
+							default: decoded.Append ('&'); break;
+							}
+
+							index++;
+						}
+					} else {
+						decoded.Append (value[index++]);
+					}
+				} else {
+					decoded.Append (value[index++]);
+				}
+			}
+
+			return decoded.ToString ();
 		}
 	}
 }
