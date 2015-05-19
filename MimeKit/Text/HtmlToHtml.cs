@@ -140,15 +140,26 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		/// <summary>
+		/// Get or set the <see cref="HtmlTagCallback"/> method to use for custom
+		/// filtering of HTML tags and content.
+		/// </summary>
+		/// <remarks>
+		/// Get or set the <see cref="HtmlTagCallback"/> method to use for custom
+		/// filtering of HTML tags and content.
+		/// </remarks>
+		/// <value>The html tag callback.</value>
 		public HtmlTagCallback HtmlTagCallback {
 			get; set;
 		}
 
 		/// <summary>
-		/// Get or set whether or not the converter should collapse white space, balance tags, and fix other problems in the source HTML.
+		/// Get or set whether or not the converter should collapse white space,
+		/// balance tags, and fix other problems in the source HTML.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the converter should collapse white space, balance tags, and fix other problems in the source HTML.
+		/// Gets or sets whether or not the converter should collapse white space,
+		/// balance tags, and fix other problems in the source HTML.
 		/// </remarks>
 		/// <value><c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
 		public bool NormalizeHtml {
@@ -283,7 +294,7 @@ namespace MimeKit.Text {
 						case HtmlTokenKind.StartTag:
 							var startTag = (HtmlTokenTag) token;
 
-							//if (AutoClosingTags.Contains (startTag.TagName) &&
+							//if (NormalizeHtml && AutoClosingTags.Contains (startTag.TagName) &&
 							//	(ctx = Pop (stack, startTag.TagName)) != null &&
 							//	ctx.InvokeCallbackForEndTag && !SuppressContent (stack)) {
 							//	var value = string.Format ("</{0}>", ctx.TagName);
@@ -301,13 +312,20 @@ namespace MimeKit.Text {
 							if (startTag.Kind != HtmlTokenKind.EmptyElementTag) {
 								ctx = new HtmlToHtmlTagContext (startTag);
 
-								if (!SuppressContent (stack))
+								if (FilterHtml && ctx.TagId == HtmlTagId.Script) {
+									ctx.SuppressInnerContent = true;
+									ctx.DeleteEndTag = true;
+									ctx.DeleteTag = true;
+								} else if (!SuppressContent (stack)) {
 									callback (ctx, htmlWriter);
+								}
 
 								stack.Add (ctx);
 							} else if (!SuppressContent (stack)) {
 								ctx = new HtmlToHtmlTagContext (startTag);
-								callback (ctx, htmlWriter);
+
+								if (!FilterHtml || ctx.TagId != HtmlTagId.Script)
+									callback (ctx, htmlWriter);
 							}
 							break;
 						case HtmlTokenKind.EndTag:

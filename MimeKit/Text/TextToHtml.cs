@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit.Text {
@@ -122,6 +121,15 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		/// <summary>
+		/// Get or set the <see cref="HtmlTagCallback"/> method to use for custom
+		/// filtering of HTML tags and content.
+		/// </summary>
+		/// <remarks>
+		/// Get or set the <see cref="HtmlTagCallback"/> method to use for custom
+		/// filtering of HTML tags and content.
+		/// </remarks>
+		/// <value>The html tag callback.</value>
 		public HtmlTagCallback HtmlTagCallback {
 			get; set;
 		}
