@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -36,6 +37,20 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class HtmlToHtml : TextConverter
 	{
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
+		//static readonly HashSet<string> AutoClosingTags;
+
+		//static HtmlToHtml ()
+		//{
+		//	// Note: These are tags that auto-close when an identical tag is encountered and/or when a parent node is closed.
+		//	AutoClosingTags = new HashSet<string> (new [] {
+		//		"li",
+		//		"p",
+		//		"td",
+		//		"tr"
+		//	}, StringComparer.OrdinalIgnoreCase);
+		//}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlToHtml"/> class.
 		/// </summary>
@@ -151,6 +166,66 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		class HtmlToHtmlTagContext : HtmlTagContext
+		{
+			readonly HtmlAttributeCollection attributes;
+			readonly HtmlTokenTag tag;
+
+			public HtmlToHtmlTagContext (HtmlTokenTag htmlTag) : base (htmlTag.TagId)
+			{
+				var attrs = new List<HtmlAttribute> ();
+				tag = htmlTag;
+
+
+				if (tag.Kind == HtmlTokenKind.StartTag || tag.Kind == HtmlTokenKind.EmptyElementTag) {
+					var reader = tag.AttributeReader;
+
+					while (reader.ReadNext ()) {
+						var attr = new HtmlAttribute (reader.Name, reader.Value);
+						attrs.Add (attr);
+					}
+				}
+
+				attributes = new HtmlAttributeCollection (attrs);
+			}
+
+			public override HtmlAttributeCollection Attributes {
+				get { return attributes; }
+			}
+
+			public override bool IsEmptyElementTag {
+				get { return tag.Kind == HtmlTokenKind.EmptyElementTag; }
+			}
+		}
+
+		static void DefaultHtmlTagCallback (HtmlTagContext tagContext, HtmlWriter htmlWriter)
+		{
+			tagContext.WriteTag (htmlWriter, true);
+		}
+
+		static bool SuppressContent (IList<HtmlToHtmlTagContext> stack)
+		{
+			for (int i = stack.Count; i > 0; i--) {
+				if (stack[i - 1].SuppressInnerContent)
+					return true;
+			}
+
+			return false;
+		}
+
+		static HtmlToHtmlTagContext Pop (IList<HtmlToHtmlTagContext> stack, string name)
+		{
+			for (int i = stack.Count; i > 0; i--) {
+				if (icase.Compare (stack[i - 1].TagName, name) == 0) {
+					var ctx = stack[i - 1];
+					stack.RemoveAt (i - 1);
+					return ctx;
+				}
+			}
+
+			return null;
+		}
+
 		/// <summary>
 		/// Convert the contents of <paramref name="reader"/> from the <see cref="InputFormat"/> to the
 		/// <see cref="OutputFormat"/> and uses the <paramref name="writer"/> to write the resulting text.
@@ -168,7 +243,124 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
-			throw new NotImplementedException ();
+			if (reader == null)
+				throw new ArgumentNullException ("reader");
+
+			if (writer == null)
+				throw new ArgumentNullException ("writer");
+
+			if (!string.IsNullOrEmpty (Header)) {
+				if (HeaderFormat == HeaderFooterFormat.Text) {
+					var converter = new TextToHtml ();
+
+					using (var sr = new StringReader (Header))
+						converter.Convert (sr, writer);
+				} else {
+					writer.Write (Header);
+				}
+			}
+
+			using (var htmlWriter = new HtmlWriter (writer)) {
+				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
+				var stack = new List<HtmlToHtmlTagContext> ();
+				var buffer = new char[4096];
+				HtmlToHtmlTagContext ctx;
+				HtmlToken token;
+				int nread;
+
+				using (var htmlReader = new HtmlReader (reader)) {
+					while (htmlReader.ReadNextToken (out token)) {
+						switch (token.Kind) {
+						case HtmlTokenKind.Text:
+							bool suppress = SuppressContent (stack);
+
+							while ((nread = htmlReader.ReadText (buffer, 0, buffer.Length)) > 0) {
+								if (!suppress)
+									htmlWriter.WriteMarkupText (buffer, 0, nread);
+							}
+							break;
+						case HtmlTokenKind.EmptyElementTag:
+						case HtmlTokenKind.StartTag:
+							var startTag = (HtmlTokenTag) token;
+
+							//if (AutoClosingTags.Contains (startTag.TagName) &&
+							//	(ctx = Pop (stack, startTag.TagName)) != null &&
+							//	ctx.InvokeCallbackForEndTag && !SuppressContent (stack)) {
+							//	var value = string.Format ("</{0}>", ctx.TagName);
+							//	var name = ctx.TagName;
+							//
+							//	ctx = new HtmlToHtmlTagContext (new HtmlTokenTag (HtmlTokenKind.EndTag, name, value)) {
+							//		InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
+							//		SuppressInnerContent = ctx.SuppressInnerContent,
+							//		DeleteEndTag = ctx.DeleteEndTag,
+							//		DeleteTag = ctx.DeleteTag
+							//	};
+							//	callback (ctx, htmlWriter);
+							//}
+
+							if (startTag.Kind != HtmlTokenKind.EmptyElementTag) {
+								ctx = new HtmlToHtmlTagContext (startTag);
+
+								if (!SuppressContent (stack))
+									callback (ctx, htmlWriter);
+
+								stack.Add (ctx);
+							} else if (!SuppressContent (stack)) {
+								ctx = new HtmlToHtmlTagContext (startTag);
+								callback (ctx, htmlWriter);
+							}
+							break;
+						case HtmlTokenKind.EndTag:
+							var endTag = (HtmlTokenTag) token;
+
+							if ((ctx = Pop (stack, endTag.TagName)) != null) {
+								if (!SuppressContent (stack)) {
+									if (ctx.InvokeCallbackForEndTag) {
+										ctx = new HtmlToHtmlTagContext (endTag) {
+											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
+											SuppressInnerContent = ctx.SuppressInnerContent,
+											DeleteEndTag = ctx.DeleteEndTag,
+											DeleteTag = ctx.DeleteTag
+										};
+										callback (ctx, htmlWriter);
+									} else if (!ctx.DeleteEndTag) {
+										htmlWriter.WriteEndTag (endTag.TagName);
+									}
+								}
+							} else if (!SuppressContent (stack)) {
+								ctx = new HtmlToHtmlTagContext (endTag);
+								callback (ctx, htmlWriter);
+							}
+							break;
+						case HtmlTokenKind.Comment:
+							if (!SuppressContent (stack)) {
+								var comment = (HtmlTokenComment) token;
+								htmlWriter.WriteMarkupText (comment.Comment);
+							}
+							break;
+						case HtmlTokenKind.DocType:
+							if (!SuppressContent (stack)) {
+								var doctype = (HtmlTokenDocType) token;
+								htmlWriter.WriteMarkupText (doctype.DocType);
+							}
+							break;
+						}
+					}
+				}
+
+				htmlWriter.Flush ();
+			}
+
+			if (!string.IsNullOrEmpty (Footer)) {
+				if (FooterFormat == HeaderFooterFormat.Text) {
+					var converter = new TextToHtml ();
+
+					using (var sr = new StringReader (Footer))
+						converter.Convert (sr, writer);
+				} else {
+					writer.Write (Footer);
+				}
+			}
 		}
 	}
 }

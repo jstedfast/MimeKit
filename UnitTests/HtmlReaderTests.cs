@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using MimeKit.Text;
 using MimeKit.Utils;
@@ -39,6 +40,9 @@ namespace UnitTests {
 		[Test]
 		public void TestXamarin3SampleHtml ()
 		{
+			var expected = File.ReadAllText ("../../TestData/html/xamarin3.tokens");
+			var actual = new StringBuilder ();
+
 			using (var textReader = File.OpenText ("../../TestData/html/xamarin3.html")) {
 				using (var htmlReader = new HtmlReader (textReader)) {
 					HtmlToken token;
@@ -46,7 +50,7 @@ namespace UnitTests {
 					Assert.AreEqual (HtmlReaderState.Initial, htmlReader.State);
 
 					while (htmlReader.ReadNextToken (out token)) {
-						Console.Write ("{0}: ", token.Kind);
+						actual.AppendFormat ("{0}: ", token.Kind);
 						switch (token.Kind) {
 						case HtmlTokenKind.Text:
 							var text = (HtmlTokenText) token;
@@ -56,39 +60,39 @@ namespace UnitTests {
 							while ((nread = text.Read (buf, 0, buf.Length)) > 0) {
 								for (int i = 0; i < nread; i++) {
 									switch (buf[i]) {
-									case '\t': Console.Write ("\\t"); break;
-									case '\r': Console.Write ("\\r"); break;
-									case '\n': Console.Write ("\\n"); break;
-									default: Console.Write (buf[i]); break;
+									case '\t': actual.Append ("\\t"); break;
+									case '\r': actual.Append ("\\r"); break;
+									case '\n': actual.Append ("\\n"); break;
+									default: actual.Append (buf[i]); break;
 									}
 								}
 							}
-							Console.WriteLine ();
+							actual.AppendLine ();
 							break;
 						case HtmlTokenKind.EmptyElementTag:
 						case HtmlTokenKind.StartTag:
 						case HtmlTokenKind.EndTag:
 							var tag = (HtmlTokenTag) token;
-							Console.Write (tag.TagName);
+							actual.Append (tag.TagName);
 							var attributes = tag.AttributeReader;
 							while (attributes.ReadNext ()) {
 								if (tag.Kind == HtmlTokenKind.EndTag)
 									Assert.Fail ("HTML end tags should not have attributes!");
 
 								if (attributes.HasValue)
-									Console.Write ("; {0}={1}", attributes.Name, MimeUtils.Quote (attributes.Value));
+									actual.AppendFormat ("; {0}={1}", attributes.Name, MimeUtils.Quote (attributes.Value));
 								else
-									Console.Write ("; {0}", attributes.Name);
+									actual.AppendFormat ("; {0}", attributes.Name);
 							}
-							Console.WriteLine ();
+							actual.AppendLine ();
 							break;
 						case HtmlTokenKind.Comment:
 							var comment = (HtmlTokenComment) token;
-							Console.WriteLine (comment.Comment);
+							actual.AppendLine (comment.Comment);
 							break;
 						case HtmlTokenKind.DocType:
 							var doctype = (HtmlTokenDocType) token;
-							Console.WriteLine (doctype.DocType);
+							actual.AppendLine (doctype.DocType);
 							break;
 						default:
 							Assert.Fail ("Unhandled token type: {0}", token.Kind);
@@ -100,7 +104,18 @@ namespace UnitTests {
 				}
 			}
 
-			Assert.Fail ();
+			Assert.AreEqual (expected, actual.ToString (), "The token stream does not match the expected tokens.");
+		}
+
+		[Test]
+		public void TestHtmlDecode ()
+		{
+			const string encoded = "&lt;&pound;&euro;&cent;&yen;&nbsp;&copy;&reg;&gt;";
+			const string expected = "<£€¢¥\u00a0©®>";
+
+			var decoded = HtmlUtils.HtmlDecode (encoded, 0, encoded.Length);
+
+			Assert.AreEqual (expected, decoded);
 		}
 	}
 }

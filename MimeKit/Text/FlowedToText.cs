@@ -146,7 +146,6 @@ namespace MimeKit.Text {
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
 			StringBuilder para = new StringBuilder ();
-			int currentQuoteDepth = 0;
 			int paraQuoteDepth = -1;
 			int quoteDepth;
 			string line;

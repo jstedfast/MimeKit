@@ -86,6 +86,7 @@
     <None Include="TestData\encoders\photo.jpg" />
     <None Include="TestData\encoders\photo.uu" />
     <None Include="TestData\html\xamarin3.html" />
+    <None Include="TestData\html\xamarin3.tokens" />
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />

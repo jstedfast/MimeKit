@@ -203,16 +203,16 @@ namespace MimeKit.Text {
 					if (semicolon != -1) {
 						if (value[index + 1] == '#' && index + 2 < semicolon) {
 							int offset = index + 2;
-							char c = '\0';
+							int unichar = 0;
 
 							while (char.IsDigit (value[offset]))
-								c = (char) ((c * 10) + (value[offset++] - '0'));
+								unichar = ((unichar * 10) + (value[offset++] - '0'));
 
 							if (offset < semicolon) {
 								decoded.Append ("&#");
 								index += 2;
 							} else {
-								decoded.Append (c);
+								decoded.Append (char.ConvertFromUtf32 (unichar));
 								index = offset + 1;
 							}
 						} else {

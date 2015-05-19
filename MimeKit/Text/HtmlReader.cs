@@ -43,8 +43,6 @@ namespace MimeKit.Text {
 
 	class HtmlReader : IDisposable
 	{
-		//static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-		//static readonly HashSet<string> AutoClosingTags;
 		static readonly HashSet<string> SelfClosingTags;
 		const string PlainTextEndTag = "</plaintext>";
 		const int ReadAheadSize = 128;
@@ -68,14 +66,6 @@ namespace MimeKit.Text {
 
 		static HtmlReader ()
 		{
-			// Note: These are tags that auto-close when an identical tag is encountered and/or when a parent node is closed.
-			//AutoClosingTags = new HashSet<string> (new [] {
-			//	"li",
-			//	"p",
-			//	"td",
-			//	"tr"
-			//}, StringComparer.OrdinalIgnoreCase);
-
 			// Note: These tags are considered to be Empty Elements even if they do not end with "/>".
 			SelfClosingTags = new HashSet<string> (new [] {
 				"area",
