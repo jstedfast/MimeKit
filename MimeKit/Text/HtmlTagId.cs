@@ -71,6 +71,21 @@ namespace MimeKit.Text {
 		Area,
 
 		/// <summary>
+		/// The HTML &lt;article&gt; tag.
+		/// </summary>
+		Article,
+
+		/// <summary>
+		/// The HTML &lt;aside&gt; tag.
+		/// </summary>
+		Aside,
+
+		/// <summary>
+		/// The HTML &lt;audio&gt; tag.
+		/// </summary>
+		Audio,
+
+		/// <summary>
 		/// The HTML &lt;b&gt; tag.
 		/// </summary>
 		B,
@@ -84,6 +99,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;basefont&gt; tag.
 		/// </summary>
 		BaseFont,
+
+		/// <summary>
+		/// The HTML &lt;bdi&gt; tag.
+		/// </summary>
+		Bdi,
 
 		/// <summary>
 		/// The HTML &lt;bdo&gt; tag.
@@ -126,6 +146,11 @@ namespace MimeKit.Text {
 		Button,
 
 		/// <summary>
+		/// The HTML &lt;canvas&gt; tag.
+		/// </summary>
+		Canvas,
+
+		/// <summary>
 		/// The HTML &lt;caption&gt; tag.
 		/// </summary>
 		Caption,
@@ -161,6 +186,11 @@ namespace MimeKit.Text {
 		Comment,
 
 		/// <summary>
+		/// The HTML &lt;datalist&gt; tag.
+		/// </summary>
+		DataList,
+
+		/// <summary>
 		/// The HTML &lt;dd&gt; tag.
 		/// </summary>
 		DD,
@@ -171,9 +201,19 @@ namespace MimeKit.Text {
 		Del,
 
 		/// <summary>
+		/// The HTML &lt;details&gt; tag.
+		/// </summary>
+		Details,
+
+		/// <summary>
 		/// The HTML &lt;dfn&gt; tag.
 		/// </summary>
 		Dfn,
+
+		/// <summary>
+		/// The HTML &lt;dialog&gt; tag.
+		/// </summary>
+		Dialog,
 
 		/// <summary>
 		/// The HTML &lt;dir&gt; tag.
@@ -211,9 +251,24 @@ namespace MimeKit.Text {
 		FieldSet,
 
 		/// <summary>
+		/// The HTML &lt;figcaption&gt; tag.
+		/// </summary>
+		FigCaption,
+
+		/// <summary>
+		/// The HTML &lt;figure&gt; tag.
+		/// </summary>
+		Figure,
+
+		/// <summary>
 		/// The HTML &lt;font&gt; tag.
 		/// </summary>
 		Font,
+
+		/// <summary>
+		/// The HTML &lt;footer&gt; tag.
+		/// </summary>
+		Footer,
 
 		/// <summary>
 		/// The HTML &lt;form&gt; tag.
@@ -264,6 +319,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;head&gt; tag.
 		/// </summary>
 		Head,
+
+		/// <summary>
+		/// The HTML &lt;header&gt; tag.
+		/// </summary>
+		Header,
 
 		/// <summary>
 		/// The HTML &lt;hr&gt; tag.
@@ -336,9 +396,19 @@ namespace MimeKit.Text {
 		Listing,
 
 		/// <summary>
+		/// The HTML &lt;main&gt; tag.
+		/// </summary>
+		Main,
+
+		/// <summary>
 		/// The HTML &lt;map&gt; tag.
 		/// </summary>
 		Map,
+
+		/// <summary>
+		/// The HTML &lt;mark&gt; tag.
+		/// </summary>
+		Mark,
 
 		/// <summary>
 		/// The HTML &lt;marquee&gt; tag.
@@ -351,9 +421,24 @@ namespace MimeKit.Text {
 		Menu,
 
 		/// <summary>
+		/// The HTML &lt;menuitem&gt; tag.
+		/// </summary>
+		MenuItem,
+
+		/// <summary>
 		/// The HTML &lt;meta&gt; tag.
 		/// </summary>
 		Meta,
+
+		/// <summary>
+		/// The HTML &lt;meter&gt; tag.
+		/// </summary>
+		Meter,
+
+		/// <summary>
+		/// The HTML &lt;nav&gt; tag.
+		/// </summary>
+		Nav,
 
 		/// <summary>
 		/// The HTML &lt;nextid&gt; tag.
@@ -401,6 +486,11 @@ namespace MimeKit.Text {
 		Option,
 
 		/// <summary>
+		/// The HTML &lt;output&gt; tag.
+		/// </summary>
+		Output,
+
+		/// <summary>
 		/// The HTML &lt;p&gt; tag.
 		/// </summary>
 		P,
@@ -419,6 +509,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;pre&gt; tag.
 		/// </summary>
 		Pre,
+
+		/// <summary>
+		/// The HTML &lt;progress&gt; tag.
+		/// </summary>
+		Progress,
 
 		/// <summary>
 		/// The HTML &lt;q&gt; tag.
@@ -456,6 +551,11 @@ namespace MimeKit.Text {
 		Script,
 
 		/// <summary>
+		/// The HTML &lt;section&gt; tag.
+		/// </summary>
+		Section,
+
+		/// <summary>
 		/// The HTML &lt;select&gt; tag.
 		/// </summary>
 		Select,
@@ -464,6 +564,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;small&gt; tag.
 		/// </summary>
 		Small,
+
+		/// <summary>
+		/// The HTML &lt;source&gt; tag.
+		/// </summary>
+		Source,
 
 		/// <summary>
 		/// The HTML &lt;span&gt; tag.
@@ -489,6 +594,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;sub&gt; tag.
 		/// </summary>
 		Sub,
+
+		/// <summary>
+		/// The HTML &lt;summary&gt; tag.
+		/// </summary>
+		Summary,
 
 		/// <summary>
 		/// The HTML &lt;sup&gt; tag.
@@ -524,10 +634,16 @@ namespace MimeKit.Text {
 		/// The HTML &lt;th&gt; tag.
 		/// </summary>
 		TH,
+
 		/// <summary>
 		/// The HTML &lt;thread&gt; tag.
 		/// </summary>
 		Thread,
+
+		/// <summary>
+		/// The HTML &lt;time&gt; tag.
+		/// </summary>
+		Time,
 
 		/// <summary>
 		/// The HTML &lt;title&gt; tag.
@@ -538,6 +654,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;tr&gt; tag.
 		/// </summary>
 		TR,
+
+		/// <summary>
+		/// The HTML &lt;track&gt; tag.
+		/// </summary>
+		Track,
 
 		/// <summary>
 		/// The HTML &lt;tt&gt; tag.
@@ -558,6 +679,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;var&gt; tag.
 		/// </summary>
 		Var,
+
+		/// <summary>
+		/// The HTML &lt;video&gt; tag.
+		/// </summary>
+		Video,
 
 		/// <summary>
 		/// The HTML &lt;wbr&gt; tag.
