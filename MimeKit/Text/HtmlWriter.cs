@@ -51,6 +51,7 @@ namespace MimeKit.Text {
 	public class HtmlWriter : IDisposable
 	{
 		TextWriter writer;
+		bool empty;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlWriter"/> class.
@@ -296,10 +297,6 @@ namespace MimeKit.Text {
 			EncodeAttribute (name, buffer, index, count);
 		}
 
-		//public void WriteAttribute (HtmlAttributeReader attributeReader)
-		//{
-		//}
-
 		/// <summary>
 		/// Write the attribute to the output stream.
 		/// </summary>
@@ -367,9 +364,32 @@ namespace MimeKit.Text {
 			EncodeAttribute (name, value);
 		}
 
-		//public void WriteAttributeName (HtmlAttributeReader attributeReader)
-		//{
-		//}
+		/// <summary>
+		/// Write the attribute to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the attribute to the output stream.
+		/// </remarks>
+		/// <param name="attribute">The attribute.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="attribute"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attributes.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
+		public void WriteAttribute (HtmlAttribute attribute)
+		{
+			if (attribute == null)
+				throw new ArgumentNullException ("attribute");
+
+			EncodeAttributeName (attribute.Name);
+
+			if (attribute.Value != null)
+				EncodeAttributeValue (attribute.Value);
+		}
 
 		/// <summary>
 		/// Write the attribute name to the output stream.
@@ -464,10 +484,6 @@ namespace MimeKit.Text {
 			EncodeAttributeValue (buffer, index, count);
 		}
 
-		//public void WriteAttributeValue (HtmlAttributeReader attributeReader)
-		//{
-		//}
-
 		/// <summary>
 		/// Write the attribute value to the output stream.
 		/// </summary>
@@ -514,15 +530,14 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState == HtmlWriterState.Attribute)
-				EncodeAttributeValue (string.Empty);
-
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
 			}
 
-			writer.Write (string.Format ("<{0}/>", id.ToHtmlTagName ()));
+			writer.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
+			WriterState = HtmlWriterState.Tag;
+			empty = true;
 		}
 
 		/// <summary>
@@ -548,10 +563,12 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
 			}
 
-			writer.Write (string.Format ("<{0}/>", name));
+			writer.Write (string.Format ("<{0}", name));
+			WriterState = HtmlWriterState.Tag;
+			empty = true;
 		}
 
 		/// <summary>
@@ -576,7 +593,8 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			writer.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
@@ -605,7 +623,8 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			writer.Write (string.Format ("</{0}>", name));
@@ -640,15 +659,12 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			writer.Write (buffer, index, count);
 		}
-
-		//public void WriteMarkupText (HtmlReader reader)
-		//{
-		//}
 
 		/// <summary>
 		/// Write a string containing HTML markup directly to the output, without escaping special characters.
@@ -672,7 +688,8 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			writer.Write (value);
@@ -698,8 +715,10 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default)
-				writer.Write (">");
+			if (WriterState != HtmlWriterState.Default) {
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
+			}
 
 			writer.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
 			WriterState = HtmlWriterState.Tag;
@@ -726,16 +745,14 @@ namespace MimeKit.Text {
 			ValidateTagName (name);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default)
-				writer.Write (">");
+			if (WriterState != HtmlWriterState.Default) {
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
+			}
 
 			writer.Write (string.Format ("<{0}", name));
 			WriterState = HtmlWriterState.Tag;
 		}
-
-		//public void WriteTag (HtmlReader reader)
-		//{
-		//}
 
 		/// <summary>
 		/// Write text to the output stream, escaping special characters.
@@ -766,16 +783,13 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			if (count > 0)
 				HtmlUtils.HtmlEncode (writer, buffer, index, count);
 		}
-
-		//public void WriteText (HtmlReader reader)
-		//{
-		//}
 
 		/// <summary>
 		/// Write text to the output stream, escaping special characters.
@@ -799,7 +813,8 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			if (value.Length > 0)
@@ -821,7 +836,8 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (">");
+				writer.Write (empty ? "/>" : ">");
+				empty = false;
 			}
 
 			writer.Flush ();

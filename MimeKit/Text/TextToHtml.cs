@@ -338,6 +338,8 @@ namespace MimeKit.Text {
 					else
 						ctx.WriteTag (htmlWriter);
 				}
+
+				htmlWriter.Flush ();
 			}
 
 			if (!string.IsNullOrEmpty (Footer)) {

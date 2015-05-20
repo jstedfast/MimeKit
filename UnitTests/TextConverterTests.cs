@@ -25,6 +25,8 @@
 //
 
 using System;
+using System.IO;
+using System.Text;
 
 using MimeKit.Text;
 
@@ -103,7 +105,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleFlowedToHTML ()
+		public void TestSimpleFlowedToHtml ()
 		{
 			string expected = "<p>This is some sample text that has been formatted " +
 				"according to the format=flowed rules defined in rfc3676. " +
@@ -128,7 +130,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestQuotedFlowedToHTML ()
+		public void TestQuotedFlowedToHtml ()
 		{
 			string expected = "<blockquote><p>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!</p>" + Environment.NewLine +
 				"<blockquote><p>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!</p>" + Environment.NewLine +
@@ -155,7 +157,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestBrokenQuotedFlowedToHTML ()
+		public void TestBrokenQuotedFlowedToHtml ()
 		{
 			// Note: this is the brokenly quoted sample from rfc3676 at the end of section 4.5
 			string expected = "<blockquote><p>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg! </p>" + Environment.NewLine +
@@ -183,7 +185,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleFlowedWithUrlsToHTML ()
+		public void TestSimpleFlowedWithUrlsToHtml ()
 		{
 			string expected = "<p>Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!</p>" + Environment.NewLine;
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
@@ -237,7 +239,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleTextToHTML ()
+		public void TestSimpleTextToHtml ()
 		{
 			const string expected = "This is some sample text. This is line #1.<br/>" +
 				"This is line #2.<br/>" +
@@ -252,11 +254,44 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleTextWithUrlsToHTML ()
+		public void TestSimpleTextWithUrlsToHtml ()
 		{
 			const string expected = "Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!<br/>";
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
 			var converter = new TextToHtml ();
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		void ReplaceUrlsWithFileNames (HtmlTagContext ctx, HtmlWriter htmlWriter)
+		{
+			if (ctx.TagId == HtmlTagId.Image) {
+				htmlWriter.WriteEmptyElementTag (ctx.TagName);
+				ctx.DeleteEndTag = true;
+
+				for (int i = 0; i < ctx.Attributes.Count; i++) {
+					var attr = ctx.Attributes[i];
+
+					if (attr.Id == HtmlAttributeId.Src) {
+						var fileName = Path.GetFileName (attr.Value);
+						htmlWriter.WriteAttributeName (attr.Name);
+						htmlWriter.WriteAttributeValue (fileName);
+					} else {
+						htmlWriter.WriteAttribute (attr);
+					}
+				}
+			} else {
+				ctx.WriteTag (htmlWriter, true);
+			}
+		}
+
+		[Test]
+		public void TestSimpleHtmlToHtml ()
+		{
+			string expected = File.ReadAllText ("../../TestData/html/xamarin3.xhtml");
+			string text = File.ReadAllText ("../../TestData/html/xamarin3.html");
+			var converter = new HtmlToHtml { HtmlTagCallback = ReplaceUrlsWithFileNames };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);

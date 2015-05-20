@@ -29,6 +29,8 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Text {
 	enum HtmlReaderState {
 		Initial,
@@ -225,6 +227,11 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		static bool IsWhiteSpace (char c)
+		{
+			return c < 128 && ((byte) c).IsWhitespace ();
+		}
+
 		bool SkipWhiteSpace ()
 		{
 			do {
@@ -234,7 +241,7 @@ namespace MimeKit.Text {
 				}
 
 				input[inputEnd] = '>';
-				while (char.IsWhiteSpace (input[inputIndex]))
+				while (IsWhiteSpace (input[inputIndex]))
 					inputIndex++;
 			} while (inputIndex >= inputEnd);
 
@@ -302,7 +309,7 @@ namespace MimeKit.Text {
 					}
 
 					input[inputEnd] = ' ';
-					while (!char.IsWhiteSpace (input[inputIndex]) && input[inputIndex] != '>')
+					while (!IsWhiteSpace (input[inputIndex]) && input[inputIndex] != '>')
 						value.Append (input[inputIndex++]);
 				} while (inputIndex >= inputEnd);
 			}

@@ -182,11 +182,10 @@ namespace MimeKit.Text {
 			readonly HtmlAttributeCollection attributes;
 			readonly HtmlTokenTag tag;
 
-			public HtmlToHtmlTagContext (HtmlTokenTag htmlTag) : base (htmlTag.TagId)
+			public HtmlToHtmlTagContext (HtmlTokenTag htmlTag) : base (htmlTag.TagName)
 			{
 				var attrs = new List<HtmlAttribute> ();
 				tag = htmlTag;
-
 
 				if (tag.Kind == HtmlTokenKind.StartTag || tag.Kind == HtmlTokenKind.EmptyElementTag) {
 					var reader = tag.AttributeReader;

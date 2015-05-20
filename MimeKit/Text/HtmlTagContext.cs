@@ -212,23 +212,19 @@ namespace MimeKit.Text {
 			if (htmlWriter == null)
 				throw new ArgumentNullException ("htmlWriter");
 
-			if (IsEmptyElementTag) {
-				htmlWriter.WriteEmptyElementTag (TagName);
-			} else if (IsEndTag) {
+			if (IsEndTag) {
 				htmlWriter.WriteEndTag (TagName);
-			} else {
+				return;
+			}
+
+			if (IsEmptyElementTag)
+				htmlWriter.WriteEmptyElementTag (TagName);
+			else
 				htmlWriter.WriteStartTag (TagName);
-
-				if (writeAttributes) {
-					for (int i = 0; i < Attributes.Count; i++) {
-						var attr = Attributes[i];
-
-						htmlWriter.WriteAttributeName (attr.Name);
-
-						if (attr.Value != null)
-							htmlWriter.WriteAttributeValue (attr.Value);
-					}
-				}
+			
+			if (writeAttributes) {
+				for (int i = 0; i < Attributes.Count; i++)
+					htmlWriter.WriteAttribute (Attributes[i]);
 			}
 		}
 	}

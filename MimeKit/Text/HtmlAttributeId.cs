@@ -56,7 +56,7 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// The "accept-charset" attribute.
 		/// </summary>
-		[AttributeName ("accept-charset")]
+		[HtmlAttributeName ("accept-charset")]
 		AcceptCharset,
 
 		/// <summary>
@@ -292,7 +292,7 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// The "http-equiv" attribute.
 		/// </summary>
-		[AttributeName ("http-equiv")]
+		[HtmlAttributeName ("http-equiv")]
 		HttpEquiv,
 
 		/// <summary>
@@ -572,13 +572,13 @@ namespace MimeKit.Text {
 	}
 
 	[AttributeUsage (AttributeTargets.Field)]
-	class AttributeNameAttribute : Attribute {
-		public AttributeNameAttribute (string name)
+	class HtmlAttributeNameAttribute : Attribute {
+		public HtmlAttributeNameAttribute (string name)
 		{
-			AttributeName = name;
+			Name = name;
 		}
 
-		public string AttributeName {
+		public string Name {
 			get; protected set;
 		}
 	}
@@ -617,14 +617,14 @@ namespace MimeKit.Text {
 
 #if PORTABLE
 			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
-			var attrs = field.GetCustomAttributes (typeof (AttributeNameAttribute), false).ToArray ();
+			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
 #else
 			var field = typeof (HtmlAttributeId).GetField (name);
-			var attrs = field.GetCustomAttributes (typeof (AttributeNameAttribute), false);
+			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false);
 #endif
 
 			if (attrs != null && attrs.Length == 1)
-				return ((AttributeNameAttribute) attrs[0]).AttributeName;
+				return ((HtmlAttributeNameAttribute) attrs[0]).Name;
 
 			return name.ToLowerInvariant ();
 		}

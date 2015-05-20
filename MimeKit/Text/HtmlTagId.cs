@@ -25,6 +25,9 @@
 //
 
 using System;
+using System.Linq;
+using System.Text;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace MimeKit.Text {
@@ -348,6 +351,7 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// The HTML &lt;image&gt; tag.
 		/// </summary>
+		[HtmlTagName ("img")]
 		Image,
 
 		/// <summary>
@@ -611,9 +615,9 @@ namespace MimeKit.Text {
 		Table,
 
 		/// <summary>
-		/// The HTML &lt;ybody&gt; tag.
+		/// The HTML &lt;tbody&gt; tag.
 		/// </summary>
-		Ybody,
+		TBody,
 
 		/// <summary>
 		/// The HTML &lt;td&gt; tag.
@@ -701,6 +705,18 @@ namespace MimeKit.Text {
 		Xmp,
 	}
 
+	[AttributeUsage (AttributeTargets.Field)]
+	class HtmlTagNameAttribute : Attribute {
+		public HtmlTagNameAttribute (string name)
+		{
+			Name = name;
+		}
+
+		public string Name {
+			get; protected set;
+		}
+	}
+
 	/// <summary>
 	/// <see cref="HtmlTagId"/> extension methods.
 	/// </summary>
@@ -734,7 +750,20 @@ namespace MimeKit.Text {
 			if (value == HtmlTagId.Comment)
 				return "!";
 
-			return value.ToString ().ToLowerInvariant ();
+			var name = value.ToString ();
+
+#if PORTABLE
+			var field = typeof (HtmlTagId).GetTypeInfo ().GetDeclaredField (name);
+			var attrs = field.GetCustomAttributes (typeof (HtmlTagNameAttribute), false).ToArray ();
+#else
+			var field = typeof (HtmlTagId).GetField (name);
+			var attrs = field.GetCustomAttributes (typeof (HtmlTagNameAttribute), false);
+#endif
+
+			if (attrs != null && attrs.Length == 1)
+				return ((HtmlTagNameAttribute) attrs[0]).Name;
+
+			return name.ToLowerInvariant ();
 		}
 
 		/// <summary>
@@ -755,8 +784,12 @@ namespace MimeKit.Text {
 			if (name[0] == '!')
 				return HtmlTagId.Comment;
 
-			if (!dict.TryGetValue (name, out value))
+			if (!dict.TryGetValue (name, out value)) {
+				#if !PORTABLE
+				Console.WriteLine ("unknown html tag: {0}", name);
+				#endif
 				return HtmlTagId.Unknown;
+			}
 
 			return value;
 		}
