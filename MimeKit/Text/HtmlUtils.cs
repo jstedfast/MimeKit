@@ -86,7 +86,7 @@ namespace MimeKit.Text {
 			return endIndex;
 		}
 
-		public static void HtmlEncodeAttribute (TextWriter writer, char[] value, int startIndex, int count)
+		public static void HtmlEncodeAttribute (TextWriter writer, char[] value, int startIndex, int count, char quote = '"')
 		{
 			int endIndex = startIndex + count;
 			int index;
@@ -101,8 +101,18 @@ namespace MimeKit.Text {
 				int nextIndex;
 
 				switch (c) {
-				case '\'': writer.Write ("&#39;"); break;
-				case '"': writer.Write ("&quot;"); break;
+				case '\'':
+					if (c == quote)
+						writer.Write ("&#39;");
+					else
+						writer.Write (c);
+					break;
+				case '"':
+					if (c == quote)
+						writer.Write ("&quot;");
+					else
+						writer.Write (c);
+					break;
 				case '&': writer.Write ("&amp;"); break;
 				case '<': writer.Write ("&lt;"); break;
 				case '>': writer.Write ("&gt;"); break;
