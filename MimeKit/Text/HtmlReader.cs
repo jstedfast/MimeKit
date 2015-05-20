@@ -218,18 +218,18 @@ namespace MimeKit.Text {
 			
 			index = inputIndex;
 
-			for (int i = 0; i < PlainTextEndTag.Length; i++) {
+			for (int i = 0; i < PlainTextEndTag.Length - 1; i++) {
 				if (PlainTextEndTag[i] != char.ToLowerInvariant (input[index]))
 					return false;
 				index++;
 			}
 
-			return true;
+			return input[index] == '>' || IsWhiteSpace (input[index]);
 		}
 
 		static bool IsWhiteSpace (char c)
 		{
-			return c < 128 && ((byte) c).IsWhitespace ();
+			return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f';
 		}
 
 		bool SkipWhiteSpace ()
@@ -350,6 +350,75 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		bool ReadComment (out HtmlToken token)
+		{
+			token = null;
+
+			value.Append ('!');
+			inputIndex++;
+
+			if (inputIndex == inputEnd && ReadAhead () == 0) {
+				State = HtmlReaderState.EndOfFile;
+				return false;
+			}
+
+			value.Append (input[inputIndex]);
+			name.Append (input[inputIndex]);
+			inputIndex++;
+
+			if (inputIndex == inputEnd && ReadAhead () == 0) {
+				State = HtmlReaderState.EndOfFile;
+				return false;
+			}
+
+			value.Append (input[inputIndex]);
+			name.Append (input[inputIndex]);
+			inputIndex++;
+
+			if (name[0] == '-' && name[1] == '-') {
+				do {
+					if (inputIndex == inputEnd && ReadAhead () == 0) {
+						State = HtmlReaderState.EndOfFile;
+						return false;
+					}
+
+					while (inputIndex < inputEnd) {
+						if (input[inputIndex] == '>' && value.Length > 6 &&
+							value[value.Length - 2] == '-' && value[value.Length - 1] == '-') {
+							value.Append (input[inputIndex++]);
+							break;
+						}
+
+						value.Append (input[inputIndex++]);
+					}
+				} while (inputIndex >= inputEnd);
+
+				token = new HtmlTokenComment (HtmlTokenKind.Comment, value.ToString ());
+				State = GetNextState ();
+
+				return true;
+			}
+
+			do {
+				if (inputIndex == inputEnd && ReadAhead () == 0) {
+					State = HtmlReaderState.EndOfFile;
+					return false;
+				}
+
+				input[inputEnd] = '>';
+				while (input[inputIndex] != '>')
+					value.Append (input[inputIndex++]);
+			} while (inputIndex >= inputEnd);
+
+			value.Append ('>');
+			inputIndex++;
+
+			token = new HtmlTokenDocType (HtmlTokenKind.DocType, value.ToString ());
+			State = GetNextState ();
+
+			return true;
+		}
+
 		internal HtmlReaderState GetNextState ()
 		{
 			if (inputIndex >= inputEnd && ReadAhead () == 0)
@@ -407,90 +476,20 @@ namespace MimeKit.Text {
 					return false;
 				}
 
-				if (input[inputIndex] == '!') {
-					kind = HtmlTokenKind.Comment;
-					value.Append ('!');
-					inputIndex++;
-
-					if (inputIndex == inputEnd && ReadAhead () == 0) {
-						State = HtmlReaderState.EndOfFile;
-						return false;
-					}
-
-					value.Append (input[inputIndex]);
-					name.Append (input[inputIndex]);
-					inputIndex++;
-
-					if (inputIndex == inputEnd && ReadAhead () == 0) {
-						State = HtmlReaderState.EndOfFile;
-						return false;
-					}
-
-					value.Append (input[inputIndex]);
-					name.Append (input[inputIndex]);
-					inputIndex++;
-
-					if (name[0] == '-' && name[1] == '-') {
-						do {
-							if (inputIndex == inputEnd && ReadAhead () == 0) {
-								State = HtmlReaderState.EndOfFile;
-								return false;
-							}
-
-							while (inputIndex < inputEnd) {
-								if (input[inputIndex] == '>' && value.Length > 6 &&
-									value[value.Length - 2] == '-' && value[value.Length - 1] == '-') {
-									value.Append (input[inputIndex++]);
-									break;
-								}
-
-								value.Append (input[inputIndex++]);
-							}
-						} while (inputIndex >= inputEnd);
-
-						token = new HtmlTokenComment (HtmlTokenKind.Comment, value.ToString ());
-						State = GetNextState ();
-
-						return true;
-					}
-
-					do {
-						if (inputIndex == inputEnd && ReadAhead () == 0) {
-							State = HtmlReaderState.EndOfFile;
-							return false;
-						}
-
-						input[inputEnd] = '>';
-						while (input[inputIndex] != '>')
-							value.Append (input[inputIndex++]);
-					} while (inputIndex >= inputEnd);
-
-					value.Append ('>');
-					inputIndex++;
-
-					token = new HtmlTokenDocType (HtmlTokenKind.DocType, value.ToString ());
-					State = GetNextState ();
-
-					return true;
-				}
-
-				if (!SkipWhiteSpace ())
-					return false;
+				if (input[inputIndex] == '!')
+					return ReadComment (out token);
 
 				if (input[inputIndex] == '/') {
 					kind = HtmlTokenKind.EndTag;
 					value.Append ('/');
 					inputIndex++;
-
-					if (!SkipWhiteSpace ())
-						return false;
 				}
 
 				// read the tag name
 				if (!ReadTagName ())
 					return false;
 
-				// read white space after the tag name
+				// skip white space after the tag name
 				if (!SkipWhiteSpace ())
 					return false;
 
@@ -538,9 +537,6 @@ namespace MimeKit.Text {
 					kind = HtmlTokenKind.EmptyElementTag;
 					value.Append ('/');
 					inputIndex++;
-
-					if (!SkipWhiteSpace ())
-						return false;
 				}
 
 				if (inputIndex >= inputEnd && ReadAhead () == 0) {
