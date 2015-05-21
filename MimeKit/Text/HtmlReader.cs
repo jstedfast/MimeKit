@@ -720,9 +720,9 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// Releases all resource used by the <see cref="MimeKit.Text.HtmlReader"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="MimeKit.Text.HtmlReader"/>. The
-		/// <see cref="Dispose"/> method leaves the <see cref="MimeKit.Text.HtmlReader"/> in an unusable state. After calling
-		/// <see cref="Dispose"/>, you must release all references to the <see cref="MimeKit.Text.HtmlReader"/> so the garbage
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Text.HtmlReader"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Text.HtmlReader"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Text.HtmlReader"/> so the garbage
 		/// collector can reclaim the memory that the <see cref="MimeKit.Text.HtmlReader"/> was occupying.</remarks>
 		public void Dispose ()
 		{

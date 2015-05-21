@@ -1,0 +1,132 @@
+<Type Name="HtmlAttribute" FullName="MimeKit.Text.HtmlAttribute">
+  <TypeSignature Language="C#" Value="public class HtmlAttribute" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit HtmlAttribute extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            An HTML attribute.
+            </summary>
+    <remarks>
+            An HTML attribute.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public HtmlAttribute (MimeKit.Text.HtmlAttributeId id, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Text.HtmlAttributeId id, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="id" Type="MimeKit.Text.HtmlAttributeId" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="id">The attribute identifier.</param>
+        <param name="value">The attribute value.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Text.HtmlAttribute" /> class.
+            </summary>
+        <remarks>
+            Creates a new HTML attribute with the given id and value.
+            </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="id" /> is not a valid value.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public HtmlAttribute (string name, string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name, string value) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="value" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">The attribute name.</param>
+        <param name="value">The attribute value.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Text.HtmlAttribute" /> class.
+            </summary>
+        <remarks>
+            Creates a new HTML attribute with the given name and value.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public MimeKit.Text.HtmlAttributeId Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.HtmlAttributeId Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the HTML attribute identifier.
+            </summary>
+        <value>The attribute identifier.</value>
+        <remarks>
+            Gets the HTML attribute identifier.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string Name { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Name" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the name of the attribute.
+            </summary>
+        <value>The name of the attribute.</value>
+        <remarks>
+            Gets the name of the attribute.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Value">
+      <MemberSignature Language="C#" Value="public string Value { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Value" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the value of the attribute.
+            </summary>
+        <value>The value of the attribute.</value>
+        <remarks>
+            Gets the value of the attribute.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

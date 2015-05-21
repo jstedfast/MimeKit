@@ -43,11 +43,16 @@ namespace MimeKit.Text {
 	/// is ready to write a new HTML tag, allowing developers to customize
 	/// whether the tag gets written at all, which attributes get written, etc.
 	/// </remarks>
+	/// <param name="tagContext">The HTML tag context.</param>
+	/// <param name="htmlWriter">The HTML writer.</param>
 	public delegate void HtmlTagCallback (HtmlTagContext tagContext, HtmlWriter htmlWriter);
 
 	/// <summary>
 	/// An HTML writer.
 	/// </summary>
+	/// <remarks>
+	/// An HTML writer.
+	/// </remarks>
 	public class HtmlWriter : IDisposable
 	{
 		TextWriter writer;
@@ -862,9 +867,9 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// Releases all resource used by the <see cref="MimeKit.Text.HtmlWriter"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="MimeKit.Text.HtmlWriter"/>. The
-		/// <see cref="Dispose"/> method leaves the <see cref="MimeKit.Text.HtmlWriter"/> in an unusable state. After calling
-		/// <see cref="Dispose"/>, you must release all references to the <see cref="MimeKit.Text.HtmlWriter"/> so the garbage
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Text.HtmlWriter"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Text.HtmlWriter"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Text.HtmlWriter"/> so the garbage
 		/// collector can reclaim the memory that the <see cref="MimeKit.Text.HtmlWriter"/> was occupying.</remarks>
 		public void Dispose ()
 		{

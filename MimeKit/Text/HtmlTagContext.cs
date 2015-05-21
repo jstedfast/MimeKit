@@ -31,7 +31,7 @@ namespace MimeKit.Text {
 	/// An HTML tag context.
 	/// </summary>
 	/// <remarks>
-	/// An HTML tag context used with the <see cref="HtmlTagCallback"/>.
+	/// An HTML tag context used with the <see cref="HtmlTagCallback"/> delegate.
 	/// </remarks>
 	public abstract class HtmlTagContext
 	{

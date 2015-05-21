@@ -66,7 +66,7 @@ namespace MimeKit.Text {
 		TrieState root;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Utils.Trie"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Text.Trie"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
@@ -79,7 +79,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Utils.Trie"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Text.Trie"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.

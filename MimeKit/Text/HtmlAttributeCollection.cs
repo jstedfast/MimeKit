@@ -74,6 +74,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the <see cref="MimeKit.Text.HtmlAttribute"/> at the specified index.
 		/// </remarks>
+		/// <value>The HTML attribute at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.

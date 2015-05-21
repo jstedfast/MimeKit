@@ -179,6 +179,25 @@
       <Type Name="TrailingWhitespaceFilter" Kind="Class" />
       <Type Name="Unix2DosFilter" Kind="Class" />
     </Namespace>
+    <Namespace Name="MimeKit.Text">
+      <Type Name="FlowedToHtml" Kind="Class" />
+      <Type Name="FlowedToText" Kind="Class" />
+      <Type Name="HeaderFooterFormat" Kind="Enumeration" />
+      <Type Name="HtmlAttribute" Kind="Class" />
+      <Type Name="HtmlAttributeCollection" Kind="Class" />
+      <Type Name="HtmlAttributeId" Kind="Enumeration" />
+      <Type Name="HtmlTagCallback" Kind="Delegate" />
+      <Type Name="HtmlTagContext" Kind="Class" />
+      <Type Name="HtmlTagId" Kind="Enumeration" />
+      <Type Name="HtmlToHtml" Kind="Class" />
+      <Type Name="HtmlWriter" Kind="Class" />
+      <Type Name="HtmlWriterState" Kind="Enumeration" />
+      <Type Name="TextConverter" Kind="Class" />
+      <Type Name="TextFormat" Kind="Enumeration" />
+      <Type Name="TextToFlowed" Kind="Class" />
+      <Type Name="TextToHtml" Kind="Class" />
+      <Type Name="TextToText" Kind="Class" />
+    </Namespace>
     <Namespace Name="MimeKit.Tnef">
       <Type Name="RtfCompressedToRtf" Kind="Class" />
       <Type Name="RtfCompressionMode" Kind="Enumeration" />

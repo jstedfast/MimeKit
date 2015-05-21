@@ -1,0 +1,312 @@
+<Type Name="HtmlTagContext" FullName="MimeKit.Text.HtmlTagContext">
+  <TypeSignature Language="C#" Value="public abstract class HtmlTagContext" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit HtmlTagContext extends System.Object" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            An HTML tag context.
+            </summary>
+    <remarks>
+            An HTML tag context used with the <see cref="T:MimeKit.Text.HtmlTagCallback" /> delegate.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected HtmlTagContext (MimeKit.Text.HtmlTagId tagId);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(valuetype MimeKit.Text.HtmlTagId tagId) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="tagId" Type="MimeKit.Text.HtmlTagId" />
+      </Parameters>
+      <Docs>
+        <param name="tagId">The HTML tag identifier.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Text.HtmlTagContext" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Text.HtmlTagContext" />.
+            </remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+          <paramref name="tagId" /> is invalid.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected HtmlTagContext (string tagName);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string tagName) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="tagName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="tagName">The HTML tag name.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.Text.HtmlTagContext" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Text.HtmlTagContext" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="tagName" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="tagName" /> is an invalid HTML tag name.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Attributes">
+      <MemberSignature Language="C#" Value="public abstract MimeKit.Text.HtmlAttributeCollection Attributes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Text.HtmlAttributeCollection Attributes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlAttributeCollection</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the HTML tag attributes.
+            </summary>
+        <value>The attributes.</value>
+        <remarks>
+            Gets the HTML tag attributes.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DeleteEndTag">
+      <MemberSignature Language="C#" Value="public bool DeleteEndTag { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool DeleteEndTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get or set whether or not the end tag should be deleted.
+            </summary>
+        <value>
+          <c>true</c> if the end tag should be deleted; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets or sets whether or not the end tag should be deleted.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DeleteTag">
+      <MemberSignature Language="C#" Value="public bool DeleteTag { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool DeleteTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get or set whether or not the tag should be deleted.
+            </summary>
+        <value>
+          <c>true</c> if the tag should be deleted; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets or sets whether or not the tag should be deleted.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeCallbackForEndTag">
+      <MemberSignature Language="C#" Value="public bool InvokeCallbackForEndTag { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool InvokeCallbackForEndTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get or set whether or not the <see cref="T:MimeKit.Text.HtmlTagCallback" /> should be invoked for the end tag.
+            </summary>
+        <value>
+          <c>true</c> if the callback should be invoked for end tag; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets or sets whether or not the <see cref="T:MimeKit.Text.HtmlTagCallback" /> should be invoked for the end tag.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsEmptyElementTag">
+      <MemberSignature Language="C#" Value="public abstract bool IsEmptyElementTag { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsEmptyElementTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get whether or not the tag is an empty element.
+            </summary>
+        <value>
+          <c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets whether or not the tag is an empty element.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsEndTag">
+      <MemberSignature Language="C#" Value="public bool IsEndTag { get; protected set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsEndTag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get whether or not the tag is an end tag.
+            </summary>
+        <value>
+          <c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets whether or not the tag is an end tag.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SuppressInnerContent">
+      <MemberSignature Language="C#" Value="public bool SuppressInnerContent { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool SuppressInnerContent" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get or set whether or not the inner content of the tag should be suppressed.
+            </summary>
+        <value>
+          <c>true</c> if the inner content should be suppressed; otherwise, <c>false</c>.</value>
+        <remarks>
+            Gets or sets whether or not the inner content of the tag should be suppressed.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TagId">
+      <MemberSignature Language="C#" Value="public MimeKit.Text.HtmlTagId TagId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.HtmlTagId TagId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the HTML tag identifier.
+            </summary>
+        <value>The HTML tag identifier.</value>
+        <remarks>
+            Gets the HTML tag identifier.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TagName">
+      <MemberSignature Language="C#" Value="public string TagName { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string TagName" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the HTML tag name.
+            </summary>
+        <value>The HTML tag name.</value>
+        <remarks>
+            Gets the HTML tag name.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTag">
+      <MemberSignature Language="C#" Value="public void WriteTag (MimeKit.Text.HtmlWriter htmlWriter);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTag(class MimeKit.Text.HtmlWriter htmlWriter) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="htmlWriter" Type="MimeKit.Text.HtmlWriter" />
+      </Parameters>
+      <Docs>
+        <param name="htmlWriter">The HTML writer.</param>
+        <summary>
+            Write the HTML tag.
+            </summary>
+        <remarks>
+            Writes the HTML tag to the given <see cref="T:MimeKit.Text.HtmlWriter" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="htmlWriter" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteTag">
+      <MemberSignature Language="C#" Value="public void WriteTag (MimeKit.Text.HtmlWriter htmlWriter, bool writeAttributes);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTag(class MimeKit.Text.HtmlWriter htmlWriter, bool writeAttributes) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="htmlWriter" Type="MimeKit.Text.HtmlWriter" />
+        <Parameter Name="writeAttributes" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="htmlWriter">The HTML writer.</param>
+        <param name="writeAttributes">
+          <c>true</c> if the <see cref="P:MimeKit.Text.HtmlTagContext.Attributes" /> should also be written; otherwise, <c>false</c>.</param>
+        <summary>
+            Write the HTML tag.
+            </summary>
+        <remarks>
+            Writes the HTML tag to the given <see cref="T:MimeKit.Text.HtmlWriter" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="htmlWriter" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
