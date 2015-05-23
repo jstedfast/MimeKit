@@ -1,5 +1,27 @@
 # Release Notes
 
+### MimeKit 1.0.15
+
+* Fixed MimeMessage.WriteTo() to be thread-safe. (issue #138)
+
+### MimeKit 1.0.14
+
+* Added support for .NET 3.5.
+* Added a convenience CmsSigner .ctor that takes an X509Certificate2 argument.
+* Fixed BodyBuilder to never return a TextPart w/ a null ContentObject.
+* Fixed TextPart.GetText() to protect against NullReferenceExceptions if the
+  ContentObject is null.
+* Fixed MimeFilterBase.EnsureOutputSize() to initialize OutputBuffer if it is
+  null. Prevents NullReferenceExceptions in obscure corner cases. (issue #135)
+* Added a TnefAttachFlags enum which is used to determine if image attachments
+  in MS-TNEF data are meant to have a Content-Disposition of "inline" when
+  extracted as MIME attachments. (issue #129)
+* Fixed TnefPart.ConvertToMessage() and ExtractAttachments() to use the
+  PR_ATTACH_MIME_TAG property to determine the intended mime-type for extracted
+  attachments.
+* Catch DecoderFallbackExceptions in MimeMessage.ToString() and fall back to
+  Latin1. (issue #137)
+
 ### MimeKit 1.0.13
 
 * Added a work-around for a bug in Thunderbird's multipart/related implementation.

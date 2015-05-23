@@ -265,11 +265,12 @@ namespace MimeKit {
 					return;
 				}
 
+				var options = FormatOptions.GetDefault ();
 				var builder = new StringBuilder ();
 				int len = "Sender: ".Length;
 
-				value.Encode (FormatOptions.Default, builder, ref len);
-				builder.Append (FormatOptions.Default.NewLine);
+				value.Encode (options, builder, ref len);
+				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
@@ -299,11 +300,12 @@ namespace MimeKit {
 					return;
 				}
 
+				var options = FormatOptions.GetDefault ();
 				var builder = new StringBuilder ();
 				int len = "Resent-Sender: ".Length;
 
-				value.Encode (FormatOptions.Default, builder, ref len);
-				builder.Append (FormatOptions.Default.NewLine);
+				value.Encode (options, builder, ref len);
+				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
@@ -881,56 +883,23 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</para>
-		/// <para>Note: In general, the string returned from this method should not be used for serializing the message
-		/// to disk. Instead, it is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</para>
+		/// <para>Note: In general, the string returned from this method SHOULD NOT be used for serializing the message
+		/// to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</para>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
 		public override string ToString ()
 		{
-			bool isUnicodeSafe = true;
-
-			if (Body != null) {
-				foreach (var part in BodyParts) {
-					if (part.ContentTransferEncoding == ContentEncoding.Binary) {
-						isUnicodeSafe = false;
-						break;
-					}
-
-					var text = part as TextPart;
-
-					if (text != null) {
-						var charset = text.ContentType.Charset;
-
-						charset = charset != null ? charset.ToLowerInvariant () : "utf-8";
-
-						if (charset == "utf-8" || charset == "us-ascii")
-							continue;
-
-						isUnicodeSafe = false;
-						break;
-					}
-				}
-			}
-
 			using (var memory = new MemoryStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.International = false;
+				var options = FormatOptions.GetDefault ();
 
 				WriteTo (options, memory);
 
-				#if !PORTABLE
+#if !PORTABLE
 				var buffer = memory.GetBuffer ();
-				#else
+#else
 				var buffer = memory.ToArray ();
-				#endif
+#endif
 				int count = (int) memory.Length;
-
-				if (isUnicodeSafe) {
-					try {
-						return CharsetUtils.UTF8.GetString (buffer, 0, count);
-					} catch (DecoderFallbackException) {
-					}
-				}
 
 				return CharsetUtils.Latin1.GetString (buffer, 0, count);
 			}
@@ -1018,7 +987,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
 		}
 
 		#if !PORTABLE
@@ -1105,7 +1074,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.OpenWrite (fileName))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+				WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
 		}
 		#endif
 
@@ -1463,11 +1432,12 @@ namespace MimeKit {
 
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
+			var options = FormatOptions.GetDefault ();
 			var builder = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
-			list.Encode (FormatOptions.Default, builder, ref lineLength);
-			builder.Append (FormatOptions.Default.NewLine);
+			list.Encode (options, builder, ref lineLength);
+			builder.Append (options.NewLine);
 
 			var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 

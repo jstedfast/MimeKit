@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.0.13.0</version>
+        <version>1.0.15.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,9 +22,7 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added a work-around for a bug in Thunderbird's multipart/related implementation. (issue #124)
-* Improved MimeMessage.CreateFromMailMessage() a bit more to avoid creating empty From, Reply-To, To, Cc and/or Bcc headers.
-* Modified the HeaderIdExtensions to only be available for the HeaderId enum values.
+        <releaseNotes>* Fixed MimeMessage.WriteTo() to be thread-safe. (issue #138)
 
 Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>

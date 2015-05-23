@@ -1,0 +1,2149 @@
+<Type Name="HtmlTagId" FullName="MimeKit.Text.HtmlTagId">
+  <TypeSignature Language="C#" Value="public enum HtmlTagId" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed HtmlTagId extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>
+            HTML tag identifiers.
+            </summary>
+    <remarks>
+            HTML tag identifiers.
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="A">
+      <MemberSignature Language="C#" Value="A" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId A = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;a&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Abbr">
+      <MemberSignature Language="C#" Value="Abbr" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Abbr = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;abbr&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Acronym">
+      <MemberSignature Language="C#" Value="Acronym" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Acronym = int32(3)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;acronym&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Address">
+      <MemberSignature Language="C#" Value="Address" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Address = int32(4)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;address&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Applet">
+      <MemberSignature Language="C#" Value="Applet" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Applet = int32(5)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;applet&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Area">
+      <MemberSignature Language="C#" Value="Area" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Area = int32(6)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;area&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Article">
+      <MemberSignature Language="C#" Value="Article" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Article = int32(7)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;article&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Aside">
+      <MemberSignature Language="C#" Value="Aside" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Aside = int32(8)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;aside&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Audio">
+      <MemberSignature Language="C#" Value="Audio" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Audio = int32(9)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;audio&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="B">
+      <MemberSignature Language="C#" Value="B" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId B = int32(10)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;b&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Base">
+      <MemberSignature Language="C#" Value="Base" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Base = int32(11)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;base&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="BaseFont">
+      <MemberSignature Language="C#" Value="BaseFont" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId BaseFont = int32(12)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;basefont&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Bdi">
+      <MemberSignature Language="C#" Value="Bdi" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Bdi = int32(13)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;bdi&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Bdo">
+      <MemberSignature Language="C#" Value="Bdo" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Bdo = int32(14)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;bdo&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="BGSound">
+      <MemberSignature Language="C#" Value="BGSound" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId BGSound = int32(15)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;bgsound&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Big">
+      <MemberSignature Language="C#" Value="Big" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Big = int32(16)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;big&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Blink">
+      <MemberSignature Language="C#" Value="Blink" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Blink = int32(17)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;blink&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="BlockQuote">
+      <MemberSignature Language="C#" Value="BlockQuote" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId BlockQuote = int32(18)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;blockquote&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Body">
+      <MemberSignature Language="C#" Value="Body" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Body = int32(19)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;body&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Br">
+      <MemberSignature Language="C#" Value="Br" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Br = int32(20)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;br&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Button">
+      <MemberSignature Language="C#" Value="Button" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Button = int32(21)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;button&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Canvas">
+      <MemberSignature Language="C#" Value="Canvas" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Canvas = int32(22)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;canvas&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Caption">
+      <MemberSignature Language="C#" Value="Caption" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Caption = int32(23)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;caption&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Center">
+      <MemberSignature Language="C#" Value="Center" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Center = int32(24)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;center&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Cite">
+      <MemberSignature Language="C#" Value="Cite" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Cite = int32(25)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;cite&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Code">
+      <MemberSignature Language="C#" Value="Code" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Code = int32(26)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;code&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Col">
+      <MemberSignature Language="C#" Value="Col" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Col = int32(27)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;col&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="ColGroup">
+      <MemberSignature Language="C#" Value="ColGroup" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId ColGroup = int32(28)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;colgroup&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Comment">
+      <MemberSignature Language="C#" Value="Comment" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Comment = int32(29)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML comment tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DataList">
+      <MemberSignature Language="C#" Value="DataList" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId DataList = int32(30)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;datalist&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DD">
+      <MemberSignature Language="C#" Value="DD" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId DD = int32(31)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dd&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Del">
+      <MemberSignature Language="C#" Value="Del" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Del = int32(32)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;del&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Details">
+      <MemberSignature Language="C#" Value="Details" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Details = int32(33)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;details&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Dfn">
+      <MemberSignature Language="C#" Value="Dfn" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Dfn = int32(34)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dfn&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Dialog">
+      <MemberSignature Language="C#" Value="Dialog" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Dialog = int32(35)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dialog&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Dir">
+      <MemberSignature Language="C#" Value="Dir" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Dir = int32(36)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dir&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Div">
+      <MemberSignature Language="C#" Value="Div" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Div = int32(37)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;div&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DL">
+      <MemberSignature Language="C#" Value="DL" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId DL = int32(38)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dl&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="DT">
+      <MemberSignature Language="C#" Value="DT" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId DT = int32(39)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;dt&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="EM">
+      <MemberSignature Language="C#" Value="EM" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId EM = int32(40)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;em&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Embed">
+      <MemberSignature Language="C#" Value="Embed" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Embed = int32(41)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;embed&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="FieldSet">
+      <MemberSignature Language="C#" Value="FieldSet" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId FieldSet = int32(42)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;fieldset&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="FigCaption">
+      <MemberSignature Language="C#" Value="FigCaption" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId FigCaption = int32(43)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;figcaption&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Figure">
+      <MemberSignature Language="C#" Value="Figure" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Figure = int32(44)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;figure&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Font">
+      <MemberSignature Language="C#" Value="Font" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Font = int32(45)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;font&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Footer">
+      <MemberSignature Language="C#" Value="Footer" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Footer = int32(46)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;footer&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Form">
+      <MemberSignature Language="C#" Value="Form" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Form = int32(47)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;form&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Frame">
+      <MemberSignature Language="C#" Value="Frame" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Frame = int32(48)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;frame&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="FrameSet">
+      <MemberSignature Language="C#" Value="FrameSet" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId FrameSet = int32(49)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;frameset&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H1">
+      <MemberSignature Language="C#" Value="H1" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H1 = int32(50)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h1&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H2">
+      <MemberSignature Language="C#" Value="H2" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H2 = int32(51)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h2&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H3">
+      <MemberSignature Language="C#" Value="H3" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H3 = int32(52)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h3&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H4">
+      <MemberSignature Language="C#" Value="H4" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H4 = int32(53)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h4&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H5">
+      <MemberSignature Language="C#" Value="H5" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H5 = int32(54)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h5&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="H6">
+      <MemberSignature Language="C#" Value="H6" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId H6 = int32(55)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;h6&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Head">
+      <MemberSignature Language="C#" Value="Head" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Head = int32(56)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;head&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Header">
+      <MemberSignature Language="C#" Value="Header" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Header = int32(57)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;header&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="HR">
+      <MemberSignature Language="C#" Value="HR" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId HR = int32(58)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;hr&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Html">
+      <MemberSignature Language="C#" Value="Html" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Html = int32(59)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;html&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="I">
+      <MemberSignature Language="C#" Value="I" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId I = int32(60)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;i&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Iframe">
+      <MemberSignature Language="C#" Value="Iframe" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Iframe = int32(61)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;iframe&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Image">
+      <MemberSignature Language="C#" Value="Image" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Image = int32(62)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;image&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Input">
+      <MemberSignature Language="C#" Value="Input" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Input = int32(63)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;input&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Ins">
+      <MemberSignature Language="C#" Value="Ins" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Ins = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;ins&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="IsIndex">
+      <MemberSignature Language="C#" Value="IsIndex" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId IsIndex = int32(65)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;isindex&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Kbd">
+      <MemberSignature Language="C#" Value="Kbd" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Kbd = int32(66)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;kbd&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Label">
+      <MemberSignature Language="C#" Value="Label" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Label = int32(67)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;label&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Legend">
+      <MemberSignature Language="C#" Value="Legend" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Legend = int32(68)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;legend&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="LI">
+      <MemberSignature Language="C#" Value="LI" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId LI = int32(69)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;li&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Link">
+      <MemberSignature Language="C#" Value="Link" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Link = int32(70)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;link&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Listing">
+      <MemberSignature Language="C#" Value="Listing" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Listing = int32(71)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;listing&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Main">
+      <MemberSignature Language="C#" Value="Main" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Main = int32(72)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;main&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Map">
+      <MemberSignature Language="C#" Value="Map" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Map = int32(73)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;map&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Mark">
+      <MemberSignature Language="C#" Value="Mark" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Mark = int32(74)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;mark&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Marquee">
+      <MemberSignature Language="C#" Value="Marquee" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Marquee = int32(75)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;marquee&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Menu">
+      <MemberSignature Language="C#" Value="Menu" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Menu = int32(76)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;menu&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="MenuItem">
+      <MemberSignature Language="C#" Value="MenuItem" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId MenuItem = int32(77)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;menuitem&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Meta">
+      <MemberSignature Language="C#" Value="Meta" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Meta = int32(78)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;meta&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Meter">
+      <MemberSignature Language="C#" Value="Meter" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Meter = int32(79)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;meter&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Nav">
+      <MemberSignature Language="C#" Value="Nav" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Nav = int32(80)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;nav&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NextId">
+      <MemberSignature Language="C#" Value="NextId" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId NextId = int32(81)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;nextid&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NoBR">
+      <MemberSignature Language="C#" Value="NoBR" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId NoBR = int32(82)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;nobr&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NoEmbed">
+      <MemberSignature Language="C#" Value="NoEmbed" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId NoEmbed = int32(83)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;noembed&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NoFrames">
+      <MemberSignature Language="C#" Value="NoFrames" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId NoFrames = int32(84)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;noframes&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NoScript">
+      <MemberSignature Language="C#" Value="NoScript" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId NoScript = int32(85)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;noscript&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Object">
+      <MemberSignature Language="C#" Value="Object" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Object = int32(86)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;object&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="OL">
+      <MemberSignature Language="C#" Value="OL" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId OL = int32(87)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;ol&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="OptGroup">
+      <MemberSignature Language="C#" Value="OptGroup" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId OptGroup = int32(88)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;optgroup&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Option">
+      <MemberSignature Language="C#" Value="Option" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Option = int32(89)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;option&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Output">
+      <MemberSignature Language="C#" Value="Output" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Output = int32(90)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;output&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="P">
+      <MemberSignature Language="C#" Value="P" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId P = int32(91)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;p&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Param">
+      <MemberSignature Language="C#" Value="Param" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Param = int32(92)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;param&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="PlainText">
+      <MemberSignature Language="C#" Value="PlainText" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId PlainText = int32(93)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;plaintext&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Pre">
+      <MemberSignature Language="C#" Value="Pre" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Pre = int32(94)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;pre&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Progress">
+      <MemberSignature Language="C#" Value="Progress" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Progress = int32(95)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;progress&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Q">
+      <MemberSignature Language="C#" Value="Q" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Q = int32(96)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;q&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="RP">
+      <MemberSignature Language="C#" Value="RP" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId RP = int32(97)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;rp&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="RT">
+      <MemberSignature Language="C#" Value="RT" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId RT = int32(98)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;rt&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Ruby">
+      <MemberSignature Language="C#" Value="Ruby" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Ruby = int32(99)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;ruby&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="S">
+      <MemberSignature Language="C#" Value="S" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId S = int32(100)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;s&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Samp">
+      <MemberSignature Language="C#" Value="Samp" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Samp = int32(101)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;samp&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Script">
+      <MemberSignature Language="C#" Value="Script" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Script = int32(102)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;script&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Section">
+      <MemberSignature Language="C#" Value="Section" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Section = int32(103)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;section&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Select">
+      <MemberSignature Language="C#" Value="Select" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Select = int32(104)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;select&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Small">
+      <MemberSignature Language="C#" Value="Small" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Small = int32(105)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;small&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Source">
+      <MemberSignature Language="C#" Value="Source" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Source = int32(106)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;source&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Span">
+      <MemberSignature Language="C#" Value="Span" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Span = int32(107)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;span&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Strike">
+      <MemberSignature Language="C#" Value="Strike" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Strike = int32(108)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;strike&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Strong">
+      <MemberSignature Language="C#" Value="Strong" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Strong = int32(109)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;strong&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Style">
+      <MemberSignature Language="C#" Value="Style" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Style = int32(110)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;style&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Sub">
+      <MemberSignature Language="C#" Value="Sub" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Sub = int32(111)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;sub&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Summary">
+      <MemberSignature Language="C#" Value="Summary" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Summary = int32(112)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;summary&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Sup">
+      <MemberSignature Language="C#" Value="Sup" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Sup = int32(113)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;sup&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Table">
+      <MemberSignature Language="C#" Value="Table" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Table = int32(114)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;table&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TBody">
+      <MemberSignature Language="C#" Value="TBody" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TBody = int32(115)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;tbody&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TD">
+      <MemberSignature Language="C#" Value="TD" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TD = int32(116)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;td&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TextArea">
+      <MemberSignature Language="C#" Value="TextArea" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TextArea = int32(117)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;textarea&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Tfoot">
+      <MemberSignature Language="C#" Value="Tfoot" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Tfoot = int32(118)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;tfoot&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TH">
+      <MemberSignature Language="C#" Value="TH" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TH = int32(119)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;th&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Thread">
+      <MemberSignature Language="C#" Value="Thread" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Thread = int32(120)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;thread&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Time">
+      <MemberSignature Language="C#" Value="Time" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Time = int32(121)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;time&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Title">
+      <MemberSignature Language="C#" Value="Title" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Title = int32(122)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;title&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TR">
+      <MemberSignature Language="C#" Value="TR" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TR = int32(123)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;tr&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Track">
+      <MemberSignature Language="C#" Value="Track" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Track = int32(124)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;track&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="TT">
+      <MemberSignature Language="C#" Value="TT" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId TT = int32(125)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;tt&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="U">
+      <MemberSignature Language="C#" Value="U" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId U = int32(126)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;u&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="UL">
+      <MemberSignature Language="C#" Value="UL" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId UL = int32(127)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;ul&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Unknown">
+      <MemberSignature Language="C#" Value="Unknown" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Unknown = int32(0)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            An unknown HTML tag identifier.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Var">
+      <MemberSignature Language="C#" Value="Var" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Var = int32(128)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;var&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Video">
+      <MemberSignature Language="C#" Value="Video" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Video = int32(129)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;video&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Wbr">
+      <MemberSignature Language="C#" Value="Wbr" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Wbr = int32(130)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;wbr&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Xml">
+      <MemberSignature Language="C#" Value="Xml" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Xml = int32(131)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;xml&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Xmp">
+      <MemberSignature Language="C#" Value="Xmp" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlTagId Xmp = int32(132)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Text.HtmlTagId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            The HTML &lt;xmp&gt; tag.
+            </summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

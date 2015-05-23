@@ -903,7 +903,7 @@ namespace MimeKit {
 
 			textValue = Unfold (value.Trim ());
 
-			rawValue = GetRawValue (FormatOptions.Default, encoding);
+			rawValue = GetRawValue (FormatOptions.GetDefault (), encoding);
 
 			OnChanged ();
 		}

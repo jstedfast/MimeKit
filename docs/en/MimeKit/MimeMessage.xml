@@ -1308,8 +1308,8 @@
         <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MimeMessage" />.</returns>
         <remarks>
           <para>Returns a <see cref="T:System.String" /> that represents the current <see cref="T:MimeKit.MimeMessage" />.</para>
-          <para>Note: In general, the string returned from this method should not be used for serializing the message
-            to disk. Instead, it is recommended that you use <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)" /> instead.</para>
+          <para>Note: In general, the string returned from this method SHOULD NOT be used for serializing the message
+            to disk. It is recommended that you use <see cref="M:MimeKit.MimeMessage.WriteTo(System.IO.Stream,System.Threading.CancellationToken)" /> instead.</para>
         </remarks>
       </Docs>
     </Member>

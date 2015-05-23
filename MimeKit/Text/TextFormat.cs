@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,12 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// The plain text format.
 		/// </summary>
-		Plain,
+		Text,
+
+		/// <summary>
+		/// The flowed text format (as described in rfc3676).
+		/// </summary>
+		Flowed,
 
 		/// <summary>
 		/// The HTML text format.
