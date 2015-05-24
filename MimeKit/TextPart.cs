@@ -310,8 +310,8 @@ namespace MimeKit {
 		/// Sets the text content and the charset parameter in the Content-Type header.
 		/// </summary>
 		/// <remarks>
-		/// This method is similar to setting the <see cref="Text"/> property, but allows
-		/// specifying a charset encoding to use. Also updates the
+		/// This method is similar to setting the <see cref="TextPart.Text"/> property,
+		/// but allows specifying a charset encoding to use. Also updates the
 		/// <see cref="ContentType.Charset"/> property.
 		/// </remarks>
 		/// <param name="encoding">The charset encoding.</param>
@@ -338,8 +338,8 @@ namespace MimeKit {
 		/// Sets the text content and the charset parameter in the Content-Type header.
 		/// </summary>
 		/// <remarks>
-		/// This method is similar to setting the <see cref="Text"/> property, but allows
-		/// specifying a charset encoding to use. Also updates the
+		/// This method is similar to setting the <see cref="TextPart.Text"/> property,
+		/// but allows specifying a charset encoding to use. Also updates the
 		/// <see cref="ContentType.Charset"/> property.
 		/// </remarks>
 		/// <param name="charset">The charset encoding.</param>

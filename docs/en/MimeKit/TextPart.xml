@@ -285,8 +285,8 @@
             Sets the text content and the charset parameter in the Content-Type header.
             </summary>
         <remarks>
-            This method is similar to setting the <see cref="N:MimeKit.Text" /> property, but allows
-            specifying a charset encoding to use. Also updates the
+            This method is similar to setting the <see cref="P:MimeKit.TextPart.Text" /> property,
+            but allows specifying a charset encoding to use. Also updates the
             <see cref="P:MimeKit.ContentType.Charset" /> property.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
@@ -323,8 +323,8 @@
             Sets the text content and the charset parameter in the Content-Type header.
             </summary>
         <remarks>
-            This method is similar to setting the <see cref="N:MimeKit.Text" /> property, but allows
-            specifying a charset encoding to use. Also updates the
+            This method is similar to setting the <see cref="P:MimeKit.TextPart.Text" /> property,
+            but allows specifying a charset encoding to use. Also updates the
             <see cref="P:MimeKit.ContentType.Charset" /> property.
             </remarks>
         <exception cref="T:System.ArgumentNullException">
