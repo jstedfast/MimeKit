@@ -153,6 +153,7 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+#if false
 		/// <summary>
 		/// Get or set whether or not the converter should collapse white space,
 		/// balance tags, and fix other problems in the source HTML.
@@ -165,7 +166,9 @@ namespace MimeKit.Text {
 		public bool NormalizeHtml {
 			get; set;
 		}
+#endif
 
+#if false
 		/// <summary>
 		/// Get or set whether or not the converter should only output an HTML fragment.
 		/// </summary>
@@ -176,6 +179,7 @@ namespace MimeKit.Text {
 		public bool OutputHtmlFragment {
 			get; set;
 		}
+#endif
 
 		class HtmlToHtmlTagContext : HtmlTagContext
 		{
@@ -283,10 +287,31 @@ namespace MimeKit.Text {
 						switch (token.Kind) {
 						case HtmlTokenKind.Text:
 							bool suppress = SuppressContent (stack);
+							//bool wsp = false;
 
 							while ((nread = htmlReader.ReadText (buffer, 0, buffer.Length)) > 0) {
-								if (!suppress)
-									htmlWriter.WriteMarkupText (buffer, 0, nread);
+								if (suppress)
+									continue;
+
+								//if (NormalizeHtml) {
+								//	int j = 0;
+								//
+								//	for (int i = 0; i < nread; i++) {
+								//		if (HtmlUtils.IsWhiteSpace (buffer[i])) {
+								//			if (!wsp) {
+								//				buffer[j++] = ' ';
+								//				wsp = true;
+								//			}
+								//		} else {
+								//			buffer[j++] = buffer[i];
+								//			wsp = false;
+								//		}
+								//	}
+								//
+								//	nread = j;
+								//}
+
+								htmlWriter.WriteMarkupText (buffer, 0, nread);
 							}
 							break;
 						case HtmlTokenKind.EmptyElementTag:

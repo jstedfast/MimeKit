@@ -32,6 +32,11 @@ using System.Globalization;
 namespace MimeKit.Text {
 	static class HtmlUtils
 	{
+		public static bool IsWhiteSpace (char c)
+		{
+			return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f';
+		}
+
 		public static bool IsValidStartCharacter (char c)
 		{
 			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
