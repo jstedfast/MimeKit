@@ -31,14 +31,16 @@ namespace MimeKit.Text {
 	struct HtmlAttributeReader
 	{
 		readonly string rawValue;
+		string value;
+		string name;
 		int index;
 
-		public HtmlAttributeReader (string value)
+		public HtmlAttributeReader (string text)
 		{
-			index = value.IndexOf (' ');
-			rawValue = value;
-			Value = null;
-			Name = null;
+			index = text.IndexOf (' ');
+			rawValue = text;
+			value = null;
+			name = null;
 		}
 
 		public bool HasValue {
@@ -46,11 +48,11 @@ namespace MimeKit.Text {
 		}
 
 		public string Name {
-			get; private set;
+			get { return name; }
 		}
 
 		public string Value {
-			get; private set;
+			get { return value; }
 		}
 
 		public bool ReadNext ()
@@ -72,7 +74,7 @@ namespace MimeKit.Text {
 			while (HtmlUtils.IsValidNameCharacter (rawValue[index]))
 				index++;
 
-			Name = rawValue.Substring (startIndex, index - startIndex);
+			name = rawValue.Substring (startIndex, index - startIndex);
 
 			while (char.IsWhiteSpace (rawValue[index]))
 				index++;
@@ -88,8 +90,8 @@ namespace MimeKit.Text {
 					while (rawValue[index] != quote)
 						index++;
 
-					Value = rawValue.Substring (startIndex, index - startIndex);
-					Value = HtmlUtils.HtmlDecode (Value, 0, Value.Length);
+					value = rawValue.Substring (startIndex, index - startIndex);
+					value = HtmlUtils.HtmlDecode (Value, 0, Value.Length);
 
 					index++;
 				} else {
@@ -98,11 +100,11 @@ namespace MimeKit.Text {
 					while (!char.IsWhiteSpace (rawValue[index]) && rawValue[index] != '>')
 						index++;
 
-					Value = rawValue.Substring (startIndex, index - startIndex);
-					Value = HtmlUtils.HtmlDecode (Value, 0, Value.Length);
+					value = rawValue.Substring (startIndex, index - startIndex);
+					value = HtmlUtils.HtmlDecode (Value, 0, Value.Length);
 				}
 			} else {
-				Value = null;
+				value = null;
 			}
 
 			return true;
