@@ -102,6 +102,27 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Format">
+      <MemberSignature Language="C#" Value="public string Format { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Format" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets or sets the format parameter.
+            </summary>
+        <value>The charset.</value>
+        <remarks>
+            The format parameter is typically use with text/plain <see cref="T:MimeKit.MimePart" />
+            entities and will either have a value of <c>"fixed"</c> or <c>"flowed"</c>.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Matches">
       <MemberSignature Language="C#" Value="public bool Matches (string mediaType, string mediaSubtype);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Matches(string mediaType, string mediaSubtype) cil managed" />

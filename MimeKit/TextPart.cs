@@ -42,8 +42,6 @@ using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
 #endif
 
-using MimeKit.IO;
-using MimeKit.IO.Filters;
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -155,10 +153,29 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets whether or not this text part contains flowed text.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
+		/// has a format parameter with a value of <c>flowed</c>.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsFlowed {
+			get {
+				string format;
+
+				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out format))
+					return false;
+
+				return format.ToLowerInvariant () == "flowed";
+			}
+		}
+
+		/// <summary>
 		/// Gets whether or not this text part contains plain text.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is text/plain.
+		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsPlain {
@@ -169,7 +186,7 @@ namespace MimeKit {
 		/// Gets whether or not this text part contains HTML.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is text/html.
+		/// Checks whether or not the text part's Content-Type is <c>text/html</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsHtml {

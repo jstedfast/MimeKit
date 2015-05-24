@@ -621,5 +621,35 @@
             </remarks>
       </Docs>
     </Member>
+    <Member MemberName="TryGetValue">
+      <MemberSignature Language="C#" Value="public bool TryGetValue (string name, out string value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool TryGetValue(string name, string value) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="value" Type="System.String&amp;" RefType="out" />
+      </Parameters>
+      <Docs>
+        <param name="name">The parameter name.</param>
+        <param name="value">The parameter value.</param>
+        <summary>
+            Gets the value of the parameter with the specified name.
+            </summary>
+        <returns>
+          <c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+        <remarks>
+            Gets the value of the parameter with the specified name.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
   </Members>
 </Type>

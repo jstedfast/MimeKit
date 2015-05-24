@@ -237,6 +237,24 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the format parameter.
+		/// </summary>
+		/// <remarks>
+		/// The format parameter is typically use with text/plain <see cref="MimePart"/>
+		/// entities and will either have a value of <c>"fixed"</c> or <c>"flowed"</c>.
+		/// </remarks>
+		/// <value>The charset.</value>
+		public string Format {
+			get { return Parameters["format"]; }
+			set {
+				if (value != null)
+					Parameters["format"] = value;
+				else
+					Parameters.Remove ("format");
+			}
+		}
+
+		/// <summary>
 		/// Gets the simple mime-type.
 		/// </summary>
 		/// <remarks>

@@ -224,6 +224,35 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Gets the value of the parameter with the specified name.
+		/// </summary>
+		/// <remarks>
+		/// Gets the value of the parameter with the specified name.
+		/// </remarks>
+		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+		/// <param name="name">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public bool TryGetValue (string name, out string value)
+		{
+			Parameter param;
+
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (!table.TryGetValue (name, out param)) {
+				value = null;
+				return false;
+			}
+
+			value = param.Value;
+
+			return true;
+		}
+
 		#region ICollection implementation
 
 		/// <summary>
