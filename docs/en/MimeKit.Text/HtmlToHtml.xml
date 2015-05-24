@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit HtmlToHtml extends MimeKit.Text.TextConverter" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Text.TextConverter</BaseTypeName>
@@ -23,7 +23,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -40,7 +40,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Convert(class System.IO.TextReader reader, class System.IO.TextWriter writer) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -74,7 +74,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance bool FilterHtml" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -95,7 +95,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Footer" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -116,7 +116,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.HeaderFooterFormat FooterFormat" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HeaderFooterFormat</ReturnType>
@@ -136,7 +136,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Header" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -157,7 +157,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.HeaderFooterFormat HeaderFormat" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HeaderFooterFormat</ReturnType>
@@ -177,7 +177,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.Text.HtmlTagCallback HtmlTagCallback" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlTagCallback</ReturnType>
@@ -199,7 +199,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.TextFormat InputFormat" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.TextFormat</ReturnType>
@@ -214,35 +214,12 @@
             </remarks>
       </Docs>
     </Member>
-    <Member MemberName="NormalizeHtml">
-      <MemberSignature Language="C#" Value="public bool NormalizeHtml { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance bool NormalizeHtml" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Boolean</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Get or set whether or not the converter should collapse white space,
-            balance tags, and fix other problems in the source HTML.
-            </summary>
-        <value>
-          <c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
-        <remarks>
-            Gets or sets whether or not the converter should collapse white space,
-            balance tags, and fix other problems in the source HTML.
-            </remarks>
-      </Docs>
-    </Member>
     <Member MemberName="OutputFormat">
       <MemberSignature Language="C#" Value="public override MimeKit.Text.TextFormat OutputFormat { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.Text.TextFormat OutputFormat" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.TextFormat</ReturnType>
@@ -254,27 +231,6 @@
         <value>The output format.</value>
         <remarks>
             Gets the output format.
-            </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="OutputHtmlFragment">
-      <MemberSignature Language="C#" Value="public bool OutputHtmlFragment { get; set; }" />
-      <MemberSignature Language="ILAsm" Value=".property instance bool OutputHtmlFragment" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Boolean</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-            Get or set whether or not the converter should only output an HTML fragment.
-            </summary>
-        <value>
-          <c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
-        <remarks>
-            Gets or sets whether or not the converter should only output an HTML fragment.
             </remarks>
       </Docs>
     </Member>

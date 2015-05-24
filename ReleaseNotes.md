@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 1.2.0
+
+* Force the use of the rfc2047 "B" encoding for ISO-2022-JP. (issue #139)
+* Added some text converters to convert between various text formats
+  including format=flowed and HTML.
+
 ### MimeKit 1.0.15
 
 * Fixed MimeMessage.WriteTo() to be thread-safe. (issue #138)

@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed HtmlAttributeId extends System.Enum" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
@@ -22,7 +22,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Abbr = int32(1)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -38,7 +38,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Accept = int32(2)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -54,7 +54,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId AcceptCharset = int32(3)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -70,7 +70,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId AccessKey = int32(4)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -86,7 +86,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Action = int32(5)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -102,7 +102,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Align = int32(6)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -118,7 +118,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Alink = int32(7)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -134,7 +134,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Alt = int32(8)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -150,7 +150,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Archive = int32(9)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -166,7 +166,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Axis = int32(10)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -182,7 +182,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Background = int32(11)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -198,7 +198,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId BGColor = int32(12)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -214,7 +214,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Border = int32(13)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -230,7 +230,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId CellPadding = int32(14)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -246,7 +246,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId CellSpacing = int32(15)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -262,7 +262,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Char = int32(16)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -278,7 +278,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId CharOff = int32(17)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -294,7 +294,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Charset = int32(18)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -310,7 +310,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Checked = int32(19)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -326,7 +326,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Cite = int32(20)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -342,7 +342,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Class = int32(21)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -358,7 +358,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId ClassId = int32(22)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -374,7 +374,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Clear = int32(23)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -390,7 +390,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Code = int32(24)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -406,7 +406,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId CodeBase = int32(25)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -422,7 +422,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId CodeType = int32(26)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -438,7 +438,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Color = int32(27)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -454,7 +454,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Cols = int32(28)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -470,7 +470,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId ColSpan = int32(29)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -486,7 +486,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Compact = int32(30)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -502,7 +502,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Content = int32(31)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -518,7 +518,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Coords = int32(32)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -534,7 +534,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Data = int32(33)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -550,7 +550,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId DateTime = int32(34)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -566,7 +566,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Declare = int32(35)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -582,7 +582,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Defer = int32(36)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -598,7 +598,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Dir = int32(37)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -614,7 +614,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Disabled = int32(38)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -630,7 +630,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId DynSrc = int32(39)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -646,7 +646,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId EncType = int32(40)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -662,7 +662,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Face = int32(41)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -678,7 +678,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId For = int32(42)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -694,7 +694,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Frame = int32(43)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -710,7 +710,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId FrameBorder = int32(44)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -726,7 +726,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Headers = int32(45)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -742,7 +742,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Height = int32(46)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -758,7 +758,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Href = int32(47)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -774,7 +774,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId HrefLang = int32(48)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -790,7 +790,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Hspace = int32(49)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -806,7 +806,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId HttpEquiv = int32(50)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -822,7 +822,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Id = int32(51)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -838,7 +838,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId IsMap = int32(52)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -854,7 +854,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Label = int32(53)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -870,7 +870,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Lang = int32(54)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -886,7 +886,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Language = int32(55)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -902,7 +902,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId LeftMargin = int32(56)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -918,7 +918,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Link = int32(57)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -934,7 +934,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId LongDesc = int32(58)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -950,7 +950,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId LowSrc = int32(59)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -966,7 +966,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId MarginHeight = int32(60)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -982,7 +982,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId MarginWidth = int32(61)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -998,7 +998,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId MaxLength = int32(62)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1014,7 +1014,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Media = int32(63)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1030,7 +1030,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Method = int32(64)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1046,7 +1046,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Multiple = int32(65)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1062,7 +1062,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Name = int32(66)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1078,7 +1078,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId NoHref = int32(67)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1094,7 +1094,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId NoResize = int32(68)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1110,7 +1110,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId NoShade = int32(69)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1126,7 +1126,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId NoWrap = int32(70)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1142,7 +1142,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Object = int32(71)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1158,7 +1158,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Profile = int32(72)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1174,7 +1174,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Prompt = int32(73)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1190,7 +1190,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId ReadOnly = int32(74)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1206,7 +1206,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Rel = int32(75)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1222,7 +1222,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Rev = int32(76)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1238,7 +1238,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Rows = int32(77)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1254,7 +1254,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId RowSpan = int32(78)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1270,7 +1270,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Rules = int32(79)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1286,7 +1286,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Scheme = int32(80)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1302,7 +1302,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Scope = int32(81)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1318,7 +1318,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Scrolling = int32(82)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1334,7 +1334,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Selected = int32(83)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1350,7 +1350,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Shape = int32(84)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1366,7 +1366,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Size = int32(85)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1382,7 +1382,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Span = int32(86)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1398,7 +1398,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Src = int32(87)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1414,7 +1414,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId StandBy = int32(88)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1430,7 +1430,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Start = int32(89)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1446,7 +1446,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Style = int32(90)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1462,7 +1462,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Summary = int32(91)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1478,7 +1478,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId TabIndex = int32(92)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1494,7 +1494,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Target = int32(93)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1510,7 +1510,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Text = int32(94)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1526,7 +1526,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Title = int32(95)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1542,7 +1542,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId TopMargin = int32(96)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1558,7 +1558,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Type = int32(97)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1574,7 +1574,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Unknown = int32(0)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1590,7 +1590,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId UseMap = int32(98)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1606,7 +1606,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Valign = int32(99)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1622,7 +1622,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Value = int32(100)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1638,7 +1638,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId ValueType = int32(101)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1654,7 +1654,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Version = int32(102)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1670,7 +1670,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Vlink = int32(103)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1686,7 +1686,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Vspace = int32(104)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
@@ -1702,7 +1702,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype MimeKit.Text.HtmlAttributeId Width = int32(105)" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Text.HtmlAttributeId</ReturnType>
