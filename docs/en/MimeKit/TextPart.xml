@@ -212,7 +212,7 @@
             Gets whether or not this text part contains flowed text.
             </summary>
         <value>
-          <c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+          <c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
         <remarks>
             Checks whether or not the text part's Content-Type is <c>text/plain</c> and
             has a format parameter with a value of <c>flowed</c>.
@@ -260,6 +260,27 @@
           <c>true</c> if the text is html; otherwise, <c>false</c>.</value>
         <remarks>
             Checks whether or not the text part's Content-Type is <c>text/plain</c>.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsRichText">
+      <MemberSignature Language="C#" Value="public bool IsRichText { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsRichText" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets whether or not this text part contains RTF.
+            </summary>
+        <value>
+          <c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
+        <remarks>
+            Checks whether or not the text part's Content-Type is <c>text/rtf</c>.
             </remarks>
       </Docs>
     </Member>

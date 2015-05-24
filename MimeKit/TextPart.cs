@@ -154,25 +154,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains flowed text.
-		/// </summary>
-		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
-		/// has a format parameter with a value of <c>flowed</c>.
-		/// </remarks>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
-		public bool IsFlowed {
-			get {
-				string format;
-
-				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out format))
-					return false;
-
-				return format.ToLowerInvariant () == "flowed";
-			}
-		}
-
-		/// <summary>
 		/// Gets whether or not this text part contains enriched text.
 		/// </summary>
 		/// <remarks>
@@ -182,6 +163,25 @@ namespace MimeKit {
 		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
 		bool IsEnriched {
 			get { return ContentType.Matches ("text", "enriched") || ContentType.Matches ("text", "richtext"); }
+		}
+
+		/// <summary>
+		/// Gets whether or not this text part contains flowed text.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
+		/// has a format parameter with a value of <c>flowed</c>.
+		/// </remarks>
+		/// <value><c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
+		public bool IsFlowed {
+			get {
+				string format;
+
+				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out format))
+					return false;
+
+				return format.ToLowerInvariant () == "flowed";
+			}
 		}
 
 		/// <summary>

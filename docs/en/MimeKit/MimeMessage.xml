@@ -338,6 +338,30 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetTextBody">
+      <MemberSignature Language="C#" Value="public string GetTextBody (MimeKit.Text.TextFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetTextBody(valuetype MimeKit.Text.TextFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="format" Type="MimeKit.Text.TextFormat" />
+      </Parameters>
+      <Docs>
+        <param name="format">The desired text format.</param>
+        <summary>
+            Gets the text body in the specified format.
+            </summary>
+        <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+        <remarks>
+            Gets the text body in the specified format, if it exists.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Headers">
       <MemberSignature Language="C#" Value="public MimeKit.HeaderList Headers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
