@@ -1,0 +1,190 @@
+Text: \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n  
+StartTag: html; lang="en"
+Text: \n    
+StartTag: body; style="margin:0; padding: 0;"
+Text: \n  \n  
+StartTag: table; bgcolor="#f1f1f1"; width="100%"; height="100%"; align="center"; height="60"; style="border-collapse: collapse"; border="0"; cellspacing="0"; cellpadding="0"
+Text: \n    
+StartTag: tr; align="center"
+Text: \n      
+StartTag: td; valign="top"
+Text: \n\n        \n        
+StartTag: table; bgcolor="#f1f1f1"; height="60"; style="border-collapse: collapse"; border="0"; cellspacing="0"; cellpadding="0"
+Text: \n          
+StartTag: tr; valign="middle"; height="40"
+Text: \n\n          \n          
+StartTag: td; width="9"
+EndTag: td
+Text: \n\n          \n          
+StartTag: td; width="217"; valign="middle"
+Text: \n            
+EmptyElementTag: img; src="cid:google"; border="0"; alt="Google Accounts"; style="display: block;"; height="40"
+Text: \n          
+EndTag: td
+Text: \n\n          \n          
+StartTag: td; width="327"; style="font-size: 13px; font-family: arial, sans-serif; color: #777777; text-align: right"
+Text: \n            \n              X\n            \n          
+EndTag: td
+Text: \n\n          \n          
+StartTag: td; width="10"
+EndTag: td
+Text: \n\n          \n          \n            
+StartTag: td
+Text: \n              
+EmptyElementTag: img; src="cid:profilephoto"; width="27"; height="27"
+Text: \n            
+EndTag: td
+Text: \n          \n\n          \n          
+StartTag: td; width="10"
+EndTag: td
+Text: \n\n          \n          
+EndTag: tr
+Text: \n        
+EndTag: table
+Text: \n\n        \n        
+StartTag: table; border="1"; bordercolor="#e5e5e5"; cellspacing="0"; cellpadding="0"; bgcolor="#ffffff"; style="text-align: left"
+Text: \n\n          \n          
+StartTag: tr
+Text: \n            
+StartTag: td; height="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n            
+EndTag: td
+Text: \n          
+EndTag: tr
+Text: \n\n          
+StartTag: tr
+Text: \n            \n            
+StartTag: td; width="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n            
+EndTag: td
+Text: \n\n            \n            
+StartTag: td; width="568"; valign="top"; style="font-size: 83%; border-top: none; border-bottom: none; border-left: none; border-right: none; font-size: 13px; font-family: arial, sans-serif; color: #222222; line-height: 18px"
+Text: \n            \n              Hi X,\n              
+EmptyElementTag: br
+Text: \n              
+EmptyElementTag: br
+Text: \n            \n\n\n  We recently blocked a sign-in attempt to your Google Account [x@gmail.com].\n\n\n
+EmptyElementTag: br
+Text: \n
+EmptyElementTag: br
+Text: \n\n
+StartTag: div; style="font-weight: bold;"
+Text: \n  \n    Sign in attempt details\n  \n
+EndTag: div
+Text: \n\n  \n    Date & Time: Friday, April 10, 8:40 PM EDT\n  \n  
+EmptyElementTag: br
+Text: \n\nLocation: San Fancisco, CA, USA\n\n
+EmptyElementTag: br
+Text: \n
+EmptyElementTag: br
+Text: \n\n
+StartTag: div; style="font-weight: bold;"
+Text: \n  \n    If this wasn't you\n  \n
+EndTag: div
+Text: \n\n  Please review your Account Activity page at 
+StartTag: a; href="https://security.google.com/settings/security/activity"
+Text: https://security.google.com/settings/security/activity
+EndTag: a
+Text:  to see if anything looks suspicious. Whoever tried to sign in to your account knows your password; we recommend that you change it right away.\n\n\n
+EmptyElementTag: br
+Text: \n
+EmptyElementTag: br
+Text: \n\n
+StartTag: div; style="font-weight: bold;"
+Text: \n  \n    If this was you\n  \n
+EndTag: div
+Text: \n\n  You can switch to an app made by Google such as Gmail to access your account (recommended) or change your settings at 
+StartTag: a; href="https://www.google.com/settings/security/lesssecureapps"
+Text: https://www.google.com/settings/security/lesssecureapps
+EndTag: a
+Text:  so that your account is no longer protected by modern security standards.\n\n\n
+EmptyElementTag: br
+Text: \n
+EmptyElementTag: br
+Text: \n\n\n  To learn more, see 
+StartTag: a; href="https://support.google.com/accounts/answer/6010255"
+Text: https://support.google.com/accounts/answer/6010255
+EndTag: a
+Text: .\n\n\n\n  \n                
+EmptyElementTag: br
+Text: \n                
+EmptyElementTag: br
+Text: \n                \n                  Sincerely,
+EmptyElementTag: br
+Text: \n                  The Google Accounts team\n                \n                
+EndTag: td
+Text: \n                \n                
+StartTag: td; width="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n                
+EndTag: td
+Text: \n\n              
+EndTag: tr
+Text: \n              \n              
+StartTag: tr
+Text: \n                
+StartTag: td; height="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n                
+EndTag: td
+Text: \n              
+EndTag: tr
+Text: \n\n  \n              
+StartTag: tr
+Text: \n\n                \n                
+StartTag: td; width="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+EndTag: td
+Text: \n\n                \n                
+StartTag: td; width="568"; style="font-size: 11px; font-family: arial, sans-serif; color: #777777; border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n                \n                  This email can't receive replies. For more information, visit the 
+StartTag: a; href="https://support.google.com/accounts/answer/6010255"; style="text-decoration: none; color: #4D90FE"
+StartTag: span; style="color: #4D90FE;"
+Text: Google Accounts Help Center
+EndTag: span
+EndTag: a
+Text: .\n                \n                
+EndTag: td
+Text: \n\n                \n                
+StartTag: td; width="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+EndTag: td
+Text: \n              
+EndTag: tr
+Text: \n\n  \n              \n              \n              \n              
+StartTag: tr
+Text: \n                
+StartTag: td; height="15"; style="border-top: none; border-bottom: none; border-left: none; border-right: none;"
+Text: \n                
+EndTag: td
+Text: \n              
+EndTag: tr
+Text: \n            
+EndTag: table
+Text: \n\n            \n            
+StartTag: table; bgcolor="#f1f1f1"; height="80"; style="text-align: left"
+Text: \n              
+StartTag: tr; valign="middle"
+Text: \n\n                \n                
+StartTag: td; style="font-size: 11px; font-family: arial, sans-serif; color: #777777;"
+Text: \n                  \n                    \n                      You received this mandatory email service announcement to update you about important changes to your Google product or account.\n                    \n                  \n                  
+EmptyElementTag: br
+Text: \n                  
+EmptyElementTag: br
+Text: \n                  
+StartTag: div; style="direction: ltr;"
+Text: \n                  \n                    &copy; 2015 Google Inc., 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA\n                  \n                  
+EndTag: div
+Text: \n                
+EndTag: td
+Text: \n\n              \n              
+EndTag: tr
+Text: \n            
+EndTag: table
+Text: \n\n          
+EndTag: td
+Text: \n        
+EndTag: tr
+Text: \n      
+EndTag: table
+Text: \n\n      \n    
+EndTag: body
+Text: \n  
+EndTag: html
+Text: \n\n\n\n

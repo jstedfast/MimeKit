@@ -447,8 +447,13 @@ namespace MimeKit.Text {
 					return false;
 				}
 
-				if (input[inputIndex] == '<')
+				if (input[inputIndex] == '<') {
+					State = HtmlReaderState.ReadTag;
+
 					goto case HtmlReaderState.ReadTag;
+				}
+
+				State = HtmlReaderState.ReadText;
 
 				goto case HtmlReaderState.ReadText;
 			case HtmlReaderState.ReadText:

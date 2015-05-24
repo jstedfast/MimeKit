@@ -37,13 +37,13 @@ namespace UnitTests {
 	[TestFixture]
 	public class HtmlReaderTests
 	{
-		[Test]
-		public void TestXamarin3SampleHtml ()
+		static void VerifyHtmlReaderTokens (string path)
 		{
-			var expected = File.ReadAllText ("../../TestData/html/xamarin3.tokens");
+			var tokens = Path.ChangeExtension (path, ".tokens");
+			var expected = File.Exists (tokens) ? File.ReadAllText (tokens) : string.Empty;
 			var actual = new StringBuilder ();
 
-			using (var textReader = File.OpenText ("../../TestData/html/xamarin3.html")) {
+			using (var textReader = File.OpenText (path)) {
 				using (var htmlReader = new HtmlReader (textReader)) {
 					HtmlToken token;
 
@@ -60,6 +60,7 @@ namespace UnitTests {
 							while ((nread = text.Read (buf, 0, buf.Length)) > 0) {
 								for (int i = 0; i < nread; i++) {
 									switch (buf[i]) {
+									case '\f': actual.Append ("\\f"); break;
 									case '\t': actual.Append ("\\t"); break;
 									case '\r': actual.Append ("\\r"); break;
 									case '\n': actual.Append ("\\n"); break;
@@ -104,7 +105,22 @@ namespace UnitTests {
 				}
 			}
 
+			//if (!File.Exists (tokens))
+			//	File.WriteAllText (tokens, actual.ToString ());
+
 			Assert.AreEqual (expected, actual.ToString (), "The token stream does not match the expected tokens.");
+		}
+
+		[Test]
+		public void TestXamarin3SampleHtml ()
+		{
+			VerifyHtmlReaderTokens ("../../TestData/html/xamarin3.html");
+		}
+
+		[Test]
+		public void TestGoogleSignInAttemptBlocked ()
+		{
+			VerifyHtmlReaderTokens ("../../TestData/html/blocked.html");
 		}
 
 		[Test]
