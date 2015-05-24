@@ -42,6 +42,7 @@ using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
 #endif
 
+using MimeKit.Text;
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -172,14 +173,15 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains plain text.
+		/// Gets whether or not this text part contains enriched text.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
+		/// Checks whether or not the text part's Content-Type is <c>text/enriched</c> or its
+		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
-		public bool IsPlain {
-			get { return ContentType.Matches ("text", "plain"); }
+		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
+		bool IsEnriched {
+			get { return ContentType.Matches ("text", "enriched") || ContentType.Matches ("text", "richtext"); }
 		}
 
 		/// <summary>
@@ -191,6 +193,28 @@ namespace MimeKit {
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsHtml {
 			get { return ContentType.Matches ("text", "html"); }
+		}
+
+		/// <summary>
+		/// Gets whether or not this text part contains plain text.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
+		/// </remarks>
+		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		public bool IsPlain {
+			get { return ContentType.Matches ("text", "plain"); }
+		}
+
+		/// <summary>
+		/// Gets whether or not this text part contains RTF.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the text part's Content-Type is <c>text/rtf</c>.
+		/// </remarks>
+		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
+		public bool IsRichText {
+			get { return ContentType.Matches ("text", "rtf"); }
 		}
 
 		/// <summary>
@@ -243,6 +267,26 @@ namespace MimeKit {
 			}
 			set {
 				SetText (Encoding.UTF8, value);
+			}
+		}
+
+		/// <summary>
+		/// Determines whether or not the text is in the specified format.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the text is in the specified format.
+		/// </remarks>
+		/// <returns><c>true</c> if the text is in the specified format; otherwise, <c>false</c>.</returns>
+		/// <param name="format">The text format.</param>
+		internal bool IsFormat (TextFormat format)
+		{
+			switch (format) {
+			case TextFormat.Text:     return IsPlain;
+			case TextFormat.Flowed:   return IsFlowed;
+			case TextFormat.Html:     return IsHtml;
+			case TextFormat.Enriched: return IsEnriched;
+			case TextFormat.RichText: return IsRichText;
+			default: return false;
 			}
 		}
 

@@ -43,8 +43,9 @@ using System.Net.Mail;
 using MimeKit.Cryptography;
 #endif
 
-using MimeKit.Utils;
 using MimeKit.IO;
+using MimeKit.Text;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -675,7 +676,7 @@ namespace MimeKit {
 			get; set;
 		}
 
-		static bool TryGetMultipartAlternativeBody (Multipart multipart, bool html, out string body)
+		static bool TryGetMultipartAlternativeBody (Multipart multipart, TextFormat format, out string body)
 		{
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 			for (int i = multipart.Count - 1; i >= 0; i--) {
@@ -691,12 +692,12 @@ namespace MimeKit {
 
 					if (mpart != null && mpart.ContentType.Matches ("multipart", "alternative")) {
 						// Note: nested multipart/alternatives make no sense... yet here we are.
-						if (TryGetMultipartAlternativeBody (mpart, html, out body))
+						if (TryGetMultipartAlternativeBody (mpart, format, out body))
 							return true;
 					}
 				}
 
-				if (text != null && (html ? text.IsHtml : text.IsPlain)) {
+				if (text != null && text.IsFormat (format)) {
 					body = text.Text;
 					return true;
 				}
@@ -707,7 +708,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		static bool TryGetMessageBody (Multipart multipart, bool html, out string body)
+		static bool TryGetMessageBody (Multipart multipart, TextFormat format, out string body)
 		{
 			var related = multipart as MultipartRelated;
 			Multipart multi;
@@ -715,7 +716,7 @@ namespace MimeKit {
 
 			if (related == null) {
 				if (multipart.ContentType.Matches ("multipart", "alternative"))
-					return TryGetMultipartAlternativeBody (multipart, html, out body);
+					return TryGetMultipartAlternativeBody (multipart, format, out body);
 
 				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
@@ -723,7 +724,7 @@ namespace MimeKit {
 
 					// descend into nested multiparts, if there are any...
 					if (multi != null) {
-						if (TryGetMessageBody (multi, html, out body))
+						if (TryGetMessageBody (multi, format, out body))
 							return true;
 
 						// The text body should never come after a multipart.
@@ -735,7 +736,7 @@ namespace MimeKit {
 					// Look for the first non-attachment text part (realistically, the body text will
 					// preceed any attachments, but I'm not sure we can rely on that assumption).
 					if (text != null && !text.IsAttachment) {
-						if (html ? text.IsHtml : text.IsPlain) {
+						if (text.IsFormat (format)) {
 							body = text.Text;
 							return true;
 						}
@@ -752,7 +753,7 @@ namespace MimeKit {
 				text = root as TextPart;
 
 				if (text != null) {
-					body = (html ? text.IsHtml : text.IsPlain) ? text.Text : null;
+					body = text.IsFormat (format) ? text.Text : null;
 					return body != null;
 				}
 
@@ -760,7 +761,7 @@ namespace MimeKit {
 				multi = root as Multipart;
 
 				if (multi != null)
-					return TryGetMessageBody (multi, html, out body);
+					return TryGetMessageBody (multi, format, out body);
 			}
 
 			body = null;
@@ -777,23 +778,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
 		public string TextBody {
-			get {
-				var multipart = Body as Multipart;
-
-				if (multipart != null) {
-					string plain;
-
-					if (TryGetMessageBody (multipart, false, out plain))
-						return plain;
-				} else {
-					var text = Body as TextPart;
-
-					if (text != null && text.IsPlain)
-						return text.Text;
-				}
-
-				return null;
-			}
+			get { return GetTextBody (TextFormat.Text); }
 		}
 
 		/// <summary>
@@ -804,23 +789,34 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The html body if it exists; otherwise, <c>null</c>.</value>
 		public string HtmlBody {
-			get {
-				var multipart = Body as Multipart;
+			get { return GetTextBody (TextFormat.Html); }
+		}
 
-				if (multipart != null) {
-					string html;
+		/// <summary>
+		/// Gets the text body in the specified format.
+		/// </summary>
+		/// <remarks>
+		/// Gets the text body in the specified format, if it exists.
+		/// </remarks>
+		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+		/// <param name="format">The desired text format.</param>
+		public string GetTextBody (TextFormat format)
+		{
+			var multipart = Body as Multipart;
 
-					if (TryGetMessageBody (multipart, true, out html))
-						return html;
-				} else {
-					var text = Body as TextPart;
+			if (multipart != null) {
+				string text;
 
-					if (text != null && text.IsHtml)
-						return text.Text;
-				}
+				if (TryGetMessageBody (multipart, format, out text))
+					return text;
+			} else {
+				var body = Body as TextPart;
 
-				return null;
+				if (body != null && body.IsFormat (format))
+					return body.Text;
 			}
+
+			return null;
 		}
 
 		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
