@@ -46,6 +46,55 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestHeaderParser ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = HeaderList.Load (memory);
+					string value;
+
+					Assert.AreEqual (3, headers.Count, "Unexpected header count.");
+
+					value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+
+					value = headers["Header-2"];
+
+					Assert.AreEqual ("value 2", value, "Unexpected header value.");
+
+					value = headers["Header-3"];
+
+					Assert.AreEqual ("value 3", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
+		public void TestSingleHeaderNoTerminator ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = HeaderList.Load (memory);
+
+					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+
+					var value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestSimpleMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/simple.mbox.txt")) {

@@ -832,7 +832,7 @@ namespace MimeKit {
 			do {
 				if (ReadAhead (Math.Max (ReadAheadSize, left), 0) <= left) {
 					// EOF reached before we reached the end of the headers...
-					if (left == 0 && !midline && headers.Count > 0) {
+					if (left == 0 && !midline) {
 						// the last header we encountered has been parsed cleanly, so try to
 						// fail gracefully by pretending we found the end of the headers...
 						//
@@ -1441,7 +1441,7 @@ namespace MimeKit {
 			state = MimeParserState.Headers;
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
-					throw new FormatException ("Failed to parse entity headers.");
+					throw new FormatException ("Failed to parse headers.");
 			}
 
 			state = MimeParserState.Complete;
