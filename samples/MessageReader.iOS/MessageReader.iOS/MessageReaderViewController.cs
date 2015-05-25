@@ -31,6 +31,7 @@ using Foundation;
 using UIKit;
 
 using MimeKit;
+using MimeKit.Text;
 
 namespace MessageReader.iOS {
 	public partial class MessageReaderViewController : UIViewController
@@ -95,57 +96,41 @@ namespace MessageReader.iOS {
 
 		#endregion
 
-		void Render (MultipartRelated related)
+		void RenderMultipartRelated (MultipartRelated related)
 		{
+			var root = related.Root;
+
+			if (root == null)
+				return;
+
 			var cache = new MultipartRelatedUrlCache (related);
 
 			NSUrlCache.SharedCache = cache;
 
-			Render (related.Root);
+			Render (root);
 		}
 
-		void Render (TextPart text)
+		void RenderText (TextPart text)
 		{
 			string html;
 
-			if (!text.ContentType.Matches ("text", "html")) {
-				var builder = new StringBuilder ("<html><body><p>");
-				var plain = text.Text;
-
-				for (int i = 0; i < plain.Length; i++) {
-					switch (plain[i]) {
-					case ' ': builder.Append ("&nbsp;"); break;
-					case '"': builder.Append ("&quot;"); break;
-					case '&': builder.Append ("&amp;"); break;
-					case '<': builder.Append ("&lt;"); break;
-					case '>': builder.Append ("&gt;"); break;
-					case '\r': break;
-					case '\n': builder.Append ("<p>"); break;
-					case '\t':
-						for (int j = 0; j < 8; j++)
-							builder.Append ("&nbsp;");
-						break;
-					default:
-						if (char.IsControl (plain[i]) || plain[i] > 127) {
-							int unichar;
-
-							if (i + 1 < plain.Length && char.IsSurrogatePair (plain[i], plain[i + 1]))
-								unichar = char.ConvertToUtf32 (plain[i], plain[i + 1]);
-							else
-								unichar = plain[i];
-
-							builder.AppendFormat ("&#{0};", unichar);
-						} else {
-							builder.Append (plain[i]);
-						}
-						break;
-					}
-				}
-
-				builder.Append ("</body></html>");
-				html = builder.ToString ();
-			} else {
+			if (text.IsHtml) {
+				// the text content is already in HTML format
 				html = text.Text;
+			} else if (text.IsFlowed) {
+				var converter = new FlowedToHtml ();
+				string delsp;
+
+				// the delsp parameter specifies whether or not to delete spaces at the end of flowed lines
+				if (!text.ContentType.Parameters.TryGetValue ("delsp", out delsp))
+					delsp = "no";
+
+				if (string.Compare (delsp, "yes", StringComparison.OrdinalIgnoreCase) == 0)
+					converter.DeleteSpace = true;
+
+				html = converter.Convert (text.Text);
+			} else {
+				html = new TextToHtml ().Convert (text.Text);
 			}
 
 			webView.LoadHtmlString (html, new NSUrl ("index.html"));
@@ -154,19 +139,20 @@ namespace MessageReader.iOS {
 		void Render (MimeEntity entity)
 		{
 			var related = entity as MultipartRelated;
+
 			if (related != null) {
-				if (related.Root != null)
-					Render (related);
+				RenderMultipartRelated (related);
 				return;
 			}
 
 			var multipart = entity as Multipart;
-			TextPart text;
+			var text = entity as TextPart;
 
+			// check if the entity is a multipart
 			if (multipart != null) {
 				if (multipart.ContentType.Matches ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
-					// The last part is the part that most closely matches what the
+					// The last part is the format that most closely matches what the
 					// user saw in his or her email client's WYSIWYG editor.
 					TextPart preferred = null;
 
@@ -177,7 +163,7 @@ namespace MessageReader.iOS {
 							var root = related.Root;
 
 							if (root != null && root.ContentType.Matches ("text", "html")) {
-								Render (related);
+								RenderMultipartRelated (related);
 								return;
 							}
 
@@ -189,29 +175,39 @@ namespace MessageReader.iOS {
 						if (text == null)
 							continue;
 
-						if (text.ContentType.Matches ("text", "html")) {
+						if (text.IsHtml) {
+							// we prefer html over plain text
 							preferred = text;
 							break;
 						}
 
-						if (preferred == null)
+						if (preferred == null) {
+							// we'll take what we can get
 							preferred = text;
+						}
 					}
 
 					if (preferred != null)
-						Render (preferred);
+						RenderText (preferred);
 				} else if (multipart.Count > 0) {
-					// The main message body is usually the first part of a multipart/mixed.
+					// At this point we know we're not dealing with a multipart/related or a
+					// multipart/alternative, so we can safely treat this as a multipart/mixed
+					// even if it's not.
+
+					// The main message body is usually the first part of a multipart/mixed. I
+					// suppose that it might be better to render the first text/* part instead
+					// (in case it's not the first part), but that's rare and probably also
+					// indicates that the text is meant to be displayed between the other parts
+					// (probably images or video?) in some sort of pseudo-multimedia "document"
+					// layout. Modern clients don't do this, they use HTML or RTF instead.
 					Render (multipart[0]);
 				}
-
-				return;
+			} else if (text != null) {
+				// render the text part
+				RenderText (text);
+			} else {
+				// message/rfc822 part
 			}
-
-			text = entity as TextPart;
-
-			if (text != null)
-				Render (text);
 		}
 	}
 }
