@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.2.0.0</version>
+        <version>1.2.1.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,14 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Force the use of the rfc2047 "B" encoding for ISO-2022-JP. (issue #139)
-* Added some text converters to convert between various text formats including format=flowed and HTML.
-
-Note: If you are not yet ready to port your iOS application to the Unified API, you will need to stick with the 1.0.5 release. The Classic MonoTouch API is no longer supported.</releaseNotes>
+        <releaseNotes>* Added a Format property to ContentType.
+* Added a TryGetValue() method to ParameterList.
+* Added IsFlowed and IsRichText convenience properties to TextPart.
+* Fixed the HtmlToHtml converter to properly handle HTML text that begins with leading text data.
+* Fixed MimeParser.ParseHeaders() to handle input that does not end with a blank line. (issue #142)
+* Renamed MimeEntityConstructorInfo to MimeEntityConstructorArgs.
+* Modified the MimeParser to use TextPart to represent application/rtf.
+</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>

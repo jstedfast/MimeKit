@@ -219,7 +219,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
 		public bool IsRichText {
-			get { return ContentType.Matches ("text", "rtf"); }
+			get { return ContentType.Matches ("text", "rtf") || ContentType.Matches ("application", "rtf"); }
 		}
 
 		/// <summary>

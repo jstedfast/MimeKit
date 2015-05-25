@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 1.2.1
+
+* Added a Format property to ContentType.
+* Added a TryGetValue() method to ParameterList.
+* Added IsFlowed and IsRichText convenience properties to TextPart.
+* Fixed the HtmlToHtml converter to properly handle HTML text that begins
+  with leading text data.
+* Fixed MimeParser.ParseHeaders() to handle input that does not end with a
+  blank line. (issue #142)
+* Renamed MimeEntityConstructorInfo to MimeEntityConstructorArgs.
+* Modified the MimeParser to use TextPart to represent application/rtf.
+
 ### MimeKit 1.2.0
 
 * Force the use of the rfc2047 "B" encoding for ISO-2022-JP. (issue #139)
