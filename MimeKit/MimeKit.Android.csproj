@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{004B4019-62B7-4A15-AF2C-C20968845C46}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -212,7 +212,7 @@
     <Compile Include="MessagePart.cs" />
     <Compile Include="MessagePartial.cs" />
     <Compile Include="MimeEntity.cs" />
-    <Compile Include="MimeEntityConstructorInfo.cs" />
+    <Compile Include="MimeEntityConstructorArgs.cs" />
     <Compile Include="MimeFormat.cs" />
     <Compile Include="MimeIterator.cs" />
     <Compile Include="MimeMessage.cs" />

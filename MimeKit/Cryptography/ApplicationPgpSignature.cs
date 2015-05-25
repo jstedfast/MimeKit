@@ -41,11 +41,16 @@ namespace MimeKit.Cryptography {
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPgpSignature"/>
-		/// class based on the <see cref="MimeKit.MimeEntityConstructorInfo"/>.
+		/// class based on the <see cref="MimeKit.MimeEntityConstructorArgs"/>.
 		/// </summary>
-		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
-		/// <param name="entity">Information used by the constructor.</param>
-		public ApplicationPgpSignature (MimeEntityConstructorInfo entity) : base (entity)
+		/// <remarks>
+		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// </remarks>
+		/// <param name="args">Information used by the constructor.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="args"/> is <c>null</c>.
+		/// </exception>
+		public ApplicationPgpSignature (MimeEntityConstructorArgs args) : base (args)
 		{
 		}
 

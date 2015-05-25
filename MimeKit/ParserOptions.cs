@@ -51,7 +51,7 @@ namespace MimeKit {
 	public class ParserOptions
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> ();
-		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorInfo) };
+		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
 
 		/// <summary>
 		/// The default parser options.
@@ -208,7 +208,7 @@ namespace MimeKit {
 		/// <see cref="MimePart"/>, or <see cref="MessagePart"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="type"/> does not have a constructor that takes
-		/// only a <see cref="MimeEntityConstructorInfo"/> argument.</para>
+		/// only a <see cref="MimeEntityConstructorArgs"/> argument.</para>
 		/// </exception>
 		public void RegisterMimeType (string mimeType, Type type)
 		{
@@ -238,7 +238,7 @@ namespace MimeKit {
 #endif
 
 			if (ctor == null)
-				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorInfo argument.", "type");
+				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", "type");
 
 			mimeTypes[mimeType] = ctor;
 		}
@@ -268,7 +268,7 @@ namespace MimeKit {
 
 		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel)
 		{
-			var entity = new MimeEntityConstructorInfo (this, contentType, headers, toplevel);
+			var entity = new MimeEntityConstructorArgs (this, contentType, headers, toplevel);
 			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
 			var type = contentType.MediaType.ToLowerInvariant ();
 

@@ -202,7 +202,7 @@
           <para>-or-</para>
           <para>
             <paramref name="type" /> does not have a constructor that takes
-            only a <see cref="T:MimeKit.MimeEntityConstructorInfo" /> argument.</para>
+            only a <see cref="T:MimeKit.MimeEntityConstructorArgs" /> argument.</para>
         </exception>
       </Docs>
     </Member>

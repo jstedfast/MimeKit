@@ -75,7 +75,7 @@
       <Type Name="MessagePart" Kind="Class" />
       <Type Name="MessagePartial" Kind="Class" />
       <Type Name="MimeEntity" Kind="Class" />
-      <Type Name="MimeEntityConstructorInfo" Kind="Class" />
+      <Type Name="MimeEntityConstructorArgs" Kind="Class" />
       <Type Name="MimeFormat" Kind="Enumeration" />
       <Type Name="MimeIterator" Kind="Class" />
       <Type Name="MimeMessage" Kind="Class" />

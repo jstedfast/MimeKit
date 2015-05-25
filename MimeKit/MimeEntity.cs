@@ -58,26 +58,29 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
-		/// based on the <see cref="MimeEntityConstructorInfo"/>.
+		/// based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
 		/// Custom <see cref="MimeEntity"/> subclasses MUST implement this constructor
 		/// in order to register it using <see cref="ParserOptions.RegisterMimeType"/>.
 		/// </remarks>
-		/// <param name="entity">Information used by the constructor.</param>
-		protected MimeEntity (MimeEntityConstructorInfo entity)
+		/// <param name="args">Information used by the constructor.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="args"/> is <c>null</c>.
+		/// </exception>
+		protected MimeEntity (MimeEntityConstructorArgs args)
 		{
-			if (entity == null)
-				throw new ArgumentNullException ("entity");
+			if (args == null)
+				throw new ArgumentNullException ("args");
 
-			Headers = new HeaderList (entity.ParserOptions);
-			ContentType = entity.ContentType;
+			Headers = new HeaderList (args.ParserOptions);
+			ContentType = args.ContentType;
 
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
 
-			foreach (var header in entity.Headers) {
-				if (entity.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+			foreach (var header in args.Headers) {
+				if (args.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				Headers.Add (header);
