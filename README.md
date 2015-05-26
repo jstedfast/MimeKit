@@ -11,7 +11,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 
 ## History
 
-As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of email client
+As a developer and user of email clients, I had come to realize that the vast majority of email client
 (and server) software had less-than-satisfactory MIME implementations. More often than not these email clients
 created broken MIME messages and/or would incorrectly try to parse a MIME message thus subtracting from the full
 benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
@@ -229,7 +229,7 @@ while (iter.MoveNext ()) {
     var multipart = iter.Parent as Multipart;
     var part = iter.Current as MimePart;
 
-    if (parent != null && part != null && part.IsAttachment) {
+    if (multipart != null && part != null && part.IsAttachment) {
         // keep track of each attachment's parent multipart
         multiparts.Add (multipart);
         attachments.Add (part);
