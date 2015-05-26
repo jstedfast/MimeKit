@@ -18,12 +18,18 @@
       <title>Creating your own OpenPGP Context</title>
       <content>
         <para>
-          Before you can start working with OpenPGP in MimeKit, you will first need
-          to create and register your own
+          Before you can start working with <application>OpenPGP</application> in MimeKit,
+          you will first need to create and register your own
           <codeEntityReference>T:MimeKit.Cryptography.OpenPgpContext</codeEntityReference>.
           For the sake of simplicity, MimeKit includes a
           <codeEntityReference>T:MimeKit.Cryptography.GnuPGContext</codeEntityReference>
-          that does most of the work for you.
+          that does most of the work of interoperating with the popular
+          <externalLink>
+            <linkText>GnuPG</linkText>
+            <linkUri>https://www.gnupg.org</linkUri>
+            <linkTarget>_blank</linkTarget>
+          </externalLink>
+          program for you.
         </para>
         <code language="c#" source="Examples\MyGnuPGContext.cs"/>
         <para>
@@ -40,8 +46,14 @@
       <title>Encrypting Messages with PGP/MIME</title>
       <content>
         <para>
-          Unlike S/MIME, PGP/MIME uses <literal>multipart/encrypted</literal> to
-          encapsulate encrypted data.
+          PGP/MIME uses a MIME part with a <literal>multipart/encrypted</literal> mime-type
+          to encapsulate encrypted data. To encrypt any
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>,
+          simply use the
+          <codeEntityReference autoUpgrade="true" linkText="MultipartEncrypted.Create">
+            M:MimeKit.Cryptography.MultipartEncrypted.Create(System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;,MimeKit.MimeEntity)
+          </codeEntityReference>
+          method:
         </para>
         <code language="c#" source="Examples\PgpEncrypt.cs"/>
       </content>
@@ -74,8 +86,8 @@
       <title>Digitally Signing Messages using PGP/MIME</title>
       <content>
         <para>
-          PGP/MIME uses a <literal>multipart/signed</literal> to contain the signed
-          content and the detached signature data.
+          PGP/MIME uses a MIME part with a <literal>multipart/signed</literal> mime-type to
+          contain the signed content and the detached signature data.
         </para>
         <para>
           Here's how you might digitally sign a message using PGP/MIME:

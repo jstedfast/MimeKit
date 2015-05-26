@@ -63,8 +63,14 @@
       <title>Encrypting Messages with S/MIME</title>
       <content>
         <para>
-          S/MIME uses an <literal>application/pkcs7-mime</literal> MIME part to encapsulate
-          encrypted content (as well as other things).
+          S/MIME uses a MIME part with an <literal>application/pkcs7-mime</literal> mime-type
+          to encapsulate encrypted content (as well as other things). To encrypt any
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>,
+          simply use the
+          <codeEntityReference autoUpgrade="true" linkText="ApplicationPkcs7Mime.Encrypt">
+            M:MimeKit.Cryptography.ApplicationPkcs7Mime.Encrypt(System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;,MimeKit.MimeEntity)
+          </codeEntityReference>
+          method:
         </para>
         <code language="c#" source="Examples\SMimeEncrypt.cs"/>
       </content>
@@ -91,8 +97,8 @@
       <title>Digitally Signing Messages using S/MIME</title>
       <content>
         <para>
-          S/MIME uses a <literal>multipart/signed</literal> to contain the signed content and
-          the detached signature data.
+          S/MIME uses a MIME part with a <literal>multipart/signed</literal> mime-type to
+          contain the signed content and the detached signature data.
         </para>
         <para>
           Here's how you might digitally sign a message using S/MIME:
