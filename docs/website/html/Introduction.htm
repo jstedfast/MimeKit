@@ -1,0 +1,130 @@
+﻿<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" />
+    <script type="text/javascript" src="../scripts/branding.js"> </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Introduction</title>
+    <meta name="Language" content="en-us" />
+    <meta name="Microsoft.Help.Id" content="Introduction" />
+    <meta name="Description" content="MimeKit is a popular high-performance Multi-purpose Internet Mail Extension (MIME) framework for .NET" />
+    <meta name="Microsoft.Help.ContentType" content="Concepts" />
+    <meta name="BrandingAware" content="true" />
+    
+    
+    <link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" />
+    <script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../scripts/branding-Website.js"></script>
+  </head>
+  <body onload="OnLoad('cs')">
+    <input type="hidden" id="userDataCache" class="userDataStyle" />
+    <div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div>
+    <div class="pageBody">
+      <div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel1 current" data-toclevel="1"><a data-tochassubtree="false" href="Introduction.htm" title="Introduction" tocid="Introduction">Introduction</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="CreatingMessages.htm" title="Creating Messages" tocid="CreatingMessages">Creating Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="ParsingMessages.htm" title="Parsing Messages" tocid="ParsingMessages">Parsing Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithMessages.htm" title="Working with Messages" tocid="WorkingWithMessages">Working with Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithPGP.htm" title="Working with OpenPGP" tocid="WorkingWithPGP">Working with OpenPGP</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithSMime.htm" title="Working with S/MIME" tocid="WorkingWithSMime">Working with S/MIME</a></div><div class="toclevel1" data-toclevel="1"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent">
+        <table class="titleTable">
+          <tr>
+            <td class="logoColumn">
+              <img alt="MimeKit" src="../icons/Help.png" />
+            </td>
+            <td class="titleColumn">Introduction</td>
+          </tr>
+        </table>
+        <span class="introStyle"></span>
+        <div class="introduction">
+          <p>MimeKit is a popular high-performance Multi-purpose Internet Mail Extension (MIME) framework for .NET</p>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID0RB')" onkeypress="SectionExpandCollapse_CheckKey('ID0RB', event)" tabindex="0">
+            <img id="ID0RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Feature Overview</span>
+        </div>
+        <div id="ID0RBSection" class="collapsibleSection">
+          <ul>
+            <li>
+              <p>Flexible MIME parser with a modern design and an intuitive API.</p>
+            </li>
+            <li>
+              <p>Robust: Handles a wide variety of broken MIME formatting with ease.</p>
+            </li>
+            <li>
+              <p>High-performance: faster than any other .NET MIME parser on the market. Rivals the performance of even the fastest C++ parsers.</p>
+            </li>
+            <li>
+              <p>Full support for S/MIME v3.2 and OpenPGP/MIME.</p>
+            </li>
+            <li>
+              <p>Supports .NET 3.5, .NET 4.0, .NET 4.5, Xamarin.Android, Xamarin.iOS, and Windows Phone 8.1.</p>
+            </li>
+          </ul>
+          <p />
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID1RB')" onkeypress="SectionExpandCollapse_CheckKey('ID1RB', event)" tabindex="0">
+            <img id="ID1RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />History</span>
+        </div>
+        <div id="ID1RBSection" class="collapsibleSection">
+          <p>
+          As a developer and user of email clients, I had come to realize that the vast majority of email
+          client (and server) software had less-than-satisfactory MIME implementations. More often than not these
+          email clients created broken MIME messages and/or would incorrectly try to parse a MIME message thus
+          subtracting from the full benefits that MIME was meant to provide. MimeKit is meant to address this
+          issue by following the MIME specification as closely as possible while also providing programmers with
+          an extremely easy to use high-level API.
+        </p>
+          <p>
+          This led me, at first, to implement another MIME parser library called
+          <a href="http://spruce.sourceforge.net/gmime" target="_blank">GMime</a>
+          which was implemented in C and later added a C# binding called GMime-Sharp.
+        </p>
+          <p>
+          Now that I typically find myself working in C# rather than lower level languages like C, I decided
+          to begin writing a new parser in C# which would not depend on GMime. This would also allow me to have
+          more flexibility in that I'd be able use Generics and create a more .NET-compliant API.
+        </p>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0">
+            <img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Performance</span>
+        </div>
+        <div id="ID2RBSection" class="collapsibleSection">
+          <p>
+          While mainstream beliefs may suggest that C# can never be as fast as C, it turns out that with a bit
+          of creative parser design and a few clever optimizations
+          [<a href="http://jeffreystedfast.blogspot.com/2013/09/optimization-tips-tricks-used-by.html" target="_blank">1</a>][<a href="http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html" target="_blank">2</a>], MimeKit's performance is actually <a href="http://jeffreystedfast.blogspot.com/2014/03/gmime-gets-speed-boost.html" target="_blank">par with GMime</a>.
+        </p>
+          <p>
+          Since GMime is pretty well-known as a high-performance native MIME parser and MimeKit more-or-less
+          matches GMime's performance, it stands to reason that MimeKit is likely unsurpassed in performance in
+          the .NET MIME parser space.
+        </p>
+          <p>
+          For a comparison, as I <a href="http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html" target="_blank">blogged here</a> (I have since optimized MimeKit by at least another 30%), MimeKit is more than 25x faster than
+          OpenPOP.NET, 75x faster than SharpMimeTools, and 65x faster than regex-based parsers. Even the commercial MIME
+          parser offerings such as LimiLabs' Mail.dll and NewtonIdeas' Mime4Net cannot even come close to matching
+          MimeKit's performance (they are both orders of magnitude slower than MimeKit).
+        </p>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0">
+            <img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Donate</span>
+        </div>
+        <div id="ID3RBSection" class="collapsibleSection">
+          <p>
+          MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
+          goal of making it not only the very best MIME parser framework for .NET, but the best MIME parser framework
+          for any programming language. I need your help to achieve this.
+        </p>
+          <p>
+            <a href="http://www.pledgie.com/campaigns/29300" target="_blank">
+              <img src="http://www.pledgie.com/campaigns/29300.png?skin_name=chrome" alt="Click here to lend your support to MimeKit and MailKit by making a donation via pledgie.com!" border="0" />
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="pageFooter" class="pageFooter">
+      <p>Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+﻿<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" />
+    <script type="text/javascript" src="../scripts/branding.js"> </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>MailboxAddress.Equals Method (InternetAddress)</title>
+    <meta name="Language" content="en-us" />
+    <meta name="Microsoft.Help.Id" content="M:MimeKit.MailboxAddress.Equals(MimeKit.InternetAddress)" />
+    <meta name="Description" content="Determines whether the specified is equal to the current ." />
+    <meta name="Microsoft.Help.ContentType" content="Reference" />
+    <meta name="BrandingAware" content="true" />
+    
+    <meta name="container" content="MimeKit" />
+    <meta name="file" content="M_MimeKit_MailboxAddress_Equals" />
+    <meta name="guid" content="M_MimeKit_MailboxAddress_Equals" />
+    
+    <link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" />
+    <script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../scripts/branding-Website.js"></script>
+  </head>
+  <body onload="OnLoad('cs')">
+    <input type="hidden" id="userDataCache" class="userDataStyle" />
+    <div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div>
+    <div class="pageBody">
+      <div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="N_MimeKit.htm" title="MimeKit" tocid="N_MimeKit">MimeKit</a></div><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MailboxAddress.htm" title="MailboxAddress Class" tocid="T_MimeKit_MailboxAddress">MailboxAddress Class</a></div><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Methods_T_MimeKit_MailboxAddress.htm" title="MailboxAddress Methods" tocid="Methods_T_MimeKit_MailboxAddress">MailboxAddress Methods</a></div><div class="toclevel1" data-toclevel="1" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Overload_MimeKit_MailboxAddress_Equals.htm" title="Equals Method " tocid="Overload_MimeKit_MailboxAddress_Equals">Equals Method </a></div><div class="toclevel2 current" data-toclevel="2"><a data-tochassubtree="false" href="M_MimeKit_MailboxAddress_Equals.htm" title="Equals Method (InternetAddress)" tocid="M_MimeKit_MailboxAddress_Equals">Equals Method (InternetAddress)</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent">
+        <table class="titleTable">
+          <tr>
+            <td class="logoColumn">
+              <img alt="MimeKit" src="../icons/Help.png" />
+            </td>
+            <td class="titleColumn">MailboxAddress<span id="LSTDB9563D7_0"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTDB9563D7_0?cpp=::|nu=.");</script>Equals Method (InternetAddress)</td>
+          </tr>
+        </table>
+        <span class="introStyle"></span>
+        <div class="summary">
+            Determines whether the specified <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a> is equal to the current <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>.
+            </div>
+        <p> </p>
+        <strong>Namespace:</strong> <a href="N_MimeKit.htm">MimeKit</a><br /><strong>Assembly:</strong> MimeKit (in MimeKit.dll) Version: 1.2.1.0<div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID1RB')" onkeypress="SectionExpandCollapse_CheckKey('ID1RB', event)" tabindex="0"><img id="ID1RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Syntax</span></div><div id="ID1RBSection" class="collapsibleSection"><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EACA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EACA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EACA');return false;" title="Copy">Copy</a></div></div><div id="ID0EACA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="keyword">public</span> <span class="keyword">override</span> <span class="identifier">bool</span> <span class="identifier">Equals</span>(
+	<span class="identifier">InternetAddress</span> <span class="parameter">other</span>
+)</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EACA");</script><h4 class="subHeading">Parameters</h4><dl><dt><span class="parameter">other</span></dt><dd>Type: <a href="T_MimeKit_InternetAddress.htm">MimeKit<span id="LSTDB9563D7_1"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTDB9563D7_1?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>InternetAddress</a><br />The <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a> to compare with the current <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>.</dd></dl><h4 class="subHeading">Return Value</h4>Type: <a href="http://msdn2.microsoft.com/en-us/library/a28wyd50" target="_blank">Boolean</a><br /><span class="code">true</span> if the specified <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a> is equal to the current
+            <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>; otherwise, <span class="code">false</span>.<h4 class="subHeading">Implements</h4><a href="http://msdn2.microsoft.com/en-us/library/ms131190" target="_blank">IEquatable<span id="LSTDB9563D7_2"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTDB9563D7_2?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LSTDB9563D7_3"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTDB9563D7_3?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script><span id="LSTDB9563D7_4"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTDB9563D7_4?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>Equals(T)</a><br /></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection">
+            Compares two mailbox addresses to determine if they are identical or not.
+            </div><div class="collapsibleAreaRegion" id="seeAlsoSection"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0"><img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />See Also</span></div><div id="ID3RBSection" class="collapsibleSection"><h4 class="subHeading">Reference</h4><div class="seeAlsoStyle"><a href="T_MimeKit_MailboxAddress.htm">MailboxAddress Class</a></div><div class="seeAlsoStyle"><a href="Overload_MimeKit_MailboxAddress_Equals.htm">Equals Overload</a></div><div class="seeAlsoStyle"><a href="N_MimeKit.htm">MimeKit Namespace</a></div></div></div>
+    </div>
+    <div id="pageFooter" class="pageFooter">
+      <p>Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)</p> </div>
+  </body>
+</html>

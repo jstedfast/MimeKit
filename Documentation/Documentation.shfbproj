@@ -14,7 +14,7 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
-    <OutputPath>.\Help\</OutputPath>
+    <OutputPath>..\docs\website\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <TransformComponentArguments>
@@ -60,6 +60,7 @@
       <NamespaceSummaryItem name="MimeKit.Utils" isDocumented="True" xmlns="">The &lt;b&gt;MimeKit.Utils&lt;/b&gt; namespace provides various utility classes.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <CopyrightText>Copyright &amp;#169%3b 2013-2015 Xamarin Inc. %28www.xamarin.com%29</CopyrightText>
+    <WorkingPath>obj\</WorkingPath>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

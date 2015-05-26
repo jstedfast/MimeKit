@@ -1,0 +1,612 @@
+﻿<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" />
+    <script type="text/javascript" src="../scripts/branding.js"> </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>MimeKit Namespace</title>
+    <meta name="Language" content="en-us" />
+    <meta name="System.Keywords" content="MimeKit namespace" />
+    <meta name="Microsoft.Help.F1" content="MimeKit" />
+    <meta name="Microsoft.Help.Id" content="N:MimeKit" />
+    <meta name="Description" content="The MimeKit namespace provides classes that are used to implement the core services of the framework." />
+    <meta name="Microsoft.Help.ContentType" content="Reference" />
+    <meta name="BrandingAware" content="true" />
+    
+    <meta name="container" content="MimeKit" />
+    <meta name="file" content="N_MimeKit" />
+    <meta name="guid" content="N_MimeKit" />
+    
+    <link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" />
+    <script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../scripts/branding-Website.js"></script>
+  </head>
+  <body onload="OnLoad('cs')">
+    <input type="hidden" id="userDataCache" class="userDataStyle" />
+    <div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div>
+    <div class="pageBody">
+      <div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div><div class="toclevel1 current" data-toclevel="1" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="N_MimeKit.htm" title="MimeKit" tocid="N_MimeKit">MimeKit</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_AttachmentCollection.htm" title="AttachmentCollection Class" tocid="T_MimeKit_AttachmentCollection">AttachmentCollection Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_BodyBuilder.htm" title="BodyBuilder Class" tocid="T_MimeKit_BodyBuilder">BodyBuilder Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ContentDisposition.htm" title="ContentDisposition Class" tocid="T_MimeKit_ContentDisposition">ContentDisposition Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_ContentEncoding.htm" title="ContentEncoding Enumeration" tocid="T_MimeKit_ContentEncoding">ContentEncoding Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ContentObject.htm" title="ContentObject Class" tocid="T_MimeKit_ContentObject">ContentObject Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ContentType.htm" title="ContentType Class" tocid="T_MimeKit_ContentType">ContentType Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_DomainList.htm" title="DomainList Class" tocid="T_MimeKit_DomainList">DomainList Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_EncodingConstraint.htm" title="EncodingConstraint Enumeration" tocid="T_MimeKit_EncodingConstraint">EncodingConstraint Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_FormatOptions.htm" title="FormatOptions Class" tocid="T_MimeKit_FormatOptions">FormatOptions Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_GroupAddress.htm" title="GroupAddress Class" tocid="T_MimeKit_GroupAddress">GroupAddress Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_Header.htm" title="Header Class" tocid="T_MimeKit_Header">Header Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_HeaderId.htm" title="HeaderId Enumeration" tocid="T_MimeKit_HeaderId">HeaderId Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_HeaderIdExtensions.htm" title="HeaderIdExtensions Class" tocid="T_MimeKit_HeaderIdExtensions">HeaderIdExtensions Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_HeaderList.htm" title="HeaderList Class" tocid="T_MimeKit_HeaderList">HeaderList Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_HeaderListChangedAction.htm" title="HeaderListChangedAction Enumeration" tocid="T_MimeKit_HeaderListChangedAction">HeaderListChangedAction Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_IContentObject.htm" title="IContentObject Interface" tocid="T_MimeKit_IContentObject">IContentObject Interface</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_InternetAddress.htm" title="InternetAddress Class" tocid="T_MimeKit_InternetAddress">InternetAddress Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_InternetAddressList.htm" title="InternetAddressList Class" tocid="T_MimeKit_InternetAddressList">InternetAddressList Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MailboxAddress.htm" title="MailboxAddress Class" tocid="T_MimeKit_MailboxAddress">MailboxAddress Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MessageDispositionNotification.htm" title="MessageDispositionNotification Class" tocid="T_MimeKit_MessageDispositionNotification">MessageDispositionNotification Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MessageIdList.htm" title="MessageIdList Class" tocid="T_MimeKit_MessageIdList">MessageIdList Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MessagePart.htm" title="MessagePart Class" tocid="T_MimeKit_MessagePart">MessagePart Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MessagePartial.htm" title="MessagePartial Class" tocid="T_MimeKit_MessagePartial">MessagePartial Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeEntity.htm" title="MimeEntity Class" tocid="T_MimeKit_MimeEntity">MimeEntity Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeEntityConstructorArgs.htm" title="MimeEntityConstructorArgs Class" tocid="T_MimeKit_MimeEntityConstructorArgs">MimeEntityConstructorArgs Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_MimeFormat.htm" title="MimeFormat Enumeration" tocid="T_MimeKit_MimeFormat">MimeFormat Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeIterator.htm" title="MimeIterator Class" tocid="T_MimeKit_MimeIterator">MimeIterator Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeMessage.htm" title="MimeMessage Class" tocid="T_MimeKit_MimeMessage">MimeMessage Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeParser.htm" title="MimeParser Class" tocid="T_MimeKit_MimeParser">MimeParser Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimePart.htm" title="MimePart Class" tocid="T_MimeKit_MimePart">MimePart Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MimeTypes.htm" title="MimeTypes Class" tocid="T_MimeKit_MimeTypes">MimeTypes Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_Multipart.htm" title="Multipart Class" tocid="T_MimeKit_Multipart">Multipart Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_MultipartRelated.htm" title="MultipartRelated Class" tocid="T_MimeKit_MultipartRelated">MultipartRelated Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_NewLineFormat.htm" title="NewLineFormat Enumeration" tocid="T_MimeKit_NewLineFormat">NewLineFormat Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_Parameter.htm" title="Parameter Class" tocid="T_MimeKit_Parameter">Parameter Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ParameterList.htm" title="ParameterList Class" tocid="T_MimeKit_ParameterList">ParameterList Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ParseException.htm" title="ParseException Class" tocid="T_MimeKit_ParseException">ParseException Class</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_ParserOptions.htm" title="ParserOptions Class" tocid="T_MimeKit_ParserOptions">ParserOptions Class</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="T_MimeKit_RfcComplianceMode.htm" title="RfcComplianceMode Enumeration" tocid="T_MimeKit_RfcComplianceMode">RfcComplianceMode Enumeration</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="T_MimeKit_TextPart.htm" title="TextPart Class" tocid="T_MimeKit_TextPart">TextPart Class</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent">
+        <table class="titleTable">
+          <tr>
+            <td class="logoColumn">
+              <img alt="MimeKit" src="../icons/Help.png" />
+            </td>
+            <td class="titleColumn">MimeKit Namespace</td>
+          </tr>
+        </table>
+        <span class="introStyle"></span>
+        <div class="summary">The <b>MimeKit</b> namespace provides classes that are used to implement the core services of the framework.</div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID0RB')" onkeypress="SectionExpandCollapse_CheckKey('ID0RB', event)" tabindex="0">
+            <img id="ID0RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Classes</span>
+        </div>
+        <div id="ID0RBSection" class="collapsibleSection">
+          <table id="typeList" class="members">
+            <tr>
+              <th class="iconColumn">
+					 
+				</th>
+              <th>Class</th>
+              <th>Description</th>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_AttachmentCollection.htm">AttachmentCollection</a>
+              </td>
+              <td>
+                <div class="summary">
+            A collection of attachments.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_BodyBuilder.htm">BodyBuilder</a>
+              </td>
+              <td>
+                <div class="summary">
+            A message body builder.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ContentDisposition.htm">ContentDisposition</a>
+              </td>
+              <td>
+                <div class="summary">
+            A class representing a Content-Disposition header value.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ContentObject.htm">ContentObject</a>
+              </td>
+              <td>
+                <div class="summary">
+            Encapsulates a content stream used by <a href="T_MimeKit_MimePart.htm">MimePart</a>.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ContentType.htm">ContentType</a>
+              </td>
+              <td>
+                <div class="summary">
+            A class representing a Content-Type header value.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_DomainList.htm">DomainList</a>
+              </td>
+              <td>
+                <div class="summary">
+            A domain list.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_FormatOptions.htm">FormatOptions</a>
+              </td>
+              <td>
+                <div class="summary">
+            Format options for serializing various MimeKit objects.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_GroupAddress.htm">GroupAddress</a>
+              </td>
+              <td>
+                <div class="summary">
+            An address group, as specified by rfc0822.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_Header.htm">Header</a>
+              </td>
+              <td>
+                <div class="summary">
+            A class representing a Message or MIME header.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_HeaderIdExtensions.htm">HeaderIdExtensions</a>
+              </td>
+              <td>
+                <div class="summary">
+                  <a href="T_MimeKit_HeaderId.htm">HeaderId</a> extension methods.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_HeaderList.htm">HeaderList</a>
+              </td>
+              <td>
+                <div class="summary">
+            A list of <a href="T_MimeKit_Header.htm">Header</a>s.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_InternetAddress.htm">InternetAddress</a>
+              </td>
+              <td>
+                <div class="summary">
+            An internet address, as specified by rfc0822.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_InternetAddressList.htm">InternetAddressList</a>
+              </td>
+              <td>
+                <div class="summary">
+            A list of email addresses. 
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>
+              </td>
+              <td>
+                <div class="summary">
+            A mailbox address, as specified by rfc822.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MessageDispositionNotification.htm">MessageDispositionNotification</a>
+              </td>
+              <td>
+                <div class="summary">
+            A message disposition notification MIME part.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MessageIdList.htm">MessageIdList</a>
+              </td>
+              <td>
+                <div class="summary">
+            A list of Message-Ids.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MessagePart.htm">MessagePart</a>
+              </td>
+              <td>
+                <div class="summary">
+            A MIME part containing a <a href="T_MimeKit_MimeMessage.htm">MimeMessage</a> as its content.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MessagePartial.htm">MessagePartial</a>
+              </td>
+              <td>
+                <div class="summary">
+            A MIME part containing a partial message as its content.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeEntity.htm">MimeEntity</a>
+              </td>
+              <td>
+                <div class="summary">
+            An abstract MIME entity.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeEntityConstructorArgs.htm">MimeEntityConstructorArgs</a>
+              </td>
+              <td>
+                <div class="summary">
+            MIME entity constructor arguments.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeIterator.htm">MimeIterator</a>
+              </td>
+              <td>
+                <div class="summary">
+            An iterator for a MIME tree structure.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeMessage.htm">MimeMessage</a>
+              </td>
+              <td>
+                <div class="summary">
+            A MIME message.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeParser.htm">MimeParser</a>
+              </td>
+              <td>
+                <div class="summary">
+            A MIME message and entity parser.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimePart.htm">MimePart</a>
+              </td>
+              <td>
+                <div class="summary">
+            A leaf-node MIME part that contains content such as the message body text or an attachment.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeTypes.htm">MimeTypes</a>
+              </td>
+              <td>
+                <div class="summary">
+            A mapping of file name extensions to the corresponding MIME-type.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_Multipart.htm">Multipart</a>
+              </td>
+              <td>
+                <div class="summary">
+            A multipart MIME entity which may contain a collection of MIME entities.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MultipartRelated.htm">MultipartRelated</a>
+              </td>
+              <td>
+                <div class="summary">
+            A multipart/related MIME entity.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_Parameter.htm">Parameter</a>
+              </td>
+              <td>
+                <div class="summary">
+            A header parameter as found in the Content-Type and Content-Disposition headers.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ParameterList.htm">ParameterList</a>
+              </td>
+              <td>
+                <div class="summary">
+            A list of parameters, as found in the Content-Type and Content-Disposition headers.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ParseException.htm">ParseException</a>
+              </td>
+              <td>
+                <div class="summary">
+            A Parse exception as thrown by the various Parse methods in MimeKit.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ParserOptions.htm">ParserOptions</a>
+              </td>
+              <td>
+                <div class="summary">
+            Parser options as used by <a href="T_MimeKit_MimeParser.htm">MimeParser</a> as well as various Parse and TryParse methods in MimeKit.
+            </div>
+              </td>
+            </tr>
+            <tr data="class; public">
+              <td>
+                <img src="../icons/pubclass.gif" alt="Public class" title="Public class" />
+              </td>
+              <td>
+                <a href="T_MimeKit_TextPart.htm">TextPart</a>
+              </td>
+              <td>
+                <div class="summary">
+            A Textual MIME part.
+            </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID1RB')" onkeypress="SectionExpandCollapse_CheckKey('ID1RB', event)" tabindex="0">
+            <img id="ID1RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Interfaces</span>
+        </div>
+        <div id="ID1RBSection" class="collapsibleSection">
+          <table id="typeList" class="members">
+            <tr>
+              <th class="iconColumn">
+					 
+				</th>
+              <th>Interface</th>
+              <th>Description</th>
+            </tr>
+            <tr data="interface; public">
+              <td>
+                <img src="../icons/pubinterface.gif" alt="Public interface" title="Public interface" />
+              </td>
+              <td>
+                <a href="T_MimeKit_IContentObject.htm">IContentObject</a>
+              </td>
+              <td>
+                <div class="summary">
+            An interface for content stream encapsulation as used by <a href="T_MimeKit_MimePart.htm">MimePart</a>.
+            </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0">
+            <img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Enumerations</span>
+        </div>
+        <div id="ID2RBSection" class="collapsibleSection">
+          <table id="typeList" class="members">
+            <tr>
+              <th class="iconColumn">
+					 
+				</th>
+              <th>Enumeration</th>
+              <th>Description</th>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_ContentEncoding.htm">ContentEncoding</a>
+              </td>
+              <td>
+                <div class="summary">
+            An enumeration of all supported content transfer encodings.
+            .
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_EncodingConstraint.htm">EncodingConstraint</a>
+              </td>
+              <td>
+                <div class="summary">
+            A content encoding constraint.
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_HeaderId.htm">HeaderId</a>
+              </td>
+              <td>
+                <div class="summary">
+            An enumeration of common header fields.
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_HeaderListChangedAction.htm">HeaderListChangedAction</a>
+              </td>
+              <td>
+                <div class="summary">
+            Header list changed action.
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_MimeFormat.htm">MimeFormat</a>
+              </td>
+              <td>
+                <div class="summary">
+            The format of the MIME stream.
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_NewLineFormat.htm">NewLineFormat</a>
+              </td>
+              <td>
+                <div class="summary">
+            A New-Line format.
+            </div>
+              </td>
+            </tr>
+            <tr data="enumeration; public">
+              <td>
+                <img src="../icons/pubenumeration.gif" alt="Public enumeration" title="Public enumeration" />
+              </td>
+              <td>
+                <a href="T_MimeKit_RfcComplianceMode.htm">RfcComplianceMode</a>
+              </td>
+              <td>
+                <div class="summary">
+            An RFC compliance mode.
+            </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="pageFooter" class="pageFooter">
+      <p>Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)</p> </div>
+  </body>
+</html>

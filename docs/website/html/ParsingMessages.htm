@@ -1,0 +1,149 @@
+﻿<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" />
+    <script type="text/javascript" src="../scripts/branding.js"> </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Parsing Messages</title>
+    <meta name="Language" content="en-us" />
+    <meta name="Microsoft.Help.Id" content="ParsingMessages" />
+    <meta name="Description" content="One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams. There are two ways of accomplishing this task." />
+    <meta name="Microsoft.Help.ContentType" content="Concepts" />
+    <meta name="BrandingAware" content="true" />
+    
+    
+    <link type="text/css" rel="stylesheet" href="../styles/highlight.css" />
+    <script type="text/javascript" src="../scripts/highlight.js"> </script>
+    <link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" />
+    <script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../scripts/branding-Website.js"></script>
+  </head>
+  <body onload="OnLoad('cs')">
+    <input type="hidden" id="userDataCache" class="userDataStyle" />
+    <div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div>
+    <div class="pageBody">
+      <div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="Introduction.htm" title="Introduction" tocid="Introduction">Introduction</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="CreatingMessages.htm" title="Creating Messages" tocid="CreatingMessages">Creating Messages</a></div><div class="toclevel1 current" data-toclevel="1"><a data-tochassubtree="false" href="ParsingMessages.htm" title="Parsing Messages" tocid="ParsingMessages">Parsing Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithMessages.htm" title="Working with Messages" tocid="WorkingWithMessages">Working with Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithPGP.htm" title="Working with OpenPGP" tocid="WorkingWithPGP">Working with OpenPGP</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithSMime.htm" title="Working with S/MIME" tocid="WorkingWithSMime">Working with S/MIME</a></div><div class="toclevel1" data-toclevel="1"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent">
+        <table class="titleTable">
+          <tr>
+            <td class="logoColumn">
+              <img alt="MimeKit" src="../icons/Help.png" />
+            </td>
+            <td class="titleColumn">Parsing Messages</td>
+          </tr>
+        </table>
+        <span class="introStyle"></span>
+        <div class="introduction">
+          <p>One of the more common operations that MimeKit is meant for is parsing
+      email messages from arbitrary streams. There are two ways of accomplishing
+      this task.</p>
+          <p>This topic contains the following sections:</p>
+          <ul class="autoOutline">
+            <li class="outlineSectionEntry">Using the Load methods</li>
+            <li class="outlineSectionEntry">Using MimeParser directly</li>
+            <li class="outlineSectionEntry">
+              <a href="#seeAlsoSection">See Also</a>
+            </li>
+          </ul>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID1RB')" onkeypress="SectionExpandCollapse_CheckKey('ID1RB', event)" tabindex="0">
+            <img id="ID1RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Using the Load methods</span>
+        </div>
+        <div id="ID1RBSection" class="collapsibleSection">
+          <p>The easiest way is to use one of the Load methods on
+        <a href="T_MimeKit_MimeMessage.htm">MimeMessage</a>.</p>
+          <div class="codeSnippetContainer">
+            <div class="codeSnippetContainerTabs">
+              <div id="ID0EAAACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
+            </div>
+            <div class="codeSnippetContainerCodeContainer">
+              <div class="codeSnippetToolBar">
+                <div class="codeSnippetToolBarText">
+                  <a id="ID0EAAACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAACAAA');return false;" title="Copy">Copy</a>
+                </div>
+              </div>
+              <div id="ID0EAAACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
+                <pre xml:space="preserve">
+                  <span class="highlight-comment">// Load a MimeMessage from a stream</span>
+<span class="highlight-keyword">var</span> message = MimeMessage.Load (stream);</pre>
+              </div>
+            </div>
+          </div>
+          <script type="text/javascript">AddLanguageTabSet("ID0EAAACAAA");</script>
+        </div>
+        <div class="collapsibleAreaRegion">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0">
+            <img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Using MimeParser directly</span>
+        </div>
+        <div id="ID2RBSection" class="collapsibleSection">
+          <p>The second way is to use the
+        <a href="T_MimeKit_MimeParser.htm">MimeParser</a> class.
+        For the most part, using the MimeParser directly is not necessary unless
+        you wish to parse a Unix mbox file stream. However, this is how you would
+        do it:</p>
+          <div class="codeSnippetContainer">
+            <div class="codeSnippetContainerTabs">
+              <div id="ID0EACABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
+            </div>
+            <div class="codeSnippetContainerCodeContainer">
+              <div class="codeSnippetToolBar">
+                <div class="codeSnippetToolBarText">
+                  <a id="ID0EACABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EACABAAA');return false;" title="Copy">Copy</a>
+                </div>
+              </div>
+              <div id="ID0EACABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
+                <pre xml:space="preserve">
+                  <span class="highlight-comment">// Load a MimeMessage from a stream</span>
+<span class="highlight-keyword">var</span> parser = <span class="highlight-keyword">new</span> MimeParser (stream, MimeFormat.Entity);
+<span class="highlight-keyword">var</span> message = parser.ParseMessage ();</pre>
+              </div>
+            </div>
+          </div>
+          <script type="text/javascript">AddLanguageTabSet("ID0EACABAAA");</script>
+          <p>For Unix mbox file streams, you would use the parser like this:</p>
+          <div class="codeSnippetContainer">
+            <div class="codeSnippetContainerTabs">
+              <div id="ID0EAAABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
+            </div>
+            <div class="codeSnippetContainerCodeContainer">
+              <div class="codeSnippetToolBar">
+                <div class="codeSnippetToolBarText">
+                  <a id="ID0EAAABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAABAAA');return false;" title="Copy">Copy</a>
+                </div>
+              </div>
+              <div id="ID0EAAABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
+                <pre xml:space="preserve">
+                  <span class="highlight-comment">// Load every message from a Unix mbox</span>
+<span class="highlight-keyword">var</span> parser = <span class="highlight-keyword">new</span> MimeParser (stream, MimeFormat.Mbox);
+<span class="highlight-keyword">while</span> (!parser.IsEndOfStream) {
+    <span class="highlight-keyword">var</span> message = parser.ParseMessage ();
+
+    <span class="highlight-comment">// do something with the message</span>
+}</pre>
+              </div>
+            </div>
+          </div>
+          <script type="text/javascript">AddLanguageTabSet("ID0EAAABAAA");</script>
+        </div>
+        <div class="collapsibleAreaRegion" id="seeAlsoSection">
+          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0">
+            <img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />See Also</span>
+        </div>
+        <div id="ID3RBSection" class="collapsibleSection">
+          <h4 class="subHeading">Other Resources</h4>
+          <div class="seeAlsoStyle">
+            <a href="CreatingMessages.htm">Creating Messages</a>
+          </div>
+          <div class="seeAlsoStyle">
+            <a href="WorkingWithMessages.htm">Working with Messages</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="pageFooter" class="pageFooter">
+      <p>Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)</p>
+    </div>
+  </body>
+</html>
