@@ -15,8 +15,8 @@
       <autoOutline />
     </introduction>
 
-    <section address="MessageBody">
-      <title>Getting the Body of a Message</title>
+    <section address="MessageStructure">
+      <title>The Message Structure</title>
       <content>
         <para>
           A common misunderstanding about email is that there is a well-defined
@@ -37,7 +37,7 @@
           <literal>attachment</literal>.
         </para>
         <para>
-          The meaning of these value should be fairly obvious. If the value is
+          The meaning of these values should be fairly obvious. If the value is
           <literal>attachment</literal>, then the content of said MIME part is meant
           to be presented as a file attachment separate from the core message. However,
           if the value is <literal>inline</literal>, then the content of that MIME part
@@ -55,7 +55,7 @@
         <para>
           Modern MIME messages will often contain a
           <literal>multipart/alternative</literal> MIME container which will generally
-          contain a <literal>text/plain</literal>and <literal>text/html</literal> version
+          contain a <literal>text/plain</literal> and <literal>text/html</literal> version
           of the text that the sender wrote. The <literal>text/html</literal> version is
           typically formatted much closer to what the sender saw in his or her WYSIWYG
           editor than the <literal>text/plain</literal> version.
@@ -66,11 +66,12 @@
         </para>
         <para>
           The receiving client should only display one of the alternative views
-          contained within the multipart/alternative container. Since alternative
-          views are listed in order of least faithful to most faithful with what the
-          sender saw in his or her WYSIWYG editor, the receiving client should walk
-          over the list of alternative views starting at the end and working backwards
-          until it finds a part that it is capable of displaying.
+          contained within the <literal>multipart/alternative</literal> container.
+          Since alternative views are listed in order of least faithful to most
+          faithful with what the sender saw in his or her WYSIWYG editor, the
+          receiving client should walk over the list of alternative views starting
+          at the end and working backwards until it finds a part that it is capable
+          of displaying.
         </para>
         <para>
           Example:<markup><pre>
@@ -87,7 +88,7 @@ multipart/alternative
           To make matters even more complicated, sometimes modern mail clients
           will use a <literal>multipart/related</literal> MIME container instead of a
           simple <literal>text/html</literal> part in order to embed images and other
-          content within the HTML.
+          multimedia content within the HTML.
         </para>
         <para>Example:<markup><pre>
 multipart/alternative
@@ -108,9 +109,36 @@ multipart/alternative
           to interpret various MIME entities, the next step is learning how to traverse
           the MIME tree using MimeKit.
         </para>
+      </content>
+    </section>
+
+    <section address="TraversingMessages">
+      <title>Traversing a Message</title>
+      <content>
         <para>
-          Note: For your convenience, MimeKit's
-          <codeEntityReference>T:MimeKit.MimeMessage</codeEntityReference> class has
+          The <codeEntityReference>P:MimeKit.MimeMessage.Body</codeEntityReference>
+          is the top-level MIME entity of the message. Generally, it will either be a
+          <codeEntityReference>T:MimeKit.TextPart</codeEntityReference> or a
+          <codeEntityReference>T:MimeKit.Multipart</codeEntityReference>.
+        </para>
+        <para>
+          There are 2 ways of iterating over the tree structure of a message using MimeKit.
+          The first way is to recursively traverse the MIME structure like this:
+        </para>
+        <code language="c#" source="Examples\RecursivelyTraverse.cs"/>
+        <para>
+          The other way, which is a bit cleaner and doesn't require recursive methods, is
+          to use a <codeEntityReference>T:MimeKit.MimeIterator</codeEntityReference>:
+        </para>
+        <code language="c#" source="Examples\MimeIterator.cs" />
+      </content>
+    </section>
+
+    <section address="TextBodyAndHtmlBody">
+      <title>Using the TextBody and HtmlBody Properties</title>
+      <content>
+        <para>
+          To simplify the common task of getting the text of a message, MimeKit includes
           two properties that can help you get the <literal>text/plain</literal> or
           <literal>text/html</literal> version of the message body. These are
           <codeEntityReference>P:MimeKit.MimeMessage.TextBody</codeEntityReference> and
@@ -127,23 +155,6 @@ multipart/alternative
           convenience property and is not a really good substitute for traversing the
           MIME structure yourself so that you may properly interpret related content.
         </para>
-      </content>
-    </section>
-
-    <section address="TraversingMessages">
-      <title>Traversing a Message</title>
-      <content>
-        <para>
-          The <codeEntityReference>P:MimeKit.MimeMessage.Body</codeEntityReference>
-          is the top-level MIME entity of the message. Generally, it will either be a
-          <codeEntityReference>T:MimeKit.TextPart</codeEntityReference> or a
-          <codeEntityReference>T:MimeKit.Multipart</codeEntityReference>.
-        </para>
-        <para>
-          As an example, if you wanted to rip out all of the attachments of a message,
-          your code might look something like this:
-        </para>
-        <code language="c#" source="Examples\AttachmentRipper.cs" />
       </content>
     </section>
 

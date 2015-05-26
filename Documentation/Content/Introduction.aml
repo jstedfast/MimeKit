@@ -13,7 +13,7 @@
             <para>Flexible MIME parser with a modern design and an intuitive API.</para>
           </listItem>
           <listItem>
-            <para>Robust: Handles a wide variety of broken MIME formatting with ease.</para>
+            <para>Robust: handles a wide variety of broken MIME formatting with ease.</para>
           </listItem>
           <listItem>
             <para>High-performance: faster than any other .NET MIME parser on the market. Rivals the performance of even the fastest C++ parsers.</para>

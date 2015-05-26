@@ -83,13 +83,13 @@
     <None Include="Content\WorkingWithMessages.aml" />
     <None Include="Content\WorkingWithPGP.aml" />
     <None Include="Content\WorkingWithSMime.aml" />
-    <None Include="Examples\AttachmentRipper.cs" />
     <None Include="Examples\BodyBuilder.cs" />
     <None Include="Examples\CreateMultipartAlternative.cs" />
     <None Include="Examples\CreateMultipartMixed.cs" />
     <None Include="Examples\CreateSimpleMessage.cs" />
     <None Include="Examples\DecodingContent.cs" />
     <None Include="Examples\EnumeratingAttachments.cs" />
+    <None Include="Examples\MimeIterator.cs" />
     <None Include="Examples\MimeMessageLoad.cs" />
     <None Include="Examples\MimeParserMbox.cs" />
     <None Include="Examples\MimeParserParseMessage.cs" />
@@ -100,6 +100,7 @@
     <None Include="Examples\PgpEncrypt.cs" />
     <None Include="Examples\PgpSign.cs" />
     <None Include="Examples\PgpSignKey.cs" />
+    <None Include="Examples\RecursivelyTraverse.cs" />
     <None Include="Examples\RegisterMyGnuPGContext.cs" />
     <None Include="Examples\RegisterMySecureMimeContext.cs" />
     <None Include="Examples\SMimeDecrypt.cs" />
