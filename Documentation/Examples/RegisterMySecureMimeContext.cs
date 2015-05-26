@@ -1,2 +1,1 @@
-﻿
-CryptographyContext.Register (typeof (MySecureMimeContext));
+﻿CryptographyContext.Register (typeof (MySecureMimeContext));

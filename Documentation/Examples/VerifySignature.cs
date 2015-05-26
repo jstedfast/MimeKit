@@ -1,5 +1,4 @@
-﻿
-if (entity is MultipartSigned) {
+﻿if (entity is MultipartSigned) {
     var signed = (MultipartSigned) entity;
 
     foreach (var signature in signed.Verify ()) {

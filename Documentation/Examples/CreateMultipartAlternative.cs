@@ -1,5 +1,4 @@
-﻿
-var attachment = CreateImageAttachment ();
+﻿var attachment = CreateImageAttachment ();
 var plain = CreateTextPlainPart ();
 var html = CreateTextHtmlPart ();
 

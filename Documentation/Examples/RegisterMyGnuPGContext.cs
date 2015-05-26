@@ -1,2 +1,1 @@
-﻿
-CryptographyContext.Register (typeof (MyGnuPGContext));
+﻿CryptographyContext.Register (typeof (MyGnuPGContext));

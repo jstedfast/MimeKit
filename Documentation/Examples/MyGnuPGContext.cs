@@ -1,5 +1,4 @@
-﻿
-class MyGnuPGContext : GnuPGContext
+﻿class MyGnuPGContext : GnuPGContext
 {
     public MyGnuPGContext () : base ()
     {

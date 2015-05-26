@@ -1,5 +1,4 @@
-﻿
-var joey = new MailboxAddress ("Joey", "joey@friends.com");
+﻿var joey = new MailboxAddress ("Joey", "joey@friends.com");
 var alice = new MailboxAddress ("Alice", "alice@wonderland.com");
 
 var message = new MimeMessage ();

@@ -1,5 +1,4 @@
-﻿
-class MySecureMimeContext : DefaultSecureMimeContext
+﻿class MySecureMimeContext : DefaultSecureMimeContext
 {
 	public MySecureMimeContext ()
 		: base (OpenDatabase ("C:\\wherever\\certdb.sqlite"))

@@ -11,7 +11,6 @@
     -->
 
     <introduction>
-      <para>MimeKit can handle all of your Pretty Good Privacy (PGP) needs.</para>
       <autoOutline />
     </introduction>
     
@@ -75,16 +74,16 @@
       <title>Digitally Signing Messages using PGP/MIME</title>
       <content>
         <para>
-          PGP/MIME uses a <literal>multipart/signed</literal> to contain the signed content and
-          the detached signature data.
+          PGP/MIME uses a <literal>multipart/signed</literal> to contain the signed
+          content and the detached signature data.
         </para>
         <para>
           Here's how you might digitally sign a message using PGP/MIME:
         </para>
         <code language="c#" source="Examples\PgpSign.cs"/>
         <para>
-          You can also do your own PGP key lookups instead of relying on email addresses to match
-          up with the user's private key.
+          You can also do your own PGP key lookups instead of relying on email addresses
+          to match up with the user's private key.
         </para>
         <code language="c#" source="Examples\PgpSignKey.cs"/>
       </content>
@@ -94,20 +93,22 @@
       <title>Verifying PGP/MIME Digital Signatures</title>
       <content>
         <para>
-          As mentioned earlier, PGP/MIME uses a <literal>multipart/signed</literal> part to contain
-          the signed content and the detached signature data.
+          As mentioned earlier, PGP/MIME uses a <literal>multipart/signed</literal> part
+          to contain the signed content and the detached signature data.
         </para>
         <para>
           A <literal>multipart/signed</literal> contains exactly 2 parts: the first
-          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the signed content
-          while the second <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the
-          detached signature and, by default, will be an
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the signed
+          content while the second
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the detached
+          signature and, by default, will be an
           <codeEntityReference>T:MimeKit.Cryptography.ApplicationPgpSignature</codeEntityReference>
           part.
         </para>
         <para>
-          Because the <literal>multipart/signed</literal> part may have been signed by multiple signers, it is
-          important to verify each of the digital signatures (one for each signer) that are returned by the
+          Because the <literal>multipart/signed</literal> part may have been signed by
+          multiple signers, it is important to verify each of the digital signatures
+          (one for each signer) that are returned by the
           <codeEntityReference autoUpgrade="true">M:MimeKit.Cryptography.MultipartSigned.Verify</codeEntityReference>
           method:
         </para>
@@ -116,7 +117,7 @@
     </section>
 
     <relatedTopics>
-      <link xlink:href="WorkingWithMessages#TraversingMessages"/>
+      <link xlink:href="WorkingWithMessages"/>
     </relatedTopics>
   </developerConceptualDocument>
 </topic>

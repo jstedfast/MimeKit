@@ -1,5 +1,4 @@
-﻿
-var message = new MimeMessage ();
+﻿var message = new MimeMessage ();
 message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
 message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
 message.Subject = "How you doin?";

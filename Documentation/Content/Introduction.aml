@@ -22,15 +22,9 @@
             <para>Full support for S/MIME v3.2 and OpenPGP/MIME.</para>
           </listItem>
           <listItem>
-            <para>Supports .NET 3.5, .NET 4.0, .NET 4.5, Xamarin.Android, Xamarin.iOS, and Windows Phone 8.1.</para>
+            <para>Supports .NET 3.5, .NET 4.0, .NET 4.5, Xamarin.Android, Xamarin.iOS, Windows Phone 8.1, and more.</para>
           </listItem>
         </list>
-      </content>
-    </section>
-
-    <section>
-      <title>Getting Started</title>
-      <content>
       </content>
     </section>
 
@@ -119,6 +113,7 @@
     </section>
 
     <relatedTopics>
+      <link xlink:href="GettingStarted"/>
     </relatedTopics>
   </developerConceptualDocument>
 </topic>

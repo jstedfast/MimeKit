@@ -1,5 +1,4 @@
-﻿
-var attachments = new List<MimePart> ();
+﻿var attachments = new List<MimePart> ();
 var multiparts = new List<Multipart> ();
 var iter = new MimeIterator (message);
 

@@ -1,84 +1,19 @@
-﻿<html>
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="shortcut icon" href="../icons/favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="../styles/branding.css" />
-    <link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" />
-    <script type="text/javascript" src="../scripts/branding.js"> </script>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Working with Messages</title>
-    <meta name="Language" content="en-us" />
-    <meta name="Microsoft.Help.Id" content="WorkingWithMessages" />
-    <meta name="Description" content="MimeKit provies a number of ways to get the data you want from a message." />
-    <meta name="Microsoft.Help.ContentType" content="Concepts" />
-    <meta name="BrandingAware" content="true" />
-    
-    
-    <link type="text/css" rel="stylesheet" href="../styles/highlight.css" />
-    <script type="text/javascript" src="../scripts/highlight.js"> </script>
-    <link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" />
-    <script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../scripts/branding-Website.js"></script>
-  </head>
-  <body onload="OnLoad('cs')">
-    <input type="hidden" id="userDataCache" class="userDataStyle" />
-    <div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div>
-    <div class="pageBody">
-      <div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="Introduction.htm" title="Introduction" tocid="Introduction">Introduction</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="CreatingMessages.htm" title="Creating Messages" tocid="CreatingMessages">Creating Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="ParsingMessages.htm" title="Parsing Messages" tocid="ParsingMessages">Parsing Messages</a></div><div class="toclevel1 current" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithMessages.htm" title="Working with Messages" tocid="WorkingWithMessages">Working with Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithPGP.htm" title="Working with OpenPGP" tocid="WorkingWithPGP">Working with OpenPGP</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithSMime.htm" title="Working with S/MIME" tocid="WorkingWithSMime">Working with S/MIME</a></div><div class="toclevel1" data-toclevel="1"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent">
-        <table class="titleTable">
-          <tr>
-            <td class="logoColumn">
-              <img alt="MimeKit" src="../icons/Help.png" />
-            </td>
-            <td class="titleColumn">Working with Messages</td>
-          </tr>
-        </table>
-        <span class="introStyle"></span>
-        <div class="introduction">
-          <p>MimeKit provies a number of ways to get the data you want from a message.</p>
-          <p>This topic contains the following sections:</p>
-          <ul class="autoOutline">
-            <li class="outlineSectionEntry">
-              <a href="#MessageBody">Getting the Body of a Message</a>
-            </li>
-            <li class="outlineSectionEntry">
-              <a href="#TraversingMessages">Traversing a Message</a>
-            </li>
-            <li class="outlineSectionEntry">
-              <a href="#EnumeratingBodyParts">Enumerating Body Parts</a>
-            </li>
-            <li class="outlineSectionEntry">
-              <a href="#DecodingContent">Getting the Decoded Content of a MimePart</a>
-            </li>
-            <li class="outlineSectionEntry">
-              <a href="#seeAlsoSection">See Also</a>
-            </li>
-          </ul>
-        </div>
-        <div class="collapsibleAreaRegion" id="MessageBody">
-          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID0RB')" onkeypress="SectionExpandCollapse_CheckKey('ID0RB', event)" tabindex="0">
-            <img id="ID0RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Getting the Body of a Message</span>
-        </div>
-        <div id="ID0RBSection" class="collapsibleSection">
-          <p>
+﻿<html><head><meta http-equiv="X-UA-Compatible" content="IE=edge" /><link rel="shortcut icon" href="../icons/favicon.ico" /><link rel="stylesheet" type="text/css" href="../styles/branding.css" /><link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" /><script type="text/javascript" src="../scripts/branding.js"> </script><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Working with Messages</title><meta name="Language" content="en-us" /><meta name="Microsoft.Help.Id" content="WorkingWithMessages" /><meta name="Description" content="MimeKit provies a number of ways to get the data you want from a message." /><meta name="Microsoft.Help.ContentType" content="Concepts" /><meta name="BrandingAware" content="true" /><link type="text/css" rel="stylesheet" href="../styles/highlight.css" /><script type="text/javascript" src="../scripts/highlight.js"> </script><link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" /><script type="text/javascript" src="../scripts/jquery-1.11.0.min.js"></script><script type="text/javascript" src="../scripts/branding-Website.js"></script></head><body onload="OnLoad('cs')"><input type="hidden" id="userDataCache" class="userDataStyle" /><div class="pageHeader" id="PageHeader">MimeKit Documentation<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div><div class="pageBody"><div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="Introduction.htm" title="MimeKit Documentation" tocid="roottoc">MimeKit Documentation</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="Introduction.htm" title="Introduction" tocid="Introduction">Introduction</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="GettingStarted.htm" title="Getting Started" tocid="GettingStarted">Getting Started</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="CreatingMessages.htm" title="Creating Messages" tocid="CreatingMessages">Creating Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="ParsingMessages.htm" title="Parsing Messages" tocid="ParsingMessages">Parsing Messages</a></div><div class="toclevel1 current" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithMessages.htm" title="Working with Messages" tocid="WorkingWithMessages">Working with Messages</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithPGP.htm" title="Working with OpenPGP" tocid="WorkingWithPGP">Working with OpenPGP</a></div><div class="toclevel1" data-toclevel="1"><a data-tochassubtree="false" href="WorkingWithSMime.htm" title="Working with S/MIME" tocid="WorkingWithSMime">Working with S/MIME</a></div><div class="toclevel1" data-toclevel="1"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="R_Project_Documentation.htm" title="API Reference" tocid="R_Project_Documentation">API Reference</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent"><table class="titleTable"><tr><td class="logoColumn"><img alt="MimeKit" src="../icons/Help.png" /></td><td class="titleColumn">Working with Messages</td></tr></table><span class="introStyle"></span><div class="introduction"><p>MimeKit provies a number of ways to get the data you want from a message.</p><p>This topic contains the following sections:</p><ul class="autoOutline"><li class="outlineSectionEntry"><a href="#MessageBody">Getting the Body of a Message</a></li><li class="outlineSectionEntry"><a href="#TraversingMessages">Traversing a Message</a></li><li class="outlineSectionEntry"><a href="#EnumeratingBodyParts">Enumerating Body Parts</a></li><li class="outlineSectionEntry"><a href="#DecodingContent">Getting the Decoded Content of a MimePart</a></li><li class="outlineSectionEntry"><a href="#seeAlsoSection">See Also</a></li></ul></div><div class="collapsibleAreaRegion" id="MessageBody"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID0RB')" onkeypress="SectionExpandCollapse_CheckKey('ID0RB', event)" tabindex="0"><img id="ID0RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Getting the Body of a Message</span></div><div id="ID0RBSection" class="collapsibleSection"><p>
           A common misunderstanding about email is that there is a well-defined
           message body and then a list of attachments. This is not really the case.
           The reality is that MIME is a tree structure of content, much like a file
           system.
-        </p>
-          <p>
+        </p><p>
           Luckily, MIME does define a set of general rules for how mail clients
           should interpret this tree structure of MIME parts. The
           <span class="literal">Content-Disposition</span> header is meant to provide hints to
           the receiving client as to which parts are meant to be displayed as part of
           the message body and which are meant to be interpreted as attachments.
-        </p>
-          <p>
+        </p><p>
           The <span class="literal">Content-Disposition</span> header will generally have
           one of two values: <span class="literal">inline</span> or
           <span class="literal">attachment</span>.
-        </p>
-          <p>
+        </p><p>
           The meaning of these value should be fairly obvious. If the value is
           <span class="literal">attachment</span>, then the content of said MIME part is meant
           to be presented as a file attachment separate from the core message. However,
@@ -87,68 +22,56 @@
           core message body. If the <span class="literal">Content-Disposition</span> header does
           not exist, then it should be treated as if the value were
           <span class="literal">inline</span>.
-        </p>
-          <p>
+        </p><p>
           Technically, every part that lacks a <span class="literal">Content-Disposition</span>
           header or that is marked as <span class="literal">inline</span>, then, is part of the
           core message body.
-        </p>
-          <p>There's a bit more to it than that, though.</p>
-          <p>
+        </p><p>There's a bit more to it than that, though.</p><p>
           Modern MIME messages will often contain a
           <span class="literal">multipart/alternative</span> MIME container which will generally
           contain a <span class="literal">text/plain</span>and <span class="literal">text/html</span> version
           of the text that the sender wrote. The <span class="literal">text/html</span> version is
           typically formatted much closer to what the sender saw in his or her WYSIWYG
           editor than the <span class="literal">text/plain</span> version.
-        </p>
-          <p>
+        </p><p>
           The reason for sending the message text in both formats is that not
           all mail clients are capable of displaying HTML.
-        </p>
-          <p>
+        </p><p>
           The receiving client should only display one of the alternative views
           contained within the multipart/alternative container. Since alternative
           views are listed in order of least faithful to most faithful with what the
           sender saw in his or her WYSIWYG editor, the receiving client should walk
           over the list of alternative views starting at the end and working backwards
           until it finds a part that it is capable of displaying.
-        </p>
-          <p>
+        </p><p>
           Example:<pre>
 multipart/alternative
   text/plain
-  text/html</pre></p>
-          <p>
+  text/html</pre></p><p>
           As seen in the example above, the <span class="literal">text/html</span> part is
           listed last because it is the most faithful to what the sender saw in his or
           her WYSIWYG editor when writing the message.
-        </p>
-          <p>
+        </p><p>
           To make matters even more complicated, sometimes modern mail clients
           will use a <span class="literal">multipart/related</span> MIME container instead of a
           simple <span class="literal">text/html</span> part in order to embed images and other
           content within the HTML.
-        </p>
-          <p>Example:<pre>
+        </p><p>Example:<pre>
 multipart/alternative
   text/plain
   multipart/related
     text/html
     image/jpeg
     video/mp4
-    image/png</pre></p>
-          <p>
+    image/png</pre></p><p>
           In the example above, one of the alternative views is a
           <span class="literal">multipart/related</span> container which contains an HTML
           version of the message body that references the sibling video and images.
-        </p>
-          <p>
+        </p><p>
           Now that you have a rough idea of how a message is structured and how
           to interpret various MIME entities, the next step is learning how to traverse
           the MIME tree using MimeKit.
-        </p>
-          <p>
+        </p><p>
           Note: For your convenience, MimeKit's
           <a href="T_MimeKit_MimeMessage.htm">MimeMessage</a> class has
           two properties that can help you get the <span class="literal">text/plain</span> or
@@ -156,8 +79,7 @@ multipart/alternative
           <a href="P_MimeKit_MimeMessage_TextBody.htm">TextBody</a> and
           <a href="P_MimeKit_MimeMessage_HtmlBody.htm">HtmlBody</a>,
           respectively.
-        </p>
-          <p>
+        </p><p>
           Keep in mind, however, that at least with the
           <a href="P_MimeKit_MimeMessage_HtmlBody.htm">HtmlBody</a>
           property, it may be that the HTML part is a child of a
@@ -166,36 +88,15 @@ multipart/alternative
           <span class="literal">multipart/related</span> entity. This property is really only a
           convenience property and is not a really good substitute for traversing the
           MIME structure yourself so that you may properly interpret related content.
-        </p>
-        </div>
-        <div class="collapsibleAreaRegion" id="TraversingMessages">
-          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0">
-            <img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Traversing a Message</span>
-        </div>
-        <div id="ID2RBSection" class="collapsibleSection">
-          <p>
+        </p></div><div class="collapsibleAreaRegion" id="TraversingMessages"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Traversing a Message</span></div><div id="ID2RBSection" class="collapsibleSection"><p>
           The <a href="P_MimeKit_MimeMessage_Body.htm">Body</a>
           is the top-level MIME entity of the message. Generally, it will either be a
           <a href="T_MimeKit_TextPart.htm">TextPart</a> or a
           <a href="T_MimeKit_Multipart.htm">Multipart</a>.
-        </p>
-          <p>
+        </p><p>
           As an example, if you wanted to rip out all of the attachments of a message,
           your code might look something like this:
-        </p>
-          <div class="codeSnippetContainer">
-            <div class="codeSnippetContainerTabs">
-              <div id="ID1EAAADAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
-            </div>
-            <div class="codeSnippetContainerCodeContainer">
-              <div class="codeSnippetToolBar">
-                <div class="codeSnippetToolBarText">
-                  <a id="ID1EAAADAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EAAADAAA');return false;" title="Copy">Copy</a>
-                </div>
-              </div>
-              <div id="ID1EAAADAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
-                <pre xml:space="preserve">
-                  <span class="highlight-keyword">var</span> attachments = <span class="highlight-keyword">new</span> List&lt;MimePart&gt; ();
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID1EAAADAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID1EAAADAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EAAADAAA');return false;" title="Copy">Copy</a></div></div><div id="ID1EAAADAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">var</span> attachments = <span class="highlight-keyword">new</span> List&lt;MimePart&gt; ();
 <span class="highlight-keyword">var</span> multiparts = <span class="highlight-keyword">new</span> List&lt;Multipart&gt; ();
 <span class="highlight-keyword">var</span> iter = <span class="highlight-keyword">new</span> MimeIterator (message);
 
@@ -213,138 +114,48 @@ multipart/alternative
 
 <span class="highlight-comment">// now remove each attachment from its parent multipart...</span>
 <span class="highlight-keyword">for</span> (<span class="highlight-keyword">int</span> i = <span class="highlight-number">0</span>; i &lt; attachments.Count; i++)
-    multiparts[i].Remove (attachments[i]);</pre>
-              </div>
-            </div>
-          </div>
-          <script type="text/javascript">AddLanguageTabSet("ID1EAAADAAA");</script>
-        </div>
-        <div class="collapsibleAreaRegion" id="EnumeratingBodyParts">
-          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0">
-            <img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Enumerating Body Parts</span>
-        </div>
-        <div id="ID3RBSection" class="collapsibleSection">
-          <p>
+    multiparts[i].Remove (attachments[i]);</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID1EAAADAAA");</script></div><div class="collapsibleAreaRegion" id="EnumeratingBodyParts"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0"><img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Enumerating Body Parts</span></div><div id="ID3RBSection" class="collapsibleSection"><p>
           Sometimes traversing the body of a message is overkill when all you really
           need to do is something quick &amp; dirty. For this reason, MimeKit provides
           the <a href="P_MimeKit_MimeMessage_BodyParts.htm">BodyParts</a>
           and <a href="P_MimeKit_MimeMessage_Attachments.htm">Attachments</a>
           properties which flatten out the hierarchy and allow you to iterate over all
           of the body parts (or attachments) in depth-first order.
-        </p>
-          <div class="codeSnippetContainer">
-            <div class="codeSnippetContainerTabs">
-              <div id="ID1EAAACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
-            </div>
-            <div class="codeSnippetContainerCodeContainer">
-              <div class="codeSnippetToolBar">
-                <div class="codeSnippetToolBarText">
-                  <a id="ID1EAAACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EAAACAAA');return false;" title="Copy">Copy</a>
-                </div>
-              </div>
-              <div id="ID1EAAACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
-                <pre xml:space="preserve">
-                  <span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> attachment <span class="highlight-keyword">in</span> message.Attachments) {
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID1EAAACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID1EAAACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EAAACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID1EAAACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> attachment <span class="highlight-keyword">in</span> message.Attachments) {
     <span class="highlight-keyword">var</span> fileName = attachment.FileName;
 
     <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> stream = File.Create (fileName)) {
         attachment.ContentObject.DecodeTo (stream);
     }
-}</pre>
-              </div>
-            </div>
-          </div>
-          <script type="text/javascript">AddLanguageTabSet("ID1EAAACAAA");</script>
-        </div>
-        <div class="collapsibleAreaRegion" id="DecodingContent">
-          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID4RB')" onkeypress="SectionExpandCollapse_CheckKey('ID4RB', event)" tabindex="0">
-            <img id="ID4RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Getting the Decoded Content of a MimePart</span>
-        </div>
-        <div id="ID4RBSection" class="collapsibleSection">
-          <p>
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID1EAAACAAA");</script></div><div class="collapsibleAreaRegion" id="DecodingContent"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID4RB')" onkeypress="SectionExpandCollapse_CheckKey('ID4RB', event)" tabindex="0"><img id="ID4RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Getting the Decoded Content of a MimePart</span></div><div id="ID4RBSection" class="collapsibleSection"><p>
           At some point, you're going to want to extract the decoded content of a
           <a href="T_MimeKit_MimePart.htm">MimePart</a> (such as an image)
           and save it to disk or feed it to a UI control to display it.
-        </p>
-          <p>
+        </p><p>
           Once you've found the <a href="T_MimeKit_MimePart.htm">MimePart</a>
           object that you'd like to extract the content of, here's how you can save the
           decoded content to a file:
-        </p>
-          <div class="codeSnippetContainer">
-            <div class="codeSnippetContainerTabs">
-              <div id="ID1EADABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
-            </div>
-            <div class="codeSnippetContainerCodeContainer">
-              <div class="codeSnippetToolBar">
-                <div class="codeSnippetToolBarText">
-                  <a id="ID1EADABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EADABAAA');return false;" title="Copy">Copy</a>
-                </div>
-              </div>
-              <div id="ID1EADABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
-                <pre xml:space="preserve">
-                  <span class="highlight-comment">// This will get the name of the file as specified by the sending mail client.</span>
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID1EADABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID1EADABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EADABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID1EADABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-comment">// This will get the name of the file as specified by the sending mail client.</span>
 <span class="highlight-comment">// Note: this value *may* be null, so you'll want to handle that case in your code.</span>
 <span class="highlight-keyword">var</span> fileName = part.FileName;
 
 <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> stream = File.Create (fileName)) {
     part.ContentObject.DecodeTo (stream);
-}</pre>
-              </div>
-            </div>
-          </div>
-          <script type="text/javascript">AddLanguageTabSet("ID1EADABAAA");</script>
-          <p>
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID1EADABAAA");</script><p>
           You can also get access to the original raw content by "opening" the
           <a href="P_MimeKit_MimePart_ContentObject.htm">ContentObject</a>.
           This might be useful if you want to pass the content off to a UI control that
           can do its own loading from a stream.
-        </p>
-          <div class="codeSnippetContainer">
-            <div class="codeSnippetContainerTabs">
-              <div id="ID1EABABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div>
-            </div>
-            <div class="codeSnippetContainerCodeContainer">
-              <div class="codeSnippetToolBar">
-                <div class="codeSnippetToolBarText">
-                  <a id="ID1EABABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EABABAAA');return false;" title="Copy">Copy</a>
-                </div>
-              </div>
-              <div id="ID1EABABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block">
-                <pre xml:space="preserve">
-                  <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> stream = part.ContentObject.Open ()) {
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID1EABABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID1EABABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID1EABABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID1EABABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> stream = part.ContentObject.Open ()) {
     <span class="highlight-comment">// At this point, you can now read from the stream as if it were the original,</span>
     <span class="highlight-comment">// raw content. Assuming you have an image UI control that could load from a</span>
     <span class="highlight-comment">// stream, you could do something like this:</span>
     imageControl.Load (stream);
-}</pre>
-              </div>
-            </div>
-          </div>
-          <script type="text/javascript">AddLanguageTabSet("ID1EABABAAA");</script>
-          <p>
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID1EABABAAA");</script><p>
           There are a number of useful filters that can be applied to a
           <a href="T_MimeKit_IO_FilteredStream.htm">FilteredStream</a>, so if you
           find this type of interface appealing, I would suggest taking a look at the available
           filters in the <a href="N_MimeKit_IO_Filters.htm">MimeKit.IO.Filters</a>
           namespace or even write your own! The possibilities are limited only by your
           imagination.
-        </p>
-        </div>
-        <div class="collapsibleAreaRegion" id="seeAlsoSection">
-          <span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID5RB')" onkeypress="SectionExpandCollapse_CheckKey('ID5RB', event)" tabindex="0">
-            <img id="ID5RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />See Also</span>
-        </div>
-        <div id="ID5RBSection" class="collapsibleSection">
-          <h4 class="subHeading">Other Resources</h4>
-          <div class="seeAlsoStyle">
-            <a href="ParsingMessages.htm">Parsing Messages</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="pageFooter" class="pageFooter">
-      <p>Copyright © 2013-2015 Xamarin Inc. (www.xamarin.com)</p>
-    </div>
-  </body>
-</html>
+        </p></div><div class="collapsibleAreaRegion" id="seeAlsoSection"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID5RB')" onkeypress="SectionExpandCollapse_CheckKey('ID5RB', event)" tabindex="0"><img id="ID5RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />See Also</span></div><div id="ID5RBSection" class="collapsibleSection"><h4 class="subHeading">Other Resources</h4><div class="seeAlsoStyle"><a href="ParsingMessages.htm">Parsing Messages</a></div></div></div></div><div id="pageFooter" class="pageFooter" /></body></html>
