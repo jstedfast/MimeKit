@@ -384,6 +384,7 @@
   <HelpKINode Title="BoundStream.Dispose method" Url="html/Overload_MimeKit_IO_BoundStream_Dispose.htm" />
   <HelpKINode Title="BoundStream.EndBoundary property" Url="html/P_MimeKit_IO_BoundStream_EndBoundary.htm" />
   <HelpKINode Title="BoundStream.Flush method" Url="html/M_MimeKit_IO_BoundStream_Flush.htm" />
+  <HelpKINode Title="BoundStream.LeaveOpen property" Url="html/P_MimeKit_IO_BoundStream_LeaveOpen.htm" />
   <HelpKINode Title="BoundStream.Length property" Url="html/P_MimeKit_IO_BoundStream_Length.htm" />
   <HelpKINode Title="BoundStream.Position property" Url="html/P_MimeKit_IO_BoundStream_Position.htm" />
   <HelpKINode Title="BoundStream.Read method" Url="html/M_MimeKit_IO_BoundStream_Read.htm" />
@@ -2384,6 +2385,7 @@
   <HelpKINode Title="LastModificationTime field" Url="html/F_MimeKit_Tnef_TnefPropertyTag_LastModificationTime.htm" />
   <HelpKINode Title="LatestDeliveryTime enumeration member" Url="html/T_MimeKit_Tnef_TnefPropertyId.htm" />
   <HelpKINode Title="LatestDeliveryTime field" Url="html/F_MimeKit_Tnef_TnefPropertyTag_LatestDeliveryTime.htm" />
+  <HelpKINode Title="LeaveOpen property" Url="html/P_MimeKit_IO_BoundStream_LeaveOpen.htm" />
   <HelpKINode Title="LeftMargin enumeration member" Url="html/T_MimeKit_Text_HtmlAttributeId.htm" />
   <HelpKINode Title="Legend enumeration member" Url="html/T_MimeKit_Text_HtmlTagId.htm" />
   <HelpKINode Title="Length property">

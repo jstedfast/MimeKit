@@ -123,10 +123,14 @@ namespace MimeKit.IO {
 		/// Checks whether or not the underlying stream will remain open after
 		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
 		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the underlying stream will remain open after
+		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
+		/// </remarks>
 		/// <value><c>true</c> if the underlying stream should remain open after the
 		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</value>
-		bool LeaveOpen {
-			get; set;
+		protected bool LeaveOpen {
+			get; private set;
 		}
 
 		void CheckDisposed ()
