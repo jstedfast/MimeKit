@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="WorkingWithSMime" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <!--
+    <summary>
+      <para>Optional summary abstract</para>
+    </summary>
+    -->
+
+    <introduction>
+      <para>MimeKit can handle all of your S/MIME needs.</para>
+      <autoOutline />
+    </introduction>
+
+    <section address="CreatingYourOwnSMimeContext">
+      <title>Creating your own S/MIME Context</title>
+      <content>
+        <para>
+          Before you can begin using MimeKit's S/MIME support, you will need to decide which
+          database to use for certificate storage.
+        </para>
+        <para>
+          If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
+          anything (although you certianly can if you want to) because, by default, MimeKit
+          will automatically use the Mono.Data.Sqlite binding to SQLite.
+        </para>
+        <para>
+          If you are, however, on any of the Windows platforms, you'll need to pick a
+          <codeEntityReference>N:System.Data</codeEntityReference> provider such as
+          <externalLink>
+            <linkText>System.Data.SQLite</linkText>
+            <linkUri>https://www.nuget.org/packages/System.Data.SQLite</linkUri>
+            <linkTarget>_blank</linkTarget>
+          </externalLink>. Once you've made your choice and installed it (via NuGet or however),
+          you'll need to implement your own
+          <codeEntityReference>T:MimeKit.Cryptography.SecureMimeContext</codeEntityReference>
+          subclass. Luckily, it's very simple to do. Assuming you've chosen System.Data.SQLite,
+          here's how you'd implement your own
+          <codeEntityReference>T:MimeKit.Cryptography.SecureMimeContext</codeEntityReference>
+          class:
+        </para>
+        <code language="c#" source="Examples\MySecureMimeContext.cs"/>
+        <para>
+          To register your class, you can use the following code snippet:
+        </para>
+        <code language="c#" source="Examples\RegisterMySecureMimeContext.cs"/>
+        <para>
+          Now you are ready to encrypt, decrypt, sign and verify messages using S/MIME!
+        </para>
+      </content>
+    </section>
+
+    <section address="Encrypt">
+      <title>Encrypting Messages with S/MIME</title>
+      <content>
+        <para>
+          S/MIME uses an <literal>application/pkcs7-mime</literal> MIME part to encapsulate
+          encrypted content (as well as other things).
+        </para>
+        <code language="c#" source="Examples\SMimeEncrypt.cs"/>
+      </content>
+    </section>
+
+    <section address="Decrypt">
+      <title>Decrypting S/MIME Messages</title>
+      <content>
+        <para>
+          As mentioned earlier, S/MIME uses an <literal>application/pkcs7-mime</literal> part with
+          an <literal>smime-type</literal> parameter with a value of <literal>enveloped-data</literal>
+          to encapsulate the encrypted content.
+        </para>
+        <para>
+          The first thing you must do is find the
+          <codeEntityReference>T:MimeKit.Cryptography.ApplicationPkcs7Mime</codeEntityReference>
+          part (see the section on <link xlink:href="WorkingWithMessages#TraversingMessages"/>).
+        </para>
+        <code language="c#" source="Examples\SMimeDecrypt.cs"/>
+      </content>
+    </section>
+
+    <section address="Sign">
+      <title>Digitally Signing Messages using S/MIME</title>
+      <content>
+        <para>
+          S/MIME uses a <literal>multipart/signed</literal> to contain the signed content and
+          the detached signature data.
+        </para>
+        <para>
+          Here's how you might digitally sign a message using S/MIME:
+        </para>
+        <code language="c#" source="Examples\SMimeSign.cs"/>
+        <para>
+          You can also do your own S/MIME X.509 certificate key lookups instead of relying
+          on email addresses to match up with the user's certificate.
+        </para>
+        <code language="c#" source="Examples\SMimeSignCertificate.cs"/>
+      </content>
+    </section>
+
+    <section address="Verify">
+      <title>Verifying S/MIME Digital Signatures</title>
+      <content>
+        <para>
+          As mentioned earlier, S/MIME typically uses a <literal>multipart/signed</literal> part to
+          contain the signed content and the detached signature data.
+        </para>
+        <para>
+          A <literal>multipart/signed</literal> contains exactly 2 parts: the first
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the signed content
+          while the second <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the
+          detached signature and, by default, will be an
+          <codeEntityReference>T:MimeKit.Cryptography.ApplicationPkcs7Signature</codeEntityReference>
+          part.
+        </para>
+        <para>
+          Because the <literal>multipart/signed</literal> part may have been signed by multiple signers, it is
+          important to verify each of the digital signatures (one for each signer) that are returned by the
+          <codeEntityReference autoUpgrade="true">M:MimeKit.Cryptography.MultipartSigned.Verify</codeEntityReference>
+          method:
+        </para>
+        <code language="c#" source="Examples\VerifySignature.cs"/>
+        <para>
+          It should be noted, however, that while most S/MIME clients will use the preferred
+          <literal>multipart/signed</literal> approach, it is possible that you may encounter an
+          <literal>application/pkcs7-mime</literal> part with an <literal>smime-type</literal>
+          parameter set to <literal>signed-data</literal>. Luckily, MimeKit can handle this
+          format as well:
+        </para>
+        <code language="c#" source="Examples\VerifyPkcs7Mime.cs"/>
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="WorkingWithMessages#TraversingMessages"/>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

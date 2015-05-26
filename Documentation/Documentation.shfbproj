@@ -90,6 +90,8 @@
     <None Include="Content\Introduction.aml" />
     <None Include="Content\ParsingMessages.aml" />
     <None Include="Content\WorkingWithMessages.aml" />
+    <None Include="Content\WorkingWithPGP.aml" />
+    <None Include="Content\WorkingWithSMime.aml" />
     <None Include="Examples\AttachmentRipper.cs" />
     <None Include="Examples\BodyBuilder.cs" />
     <None Include="Examples\CreateMultipartAlternative.cs" />
@@ -100,7 +102,21 @@
     <None Include="Examples\MimeMessageLoad.cs" />
     <None Include="Examples\MimeParserMbox.cs" />
     <None Include="Examples\MimeParserParseMessage.cs" />
+    <None Include="Examples\MyGnuPGContext.cs" />
+    <None Include="Examples\MySecureMimeContext.cs" />
     <None Include="Examples\OpeningContent.cs" />
+    <None Include="Examples\PgpDecrypt.cs" />
+    <None Include="Examples\PgpEncrypt.cs" />
+    <None Include="Examples\PgpSign.cs" />
+    <None Include="Examples\PgpSignKey.cs" />
+    <None Include="Examples\RegisterMyGnuPGContext.cs" />
+    <None Include="Examples\RegisterMySecureMimeContext.cs" />
+    <None Include="Examples\SMimeDecrypt.cs" />
+    <None Include="Examples\SMimeEncrypt.cs" />
+    <None Include="Examples\SMimeSign.cs" />
+    <None Include="Examples\SMimeSignCertificate.cs" />
+    <None Include="Examples\VerifyPkcs7Mime.cs" />
+    <None Include="Examples\VerifySignature.cs" />
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ContentLayout.content" />

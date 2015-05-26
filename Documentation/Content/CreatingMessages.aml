@@ -11,8 +11,8 @@
     -->
 
     <introduction>
+      <para>MimeKit provides a number of ways to create messages.</para>
       <autoOutline />
-      <para>Creating messages with MimeKit is a breeze.</para>
     </introduction>
 
     <section address="CreatingSimpleMessage">
@@ -77,11 +77,9 @@
       <title>Importing from System.Net.Mail</title>
       <content>
         <para>
-          To make things even impler still, MimeKit includes a convenient static method
-          on <codeEntityReference>T:MimeKit.MimeMessage</codeEntityReference> called
-          <codeEntityReference>M:MimeKit.MimeMessage.ConvertFromMailMessage(System.Net.Mail.MailMessage)</codeEntityReference>
-          that can be used to convert a <codeEntityReference>T:System.Net.Mail.MailMessage</codeEntityReference>
-          into an equivalent <codeEntityReference>T:MimeKit.MimeMessage</codeEntityReference>.
+          To make things even simpler still, MimeKit allows you to explicitly cast
+          a <codeEntityReference>T:System.Net.Mail.MailMessage</codeEntityReference>
+          to a <codeEntityReference>T:MimeKit.MimeMessage</codeEntityReference>.
         </para>
       </content>
     </section>

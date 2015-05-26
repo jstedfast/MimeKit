@@ -11,8 +11,8 @@
     -->
 
     <introduction>
+      <para>MimeKit provies a number of ways to get the data you want from a message.</para>
       <autoOutline />
-      <para>Working with messages is probably the whole point of using MimeKit.</para>
     </introduction>
 
     <section address="MessageBody">

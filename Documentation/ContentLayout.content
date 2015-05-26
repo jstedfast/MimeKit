@@ -4,4 +4,6 @@
   <Topic id="CreatingMessages" visible="True" title="Creating Messages"/>
   <Topic id="ParsingMessages" visible="True" title="Parsing Messages"/>
   <Topic id="WorkingWithMessages" visible="True" title="Working with Messages"/>
+  <Topic id="WorkingWithPGP" visible="True" title="Working with OpenPGP"/>
+  <Topic id="WorkingWithSMime" visible="True" title="Working with S/MIME"/>
 </Topics>

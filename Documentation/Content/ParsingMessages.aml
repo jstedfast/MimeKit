@@ -14,6 +14,7 @@
       <para>One of the more common operations that MimeKit is meant for is parsing
       email messages from arbitrary streams. There are two ways of accomplishing
       this task.</para>
+      <autoOutline />
     </introduction>
 
     <!-- Optional procedures followed by optional code example but must have

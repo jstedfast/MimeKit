@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="WorkingWithPGP" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <!--
+    <summary>
+      <para>Optional summary abstract</para>
+    </summary>
+    -->
+
+    <introduction>
+      <para>MimeKit can handle all of your Pretty Good Privacy (PGP) needs.</para>
+      <autoOutline />
+    </introduction>
+    
+    <section address="CreatingYourOwnPGPContext">
+      <title>Creating your own OpenPGP Context</title>
+      <content>
+        <para>
+          Before you can start working with OpenPGP in MimeKit, you will first need
+          to create and register your own
+          <codeEntityReference>T:MimeKit.Cryptography.OpenPgpContext</codeEntityReference>.
+          For the sake of simplicity, MimeKit includes a
+          <codeEntityReference>T:MimeKit.Cryptography.GnuPGContext</codeEntityReference>
+          that does most of the work for you.
+        </para>
+        <code language="c#" source="Examples\MyGnuPGContext.cs"/>
+        <para>
+          To register your class, you can use the following code snippet:
+        </para>
+        <code language="c#" source="Examples\RegisterMyGnuPGContext.cs"/>
+        <para>
+          Now you are ready to encrypt, decrypt, sign and verify messages using PGP!
+        </para>
+      </content>
+    </section>
+
+    <section address="Encrypt">
+      <title>Encrypting Messages with PGP/MIME</title>
+      <content>
+        <para>
+          Unlike S/MIME, PGP/MIME uses <literal>multipart/encrypted</literal> to
+          encapsulate encrypted data.
+        </para>
+        <code language="c#" source="Examples\PgpEncrypt.cs"/>
+      </content>
+    </section>
+
+    <section address="Decrypt">
+      <title>Decrypting PGP/MIME Messages</title>
+      <content>
+        <para>
+          As mentioned earlier, PGP/MIME uses a <literal>multipart/encrypted</literal>
+          part to encapsulate the encrypted content.
+        </para>
+        <para>
+          A <literal>multipart/encrypted</literal> contains exactly 2 parts: the first
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the version
+          information while the second
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the actual
+          encrypted content and will typically be an <literal>application/octet-stream</literal>.
+        </para>
+        <para>
+          The first thing you must do is find the
+          <codeEntityReference>T:MimeKit.Cryptography.MultipartEncrypted</codeEntityReference>
+          part (see the section on <link xlink:href="WorkingWithMessages#TraversingMessages"/>).
+        </para>
+        <code language="c#" source="Examples\PgpDecrypt.cs"/>
+      </content>
+    </section>
+
+    <section address="Sign">
+      <title>Digitally Signing Messages using PGP/MIME</title>
+      <content>
+        <para>
+          PGP/MIME uses a <literal>multipart/signed</literal> to contain the signed content and
+          the detached signature data.
+        </para>
+        <para>
+          Here's how you might digitally sign a message using PGP/MIME:
+        </para>
+        <code language="c#" source="Examples\PgpSign.cs"/>
+        <para>
+          You can also do your own PGP key lookups instead of relying on email addresses to match
+          up with the user's private key.
+        </para>
+        <code language="c#" source="Examples\PgpSignKey.cs"/>
+      </content>
+    </section>
+
+    <section address="Verify">
+      <title>Verifying PGP/MIME Digital Signatures</title>
+      <content>
+        <para>
+          As mentioned earlier, PGP/MIME uses a <literal>multipart/signed</literal> part to contain
+          the signed content and the detached signature data.
+        </para>
+        <para>
+          A <literal>multipart/signed</literal> contains exactly 2 parts: the first
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the signed content
+          while the second <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> is the
+          detached signature and, by default, will be an
+          <codeEntityReference>T:MimeKit.Cryptography.ApplicationPgpSignature</codeEntityReference>
+          part.
+        </para>
+        <para>
+          Because the <literal>multipart/signed</literal> part may have been signed by multiple signers, it is
+          important to verify each of the digital signatures (one for each signer) that are returned by the
+          <codeEntityReference autoUpgrade="true">M:MimeKit.Cryptography.MultipartSigned.Verify</codeEntityReference>
+          method:
+        </para>
+        <code language="c#" source="Examples\VerifySignature.cs"/>
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="WorkingWithMessages#TraversingMessages"/>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>
