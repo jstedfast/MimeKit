@@ -11,15 +11,17 @@
     -->
 
     <introduction>
-      <para>One of the more common operations that MimeKit is meant for is parsing
-      email messages from arbitrary streams. There are two ways of accomplishing
-      this task.</para>
+      <para>
+        One of the more common operations that MimeKit is meant for is parsing
+        email messages from arbitrary streams. There are two ways of accomplishing
+        this task.
+      </para>
       <autoOutline />
     </introduction>
 
     <!-- Optional procedures followed by optional code example but must have
          at least one procedure or code example -->
-    <section>
+    <section address="LoadMessage">
       <title>Using the Load methods</title>
       <content>
         <para>The easiest way is to use one of the Load methods on
@@ -28,7 +30,7 @@
       </content>
     </section>
     
-    <section>
+    <section address="MimeParser">
       <title>Using MimeParser directly</title>
       <content>
         <para>The second way is to use the
