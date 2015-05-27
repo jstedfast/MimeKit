@@ -1,0 +1,162 @@
+<Type Name="MultipartAlternative" FullName="MimeKit.MultipartAlternative">
+  <TypeSignature Language="C#" Value="public class MultipartAlternative : MimeKit.Multipart" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MultipartAlternative extends MimeKit.Multipart" />
+  <AssemblyInfo>
+    <AssemblyName>MimeKit</AssemblyName>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>MimeKit.Multipart</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Docs>
+    <summary>
+            A multipart/alternative MIME entity.
+            </summary>
+    <remarks>
+            A multipart/alternative MIME entity contains, as one might expect, is used to offer a list of
+            alternative formats for the main body of the message (usually they will be "text/plain" and
+            "text/html"). These alternatives are in order of increasing faithfulness to the original document
+            (in other words, the last entity will be in a format that, when rendered, will most closely match
+            what the sending client's WYSISYG editor produced).
+            </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartAlternative ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters />
+      <Docs>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartAlternative" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MultipartAlternative" /> part.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartAlternative (MimeKit.MimeEntityConstructorArgs args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class MimeKit.MimeEntityConstructorArgs args) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="args" Type="MimeKit.MimeEntityConstructorArgs" />
+      </Parameters>
+      <Docs>
+        <param name="args">Information used by the constructor.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartAlternative" /> class.
+            </summary>
+        <remarks>
+            This constructor is used by <see cref="T:MimeKit.MimeParser" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="args" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MultipartAlternative (object[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(object[] args) cil managed" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="args" Type="System.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName>System.ParamArray</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="args">An array of initialization parameters: headers and MIME entities.</param>
+        <summary>
+            Initializes a new instance of the <see cref="T:MimeKit.MultipartAlternative" /> class.
+            </summary>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.MultipartAlternative" /> part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="args" /> is <c>null</c>.
+            </exception>
+        <exception cref="T:System.ArgumentException">
+          <paramref name="args" /> contains one or more arguments of an unknown type.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetTextBody">
+      <MemberSignature Language="C#" Value="public string GetTextBody (MimeKit.Text.TextFormat format);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetTextBody(valuetype MimeKit.Text.TextFormat format) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="format" Type="MimeKit.Text.TextFormat" />
+      </Parameters>
+      <Docs>
+        <param name="format">The desired text format.</param>
+        <summary>
+            Get the text body in the specified format.
+            </summary>
+        <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+        <remarks>
+            Gets the text body in the specified format, if it exists.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HtmlBody">
+      <MemberSignature Language="C#" Value="public string HtmlBody { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string HtmlBody" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the HTML-formatted text of the text/html alternative.
+            </summary>
+        <value>The HTML if a text/html alternative exists; otherwise, <c>null</c>.</value>
+        <remarks>
+            Gets the HTML-formatted text of the text/html alternative, if it exists.
+            </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TextBody">
+      <MemberSignature Language="C#" Value="public string TextBody { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string TextBody" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Get the text of the text/plain alternative.
+            </summary>
+        <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
+        <remarks>
+            Gets the text of the text/plain alternative, if it exists.
+            </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

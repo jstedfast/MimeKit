@@ -676,70 +676,27 @@ namespace MimeKit {
 			get; set;
 		}
 
-		static string GetText (TextPart text)
+		static bool TryGetMultipartBody (Multipart multipart, TextFormat format, out string body)
 		{
-			if (text.IsFlowed) {
-				var converter = new FlowedToText ();
-				string delsp;
+			var alternative = multipart as MultipartAlternative;
 
-				if (text.ContentType.Parameters.TryGetValue ("delsp", out delsp))
-					converter.DeleteSpace = delsp.ToLowerInvariant () == "yes";
-
-				return converter.Convert (text.Text);
+			if (alternative != null) {
+				body = alternative.GetTextBody (format);
+				return body != null;
 			}
 
-			return text.Text;
-		}
-
-		static bool TryGetMultipartAlternativeBody (Multipart multipart, TextFormat format, out string body)
-		{
-			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
-			for (int i = multipart.Count - 1; i >= 0; i--) {
-				var related = multipart[i] as MultipartRelated;
-				TextPart text;
-
-				if (related != null) {
-					text = related.Root as TextPart;
-				} else {
-					var mpart = multipart[i] as Multipart;
-
-					text = multipart[i] as TextPart;
-
-					if (mpart != null && mpart.ContentType.Matches ("multipart", "alternative")) {
-						// Note: nested multipart/alternatives make no sense... yet here we are.
-						if (TryGetMultipartAlternativeBody (mpart, format, out body))
-							return true;
-					}
-				}
-
-				if (text != null && text.IsFormat (format)) {
-					body = GetText (text);
-					return true;
-				}
-			}
-
-			body = null;
-
-			return false;
-		}
-
-		static bool TryGetMessageBody (Multipart multipart, TextFormat format, out string body)
-		{
 			var related = multipart as MultipartRelated;
 			Multipart multi;
 			TextPart text;
 
 			if (related == null) {
-				if (multipart.ContentType.Matches ("multipart", "alternative"))
-					return TryGetMultipartAlternativeBody (multipart, format, out body);
-
 				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
 					multi = multipart[i] as Multipart;
 
 					// descend into nested multiparts, if there are any...
 					if (multi != null) {
-						if (TryGetMessageBody (multi, format, out body))
+						if (TryGetMultipartBody (multi, format, out body))
 							return true;
 
 						// The text body should never come after a multipart.
@@ -752,7 +709,7 @@ namespace MimeKit {
 					// preceed any attachments, but I'm not sure we can rely on that assumption).
 					if (text != null && !text.IsAttachment) {
 						if (text.IsFormat (format)) {
-							body = GetText (text);
+							body = MultipartAlternative.GetText (text);
 							return true;
 						}
 
@@ -776,7 +733,7 @@ namespace MimeKit {
 				multi = root as Multipart;
 
 				if (multi != null)
-					return TryGetMessageBody (multi, format, out body);
+					return TryGetMultipartBody (multi, format, out body);
 			}
 
 			body = null;
@@ -822,7 +779,7 @@ namespace MimeKit {
 			if (multipart != null) {
 				string text;
 
-				if (TryGetMessageBody (multipart, format, out text))
+				if (TryGetMultipartBody (multipart, format, out text))
 					return text;
 			} else {
 				var body = Body as TextPart;

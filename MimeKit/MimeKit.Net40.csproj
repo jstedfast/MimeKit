@@ -215,6 +215,7 @@
     <Compile Include="MimePart.cs" />
     <Compile Include="MimeTypes.cs" />
     <Compile Include="Multipart.cs" />
+    <Compile Include="MultipartAlternative.cs" />
     <Compile Include="MultipartRelated.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterList.cs" />

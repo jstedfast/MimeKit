@@ -309,6 +309,8 @@ namespace MimeKit {
 
 			if (type == "multipart") {
 				switch (subtype) {
+				case "alternative":
+					return new MultipartAlternative (args);
 				case "related":
 					return new MultipartRelated (args);
 #if ENABLE_CRYPTO

@@ -258,6 +258,30 @@
             </exception>
       </Docs>
     </Member>
+    <Member MemberName="LeaveOpen">
+      <MemberSignature Language="C#" Value="protected bool LeaveOpen { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool LeaveOpen" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Checks whether or not the underlying stream will remain open after
+            the <see cref="T:MimeKit.IO.BoundStream" /> is disposed.
+            </summary>
+        <value>
+          <c>true</c> if the underlying stream should remain open after the
+            <see cref="T:MimeKit.IO.BoundStream" /> is disposed; otherwise, <c>false</c>.</value>
+        <remarks>
+            Checks whether or not the underlying stream will remain open after
+            the <see cref="T:MimeKit.IO.BoundStream" /> is disposed.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Length">
       <MemberSignature Language="C#" Value="public override long Length { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance int64 Length" />
