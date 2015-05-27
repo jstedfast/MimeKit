@@ -676,6 +676,21 @@ namespace MimeKit {
 			get; set;
 		}
 
+		static string GetText (TextPart text)
+		{
+			if (text.IsFlowed) {
+				var converter = new FlowedToText ();
+				string delsp;
+
+				if (text.ContentType.Parameters.TryGetValue ("delsp", out delsp))
+					converter.DeleteSpace = delsp.ToLowerInvariant () == "yes";
+
+				return converter.Convert (text.Text);
+			}
+
+			return text.Text;
+		}
+
 		static bool TryGetMultipartAlternativeBody (Multipart multipart, TextFormat format, out string body)
 		{
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
@@ -698,7 +713,7 @@ namespace MimeKit {
 				}
 
 				if (text != null && text.IsFormat (format)) {
-					body = text.Text;
+					body = GetText (text);
 					return true;
 				}
 			}
@@ -737,7 +752,7 @@ namespace MimeKit {
 					// preceed any attachments, but I'm not sure we can rely on that assumption).
 					if (text != null && !text.IsAttachment) {
 						if (text.IsFormat (format)) {
-							body = text.Text;
+							body = GetText (text);
 							return true;
 						}
 
