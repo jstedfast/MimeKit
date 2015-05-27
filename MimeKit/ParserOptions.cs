@@ -308,23 +308,23 @@ namespace MimeKit {
 			}
 
 			if (type == "multipart") {
-				if (subtype == "related")
+				switch (subtype) {
+				case "related":
 					return new MultipartRelated (args);
-
 #if ENABLE_CRYPTO
-				if (subtype == "encrypted")
+				case "encrypted":
 					return new MultipartEncrypted (args);
-
-				if (subtype == "signed")
+				case "signed":
 					return new MultipartSigned (args);
 #endif
-
-				return new Multipart (args);
+				default:
+					return new Multipart (args);
+				}
 			}
 
-#if ENABLE_CRYPTO
 			if (type == "application") {
 				switch (subtype) {
+#if ENABLE_CRYPTO
 				case "x-pkcs7-signature":
 				case "pkcs7-signature":
 					return new ApplicationPkcs7Signature (args);
@@ -337,6 +337,7 @@ namespace MimeKit {
 				case "x-pkcs7-mime":
 				case "pkcs7-mime":
 					return new ApplicationPkcs7Mime (args);
+#endif
 				case "vnd.ms-tnef":
 				case "ms-tnef":
 					return new TnefPart (args);
@@ -344,7 +345,6 @@ namespace MimeKit {
 					return new TextPart (args);
 				}
 			}
-#endif
 
 			if (type == "text")
 				return new TextPart (args);
