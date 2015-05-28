@@ -18,7 +18,7 @@
           <strong>System.Data.SQLite</strong>, here's how you'd implement your own
           <a href="T_MimeKit_Cryptography_SecureMimeContext.htm">SecureMimeContext</a>
           class:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EADAFAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EADAFAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EADAFAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EADAFAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">class</span> MySecureMimeContext : DefaultSecureMimeContext
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EADAFAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EADAFAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EADAFAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EADAFAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">class</span> MySecureMimeContext : DefaultSecureMimeContext
 {
     <span class="highlight-keyword">public</span> MySecureMimeContext ()
         : <span class="highlight-keyword">base</span> (OpenDatabase (<span class="highlight-literal">"C:\\wherever\\certdb.sqlite"</span>))
@@ -41,35 +41,38 @@
     }
 }</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EADAFAAA");</script><p>
           To register your class, you can use the following code snippet:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EABAFAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EABAFAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EABAFAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EABAFAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve">CryptographyContext.Register (<span class="highlight-keyword">typeof</span> (MySecureMimeContext));</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EABAFAAA");</script><p>
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EABAFAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EABAFAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EABAFAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EABAFAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-comment">// Note: by registering our custom context it becomes the default S/MIME context</span>
+<span class="highlight-comment">// instantiated by MimeKit when methods such as Encrypt(), Decrypt(), Sign(), and</span>
+<span class="highlight-comment">// Verify() are used without an expliit context.</span>
+CryptographyContext.Register (<span class="highlight-keyword">typeof</span> (MySecureMimeContext));</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EABAFAAA");</script><p>
           Now you are ready to encrypt, decrypt, sign and verify messages using S/MIME!
         </p></div><div class="collapsibleAreaRegion" id="Encrypt"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Encrypting Messages with S/MIME</span></div><div id="ID2RBSection" class="collapsibleSection"><p>
-          S/MIME uses a MIME part with an <span class="literal">application/pkcs7-mime</span> mime-type
-          to encapsulate encrypted content (as well as other things). To encrypt any
-          <a href="T_MimeKit_MimeEntity.htm">MimeEntity</a>,
+          Instead of using a <span class="literal">multipart/encrypted</span> MIME part to encapsulate
+          encrypted content like OpenPGP, S/MIME uses <span class="literal">application/pkcs7-mime</span>.
+          To encrypt any <a href="T_MimeKit_MimeEntity.htm">MimeEntity</a>,
           simply use the
-          <span class="nolink">ApplicationPkcs7Mime.Encrypt</span>
+          <a href="Overload_MimeKit_Cryptography_ApplicationPkcs7Mime_Encrypt.htm">ApplicationPkcs7Mime.Encrypt</a>
           method:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAAEAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAAEAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAAEAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAAEAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">var</span> joey = <span class="highlight-keyword">new</span> MailboxAddress (<span class="highlight-literal">"Joey"</span>, <span class="highlight-literal">"joey@friends.com"</span>);
-<span class="highlight-keyword">var</span> alice = <span class="highlight-keyword">new</span> MailboxAddress (<span class="highlight-literal">"Alice"</span>, <span class="highlight-literal">"alice@wonderland.com"</span>);
-
-<span class="highlight-keyword">var</span> message = <span class="highlight-keyword">new</span> MimeMessage ();
-message.From.Add (joey);
-message.To.Add (alice);
-message.Subject = <span class="highlight-literal">"How you doin?"</span>;
-
-<span class="highlight-comment">// create our message body (perhaps a multipart/mixed with the message text and some</span>
-<span class="highlight-comment">// image attachments, for example)</span>
-<span class="highlight-keyword">var</span> body = CreateMessageBody ();
-
-<span class="highlight-comment">// now to encrypt our message body using our custom S/MIME cryptography context</span>
-<span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
-    <span class="highlight-comment">// Note: this assumes that "Alice" has an S/MIME certificate with an X.509</span>
-    <span class="highlight-comment">// Subject Email identifier that matches her email address. If she doesn't,</span>
-    <span class="highlight-comment">// try using a SecureMailboxAddress which allows you to specify the</span>
-    <span class="highlight-comment">// fingerprint of her certificate to use for lookups.</span>
-    message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, body);
-}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EAAAEAAA");</script></div><div class="collapsibleAreaRegion" id="Decrypt"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0"><img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Decrypting S/MIME Messages</span></div><div id="ID3RBSection" class="collapsibleSection"><p>
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EABAEAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EABAEAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EABAEAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EABAEAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> Encrypt (MimeMessage message)
+{
+    <span class="highlight-comment">// encrypt our message body using our custom S/MIME cryptography context</span>
+    <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
+        <span class="highlight-comment">// Note: this assumes that each of the recipients has an S/MIME certificate</span>
+        <span class="highlight-comment">// with an X.509 Subject Email identifier that matches their email address.</span>
+        <span class="highlight-comment">// </span>
+        <span class="highlight-comment">// If this is not the case, you can use SecureMailboxAddresses instead of</span>
+        <span class="highlight-comment">// normal MailboxAddresses which would allow you to specify the fingerprint</span>
+        <span class="highlight-comment">// of their certificates. You could also choose to use one of the Encrypt()</span>
+        <span class="highlight-comment">// overloads that take a list of CmsRecipients, instead.</span>
+        message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, message.Body);
+    }
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EABAEAAA");</script><div class="alert"><table><tr><th><img src="../icons/AlertNote.png" alt="Tip" /> Tip</th></tr><tr><td><p>
+            When you know that you will be encrypting a message, it may be a good idea to use
+            a <a href="T_MimeKit_Cryptography_SecureMailboxAddress.htm">SecureMailboxAddress</a>
+            instead of a <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>
+            for each of the recipients, allowing you to specify the unique fingerprint of each
+            recipient's X.509 certificate.
+          </p></td></tr></table></div></div><div class="collapsibleAreaRegion" id="Decrypt"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0"><img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Decrypting S/MIME Messages</span></div><div id="ID3RBSection" class="collapsibleSection"><p>
           As mentioned earlier, S/MIME uses an <span class="literal">application/pkcs7-mime</span> part with
           an <span class="literal">smime-type</span> parameter with a value of <span class="literal">enveloped-data</span>
           to encapsulate the encrypted content.
@@ -77,44 +80,70 @@ message.Subject = <span class="highlight-literal">"How you doin?"</span>;
           The first thing you must do is find the
           <a href="T_MimeKit_Cryptography_ApplicationPkcs7Mime.htm">ApplicationPkcs7Mime</a>
           part (see the section on <a href="WorkingWithMessages.htm#TraversingMessages">Working with Messages</a>).
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAADAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAADAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAADAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAADAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">if</span> (entity <span class="highlight-keyword">is</span> ApplicationPkcs7Mime) {
-    <span class="highlight-keyword">var</span> pkcs7 = (ApplicationPkcs7Mime) entity;
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAADAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAADAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAADAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAADAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> MimeEntity Decrypt (MimeMessage message)
+{
+    <span class="highlight-keyword">var</span> pkcs7 = message.Body <span class="highlight-keyword">as</span> ApplicationPkcs7Mime;
 
-    <span class="highlight-keyword">if</span> (pkcs7.SecureMimeType == SecureMimeType.EnvelopedData)
+    <span class="highlight-keyword">if</span> (pkcs7 != <span class="highlight-keyword">null</span> &amp;&amp; pkcs7.SecureMimeType == SecureMimeType.EnvelopedData) {
+        <span class="highlight-comment">// the top-level MIME part of the message is encrypted using S/MIME</span>
         <span class="highlight-keyword">return</span> pkcs7.Decrypt ();
+    } <span class="highlight-keyword">else</span> {
+        <span class="highlight-comment">// the top-level MIME part is not encrypted</span>
+        <span class="highlight-keyword">return</span> message.Body;
+    }
 }</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EAAADAAA");</script></div><div class="collapsibleAreaRegion" id="Sign"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID4RB')" onkeypress="SectionExpandCollapse_CheckKey('ID4RB', event)" tabindex="0"><img id="ID4RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Digitally Signing Messages using S/MIME</span></div><div id="ID4RBSection" class="collapsibleSection"><p>
-          S/MIME uses a MIME part with a <span class="literal">multipart/signed</span> mime-type to
-          contain the signed content and the detached signature data.
+          S/MIME can use either a <span class="literal">multipart/signed</span> MIME part or a
+          <span class="literal">application/pkcs7-mime</span> MIME part for signed data.
         </p><p>
-          Here's how you might digitally sign a message using S/MIME:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EACACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EACACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EACACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EACACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">var</span> joey = <span class="highlight-keyword">new</span> MailboxAddress (<span class="highlight-literal">"Joey"</span>, <span class="highlight-literal">"joey@friends.com"</span>);
-<span class="highlight-keyword">var</span> alice = <span class="highlight-keyword">new</span> MailboxAddress (<span class="highlight-literal">"Alice"</span>, <span class="highlight-literal">"alice@wonderland.com"</span>);
+          To digitally sign a <a href="T_MimeKit_MimeEntity.htm">MimeEntity</a>
+          using a <span class="literal">multipart/signed</span> MIME part, it works exactly the same
+          as it does for <a href="WorkingWithPGP.htm#Sign">OpenPGP</a> using
+          <a href="Overload_MimeKit_Cryptography_MultipartSigned_Create.htm">MultipartSigned.Create</a></p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAFACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAFACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAFACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAFACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> MultipartSign (MimeMessage message)
+{
+    <span class="highlight-comment">// digitally sign our message body using our custom S/MIME cryptography context</span>
+    <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
+        <span class="highlight-comment">// Note: this assumes that the Sender address has an S/MIME signing certificate</span>
+        <span class="highlight-comment">// and private key with an X.509 Subject Email identifier that matches the</span>
+        <span class="highlight-comment">// sender's email address.</span>
+        <span class="highlight-keyword">var</span> sender = message.From.Mailboxes.FirstOrDefault ();
 
-<span class="highlight-keyword">var</span> message = <span class="highlight-keyword">new</span> MimeMessage ();
-message.From.Add (joey);
-message.To.Add (alice);
-message.Subject = <span class="highlight-literal">"How you doin?"</span>;
+        message.Body = MultipartSigned.Create (ctx, sender, DigestAlgorithm.Sha1, message.Body);
+    }
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EAFACAAA");</script><p>
+          You can also do your own certificate lookups instead of relying on email addresses
+          to match up with the user's certificate.
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EADACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EADACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EADACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EADACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> MultipartSign (MimeMessage message, X509Certificate2 certificate)
+{
+    <span class="highlight-comment">// digitally sign our message body using our custom S/MIME cryptography context</span>
+    <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
+        <span class="highlight-keyword">var</span> signer = <span class="highlight-keyword">new</span> CmsSigner (certificate) {
+            DigestAlgorithm = DigestAlgorithm.Sha1
+        };
 
-<span class="highlight-comment">// create our message body (perhaps a multipart/mixed with the message text and some</span>
-<span class="highlight-comment">// image attachments, for example)</span>
-<span class="highlight-keyword">var</span> body = CreateMessageBody ();
+        message.Body = MultipartSigned.Create (ctx, signer, message.Body);
+    }
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EADACAAA");</script><p>
+          You can also choose to digitially sign a
+          <a href="T_MimeKit_MimeEntity.htm">MimeEntity</a> using the
+          <span class="literal">application/pkcs7-mime</span> format using
+          <a href="Overload_MimeKit_Cryptography_ApplicationPkcs7Mime_Sign.htm">ApplicationPkcs7Mime.Sign</a></p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EABACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EABACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EABACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EABACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> Pkcs7Sign (MimeMessage message)
+{
+    <span class="highlight-comment">// digitally sign our message body using our custom S/MIME cryptography context</span>
+    <span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
+        <span class="highlight-comment">// Note: this assumes that the Sender address has an S/MIME signing certificate</span>
+        <span class="highlight-comment">// and private key with an X.509 Subject Email identifier that matches the</span>
+        <span class="highlight-comment">// sender's email address.</span>
+        <span class="highlight-keyword">var</span> sender = message.From.Mailboxes.FirstOrDefault ();
 
-<span class="highlight-comment">// now to digitally sign our message body using our custom S/MIME cryptography context</span>
-<span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
-    <span class="highlight-comment">// Note: this assumes that "Joey" has an S/MIME signing certificate and private key</span>
-    <span class="highlight-comment">// with an X.509 Subject Email identifier that matches Joey's email address.</span>
-    message.Body = MultipartSigned.Create (ctx, joey, DigestAlgorithm.Sha1, body);
-}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EACACAAA");</script><p>
-          You can also do your own S/MIME X.509 certificate key lookups instead of relying
-          on email addresses to match up with the user's certificate.
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAACAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAACAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAACAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAACAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-comment">// now to digitally sign our message body using our custom S/MIME cryptography context</span>
-<span class="highlight-keyword">using</span> (<span class="highlight-keyword">var</span> ctx = <span class="highlight-keyword">new</span> MySecureMimeContext ()) {
-    <span class="highlight-keyword">var</span> certificate = GetJoeysX509Certificate ();
-    <span class="highlight-keyword">var</span> signer = <span class="highlight-keyword">new</span> CmsSigner (certificate);
-    signer.DigestAlgorithm = DigestAlgorithm.Sha1;
-
-    message.Body = MultipartSigned.Create (ctx, signer, body);
-}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EAAACAAA");</script></div><div class="collapsibleAreaRegion" id="Verify"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID5RB')" onkeypress="SectionExpandCollapse_CheckKey('ID5RB', event)" tabindex="0"><img id="ID5RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Verifying S/MIME Digital Signatures</span></div><div id="ID5RBSection" class="collapsibleSection"><p>
+        message.Body = ApplicationPkcs7Mime.Sign (ctx, sender, DigestAlgorithm.Sha1, message.Body);
+    }
+}</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EABACAAA");</script><div class="alert"><table><tr><th><img src="../icons/AlertNote.png" alt="Tip" /> Tip</th></tr><tr><td><p>
+            When you know that you will be signing a message, it may be a good idea to use
+            a <a href="T_MimeKit_Cryptography_SecureMailboxAddress.htm">SecureMailboxAddress</a>
+            instead of a <a href="T_MimeKit_MailboxAddress.htm">MailboxAddress</a>
+            for the sender, allowing you to specify the unique fingerprint of the sender's
+            X.509 certificate.
+          </p></td></tr></table></div></div><div class="collapsibleAreaRegion" id="Verify"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID5RB')" onkeypress="SectionExpandCollapse_CheckKey('ID5RB', event)" tabindex="0"><img id="ID5RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Verifying S/MIME Digital Signatures</span></div><div id="ID5RBSection" class="collapsibleSection"><p>
           As mentioned earlier, S/MIME typically uses a <span class="literal">multipart/signed</span>
           part to contain the signed content and the detached signature data.
         </p><p>
@@ -131,20 +160,24 @@ message.Subject = <span class="highlight-literal">"How you doin?"</span>;
           (one for each signer) that are returned by the
           <a href="Overload_MimeKit_Cryptography_MultipartSigned_Verify.htm">Verify</a>
           method:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EACABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EACABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EACABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EACABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">if</span> (entity <span class="highlight-keyword">is</span> MultipartSigned) {
-    <span class="highlight-keyword">var</span> signed = (MultipartSigned) entity;
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EACABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EACABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EACABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EACABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> VerifyMultipartSigned (MimeMessage message)
+{
+    <span class="highlight-keyword">if</span> (message.Body <span class="highlight-keyword">is</span> MultipartSigned) {
+        <span class="highlight-keyword">var</span> signed = (MultipartSigned) message.Body;
 
-    <span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> signature <span class="highlight-keyword">in</span> signed.Verify ()) {
-        <span class="highlight-keyword">try</span> {
-            <span class="highlight-keyword">bool</span> valid = signature.Verify ();
+        <span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> signature <span class="highlight-keyword">in</span> signed.Verify ()) {
+            <span class="highlight-keyword">try</span> {
+                <span class="highlight-keyword">bool</span> valid = signature.Verify ();
 
-            <span class="highlight-comment">// If valid is true, then it signifies that the signed content has not been</span>
-            <span class="highlight-comment">// modified since this particular signer signed the content.</span>
-            <span class="highlight-comment">// </span>
-            <span class="highlight-comment">// However, if it is false, then it indicates that the signed content has</span>
-            <span class="highlight-comment">// been modified.</span>
-        } <span class="highlight-keyword">catch</span> (DigitalSignatureVerifyException) {
-            <span class="highlight-comment">// There was an error verifying the signature.</span>
+                <span class="highlight-comment">// If valid is true, then it signifies that the signed content</span>
+                <span class="highlight-comment">// has not been modified since this particular signer signed the</span>
+                <span class="highlight-comment">// content.</span>
+                <span class="highlight-comment">// </span>
+                <span class="highlight-comment">// However, if it is false, then it indicates that the signed</span>
+                <span class="highlight-comment">// content has been modified.</span>
+            } <span class="highlight-keyword">catch</span> (DigitalSignatureVerifyException) {
+                <span class="highlight-comment">// There was an error verifying the signature.</span>
+            }
         }
     }
 }</pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID0EACABAAA");</script><p>
@@ -153,24 +186,26 @@ message.Subject = <span class="highlight-literal">"How you doin?"</span>;
           <span class="literal">application/pkcs7-mime</span> part with an <span class="literal">smime-type</span>
           parameter set to <span class="literal">signed-data</span>. Luckily, MimeKit can handle this
           format as well:
-        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">if</span> (entity <span class="highlight-keyword">is</span> ApplicationPkcs7Mime) {
-    <span class="highlight-keyword">var</span> pkcs7 = (ApplicationPkcs7Mime) entity;
+        </p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID0EAAABAAA_tab1" class="codeSnippetContainerTabSingle">C#</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID0EAAABAAA_copyCode" href="#" onclick="javascript:CopyToClipboard('ID0EAAABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID0EAAABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-keyword">public</span> <span class="highlight-keyword">void</span> VerifyPkcs7 (MimeMessage message)
+{
+    <span class="highlight-keyword">var</span> pkcs7 = message.Body <span class="highlight-keyword">as</span> ApplicationPkcs7Mime;
 
-    <span class="highlight-keyword">if</span> (pkcs7.SecureMimeType == SecureMimeType.SignedData) {
+    <span class="highlight-keyword">if</span> (pkcs7 != <span class="highlight-keyword">null</span> &amp;&amp; pkcs7.SecureMimeType == SecureMimeType.SignedData) {
         <span class="highlight-comment">// extract the original content and get a list of signatures</span>
-        MimeEntity extracted;
+        MimeEntity original;
 
         <span class="highlight-comment">// Note: if you are rendering the message, you'll want to render the</span>
-        <span class="highlight-comment">// extracted mime part rather than the application/pkcs7-mime part.</span>
-        <span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> signature <span class="highlight-keyword">in</span> pkcs7.Verify (<span class="highlight-keyword">out</span> extracted)) {
+        <span class="highlight-comment">// original mime part rather than the application/pkcs7-mime part.</span>
+        <span class="highlight-keyword">foreach</span> (<span class="highlight-keyword">var</span> signature <span class="highlight-keyword">in</span> pkcs7.Verify (<span class="highlight-keyword">out</span> original)) {
             <span class="highlight-keyword">try</span> {
                 <span class="highlight-keyword">bool</span> valid = signature.Verify ();
 
-                <span class="highlight-comment">// If valid is true, then it signifies that the signed content has not</span>
-                <span class="highlight-comment">// been modified since this particular signer signed the content.</span>
+                <span class="highlight-comment">// If valid is true, then it signifies that the signed content</span>
+                <span class="highlight-comment">// has not been modified since this particular signer signed the</span>
+                <span class="highlight-comment">// content.</span>
                 <span class="highlight-comment">// </span>
-                <span class="highlight-comment">// However, if it is false, then it indicates that the signed content</span>
-                <span class="highlight-comment">// has been modified.</span>
+                <span class="highlight-comment">// However, if it is false, then it indicates that the signed</span>
+                <span class="highlight-comment">// content has been modified.</span>
             } <span class="highlight-keyword">catch</span> (DigitalSignatureVerifyException) {
                 <span class="highlight-comment">// There was an error verifying the signature.</span>
             }

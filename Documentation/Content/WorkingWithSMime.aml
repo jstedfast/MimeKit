@@ -48,11 +48,11 @@
           <codeEntityReference>T:MimeKit.Cryptography.SecureMimeContext</codeEntityReference>
           class:
         </para>
-        <code language="c#" source="Examples\MySecureMimeContext.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="MySecureMimeContext"/>
         <para>
           To register your class, you can use the following code snippet:
         </para>
-        <code language="c#" source="Examples\RegisterMySecureMimeContext.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="RegisterCustomContext"/>
         <para>
           Now you are ready to encrypt, decrypt, sign and verify messages using S/MIME!
         </para>
@@ -63,16 +63,25 @@
       <title>Encrypting Messages with S/MIME</title>
       <content>
         <para>
-          S/MIME uses a MIME part with an <literal>application/pkcs7-mime</literal> mime-type
-          to encapsulate encrypted content (as well as other things). To encrypt any
-          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>,
+          Instead of using a <literal>multipart/encrypted</literal> MIME part to encapsulate
+          encrypted content like OpenPGP, S/MIME uses <literal>application/pkcs7-mime</literal>.
+          To encrypt any <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>,
           simply use the
           <codeEntityReference autoUpgrade="true" linkText="ApplicationPkcs7Mime.Encrypt">
-            M:MimeKit.Cryptography.ApplicationPkcs7Mime.Encrypt(System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;,MimeKit.MimeEntity)
+            Overload:MimeKit.Cryptography.ApplicationPkcs7Mime.Encrypt
           </codeEntityReference>
           method:
         </para>
-        <code language="c#" source="Examples\SMimeEncrypt.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="Encrypt"/>
+        <alert class="tip">
+          <para>
+            When you know that you will be encrypting a message, it may be a good idea to use
+            a <codeEntityReference>T:MimeKit.Cryptography.SecureMailboxAddress</codeEntityReference>
+            instead of a <codeEntityReference>T:MimeKit.MailboxAddress</codeEntityReference>
+            for each of the recipients, allowing you to specify the unique fingerprint of each
+            recipient's X.509 certificate.
+          </para>
+        </alert>
       </content>
     </section>
 
@@ -89,7 +98,7 @@
           <codeEntityReference>T:MimeKit.Cryptography.ApplicationPkcs7Mime</codeEntityReference>
           part (see the section on <link xlink:href="WorkingWithMessages#TraversingMessages"/>).
         </para>
-        <code language="c#" source="Examples\SMimeDecrypt.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="Decrypt"/>
       </content>
     </section>
 
@@ -97,18 +106,41 @@
       <title>Digitally Signing Messages using S/MIME</title>
       <content>
         <para>
-          S/MIME uses a MIME part with a <literal>multipart/signed</literal> mime-type to
-          contain the signed content and the detached signature data.
+          S/MIME can use either a <literal>multipart/signed</literal> MIME part or a
+          <literal>application/pkcs7-mime</literal> MIME part for signed data.
         </para>
         <para>
-          Here's how you might digitally sign a message using S/MIME:
+          To digitally sign a <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>
+          using a <literal>multipart/signed</literal> MIME part, it works exactly the same
+          as it does for <link xlink:href="WorkingWithPGP#Sign">OpenPGP</link> using
+          <codeEntityReference autoUpgrade="true" linkText="MultipartSigned.Create">
+            Overload:MimeKit.Cryptography.MultipartSigned.Create
+          </codeEntityReference>
         </para>
-        <code language="c#" source="Examples\SMimeSign.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="MultipartSign"/>
         <para>
-          You can also do your own S/MIME X.509 certificate key lookups instead of relying
-          on email addresses to match up with the user's certificate.
+          You can also do your own certificate lookups instead of relying on email addresses
+          to match up with the user's certificate.
         </para>
-        <code language="c#" source="Examples\SMimeSignCertificate.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="MultipartSignWithKey"/>
+        <para>
+          You can also choose to digitially sign a
+          <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference> using the
+          <literal>application/pkcs7-mime</literal> format using
+          <codeEntityReference autoUpgrade="true" linkText="ApplicationPkcs7Mime.Sign">
+            Overload:MimeKit.Cryptography.ApplicationPkcs7Mime.Sign
+          </codeEntityReference>
+        </para>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="Pkcs7Sign"/>
+        <alert class="tip">
+          <para>
+            When you know that you will be signing a message, it may be a good idea to use
+            a <codeEntityReference>T:MimeKit.Cryptography.SecureMailboxAddress</codeEntityReference>
+            instead of a <codeEntityReference>T:MimeKit.MailboxAddress</codeEntityReference>
+            for the sender, allowing you to specify the unique fingerprint of the sender's
+            X.509 certificate.
+          </para>
+        </alert>
       </content>
     </section>
 
@@ -132,10 +164,12 @@
           Because the <literal>multipart/signed</literal> part may have been signed by
           multiple signers, it is important to verify each of the digital signatures
           (one for each signer) that are returned by the
-          <codeEntityReference autoUpgrade="true">M:MimeKit.Cryptography.MultipartSigned.Verify</codeEntityReference>
+          <codeEntityReference autoUpgrade="true">
+            Overload:MimeKit.Cryptography.MultipartSigned.Verify
+          </codeEntityReference>
           method:
         </para>
-        <code language="c#" source="Examples\VerifySignature.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="VerifyMultipartSigned"/>
         <para>
           It should be noted, however, that while most S/MIME clients will use the preferred
           <literal>multipart/signed</literal> approach, it is possible that you may encounter an
@@ -143,7 +177,7 @@
           parameter set to <literal>signed-data</literal>. Luckily, MimeKit can handle this
           format as well:
         </para>
-        <code language="c#" source="Examples\VerifyPkcs7Mime.cs"/>
+        <code language="c#" source="Examples\SMimeExamples.cs" region="VerifyPkcs7"/>
       </content>
     </section>
 

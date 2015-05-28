@@ -94,20 +94,10 @@
     <None Include="Examples\MimeParserMbox.cs" />
     <None Include="Examples\MimeParserParseMessage.cs" />
     <None Include="Examples\MyGnuPGContext.cs" />
-    <None Include="Examples\MySecureMimeContext.cs" />
     <None Include="Examples\OpeningContent.cs" />
-    <None Include="Examples\PgpDecrypt.cs" />
-    <None Include="Examples\PgpEncrypt.cs" />
-    <None Include="Examples\PgpSign.cs" />
-    <None Include="Examples\PgpSignKey.cs" />
+    <None Include="Examples\OpenPGPExamples.cs" />
     <None Include="Examples\RecursivelyTraverse.cs" />
-    <None Include="Examples\RegisterMyGnuPGContext.cs" />
-    <None Include="Examples\RegisterMySecureMimeContext.cs" />
-    <None Include="Examples\SMimeDecrypt.cs" />
-    <None Include="Examples\SMimeEncrypt.cs" />
-    <None Include="Examples\SMimeSign.cs" />
-    <None Include="Examples\SMimeSignCertificate.cs" />
-    <None Include="Examples\VerifyPkcs7Mime.cs" />
+    <None Include="Examples\SMimeExamples.cs" />
     <None Include="Examples\VerifySignature.cs" />
   </ItemGroup>
   <ItemGroup>

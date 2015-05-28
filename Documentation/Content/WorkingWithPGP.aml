@@ -31,11 +31,11 @@
           </externalLink>
           program for you.
         </para>
-        <code language="c#" source="Examples\MyGnuPGContext.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="MyGnuPGContext"/>
         <para>
           To register your class, you can use the following code snippet:
         </para>
-        <code language="c#" source="Examples\RegisterMyGnuPGContext.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="RegisterCustomContext"/>
         <para>
           Now you are ready to encrypt, decrypt, sign and verify messages using PGP!
         </para>
@@ -51,11 +51,20 @@
           <codeEntityReference>T:MimeKit.MimeEntity</codeEntityReference>,
           simply use the
           <codeEntityReference autoUpgrade="true" linkText="MultipartEncrypted.Create">
-            M:MimeKit.Cryptography.MultipartEncrypted.Create(System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;,MimeKit.MimeEntity)
+            Overload:MimeKit.Cryptography.MultipartEncrypted.Create
           </codeEntityReference>
           method:
         </para>
-        <code language="c#" source="Examples\PgpEncrypt.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="Encrypt"/>
+        <alert class="tip">
+          <para>
+            When you know that you will be encrypting a message, it may be a good idea to use
+            a <codeEntityReference>T:MimeKit.Cryptography.SecureMailboxAddress</codeEntityReference>
+            instead of a <codeEntityReference>T:MimeKit.MailboxAddress</codeEntityReference>
+            for each of the recipients, allowing you to specify the unique fingerprint of each
+            recipient's PGP key.
+          </para>
+        </alert>
       </content>
     </section>
 
@@ -78,7 +87,7 @@
           <codeEntityReference>T:MimeKit.Cryptography.MultipartEncrypted</codeEntityReference>
           part (see the section on <link xlink:href="WorkingWithMessages#TraversingMessages"/>).
         </para>
-        <code language="c#" source="Examples\PgpDecrypt.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="Decrypt"/>
       </content>
     </section>
 
@@ -92,12 +101,12 @@
         <para>
           Here's how you might digitally sign a message using PGP/MIME:
         </para>
-        <code language="c#" source="Examples\PgpSign.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="Sign"/>
         <para>
           You can also do your own PGP key lookups instead of relying on email addresses
-          to match up with the user's private key.
+          to match up with the user's secret key.
         </para>
-        <code language="c#" source="Examples\PgpSignKey.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="SignWithKey"/>
       </content>
     </section>
 
@@ -121,10 +130,12 @@
           Because the <literal>multipart/signed</literal> part may have been signed by
           multiple signers, it is important to verify each of the digital signatures
           (one for each signer) that are returned by the
-          <codeEntityReference autoUpgrade="true">M:MimeKit.Cryptography.MultipartSigned.Verify</codeEntityReference>
+          <codeEntityReference autoUpgrade="true">
+            Overload:MimeKit.Cryptography.MultipartSigned.Verify
+          </codeEntityReference>
           method:
         </para>
-        <code language="c#" source="Examples\VerifySignature.cs"/>
+        <code language="c#" source="Examples\OpenPGPExamples.cs" region="Verify"/>
       </content>
     </section>
 

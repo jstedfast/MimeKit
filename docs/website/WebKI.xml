@@ -1704,7 +1704,10 @@
   <HelpKINode Title="GetSubjectName method" Url="html/M_MimeKit_Cryptography_X509CertificateExtensions_GetSubjectName.htm" />
   <HelpKINode Title="GetSubjectNameInfo method" Url="html/M_MimeKit_Cryptography_X509CertificateExtensions_GetSubjectNameInfo.htm" />
   <HelpKINode Title="GetText method" Url="html/Overload_MimeKit_TextPart_GetText.htm" />
-  <HelpKINode Title="GetTextBody method" Url="html/M_MimeKit_MimeMessage_GetTextBody.htm" />
+  <HelpKINode Title="GetTextBody method">
+    <HelpKINode Title="MimeMessage.GetTextBody Method " Url="html/M_MimeKit_MimeMessage_GetTextBody.htm" />
+    <HelpKINode Title="MultipartAlternative.GetTextBody Method " Url="html/M_MimeKit_MultipartAlternative_GetTextBody.htm" />
+  </HelpKINode>
   <HelpKINode Title="GetTrustedAnchors method">
     <HelpKINode Title="DefaultSecureMimeContext.GetTrustedAnchors Method " Url="html/M_MimeKit_Cryptography_DefaultSecureMimeContext_GetTrustedAnchors.htm" />
     <HelpKINode Title="SecureMimeContext.GetTrustedAnchors Method " Url="html/M_MimeKit_Cryptography_SecureMimeContext_GetTrustedAnchors.htm" />
@@ -1925,6 +1928,7 @@
   <HelpKINode Title="HtmlBody property">
     <HelpKINode Title="BodyBuilder.HtmlBody Property " Url="html/P_MimeKit_BodyBuilder_HtmlBody.htm" />
     <HelpKINode Title="MimeMessage.HtmlBody Property " Url="html/P_MimeKit_MimeMessage_HtmlBody.htm" />
+    <HelpKINode Title="MultipartAlternative.HtmlBody Property " Url="html/P_MimeKit_MultipartAlternative_HtmlBody.htm" />
   </HelpKINode>
   <HelpKINode Title="HtmlTagCallback delegate" Url="html/T_MimeKit_Text_HtmlTagCallback.htm" />
   <HelpKINode Title="HtmlTagCallback property">
@@ -2842,6 +2846,7 @@
   <HelpKINode Title="MimeKit.MimePart class" Url="html/T_MimeKit_MimePart.htm" />
   <HelpKINode Title="MimeKit.MimeTypes class" Url="html/T_MimeKit_MimeTypes.htm" />
   <HelpKINode Title="MimeKit.Multipart class" Url="html/T_MimeKit_Multipart.htm" />
+  <HelpKINode Title="MimeKit.MultipartAlternative class" Url="html/T_MimeKit_MultipartAlternative.htm" />
   <HelpKINode Title="MimeKit.MultipartRelated class" Url="html/T_MimeKit_MultipartRelated.htm" />
   <HelpKINode Title="MimeKit.NewLineFormat enumeration" Url="html/T_MimeKit_NewLineFormat.htm" />
   <HelpKINode Title="MimeKit.Parameter class" Url="html/T_MimeKit_Parameter.htm" />
@@ -3026,6 +3031,17 @@
   <HelpKINode Title="Multipart.Remove method" Url="html/M_MimeKit_Multipart_Remove.htm" />
   <HelpKINode Title="Multipart.RemoveAt method" Url="html/M_MimeKit_Multipart_RemoveAt.htm" />
   <HelpKINode Title="Multipart.WriteTo method" Url="html/Overload_MimeKit_Multipart_WriteTo.htm" />
+  <HelpKINode Title="MultipartAlternative class">
+    <HelpKINode Title="MultipartAlternative Class" Url="html/T_MimeKit_MultipartAlternative.htm" />
+    <HelpKINode Title="about MultipartAlternative class" Url="html/T_MimeKit_MultipartAlternative.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MimeKit_MultipartAlternative__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MimeKit_MultipartAlternative.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MimeKit_MultipartAlternative.htm" />
+  </HelpKINode>
+  <HelpKINode Title="MultipartAlternative.GetTextBody method" Url="html/M_MimeKit_MultipartAlternative_GetTextBody.htm" />
+  <HelpKINode Title="MultipartAlternative.HtmlBody property" Url="html/P_MimeKit_MultipartAlternative_HtmlBody.htm" />
+  <HelpKINode Title="MultipartAlternative.MultipartAlternative constructor" Url="html/Overload_MimeKit_MultipartAlternative__ctor.htm" />
+  <HelpKINode Title="MultipartAlternative.TextBody property" Url="html/P_MimeKit_MultipartAlternative_TextBody.htm" />
   <HelpKINode Title="MultipartEncrypted class">
     <HelpKINode Title="MultipartEncrypted Class" Url="html/T_MimeKit_Cryptography_MultipartEncrypted.htm" />
     <HelpKINode Title="about MultipartEncrypted class" Url="html/T_MimeKit_Cryptography_MultipartEncrypted.htm" />
@@ -4413,6 +4429,7 @@
   <HelpKINode Title="TextBody property">
     <HelpKINode Title="BodyBuilder.TextBody Property " Url="html/P_MimeKit_BodyBuilder_TextBody.htm" />
     <HelpKINode Title="MimeMessage.TextBody Property " Url="html/P_MimeKit_MimeMessage_TextBody.htm" />
+    <HelpKINode Title="MultipartAlternative.TextBody Property " Url="html/P_MimeKit_MultipartAlternative_TextBody.htm" />
   </HelpKINode>
   <HelpKINode Title="TextConverter class">
     <HelpKINode Title="TextConverter Class" Url="html/T_MimeKit_Text_TextConverter.htm" />
