@@ -874,6 +874,29 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Dispatches to the specific visit method for this MIME message.
+		/// </summary>
+		/// <remarks>
+		/// This default implementation for <see cref="MimeKit.MimeMessage"/> nodes
+		/// calls <see cref="MimeKit.MimeVisitor.VisitMimeMessage"/>. Override this
+		/// method to call into a more specific method on a derived visitor class
+		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// support unknown visitors by calling
+		/// <see cref="MimeKit.MimeVisitor.VisitMimeMessage"/>.
+		/// </remarks>
+		/// <param name="visitor">The visitor.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="visitor"/> is <c>null</c>.
+		/// </exception>
+		public virtual void Accept (MimeVisitor visitor)
+		{
+			if (visitor == null)
+				throw new ArgumentNullException ("visitor");
+
+			visitor.VisitMimeMessage (this);
+		}
+
+		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
 		/// <remarks>

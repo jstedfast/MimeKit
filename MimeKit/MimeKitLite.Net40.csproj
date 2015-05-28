@@ -163,6 +163,7 @@
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
     <Compile Include="MimeTypes.cs" />
+    <Compile Include="MimeVisitor.cs" />
     <Compile Include="Multipart.cs" />
     <Compile Include="MultipartAlternative.cs" />
     <Compile Include="MultipartRelated.cs" />
