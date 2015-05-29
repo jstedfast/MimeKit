@@ -923,7 +923,7 @@ namespace MimeKit {
 
 							if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
 								// ignore From-lines that might appear at the start of a message
-								if (length != 4 || !IsMboxMarker (start)) {
+								if (length < 5 || !IsMboxMarker (start)) {
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
 									headerIndex = 0;
