@@ -1239,7 +1239,7 @@ namespace MimeKit {
 			if (ctx is SecureMimeContext) {
 				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, recipients, Body);
+				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
 			}
@@ -1309,7 +1309,7 @@ namespace MimeKit {
 			if (ctx is SecureMimeContext) {
 				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.Create ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
+				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
 			}

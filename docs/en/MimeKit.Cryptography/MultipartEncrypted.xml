@@ -117,6 +117,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -128,7 +133,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -159,6 +164,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -170,7 +180,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -201,6 +211,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -214,7 +229,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -247,6 +262,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -260,7 +280,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -291,6 +311,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -304,7 +329,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -335,6 +360,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent Encrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -350,7 +380,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the encrypted version of the specified entity.</returns>
@@ -384,6 +414,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -399,7 +434,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -442,6 +477,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -457,7 +497,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -507,6 +547,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -524,7 +569,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -567,6 +612,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -584,7 +634,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -635,6 +685,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -652,7 +707,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -704,6 +759,11 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use the equivalent SignAndEncrypt() method instead.")</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
       </ReturnValue>
@@ -723,7 +783,7 @@
         <param name="recipients">The recipients for the encrypted entity.</param>
         <param name="entity">The entity to sign and encrypt.</param>
         <summary>
-            Creates a new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" />.
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
             </summary>
         <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
             the signed and encrypted version of the specified entity.</returns>
@@ -937,6 +997,653 @@
         <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
             The private key could not be found to decrypt the encrypted data.
             </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            A public key for one or more of the <paramref name="recipients" /> could not be found.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            One or more of the recipient keys cannot be used for encrypting.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (MimeKit.Cryptography.EncryptionAlgorithm algorithm, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">The encryption algorithm.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            One or more of the recipient keys cannot be used for encrypting.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.</para>
+          <para>-or-</para>
+          <para>The specified encryption algorithm is not supported.</para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (MimeKit.Cryptography.OpenPgpContext ctx, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            A public key for one or more of the <paramref name="recipients" /> could not be found.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (MimeKit.Cryptography.OpenPgpContext ctx, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            One or more of the recipient keys cannot be used for encrypting.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted Encrypt (MimeKit.Cryptography.OpenPgpContext ctx, MimeKit.Cryptography.EncryptionAlgorithm algorithm, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted Encrypt(class MimeKit.Cryptography.OpenPgpContext ctx, valuetype MimeKit.Cryptography.EncryptionAlgorithm algorithm, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="algorithm" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for encrypting.</param>
+        <param name="algorithm">The encryption algorithm.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the encrypted version of the specified entity.</returns>
+        <remarks>
+            Encrypts the entity to the specified recipients, encapsulating the result in a
+            new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+            One or more of the recipient keys cannot be used for encrypting.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            THe specified encryption algorithm is not supported.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.NotSupportedException">
+            A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key for <paramref name="signer" /> could not be found.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            A public key for one or more of the <paramref name="recipients" /> could not be found.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="signer" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.</para>
+          <para>-or-</para>
+          <para>The <paramref name="digestAlgo" /> is not supported.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (MimeKit.Cryptography.OpenPgpContext ctx, MimeKit.MailboxAddress signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class MimeKit.MailboxAddress signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MailboxAddress&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="signer" Type="MimeKit.MailboxAddress" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;MimeKit.MailboxAddress&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for signing and encrypting.</param>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:MimeKit.Cryptography.PrivateKeyNotFoundException">
+            The private key for <paramref name="signer" /> could not be found.
+            </exception>
+        <exception cref="T:MimeKit.Cryptography.PublicKeyNotFoundException">
+            A public key for one or more of the <paramref name="recipients" /> could not be found.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (MimeKit.Cryptography.OpenPgpContext ctx, Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for singing and encrypting.</param>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="signer" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+            The <paramref name="digestAlgo" /> is not supported.
+            </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, MimeKit.Cryptography.EncryptionAlgorithm cipherAlgo, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, valuetype MimeKit.Cryptography.EncryptionAlgorithm cipherAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="cipherAlgo" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="cipherAlgo">The encryption algorithm.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="signer" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>A default <see cref="T:MimeKit.Cryptography.OpenPgpContext" /> has not been registered.</para>
+          <para>-or-</para>
+          <para>The <paramref name="digestAlgo" /> is not supported.</para>
+          <para>-or-</para>
+          <para>The <paramref name="cipherAlgo" /> is not supported.</para>
+        </exception>
+        <exception cref="T:System.OperationCanceledException">
+            The user chose to cancel the password prompt.
+            </exception>
+        <exception cref="T:System.UnauthorizedAccessException">
+            3 bad attempts were made to unlock the secret key.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SignAndEncrypt">
+      <MemberSignature Language="C#" Value="public static MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt (MimeKit.Cryptography.OpenPgpContext ctx, Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, MimeKit.Cryptography.DigestAlgorithm digestAlgo, MimeKit.Cryptography.EncryptionAlgorithm cipherAlgo, System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, MimeKit.MimeEntity entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.Cryptography.MultipartEncrypted SignAndEncrypt(class MimeKit.Cryptography.OpenPgpContext ctx, class Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey signer, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo, valuetype MimeKit.Cryptography.EncryptionAlgorithm cipherAlgo, class System.Collections.Generic.IEnumerable`1&lt;class Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt; recipients, class MimeKit.MimeEntity entity) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>MimeKit.Cryptography.MultipartEncrypted</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="ctx" Type="MimeKit.Cryptography.OpenPgpContext" />
+        <Parameter Name="signer" Type="Org.BouncyCastle.Bcpg.OpenPgp.PgpSecretKey" />
+        <Parameter Name="digestAlgo" Type="MimeKit.Cryptography.DigestAlgorithm" />
+        <Parameter Name="cipherAlgo" Type="MimeKit.Cryptography.EncryptionAlgorithm" />
+        <Parameter Name="recipients" Type="System.Collections.Generic.IEnumerable&lt;Org.BouncyCastle.Bcpg.OpenPgp.PgpPublicKey&gt;" />
+        <Parameter Name="entity" Type="MimeKit.MimeEntity" />
+      </Parameters>
+      <Docs>
+        <param name="ctx">The OpenPGP cryptography context to use for singing and encrypting.</param>
+        <param name="signer">The signer to use to sign the entity.</param>
+        <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        <param name="cipherAlgo">The encryption algorithm.</param>
+        <param name="recipients">The recipients for the encrypted entity.</param>
+        <param name="entity">The entity to sign and encrypt.</param>
+        <summary>
+            Create a multipart/encrypted MIME part by signing and encrypting the specified entity.
+            </summary>
+        <returns>A new <see cref="T:MimeKit.Cryptography.MultipartEncrypted" /> instance containing
+            the signed and encrypted version of the specified entity.</returns>
+        <remarks>
+            Signs the entity using the supplied signer and digest algorithm and then encrypts to
+            the specified recipients, encapsulating the result in a new multipart/encrypted part.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="ctx" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="signer" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="recipients" /> is <c>null</c>.</para>
+          <para>-or-</para>
+          <para>
+            <paramref name="entity" /> is <c>null</c>.</para>
+        </exception>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="signer" /> cannot be used for signing.</para>
+          <para>-or-</para>
+          <para>One or more of the recipient keys cannot be used for encrypting.</para>
+          <para>-or-</para>
+          <para>No recipients were specified.</para>
+        </exception>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The <paramref name="digestAlgo" /> was out of range.
+            </exception>
+        <exception cref="T:System.NotSupportedException">
+          <para>The <paramref name="digestAlgo" /> is not supported.</para>
+          <para>-or-</para>
+          <para>The <paramref name="cipherAlgo" /> is not supported.</para>
+        </exception>
         <exception cref="T:System.OperationCanceledException">
             The user chose to cancel the password prompt.
             </exception>
