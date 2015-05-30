@@ -45,7 +45,6 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <AssemblyVersion>1.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -55,6 +54,37 @@
       </Parameters>
       <Docs>
         <param name="stream">The stream.</param>
+        <summary>
+            Add the specified stream to the chained stream.
+            </summary>
+        <remarks>
+            Adds the stream to the end of the chain.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="stream" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add">
+      <MemberSignature Language="C#" Value="public void Add (System.IO.Stream stream, bool leaveOpen = false);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Add(class System.IO.Stream stream, bool leaveOpen) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="stream" Type="System.IO.Stream" />
+        <Parameter Name="leaveOpen" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="stream">The stream.</param>
+        <param name="leaveOpen">
+          <c>true</c> if the <paramref name="stream" />
+            should remain open after the <see cref="T:MimeKit.IO.ChainedStream" /> is disposed;
+            otherwise, <c>false</c>.</param>
         <summary>
             Add the specified stream to the chained stream.
             </summary>

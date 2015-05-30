@@ -82,6 +82,7 @@
       <Type Name="MimeParser" Kind="Class" />
       <Type Name="MimePart" Kind="Class" />
       <Type Name="MimeTypes" Kind="Class" />
+      <Type Name="MimeVisitor" Kind="Class" />
       <Type Name="Multipart" Kind="Class" />
       <Type Name="MultipartAlternative" Kind="Class" />
       <Type Name="MultipartRelated" Kind="Class" />

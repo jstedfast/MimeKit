@@ -96,5 +96,36 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="Accept">
+      <MemberSignature Language="C#" Value="public override void Accept (MimeKit.MimeVisitor visitor);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Accept(class MimeKit.MimeVisitor visitor) cil managed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="visitor" Type="MimeKit.MimeVisitor" />
+      </Parameters>
+      <Docs>
+        <param name="visitor">The visitor.</param>
+        <summary>
+            Dispatches to the specific visit method for this MIME entity.
+            </summary>
+        <remarks>
+            This default implementation for <see cref="T:MimeKit.MimeEntity" /> nodes
+            calls <see cref="M:MimeKit.MimeVisitor.VisitMimeEntity(MimeKit.MimeEntity)" />. Override this
+            method to call into a more specific method on a derived visitor class
+            of the <see cref="T:MimeKit.MimeVisitor" /> class. However, it should still
+            support unknown visitors by calling
+            <see cref="M:MimeKit.MimeVisitor.VisitMimeEntity(MimeKit.MimeEntity)" />.
+            </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="visitor" /> is <c>null</c>.
+            </exception>
+      </Docs>
+    </Member>
   </Members>
 </Type>
