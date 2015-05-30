@@ -40,6 +40,7 @@ namespace MimeKit.IO {
 	public class ChainedStream : Stream
 	{
 		readonly List<Stream> streams;
+		readonly List<bool> leaveOpen;
 		long position;
 		bool disposed;
 		int current;
@@ -53,6 +54,7 @@ namespace MimeKit.IO {
 		/// </remarks>
 		public ChainedStream ()
 		{
+			leaveOpen = new List<bool> ();
 			streams = new List<Stream> ();
 		}
 
@@ -63,14 +65,18 @@ namespace MimeKit.IO {
 		/// Adds the stream to the end of the chain.
 		/// </remarks>
 		/// <param name="stream">The stream.</param>
+		/// <param name="leaveOpen"><c>true</c> if the <paramref name="stream"/>
+		/// should remain open after the <see cref="ChainedStream"/> is disposed;
+		/// otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		public void Add (Stream stream)
+		public void Add (Stream stream, bool leaveOpen = false)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
+			this.leaveOpen.Add (leaveOpen);
 			streams.Add (stream);
 			eos = false;
 		}
@@ -511,6 +517,13 @@ namespace MimeKit.IO {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
+			if (disposing && !disposed) {
+				for (int i = 0; i < streams.Count; i++) {
+					if (!leaveOpen[i])
+						streams[i].Dispose ();
+				}
+			}
+
 			base.Dispose (disposing);
 			disposed = true;
 		}
