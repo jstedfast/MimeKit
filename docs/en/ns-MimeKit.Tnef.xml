@@ -1,6 +1,0 @@
-<Namespace Name="MimeKit.Tnef">
-  <Docs>
-    <summary>Utilities for Microsoft TNEF support.</summary>
-    <remarks>Utilities for Microsoft TNEF support.</remarks>
-  </Docs>
-</Namespace>

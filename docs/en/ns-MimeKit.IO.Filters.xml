@@ -1,6 +1,0 @@
-<Namespace Name="MimeKit.IO.Filters">
-  <Docs>
-    <summary>Stream filters available for <see cref="T:MimeKit.IO.FilteredStream"/>.</summary>
-    <remarks>Stream filters available for <see cref="T:MimeKit.IO.FilteredStream"/>.</remarks>
-  </Docs>
-</Namespace>

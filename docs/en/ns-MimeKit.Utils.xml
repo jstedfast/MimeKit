@@ -1,6 +1,0 @@
-<Namespace Name="MimeKit.Utils">
-  <Docs>
-    <summary>Various utility methods that don't belong anywhere else.</summary>
-    <remarks>Various utility methods that don't belong anywhere else.</remarks>
-  </Docs>
-</Namespace>
