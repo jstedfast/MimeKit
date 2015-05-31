@@ -49,8 +49,10 @@ namespace MimeKit {
 	{
 		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
-		// this table references the first header of each field
 		internal readonly ParserOptions Options;
+		internal bool Suppress;
+
+		// this table references the first header of each field
 		readonly Dictionary<string, Header> table;
 		readonly List<Header> headers;
 
@@ -654,6 +656,9 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
+
+			if (Suppress)
+				return;
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());

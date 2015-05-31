@@ -379,10 +379,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (options.WriteHeaders)
-				Headers.WriteTo (options, stream, cancellationToken);
-			else
-				options.WriteHeaders = true;
+			Headers.WriteTo (options, stream, cancellationToken);
 
 			var cancellable = stream as ICancellableStream;
 

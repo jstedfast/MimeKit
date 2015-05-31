@@ -131,10 +131,6 @@ namespace MimeKit {
 			get { return NewLineFormats[(int) NewLineFormat]; }
 		}
 
-		internal bool WriteHeaders {
-			get; set;
-		}
-
 		/// <summary>
 		/// Gets the message headers that should be hidden.
 		/// </summary>
@@ -208,7 +204,6 @@ namespace MimeKit {
 			HiddenHeaders = new HashSet<HeaderId> ();
 			//maxLineLength = DefaultMaxLineLength;
 			AllowMixedHeaderCharsets = true;
-			WriteHeaders = true;
 
 			if (Environment.NewLine.Length == 1)
 				newLineFormat = NewLineFormat.Unix;
@@ -231,7 +226,6 @@ namespace MimeKit {
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.AllowMixedHeaderCharsets = AllowMixedHeaderCharsets;
 			options.international = international;
-			options.WriteHeaders = true;
 			return options;
 		}
 

@@ -954,8 +954,12 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
-				options.WriteHeaders = false;
-				Body.WriteTo (options, stream, cancellationToken);
+				try {
+					Body.Headers.Suppress = true;
+					Body.WriteTo (options, stream, cancellationToken);
+				} finally {
+					Body.Headers.Suppress = false;
+				}
 			}
 		}
 
