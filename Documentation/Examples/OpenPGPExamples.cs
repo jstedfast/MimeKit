@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -9,7 +12,6 @@ namespace Examples
 	public class MyGnuPGContext : GnuPGContext
 	{
 		public MyGnuPGContext ()
-			: base ()
 		{
 		}
 
@@ -45,7 +47,7 @@ namespace Examples
 				// normal MailboxAddresses which would allow you to specify the fingerprint
 				// of their PGP keys. You could also choose to use one of the Encrypt()
 				// overloads that take a list of PgpPublicKeys.
-				message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, message.Body);
+				message.Body = MultipartEncrypted.Encrypt (ctx, message.To.Mailboxes, message.Body);
 			}
 		}
 		#endregion
@@ -114,6 +116,19 @@ namespace Examples
 					} catch (DigitalSignatureVerifyException) {
 						// There was an error verifying the signature.
 					}
+				}
+			}
+		}
+		#endregion
+
+		#region DecryptInlinePGP
+		static Stream Decrypt (MimeMessage message)
+		{
+			var text = message.TextBody;
+
+			using (var memory = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				using (var ctx = new MyGnuPGContext ()) {
+					return ctx.GetDecryptedStream (memory);
 				}
 			}
 		}

@@ -122,15 +122,25 @@ multipart/alternative
           <codeEntityReference>T:MimeKit.Multipart</codeEntityReference>.
         </para>
         <para>
-          There are 2 ways of iterating over the tree structure of a message using MimeKit.
+          There are 3 ways of iterating over the tree structure of a message using MimeKit.
           The first way is to recursively traverse the MIME structure like this:
         </para>
         <code language="c#" source="Examples\RecursivelyTraverse.cs"/>
         <para>
-          The other way, which is a bit cleaner and doesn't require recursive methods, is
+          A second way, which is a bit cleaner and doesn't require recursive methods, is
           to use a <codeEntityReference>T:MimeKit.MimeIterator</codeEntityReference>:
         </para>
         <code language="c#" source="Examples\MimeIterator.cs" />
+        <para>
+          And finally, for those that prefer to use the
+          <externalLink>
+            <linkText>visitor pattern</linkText>
+            <linkUri>http://en.wikipedia.org/wiki/Visitor_pattern</linkUri>
+            <linkTarget>_blank</linkTarget>
+          </externalLink>, MimeKit includes the
+          <codeEntityReference>T:MimeKit.MimeVisitor</codeEntityReference> class for
+          visiting each node in the MIME tree structure.
+        </para>
       </content>
     </section>
 

@@ -14,7 +14,7 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
-    <OutputPath>..\docs\website\</OutputPath>
+    <OutputPath>bin\docs\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <TransformComponentArguments>
@@ -77,8 +77,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CreatingMessages.aml" />
+    <None Include="Content\FrequentlyAskedQuestions.aml" />
     <None Include="Content\GettingStarted.aml" />
     <None Include="Content\Introduction.aml" />
+    <None Include="Content\License.aml" />
     <None Include="Content\ParsingMessages.aml" />
     <None Include="Content\WorkingWithMessages.aml" />
     <None Include="Content\WorkingWithPGP.aml" />
@@ -93,7 +95,7 @@
     <None Include="Examples\MimeMessageLoad.cs" />
     <None Include="Examples\MimeParserMbox.cs" />
     <None Include="Examples\MimeParserParseMessage.cs" />
-    <None Include="Examples\MyGnuPGContext.cs" />
+    <None Include="Examples\MultipartFormDataExamples.cs" />
     <None Include="Examples\OpeningContent.cs" />
     <None Include="Examples\OpenPGPExamples.cs" />
     <None Include="Examples\RecursivelyTraverse.cs" />
@@ -104,6 +106,7 @@
     <ContentLayout Include="ContentLayout.content" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Examples\InlinePGPExample.txt" />
     <Content Include="icons\Help.png" />
   </ItemGroup>
   <ItemGroup>
