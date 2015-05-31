@@ -236,7 +236,7 @@ namespace MimeKit {
 		/// Gets the default formatting options in a thread-safe way.
 		/// </remarks>
 		/// <returns>The default formatting options.</returns>
-		internal static FormatOptions GetDefault ()
+		internal static FormatOptions CloneDefault ()
 		{
 			lock (Default) {
 				return Default.Clone ();

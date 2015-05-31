@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 
 				using (var cleartext = new MemoryBlockStream ()) {
 					// Note: see rfc2015 or rfc3156, section 5.1
-					var options = FormatOptions.GetDefault ();
+					var options = FormatOptions.CloneDefault ();
 					options.NewLineFormat = NewLineFormat.Dos;
 
 					this[0].WriteTo (options, cleartext);

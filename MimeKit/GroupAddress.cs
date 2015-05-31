@@ -181,10 +181,9 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			if (encode) {
-				var options = FormatOptions.GetDefault ();
 				int lineLength = 0;
 
-				Encode (options, builder, ref lineLength);
+				Encode (FormatOptions.Default, builder, ref lineLength);
 			} else {
 				builder.Append (Name);
 				builder.Append (':');

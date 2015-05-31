@@ -700,7 +700,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
+			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
 		#region ICollection implementation

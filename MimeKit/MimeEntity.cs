@@ -410,7 +410,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
+			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
 		#if !PORTABLE
@@ -497,7 +497,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.OpenWrite (fileName))
-				WriteTo (FormatOptions.GetDefault (), stream, cancellationToken);
+				WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 		#endif
 
@@ -564,7 +564,7 @@ namespace MimeKit {
 
 		void SerializeContentDisposition ()
 		{
-			var text = disposition.Encode (FormatOptions.GetDefault (), Encoding.UTF8);
+			var text = disposition.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Disposition", raw);
@@ -572,7 +572,7 @@ namespace MimeKit {
 
 		void SerializeContentType ()
 		{
-			var text = ContentType.Encode (FormatOptions.GetDefault (), Encoding.UTF8);
+			var text = ContentType.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Type", raw);
@@ -944,7 +944,7 @@ namespace MimeKit {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var format = FormatOptions.GetDefault ();
+			var format = FormatOptions.CloneDefault ();
 			format.NewLineFormat = NewLineFormat.Dos;
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);

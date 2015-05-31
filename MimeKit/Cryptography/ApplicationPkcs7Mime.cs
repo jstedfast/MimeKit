@@ -376,7 +376,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.GetDefault ();
+				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
@@ -444,7 +444,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.GetDefault ();
+				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
@@ -522,7 +522,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.GetDefault ();
+				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
@@ -604,7 +604,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.GetDefault ();
+				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
@@ -688,7 +688,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.GetDefault ();
+				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory);
