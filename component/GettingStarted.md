@@ -491,7 +491,7 @@ using (var ctx = new MyGnuPGContext ()) {
     // Note: this assumes that "Alice" has a public PGP key that matches her email
     // address. If she doesn't, try using a SecureMailboxAddress which allows you
     // to specify the fingerprint of her public PGP key to use for lookups.
-    message.Body = MultipartEncrypted.Create (ctx, message.To.Mailboxes, body);
+    message.Body = MultipartEncrypted.Encrypt (ctx, message.To.Mailboxes, body);
 }
 ```
 
