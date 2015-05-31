@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 1.2.2
+
+* Added a MultipartAlternative class which adds some useful convenience methods
+  and properties for use with the multipart/alternative mime-type.
+* Fixed MimeKitLite's MimeParser to use TnefPart for the ms-tnef mime-types.
+* Fixed MimeMessage.TextBody to convert format=flowed into plain text.
+* Made BoundStream.LeaveOpen protected instead of private.
+* Fixed ChainedStream to dispose child streams when it is disposed.
+* Obsoleted MultipartEncrypted.Create() methods in favor of equivalent
+  Encrypt() and SignAndEncrypt() methods to make them a bit more intuitive.
+* Added a MimeVisitor class that implements the visitor pattern for visiting
+  MIME nodes.
+
 ### MimeKit 1.2.1
 
 * Added a Format property to ContentType.

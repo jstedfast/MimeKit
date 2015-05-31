@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.2.1.0</version>
+        <version>1.2.2.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -12,7 +12,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>MimeKit is an Open Source library for creating and parsing MIME messages. It also supports parsing of Unix mbox files.
 
-Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and about 75x faster than SharpMimeTools).
+Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and over 100x faster than AE.Net.Mail and MailSystem.NET).
 
 MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
 
@@ -22,13 +22,13 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added a Format property to ContentType.
-* Added a TryGetValue() method to ParameterList.
-* Added IsFlowed and IsRichText convenience properties to TextPart.
-* Fixed the HtmlToHtml converter to properly handle HTML text that begins with leading text data.
-* Fixed MimeParser.ParseHeaders() to handle input that does not end with a blank line. (issue #142)
-* Renamed MimeEntityConstructorInfo to MimeEntityConstructorArgs.
-* Modified the MimeParser to use TextPart to represent application/rtf.
+        <releaseNotes>* Added a MultipartAlternative class which adds some useful convenience methods and properties for use with the multipart/alternative mime-type.
+* Fixed MimeKitLite's MimeParser to use TnefPart for the ms-tnef mime-types.
+* Fixed MimeMessage.TextBody to convert format=flowed into plain text.
+* Made BoundStream.LeaveOpen protected instead of private.
+* Fixed ChainedStream to dispose child streams when it is disposed.
+* Obsoleted MultipartEncrypted.Create() methods in favor of equivalent Encrypt() and SignAndEncrypt() methods to make them a bit more intuitive.
+* Added a MimeVisitor class that implements the visitor pattern for visiting MIME nodes.
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
