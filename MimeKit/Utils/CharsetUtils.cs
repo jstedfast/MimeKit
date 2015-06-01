@@ -55,23 +55,23 @@ namespace MimeKit.Utils {
 		{
 			int gb2312;
 
-			AddAliases (65001, -1, "utf-8", "utf8");
+			AddAliases (aliases, 65001, -1, "utf-8", "utf8");
 
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
-			AddAliases (20127, -1, "ansi_x3.4-1968");
+			AddAliases (aliases, 20127, -1, "ansi_x3.4-1968");
 
 			// ANSI_X3.110-1983 is another odd-ball charset that appears
 			// every once in a while and seems closest to ISO-8859-1.
-			AddAliases (28591, -1, "ansi_x3.110-1983", "latin1");
+			AddAliases (aliases, 28591, -1, "ansi_x3.110-1983", "latin1");
 
 			// Macintosh aliases
-			AddAliases (10000, -1, "macintosh");
-			AddAliases (10079, -1, "x-mac-icelandic");
+			AddAliases (aliases, 10000, -1, "macintosh");
+			AddAliases (aliases, 10079, -1, "x-mac-icelandic");
 
 			// Korean charsets (aliases for euc-kr)
 			// 'upgrade' ks_c_5601-1987 to euc-kr since it is a superset
-			AddAliases (51949, -1,
+			AddAliases (aliases, 51949, -1,
 				"ks_c_5601-1987",
 				"ksc-5601-1987",
 				"ksc-5601_1987",
@@ -84,26 +84,26 @@ namespace MimeKit.Utils {
 				"euc-kr");
 
 			// Chinese charsets (aliases for big5)
-			AddAliases (950, -1, "big5", "big5-0", "big5-hkscs", "big5.eten-0", "big5hkscs-0");
+			AddAliases (aliases, 950, -1, "big5", "big5-0", "big5-hkscs", "big5.eten-0", "big5hkscs-0");
 
 			// Chinese charsets (aliases for gb2312)
-			gb2312 = AddAliases (936, -1, "gb2312", "gb-2312", "gb2312-0", "gb2312-80", "gb2312.1980-0");
+			gb2312 = AddAliases (aliases, 936, -1, "gb2312", "gb-2312", "gb2312-0", "gb2312-80", "gb2312.1980-0");
 
 			// Chinese charsets (euc-cn and gbk not supported on Mono)
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=844082 seems to suggest falling back to gb2312.
-			AddAliases (51936, gb2312, "euc-cn", "gbk-0", "x-gbk", "gbk");
+			AddAliases (aliases, 51936, gb2312, "euc-cn", "gbk-0", "x-gbk", "gbk");
 
 			// Chinese charsets (hz-gb-2312 not suported on Mono)
-			AddAliases (52936, gb2312, "hz-gb-2312", "hz-gb2312");
+			AddAliases (aliases, 52936, gb2312, "hz-gb-2312", "hz-gb2312");
 
 			// Chinese charsets (aliases for gb18030)
-			AddAliases (54936, -1, "gb18030-0", "gb18030");
+			AddAliases (aliases, 54936, -1, "gb18030-0", "gb18030");
 
 			// Japanese charsets (aliases for euc-jp)
-			AddAliases (51932, -1, "eucjp-0", "euc-jp", "ujis-0", "ujis");
+			AddAliases (aliases, 51932, -1, "eucjp-0", "euc-jp", "ujis-0", "ujis");
 
 			// Japanese charsets (aliases for Shift_JIS)
-			AddAliases (932, -1, "jisx0208.1983-0", "jisx0212.1990-0", "pck");
+			AddAliases (aliases, 932, -1, "jisx0208.1983-0", "jisx0212.1990-0", "pck");
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
 			// Encodings 50220 and 50222 are both associated with the name "iso-2022-jp", but they
@@ -128,12 +128,12 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static int AddAliases (int codepage, int fallback, params string[] names)
+		static int AddAliases (Dictionary<string, int> dict, int codepage, int fallback, params string[] names)
 		{
 			int value = ProbeCharset (codepage) ? codepage : fallback;
 
 			for (int i = 0; i < names.Length; i++)
-				aliases.Add (names[i], value);
+				dict.Add (names[i], value);
 
 			return value;
 		}

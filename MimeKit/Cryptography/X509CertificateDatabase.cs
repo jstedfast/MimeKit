@@ -174,6 +174,9 @@ namespace MimeKit.Cryptography {
 			var algorithm = new AlgorithmIdentifier (EncryptionAlgorithm, pbeParameters);
 			var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
 
+			if (cipherParameters == null)
+				throw new Exception ("BouncyCastle bug detected: Failed to generate cipher parameters.");
+
 			cipher.Init (true, cipherParameters);
 
 			var encoded = cipher.DoFinal (keyInfo.GetEncoded ());
@@ -200,6 +203,9 @@ namespace MimeKit.Cryptography {
 						return null;
 
 					var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
+
+					if (cipherParameters == null)
+						throw new Exception ("BouncyCastle bug detected: Failed to generate cipher parameters.");
 
 					cipher.Init (false, cipherParameters);
 
