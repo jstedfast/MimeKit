@@ -202,7 +202,7 @@ namespace MimeKit.Text {
 				int index = 0;
 
 				// Trim spaces before user-inserted hard line breaks.
-				line.TrimEnd (' ');
+				line = line.TrimEnd (' ');
 
 				line = Unquote (line, out quoteDepth);
 
