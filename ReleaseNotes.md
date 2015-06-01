@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.2.3
+
+* Fixed TextToFlowed logic that stripped trailing spaces.
+* Switched to PCL Profile78 to support Xamarin.Forms.
+
 ### MimeKit 1.2.2
 
 * Added a MultipartAlternative class which adds some useful convenience methods
