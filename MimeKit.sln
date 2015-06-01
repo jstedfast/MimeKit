@@ -31,8 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.WindowsUniversal81"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net35", "MimeKit\MimeKit.Net35.csproj", "{C8C90007-C877-4763-8F3E-5CCF307F7E93}"
 EndProject
-Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "Documentation", "Documentation\Documentation.shfbproj", "{59115814-A1E3-46AE-AE30-4065AE8F4CAF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,9 +93,6 @@ Global
 		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59115814-A1E3-46AE-AE30-4065AE8F4CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59115814-A1E3-46AE-AE30-4065AE8F4CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59115814-A1E3-46AE-AE30-4065AE8F4CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
