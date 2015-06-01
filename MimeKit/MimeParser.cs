@@ -883,11 +883,6 @@ namespace MimeKit {
 								// the ':', but field names themselves are not allowed
 								// to contain spaces.
 								if (IsBlank (*inptr)) {
-									if (!blank) {
-										valid = false;
-										break;
-									}
-
 									blank = true;
 								} else if (blank || IsControl (*inptr)) {
 									valid = false;
