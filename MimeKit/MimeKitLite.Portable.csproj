@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
     <AssemblyName>MimeKitLite</AssemblyName>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
   </PropertyGroup>
