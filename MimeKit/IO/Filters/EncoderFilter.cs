@@ -24,6 +24,9 @@
 // THE SOFTWARE.
 //
 
+using System;
+
+using MimeKit.Utils;
 using MimeKit.Encodings;
 
 namespace MimeKit.IO.Filters {
@@ -85,6 +88,30 @@ namespace MimeKit.IO.Filters {
 			case ContentEncoding.UUEncode: return new EncoderFilter (new UUEncoder ());
 			default: return new PassThroughFilter ();
 			}
+		}
+
+		/// <summary>
+		/// Create a filter that will encode using specified encoding.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="EncoderFilter"/> for the specified encoding.
+		/// </remarks>
+		/// <returns>A new encoder filter.</returns>
+		/// <param name="name">The name of the encoding to create a filter for.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public static IMimeFilter Create (string name)
+		{
+			ContentEncoding encoding;
+
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (!MimeUtils.TryParse (name, out encoding))
+				encoding = ContentEncoding.Default;
+
+			return Create (encoding);
 		}
 
 		/// <summary>
