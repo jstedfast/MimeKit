@@ -136,7 +136,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("Substream");
+				throw new ObjectDisposedException ("BoundStream");
 		}
 
 		void CheckCanSeek ()

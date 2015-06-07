@@ -92,7 +92,7 @@ namespace MimeKit.IO
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("stream");
+				throw new ObjectDisposedException ("MemoryBlockStream");
 		}
 
 		#region implemented abstract members of Stream

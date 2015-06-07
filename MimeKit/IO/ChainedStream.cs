@@ -84,7 +84,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("stream");
+				throw new ObjectDisposedException ("ChainedStream");
 		}
 
 		void CheckCanSeek ()

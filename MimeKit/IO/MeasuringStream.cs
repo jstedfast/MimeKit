@@ -56,7 +56,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("stream");
+				throw new ObjectDisposedException ("MeasuringStream");
 		}
 
 		#region implemented abstract members of Stream
