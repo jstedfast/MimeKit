@@ -69,6 +69,9 @@
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
+    <Compile Include="Cryptography\DkimCanonicalizationAlgorithm.cs" />
+    <Compile Include="Cryptography\DkimSignatureAlgorithm.cs" />
+    <Compile Include="Cryptography\DkimSigner.cs" />
     <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
