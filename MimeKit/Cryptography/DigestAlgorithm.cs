@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A digest algorithm.

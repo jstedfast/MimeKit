@@ -27,6 +27,10 @@
 using System;
 using System.Collections.Generic;
 
+#if !PORTABLE
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+#endif
+
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
@@ -175,7 +179,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="certificate"/> cannot be used for signing.
 		/// </exception>
-		public CmsSigner (System.Security.Cryptography.X509Certificates.X509Certificate2 certificate) : this ()
+		public CmsSigner (X509Certificate2 certificate) : this ()
 		{
 			if (certificate == null)
 				throw new ArgumentNullException ("certificate");
