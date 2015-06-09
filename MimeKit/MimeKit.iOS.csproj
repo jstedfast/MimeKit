@@ -73,8 +73,12 @@
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
     <Compile Include="Cryptography\DkimCanonicalizationAlgorithm.cs" />
+    <Compile Include="Cryptography\DkimHashStream.cs" />
+    <Compile Include="Cryptography\DkimRelaxedBodyFilter.cs" />
     <Compile Include="Cryptography\DkimSignatureAlgorithm.cs" />
+    <Compile Include="Cryptography\DkimSignatureStream.cs" />
     <Compile Include="Cryptography\DkimSigner.cs" />
+    <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
     <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />

@@ -25,18 +25,17 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
-
-#if !PORTABLE
-using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-#endif
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.Pkcs;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -53,13 +52,10 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="DkimSigner"/>.
 		/// </remarks>
-		/// <param name="certificate">The signer's certificate.</param>
 		/// <param name="key">The signer's private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="certificate"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="domain"/> is <c>null</c>.</para>
@@ -67,15 +63,10 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="selector"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="certificate"/> cannot be used for signing.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="key"/> is not a private key.</para>
+		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		public DkimSigner (X509Certificate certificate, AsymmetricKeyParameter key, string domain, string selector)
+		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector)
 		{
-			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
-
 			if (key == null)
 				throw new ArgumentNullException ("key");
 
@@ -85,72 +76,80 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException ("selector");
 
-			CheckCertificateCanBeUsedForSigning (certificate);
-
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", "key");
 
 			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
-			Certificate = certificate;
 			Selector = selector;
 			PrivateKey = key;
 			Domain = domain;
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimSigner"/>.
 		/// </remarks>
-		/// <param name="certificate">The signer's certificate.</param>
+		/// <param name="fileName">The file containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="certificate"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="domain"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="certificate"/> cannot be used for signing.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
 		/// </exception>
-		public DkimSigner (X509Certificate2 certificate, string domain, string selector)
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public DkimSigner (string fileName, string domain, string selector)
 		{
-			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			if (fileName.Length == 0)
+				throw new ArgumentException ("The file name cannot be empty.", "fileName");
 
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			if (!certificate.HasPrivateKey)
-				throw new ArgumentException ("The certificate does not contain a private key.", "certificate");
+			if (selector == null)
+				throw new ArgumentNullException ("selector");
 
-			var cert = DotNetUtilities.FromX509Certificate (certificate);
-			var key = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+			AsymmetricCipherKeyPair key;
 
-			CheckCertificateCanBeUsedForSigning (cert);
+			using (var stream = new StreamReader (fileName)) {
+				var reader = new PemReader (stream);
+
+				key = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			if (key == null)
+				throw new FormatException ("Private key not found.");
 
 			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
 			PrivateKey = key.Private;
 			Selector = selector;
-			Certificate = cert;
 			Domain = domain;
-		}
-#endif
-
-		/// <summary>
-		/// Gets the signer's certificate.
-		/// </summary>
-		/// <remarks>
-		/// The signer's certificate that contains a public key that can be used for
-		/// verifying the digital signature.
-		/// </remarks>
-		/// <value>The signer's certificate.</value>
-		public X509Certificate Certificate {
-			get; private set;
 		}
 
 		/// <summary>
@@ -187,6 +186,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Get or set the agent or user identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the agent or user identifier.
+		/// </remarks>
+		/// <value>The agent or user identifier.</value>
+		public string AgentOrUserIdentifier {
+			get; set;
+		}
+
+		/// <summary>
 		/// Get or set the algorithm to use for signing.
 		/// </summary>
 		/// <remarks>
@@ -212,12 +222,20 @@ namespace MimeKit.Cryptography {
 			get; set;
 		}
 
-		static void CheckCertificateCanBeUsedForSigning (X509Certificate certificate)
+		/// <summary>
+		/// Gets the digest signer.
+		/// </summary>
+		/// <returns>The digest signer.</returns>
+		public ISigner GetDigestSigner ()
 		{
-			var flags = certificate.GetKeyUsageFlags ();
+			DerObjectIdentifier id;
 
-			if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
-				throw new ArgumentException ("The certificate cannot be used for signing.");
+			if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
+				id = PkcsObjectIdentifiers.Sha256WithRsaEncryption;
+			else
+				id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
+
+			return SignerUtilities.GetSigner (id);
 		}
 	}
 }

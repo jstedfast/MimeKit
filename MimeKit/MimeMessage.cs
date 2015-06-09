@@ -1122,6 +1122,171 @@ namespace MimeKit {
 		}
 
 #if ENABLE_CRYPTO
+		static bool IsWhiteSpace (char c)
+		{
+			return c == ' ' || c == '\t';
+		}
+
+		static void DkimWriteHeaderRelaxed (Stream stream, FormatOptions options, Header header)
+		{
+			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
+			var rawValue = header.GetRawValue (options, Encoding.UTF8);
+			var value = Encoding.UTF8.GetString (rawValue);
+			var builder = new StringBuilder ();
+			bool trim = true;
+
+			stream.Write (name, 0, name.Length);
+			stream.WriteByte ((byte) ':');
+
+			using (var reader = new StringReader (value)) {
+				var line = reader.ReadLine ();
+				int index = 0;
+
+				while (index < line.Length && IsWhiteSpace (line[index]))
+					index++;
+
+				if (!trim && index > 0)
+					builder.Append (' ');
+				else
+					trim = false;
+
+				while (index < line.Length) {
+					int startIndex = index;
+
+					while (index < line.Length && !IsWhiteSpace (line[index]))
+						index++;
+
+					builder.Append (line, startIndex, index - startIndex);
+
+					while (index < line.Length && IsWhiteSpace (line[index]))
+						index++;
+
+					if (index < line.Length)
+						builder.Append (' ');
+				}
+
+				builder.Append ("\r\n");
+			}
+
+			rawValue = Encoding.UTF8.GetBytes (builder.ToString ());
+
+			stream.Write (rawValue, 0, rawValue.Length);
+		}
+
+		static void DkimWriteHeaderSimple (Stream stream, FormatOptions options, Header header)
+		{
+			byte[] rawValue;
+
+			stream.Write (header.RawField, 0, header.RawField.Length);
+			stream.Write (new [] { (byte) ':' }, 0, 1);
+
+			if (options.International)
+				rawValue = header.GetRawValue (options, Encoding.UTF8);
+			else
+				rawValue = header.RawValue;
+
+			stream.Write (rawValue, 0, rawValue.Length);
+		}
+
+		public void Sign (FormatOptions options, DkimSigner signer, HashSet<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (headers == null)
+				throw new ArgumentNullException ("headers");
+
+			if (headers.Contains (HeaderId.DkimSignature))
+				throw new ArgumentException ("The list of headers to sign cannot include DKIM-Signature.");
+
+			if (version == null && Body != null && Body.Headers.Count > 0)
+				MimeVersion = new Version (1, 0);
+
+			var dkim = new StringBuilder ("v=1");
+			byte[] signature, hash;
+
+			headers.Add (HeaderId.From);
+			options = options.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			switch (signer.SignatureAlgorithm) {
+			case DkimSignatureAlgorithm.RsaSha256:
+				dkim.Append ("; a=rsa-sha256");
+				break;
+			default:
+				dkim.Append ("; a=rsa-sha1");
+				break;
+			}
+
+			dkim.AppendFormat ("; d={0}; s={1}", signer.Domain, signer.Selector);
+			dkim.AppendFormat ("; c={0}/{1}",
+				headerCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
+				bodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			if (!string.IsNullOrEmpty (signer.QueryMethod))
+				dkim.AppendFormat ("; q={0}", signer.QueryMethod);
+			if (!string.IsNullOrEmpty (signer.AgentOrUserIdentifier))
+				dkim.AppendFormat ("; i={0}", signer.AgentOrUserIdentifier);
+
+			using (var stream = new DkimSignatureStream (signer.GetDigestSigner ())) {
+				var orderedHeaderList = new List<string> ();
+
+				foreach (var header in Headers) {
+					if (options.HiddenHeaders.Contains (header.Id))
+						continue;
+
+					if (!headers.Contains (header.Id))
+						continue;
+
+					switch (headerCanonicalizationAlgorithm) {
+					case DkimCanonicalizationAlgorithm.Relaxed:
+						DkimWriteHeaderRelaxed (stream, options, header);
+						break;
+					default:
+						DkimWriteHeaderSimple (stream, options, header);
+						break;
+					}
+
+					orderedHeaderList.Add (header.Field.ToLowerInvariant ());
+				}
+
+				dkim.AppendFormat ("; h={0}", string.Join (":", orderedHeaderList.ToArray ()));
+
+				signature = stream.GenerateSignature ();
+			}
+
+			using (var stream = new DkimHashStream (signer.SignatureAlgorithm)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					if (bodyCanonicalizationAlgorithm == DkimCanonicalizationAlgorithm.Relaxed)
+						filtered.Add (new DkimRelaxedBodyFilter ());
+					else
+						filtered.Add (new DkimSimpleBodyFilter ());
+
+					if (Body != null) {
+						try {
+							Body.Headers.Suppress = true;
+							Body.WriteTo (options, stream, CancellationToken.None);
+						} finally {
+							Body.Headers.Suppress = false;
+						}
+					}
+
+					filtered.Flush ();
+				}
+
+				hash = stream.GenerateHash ();
+			}
+
+			dkim.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
+			dkim.AppendFormat ("; b={0}", Convert.ToBase64String (signature));
+
+			Headers.Insert (0, HeaderId.DkimSignature, dkim.ToString ());
+		}
+
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
