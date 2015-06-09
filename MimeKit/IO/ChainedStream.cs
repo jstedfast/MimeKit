@@ -281,14 +281,15 @@ namespace MimeKit.IO {
 			int n, nread = 0;
 
 			while (current < streams.Count) {
-				if ((n = streams[current].Read (buffer, offset + nread, count - nread)) > 0) {
-					nread += n;
 
-					if (nread == count)
-						break;
-				}
+				n = streams[current].Read (buffer, offset + nread, count - nread);
+				nread += n;
 
-				current++;
+				if (nread == count)
+					break;
+
+				if (n==0)
+					current++;
 			}
 
 			if (nread > 0)
