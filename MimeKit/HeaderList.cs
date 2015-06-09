@@ -664,16 +664,10 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					byte[] rawValue;
+					var rawValue = header.GetRawValue (options);
 
 					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
 					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-
-					if (options.International)
-						rawValue = header.GetRawValue (options, Encoding.UTF8);
-					else
-						rawValue = header.RawValue;
-
 					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 				}
 

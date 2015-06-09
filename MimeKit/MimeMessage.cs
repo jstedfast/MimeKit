@@ -1130,7 +1130,7 @@ namespace MimeKit {
 		static void DkimWriteHeaderRelaxed (Stream stream, FormatOptions options, Header header)
 		{
 			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
-			var rawValue = header.GetRawValue (options, Encoding.UTF8);
+			var rawValue = header.GetRawValue (options);
 			var value = Encoding.UTF8.GetString (rawValue);
 			var builder = new StringBuilder ();
 			bool trim = true;
@@ -1175,16 +1175,10 @@ namespace MimeKit {
 
 		static void DkimWriteHeaderSimple (Stream stream, FormatOptions options, Header header)
 		{
-			byte[] rawValue;
+			var rawValue = header.GetRawValue (options);
 
 			stream.Write (header.RawField, 0, header.RawField.Length);
 			stream.Write (new [] { (byte) ':' }, 0, 1);
-
-			if (options.International)
-				rawValue = header.GetRawValue (options, Encoding.UTF8);
-			else
-				rawValue = header.RawValue;
-
 			stream.Write (rawValue, 0, rawValue.Length);
 		}
 
@@ -1254,23 +1248,29 @@ namespace MimeKit {
 			using (var stream = new DkimSignatureStream (signer.GetDigestSigner ())) {
 				var orderedHeaderList = new List<string> ();
 
-				foreach (var header in Headers) {
-					if (options.HiddenHeaders.Contains (header.Id))
-						continue;
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
 
-					if (!headers.Contains (header.Id))
-						continue;
+					foreach (var header in Headers) {
+						if (options.HiddenHeaders.Contains (header.Id))
+							continue;
 
-					switch (headerCanonicalizationAlgorithm) {
-					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimWriteHeaderRelaxed (stream, options, header);
-						break;
-					default:
-						DkimWriteHeaderSimple (stream, options, header);
-						break;
+						if (!headers.Contains (header.Id))
+							continue;
+
+						switch (headerCanonicalizationAlgorithm) {
+						case DkimCanonicalizationAlgorithm.Relaxed:
+							DkimWriteHeaderRelaxed (filtered, options, header);
+							break;
+						default:
+							DkimWriteHeaderSimple (filtered, options, header);
+							break;
+						}
+
+						orderedHeaderList.Add (header.Field.ToLowerInvariant ());
 					}
 
-					orderedHeaderList.Add (header.Field.ToLowerInvariant ());
+					filtered.Flush ();
 				}
 
 				dkim.AppendFormat ("; h={0}", string.Join (":", orderedHeaderList.ToArray ()));

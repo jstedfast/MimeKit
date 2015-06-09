@@ -44,6 +44,13 @@ namespace MimeKit {
 	public class Header
 	{
 		internal readonly ParserOptions Options;
+
+		// cached FormatOptions that change the way the header is formatted
+		//bool allowMixedHeaderCharsets = FormatOptions.Default.AllowMixedHeaderCharsets;
+		//NewLineFormat newLineFormat = FormatOptions.Default.NewLineFormat;
+		//bool international = FormatOptions.Default.International;
+		//Encoding charset = CharsetUtils.UTF8;
+
 		readonly byte[] rawField;
 		string textValue;
 		byte[] rawValue;
@@ -410,7 +417,7 @@ namespace MimeKit {
 				return textValue;
 			}
 			set {
-				SetValue (Encoding.UTF8, value);
+				SetValue (FormatOptions.Default, Encoding.UTF8, value);
 			}
 		}
 
@@ -848,7 +855,7 @@ namespace MimeKit {
 			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
 		}
 
-		internal byte[] GetRawValue (FormatOptions format, Encoding charset)
+		byte[] FormatRawValue (FormatOptions format, Encoding encoding)
 		{
 			switch (Id) {
 			case HeaderId.DispositionNotificationTo:
@@ -860,22 +867,77 @@ namespace MimeKit {
 			case HeaderId.Bcc:
 			case HeaderId.Cc:
 			case HeaderId.To:
-				return EncodeAddressHeader (Options, format, charset, Field, textValue);
+				return EncodeAddressHeader (Options, format, encoding, Field, textValue);
 			case HeaderId.Received:
-				return EncodeReceivedHeader (Options, format, charset, Field, textValue);
+				return EncodeReceivedHeader (Options, format, encoding, Field, textValue);
 			case HeaderId.ResentMessageId:
 			case HeaderId.MessageId:
 			case HeaderId.ContentId:
-				return EncodeMessageIdHeader (Options, format, charset, Field, textValue);
+				return EncodeMessageIdHeader (Options, format, encoding, Field, textValue);
 			case HeaderId.References:
-				return EncodeReferencesHeader (Options, format, charset, Field, textValue);
+				return EncodeReferencesHeader (Options, format, encoding, Field, textValue);
 			case HeaderId.ContentDisposition:
-				return EncodeContentDisposition (Options, format, charset, Field, textValue);
+				return EncodeContentDisposition (Options, format, encoding, Field, textValue);
 			case HeaderId.ContentType:
-				return EncodeContentType (Options, format, charset, Field, textValue);
+				return EncodeContentType (Options, format, encoding, Field, textValue);
 			default:
-				return EncodeUnstructuredHeader (Options, format, charset, Field, textValue);
+				return EncodeUnstructuredHeader (Options, format, encoding, Field, textValue);
 			}
+		}
+
+		internal byte[] GetRawValue (FormatOptions format)
+		{
+			if (format.International) {
+				if (textValue == null)
+					textValue = Unfold (Rfc2047.DecodeText (Options, RawValue));
+
+				// Note: if we're reformatting to be International, then charset doesn't matter.
+				return FormatRawValue (format, CharsetUtils.UTF8);
+			}
+
+			return rawValue;
+		}
+
+		/// <summary>
+		/// Sets the header value using the specified formatting options and character encoding.
+		/// </summary>
+		/// <remarks>
+		/// When a particular charset is desired for encoding the header value
+		/// according to the rules of rfc2047, this method should be used
+		/// instead of the <see cref="Value"/> setter.
+		/// </remarks>
+		/// <param name="format">The formatting options.</param>
+		/// <param name="encoding">A character encoding.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SetValue (FormatOptions format, Encoding encoding, string value)
+		{
+			if (format == null)
+				throw new ArgumentNullException ("format");
+
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			textValue = Unfold (value.Trim ());
+
+			rawValue = FormatRawValue (format, encoding);
+
+			// cache the formatting options that change the way the header is formatted
+			//allowMixedHeaderCharsets = format.AllowMixedHeaderCharsets;
+			//newLineFormat = format.NewLineFormat;
+			//international = format.International;
+			//charset = encoding;
+
+			OnChanged ();
 		}
 
 		/// <summary>
@@ -895,17 +957,41 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (Encoding encoding, string value)
 		{
-			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+			SetValue (FormatOptions.Default, encoding, value);
+		}
 
-			if (value == null)
-				throw new ArgumentNullException ("value");
+		/// <summary>
+		/// Sets the header value using the specified formatting options and charset.
+		/// </summary>
+		/// <remarks>
+		/// When a particular charset is desired for encoding the header value
+		/// according to the rules of rfc2047, this method should be used
+		/// instead of the <see cref="Value"/> setter.
+		/// </remarks>
+		/// <param name="format">The formatting options.</param>
+		/// <param name="charset">A charset encoding.</param>
+		/// <param name="value">The header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public void SetValue (FormatOptions format, string charset, string value)
+		{
+			if (format == null)
+				throw new ArgumentNullException ("format");
 
-			textValue = Unfold (value.Trim ());
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
 
-			rawValue = GetRawValue (FormatOptions.Default, encoding);
+			var encoding = CharsetUtils.GetEncoding (charset);
 
-			OnChanged ();
+			SetValue (format, encoding, value);
 		}
 
 		/// <summary>
@@ -933,7 +1019,7 @@ namespace MimeKit {
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 
-			SetValue (encoding, value);
+			SetValue (FormatOptions.Default, encoding, value);
 		}
 
 		internal event EventHandler Changed;

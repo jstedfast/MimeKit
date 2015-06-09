@@ -40,7 +40,7 @@ namespace MimeKit {
     /// characters (<c>"\r\n"</c> aka CRLF). Most text-based network protocols such as SMTP,
     /// POP3, and IMAP use the CRLF sequence as well.
     /// </remarks>
-	public enum NewLineFormat {
+	public enum NewLineFormat : byte {
 		/// <summary>
 		/// The Unix New-Line format (<c>"\n"</c>).
 		/// </summary>
@@ -67,6 +67,7 @@ namespace MimeKit {
 
 		const int DefaultMaxLineLength = 78;
 
+		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
 		bool international;
 
@@ -107,7 +108,7 @@ namespace MimeKit {
 			get { return newLineFormat; }
 			set {
 				if (this == Default)
-					throw new InvalidOperationException ();
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
 				newLineFormat = value;
 			}
@@ -163,7 +164,7 @@ namespace MimeKit {
 			get { return international; }
 			set {
 				if (this == Default)
-					throw new InvalidOperationException ();
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
 				international = value;
 			}
@@ -184,7 +185,13 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the formatter should be allowed to use ISO-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
 		public bool AllowMixedHeaderCharsets {
-			get; set;
+			get { return allowMixedHeaderCharsets; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
+
+				allowMixedHeaderCharsets = value;
+			}
 		}
 
 		static FormatOptions ()
@@ -203,7 +210,8 @@ namespace MimeKit {
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
 			//maxLineLength = DefaultMaxLineLength;
-			AllowMixedHeaderCharsets = true;
+			allowMixedHeaderCharsets = true;
+			international = false;
 
 			if (Environment.NewLine.Length == 1)
 				newLineFormat = NewLineFormat.Unix;
@@ -224,7 +232,7 @@ namespace MimeKit {
 			//options.maxLineLength = maxLineLength;
 			options.newLineFormat = newLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
-			options.AllowMixedHeaderCharsets = AllowMixedHeaderCharsets;
+			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
 			options.international = international;
 			return options;
 		}
