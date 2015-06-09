@@ -925,18 +925,7 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
-			var cancellable = stream as ICancellableStream;
-
-			if (Body == null) {
-				Headers.WriteTo (options, stream, cancellationToken);
-
-				if (cancellable != null) {
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				}
-			} else {
+			if (Body != null) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -952,12 +941,23 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
+				var cancellable = stream as ICancellableStream;
+
+				if (cancellable != null) {
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+
 				try {
 					Body.Headers.Suppress = true;
 					Body.WriteTo (options, stream, cancellationToken);
 				} finally {
 					Body.Headers.Suppress = false;
 				}
+			} else {
+				Headers.WriteTo (options, stream, cancellationToken);
 			}
 		}
 

@@ -380,15 +380,6 @@ namespace MimeKit {
 				throw new ArgumentNullException ("stream");
 
 			Headers.WriteTo (options, stream, cancellationToken);
-
-			var cancellable = stream as ICancellableStream;
-
-			if (cancellable != null) {
-				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-			}
 		}
 
 		/// <summary>
