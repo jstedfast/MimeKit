@@ -60,6 +60,7 @@
     <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DateParserTests.cs" />
+    <Compile Include="DkimTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />
@@ -82,6 +83,10 @@
     <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestData\dkim\example.bind9" />
+    <None Include="TestData\dkim\example.pem" />
+    <None Include="TestData\dkim\example.pub" />
+    <None Include="TestData\dkim\example.tinydns" />
     <None Include="TestData\encoders\photo.b64" />
     <None Include="TestData\encoders\photo.jpg" />
     <None Include="TestData\encoders\photo.uu" />
@@ -153,7 +158,4 @@
     <Copy Condition="$(OS) != 'Unix'" SourceFiles="..\lib\sqlite3.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" ContinueOnError="false" />
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="TestData\html\" />
-  </ItemGroup>
 </Project>

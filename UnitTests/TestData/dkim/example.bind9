@@ -1,0 +1,5 @@
+1433868189.example._domainkey.example.com. IN TXT (
+        "v=DKIM1;t=s;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUpnnZhPLoZqFd2TZ26uUfhFfi"
+        "ZuMUMUlFDyd2ujh8Fkh2PROdZin+xXrenfGMYG8EJscizGg1/PcyjY2UkXaX9rmb"
+        "LGtDOXR2pEaMfFy5U+mStuzrEjxVim+5i4q9KjCKIexvBKb57/czarNxhwTzuyvM"
+        "xUBLHHiZGpAMGkT4KQIDAQAB")
