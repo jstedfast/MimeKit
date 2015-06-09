@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The hash.</returns>
 		public byte[] GenerateHash ()
 		{
-			var hash = new byte[digest.GetByteLength ()];
+			var hash = new byte[digest.GetDigestSize ()];
 
 			digest.DoFinal (hash, 0);
 

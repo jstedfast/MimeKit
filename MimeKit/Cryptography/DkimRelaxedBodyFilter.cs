@@ -34,7 +34,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A filter for the DKIM relaxed body canonicalization.
 	/// </remarks>
-	public class DkimRelaxedBodyFilter : MimeFilterBase
+	class DkimRelaxedBodyFilter : MimeFilterBase
 	{
 		bool lastWasNewLine, isEmptyLine, lwsp;
 		int emptyLines;
@@ -47,7 +47,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public DkimRelaxedBodyFilter ()
 		{
-			lastWasNewLine = false;
+			lastWasNewLine = true;
 			isEmptyLine = true;
 			emptyLines = 0;
 			lwsp = false;
@@ -162,7 +162,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public override void Reset ()
 		{
-			lastWasNewLine = false;
+			lastWasNewLine = true;
 			isEmptyLine = true;
 			emptyLines = 0;
 			lwsp = false;

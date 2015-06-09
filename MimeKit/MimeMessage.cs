@@ -1188,7 +1188,28 @@ namespace MimeKit {
 			stream.Write (rawValue, 0, rawValue.Length);
 		}
 
-		public void Sign (FormatOptions options, DkimSigner signer, HashSet<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
+		/// <summary>
+		/// Digitally sign the message using a DomainKeys Identified Mail (DKIM) signature.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="signer">The DKIM signer.</param>
+		/// <param name="headers">The headers to sign.</param>
+		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
+		/// <param name="bodyCanonicalizationAlgorithm">THe body canonicalization algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="headers"/> contains <see cref="HeaderId.DkimSignature"/>.
+		/// </exception>
+		public void Sign (FormatOptions options, DkimSigner signer, HashSet<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1285,6 +1306,29 @@ namespace MimeKit {
 			dkim.AppendFormat ("; b={0}", Convert.ToBase64String (signature));
 
 			Headers.Insert (0, HeaderId.DkimSignature, dkim.ToString ());
+		}
+
+		/// <summary>
+		/// Digitally sign the message using a DomainKeys Identified Mail (DKIM) signature.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
+		/// </remarks>
+		/// <param name="signer">The DKIM signer.</param>
+		/// <param name="headers">The headers to sign.</param>
+		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
+		/// <param name="bodyCanonicalizationAlgorithm">THe body canonicalization algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="headers"/> contains <see cref="HeaderId.DkimSignature"/>.
+		/// </exception>
+		public void Sign (DkimSigner signer, HashSet<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		{
+			Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
 
 		/// <summary>

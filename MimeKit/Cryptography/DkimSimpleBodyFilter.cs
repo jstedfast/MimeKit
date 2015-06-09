@@ -33,7 +33,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A filter for the DKIM simple body canonicalization.
 	/// </remarks>
-	public class DkimSimpleBodyFilter : MimeFilterBase
+	class DkimSimpleBodyFilter : MimeFilterBase
 	{
 		bool lastWasNewLine, isEmptyLine;
 		int emptyLines;

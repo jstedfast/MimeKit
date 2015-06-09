@@ -223,8 +223,11 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the digest signer.
+		/// Get the digest signer.
 		/// </summary>
+		/// <remarks>
+		/// Gets the digest signer.
+		/// </remarks>
 		/// <returns>The digest signer.</returns>
 		public ISigner GetDigestSigner ()
 		{
@@ -235,7 +238,11 @@ namespace MimeKit.Cryptography {
 			else
 				id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
 
-			return SignerUtilities.GetSigner (id);
+			var signer = SignerUtilities.GetSigner (id);
+
+			signer.Init (true, PrivateKey);
+
+			return signer;
 		}
 	}
 }
