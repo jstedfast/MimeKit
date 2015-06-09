@@ -69,7 +69,7 @@ namespace UnitTests {
 				lengths.Add (n);
 				position += n;
 
-				chained.Add (new MemoryStream (segment));
+				chained.Add (new ReadOneByteStream (new MemoryStream (segment)));
 			}
 		}
 
@@ -176,6 +176,62 @@ namespace UnitTests {
 			var entity = MimeEntity.Load (chained, true) as TextPart;
 
 			Assert.AreEqual ("Hello, world!\r\n", entity.Text);
+		}
+	}
+
+	class ReadOneByteStream : Stream
+	{
+		readonly Stream source;
+
+		public ReadOneByteStream (Stream source)
+		{
+			this.source = source;
+		}
+
+		public override bool CanRead {
+			get { return source.CanRead; }
+		}
+
+		public override bool CanWrite {
+			get { return source.CanWrite; }
+		}
+
+		public override bool CanSeek {
+			get { return source.CanSeek; }
+		}
+
+		public override long Length {
+			get { return source.Length; }
+		}
+
+		public override long Position {
+			get { return source.Position; }
+			set { source.Position = value; }
+		}
+
+		public override int Read (byte[] buffer, int offset, int count)
+		{
+			return source.Read (buffer, offset, 1);
+		}
+
+		public override void Write (byte[] buffer, int offset, int count)
+		{
+			source.Write (buffer, offset, count);
+		}
+
+		public override long Seek (long offset, SeekOrigin origin)
+		{
+			return source.Seek (offset, origin);
+		}
+
+		public override void Flush ()
+		{
+			source.Flush ();
+		}
+
+		public override void SetLength (long value)
+		{
+			source.SetLength (value);
 		}
 	}
 }
