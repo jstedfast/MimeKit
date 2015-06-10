@@ -82,6 +82,27 @@ namespace MimeKit.Cryptography {
 			return Signer.GenerateSignature ();
 		}
 
+		/// <summary>
+		/// Verify the DKIM signature.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the DKIM signature.
+		/// </remarks>
+		/// <returns><c>true</c> if signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="signature">The base64 encoded DKIM signature from the <c>b=</c> parameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signature"/> is <c>null</c>.
+		/// </exception>
+		public bool VerifySignature (string signature)
+		{
+			if (signature == null)
+				throw new ArgumentNullException ("signature");
+
+			var rawSignature = Convert.FromBase64String (signature);
+
+			return Signer.VerifySignature (rawSignature);
+		}
+
 		void CheckDisposed ()
 		{
 			if (disposed)

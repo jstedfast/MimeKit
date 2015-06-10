@@ -26,9 +26,13 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 
 using NUnit.Framework;
+
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -38,9 +42,35 @@ namespace UnitTests
 	[TestFixture]
 	public class DkimTests
 	{
+		static readonly AsymmetricCipherKeyPair DkimKeys;
+
+		class DummyPublicKeyLocator : IDkimPublicKeyLocator
+		{
+			readonly AsymmetricKeyParameter key;
+
+			public DummyPublicKeyLocator (AsymmetricKeyParameter publicKey)
+			{
+				key = publicKey;
+			}
+
+			public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+			{
+				return key;
+			}
+		}
+
+		static DkimTests ()
+		{
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
+				var reader = new PemReader (stream);
+
+				DkimKeys = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+		}
+
 		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm)
 		{
-			return new DkimSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+			return new DkimSigner (DkimKeys.Private, "example.com", "1433868189.example") {
 				SignatureAlgorithm = algorithm,
 				AgentOrUserIdentifier = "@eng.example.com",
 				QueryMethod = "dns/txt",
@@ -49,7 +79,7 @@ namespace UnitTests
 
 		static void TestEmptyBody (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
-			var headers = new HashSet<HeaderId> { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
+			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
 			var signer = CreateSigner (signatureAlgorithm);
 			var message = new MimeMessage ();
 
@@ -76,6 +106,10 @@ namespace UnitTests
 			}
 
 			Assert.AreEqual (expectedHash, hash, "The {0} hash does not match the expected value.", signatureAlgorithm.ToString ().ToUpperInvariant ().Substring (3));
+
+			var dkim = message.Headers[0];
+
+			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]

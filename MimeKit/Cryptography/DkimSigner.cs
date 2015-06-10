@@ -26,16 +26,9 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Asn1.Pkcs;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -220,29 +213,6 @@ namespace MimeKit.Cryptography {
 		/// <value>The public key query method.</value>
 		public string QueryMethod {
 			get; set;
-		}
-
-		/// <summary>
-		/// Get the digest signer.
-		/// </summary>
-		/// <remarks>
-		/// Gets the digest signer.
-		/// </remarks>
-		/// <returns>The digest signer.</returns>
-		public ISigner GetDigestSigner ()
-		{
-			DerObjectIdentifier id;
-
-			if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
-				id = PkcsObjectIdentifiers.Sha256WithRsaEncryption;
-			else
-				id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
-
-			var signer = SignerUtilities.GetSigner (id);
-
-			signer.Init (true, PrivateKey);
-
-			return signer;
 		}
 	}
 }
