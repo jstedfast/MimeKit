@@ -41,7 +41,8 @@ namespace MimeKit.Cryptography {
 	{
 		IDigest digest;
 		bool disposed;
-		long length;
+		int length;
+		int max;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimHashStream"/> class.
@@ -50,7 +51,8 @@ namespace MimeKit.Cryptography {
 		/// Creates a new <see cref="DkimHashStream"/>.
 		/// </remarks>
 		/// <param name="algorithm">The signature algorithm.</param>
-		public DkimHashStream (DkimSignatureAlgorithm algorithm)
+		/// <param name="maxLength">The max length of data to hash.</param>
+		public DkimHashStream (DkimSignatureAlgorithm algorithm, int maxLength = -1)
 		{
 			switch (algorithm) {
 			case DkimSignatureAlgorithm.RsaSha256:
@@ -60,6 +62,8 @@ namespace MimeKit.Cryptography {
 				digest = new Sha1Digest ();
 				break;
 			}
+
+			max = maxLength;
 		}
 
 		/// <summary>
@@ -244,9 +248,11 @@ namespace MimeKit.Cryptography {
 
 			ValidateArguments (buffer, offset, count);
 
-			digest.BlockUpdate (buffer, offset, count);
+			int n = max >= 0 && length + count > max ? max - length : count;
 
-			length += count;
+			digest.BlockUpdate (buffer, offset, n);
+
+			length += n;
 		}
 
 		/// <summary>

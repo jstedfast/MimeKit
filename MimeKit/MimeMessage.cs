@@ -1231,9 +1231,9 @@ namespace MimeKit {
 			return signer;
 		}
 
-		byte[] DkimHashBody (FormatOptions options, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
+		byte[] DkimHashBody (FormatOptions options, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm, int maxLength)
 		{
-			using (var stream = new DkimHashStream (signatureAlgorithm)) {
+			using (var stream = new DkimHashStream (signatureAlgorithm, maxLength)) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -1258,13 +1258,13 @@ namespace MimeKit {
 			}
 		}
 
-		void DkimWriteHeaders (FormatOptions options, IEnumerable<string> headerFields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
+		void DkimWriteHeaders (FormatOptions options, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
 		{
 			var counts = new Dictionary<string, int> ();
 			Header header;
 
-			foreach (var field in headerFields) {
-				var name = field.ToLowerInvariant ();
+			for (int i = 0; i < fields.Count; i++) {
+				var name = fields[i].ToLowerInvariant ();
 				int index, count, n = 0;
 
 				if (!counts.TryGetValue (name, out count))
@@ -1330,8 +1330,6 @@ namespace MimeKit {
 		/// </exception>
 		void Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
-			var fields = new List<string> ();
-
 			if (options == null)
 				throw new ArgumentNullException ("options");
 
@@ -1344,11 +1342,12 @@ namespace MimeKit {
 			if (!headers.Contains (HeaderId.From))
 				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.");
 
+			var fields = new string[headers.Count];
 			for (int i = 0; i < headers.Count; i++) {
 				if (DkimShouldNotInclude.Contains (headers[i]))
 					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i].ToHeaderName ()));
 
-				fields.Add (headers[i].ToHeaderName ().ToLowerInvariant ());
+				fields[i] = headers[i].ToHeaderName ().ToLowerInvariant ();
 			}
 
 			if (version == null && Body != null && Body.Headers.Count > 0)
@@ -1392,7 +1391,7 @@ namespace MimeKit {
 
 					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
 
-					hash = DkimHashBody (options, signer.SignatureAlgorithm, bodyCanonicalizationAlgorithm);
+					hash = DkimHashBody (options, signer.SignatureAlgorithm, bodyCanonicalizationAlgorithm, -1);
 					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
 					value.Append ("; b=");
 
@@ -1487,9 +1486,9 @@ namespace MimeKit {
 		}
 
 		static void ValidateDkimSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
-			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string h, out string bh, out string b)
+			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string h, out string bh, out string b, out int maxLength)
 		{
-			string v, a, c;
+			string v, a, c, l;
 
 			if (!parameters.TryGetValue ("v", out v))
 				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
@@ -1514,6 +1513,13 @@ namespace MimeKit {
 
 			if (!parameters.TryGetValue ("q", out q))
 				q = "dns/txt";
+
+			if (parameters.TryGetValue ("l", out l)) {
+				if (!int.TryParse (l, out maxLength))
+					throw new FormatException (string.Format ("Malformed DKIM-Signature header: invalid length parameter: l={0}", l));
+			} else {
+				maxLength = -1;
+			}
 
 			if (parameters.TryGetValue ("c", out c)) {
 				var tokens = c.ToLowerInvariant ().Split ('/');
@@ -1626,9 +1632,10 @@ namespace MimeKit {
 			DkimSignatureAlgorithm signatureAlgorithm;
 			AsymmetricKeyParameter key;
 			string d, s, q, h, bh, b;
+			int maxLength;
 
 			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
-				out d, out s, out q, out h, out bh, out b);
+				out d, out s, out q, out h, out bh, out b, out maxLength);
 
 			key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
@@ -1636,7 +1643,7 @@ namespace MimeKit {
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
-			var hash = Convert.ToBase64String (DkimHashBody (options, signatureAlgorithm, bodyAlgorithm));
+			var hash = Convert.ToBase64String (DkimHashBody (options, signatureAlgorithm, bodyAlgorithm, maxLength));
 
 			if (hash != bh)
 				return false;
