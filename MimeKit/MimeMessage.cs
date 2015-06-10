@@ -1161,33 +1161,36 @@ namespace MimeKit {
 			stream.WriteByte ((byte) ':');
 
 			using (var reader = new StringReader (value)) {
-				var line = reader.ReadLine ();
-				int index = 0;
+				string line;
 
-				while (index < line.Length && IsWhiteSpace (line[index]))
-					index++;
-
-				if (!trim && index > 0)
-					builder.Append (' ');
-				else
-					trim = false;
-
-				while (index < line.Length) {
-					int startIndex = index;
-
-					while (index < line.Length && !IsWhiteSpace (line[index]))
-						index++;
-
-					builder.Append (line, startIndex, index - startIndex);
+				while ((line = reader.ReadLine ()) != null) {
+					int index = 0;
 
 					while (index < line.Length && IsWhiteSpace (line[index]))
 						index++;
 
-					if (index < line.Length)
+					if (!trim && index > 0)
 						builder.Append (' ');
-				}
+					else
+						trim = false;
 
-				builder.Append ("\r\n");
+					while (index < line.Length) {
+						int startIndex = index;
+
+						while (index < line.Length && !IsWhiteSpace (line[index]))
+							index++;
+
+						builder.Append (line, startIndex, index - startIndex);
+
+						while (index < line.Length && IsWhiteSpace (line[index]))
+							index++;
+
+						if (index < line.Length)
+							builder.Append (' ');
+					}
+
+					builder.Append ("\r\n");
+				}
 			}
 
 			rawValue = Encoding.UTF8.GetBytes (builder.ToString ());
