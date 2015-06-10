@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.IO;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -88,40 +87,6 @@ namespace MimeKit.Cryptography {
 			visitor.VisitMultipartSigned (this);
 		}
 
-		static void PrepareEntityForSigning (MimeEntity entity)
-		{
-			if (entity is Multipart) {
-				// Note: we do not want to modify multipart/signed parts
-				if (entity is MultipartSigned)
-					return;
-
-				var multipart = (Multipart) entity;
-
-				foreach (var subpart in multipart)
-					PrepareEntityForSigning (subpart);
-			} else if (entity is MessagePart) {
-				var mpart = (MessagePart) entity;
-
-				if (mpart.Message != null && mpart.Message.Body != null)
-					PrepareEntityForSigning (mpart.Message.Body);
-			} else {
-				var part = (MimePart) entity;
-
-				switch (part.ContentTransferEncoding) {
-				case ContentEncoding.SevenBit:
-					// need to make sure that "From "-lines are properly armored and wrapped at 78 bytes
-					part.ContentTransferEncoding = part.GetBestEncoding (EncodingConstraint.SevenBit, 78);
-					break;
-				case ContentEncoding.EightBit:
-					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
-					break;
-				case ContentEncoding.Binary:
-					part.ContentTransferEncoding = ContentEncoding.Base64;
-					break;
-				}
-			}
-		}
-
 		/// <summary>
 		/// Creates a new <see cref="MultipartSigned"/>.
 		/// </summary>
@@ -165,7 +130,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			PrepareEntityForSigning (entity);
+			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -251,7 +216,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			PrepareEntityForSigning (entity);
+			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -365,7 +330,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			PrepareEntityForSigning (entity);
+			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -435,6 +400,29 @@ namespace MimeKit.Cryptography {
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature")) {
 				return Create (ctx, signer, entity);
 			}
+		}
+
+		/// <summary>
+		/// Prepare the MIME entity for transport using the specified encoding constraints.
+		/// </summary>
+		/// <remarks>
+		/// Prepares the MIME entity for transport using the specified encoding constraints.
+		/// </remarks>
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="constraint"/> is not a valid value.</para>
+		/// </exception>
+		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+		{
+			if (maxLineLength < 72 || maxLineLength > 998)
+				throw new ArgumentOutOfRangeException ("maxLineLength");
+
+			// Note: we do not iterate over our children because they are already signed
+			// and changing them would break the signature. They should already be
+			// properly prepared, anyway.
 		}
 
 		/// <summary>

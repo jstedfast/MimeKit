@@ -507,6 +507,39 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Prepare the MIME entity for transport using the specified encoding constraints.
+		/// </summary>
+		/// <remarks>
+		/// Prepares the MIME entity for transport using the specified encoding constraints.
+		/// </remarks>
+		/// <param name="constraint">The encoding constraint.</param>
+		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="constraint"/> is not a valid value.</para>
+		/// </exception>
+		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+		{
+			if (maxLineLength < 72 || maxLineLength > 998)
+				throw new ArgumentOutOfRangeException ("maxLineLength");
+
+			switch (ContentTransferEncoding) {
+			case ContentEncoding.QuotedPrintable:
+			case ContentEncoding.UUEncode:
+			case ContentEncoding.Base64:
+				return;
+			}
+
+			var best = GetBestEncoding (constraint, maxLineLength);
+
+			if (ContentTransferEncoding == ContentEncoding.Default && best == ContentEncoding.SevenBit)
+				return;
+
+			ContentTransferEncoding = best;
+		}
+
+		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
