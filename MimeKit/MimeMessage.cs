@@ -1248,6 +1248,8 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
+			Prepare (EncodingConstraint.SevenBit, 78);
+
 			var dkim = new StringBuilder ("v=1");
 			byte[] signature, hash;
 
