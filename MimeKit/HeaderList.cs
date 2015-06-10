@@ -260,7 +260,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Finds the last index of the specified header, if it exists.
 		/// </remarks>
-		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
+		/// <returns>The last index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="id">The header id.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -284,7 +284,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Finds the last index of the specified header, if it exists.
 		/// </remarks>
-		/// <returns>The index of the requested header; otherwise <value>-1</value>.</returns>
+		/// <returns>The last index of the requested header; otherwise <value>-1</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <c>null</c>.
