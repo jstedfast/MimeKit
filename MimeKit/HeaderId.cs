@@ -155,6 +155,11 @@ namespace MimeKit {
 		DeferredDelivery,
 
 		/// <summary>
+		/// The Disposition-Notification-Options header field.
+		/// </summary>
+		DispositionNotificationOptions,
+
+		/// <summary>
 		/// The Disposition-Notification-To header field.
 		/// </summary>
 		DispositionNotificationTo,
@@ -266,6 +271,11 @@ namespace MimeKit {
 		/// The Organization header field.
 		/// </summary>
 		Organization,
+
+		/// <summary>
+		/// The Original-Recipient header field.
+		/// </summary>
+		OriginalRecipient,
 
 		/// <summary>
 		/// The Path header field.
