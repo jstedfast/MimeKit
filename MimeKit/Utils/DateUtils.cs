@@ -97,6 +97,7 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class DateUtils
 	{
+		internal static readonly DateTime UnixEpoch = new DateTime (1970, 1, 1, 0, 0, 0, 0);
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";
 		const string WeekdayCharacters = "SundayMondayTuesdayWednesdayThursdayFridaySaturday";
 		const string AlphaZoneCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

@@ -1210,6 +1210,33 @@ namespace MimeKit {
 			stream.Write (rawValue, 0, rawValue.Length);
 		}
 
+		byte[] DkimHashBody (FormatOptions options, DkimSigner signer, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
+		{
+			using (var stream = new DkimHashStream (signer.SignatureAlgorithm)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					if (bodyCanonicalizationAlgorithm == DkimCanonicalizationAlgorithm.Relaxed)
+						filtered.Add (new DkimRelaxedBodyFilter ());
+					else
+						filtered.Add (new DkimSimpleBodyFilter ());
+
+					if (Body != null) {
+						try {
+							Body.Headers.Suppress = true;
+							Body.WriteTo (options, stream, CancellationToken.None);
+						} finally {
+							Body.Headers.Suppress = false;
+						}
+					}
+
+					filtered.Flush ();
+				}
+
+				return stream.GenerateHash ();
+			}
+		}
+
 		/// <summary>
 		/// Digitally sign the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </summary>
@@ -1250,8 +1277,10 @@ namespace MimeKit {
 
 			Prepare (EncodingConstraint.SevenBit, 78);
 
-			var dkim = new StringBuilder ("v=1");
+			var t = DateTime.Now - DateUtils.UnixEpoch;
+			var value = new StringBuilder ("v=1");
 			byte[] signature, hash;
+			Header dkim;
 
 			headers.Add (HeaderId.From);
 			options = options.Clone ();
@@ -1259,21 +1288,22 @@ namespace MimeKit {
 
 			switch (signer.SignatureAlgorithm) {
 			case DkimSignatureAlgorithm.RsaSha256:
-				dkim.Append ("; a=rsa-sha256");
+				value.Append ("; a=rsa-sha256");
 				break;
 			default:
-				dkim.Append ("; a=rsa-sha1");
+				value.Append ("; a=rsa-sha1");
 				break;
 			}
 
-			dkim.AppendFormat ("; d={0}; s={1}", signer.Domain, signer.Selector);
-			dkim.AppendFormat ("; c={0}/{1}",
+			value.AppendFormat ("; d={0}; s={1}", signer.Domain, signer.Selector);
+			value.AppendFormat ("; c={0}/{1}",
 				headerCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
 				bodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
 			if (!string.IsNullOrEmpty (signer.QueryMethod))
-				dkim.AppendFormat ("; q={0}", signer.QueryMethod);
+				value.AppendFormat ("; q={0}", signer.QueryMethod);
 			if (!string.IsNullOrEmpty (signer.AgentOrUserIdentifier))
-				dkim.AppendFormat ("; i={0}", signer.AgentOrUserIdentifier);
+				value.AppendFormat ("; i={0}", signer.AgentOrUserIdentifier);
+			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
 
 			using (var stream = new DkimSignatureStream (signer.GetDigestSigner ())) {
 				var orderedHeaderList = new List<string> ();
@@ -1300,42 +1330,31 @@ namespace MimeKit {
 						orderedHeaderList.Add (header.Field.ToLowerInvariant ());
 					}
 
-					filtered.Flush ();
-				}
+					value.AppendFormat ("; h={0}", string.Join (":", orderedHeaderList.ToArray ()));
 
-				dkim.AppendFormat ("; h={0}", string.Join (":", orderedHeaderList.ToArray ()));
+					hash = DkimHashBody (options, signer, bodyCanonicalizationAlgorithm);
+					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
+					value.Append ("; b=");
 
-				signature = stream.GenerateSignature ();
-			}
+					dkim = new Header (HeaderId.DkimSignature, value.ToString ());
+					Headers.Insert (0, dkim);
 
-			using (var stream = new DkimHashStream (signer.SignatureAlgorithm)) {
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
-
-					if (bodyCanonicalizationAlgorithm == DkimCanonicalizationAlgorithm.Relaxed)
-						filtered.Add (new DkimRelaxedBodyFilter ());
-					else
-						filtered.Add (new DkimSimpleBodyFilter ());
-
-					if (Body != null) {
-						try {
-							Body.Headers.Suppress = true;
-							Body.WriteTo (options, stream, CancellationToken.None);
-						} finally {
-							Body.Headers.Suppress = false;
-						}
+					switch (headerCanonicalizationAlgorithm) {
+					case DkimCanonicalizationAlgorithm.Relaxed:
+						DkimWriteHeaderRelaxed (options, filtered, dkim);
+						break;
+					default:
+						DkimWriteHeaderSimple (options, filtered, dkim);
+						break;
 					}
 
 					filtered.Flush ();
 				}
 
-				hash = stream.GenerateHash ();
+				signature = stream.GenerateSignature ();
+
+				dkim.Value += Convert.ToBase64String (signature);
 			}
-
-			dkim.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
-			dkim.AppendFormat ("; b={0}", Convert.ToBase64String (signature));
-
-			Headers.Insert (0, HeaderId.DkimSignature, dkim.ToString ());
 		}
 
 		/// <summary>
