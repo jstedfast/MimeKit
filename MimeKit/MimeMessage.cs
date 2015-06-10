@@ -1148,71 +1148,57 @@ namespace MimeKit {
 		{
 			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
 			var rawValue = header.GetRawValue (options);
+			int index = 0;
 
 			stream.Write (name, 0, name.Length);
 			stream.WriteByte ((byte) ':');
 
-			using (var canonicalized = new MemoryStream ()) {
-				int index = 0;
-				int length;
+			// look for the first non-whitespace character
+			while (index < rawValue.Length && rawValue[index].IsBlank ())
+				index++;
+
+			while (index < rawValue.Length) {
+				int startIndex = index;
+				int endIndex, nextLine;
 
 				// look for the first non-whitespace character
 				while (index < rawValue.Length && rawValue[index].IsBlank ())
 					index++;
 
-				while (index < rawValue.Length) {
-					int startIndex = index;
-					int endIndex, nextLine;
+				// look for the end of the line
+				endIndex = index;
+				while (endIndex < rawValue.Length && rawValue[endIndex] != (byte) '\n')
+					endIndex++;
 
-					// look for the first non-whitespace character
-					while (index < rawValue.Length && rawValue[index].IsBlank ())
+				nextLine = endIndex + 1;
+
+				if (endIndex > index && rawValue[endIndex - 1] == (byte) '\r')
+					endIndex--;
+
+				if (index > startIndex)
+					stream.WriteByte ((byte) ' ');
+
+				while (index < endIndex) {
+					startIndex = index;
+
+					while (index < endIndex && !rawValue[index].IsBlank ())
 						index++;
 
-					// look for the end of the line
-					endIndex = index;
-					while (endIndex < rawValue.Length && rawValue[endIndex] != (byte) '\n')
-						endIndex++;
+					stream.Write (rawValue, startIndex, index - startIndex);
 
-					nextLine = endIndex + 1;
+					startIndex = index;
 
-					if (endIndex > index && rawValue[endIndex - 1] == (byte) '\r')
-						endIndex--;
+					while (index < endIndex && rawValue[index].IsBlank ())
+						index++;
 
 					if (index > startIndex)
-						canonicalized.WriteByte ((byte) ' ');
-
-					while (index < endIndex) {
-						startIndex = index;
-
-						while (index < endIndex && !rawValue[index].IsBlank ())
-							index++;
-
-						canonicalized.Write (rawValue, startIndex, index - startIndex);
-
-						startIndex = index;
-
-						while (index < endIndex && rawValue[index].IsBlank ())
-							index++;
-
-						if (index > startIndex)
-							canonicalized.WriteByte ((byte) ' ');
-					}
-
-					index = nextLine;
+						stream.WriteByte ((byte) ' ');
 				}
 
-				canonicalized.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-
-#if PORTABLE
-				rawValue = canonicalized.GetBuffer ();
-				length = (int) canonicalized.Length;
-#else
-				rawValue = canonicalized.ToArray ();
-				length = rawValue.Length;
-#endif
-
-				stream.Write (rawValue, 0, length);
+				index = nextLine;
 			}
+
+			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 		}
 
 		static void DkimWriteHeaderSimple (FormatOptions options, Stream stream, Header header)
