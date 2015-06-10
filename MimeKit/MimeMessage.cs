@@ -1144,61 +1144,78 @@ namespace MimeKit {
 		}
 
 #if ENABLE_CRYPTO
-		static bool IsWhiteSpace (char c)
-		{
-			return c == ' ' || c == '\t';
-		}
-
-		static void DkimWriteHeaderRelaxed (Stream stream, FormatOptions options, Header header)
+		static void DkimWriteHeaderRelaxed (FormatOptions options, Stream stream, Header header)
 		{
 			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
 			var rawValue = header.GetRawValue (options);
-			var value = Encoding.UTF8.GetString (rawValue);
-			var builder = new StringBuilder ();
-			bool trim = true;
 
 			stream.Write (name, 0, name.Length);
 			stream.WriteByte ((byte) ':');
 
-			using (var reader = new StringReader (value)) {
-				string line;
+			using (var canonicalized = new MemoryStream ()) {
+				int index = 0;
+				int length;
 
-				while ((line = reader.ReadLine ()) != null) {
-					int index = 0;
+				// look for the first non-whitespace character
+				while (index < rawValue.Length && rawValue[index].IsBlank ())
+					index++;
 
-					while (index < line.Length && IsWhiteSpace (line[index]))
+				while (index < rawValue.Length) {
+					int startIndex = index;
+					int endIndex, nextLine;
+
+					// look for the first non-whitespace character
+					while (index < rawValue.Length && rawValue[index].IsBlank ())
 						index++;
 
-					if (!trim && index > 0)
-						builder.Append (' ');
-					else
-						trim = false;
+					// look for the end of the line
+					endIndex = index;
+					while (endIndex < rawValue.Length && rawValue[endIndex] != (byte) '\n')
+						endIndex++;
 
-					while (index < line.Length) {
-						int startIndex = index;
+					nextLine = endIndex + 1;
 
-						while (index < line.Length && !IsWhiteSpace (line[index]))
+					if (endIndex > index && rawValue[endIndex - 1] == (byte) '\r')
+						endIndex--;
+
+					if (index > startIndex)
+						canonicalized.WriteByte ((byte) ' ');
+
+					while (index < endIndex) {
+						startIndex = index;
+
+						while (index < endIndex && !rawValue[index].IsBlank ())
 							index++;
 
-						builder.Append (line, startIndex, index - startIndex);
+						canonicalized.Write (rawValue, startIndex, index - startIndex);
 
-						while (index < line.Length && IsWhiteSpace (line[index]))
+						startIndex = index;
+
+						while (index < endIndex && rawValue[index].IsBlank ())
 							index++;
 
-						if (index < line.Length)
-							builder.Append (' ');
+						if (index > startIndex)
+							canonicalized.WriteByte ((byte) ' ');
 					}
 
-					builder.Append ("\r\n");
+					index = nextLine;
 				}
+
+				canonicalized.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+#if PORTABLE
+				rawValue = canonicalized.GetBuffer ();
+				length = (int) canonicalized.Length;
+#else
+				rawValue = canonicalized.ToArray ();
+				length = rawValue.Length;
+#endif
+
+				stream.Write (rawValue, 0, length);
 			}
-
-			rawValue = Encoding.UTF8.GetBytes (builder.ToString ());
-
-			stream.Write (rawValue, 0, rawValue.Length);
 		}
 
-		static void DkimWriteHeaderSimple (Stream stream, FormatOptions options, Header header)
+		static void DkimWriteHeaderSimple (FormatOptions options, Stream stream, Header header)
 		{
 			var rawValue = header.GetRawValue (options);
 
@@ -1285,10 +1302,10 @@ namespace MimeKit {
 
 						switch (headerCanonicalizationAlgorithm) {
 						case DkimCanonicalizationAlgorithm.Relaxed:
-							DkimWriteHeaderRelaxed (filtered, options, header);
+							DkimWriteHeaderRelaxed (options, filtered, header);
 							break;
 						default:
-							DkimWriteHeaderSimple (filtered, options, header);
+							DkimWriteHeaderSimple (options, filtered, header);
 							break;
 						}
 
