@@ -528,7 +528,14 @@ namespace MimeKit {
 			case ContentEncoding.QuotedPrintable:
 			case ContentEncoding.UUEncode:
 			case ContentEncoding.Base64:
+				// these are all safe no matter what the constraints are
 				return;
+			case ContentEncoding.Binary:
+				if (constraint == EncodingConstraint.None) {
+					// no need to re-encode anything
+					return;
+				}
+				break;
 			}
 
 			var best = GetBestEncoding (constraint, maxLineLength);
