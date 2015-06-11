@@ -87,6 +87,8 @@
     <None Include="TestData\dkim\example.pem" />
     <None Include="TestData\dkim\example.pub" />
     <None Include="TestData\dkim\example.tinydns" />
+    <None Include="TestData\dkim\gmail.msg" />
+    <None Include="TestData\dkim\gmail.pub" />
     <None Include="TestData\encoders\photo.b64" />
     <None Include="TestData\encoders\photo.jpg" />
     <None Include="TestData\encoders\photo.uu" />

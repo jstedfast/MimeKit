@@ -77,6 +77,24 @@ namespace UnitTests
 			};
 		}
 
+		static void VerifyDkimBodyHash (MimeMessage message, DkimSignatureAlgorithm algorithm, string expectedHash)
+		{
+			var value = message.Headers[HeaderId.DkimSignature];
+			var parameters = value.Split (';');
+			string hash = null;
+
+			for (int i = 0; i < parameters.Length; i++) {
+				var param = parameters[i].Trim ();
+
+				if (param.StartsWith ("bh=", StringComparison.Ordinal)) {
+					hash = param.Substring (3);
+					break;
+				}
+			}
+
+			Assert.AreEqual (expectedHash, hash, "The {0} hash does not match the expected value.", algorithm.ToString ().ToUpperInvariant ().Substring (3));
+		}
+
 		static void TestEmptyBody (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
@@ -92,20 +110,7 @@ namespace UnitTests
 
 			message.Sign (signer, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 
-			var value = message.Headers[HeaderId.DkimSignature];
-			var parameters = value.Split (';');
-			string hash = null;
-
-			for (int i = 0; i < parameters.Length; i++) {
-				var param = parameters[i].Trim ();
-
-				if (param.StartsWith ("bh=", StringComparison.Ordinal)) {
-					hash = param.Substring (3);
-					break;
-				}
-			}
-
-			Assert.AreEqual (expectedHash, hash, "The {0} hash does not match the expected value.", signatureAlgorithm.ToString ().ToUpperInvariant ().Substring (3));
+			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			var dkim = message.Headers[0];
 
@@ -134,6 +139,23 @@ namespace UnitTests
 		public void TestEmptyRelaxedBodySha256 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=");
+		}
+
+		[Test]
+		public void TestVerifyGoogleMailDkimSignature ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			AsymmetricKeyParameter key;
+
+			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
+				var reader = new PemReader (stream);
+
+				key = reader.ReadObject () as AsymmetricKeyParameter;
+			}
+
+			message.Verify (message.Headers[index], new DummyPublicKeyLocator (key));
 		}
 	}
 }
