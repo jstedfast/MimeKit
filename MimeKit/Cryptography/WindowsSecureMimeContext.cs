@@ -257,7 +257,9 @@ namespace MimeKit.Cryptography {
 						if (certificate.Thumbprint != secure.Fingerprint)
 							continue;
 					} else {
-						if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
+
+						if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
 							continue;
 					}
 
@@ -363,7 +365,9 @@ namespace MimeKit.Cryptography {
 						if (certificate.Thumbprint != secure.Fingerprint)
 							continue;
 					} else {
-						if (certificate.GetNameInfo (X509NameType.EmailName, false) != mailbox.Address)
+						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
+
+						if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
 							continue;
 					}
 

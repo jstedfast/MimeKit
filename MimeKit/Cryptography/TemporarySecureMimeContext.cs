@@ -194,7 +194,9 @@ namespace MimeKit.Cryptography {
 				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
-				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {
+				var address = certificate.GetSubjectEmailAddress ();
+
+				if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase)) {
 					var recipient = new CmsRecipient (certificate);
 					EncryptionAlgorithm[] algorithms;
 
@@ -241,7 +243,9 @@ namespace MimeKit.Cryptography {
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
 
-				if (certificate.GetSubjectEmailAddress () == mailbox.Address) {
+				var address = certificate.GetSubjectEmailAddress ();
+
+				if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase)) {
 					var signer = new CmsSigner (certificate, key);
 					signer.DigestAlgorithm = digestAlgo;
 					return signer;
