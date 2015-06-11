@@ -1326,7 +1326,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
-		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
 		void Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
@@ -1435,7 +1435,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
-		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
 		public void Sign (DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
