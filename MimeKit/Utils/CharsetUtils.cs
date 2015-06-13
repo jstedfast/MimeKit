@@ -337,9 +337,13 @@ namespace MimeKit.Utils {
 			int codepage = GetCodePage (charset);
 
 			if (codepage == -1)
-				throw new NotSupportedException ();
+				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
 
-			return Encoding.GetEncoding (codepage);
+			try {
+				return Encoding.GetEncoding (codepage);
+			} catch (Exception ex) {
+				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset), ex);
+			}
 		}
 
 		public static Encoding GetEncoding (int codepage, string fallback)

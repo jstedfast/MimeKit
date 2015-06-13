@@ -33,6 +33,8 @@ using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A charset filter for incrementally converting text streams from
@@ -46,6 +48,14 @@ namespace MimeKit.IO.Filters {
 		readonly char[] chars = new char[1024];
 		readonly Decoder decoder;
 		readonly Encoder encoder;
+
+		static Encoding GetEncoding (string paramName, string encodingName)
+		{
+			if (encodingName == null)
+				throw new ArgumentNullException (paramName);
+
+			return CharsetUtils.GetEncoding (encodingName);
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
@@ -67,7 +77,8 @@ namespace MimeKit.IO.Filters {
 		/// <para>The <paramref name="targetEncodingName"/> is not supported by the system.</para>
 		/// </exception>
 		public CharsetFilter (string sourceEncodingName, string targetEncodingName)
-			: this (Encoding.GetEncoding (sourceEncodingName), Encoding.GetEncoding (targetEncodingName))
+			: this (GetEncoding ("sourceEncodingName", sourceEncodingName),
+				GetEncoding ("targetEncodingName", targetEncodingName))
 		{
 		}
 
