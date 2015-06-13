@@ -38,7 +38,7 @@ namespace MimeKit.Text {
 	{
 		internal static readonly HtmlAttributeCollection Empty = new HtmlAttributeCollection ();
 
-		readonly List<HtmlAttribute> attributes = new List<HtmlAttribute> ();
+		readonly List<HtmlAttribute> attributes;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlAttributeCollection"/> class.
