@@ -169,12 +169,12 @@ namespace MimeKit.Text {
 				// attempt to align the end of the remaining input with ReadAheadSize
 				if (index >= start) {
 					start -= Math.Min (ReadAheadSize, left);
-					Buffer.BlockCopy (input, index, input, start, left);
+					Buffer.BlockCopy (input, index * 2, input, start * 2, left * 2);
 					index = start;
 					start += left;
 				} else if (index > 0) {
 					int shift = Math.Min (index, end - start);
-					Buffer.BlockCopy (input, index, input, index - shift, left);
+					Buffer.BlockCopy (input, index * 2, input, (index - shift) * 2, left * 2);
 					index -= shift;
 					start = index + left;
 				} else {
