@@ -1,5 +1,25 @@
 # Release Notes
 
+### MimeKit 1.2.4
+
+* Added support for generating and verifying DKIM-Signature headers.
+* Improved error handling for Encoding.GetEncoding() in CharsetFilter constructors.
+* Fixed buffering in the HTML parser.
+* Fixed Windows and Temporary S/MIME contexts to use case-insensitive address
+  comparisons like the other backends do. (issue #146).
+* Added HeaderList.LastIndexOf() convenience methods.
+* Added a new Prepare() method to prepare a message or entity for transport
+  and/or signing (used by MultipartSigned and MailKit.SmtpClient) to reduce
+  duplicated code.
+* Fixed FilteredStream.Flush() to flush filters even when no data has been
+  written.
+* Fixed the ChainedStream.Read() logic. (issue #143)
+* Added EncoderFilter and DecoderFilter.Create() overloads that take an encoding
+  name (string).
+* HeaderList.WriteTo() now adds a blank line to the end of the output instead
+  of leaving this up to the MimeEntity.WriteTo() method. This was needed for
+  the DKIM-Signatures feature.
+
 ### MimeKit 1.2.3
 
 * Fixed TextToFlowed logic that stripped trailing spaces.
