@@ -41,6 +41,30 @@ than SharpMimeTools, and 65x faster than regex-based parsers. Even the commercia
 Mail.dll and NewtonIdeas' Mime4Net cannot even come close to matching MimeKit's performance (they are both orders of
 magnitude slower than MimeKit).
 
+For comparison purposes, I've published a [MIME parser benchmark](https://github.com/jstedfast/MimeParserBenchmark)
+to make it easier for anyone else to compare the performance of MimeKit to their favourite MIME parser.
+
+Here are the results:
+
+```
+Parsing startrek.msg (1000 iterations):
+MimeKit:        0.6989221 seconds
+OpenPop:        25.3056064 seconds
+AE.Net.Mail:    17.5971438 seconds
+MailSystem.NET: 26.3891218 seconds
+MIMER:          76.4538978 seconds
+
+Parsing xamarin3.msg (1000 iterations):
+MimeKit:        3.4215505 seconds
+OpenPop:        159.3308053 seconds
+AE.Net.Mail:    132.3044291 seconds
+MailSystem.NET: 133.5832078 seconds
+MIMER:          784.433441 seconds
+```
+
+How does your MIME parser compare?
+
+
 ## License Information
 
 MimeKit is Copyright (C) 2012-2015 Xamarin Inc. and is licensed under the MIT license:
