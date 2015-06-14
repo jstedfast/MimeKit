@@ -1280,7 +1280,7 @@ namespace MimeKit {
 
 				// find the n'th header with this name
 				while (n < count && --index >= 0) {
-					if (string.Compare (Headers[index].Field, name, StringComparison.OrdinalIgnoreCase) == 0)
+					if (Headers[index].Field.Equals (name, StringComparison.OrdinalIgnoreCase))
 						n++;
 				}
 

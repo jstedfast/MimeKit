@@ -333,7 +333,7 @@ namespace MimeKit.Cryptography {
 				if (!MailboxAddress.TryParse (userId, out email))
 					continue;
 
-				if (string.Compare (mailbox.Address, email.Address, StringComparison.OrdinalIgnoreCase) == 0)
+				if (mailbox.Address.Equals (email.Address, StringComparison.OrdinalIgnoreCase))
 					return true;
 			}
 
@@ -424,7 +424,7 @@ namespace MimeKit.Cryptography {
 				if (!MailboxAddress.TryParse (userId, out email))
 					continue;
 
-				if (string.Compare (mailbox.Address, email.Address, StringComparison.OrdinalIgnoreCase) == 0)
+				if (mailbox.Address.Equals (email.Address, StringComparison.OrdinalIgnoreCase))
 					return true;
 			}
 
