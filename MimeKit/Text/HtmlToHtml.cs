@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2015 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,6 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class HtmlToHtml : TextConverter
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		//static readonly HashSet<string> AutoClosingTags;
 
 		//static HtmlToHtml ()
@@ -183,32 +182,27 @@ namespace MimeKit.Text {
 
 		class HtmlToHtmlTagContext : HtmlTagContext
 		{
-			readonly HtmlAttributeCollection attributes;
-			readonly HtmlTokenTag tag;
+			readonly HtmlTagToken tag;
 
-			public HtmlToHtmlTagContext (HtmlTokenTag htmlTag) : base (htmlTag.TagName)
+			public HtmlToHtmlTagContext (HtmlTagToken htmlTag) : base (htmlTag.Id)
 			{
-				var attrs = new List<HtmlAttribute> ();
 				tag = htmlTag;
+			}
 
-				if (tag.Kind == HtmlTokenKind.StartTag || tag.Kind == HtmlTokenKind.EmptyElementTag) {
-					var reader = tag.AttributeReader;
-
-					while (reader.ReadNext ()) {
-						var attr = new HtmlAttribute (reader.Name, reader.Value);
-						attrs.Add (attr);
-					}
-				}
-
-				attributes = new HtmlAttributeCollection (attrs);
+			public override string TagName {
+				get { return tag.Name; }
 			}
 
 			public override HtmlAttributeCollection Attributes {
-				get { return attributes; }
+				get { return tag.Attributes; }
 			}
 
 			public override bool IsEmptyElementTag {
-				get { return tag.Kind == HtmlTokenKind.EmptyElementTag; }
+				get { return tag.IsEmptyElement || tag.Id.IsEmptyElement (); }
+			}
+
+			public override bool IsEndTag {
+				get { return tag.IsEndTag; }
 			}
 		}
 
@@ -230,7 +224,7 @@ namespace MimeKit.Text {
 		static HtmlToHtmlTagContext Pop (IList<HtmlToHtmlTagContext> stack, string name)
 		{
 			for (int i = stack.Count; i > 0; i--) {
-				if (icase.Compare (stack[i - 1].TagName, name) == 0) {
+				if (stack[i - 1].TagName.Equals (name, StringComparison.OrdinalIgnoreCase)) {
 					var ctx = stack[i - 1];
 					stack.RemoveAt (i - 1);
 					return ctx;
@@ -277,47 +271,20 @@ namespace MimeKit.Text {
 			using (var htmlWriter = new HtmlWriter (writer)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<HtmlToHtmlTagContext> ();
-				var buffer = new char[4096];
+				var tokenizer = new HtmlTokenizer (reader);
 				HtmlToHtmlTagContext ctx;
 				HtmlToken token;
-				int nread;
 
-				using (var htmlReader = new HtmlReader (reader)) {
-					while (htmlReader.ReadNextToken (out token)) {
-						switch (token.Kind) {
-						case HtmlTokenKind.Text:
-							bool suppress = SuppressContent (stack);
-							//bool wsp = false;
+				while (tokenizer.ReadNextToken (out token)) {
+					switch (token.Kind) {
+					default:
+						if (!SuppressContent (stack))
+							htmlWriter.WriteToken (token);
+						break;
+					case HtmlTokenKind.Tag:
+						var tag = (HtmlTagToken) token;
 
-							while ((nread = htmlReader.ReadText (buffer, 0, buffer.Length)) > 0) {
-								if (suppress)
-									continue;
-
-								//if (NormalizeHtml) {
-								//	int j = 0;
-								//
-								//	for (int i = 0; i < nread; i++) {
-								//		if (HtmlUtils.IsWhiteSpace (buffer[i])) {
-								//			if (!wsp) {
-								//				buffer[j++] = ' ';
-								//				wsp = true;
-								//			}
-								//		} else {
-								//			buffer[j++] = buffer[i];
-								//			wsp = false;
-								//		}
-								//	}
-								//
-								//	nread = j;
-								//}
-
-								htmlWriter.WriteMarkupText (buffer, 0, nread);
-							}
-							break;
-						case HtmlTokenKind.EmptyElementTag:
-						case HtmlTokenKind.StartTag:
-							var startTag = (HtmlTokenTag) token;
-
+						if (!tag.IsEndTag) {
 							//if (NormalizeHtml && AutoClosingTags.Contains (startTag.TagName) &&
 							//	(ctx = Pop (stack, startTag.TagName)) != null &&
 							//	ctx.InvokeCallbackForEndTag && !SuppressContent (stack)) {
@@ -333,8 +300,8 @@ namespace MimeKit.Text {
 							//	callback (ctx, htmlWriter);
 							//}
 
-							if (startTag.Kind != HtmlTokenKind.EmptyElementTag) {
-								ctx = new HtmlToHtmlTagContext (startTag);
+							if (!tag.IsEmptyElement) {
+								ctx = new HtmlToHtmlTagContext (tag);
 
 								if (FilterHtml && ctx.TagId == HtmlTagId.Script) {
 									ctx.SuppressInnerContent = true;
@@ -346,19 +313,16 @@ namespace MimeKit.Text {
 
 								stack.Add (ctx);
 							} else if (!SuppressContent (stack)) {
-								ctx = new HtmlToHtmlTagContext (startTag);
+								ctx = new HtmlToHtmlTagContext (tag);
 
 								if (!FilterHtml || ctx.TagId != HtmlTagId.Script)
 									callback (ctx, htmlWriter);
 							}
-							break;
-						case HtmlTokenKind.EndTag:
-							var endTag = (HtmlTokenTag) token;
-
-							if ((ctx = Pop (stack, endTag.TagName)) != null) {
+						} else {
+							if ((ctx = Pop (stack, tag.Name)) != null) {
 								if (!SuppressContent (stack)) {
 									if (ctx.InvokeCallbackForEndTag) {
-										ctx = new HtmlToHtmlTagContext (endTag) {
+										ctx = new HtmlToHtmlTagContext (tag) {
 											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
 											SuppressInnerContent = ctx.SuppressInnerContent,
 											DeleteEndTag = ctx.DeleteEndTag,
@@ -366,27 +330,15 @@ namespace MimeKit.Text {
 										};
 										callback (ctx, htmlWriter);
 									} else if (!ctx.DeleteEndTag) {
-										htmlWriter.WriteEndTag (endTag.TagName);
+										htmlWriter.WriteEndTag (tag.Name);
 									}
 								}
 							} else if (!SuppressContent (stack)) {
-								ctx = new HtmlToHtmlTagContext (endTag);
+								ctx = new HtmlToHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}
-							break;
-						case HtmlTokenKind.Comment:
-							if (!SuppressContent (stack)) {
-								var comment = (HtmlTokenComment) token;
-								htmlWriter.WriteMarkupText (comment.Comment);
-							}
-							break;
-						case HtmlTokenKind.DocType:
-							if (!SuppressContent (stack)) {
-								var doctype = (HtmlTokenDocType) token;
-								htmlWriter.WriteMarkupText (doctype.DocType);
-							}
-							break;
 						}
+						break;
 					}
 				}
 

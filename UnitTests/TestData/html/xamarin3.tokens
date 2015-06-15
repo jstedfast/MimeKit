@@ -1,608 +1,608 @@
 DocType: <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-StartTag: html
-StartTag: head
-Text: \n
-EmptyElementTag: meta; name="generator"; content="Say hello to Xamarin 3."
-Text: \n
-StartTag: title
-Text: Say hello to Xamarin 3, which includes four major advances in mobile development.
-EndTag: title
-Text: \n
-EndTag: head
-Text: \n
-StartTag: body; style="background-color:#F0F0F0; margin:0; padding:0; "
-StartTag: div
-StartTag: div; class="mktEditable"
-StartTag: center
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="middle"; align="center"; height="20"; style="border-collapse: collapse;"
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="300"; style="padding: 0px;"
-StartTag: a; href="http://mkto-o0039.com/hd60L0O00J00005RQ040XTv"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/say-hello2.png"; alt="Say hello to Xamarin 3, which includes four major advances in mobile development."; width="600"; height="300"; style="border: none; outline: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 10px 35px 0px;"
-Text: Today we are very excited to announce Xamarin 3, which includes four major advances in mobile development:
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--Designer-->
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; height="70"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="70"; style="padding: 20px 0px 0px;"
-StartTag: a; href="http://mkto-o0039.com/E050J06UOMv0Q00X4R00d00"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-designer-copy.png"; alt="Xamarin Designer for iOS"; width="600"; height="70"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; height="310"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="310"; style="padding: 0px;"
-StartTag: a; href="http://mkto-o0039.com/MQ0X000vJR00500Vd06O0N4"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/ios-designer.png"; height="310"; width="600"; alt="Xamarin Designer for iOS"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 50px 0px;"
-Text: Xamarin is proud to unveil the world's best user interface designer for iOS, integrated into both Xamarin Studio and Visual Studio. Build beautiful native user interfaces, including live preview of custom controls, from the comfort of your favorite IDE. 
-StartTag: a; href="http://mkto-o0039.com/P000Q05JdO06O00R0vWX004"; style="color: #3498db;text-decoration: none;outline: none;"
-Text: Learn more &#187;
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--Forms-->
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="70"; style="padding: 40px 0px 0px;"
-StartTag: a; href="http://mkto-o0039.com/z00v45d0000OQPR0J6X0X00"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-forms-copy.png"; alt="Meet Xamarin.Forms"; width="600"; height="70"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="310"; style="padding: 0px;"
-StartTag: a; href="http://mkto-o0039.com/Y050R0YQ6000v004dOJ0QX0"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/forms.png"; height="310"; width="600"; alt="Learn more about Xamarin.Forms"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 60px 0px;"
-Text: Xamarin.Forms is a simple API that allows developers to quickly and easily build native iOS, Android and Windows Phone user interfaces from a single, shared C# codebase. Delivered as a portable class library, Xamarin.Forms includes more than 40 controls and layouts and makes it easy to mix and match your shared UI code with the native, platform-specific user interface capabilities Xamarin has always given you. 
-StartTag: a; href="http://mkto-o0039.com/K0000JO00dRR4Z5v600Q0X0"; style="color: #3498db;text-decoration: none;outline: none;"
-Text: Learn more &#187;
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--Codesharing-->
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="70"; style="padding: 40px 0px 0px;"
-StartTag: a; href="http://mkto-o0039.com/R00d0v0O05004060JSXR0Q0"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/smooth-code-sharing.png"; alt="Smooth Codesharing"; width="600"; height="70"; style="border: none; outline: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="255"; style="padding: 0px;"
-StartTag: a; href="http://mkto-o0039.com/WJ001QO0d0T4X560000vR00"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/smooth-codesharing.png"; height="255"; width="600"; alt="Smooth Codesharing"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 60px 20px;"
-Text: Xamarin 3 introduces Shared Projects and full support for Portable Class Libraries &#8212; two great new code-sharing techniques for cross-platform apps. 
-StartTag: a; href="http://mkto-o0039.com/p0000J002X000UQO5d06vR4"; style="color: #3498db;text-decoration: none;outline: none;"
-Text: Learn more &#187;
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--Major IDE Enhancements-->
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="70"; style="padding: 30px 0px 0px;"
-StartTag: a; href="http://mkto-o0039.com/B0003J4XQ00000RO0vVd605"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/major-enhancements-copy.png"; alt="Major IDE enhancements"; width="600"; height="70"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="312"; style="padding: 0px;"
-StartTag: a; href="http://mkto-o0039.com/gW0v0Qd00400OX05J0004R6"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-studio.png"; height="312"; width="600"; alt="Check out the new Xamarin Studio"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 65px 20px;"
-Text: Xamarin now includes a major user experience refresh, support for NuGet packages, full .NET BCL documentation, source analysis, F# support, streamlined Visual Studio support, and many other great features. 
-StartTag: a; href="http://mkto-o0039.com/F0vOd00X50J064R0000X5Q0"; style="color: #3498db;text-decoration: none;outline: none;"
-Text: Learn more &#187;
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--And much more...-->
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="70"; style="padding: 10px 0px 0px;"
-StartTag: a; href="http://mkto-o0039.com/I000YJv0d066Q5400R0OX00"; style="text-align: center; display: block; text-decoration: none; outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/and-much-more-copy.png"; alt="And much more..."; width="600"; height="70"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#FFFFFF"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 5px 60px 20px;"
-Text: These are just four of the hundreds of new features and enhancements in Xamarin 3. Please join us at one of 
-StartTag: strong
-Text: two live webinars 
-StartTag: a; href="http://mkto-o0039.com/L004XO0000ZR0J7v60d050Q"; style="color: #5C5C5C; text-decoration: none;"
-Text: this Friday, May 30,
-EndTag: a
-EndTag: strong
-Text:  where Xamarin co-founders Nat Friedman and Miguel de Icaza will present an overview of Xamarin 3. All webinar registrants will receive a copy of the recording, so please feel free to register even if you can't attend.
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="600"; bgcolor="#FFFFFF"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td
-Text: \n
-StartTag: table; border="0"; cellspacing="0"; cellpadding="0"; width="400"; bgcolor="#FFFFFF"; valign="center"; align="center"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; cellpadding="0"; cell-spacing="0"; align="center"; width="250"
-Text: \n
-StartTag: table
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="45"
-StartTag: a; href="http://mkto-o0039.com/m000Q94000050d6vOS00JX0"; style="text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/register-for-5am.png"; alt="Register for 5am PDT"; width="181"; height="35"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-StartTag: td; cellpadding="0"; cell-spacing="0"; align="center"; width="250"
-Text: \n
-StartTag: table
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; align="center"; valign="center"; height="45"
-StartTag: a; href="http://mkto-o0039.com/G0O0XS40va01J05d00006Q0"; style="text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/register-for-11am.png"; alt="Register for 11am PDT"; width="181"; height="35"; style="border: none;"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="center"; cellpadding="0"; cell-spacing="0"; align="center"; style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 40px 30px;"
-Text: We've spent countless hours ensuring that Xamarin 3 is our best release yet, and we can't wait to show you what we've done.
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-Comment: <!--Bottom addresses, logo-->
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="middle"; align="center"; style="border-collapse:collapse; padding-top: 10px;"
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="middle"; align="center"; height="70"; style="border-collapse: collapse;"
-Text: \n
-StartTag: table; width="550"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/v00v0QS205dXJ6b0O040000"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-xamarin.png"; style="display: block;"; alt="Visit"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/HJ004000Q6cvSX00d0O0035"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-blog.png"; style="display: block;"; alt="Blog"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/v00v0QS405dXJ6d0O040000"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-linkedin.png"; style="display:block;"; alt="Link"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/G0O0XS40ve05J05d00006Q0"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-facebook.png"; style="display:block;"; alt="Friend"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/p0000J00fX0006QO5d06vS4"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-google-plus.png"; style="display: block;"; alt="G+"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-StartTag: td; valign="top"; align="center"; height="55"; bgcolor="#F0F0F0"; style="border-collapse: collapse;"
-StartTag: a; href="http://mkto-o0039.com/ZOQ0600g5000000v740dXJS"; target="_blank"; style="color: #bbbbbb;text-decoration: none;outline: none;"
-EmptyElementTag: img; src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-twitter.png"; style="display:block;"; alt="Tweet"; border="0"; align="top"; hspace="0"; vspace="0"; width="55"; height="55"
-EndTag: a
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; style="padding: 0px; color: #5C5C5C; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 165%; vertical-align: top; text-align: center;"
-StartTag: span
-StartTag: a; href="http://mkto-o0039.com/Y050S0hQ6000v004dOJ08X0"; style="color: #5C5C5C;text-decoration: none;outline: none;"
-Text: &nbsp;&nbsp;394 Pacific Ave. 4th Floor, San Francisco, CA, 94111
-EndTag: a
-EmptyElementTag: br
-Text: \n
-StartTag: a; href="http://mkto-o0039.com/Y050S0hQ6000v004dOJ08X0"; style="color: #5C5C5C;text-decoration: none;outline: none;"
-Text: +1 (855) 926-2746
-EndTag: a
-EmptyElementTag: br
-EndTag: span
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-StartTag: table; width="600"; align="center"; cellpadding="0"; cellspacing="0"; border="0"; bgcolor="#F0F0F0"
-Text: \n
-StartTag: tbody
-Text: \n
-StartTag: tr
-Text: \n
-StartTag: td; valign="middle"; align="center"; height="20"; style="border-collapse: collapse;"
-EndTag: td
-Text: \n
-EndTag: tr
-Text: \n
-EndTag: tbody
-Text: \n
-EndTag: table
-Text: \n
-EndTag: center
-Text: \n
-EndTag: div
-Text: \n
-EndTag: div
-Text: \n\n
-EmptyElementTag: IMG; SRC="http://mkto-o0039.com/trk?t=1&mid=OTc1LUpPWC03Njk6MjI5MToxOTIzOjQxNjY6MjoyNjExOjc6MTkyODpqZWZmQHhhbWFyaW4uY29t"; WIDTH="1"; HEIGHT="1"; BORDER="0"; ALT=""
-Text: \n\n
-EndTag: body
-Text: \n
-EndTag: html
-Text: \n
+Tag: <html>
+Tag: <head>
+Data: \n
+Tag: <meta name="generator" content="Say hello to Xamarin 3.">
+Data: \n
+Tag: <title>
+Data: Say hello to Xamarin 3, which includes four major advances in mobile development.
+Tag: </title>
+Data: \n
+Tag: </head>
+Data: \n
+Tag: <body style="background-color:#F0F0F0; margin:0; padding:0; ">
+Tag: <div>
+Tag: <div class="mktEditable">
+Tag: <center>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="middle" align="center" height="20" style="border-collapse: collapse;">
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="300" style="padding: 0px;">
+Tag: <a href="http://mkto-o0039.com/hd60L0O00J00005RQ040XTv" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/say-hello2.png" alt="Say hello to Xamarin 3, which includes four major advances in mobile development." width="600" height="300" style="border: none; outline: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 10px 35px 0px;">
+Data: Today we are very excited to announce Xamarin 3, which includes four major advances in mobile development:
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: Designer
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" height="70" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="70" style="padding: 20px 0px 0px;">
+Tag: <a href="http://mkto-o0039.com/E050J06UOMv0Q00X4R00d00" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-designer-copy.png" alt="Xamarin Designer for iOS" width="600" height="70" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" height="310" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="310" style="padding: 0px;">
+Tag: <a href="http://mkto-o0039.com/MQ0X000vJR00500Vd06O0N4" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/ios-designer.png" height="310" width="600" alt="Xamarin Designer for iOS" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 50px 0px;">
+Data: Xamarin is proud to unveil the world's best user interface designer for iOS, integrated into both Xamarin Studio and Visual Studio. Build beautiful native user interfaces, including live preview of custom controls, from the comfort of your favorite IDE. 
+Tag: <a href="http://mkto-o0039.com/P000Q05JdO06O00R0vWX004" style="color: #3498db;text-decoration: none;outline: none;">
+Data: Learn more »
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: Forms
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="70" style="padding: 40px 0px 0px;">
+Tag: <a href="http://mkto-o0039.com/z00v45d0000OQPR0J6X0X00" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-forms-copy.png" alt="Meet Xamarin.Forms" width="600" height="70" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="310" style="padding: 0px;">
+Tag: <a href="http://mkto-o0039.com/Y050R0YQ6000v004dOJ0QX0" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/forms.png" height="310" width="600" alt="Learn more about Xamarin.Forms" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 60px 0px;">
+Data: Xamarin.Forms is a simple API that allows developers to quickly and easily build native iOS, Android and Windows Phone user interfaces from a single, shared C# codebase. Delivered as a portable class library, Xamarin.Forms includes more than 40 controls and layouts and makes it easy to mix and match your shared UI code with the native, platform-specific user interface capabilities Xamarin has always given you. 
+Tag: <a href="http://mkto-o0039.com/K0000JO00dRR4Z5v600Q0X0" style="color: #3498db;text-decoration: none;outline: none;">
+Data: Learn more »
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: Codesharing
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="70" style="padding: 40px 0px 0px;">
+Tag: <a href="http://mkto-o0039.com/R00d0v0O05004060JSXR0Q0" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/smooth-code-sharing.png" alt="Smooth Codesharing" width="600" height="70" style="border: none; outline: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="255" style="padding: 0px;">
+Tag: <a href="http://mkto-o0039.com/WJ001QO0d0T4X560000vR00" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/smooth-codesharing.png" height="255" width="600" alt="Smooth Codesharing" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 60px 20px;">
+Data: Xamarin 3 introduces Shared Projects and full support for Portable Class Libraries — two great new code-sharing techniques for cross-platform apps. 
+Tag: <a href="http://mkto-o0039.com/p0000J002X000UQO5d06vR4" style="color: #3498db;text-decoration: none;outline: none;">
+Data: Learn more »
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: Major IDE Enhancements
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="70" style="padding: 30px 0px 0px;">
+Tag: <a href="http://mkto-o0039.com/B0003J4XQ00000RO0vVd605" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/major-enhancements-copy.png" alt="Major IDE enhancements" width="600" height="70" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="312" style="padding: 0px;">
+Tag: <a href="http://mkto-o0039.com/gW0v0Qd00400OX05J0004R6" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/xamarin-studio.png" height="312" width="600" alt="Check out the new Xamarin Studio" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 65px 20px;">
+Data: Xamarin now includes a major user experience refresh, support for NuGet packages, full .NET BCL documentation, source analysis, F# support, streamlined Visual Studio support, and many other great features. 
+Tag: <a href="http://mkto-o0039.com/F0vOd00X50J064R0000X5Q0" style="color: #3498db;text-decoration: none;outline: none;">
+Data: Learn more »
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: And much more...
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="70" style="padding: 10px 0px 0px;">
+Tag: <a href="http://mkto-o0039.com/I000YJv0d066Q5400R0OX00" style="text-align: center; display: block; text-decoration: none; outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/and-much-more-copy.png" alt="And much more..." width="600" height="70" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 5px 60px 20px;">
+Data: These are just four of the hundreds of new features and enhancements in Xamarin 3. Please join us at one of 
+Tag: <strong>
+Data: two live webinars 
+Tag: <a href="http://mkto-o0039.com/L004XO0000ZR0J7v60d050Q" style="color: #5C5C5C; text-decoration: none;">
+Data: this Friday, May 30,
+Tag: </a>
+Tag: </strong>
+Data:  where Xamarin co-founders Nat Friedman and Miguel de Icaza will present an overview of Xamarin 3. All webinar registrants will receive a copy of the recording, so please feel free to register even if you can't attend.
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="600" bgcolor="#FFFFFF" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td>
+Data: \n
+Tag: <table border="0" cellspacing="0" cellpadding="0" width="400" bgcolor="#FFFFFF" valign="center" align="center">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td cellpadding="0" cell-spacing="0" align="center" width="250">
+Data: \n
+Tag: <table>
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="45">
+Tag: <a href="http://mkto-o0039.com/m000Q94000050d6vOS00JX0" style="text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/register-for-5am.png" alt="Register for 5am PDT" width="181" height="35" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: <td cellpadding="0" cell-spacing="0" align="center" width="250">
+Data: \n
+Tag: <table>
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td align="center" valign="center" height="45">
+Tag: <a href="http://mkto-o0039.com/G0O0XS40va01J05d00006Q0" style="text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/xamarin3/register-for-11am.png" alt="Register for 11am PDT" width="181" height="35" style="border: none;">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="center" cellpadding="0" cell-spacing="0" align="center" style="border-collapse: collapse;color: #5C5C5C;font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;text-align: center;font-weight: lighter;line-height: 165%;letter-spacing: 0; padding: 20px 40px 30px;">
+Data: We've spent countless hours ensuring that Xamarin 3 is our best release yet, and we can't wait to show you what we've done.
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Comment: Bottom addresses, logo
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="middle" align="center" style="border-collapse:collapse; padding-top: 10px;">
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="middle" align="center" height="70" style="border-collapse: collapse;">
+Data: \n
+Tag: <table width="550" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/v00v0QS205dXJ6b0O040000" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-xamarin.png" style="display: block;" alt="Visit" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/HJ004000Q6cvSX00d0O0035" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-blog.png" style="display: block;" alt="Blog" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/v00v0QS405dXJ6d0O040000" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-linkedin.png" style="display:block;" alt="Link" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/G0O0XS40ve05J05d00006Q0" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-facebook.png" style="display:block;" alt="Friend" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/p0000J00fX0006QO5d06vS4" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-google-plus.png" style="display: block;" alt="G+" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: <td valign="top" align="center" height="55" bgcolor="#F0F0F0" style="border-collapse: collapse;">
+Tag: <a href="http://mkto-o0039.com/ZOQ0600g5000000v740dXJS" target="_blank" style="color: #bbbbbb;text-decoration: none;outline: none;">
+Tag: <img src="http://cdn1.xamarin.com/webimages/images/email/trial/grey-twitter.png" style="display:block;" alt="Tweet" border="0" align="top" hspace="0" vspace="0" width="55" height="55">
+Tag: </a>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td style="padding: 0px; color: #5C5C5C; font-weight: lighter; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 165%; vertical-align: top; text-align: center;">
+Tag: <span>
+Tag: <a href="http://mkto-o0039.com/Y050S0hQ6000v004dOJ08X0" style="color: #5C5C5C;text-decoration: none;outline: none;">
+Data:   394 Pacific Ave. 4th Floor, San Francisco, CA, 94111
+Tag: </a>
+Tag: <br>
+Data: \n
+Tag: <a href="http://mkto-o0039.com/Y050S0hQ6000v004dOJ08X0" style="color: #5C5C5C;text-decoration: none;outline: none;">
+Data: +1 (855) 926-2746
+Tag: </a>
+Tag: <br>
+Tag: </span>
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F0F0">
+Data: \n
+Tag: <tbody>
+Data: \n
+Tag: <tr>
+Data: \n
+Tag: <td valign="middle" align="center" height="20" style="border-collapse: collapse;">
+Tag: </td>
+Data: \n
+Tag: </tr>
+Data: \n
+Tag: </tbody>
+Data: \n
+Tag: </table>
+Data: \n
+Tag: </center>
+Data: \n
+Tag: </div>
+Data: \n
+Tag: </div>
+Data: \n\n
+Tag: <IMG SRC="http://mkto-o0039.com/trk?t=1&mid=OTc1LUpPWC03Njk6MjI5MToxOTIzOjQxNjY6MjoyNjExOjc6MTkyODpqZWZmQHhhbWFyaW4uY29t" WIDTH="1" HEIGHT="1" BORDER="0" ALT=""/>
+Data: \n\n
+Tag: </body>
+Data: \n
+Tag: </html>
+Data: \n

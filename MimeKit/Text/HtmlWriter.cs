@@ -36,18 +36,6 @@ using Encoding = System.Text.Encoding;
 
 namespace MimeKit.Text {
 	/// <summary>
-	/// An HTML tag callback delegate.
-	/// </summary>
-	/// <remarks>
-	/// The <see cref="HtmlTagCallback"/> delegate is called when a converter
-	/// is ready to write a new HTML tag, allowing developers to customize
-	/// whether the tag gets written at all, which attributes get written, etc.
-	/// </remarks>
-	/// <param name="tagContext">The HTML tag context.</param>
-	/// <param name="htmlWriter">The HTML writer.</param>
-	public delegate void HtmlTagCallback (HtmlTagContext tagContext, HtmlWriter htmlWriter);
-
-	/// <summary>
 	/// An HTML writer.
 	/// </summary>
 	/// <remarks>
@@ -55,7 +43,7 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class HtmlWriter : IDisposable
 	{
-		TextWriter writer;
+		TextWriter html;
 		bool empty;
 
 		/// <summary>
@@ -79,7 +67,7 @@ namespace MimeKit.Text {
 			if (encoding == null)
 				throw new ArgumentNullException ("encoding");
 
-			writer = new StreamWriter (stream, encoding, 4096);
+			html = new StreamWriter (stream, encoding, 4096);
 		}
 
 		/// <summary>
@@ -97,7 +85,7 @@ namespace MimeKit.Text {
 			if (output == null)
 				throw new ArgumentNullException ("output");
 
-			writer = output;
+			html = output;
 		}
 
 		/// <summary>
@@ -115,7 +103,7 @@ namespace MimeKit.Text {
 
 		void CheckDisposed ()
 		{
-			if (writer == null)
+			if (html == null)
 				throw new ObjectDisposedException ("HtmlWriter");
 		}
 
@@ -138,7 +126,7 @@ namespace MimeKit.Text {
 			if (index < 0 || index > buffer.Length)
 				throw new ArgumentOutOfRangeException ("index");
 
-			if (count < 0 || index + count > buffer.Length)
+			if (count < 0 || count > (buffer.Length - index))
 				throw new ArgumentOutOfRangeException ("count");
 		}
 
@@ -150,7 +138,7 @@ namespace MimeKit.Text {
 			if (name.Length == 0)
 				throw new ArgumentException ("The attribute name cannot be empty.", "name");
 
-			if (!HtmlUtils.IsValidAttributeName (name))
+			if (!HtmlUtils.IsValidTokenName (name))
 				throw new ArgumentException ("Invalid attribute name.", "name");
 		}
 
@@ -162,23 +150,8 @@ namespace MimeKit.Text {
 			if (name.Length == 0)
 				throw new ArgumentException ("The tag name cannot be empty.", "name");
 
-			if (!HtmlUtils.IsValidTagName (name))
+			if (!HtmlUtils.IsValidTokenName (name))
 				throw new ArgumentException ("Invalid tag name.", "name");
-		}
-
-		static string QuoteAttributeValue (char[] value, int startIndex, int count)
-		{
-			if (count == 0)
-				return "\"\"";
-
-			var quoted = new StringBuilder ();
-
-			quoted.Append ("\"");
-			using (var writer = new StringWriter (quoted))
-				HtmlUtils.HtmlEncodeAttribute (writer, value, startIndex, count);
-			quoted.Append ("\"");
-
-			return quoted.ToString ();
 		}
 
 		void EncodeAttributeName (string name)
@@ -186,8 +159,8 @@ namespace MimeKit.Text {
 			if (WriterState == HtmlWriterState.Default)
 				throw new InvalidOperationException ("Cannot write attributes in the Default state.");
 
-			writer.Write (' ');
-			writer.Write (name);
+			html.Write (' ');
+			html.Write (name);
 			WriterState = HtmlWriterState.Attribute;
 		}
 
@@ -196,16 +169,19 @@ namespace MimeKit.Text {
 			if (WriterState != HtmlWriterState.Attribute)
 				throw new InvalidOperationException ("Attribute values can only be written in the Attribute state.");
 
-			writer.Write ('=');
-			writer.Write (QuoteAttributeValue (value, startIndex, count));
+			html.Write ('=');
+			HtmlUtils.HtmlEncodeAttribute (html, value, startIndex, count);
 			WriterState = HtmlWriterState.Tag;
 		}
 
 		void EncodeAttributeValue (string value)
 		{
-			var buffer = value.ToCharArray ();
+			if (WriterState != HtmlWriterState.Attribute)
+				throw new InvalidOperationException ("Attribute values can only be written in the Attribute state.");
 
-			EncodeAttributeValue (buffer, 0, buffer.Length);
+			html.Write ('=');
+			HtmlUtils.HtmlEncodeAttribute (html, value);
+			WriterState = HtmlWriterState.Tag;
 		}
 
 		void EncodeAttribute (string name, char[] value, int startIndex, int count)
@@ -216,9 +192,8 @@ namespace MimeKit.Text {
 
 		void EncodeAttribute (string name, string value)
 		{
-			var buffer = value.ToCharArray ();
-
-			EncodeAttribute (name, buffer, 0, buffer.Length);
+			EncodeAttributeName (name);
+			EncodeAttributeValue (value);
 		}
 
 		/// <summary>
@@ -537,10 +512,10 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 			}
 
-			writer.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
+			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
 			WriterState = HtmlWriterState.Tag;
 			empty = true;
 		}
@@ -568,10 +543,10 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 			}
 
-			writer.Write (string.Format ("<{0}", name));
+			html.Write (string.Format ("<{0}", name));
 			WriterState = HtmlWriterState.Tag;
 			empty = true;
 		}
@@ -598,11 +573,11 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
+			html.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
 		}
 
 		/// <summary>
@@ -628,11 +603,11 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (string.Format ("</{0}>", name));
+			html.Write (string.Format ("</{0}>", name));
 		}
 
 		/// <summary>
@@ -664,11 +639,11 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (buffer, index, count);
+			html.Write (buffer, index, count);
 		}
 
 		/// <summary>
@@ -693,11 +668,11 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (value);
+			html.Write (value);
 		}
 
 		/// <summary>
@@ -721,11 +696,11 @@ namespace MimeKit.Text {
 			CheckDisposed ();
 
 			if (WriterState != HtmlWriterState.Default) {
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
+			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
 			WriterState = HtmlWriterState.Tag;
 		}
 
@@ -751,11 +726,11 @@ namespace MimeKit.Text {
 			CheckDisposed ();
 
 			if (WriterState != HtmlWriterState.Default) {
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Write (string.Format ("<{0}", name));
+			html.Write (string.Format ("<{0}", name));
 			WriterState = HtmlWriterState.Tag;
 		}
 
@@ -788,12 +763,12 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
 			if (count > 0)
-				HtmlUtils.HtmlEncode (writer, buffer, index, count);
+				HtmlUtils.HtmlEncode (html, buffer, index, count);
 		}
 
 		/// <summary>
@@ -818,12 +793,42 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
 			if (value.Length > 0)
-				HtmlUtils.HtmlEncode (writer, value.ToCharArray (), 0, value.Length);
+				HtmlUtils.HtmlEncode (html, value.ToCharArray (), 0, value.Length);
+		}
+
+		/// <summary>
+		/// Write a token to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes a token that was emitted by the <see cref="HtmlTokenizer"/>
+		/// to the output stream.
+		/// </remarks>
+		/// <param name="token">The HTML token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="token"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
+		public void WriteToken (HtmlToken token)
+		{
+			if (token == null)
+				throw new ArgumentNullException ("token");
+
+			CheckDisposed ();
+
+			if (WriterState != HtmlWriterState.Default) {
+				WriterState = HtmlWriterState.Default;
+				html.Write (empty ? "/>" : ">");
+				empty = false;
+			}
+
+			token.WriteTo (html);
 		}
 
 		/// <summary>
@@ -841,11 +846,11 @@ namespace MimeKit.Text {
 
 			if (WriterState != HtmlWriterState.Default) {
 				WriterState = HtmlWriterState.Default;
-				writer.Write (empty ? "/>" : ">");
+				html.Write (empty ? "/>" : ">");
 				empty = false;
 			}
 
-			writer.Flush ();
+			html.Flush ();
 		}
 
 		/// <summary>
@@ -861,7 +866,7 @@ namespace MimeKit.Text {
 		protected virtual void Dispose (bool disposing)
 		{
 			if (disposing)
-				writer = null;
+				html = null;
 		}
 
 		/// <summary>

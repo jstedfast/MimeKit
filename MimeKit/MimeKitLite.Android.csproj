@@ -95,16 +95,23 @@
     <Compile Include="Text\HtmlAttribute.cs" />
     <Compile Include="Text\HtmlAttributeCollection.cs" />
     <Compile Include="Text\HtmlAttributeId.cs" />
-    <Compile Include="Text\HtmlAttributeReader.cs" />
-    <Compile Include="Text\HtmlReader.cs" />
+    <Compile Include="Text\HtmlEntityDecoder.cs" />
+    <Compile Include="Text\HtmlEntityDecoder.g.cs">
+      <DependentUpon>Text\HtmlEntityDecoder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Text\HtmlNamespace.cs" />
+    <Compile Include="Text\HtmlTagCallback.cs" />
     <Compile Include="Text\HtmlTagContext.cs" />
     <Compile Include="Text\HtmlTagId.cs" />
     <Compile Include="Text\HtmlToHtml.cs" />
     <Compile Include="Text\HtmlToken.cs" />
+    <Compile Include="Text\HtmlTokenizer.cs" />
+    <Compile Include="Text\HtmlTokenizerState.cs" />
     <Compile Include="Text\HtmlTokenKind.cs" />
     <Compile Include="Text\HtmlUtils.cs" />
     <Compile Include="Text\HtmlWriter.cs" />
     <Compile Include="Text\HtmlWriterState.cs" />
+    <Compile Include="Text\ICharArray.cs" />
     <Compile Include="Text\TextConverter.cs" />
     <Compile Include="Text\TextFormat.cs" />
     <Compile Include="Text\TextToFlowed.cs" />

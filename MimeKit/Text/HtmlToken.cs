@@ -25,86 +25,608 @@
 //
 
 using System;
+using System.IO;
+using System.Collections.Generic;
 
 namespace MimeKit.Text {
-	abstract class HtmlToken
+	/// <summary>
+	/// An abstract HTML token class.
+	/// </summary>
+	/// <remarks>
+	/// An abstract HTML token class.
+	/// </remarks>
+	public abstract class HtmlToken
 	{
-		public readonly HtmlTokenKind Kind;
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlToken"/>.
+		/// </remarks>
+		/// <param name="kind">The kind of token.</param>
 		protected HtmlToken (HtmlTokenKind kind)
 		{
 			Kind = kind;
 		}
+
+		/// <summary>
+		/// Get the kind of HTML token that this object represents.
+		/// </summary>
+		/// <remarks>
+		/// Gets the kind of HTML token that this object represents.
+		/// </remarks>
+		/// <value>The kind of token.</value>
+		public HtmlTokenKind Kind {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Write the HTML token to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML token to a <see cref="System.IO.TextWriter"/>.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public abstract void WriteTo (TextWriter output);
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.
+		/// </summary>
+		/// <remarks>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.</returns>
+		public override string ToString ()
+		{
+			using (var output = new StringWriter ()) {
+				WriteTo (output);
+
+				return output.ToString ();
+			}
+		}
 	}
 
-	sealed class HtmlTokenComment : HtmlToken
+	/// <summary>
+	/// An HTML comment token.
+	/// </summary>
+	/// <remarks>
+	/// An HTML comment token.
+	/// </remarks>
+	public class HtmlCommentToken : HtmlToken
 	{
-		public readonly string Comment;
-
-		public HtmlTokenComment (HtmlTokenKind kind, string comment) : base (kind)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlCommentToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlCommentToken"/>.
+		/// </remarks>
+		/// <param name="comment">The comment text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="comment"/> is <c>null</c>.
+		/// </exception>
+		public HtmlCommentToken (string comment) : base (HtmlTokenKind.Comment)
 		{
+			if (comment == null)
+				throw new ArgumentNullException ("comment");
+
 			Comment = comment;
 		}
-	}
 
-	sealed class HtmlTokenDocType : HtmlToken
-	{
-		public readonly string DocType;
+		/// <summary>
+		/// Get the comment.
+		/// </summary>
+		/// <remarks>
+		/// Gets the comment.
+		/// </remarks>
+		/// <value>The comment.</value>
+		public string Comment {
+			get; internal set;
+		}
 
-		public HtmlTokenDocType (HtmlTokenKind kind, string doctype) : base (kind)
+		/// <summary>
+		/// Write the HTML comment to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML comment to a <see cref="System.IO.TextWriter"/>.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
 		{
-			DocType = doctype;
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			output.Write ("<!--");
+			output.Write (Comment);
+			output.Write ("-->");
 		}
 	}
 
-	sealed class HtmlTokenTag : HtmlToken
+	/// <summary>
+	/// An HTML token constisting of character data.
+	/// </summary>
+	/// <remarks>
+	/// An HTML token consisting of character data.
+	/// </remarks>
+	public class HtmlDataToken : HtmlToken
 	{
-		public HtmlTokenTag (HtmlTokenKind kind, string tag, string value) : base (kind)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDataToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlDataToken"/>.
+		/// </remarks>
+		/// <param name="kind">The kind of character data.</param>
+		/// <param name="data">The character data.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="kind"/> is not a valid <see cref="HtmlTokenKind"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		protected HtmlDataToken (HtmlTokenKind kind, string data) : base (kind)
 		{
-			AttributeReader = new HtmlAttributeReader (value);
-			TagId = tag.ToHtmlTagId ();
-			TagName = tag;
+			switch (kind) {
+			default: throw new ArgumentOutOfRangeException ("kind");
+			case HtmlTokenKind.ScriptData:
+			case HtmlTokenKind.CData:
+			case HtmlTokenKind.Data:
+				break;
+			}
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			Data = data;
 		}
 
-		public HtmlAttributeReader AttributeReader {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDataToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlDataToken"/>.
+		/// </remarks>
+		/// <param name="data">The character data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		public HtmlDataToken (string data) : base (HtmlTokenKind.Data)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			Data = data;
+		}
+
+		internal bool EncodeEntities {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get the character data.
+		/// </summary>
+		/// <remarks>
+		/// Gets the character data.
+		/// </remarks>
+		/// <value>The character data.</value>
+		public string Data {
 			get; private set;
 		}
 
-		public HtmlTagId TagId {
-			get; private set;
-		}
+		/// <summary>
+		/// Write the HTML character data to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML character data to a <see cref="System.IO.TextWriter"/>,
+		/// encoding it if it isn't already encoded.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
 
-		public string TagName {
-			get; private set;
+			if (!EncodeEntities) {
+				output.Write (Data);
+				return;
+			}
+
+			HtmlUtils.HtmlEncode (output, Data);
 		}
 	}
 
-	sealed class HtmlTokenText : HtmlToken
+	/// <summary>
+	/// An HTML token constisting of <c>[CDATA[</c>.
+	/// </summary>
+	/// <remarks>
+	/// An HTML token consisting of <c>[CDATA[</c>.
+	/// </remarks>
+	public class HtmlCDataToken : HtmlDataToken
 	{
-		readonly HtmlReader reader;
-
-		public HtmlTokenText (HtmlTokenKind kind, HtmlReader htmlReader) : base (kind)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlCDataToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlCDataToken"/>.
+		/// </remarks>
+		/// <param name="data">The character data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		public HtmlCDataToken (string data) : base (HtmlTokenKind.CData, data)
 		{
-			reader = htmlReader;
 		}
 
-		static void ValidateArguments (char[] buffer, int offset, int count)
+		/// <summary>
+		/// Write the HTML character data to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML character data to a <see cref="System.IO.TextWriter"/>,
+		/// encoding it if it isn't already encoded.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			if (output == null)
+				throw new ArgumentNullException ("output");
 
-			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+			output.Write ("<![CDATA[");
+			output.Write (Data);
+			output.Write ("]]>");
+		}
+	}
 
-			if (count < 0 || offset + count > buffer.Length)
-				throw new ArgumentOutOfRangeException ("count");
+	/// <summary>
+	/// An HTML token constisting of script data.
+	/// </summary>
+	/// <remarks>
+	/// An HTML token consisting of script data.
+	/// </remarks>
+	public class HtmlScriptDataToken : HtmlDataToken
+	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlScriptDataToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlScriptDataToken"/>.
+		/// </remarks>
+		/// <param name="data">The script data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		public HtmlScriptDataToken (string data) : base (HtmlTokenKind.ScriptData, data)
+		{
 		}
 
-		public int Read (char[] buffer, int offset, int count)
+		/// <summary>
+		/// Write the HTML script data to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML script data to a <see cref="System.IO.TextWriter"/>,
+		/// encoding it if it isn't already encoded.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
 		{
-			ValidateArguments (buffer, offset, count);
+			if (output == null)
+				throw new ArgumentNullException ("output");
 
-			return reader.ReadText (buffer, offset, count);
+			// FIXME: properly encode/escape the script data
+			output.Write (Data);
+		}
+	}
+
+	/// <summary>
+	/// An HTML tag token.
+	/// </summary>
+	/// <remarks>
+	/// An HTML tag token.
+	/// </remarks>
+	public class HtmlTagToken : HtmlToken
+	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlTagToken"/>.
+		/// </remarks>
+		/// <param name="name">The name of the tag.</param>
+		/// <param name="attributes">The attributes.</param>
+		/// <param name="isEmptyElement"><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="attributes"/> is <c>null</c>.</para>
+		/// </exception>
+		public HtmlTagToken (string name, IEnumerable<HtmlAttribute> attributes, bool isEmptyElement) : base (HtmlTokenKind.Tag)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (attributes == null)
+				throw new ArgumentNullException ("attributes");
+
+			Attributes = new HtmlAttributeCollection (attributes);
+			IsEmptyElement = isEmptyElement;
+			Id = name.ToHtmlTagId ();
+			Name = name;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlTagToken"/>.
+		/// </remarks>
+		/// <param name="name">The name of the tag.</param>
+		/// <param name="isEndTag"><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public HtmlTagToken (string name, bool isEndTag) : base (HtmlTokenKind.Tag)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			Attributes = new HtmlAttributeCollection ();
+			Id = name.ToHtmlTagId ();
+			IsEndTag = isEndTag;
+			Name = name;
+		}
+
+		/// <summary>
+		/// Get the attributes.
+		/// </summary>
+		/// <remarks>
+		/// Gets the attributes.
+		/// </remarks>
+		/// <value>The attributes.</value>
+		public HtmlAttributeCollection Attributes {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get the HTML tag identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets the HTML tag identifier.
+		/// </remarks>
+		/// <value>The HTML tag identifier.</value>
+		public HtmlTagId Id {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get whether or not the tag is an empty element.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether or not the tag is an empty element.
+		/// </remarks>
+		/// <value><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
+		public bool IsEmptyElement {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// Get whether or not the tag is an end tag.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether or not the tag is an end tag.
+		/// </remarks>
+		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
+		public bool IsEndTag {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get the name of the tag.
+		/// </summary>
+		/// <remarks>
+		/// Gets the name of the tag.
+		/// </remarks>
+		/// <value>The name.</value>
+		public string Name {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Write the HTML tag to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the HTML tag to a <see cref="System.IO.TextWriter"/>.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			output.Write ('<');
+			if (IsEndTag)
+				output.Write ('/');
+			output.Write (Name);
+			for (int i = 0; i < Attributes.Count; i++) {
+				output.Write (' ');
+				output.Write (Attributes[i].Name);
+				if (Attributes[i].Value != null) {
+					output.Write ('=');
+					HtmlUtils.HtmlEncodeAttribute (output, Attributes[i].Value);
+				}
+			}
+			if (IsEmptyElement)
+				output.Write ('/');
+			output.Write ('>');
+		}
+	}
+
+	/// <summary>
+	/// An HTML DOCTYPE token.
+	/// </summary>
+	/// <remarks>
+	/// An HTML DOCTYPE token.
+	/// </remarks>
+	public class HtmlDocTypeToken : HtmlToken
+	{
+		string publicIdentifier;
+		string systemIdentifier;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDocTypeToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="HtmlDocTypeToken"/>.
+		/// </remarks>
+		public HtmlDocTypeToken () : base (HtmlTokenKind.DocType)
+		{
+			RawTagName = "DOCTYPE";
+		}
+
+		internal string RawTagName {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get whether or not quirks-mode should be forced.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether or not quirks-mode should be forced.
+		/// </remarks>
+		/// <value><c>true</c> if quirks-mode should be forced; otherwise, <c>false</c>.</value>
+		public bool ForceQuirksMode {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the DOCTYPE name.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the DOCTYPE name.
+		/// </remarks>
+		/// <value>The name.</value>
+		public string Name {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the public identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the public identifier.
+		/// </remarks>
+		/// <value>The public identifier.</value>
+		public string PublicIdentifier {
+			get { return publicIdentifier; }
+			set {
+				publicIdentifier = value;
+				if (value != null) {
+					if (PublicKeyword == null)
+						PublicKeyword = "PUBLIC";
+				} else {
+					if (systemIdentifier != null)
+						SystemKeyword = "SYSTEM";
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get the public keyword that was used.
+		/// </summary>
+		/// <remarks>
+		/// Gets the public keyword that was used.
+		/// </remarks>
+		/// <value>The public keyword or <c>null</c> if it wasn't used.</value>
+		public string PublicKeyword {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// Get or set the system identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the system identifier.
+		/// </remarks>
+		/// <value>The system identifier.</value>
+		public string SystemIdentifier {
+			get { return systemIdentifier; }
+			set {
+				systemIdentifier = value;
+				if (value != null) {
+					if (publicIdentifier == null && SystemKeyword == null)
+						SystemKeyword = "SYSTEM";
+				} else {
+					SystemKeyword = null;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get the system keyword that was used.
+		/// </summary>
+		/// <remarks>
+		/// Gets the system keyword that was used.
+		/// </remarks>
+		/// <value>The system keyword or <c>null</c> if it wasn't used.</value>
+		public string SystemKeyword {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// Write the DOCTYPE tag to a <see cref="System.IO.TextWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// Writes the DOCTYPE tag to a <see cref="System.IO.TextWriter"/>.
+		/// </remarks>
+		/// <param name="output">The output.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="output"/> is <c>null</c>.
+		/// </exception>
+		public override void WriteTo (TextWriter output)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			output.Write ("<!");
+			output.Write (RawTagName);
+			if (Name != null) {
+				output.Write (' ');
+				output.Write (Name);
+			}
+			if (PublicIdentifier != null) {
+				output.Write (' ');
+				output.Write (PublicKeyword);
+				output.Write (" \"");
+				output.Write (PublicIdentifier);
+				output.Write ('"');
+				if (SystemIdentifier != null) {
+					output.Write (" \"");
+					output.Write (SystemIdentifier);
+					output.Write ('"');
+				}
+			} else if (SystemIdentifier != null) {
+				output.Write (' ');
+				output.Write (SystemKeyword);
+				output.Write (" \"");
+				output.Write (SystemIdentifier);
+				output.Write ('"');
+			}
+			output.Write ('>');
 		}
 	}
 }

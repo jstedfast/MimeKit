@@ -26,7 +26,6 @@
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -569,6 +568,11 @@ namespace MimeKit.Text {
 		/// The "width" attribute.
 		/// </summary>
 		Width,
+
+		/// <summary>
+		/// The "xmlns" attribute.
+		/// </summary>
+		XmlNS
 	}
 
 	[AttributeUsage (AttributeTargets.Field)]
@@ -589,18 +593,18 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// <see cref="HtmlAttributeId"/> extension methods.
 	/// </remarks>
-	static class HtmlAttributeIdExtensions
+	public static class HtmlAttributeIdExtensions
 	{
-		static readonly Dictionary<string, HtmlAttributeId> dict;
+		static readonly Dictionary<string, HtmlAttributeId> AttributeNameToId;
 
 		static HtmlAttributeIdExtensions ()
 		{
 			var values = (HtmlAttributeId[]) Enum.GetValues (typeof (HtmlAttributeId));
 
-			dict = new Dictionary<string, HtmlAttributeId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+			AttributeNameToId = new Dictionary<string, HtmlAttributeId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < values.Length - 1; i++)
-				dict.Add (values[i].ToAttributeName (), values[i]);
+				AttributeNameToId.Add (values[i].ToAttributeName (), values[i]);
 		}
 
 		/// <summary>
@@ -637,11 +641,11 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <returns>The attribute id.</returns>
 		/// <param name="name">The attribute name.</param>
-		public static HtmlAttributeId ToHtmlAttributeId (this string name)
+		internal static HtmlAttributeId ToHtmlAttributeId (this string name)
 		{
 			HtmlAttributeId value;
 
-			if (!dict.TryGetValue (name, out value))
+			if (!AttributeNameToId.TryGetValue (name, out value))
 				return HtmlAttributeId.Unknown;
 
 			return value;

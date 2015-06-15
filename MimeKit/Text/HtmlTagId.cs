@@ -26,7 +26,6 @@
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -182,6 +181,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;colgroup&gt; tag.
 		/// </summary>
 		ColGroup,
+
+		/// <summary>
+		/// The HTML &lt;command&gt; tag.
+		/// </summary>
+		Command,
 
 		/// <summary>
 		/// The HTML comment tag.
@@ -346,7 +350,7 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// The HTML &lt;iframe&gt; tag.
 		/// </summary>
-		Iframe,
+		IFrame,
 
 		/// <summary>
 		/// The HTML &lt;image&gt; tag.
@@ -373,6 +377,11 @@ namespace MimeKit.Text {
 		/// The HTML &lt;kbd&gt; tag.
 		/// </summary>
 		Kbd,
+
+		/// <summary>
+		/// The HTML &lt;keygen&gt; tag.
+		/// </summary>
+		Keygen,
 
 		/// <summary>
 		/// The HTML &lt;label&gt; tag.
@@ -723,18 +732,18 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// <see cref="HtmlTagId"/> extension methods.
 	/// </remarks>
-	static class HtmlTagIdExtensions
+	public static class HtmlTagIdExtensions
 	{
-		static readonly Dictionary<string, HtmlTagId> dict;
+		static readonly Dictionary<string, HtmlTagId> TagNameToId;
 
 		static HtmlTagIdExtensions ()
 		{
 			var values = (HtmlTagId[]) Enum.GetValues (typeof (HtmlTagId));
 
-			dict = new Dictionary<string, HtmlTagId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+			TagNameToId = new Dictionary<string, HtmlTagId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < values.Length - 1; i++)
-				dict.Add (values[i].ToHtmlTagName (), values[i]);
+				TagNameToId.Add (values[i].ToHtmlTagName (), values[i]);
 		}
 
 		/// <summary>
@@ -774,7 +783,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <returns>The tag id.</returns>
 		/// <param name="name">The tag name.</param>
-		public static HtmlTagId ToHtmlTagId (this string name)
+		internal static HtmlTagId ToHtmlTagId (this string name)
 		{
 			HtmlTagId value;
 
@@ -784,14 +793,74 @@ namespace MimeKit.Text {
 			if (name[0] == '!')
 				return HtmlTagId.Comment;
 
-			if (!dict.TryGetValue (name, out value)) {
-				#if !PORTABLE
-				Console.WriteLine ("unknown html tag: {0}", name);
-				#endif
+			if (!TagNameToId.TryGetValue (name, out value))
 				return HtmlTagId.Unknown;
-			}
 
 			return value;
+		}
+
+		/// <summary>
+		/// Determines whether or not the HTML tag is an empty element.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the HTML tag is an empty element.
+		/// </remarks>
+		/// <returns><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</returns>
+		/// <param name="id">Identifier.</param>
+		public static bool IsEmptyElement (this HtmlTagId id)
+		{
+			switch (id) {
+			case HtmlTagId.Area:
+			case HtmlTagId.Base:
+			case HtmlTagId.Br:
+			case HtmlTagId.Col:
+			case HtmlTagId.Command:
+			case HtmlTagId.Embed:
+			case HtmlTagId.HR:
+			case HtmlTagId.Image:
+			case HtmlTagId.Input:
+			case HtmlTagId.Keygen:
+			case HtmlTagId.Link:
+			case HtmlTagId.Meta:
+			case HtmlTagId.Param:
+			case HtmlTagId.Source:
+			case HtmlTagId.Track:
+			case HtmlTagId.Wbr:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Determines whether or not the HTML tag is a formatting element.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the HTML tag is a formatting element.
+		/// </remarks>
+		/// <returns><c>true</c> if the HTML tag is a formatting element; otherwise, <c>false</c>.</returns>
+		/// <param name="id">The HTML tag identifier.</param>
+		public static bool IsFormattingElement (this HtmlTagId id)
+		{
+			switch (id) {
+			case HtmlTagId.A:
+			case HtmlTagId.B:
+			case HtmlTagId.Big:
+			case HtmlTagId.Code:
+			case HtmlTagId.EM:
+			case HtmlTagId.Font:
+			case HtmlTagId.I:
+			case HtmlTagId.NoBR:
+			case HtmlTagId.S:
+			case HtmlTagId.Small:
+			case HtmlTagId.Strike:
+			case HtmlTagId.Strong:
+			case HtmlTagId.TT:
+			case HtmlTagId.U:
+				return true;
+			default:
+				return false;
+			}
 		}
 	}
 }

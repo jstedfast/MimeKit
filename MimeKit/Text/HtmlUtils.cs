@@ -30,76 +30,64 @@ using System.Text;
 using System.Globalization;
 
 namespace MimeKit.Text {
-	static class HtmlUtils
+	/// <summary>
+	/// A collection of HTML-related utility methods.
+	/// </summary>
+	/// <remarks>
+	/// A collection of HTML-related utility methods.
+	/// </remarks>
+	public static class HtmlUtils
 	{
-		public static bool IsWhiteSpace (char c)
-		{
-			return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f';
-		}
-
-		public static bool IsValidStartCharacter (char c)
-		{
-			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
-		}
-
-		public static bool IsValidNameCharacter (char c)
-		{
-			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
-		}
-
-		public static bool IsValidAttributeName (string name)
+		internal static bool IsValidTokenName (string name)
 		{
 			if (string.IsNullOrEmpty (name))
 				return false;
 
-			if (!IsValidStartCharacter (name[0]))
-				return false;
-
 			for (int i = 0; i < name.Length; i++) {
-				if (!IsValidNameCharacter (name[i]))
+				switch (name[i]) {
+				case '\t': case '\r': case '\n': case '\f': case ' ':
+				case '<': case '>': case '\'': case '"':
+				case '/': case '=':
 					return false;
+				}
 			}
 
 			return true;
 		}
 
-		public static bool IsValidTagName (string name)
-		{
-			if (string.IsNullOrEmpty (name))
-				return false;
-
-			if (!IsValidStartCharacter (name[0]))
-				return false;
-
-			for (int i = 0; i < name.Length; i++) {
-				if (!IsValidNameCharacter (name[i]))
-					return false;
-			}
-
-			return true;
-		}
-
-		static int IndexOfHtmlEncodeAttributeChar (char[] value, int startIndex, int endIndex)
+		static int IndexOfHtmlEncodeAttributeChar (ICharArray value, int startIndex, int endIndex, char quote)
 		{
 			for (int i = startIndex; i < endIndex; i++) {
 				switch (value[i]) {
-				case '\'': case '"': case '&': case '<': case '>':
+				case '&': case '<': case '>':
 					return i;
+				default:
+					if (value[i] == quote)
+						return i;
+					break;
 				}
 			}
 
 			return endIndex;
 		}
 
-		public static void HtmlEncodeAttribute (TextWriter writer, char[] value, int startIndex, int count, char quote = '"')
+		static void HtmlEncodeAttribute (TextWriter output, ICharArray value, int startIndex, int count, char quote = '"')
 		{
 			int endIndex = startIndex + count;
 			int index;
 
-			index = IndexOfHtmlEncodeAttributeChar (value, startIndex, endIndex);
+			index = IndexOfHtmlEncodeAttributeChar (value, startIndex, endIndex, quote);
+
+			output.Write (quote);
+
+			if (index == endIndex) {
+				value.Write (output, startIndex, count);
+				output.Write (quote);
+				return;
+			}
 
 			if (index > startIndex)
-				writer.Write (value, startIndex, index - startIndex);
+				value.Write (output, startIndex, index - startIndex);
 
 			while (index < endIndex) {
 				char c = value[index++];
@@ -108,35 +96,267 @@ namespace MimeKit.Text {
 				switch (c) {
 				case '\'':
 					if (c == quote)
-						writer.Write ("&#39;");
+						output.Write ("&#39;");
 					else
-						writer.Write (c);
+						output.Write (c);
 					break;
 				case '"':
 					if (c == quote)
-						writer.Write ("&quot;");
+						output.Write ("&quot;");
 					else
-						writer.Write (c);
+						output.Write (c);
 					break;
-				case '&': writer.Write ("&amp;"); break;
-				case '<': writer.Write ("&lt;"); break;
-				case '>': writer.Write ("&gt;"); break;
+				case '&': output.Write ("&amp;"); break;
+				case '<': output.Write ("&lt;"); break;
+				case '>': output.Write ("&gt;"); break;
 				default:
-					writer.Write (c);
+					output.Write (c);
 					break;
 				}
 
 				if (index >= endIndex)
 					break;
 
-				if ((nextIndex = IndexOfHtmlEncodeAttributeChar (value, index, endIndex)) > index) {
-					writer.Write (value, index, nextIndex - index);
+				if ((nextIndex = IndexOfHtmlEncodeAttributeChar (value, index, endIndex, quote)) > index) {
+					value.Write (output, index, nextIndex - index);
 					index = nextIndex;
 				}
 			}
+
+			output.Write (quote);
 		}
 
-		static int IndexOfHtmlEncodeChar (char[] value, int startIndex, int endIndex)
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="startIndex">The starting index of the attribute value.</param>
+		/// <param name="count">The number of characters in the attribute value.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the value.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="quote"/> is not a valid quote character.</para>
+		/// </exception>
+		public static void HtmlEncodeAttribute (TextWriter output, char[] value, int startIndex, int count, char quote = '"')
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (startIndex < 0 || startIndex >= value.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (value.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			HtmlEncodeAttribute (output, new CharArray (value), startIndex, count, quote);
+		}
+
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <returns>The encoded attribute value.</returns>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="startIndex">The starting index of the attribute value.</param>
+		/// <param name="count">The number of characters in the attribute value.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the value.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="quote"/> is not a valid quote character.</para>
+		/// </exception>
+		public static string HtmlEncodeAttribute (char[] value, int startIndex, int count, char quote = '"')
+		{
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (startIndex < 0 || startIndex >= value.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (value.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			var encoded = new StringBuilder ();
+
+			using (var output = new StringWriter (encoded))
+				HtmlEncodeAttribute (output, new CharArray (value), startIndex, count, quote);
+
+			return encoded.ToString ();
+		}
+
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="startIndex">The starting index of the attribute value.</param>
+		/// <param name="count">The number of characters in the attribute value.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the value.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="quote"/> is not a valid quote character.</para>
+		/// </exception>
+		public static void HtmlEncodeAttribute (TextWriter output, string value, int startIndex, int count, char quote = '"')
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (startIndex < 0 || startIndex >= value.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (value.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			HtmlEncodeAttribute (output, new CharString (value), startIndex, count, quote);
+		}
+
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="quote"/> is not a valid quote character.
+		/// </exception>
+		public static void HtmlEncodeAttribute (TextWriter output, string value, char quote = '"')
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			HtmlEncodeAttribute (output, new CharString (value), 0, value.Length, quote);
+		}
+
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <returns>The encoded attribute value.</returns>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="startIndex">The starting index of the attribute value.</param>
+		/// <param name="count">The number of characters in the attribute value.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the value.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="quote"/> is not a valid quote character.</para>
+		/// </exception>
+		public static string HtmlEncodeAttribute (string value, int startIndex, int count, char quote = '"')
+		{
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (startIndex < 0 || startIndex >= value.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (value.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			var encoded = new StringBuilder ();
+
+			using (var output = new StringWriter (encoded))
+				HtmlEncodeAttribute (output, new CharString (value), startIndex, count, quote);
+
+			return encoded.ToString ();
+		}
+
+		/// <summary>
+		/// Encode an HTML attribute value.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an HTML attribute value.
+		/// </remarks>
+		/// <returns>The encoded attribute value.</returns>
+		/// <param name="value">The attribute value to encode.</param>
+		/// <param name="quote">The character to use for quoting the attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="quote"/> is not a valid quote character.
+		/// </exception>
+		public static string HtmlEncodeAttribute (string value, char quote = '"')
+		{
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			if (quote != '"' && quote != '\'')
+				throw new ArgumentOutOfRangeException ("quote");
+
+			var encoded = new StringBuilder ();
+
+			using (var output = new StringWriter (encoded))
+				HtmlEncodeAttribute (output, new CharString (value), 0, value.Length, quote);
+
+			return encoded.ToString ();
+		}
+
+		static int IndexOfHtmlEncodeChar (ICharArray value, int startIndex, int endIndex)
 		{
 			for (int i = startIndex; i < endIndex; i++) {
 				switch (value[i]) {
@@ -156,109 +376,375 @@ namespace MimeKit.Text {
 			return endIndex;
 		}
 
-		public static void HtmlEncode (TextWriter writer, char[] value, int startIndex, int count)
+		static void HtmlEncode (TextWriter output, ICharArray data, int startIndex, int count)
 		{
 			int endIndex = startIndex + count;
 			int index;
 
-			index = IndexOfHtmlEncodeChar (value, startIndex, endIndex);
+			index = IndexOfHtmlEncodeChar (data, startIndex, endIndex);
 
 			if (index > startIndex)
-				writer.Write (value, startIndex, index - startIndex);
+				data.Write (output, startIndex, index - startIndex);
 
 			while (index < endIndex) {
-				char c = value[index++];
+				char c = data[index++];
 				int unichar, nextIndex;
 
-				switch (c) {
-				case '\'': writer.Write ("&#39;"); break;
-				case '"': writer.Write ("&quot;"); break;
-				case '&': writer.Write ("&amp;"); break;
-				case '<': writer.Write ("&lt;"); break;
-				case '>': writer.Write ("&gt;"); break;
+				switch ((int) c) {
+				case '\'': output.Write ("&#39;"); break;
+				case 160: output.Write ("&nbsp;"); break;
+				case '"': output.Write ("&quot;"); break;
+				case '&': output.Write ("&amp;"); break;
+				case '<': output.Write ("&lt;"); break;
+				case '>': output.Write ("&gt;"); break;
 				default:
 					if (c >= 160 && c < 256) {
 						unichar = c;
 					} else if (char.IsSurrogate (c)) {
-						if (index + 1 < value.Length && char.IsSurrogatePair (c, value[index])) {
-							unichar = char.ConvertToUtf32 (c, value[index]);
+						if (index + 1 < endIndex && char.IsSurrogatePair (c, data[index])) {
+							unichar = char.ConvertToUtf32 (c, data[index]);
 							index++;
 						} else {
 							unichar = c;
 						}
 					} else {
-						writer.Write (c);
+						output.Write (c);
 						break;
 					}
 
-					writer.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
+					output.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
 					break;
 				}
 
 				if (index >= endIndex)
 					break;
 
-				if ((nextIndex = IndexOfHtmlEncodeChar (value, index, endIndex)) > index) {
-					writer.Write (value, index, nextIndex - index);
+				if ((nextIndex = IndexOfHtmlEncodeChar (data, index, endIndex)) > index) {
+					data.Write (output, index, nextIndex - index);
 					index = nextIndex;
 				}
 			}
 		}
 
-		public static string HtmlDecode (string value, int startIndex, int count)
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="data">The character data to encode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static void HtmlEncode (TextWriter output, char[] data, int startIndex, int count)
 		{
-			var decoded = new StringBuilder ();
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			HtmlEncode (output, new CharArray (data), startIndex, count);
+		}
+
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <returns>THe encoded character data.</returns>
+		/// <param name="data">The character data to encode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static string HtmlEncode (char[] data, int startIndex, int count)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			var encoded = new StringBuilder ();
+
+			using (var output = new StringWriter (encoded))
+				HtmlEncode (output, new CharArray (data), startIndex, count);
+
+			return encoded.ToString ();
+		}
+
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="data">The character data to encode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static void HtmlEncode (TextWriter output, string data, int startIndex, int count)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			HtmlEncode (output, new CharString (data), startIndex, count);
+		}
+
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="data">The character data to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		public static void HtmlEncode (TextWriter output, string data)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			HtmlEncode (output, new CharString (data), 0, data.Length);
+		}
+
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <returns>THe encoded character data.</returns>
+		/// <param name="data">The character data to encode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static string HtmlEncode (string data, int startIndex, int count)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			using (var output = new StringWriter ()) {
+				HtmlEncode (output, new CharString (data), startIndex, count);
+				return output.ToString ();
+			}
+		}
+
+		/// <summary>
+		/// Encode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Encodes HTML character data.
+		/// </remarks>
+		/// <returns>THe encoded character data.</returns>
+		/// <param name="data">The character data to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		public static string HtmlEncode (string data)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			using (var output = new StringWriter ()) {
+				HtmlEncode (output, new CharString (data), 0, data.Length);
+				return output.ToString ();
+			}
+		}
+
+		/// <summary>
+		/// Decode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Decodes HTML character data.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="data">The character data to decode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static void HtmlDecode (TextWriter output, string data, int startIndex, int count)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			var entity = new HtmlEntityDecoder ();
 			int endIndex = startIndex + count;
 			int index = startIndex;
 
 			while (index < endIndex) {
-				if (value[index] == '&') {
-					int semicolon = value.IndexOf (';', index + 1);
+				if (data[index] == '&') {
+					while (index < endIndex && entity.Push (data[index]))
+						index++;
 
-					if (semicolon != -1) {
-						if (value[index + 1] == '#' && index + 2 < semicolon) {
-							int offset = index + 2;
-							int unichar = 0;
+					output.Write (entity.GetValue ());
+					entity.Reset ();
 
-							while (char.IsDigit (value[offset]))
-								unichar = ((unichar * 10) + (value[offset++] - '0'));
-
-							if (offset < semicolon) {
-								decoded.Append ("&#");
-								index += 2;
-							} else {
-								decoded.Append (char.ConvertFromUtf32 (unichar));
-								index = offset + 1;
-							}
-						} else {
-							var entity = value.Substring (index, (semicolon - index) + 1).ToLowerInvariant ();
-
-							switch (entity) {
-							case "&pound;": decoded.Append ((char) 163); index = semicolon; break;
-							case "&cent;": decoded.Append ((char) 162); index = semicolon; break;
-							case "&euro;": decoded.Append ((char) 8364); index = semicolon; break;
-							case "&yen;": decoded.Append ((char) 165); index = semicolon; break;
-							case "&copy;": decoded.Append ((char) 169); index = semicolon; break;
-							case "&nbsp;": decoded.Append ((char) 160); index = semicolon; break;
-							case "&quot;": decoded.Append ('"'); index = semicolon; break;
-							case "&amp;": decoded.Append ('&'); index = semicolon; break;
-							case "&reg;": decoded.Append ((char) 174); index = semicolon; break;
-							case "&lt;": decoded.Append ('<'); index = semicolon; break;
-							case "&gt;": decoded.Append ('>'); index = semicolon; break;
-							default: decoded.Append ('&'); break;
-							}
-
-							index++;
-						}
-					} else {
-						decoded.Append (value[index++]);
-					}
+					if (index < endIndex && data[index] == ';')
+						index++;
 				} else {
-					decoded.Append (value[index++]);
+					output.Write (data[index++]);
 				}
 			}
+		}
 
-			return decoded.ToString ();
+		/// <summary>
+		/// Decode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Decodes HTML character data.
+		/// </remarks>
+		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
+		/// <param name="data">The character data to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// </exception>
+		public static void HtmlDecode (TextWriter output, string data)
+		{
+			if (output == null)
+				throw new ArgumentNullException ("output");
+
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			HtmlDecode (output, data, 0, data.Length);
+		}
+
+		/// <summary>
+		/// Decode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Decodes HTML character data.
+		/// </remarks>
+		/// <returns>The decoded character data.</returns>
+		/// <param name="data">The character data to decode.</param>
+		/// <param name="startIndex">The starting index of the character data.</param>
+		/// <param name="count">The number of characters in the data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the data.</para>
+		/// </exception>
+		public static string HtmlDecode (string data, int startIndex, int count)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			if (startIndex < 0 || startIndex >= data.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (count < 0 || count > (data.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("count");
+
+			using (var output = new StringWriter ()) {
+				HtmlDecode (output, data, startIndex, count);
+				return output.ToString ();
+			}
+		}
+
+		/// <summary>
+		/// Decode HTML character data.
+		/// </summary>
+		/// <remarks>
+		/// Decodes HTML character data.
+		/// </remarks>
+		/// <returns>The decoded character data.</returns>
+		/// <param name="data">The character data to decode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="data"/> is <c>null</c>.
+		/// </exception>
+		public static string HtmlDecode (string data)
+		{
+			if (data == null)
+				throw new ArgumentNullException ("data");
+
+			using (var output = new StringWriter ()) {
+				HtmlDecode (output, data, 0, data.Length);
+				return output.ToString ();
+			}
 		}
 	}
 }

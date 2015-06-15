@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -36,12 +37,18 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class HtmlAttributeCollection : IEnumerable<HtmlAttribute>
 	{
-		internal static readonly HtmlAttributeCollection Empty = new HtmlAttributeCollection ();
+		/// <summary>
+		/// An empty attribute collection.
+		/// </summary>
+		/// <remarks>
+		/// An empty attribute collection.
+		/// </remarks>
+		public static readonly HtmlAttributeCollection Empty = new HtmlAttributeCollection ();
 
-		readonly List<HtmlAttribute> attributes;
+		readonly List<HtmlAttribute> attributes = new List<HtmlAttribute> ();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlAttributeCollection"/> class.
+		/// Initializes a new instance of the <see cref="HtmlAttributeCollection"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlAttributeCollection"/>.
@@ -52,7 +59,7 @@ namespace MimeKit.Text {
 			attributes = new List<HtmlAttribute> (collection);
 		}
 
-		HtmlAttributeCollection ()
+		internal HtmlAttributeCollection ()
 		{
 			attributes = new List<HtmlAttribute> ();
 		}
@@ -68,11 +75,19 @@ namespace MimeKit.Text {
 			get { return attributes.Count; }
 		}
 
+		internal void Add (HtmlAttribute attribute)
+		{
+			if (attribute == null)
+				throw new ArgumentNullException ("attribute");
+
+			attributes.Add (attribute);
+		}
+
 		/// <summary>
-		/// Get the <see cref="MimeKit.Text.HtmlAttribute"/> at the specified index.
+		/// Get the <see cref="HtmlAttribute"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Gets the <see cref="MimeKit.Text.HtmlAttribute"/> at the specified index.
+		/// Gets the <see cref="HtmlAttribute"/> at the specified index.
 		/// </remarks>
 		/// <value>The HTML attribute at the specified index.</value>
 		/// <param name="index">The index.</param>

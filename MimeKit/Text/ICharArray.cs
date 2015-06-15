@@ -1,5 +1,5 @@
 ﻿//
-// HtmlTokenKind.cs
+// ICharArray.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -24,42 +24,54 @@
 // THE SOFTWARE.
 //
 
+using System.IO;
+
 namespace MimeKit.Text {
-	/// <summary>
-	/// The kinds of tokens that the <see cref="HtmlTokenizer"/> can emit.
-	/// </summary>
-	/// <remarks>
-	/// The kinds of tokens that the <see cref="HtmlTokenizer"/> can emit.
-	/// </remarks>
-	public enum HtmlTokenKind {
-		/// <summary>
-		/// A token consisting of <c>[CDATA[</c>.
-		/// </summary>
-		CData,
+	interface ICharArray
+	{
+		char this[int index] { get; }
 
-		/// <summary>
-		/// An HTML comment token.
-		/// </summary>
-		Comment,
+		void Write (TextWriter output, int startIndex, int count);
+	}
 
-		/// <summary>
-		/// A token consisting of character data.
-		/// </summary>
-		Data,
+	class CharArray : ICharArray
+	{
+		readonly char[] array;
 
-		/// <summary>
-		/// An HTML DOCTYPE token.
-		/// </summary>
-		DocType,
+		public CharArray (char[] value)
+		{
+			array = value;
+		}
 
-		/// <summary>
-		/// A token consisting of script data.
-		/// </summary>
-		ScriptData,
+		public char this[int index] {
+			get { return array[index]; }
+		}
 
-		/// <summary>
-		/// An HTML tag token.
-		/// </summary>
-		Tag,
+		public void Write (TextWriter output, int startIndex, int count)
+		{
+			output.Write (array, startIndex, count);
+		}
+	}
+
+	class CharString : ICharArray
+	{
+		readonly string array;
+
+		public CharString (string value)
+		{
+			array = value;
+		}
+
+		public char this[int index] {
+			get { return array[index]; }
+		}
+
+		public void Write (TextWriter output, int startIndex, int count)
+		{
+			int endIndex = startIndex + count;
+
+			for (int i = startIndex; i < endIndex; i++)
+				output.Write (array[i]);
+		}
 	}
 }

@@ -36,6 +36,66 @@ namespace MimeKit.Text {
 	public class HtmlAttribute
 	{
 		/// <summary>
+		/// Initializes a new instance of the <see cref="HtmlAttribute"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new HTML attribute with the given id and value.
+		/// </remarks>
+		/// <param name="id">The attribute identifier.</param>
+		/// <param name="value">The attribute value.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="id"/> is not a valid value.
+		/// </exception>
+		public HtmlAttribute (HtmlAttributeId id, string value)
+		{
+			if (id == HtmlAttributeId.Unknown)
+				throw new ArgumentOutOfRangeException ("id");
+
+			Name = id.ToAttributeName ();
+			Value = value;
+			Id = id;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="HtmlAttribute"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new HTML attribute with the given name and value.
+		/// </remarks>
+		/// <param name="name">The attribute name.</param>
+		/// <param name="value">The attribute value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public HtmlAttribute (string name, string value)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (name.Length == 0)
+				throw new ArgumentException ("The attribute name cannot be empty.", "name");
+
+			if (!HtmlUtils.IsValidTokenName (name))
+				throw new ArgumentException ("Invalid attribute name.", "name");
+
+			Id = name.ToHtmlAttributeId ();
+			Value = value;
+			Name = name;
+		}
+
+		internal HtmlAttribute (string name)
+		{
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (name.Length == 0)
+				throw new ArgumentException ("The attribute name cannot be empty.", "name");
+
+			Id = name.ToHtmlAttributeId ();
+			Name = name;
+		}
+
+		/// <summary>
 		/// Get the HTML attribute identifier.
 		/// </summary>
 		/// <remarks>
@@ -65,62 +125,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The value of the attribute.</value>
 		public string Value {
-			get; private set;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlAttribute"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new HTML attribute with the given id and value.
-		/// </remarks>
-		/// <param name="id">The attribute identifier.</param>
-		/// <param name="value">The attribute value.</param>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="id"/> is not a valid value.
-		/// </exception>
-		public HtmlAttribute (HtmlAttributeId id, string value)
-		{
-			if (id == HtmlAttributeId.Unknown)
-				throw new ArgumentOutOfRangeException ("id");
-
-			Name = id.ToAttributeName ();
-			Value = value;
-			Id = id;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlAttribute"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new HTML attribute with the given name and value.
-		/// </remarks>
-		/// <param name="name">The attribute name.</param>
-		/// <param name="value">The attribute value.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
-		/// </exception>
-		public HtmlAttribute (string name, string value)
-		{
-			if (name == null)
-				throw new ArgumentNullException ("name");
-
-			if (name.Length == 0)
-				throw new ArgumentException ("The attribute name cannot be empty.", "name");
-
-			if (!HtmlUtils.IsValidAttributeName (name))
-				throw new ArgumentException ("Invalid attribute name.", "name");
-
-			Id = name.ToHtmlAttributeId ();
-			Value = value;
-			Name = name;
-		}
-
-		HtmlAttribute ()
-		{
-			Id = HtmlAttributeId.Unknown;
-			Value = null;
-			Name = null;
+			get; internal set;
 		}
 	}
 }

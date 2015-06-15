@@ -1,0 +1,7986 @@
+DocType: <!DOCTYPE HTML>
+Data: \n
+Tag: <html lang="en-US-x-hixie" class="split chapter">
+Tag: <head>
+Tag: <title>
+Data: 12.2.4 Tokenization � HTML Standard
+Tag: </title>
+Tag: <script>
+ScriptData: \n   var loadTimer = new Date();\n   var current_revision = "r" + "$Revision: 7024 $".substr(11);\n   current_revision = current_revision.substr(0, current_revision.length - 2);\n   var last_known_revision = current_revision;\n   function getCookie(name) {\n     var params = location.search.substr(1).split("&");\n     for (var index = 0; index 
+ScriptData: < params.length; index++) {\n       if (params[index] == name)\n         return "1";\n       var data = params[index].split("=");\n       if (data[0] == name)\n         return unescape(data[1]);\n     }\n     var cookies = document.cookie.split("; ");\n     for (var index = 0; index 
+ScriptData: < cookies.length; index++) {\n       var data = cookies[index].split("=");\n       if (data[0] == name)\n         return unescape(data[1]);\n     }\n     return null;\n   }\n   var currentAlert;\n   var currentAlertTimeout;\n   function showAlert(s, href) {\n     if (!currentAlert) {\n       currentAlert = document.createElement('div');\n       currentAlert.id = 'alert';\n       var x = document.createElement('button');\n       x.textContent = '\u2573';\n       x.onclick = closeAlert2;\n       currentAlert.appendChild(x);\n       currentAlert.appendChild(document.createElement('span'));\n       currentAlert.onmousemove = function () {\n         clearTimeout(currentAlertTimeout);\n         currentAlert.className = '';\n         currentAlertTimeout = setTimeout(closeAlert, 10000);\n       }\n       document.body.appendChild(currentAlert);\n     } else {\n       clearTimeout(currentAlertTimeout);\n       currentAlert.className = '';\n     }\n     currentAlert.lastChild.textContent = s + ' ';\n     if (href) {\n       var link = document.createElement('a');\n       link.href = href;\n       link.textContent = href;\n       currentAlert.lastChild.appendChild(link);\n     }\n     currentAlertTimeout = setTimeout(closeAlert, 10000);\n   }\n   function closeAlert() {\n     clearTimeout(currentAlertTimeout);\n     if (currentAlert) {\n       currentAlert.className = 'closed';\n       currentAlertTimeout = setTimeout(closeAlert2, 3000);\n     }\n   }\n   function closeAlert2() {\n     clearTimeout(currentAlertTimeout);\n     if (currentAlert) {\n       currentAlert.parentNode.removeChild(currentAlert);\n       currentAlert = null;\n     }\n   }\n   window.addEventListener('keydown', function (event) {\n     if (event.keyCode == 27) {\n       if (currentAlert)\n         closeAlert2();\n     } else {\n       closeAlert();\n     }\n   }, false);\n   window.addEventListener('scroll', function (event) {\n     closeAlert();\n   }, false);\n   function load(script) {\n     var e = document.createElement('script');\n     e.setAttribute('src', 'http://www.whatwg.org/specs/web-apps/current-work/' + script + '?' + encodeURIComponent(location) + '&' + encodeURIComponent(document.referrer));\n     document.body.appendChild(e);\n   }\n  
+Tag: </script>
+Tag: <link href="http://www.whatwg.org/style/specification" rel="stylesheet">
+Tag: <link href="http://www.whatwg.org/images/icon" rel="icon">
+Tag: <style>
+Data: \n   .proposal { border: blue solid; padding: 1em; }\n   .bad, .bad *:not(.XXX) { color: gray; border-color: gray; background: transparent; }\n   #updatesStatus { display: none; }\n   #updatesStatus.relevant { display: block; position: fixed; right: 1em; top: 1em; padding: 0.5em; font: bold small sans-serif; min-width: 25em; width: 30%; max-width: 40em; height: auto; border: ridge 4px gray; background: #EEEEEE; color: black; }\n   div.head .logo { width: 11em; margin-bottom: 20em; }\n   #configUI { position: absolute; z-index: 20; top: 10em; right: 0; width: 11em; padding: 0 0.5em 0 0.5em; font-size: small; background: gray; background: rgba(32,32,32,0.9); color: white; border-radius: 1em 0 0 1em; -moz-border-radius: 1em 0 0 1em; }\n   #configUI p { margin: 0.75em 0; padding: 0.3em; }\n   #configUI p label { display: block; }\n   #configUI #updateUI, #configUI .loginUI { text-align: center; }\n   #configUI input[type=button] { display: block; margin: auto; }\n   #configUI :link, #configUI :visited { color: white; }\n   #configUI :link:hover, #configUI :visited:hover { background: transparent; }\n   #reviewer { position: fixed; bottom: 0; right: 0; padding: 0.15em 0.25em 0em 0.5em; white-space: nowrap; overflow: hidden; z-index: 30; background: gray; background: rgba(32,32,32,0.9); color: white; border-radius: 1em 0 0 0; -moz-border-radius: 1em 0 0 0; max-width: 90%; }\n   #reviewer input { max-width: 50%; }\n   #reviewer * { font-size: small; }\n   #reviewer.off > :not(:first-child) { display: none; }\n   #alert { position: fixed; top: 20%; left: 20%; right: 20%; font-size: 2em; padding: 0.5em; z-index: 40; background: gray; background: rgba(32,32,32,0.9); color: white; border-radius: 1em; -moz-border-radius: 1em; -webkit-transition: opacity 1s linear; }\n   #alert.closed { opacity: 0; }\n   #alert button { position: absolute; top: -1em; right: 2em; border-radius: 1em 1em 0 0; border: none; line-height: 0.9; color: white; background: rgb(64,64,64); font-size: 0.6em; font-weight: 900; cursor: pointer; }\n   #alert :link, #alert :visited { color: white; }\n   #alert :link:hover, #alert :visited:hover { background: transparent; }\n   @media print { #configUI { display: none; } }\n   .rfc2119 { font-variant: small-caps; text-shadow: 0 0 0.5em yellow; position: static; }\n   .rfc2119::after { position: absolute; left: 0; width: 25px; text-align: center; color: yellow; text-shadow: 0.075em 0.075em 0.2em black; }\n   .rfc2119.m\ust::after { content: '\2605'; }\n   .rfc2119.s\hould::after { content: '\2606'; }\n   [hidden] { display: none; }\n  
+Tag: </style>
+Tag: <style type="text/css">
+Data: \n\n   .applies thead th > * { display: block; }\n   .applies thead code { display: block; }\n   .applies tbody th { whitespace: nowrap; }\n   .applies td { text-align: center; }\n   .applies .yes { background: yellow; }\n\n   .matrix, .matrix td { border: hidden; text-align: right; }\n   .matrix { margin-left: 2em; }\n\n   .dice-example { border-collapse: collapse; border-style: hidden solid solid hidden; border-width: thin; margin-left: 3em; }\n   .dice-example caption { width: 30em; font-size: smaller; font-style: italic; padding: 0.75em 0; text-align: left; }\n   .dice-example td, .dice-example th { border: solid thin; width: 1.35em; height: 1.05em; text-align: center; padding: 0; }\n\n   td.eg { border-width: thin; text-align: center; }\n\n   #table-example-1 { border: solid thin; border-collapse: collapse; margin-left: 3em; }\n   #table-example-1 * { font-family: "Essays1743", serif; line-height: 1.01em; }\n   #table-example-1 caption { padding-bottom: 0.5em; }\n   #table-example-1 thead, #table-example-1 tbody { border: none; }\n   #table-example-1 th, #table-example-1 td { border: solid thin; }\n   #table-example-1 th { font-weight: normal; }\n   #table-example-1 td { border-style: none solid; vertical-align: top; }\n   #table-example-1 th { padding: 0.5em; vertical-align: middle; text-align: center; }\n   #table-example-1 tbody tr:first-child td { padding-top: 0.5em; }\n   #table-example-1 tbody tr:last-child td { padding-bottom: 1.5em; }\n   #table-example-1 tbody td:first-child { padding-left: 2.5em; padding-right: 0; width: 9em; }\n   #table-example-1 tbody td:first-child::after { content: leader(". "); }\n   #table-example-1 tbody td { padding-left: 2em; padding-right: 2em; }\n   #table-example-1 tbody td:first-child + td { width: 10em; }\n   #table-example-1 tbody td:first-child + td ~ td { width: 2.5em; }\n   #table-example-1 tbody td:first-child + td + td + td ~ td { width: 1.25em; }\n\n   .apple-table-examples { border: none; border-collapse: separate; border-spacing: 1.5em 0em; width: 40em; margin-left: 3em; }\n   .apple-table-examples * { font-family: "Times", serif; }\n   .apple-table-examples td, .apple-table-examples th { border: none; white-space: nowrap; padding-top: 0; padding-bottom: 0; }\n   .apple-table-examples tbody th:first-child { border-left: none; width: 100%; }\n   .apple-table-examples thead th:first-child ~ th { font-size: smaller; font-weight: bolder; border-bottom: solid 2px; text-align: center; }\n   .apple-table-examples tbody th::after, .apple-table-examples tfoot th::after { content: leader(". ") }\n   .apple-table-examples tbody th, .apple-table-examples tfoot th { font: inherit; text-align: left; }\n   .apple-table-examples td { text-align: right; vertical-align: top; }\n   .apple-table-examples.e1 tbody tr:last-child td { border-bottom: solid 1px; }\n   .apple-table-examples.e1 tbody + tbody tr:last-child td { border-bottom: double 3px; }\n   .apple-table-examples.e2 th[scope=row] { padding-left: 1em; }\n   .apple-table-examples sup { line-height: 0; }\n\n   .details-example img { vertical-align: top; }\n\n   #base64-table {\n     white-space: nowrap;\n     font-size: 0.6em;\n     column-width: 6em;\n     column-count: 5;\n     column-gap: 1em;\n     -moz-column-width: 6em;\n     -moz-column-count: 5;\n     -moz-column-gap: 1em;\n     -webkit-column-width: 6em;\n     -webkit-column-count: 5;\n     -webkit-column-gap: 1em;\n   }\n   #base64-table thead { display: none; }\n   #base64-table * { border: none; }\n   #base64-table tbody td:first-child:after { content: ':'; }\n   #base64-table tbody td:last-child { text-align: right; }\n\n   #named-character-references-table {\n     white-space: nowrap;\n     font-size: 0.6em;\n     column-width: 30em;\n     column-gap: 1em;\n     -moz-column-width: 30em;\n     -moz-column-gap: 1em;\n     -webkit-column-width: 30em;\n     -webkit-column-gap: 1em;\n   }\n   #named-character-references-table > table > tbody > tr > td:first-child + td,\n   #named-character-references-table > table > tbody > tr > td:last-child { text-align: center; }\n   #named-character-references-table > table > tbody > tr > td:last-child:hover > span { position: absolute; top: auto; left: auto; margin-left: 0.5em; line-height: 1.2; font-size: 5em; border: outset; padding: 0.25em 0.5em; background: white; width: 1.25em; height: auto; text-align: center; }\n   #named-character-references-table > table > tbody > tr#entity-CounterClockwiseContourIntegral > td:first-child { font-size: 0.5em; }\n\n   .glyph.control { color: red; }\n\n   @font-face {\n     font-family: 'Essays1743';\n     src: url('http://www.whatwg.org/specs/web-apps/current-work/fonts/Essays1743.ttf');\n   }\n   @font-face {\n     font-family: 'Essays1743';\n     font-weight: bold;\n     src: url('http://www.whatwg.org/specs/web-apps/current-work/fonts/Essays1743-Bold.ttf');\n   }\n   @font-face {\n     font-family: 'Essays1743';\n     font-style: italic;\n     src: url('http://www.whatwg.org/specs/web-apps/current-work/fonts/Essays1743-Italic.ttf');\n   }\n   @font-face {\n     font-family: 'Essays1743';\n     font-style: italic;\n     font-weight: bold;\n     src: url('http://www.whatwg.org/specs/web-apps/current-work/fonts/Essays1743-BoldItalic.ttf');\n   }\n\n  
+Tag: </style>
+Tag: <link href="data:text/css," rel="stylesheet" title="Normal">
+Tag: <link href="data:text/css,.impl%20%7B%20background:%20pink;%20%7D" rel="stylesheet alternate" title="Highlight implementation-only prose">
+Tag: <link href="status.css" rel="stylesheet">
+Tag: <script>
+ScriptData: \n   var startedInit = 0;\n   function init() {\n     startedInit = 1;\n     if (location.search == '?slow-browser')\n       return;\n     var configUI = document.createElement('div');\n     configUI.id = 'configUI';\n     document.body.appendChild(configUI);\n     load('reviewer.js');\n     if (document.documentElement.className == "" || document.documentElement.className == "split index")\n       load('toc.js');\n     load('updater.js');\n     load('dfn.js');\n     load('status.js');\n     if (getCookie('profile') == '1')\n       document.getElementsByTagName('h2')[0].textContent += '; load: ' + (new Date() - loadTimer) + 'ms';\n   }\n   if (document.documentElement.className == "")\n     setTimeout(function () {\n       if (!startedInit)\n         showAlert("Too slow? Try reading the multipage copy of the spec instead:", "http://whatwg.org/html");\n     }, 6000);\n  
+Tag: </script>
+Data: \n  
+Tag: <script src="link-fixup.js">
+Tag: </script>
+Data: \n  
+Tag: <link href="parsing.html" title="12.2 Parsing HTML documents" rel="prev">
+Data: \n  
+Tag: <link href="index.html#contents" title="Table of contents" rel="index">
+Data: \n  
+Tag: <link href="tree-construction.html" title="12.2.5 Tree construction" rel="next">
+Data: \n  
+Tag: </head>
+Tag: <body onload="fixBrokenLink(); init()">
+Tag: <header class="head" id="head">
+Tag: <p>
+Tag: <a class="logo" href="http://www.whatwg.org/">
+Tag: <img alt="WHATWG" height="101" src="/images/logo" width="101">
+Tag: </a>
+Tag: </p>
+Data: \n\n   
+Tag: <hgroup>
+Tag: <h1 class="allcaps">
+Data: HTML
+Tag: </h1>
+Data: \n    
+Tag: <h2 class="no-num no-toc">
+Data: Living Standard � Last Updated 10 March 2012
+Tag: </h2>
+Data: \n   
+Tag: </hgroup>
+Tag: </header>
+Tag: <nav>
+Data: \n   
+Tag: <a href="parsing.html">
+Data: ? 12.2 Parsing HTML documents
+Tag: </a>
+Data:  �\n   
+Tag: <a href="index.html#contents">
+Data: Table of contents
+Tag: </a>
+Data:  �\n   
+Tag: <a href="tree-construction.html">
+Data: 12.2.5 Tree construction ?
+Tag: </a>
+Data: \n\n  
+Tag: <ol class="toc">
+Tag: <li>
+Tag: <ol>
+Tag: <li>
+Tag: <ol>
+Tag: <li>
+Tag: <a href="tokenization.html#tokenization">
+Tag: <span class="secno">
+Data: 12.2.4 
+Tag: </span>
+Data: Tokenization
+Tag: </a>
+Data: \n      
+Tag: <ol>
+Tag: <li>
+Tag: <a href="tokenization.html#data-state">
+Tag: <span class="secno">
+Data: 12.2.4.1 
+Tag: </span>
+Data: Data state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#character-reference-in-data-state">
+Tag: <span class="secno">
+Data: 12.2.4.2 
+Tag: </span>
+Data: Character reference in data state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rcdata-state">
+Tag: <span class="secno">
+Data: 12.2.4.3 
+Tag: </span>
+Data: RCDATA state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#character-reference-in-rcdata-state">
+Tag: <span class="secno">
+Data: 12.2.4.4 
+Tag: </span>
+Data: Character reference in RCDATA state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rawtext-state">
+Tag: <span class="secno">
+Data: 12.2.4.5 
+Tag: </span>
+Data: RAWTEXT state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-state">
+Tag: <span class="secno">
+Data: 12.2.4.6 
+Tag: </span>
+Data: Script data state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#plaintext-state">
+Tag: <span class="secno">
+Data: 12.2.4.7 
+Tag: </span>
+Data: PLAINTEXT state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.8 
+Tag: </span>
+Data: Tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.9 
+Tag: </span>
+Data: End tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.10 
+Tag: </span>
+Data: Tag name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rcdata-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.11 
+Tag: </span>
+Data: RCDATA less-than sign state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rcdata-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.12 
+Tag: </span>
+Data: RCDATA end tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rcdata-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.13 
+Tag: </span>
+Data: RCDATA end tag name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rawtext-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.14 
+Tag: </span>
+Data: RAWTEXT less-than sign state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rawtext-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.15 
+Tag: </span>
+Data: RAWTEXT end tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#rawtext-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.16 
+Tag: </span>
+Data: RAWTEXT end tag name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.17 
+Tag: </span>
+Data: Script data less-than sign state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.18 
+Tag: </span>
+Data: Script data end tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.19 
+Tag: </span>
+Data: Script data end tag name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escape-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.20 
+Tag: </span>
+Data: Script data escape start state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escape-start-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.21 
+Tag: </span>
+Data: Script data escape start dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-state">
+Tag: <span class="secno">
+Data: 12.2.4.22 
+Tag: </span>
+Data: Script data escaped state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.23 
+Tag: </span>
+Data: Script data escaped dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-dash-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.24 
+Tag: </span>
+Data: Script data escaped dash dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.25 
+Tag: </span>
+Data: Script data escaped less-than sign state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.26 
+Tag: </span>
+Data: Script data escaped end tag open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-escaped-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.27 
+Tag: </span>
+Data: Script data escaped end tag name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escape-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.28 
+Tag: </span>
+Data: Script data double escape start state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escaped-state">
+Tag: <span class="secno">
+Data: 12.2.4.29 
+Tag: </span>
+Data: Script data double escaped state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escaped-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.30 
+Tag: </span>
+Data: Script data double escaped dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escaped-dash-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.31 
+Tag: </span>
+Data: Script data double escaped dash dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escaped-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.32 
+Tag: </span>
+Data: Script data double escaped less-than sign state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#script-data-double-escape-end-state">
+Tag: <span class="secno">
+Data: 12.2.4.33 
+Tag: </span>
+Data: Script data double escape end state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#before-attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.34 
+Tag: </span>
+Data: Before attribute name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.35 
+Tag: </span>
+Data: Attribute name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.36 
+Tag: </span>
+Data: After attribute name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#before-attribute-value-state">
+Tag: <span class="secno">
+Data: 12.2.4.37 
+Tag: </span>
+Data: Before attribute value state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#attribute-value-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.38 
+Tag: </span>
+Data: Attribute value (double-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#attribute-value-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.39 
+Tag: </span>
+Data: Attribute value (single-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#attribute-value-(unquoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.40 
+Tag: </span>
+Data: Attribute value (unquoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#character-reference-in-attribute-value-state">
+Tag: <span class="secno">
+Data: 12.2.4.41 
+Tag: </span>
+Data: Character reference in attribute value state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-attribute-value-(quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.42 
+Tag: </span>
+Data: After attribute value (quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#self-closing-start-tag-state">
+Tag: <span class="secno">
+Data: 12.2.4.43 
+Tag: </span>
+Data: Self-closing start tag state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#bogus-comment-state">
+Tag: <span class="secno">
+Data: 12.2.4.44 
+Tag: </span>
+Data: Bogus comment state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#markup-declaration-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.45 
+Tag: </span>
+Data: Markup declaration open state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.46 
+Tag: </span>
+Data: Comment start state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-start-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.47 
+Tag: </span>
+Data: Comment start dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-state">
+Tag: <span class="secno">
+Data: 12.2.4.48 
+Tag: </span>
+Data: Comment state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-end-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.49 
+Tag: </span>
+Data: Comment end dash state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-end-state">
+Tag: <span class="secno">
+Data: 12.2.4.50 
+Tag: </span>
+Data: Comment end state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#comment-end-bang-state">
+Tag: <span class="secno">
+Data: 12.2.4.51 
+Tag: </span>
+Data: Comment end bang state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-state">
+Tag: <span class="secno">
+Data: 12.2.4.52 
+Tag: </span>
+Data: DOCTYPE state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#before-doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.53 
+Tag: </span>
+Data: Before DOCTYPE name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.54 
+Tag: </span>
+Data: DOCTYPE name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.55 
+Tag: </span>
+Data: After DOCTYPE name state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-doctype-public-keyword-state">
+Tag: <span class="secno">
+Data: 12.2.4.56 
+Tag: </span>
+Data: After DOCTYPE public keyword state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#before-doctype-public-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.57 
+Tag: </span>
+Data: Before DOCTYPE public identifier state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-public-identifier-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.58 
+Tag: </span>
+Data: DOCTYPE public identifier (double-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-public-identifier-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.59 
+Tag: </span>
+Data: DOCTYPE public identifier (single-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-doctype-public-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.60 
+Tag: </span>
+Data: After DOCTYPE public identifier state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#between-doctype-public-and-system-identifiers-state">
+Tag: <span class="secno">
+Data: 12.2.4.61 
+Tag: </span>
+Data: Between DOCTYPE public and system identifiers state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-doctype-system-keyword-state">
+Tag: <span class="secno">
+Data: 12.2.4.62 
+Tag: </span>
+Data: After DOCTYPE system keyword state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#before-doctype-system-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.63 
+Tag: </span>
+Data: Before DOCTYPE system identifier state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-system-identifier-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.64 
+Tag: </span>
+Data: DOCTYPE system identifier (double-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#doctype-system-identifier-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.65 
+Tag: </span>
+Data: DOCTYPE system identifier (single-quoted) state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#after-doctype-system-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.66 
+Tag: </span>
+Data: After DOCTYPE system identifier state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#bogus-doctype-state">
+Tag: <span class="secno">
+Data: 12.2.4.67 
+Tag: </span>
+Data: Bogus DOCTYPE state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#cdata-section-state">
+Tag: <span class="secno">
+Data: 12.2.4.68 
+Tag: </span>
+Data: CDATA section state
+Tag: </a>
+Tag: </li>
+Tag: <li>
+Tag: <a href="tokenization.html#tokenizing-character-references">
+Tag: <span class="secno">
+Data: 12.2.4.69 
+Tag: </span>
+Data: Tokenizing character references
+Tag: </a>
+Tag: </li>
+Tag: </ol>
+Tag: </li>
+Tag: </ol>
+Tag: </li>
+Tag: </ol>
+Tag: </li>
+Tag: </ol>
+Tag: </nav>
+Data: \n\n  
+Tag: <div class="impl">
+Data: \n\n  
+Tag: <h4 id="tokenization">
+Tag: <span class="secno">
+Data: 12.2.4 
+Tag: </span>
+Tag: <dfn>
+Data: Tokenization
+Tag: </dfn>
+Tag: </h4>
+Data: \n\n  
+Tag: <p>
+Data: Implementations must act as if they used the following state\n  machine to tokenize HTML. The state machine must start in the\n  
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Most states consume a single character,\n  which may have various side-effects, and either switches the state\n  machine to a new state to 
+Tag: <i>
+Data: reconsume
+Tag: </i>
+Data:  the same character, or\n  switches it to a new state to consume the next character, or stays\n  in the same state to consume the next character. Some states have\n  more complicated behavior and can consume several characters before\n  switching to another state. In some cases, the tokenizer state is\n  also changed by the tree construction stage.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: The exact behavior of certain states depends on the\n  
+Tag: <a href="parsing.html#insertion-mode">
+Data: insertion mode
+Tag: </a>
+Data:  and the 
+Tag: <a href="parsing.html#stack-of-open-elements">
+Data: stack of open\n  elements
+Tag: </a>
+Data: . Certain states also use a 
+Tag: <dfn id="temporary-buffer">
+Tag: <var>
+Data: temporary\n  buffer
+Tag: </var>
+Tag: </dfn>
+Data:  to track progress.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: The output of the tokenization step is a series of zero or more\n  of the following tokens: DOCTYPE, start tag, end tag, comment,\n  character, end-of-file. DOCTYPE tokens have a name, a public\n  identifier, a system identifier, and a 
+Tag: <i>
+Data: force-quirks\n  flag
+Tag: </i>
+Data: . When a DOCTYPE token is created, its name, public\n  identifier, and system identifier must be marked as missing (which\n  is a distinct state from the empty string), and the 
+Tag: <i>
+Data: force-quirks\n  flag
+Tag: </i>
+Data:  must be set to 
+Tag: <i>
+Data: off
+Tag: </i>
+Data:  (its other state is\n  
+Tag: <i>
+Data: on
+Tag: </i>
+Data: ). Start and end tag tokens have a tag name, a\n  
+Tag: <i>
+Data: self-closing flag
+Tag: </i>
+Data: , and a list of attributes, each of which\n  has a name and a value. When a start or end tag token is created,\n  its 
+Tag: <i>
+Data: self-closing flag
+Tag: </i>
+Data:  must be unset (its other state is that\n  it be set), and its attributes list must be empty. Comment and\n  character tokens have data.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: When a token is emitted, it must immediately be handled by the\n  
+Tag: <a href="tree-construction.html#tree-construction">
+Data: tree construction
+Tag: </a>
+Data:  stage. The tree construction stage\n  can affect the state of the tokenization stage, and can insert\n  additional characters into the stream. (For example, the\n  
+Tag: <code>
+Tag: <a href="scripting-1.html#the-script-element">
+Data: script
+Tag: </a>
+Tag: </code>
+Data:  element can result in scripts executing and\n  using the 
+Tag: <a href="elements.html#dynamic-markup-insertion">
+Data: dynamic markup insertion
+Tag: </a>
+Data:  APIs to insert\n  characters into the stream being tokenized.)
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: When a start tag token is emitted with its 
+Tag: <i>
+Data: self-closing\n  flag
+Tag: </i>
+Data:  set, if the flag is not 
+Tag: <dfn id="acknowledge-self-closing-flag" title="acknowledge
+  self-closing flag">
+Data: acknowledged
+Tag: </dfn>
+Data:  when it is processed by the\n  tree construction stage, that is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: When an end tag token is emitted with attributes, that is a\n  
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: When an end tag token is emitted with its 
+Tag: <i>
+Data: self-closing\n  flag
+Tag: </i>
+Data:  set, that is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: An 
+Tag: <dfn id="appropriate-end-tag-token">
+Data: appropriate end tag token
+Tag: </dfn>
+Data:  is an end tag token whose\n  tag name matches the tag name of the last start tag to have been\n  emitted from this tokenizer, if any. If no start tag has been\n  emitted from this tokenizer, then no end tag token is\n  appropriate.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Before each step of the tokenizer, the user agent must first\n  check the 
+Tag: <a href="parsing.html#parser-pause-flag">
+Data: parser pause flag
+Tag: </a>
+Data: . If it is true, then the\n  tokenizer must abort the processing of any nested invocations of the\n  tokenizer, yielding control back to the caller.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: The tokenizer state machine consists of the states defined in the\n  following subsections.
+Tag: </p>
+Data: \n\n\n  
+Comment:  Order of the lists below is supposed to be non-error then
+  error, by unicode, then EOF, ending with "anything else" 
+Data: \n\n\n  
+Tag: <h5 id="data-state">
+Tag: <span class="secno">
+Data: 12.2.4.1 
+Tag: </span>
+Tag: <dfn>
+Data: Data state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#character-reference-in-data-state">
+Data: character reference in data\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#tag-open-state">
+Data: tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit an end-of-file token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="character-reference-in-data-state">
+Tag: <span class="secno">
+Data: 12.2.4.2 
+Tag: </span>
+Tag: <dfn>
+Data: Character reference in data state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Attempt to 
+Tag: <a href="#consume-a-character-reference">
+Data: consume a character reference
+Tag: </a>
+Data: , with no\n  
+Tag: <a href="#additional-allowed-character">
+Data: additional allowed character
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: If nothing is returned, emit a U+0026 AMPERSAND character (&)\n  token.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, emit the character tokens that were returned.
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="rcdata-state">
+Tag: <span class="secno">
+Data: 12.2.4.3 
+Tag: </span>
+Tag: <dfn>
+Data: RCDATA state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#character-reference-in-rcdata-state">
+Data: character reference in RCDATA\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rcdata-less-than-sign-state">
+Data: RCDATA less-than sign state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit an end-of-file token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="character-reference-in-rcdata-state">
+Tag: <span class="secno">
+Data: 12.2.4.4 
+Tag: </span>
+Tag: <dfn>
+Data: Character reference in RCDATA state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Switch to the 
+Tag: <a href="#rcdata-state">
+Data: RCDATA state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Attempt to 
+Tag: <a href="#consume-a-character-reference">
+Data: consume a character reference
+Tag: </a>
+Data: , with no\n  
+Tag: <a href="#additional-allowed-character">
+Data: additional allowed character
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: If nothing is returned, emit a U+0026 AMPERSAND character (&)\n  token.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, emit the character tokens that were returned.
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="rawtext-state">
+Tag: <span class="secno">
+Data: 12.2.4.5 
+Tag: </span>
+Tag: <dfn>
+Data: RAWTEXT state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rawtext-less-than-sign-state">
+Data: RAWTEXT less-than sign state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Emit an end-of-file token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-state">
+Tag: <span class="secno">
+Data: 12.2.4.6 
+Tag: </span>
+Tag: <dfn>
+Data: Script data state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-less-than-sign-state">
+Data: script data less-than sign state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit an end-of-file token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="plaintext-state">
+Tag: <span class="secno">
+Data: 12.2.4.7 
+Tag: </span>
+Tag: <dfn>
+Data: PLAINTEXT state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit an end-of-file token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.8 
+Tag: </span>
+Tag: <dfn>
+Data: Tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0021 EXCLAMATION MARK (!)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#markup-declaration-open-state">
+Data: markup declaration open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#end-tag-open-state">
+Data: end tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new start tag token, set its tag name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add 0x0020 to the\n   character's code point), then switch to the 
+Tag: <a href="#tag-name-state">
+Data: tag name\n   state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will\n   be filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new start tag token, set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#tag-name-state">
+Data: tag\n   name state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will\n   be filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003F QUESTION MARK (?)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#bogus-comment-state">
+Data: bogus\n   comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character token.\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.9 
+Tag: </span>
+Tag: <dfn>
+Data: End tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, set its tag name to the lowercase\n   version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add 0x0020 to\n   the character's code point), then switch to the 
+Tag: <a href="#tag-name-state">
+Data: tag name\n   state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will be\n   filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#tag-name-state">
+Data: tag\n   name state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will\n   be filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character token and a\n   U+002F SOLIDUS character token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#bogus-comment-state">
+Data: bogus\n   comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.10 
+Tag: </span>
+Tag: <dfn>
+Data: Tag name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current tag token's tag name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current tag token's tag name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   tag token's tag name.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rcdata-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.11 
+Tag: </span>
+Tag: <dfn>
+Data: RCDATA less-than sign state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RAWTEXT less-than sign state, except s/RAWTEXT/RCDATA/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Switch\n   to the 
+Tag: <a href="#rcdata-end-tag-open-state">
+Data: RCDATA end tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rcdata-state">
+Data: RCDATA state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rcdata-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.12 
+Tag: </span>
+Tag: <dfn>
+Data: RCDATA end tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RAWTEXT (and Script data) end tag open state, except s/RAWTEXT/RCDATA/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add\n   0x0020 to the character's code point). Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#rcdata-end-tag-name-state">
+Data: RCDATA end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: . Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#rcdata-end-tag-name-state">
+Data: RCDATA end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rcdata-state">
+Data: RCDATA state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token and a U+002F SOLIDUS character token.\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rcdata-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.13 
+Tag: </span>
+Tag: <dfn>
+Data: RCDATA end tag name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RAWTEXT (and Script data) end tag name state, except s/RAWTEXT/RCDATA/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data:  and emit\n   the current tag token. Otherwise, treat it as per the "anything\n   else" entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rcdata-state">
+Data: RCDATA state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token, a U+002F SOLIDUS character token,\n   and a character token for each of the characters in the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  (in the order they were added to the\n   buffer). Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rawtext-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.14 
+Tag: </span>
+Tag: <dfn>
+Data: RAWTEXT less-than sign state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Comment:  identical to the RCDATA less-than sign state, except s/RCDATA/RAWTEXT/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Switch\n   to the 
+Tag: <a href="#rawtext-end-tag-open-state">
+Data: RAWTEXT end tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rawtext-state">
+Data: RAWTEXT state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rawtext-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.15 
+Tag: </span>
+Tag: <dfn>
+Data: RAWTEXT end tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RCDATA (and Script data) end tag open state, except s/RCDATA/RAWTEXT/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add\n   0x0020 to the character's code point). Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#rawtext-end-tag-name-state">
+Data: RAWTEXT end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: . Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#rawtext-end-tag-name-state">
+Data: RAWTEXT end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rawtext-state">
+Data: RAWTEXT state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token and a U+002F SOLIDUS character\n   token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="rawtext-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.16 
+Tag: </span>
+Tag: <dfn>
+Data: RAWTEXT end tag name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RCDATA (and Script data) end tag name state, except s/RCDATA/RAWTEXT/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data:  and emit\n   the current tag token. Otherwise, treat it as per the "anything\n   else" entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#rawtext-state">
+Data: RAWTEXT state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token, a U+002F SOLIDUS character token,\n   and a character token for each of the characters in the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  (in the order they were added to the\n   buffer). Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.17 
+Tag: </span>
+Tag: <dfn>
+Data: Script data less-than sign state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Switch\n   to the 
+Tag: <a href="#script-data-end-tag-open-state">
+Data: script data end tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0021 EXCLAMATION MARK (!)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escape-start-state">
+Data: script data escape start state
+Tag: </a>
+Data: . Emit\n   a U+003C LESS-THAN SIGN character token and a U+0021 EXCLAMATION\n   MARK character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.18 
+Tag: </span>
+Tag: <dfn>
+Data: Script data end tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RCDATA (and RAWTEXT) end tag open state, except s/RCDATA/Script data/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add\n   0x0020 to the character's code point). Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#script-data-end-tag-name-state">
+Data: script data end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: . Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#script-data-end-tag-name-state">
+Data: script data end tag name state
+Tag: </a>
+Data: . (Don't emit\n   the token yet; further details will be filled in before it is\n   emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token and a U+002F SOLIDUS character token.\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.19 
+Tag: </span>
+Tag: <dfn>
+Data: Script data end tag name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n  
+Comment:  identical to the RCDATA (and RAWTEXT) end tag name state, except s/RCDATA/Script data/g 
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data:  and emit\n   the current tag token. Otherwise, treat it as per the "anything\n   else" entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token, a U+002F SOLIDUS character token,\n   and a character token for each of the characters in the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  (in the order they were added to the\n   buffer). Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escape-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.20 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escape start state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escape-start-dash-state">
+Data: script data escape start dash\n   state
+Tag: </a>
+Data: . Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Reconsume the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escape-start-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.21 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escape start dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-dash-dash-state">
+Data: script data escaped dash dash\n   state
+Tag: </a>
+Data: . Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Reconsume the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-state">
+Tag: <span class="secno">
+Data: 12.2.4.22 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-dash-state">
+Data: script data escaped dash state
+Tag: </a>
+Data: . Emit\n   a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-less-than-sign-state">
+Data: script data escaped less-than sign\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . 
+Tag: <a href="parsing.html#parse-error">
+Data: Parse\n   error
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.23 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-dash-dash-state">
+Data: script data escaped dash dash\n   state
+Tag: </a>
+Data: . Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-less-than-sign-state">
+Data: script data escaped less-than sign\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data\n   escaped state
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER character\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data escaped state
+Tag: </a>
+Data: . Emit the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-dash-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.24 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped dash dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-less-than-sign-state">
+Data: script data escaped less-than sign\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003E\n   GREATER-THAN SIGN character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data\n   escaped state
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER character\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data escaped state
+Tag: </a>
+Data: . Emit the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.25 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped less-than sign state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Switch\n   to the 
+Tag: <a href="#script-data-escaped-end-tag-open-state">
+Data: script data escaped end tag open state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Append\n   the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: \n   (add 0x0020 to the character's code point) to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary\n   buffer
+Tag: </a>
+Tag: </var>
+Data: . Switch to the 
+Tag: <a href="#script-data-double-escape-start-state">
+Data: script data double escape start\n   state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character token and the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Append\n   the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary\n   buffer
+Tag: </a>
+Tag: </var>
+Data: . Switch to the 
+Tag: <a href="#script-data-double-escape-start-state">
+Data: script data double escape start\n   state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character token and the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003C\n   LESS-THAN SIGN character token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-end-tag-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.26 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped end tag open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add\n   0x0020 to the character's code point). Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#script-data-escaped-end-tag-name-state">
+Data: script data escaped end tag name\n   state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will be\n   filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new end tag token, and set its tag name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: . Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Finally,\n   switch to the 
+Tag: <a href="#script-data-escaped-end-tag-name-state">
+Data: script data escaped end tag name\n   state
+Tag: </a>
+Data: . (Don't emit the token yet; further details will be\n   filled in before it is emitted.)
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data escaped state
+Tag: </a>
+Data: . Emit a\n   U+003C LESS-THAN SIGN character token and a U+002F SOLIDUS\n   character token. Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-escaped-end-tag-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.27 
+Tag: </span>
+Tag: <dfn>
+Data: Script data escaped end tag name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag\n   state
+Tag: </a>
+Data: . Otherwise, treat it as per the "anything else" entry\n   below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the current end tag token is an 
+Tag: <a href="#appropriate-end-tag-token">
+Data: appropriate end tag\n   token
+Tag: </a>
+Data: , then switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data:  and emit\n   the current tag token. Otherwise, treat it as per the "anything\n   else" entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   tag token's tag name. Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data escaped state
+Tag: </a>
+Data: . Emit a\n   U+003C LESS-THAN SIGN character token, a U+002F SOLIDUS character\n   token, and a character token for each of the characters in the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  (in the order they were added to the\n   buffer). Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escape-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.28 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escape start state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  is the string "
+Tag: <code title="">
+Data: script
+Tag: </code>
+Data: ", then switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data\n   double escaped state
+Tag: </a>
+Data: . Otherwise, switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script\n   data escaped state
+Tag: </a>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data escaped state
+Tag: </a>
+Data: . Reconsume\n   the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escaped-state">
+Tag: <span class="secno">
+Data: 12.2.4.29 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escaped state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-dash-state">
+Data: script data double escaped dash\n   state
+Tag: </a>
+Data: . Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-less-than-sign-state">
+Data: script data double escaped less-than\n   sign state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a character\n   token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escaped-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.30 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escaped dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-dash-dash-state">
+Data: script data double escaped dash dash\n   state
+Tag: </a>
+Data: . Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-less-than-sign-state">
+Data: script data double escaped less-than\n   sign state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data\n   double escaped state
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data double escaped\n   state
+Tag: </a>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a\n   character token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escaped-dash-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.31 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escaped dash dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Emit a U+002D HYPHEN-MINUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-less-than-sign-state">
+Data: script data double escaped less-than\n   sign state
+Tag: </a>
+Data: . Emit a U+003C LESS-THAN SIGN character\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-state">
+Data: script data state
+Tag: </a>
+Data: . Emit a U+003E\n   GREATER-THAN SIGN character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data\n   double escaped state
+Tag: </a>
+Data: . Emit a U+FFFD REPLACEMENT CHARACTER\n   character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data double escaped\n   state
+Tag: </a>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  as a\n   character token.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escaped-less-than-sign-state">
+Tag: <span class="secno">
+Data: 12.2.4.32 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escaped less-than sign state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  to the empty string. Switch\n   to the 
+Tag: <a href="#script-data-double-escape-end-state">
+Data: script data double escape end state
+Tag: </a>
+Data: . Emit a\n   U+002F SOLIDUS character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data double escaped state
+Tag: </a>
+Data: .\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="script-data-double-escape-end-state">
+Tag: <span class="secno">
+Data: 12.2.4.33 
+Tag: </span>
+Tag: <dfn>
+Data: Script data double escape end state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: If the 
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data:  is the string "
+Tag: <code title="">
+Data: script
+Tag: </code>
+Data: ", then switch to the 
+Tag: <a href="#script-data-escaped-state">
+Data: script data\n   escaped state
+Tag: </a>
+Data: . Otherwise, switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data\n   double escaped state
+Tag: </a>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0061 LATIN SMALL LETTER A through to U+007A LATIN SMALL LETTER Z
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the\n   
+Tag: <var>
+Tag: <a href="#temporary-buffer">
+Data: temporary buffer
+Tag: </a>
+Tag: </var>
+Data: . Emit the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  as a character token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#script-data-double-escaped-state">
+Data: script data double escaped state
+Tag: </a>
+Data: .\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="before-attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.34 
+Tag: </span>
+Tag: <dfn>
+Data: Before attribute name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Start a new attribute in the current tag token. Set that\n   attribute's name to the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point), and its\n   value to the empty string. Switch to the 
+Tag: <a href="#attribute-name-state">
+Data: attribute name\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Start a new attribute in the current\n   tag token. Set that attribute's name to a U+FFFD REPLACEMENT\n   CHARACTER character, and its value to the empty string. Switch to\n   the 
+Tag: <a href="#attribute-name-state">
+Data: attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003D EQUALS SIGN (=)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Treat it as per the "anything else"\n   entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Start a new attribute in the current tag token. Set that\n   attribute's name to the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: , and\n   its value to the empty string. Switch to the 
+Tag: <a href="#attribute-name-state">
+Data: attribute name\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.35 
+Tag: </span>
+Tag: <dfn>
+Data: Attribute name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-attribute-name-state">
+Data: after attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003D EQUALS SIGN (=)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-attribute-value-state">
+Data: before attribute value state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current attribute's name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current attribute's name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Treat it as per the "anything else"\n   entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   attribute's name.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <p>
+Data: When the user agent leaves the attribute name state (and before\n  emitting the tag token, if appropriate), the complete attribute's\n  name must be compared to the other attributes on the same token;\n  if there is already an attribute on the token with the exact same\n  name, then this is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data:  and the new\n  attribute must be dropped, along with the value that gets\n  associated with it (if any).
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="after-attribute-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.36 
+Tag: </span>
+Tag: <dfn>
+Data: After attribute name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003D EQUALS SIGN (=)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-attribute-value-state">
+Data: before attribute value state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Start a new attribute in the current tag token. Set that\n   attribute's name to the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current\n   input character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point),\n   and its value to the empty string. Switch to the 
+Tag: <a href="#attribute-name-state">
+Data: attribute\n   name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Start a new attribute in the current\n   tag token. Set that attribute's name to a U+FFFD REPLACEMENT\n   CHARACTER character, and its value to the empty string. Switch to\n   the 
+Tag: <a href="#attribute-name-state">
+Data: attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Treat it as per the "anything else"\n   entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Start a new attribute in the current tag token. Set that\n   attribute's name to the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: , and\n   its value to the empty string. Switch to the 
+Tag: <a href="#attribute-name-state">
+Data: attribute name\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="before-attribute-value-state">
+Tag: <span class="secno">
+Data: 12.2.4.37 
+Tag: </span>
+Tag: <dfn>
+Data: Before attribute value state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#attribute-value-(double-quoted)-state">
+Data: attribute value (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#attribute-value-(unquoted)-state">
+Data: attribute value (unquoted) state
+Tag: </a>
+Data: .\n   Reconsume the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#attribute-value-(single-quoted)-state">
+Data: attribute value (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current attribute's value. Switch to the\n   
+Tag: <a href="#attribute-value-(unquoted)-state">
+Data: attribute value (unquoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the current tag token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003D EQUALS SIGN (=)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0060 GRAVE ACCENT (`)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Treat it as per the "anything else"\n   entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   attribute's value. Switch to the 
+Tag: <a href="#attribute-value-(unquoted)-state">
+Data: attribute value (unquoted)\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="attribute-value-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.38 
+Tag: </span>
+Tag: <dfn>
+Data: Attribute value (double-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-attribute-value-(quoted)-state">
+Data: after attribute value (quoted)\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#character-reference-in-attribute-value-state">
+Data: character reference in attribute value\n   state
+Tag: </a>
+Data: , with the 
+Tag: <a href="#additional-allowed-character">
+Data: additional allowed character
+Tag: </a>
+Data: \n   being U+0022 QUOTATION MARK (").
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current attribute's value.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   attribute's value.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="attribute-value-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.39 
+Tag: </span>
+Tag: <dfn>
+Data: Attribute value (single-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-attribute-value-(quoted)-state">
+Data: after attribute value (quoted)\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#character-reference-in-attribute-value-state">
+Data: character reference in attribute value\n   state
+Tag: </a>
+Data: , with the 
+Tag: <a href="#additional-allowed-character">
+Data: additional allowed character
+Tag: </a>
+Data: \n\n   being U+0027 APOSTROPHE (').
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current attribute's value.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   attribute's value.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="attribute-value-(unquoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.40 
+Tag: </span>
+Tag: <dfn>
+Data: Attribute value (unquoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0026 AMPERSAND (&)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#character-reference-in-attribute-value-state">
+Data: character reference in attribute value\n   state
+Tag: </a>
+Data: , with the 
+Tag: <a href="#additional-allowed-character">
+Data: additional allowed character
+Tag: </a>
+Data: \n   being U+003E GREATER-THAN SIGN (>).
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current attribute's value.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN (<)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+003D EQUALS SIGN (=)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0060 GRAVE ACCENT (`)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Treat it as per the "anything else"\n   entry below.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   attribute's value.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="character-reference-in-attribute-value-state">
+Tag: <span class="secno">
+Data: 12.2.4.41 
+Tag: </span>
+Tag: <dfn>
+Data: Character reference in attribute value state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Attempt to 
+Tag: <a href="#consume-a-character-reference">
+Data: consume a character reference
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: If nothing is returned, append a U+0026 AMPERSAND character\n  (&) to the current attribute's value.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, append the returned character tokens to the current\n  attribute's value.
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Finally, switch back to the attribute value state that switched\n  into this state.
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="after-attribute-value-(quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.42 
+Tag: </span>
+Tag: <dfn>
+Data: After attribute value (quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002F SOLIDUS (/)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#self-closing-start-tag-state">
+Data: self-closing start tag state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute\n   name state
+Tag: </a>
+Data: . Reconsume the character.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="self-closing-start-tag-state">
+Tag: <span class="secno">
+Data: 12.2.4.43 
+Tag: </span>
+Tag: <dfn>
+Data: Self-closing start tag state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the 
+Tag: <i>
+Data: self-closing flag
+Tag: </i>
+Data:  of the current tag\n   token. Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current tag\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#before-attribute-name-state">
+Data: before attribute\n   name state
+Tag: </a>
+Data: . Reconsume the character.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="bogus-comment-state">
+Tag: <span class="secno">
+Data: 12.2.4.44 
+Tag: </span>
+Tag: <dfn>
+Data: Bogus comment state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume every character up to and including the first U+003E\n  GREATER-THAN SIGN character (>) or the end of the file (EOF),\n  whichever comes first. Emit a comment token whose data is the\n  concatenation of all the characters starting from and including the\n  character that caused the state machine to switch into the bogus\n  comment state, up to and including the character immediately before\n  the last consumed character (i.e. up to the character just before\n  the U+003E or EOF character), but with any U+0000 NULL characters\n  replaced by U+FFFD REPLACEMENT CHARACTER characters. (If the comment\n  was started by the end of the file (EOF), the token is empty.)
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: If the end of the file was reached, reconsume the EOF\n  character.
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="markup-declaration-open-state">
+Tag: <span class="secno">
+Data: 12.2.4.45 
+Tag: </span>
+Tag: <dfn>
+Data: Markup declaration open state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: If the next two characters are both U+002D HYPHEN-MINUS\n  characters (-), consume those two characters, create a comment token\n  whose data is the empty string, and switch to the 
+Tag: <a href="#comment-start-state">
+Data: comment\n  start state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, if the next seven characters are an 
+Tag: <a href="infrastructure.html#ascii-case-insensitive">
+Data: ASCII\n  case-insensitive
+Tag: </a>
+Data:  match for the word "DOCTYPE", then consume\n  those characters and switch to the 
+Tag: <a href="#doctype-state">
+Data: DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, if there is a 
+Tag: <a href="parsing.html#current-node">
+Data: current node
+Tag: </a>
+Data:  and it is not\n  an element in the 
+Tag: <a href="namespaces.html#html-namespace-0">
+Data: HTML namespace
+Tag: </a>
+Data:  and the next seven\n  characters are a 
+Tag: <a href="infrastructure.html#case-sensitive">
+Data: case-sensitive
+Tag: </a>
+Data:  match for the string\n  "[CDATA[" (the five uppercase letters "CDATA" with a U+005B LEFT\n  SQUARE BRACKET character before and after), then consume those\n  characters and switch to the 
+Tag: <a href="#cdata-section-state">
+Data: CDATA section state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Otherwise, this is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: . Switch to the\n  
+Tag: <a href="#bogus-comment-state">
+Data: bogus comment state
+Tag: </a>
+Data: . The next character that is\n  consumed, if any, is the first character that will be in the\n  comment.
+Tag: </p>
+Data: \n\n\n  
+Tag: <h5 id="comment-start-state">
+Tag: <span class="secno">
+Data: 12.2.4.46 
+Tag: </span>
+Tag: <dfn>
+Data: Comment start state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#comment-start-dash-state">
+Data: comment start dash state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the comment token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token.
+Tag: </dd>
+Data:  
+Comment:  see comment in
+   comment end state 
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the comment\n   token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="comment-start-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.47 
+Tag: </span>
+Tag: <dfn>
+Data: Comment start dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#comment-end-state">
+Data: comment end state
+Tag: </a>
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+002D HYPHEN-MINUS\n   character (-) and a U+FFFD REPLACEMENT CHARACTER character to the\n   comment token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data:  
+Comment:  see comment in comment end state 
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append a U+002D HYPHEN-MINUS character (-) and the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the comment token's\n   data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="comment-state">
+Tag: <span class="secno">
+Data: 12.2.4.48 
+Tag: </span>
+Tag: <dfn id="comment">
+Data: Comment state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#comment-end-dash-state">
+Data: comment end dash state
+Tag: </a>
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the comment token's data.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data:  
+Comment:  see comment in comment end state 
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the comment\n   token's data.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="comment-end-dash-state">
+Tag: <span class="secno">
+Data: 12.2.4.49 
+Tag: </span>
+Tag: <dfn>
+Data: Comment end dash state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#comment-end-state">
+Data: comment end state
+Tag: </a>
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+002D HYPHEN-MINUS\n   character (-) and a U+FFFD REPLACEMENT CHARACTER character to the\n   comment token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data:  
+Comment:  see comment in comment end state 
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append a U+002D HYPHEN-MINUS character (-) and the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the comment token's\n   data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="comment-end-state">
+Tag: <span class="secno">
+Data: 12.2.4.50 
+Tag: </span>
+Tag: <dfn>
+Data: Comment end state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the comment\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append two U+002D HYPHEN-MINUS\n   characters (-) and a U+FFFD REPLACEMENT CHARACTER character to the\n   comment token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0021 EXCLAMATION MARK (!)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#comment-end-bang-state">
+Data: comment end bang\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+002D HYPHEN-MINUS\n   character (-) to the comment token's data.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data:  
+Comment:  For security reasons: otherwise, hostile user
+   could put a <script> in a comment e.g. in a blog comment and then
+   DOS the server so that the end tag isn't read, and then the
+   commented <script> tag would be treated as live code 
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append two U+002D HYPHEN-MINUS\n   characters (-) and the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the\n   comment token's data. Switch to the 
+Tag: <a href="#comment-state">
+Data: comment\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="comment-end-bang-state">
+Tag: <span class="secno">
+Data: 12.2.4.51 
+Tag: </span>
+Tag: <dfn>
+Data: Comment end bang state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+002D HYPHEN-MINUS (-)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append two U+002D HYPHEN-MINUS characters (-) and a U+0021\n   EXCLAMATION MARK character (!) to the comment token's data. Switch\n   to the 
+Tag: <a href="#comment-end-dash-state">
+Data: comment end dash state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the comment\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append two U+002D HYPHEN-MINUS\n   characters (-), a U+0021 EXCLAMATION MARK character (!), and a\n   U+FFFD REPLACEMENT CHARACTER character to the comment token's data.\n   Switch to the 
+Tag: <a href="#comment-state">
+Data: comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the comment token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data:  
+Comment:  see comment in comment end state 
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append two U+002D HYPHEN-MINUS characters (-), a U+0021\n   EXCLAMATION MARK character (!), and the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  to the comment token's data. Switch to the\n   
+Tag: <a href="#comment-state">
+Data: comment state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-state">
+Tag: <span class="secno">
+Data: 12.2.4.52 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-doctype-name-state">
+Data: before DOCTYPE name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Create a new DOCTYPE token. Set its 
+Tag: <i>
+Data: force-quirks\n   flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit the token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#before-doctype-name-state">
+Data: before DOCTYPE\n   name state
+Tag: </a>
+Data: . Reconsume the character.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="before-doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.53 
+Tag: </span>
+Tag: <dfn>
+Data: Before DOCTYPE name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Create a new DOCTYPE token. Set the token's name to the\n   lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  (add 0x0020 to the\n   character's code point). Switch to the 
+Tag: <a href="#doctype-name-state">
+Data: DOCTYPE name\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Create a new DOCTYPE token. Set the\n   token's name to a U+FFFD REPLACEMENT CHARACTER character. Switch to\n   the 
+Tag: <a href="#doctype-name-state">
+Data: DOCTYPE name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Create a new DOCTYPE token. Set its\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit the token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Create a new DOCTYPE token. Set its 
+Tag: <i>
+Data: force-quirks\n   flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit the token. Reconsume the EOF\n   character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Create a new DOCTYPE token. Set the token's name to the\n   
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#doctype-name-state">
+Data: DOCTYPE name\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.54 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-doctype-name-state">
+Data: after DOCTYPE name state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0041 LATIN CAPITAL LETTER A through to U+005A LATIN CAPITAL LETTER Z
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the lowercase version of the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n   character
+Tag: </a>
+Data:  (add 0x0020 to the character's code point) to the\n   current DOCTYPE token's name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current DOCTYPE token's name.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   DOCTYPE token's name.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="after-doctype-name-state">
+Tag: <span class="secno">
+Data: 12.2.4.55 
+Tag: </span>
+Tag: <dfn>
+Data: After DOCTYPE name state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: \n\n    
+Tag: <p>
+Data: If the six characters starting from the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input\n    character
+Tag: </a>
+Data:  are an 
+Tag: <a href="infrastructure.html#ascii-case-insensitive">
+Data: ASCII case-insensitive
+Tag: </a>
+Data:  match\n    for the word "PUBLIC", then consume those characters and switch to\n    the 
+Tag: <a href="#after-doctype-public-keyword-state">
+Data: after DOCTYPE public keyword state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: Otherwise, if the six characters starting from the\n    
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  are an 
+Tag: <a href="infrastructure.html#ascii-case-insensitive">
+Data: ASCII\n    case-insensitive
+Tag: </a>
+Data:  match for the word "SYSTEM", then consume\n    those characters and switch to the 
+Tag: <a href="#after-doctype-system-keyword-state">
+Data: after DOCTYPE system\n    keyword state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: Otherwise, this is the 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: . Set the\n    DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to\n    the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n   
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="after-doctype-public-keyword-state">
+Tag: <span class="secno">
+Data: 12.2.4.56 
+Tag: </span>
+Tag: <dfn>
+Data: After DOCTYPE public keyword state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-doctype-public-identifier-state">
+Data: before DOCTYPE public identifier\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's public\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-public-identifier-(double-quoted)-state">
+Data: DOCTYPE public identifier (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's public\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-public-identifier-(single-quoted)-state">
+Data: DOCTYPE public identifier (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="before-doctype-public-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.57 
+Tag: </span>
+Tag: <dfn>
+Data: Before DOCTYPE public identifier state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the DOCTYPE token's public identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-public-identifier-(double-quoted)-state">
+Data: DOCTYPE public identifier\n   (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Set the DOCTYPE token's public identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-public-identifier-(single-quoted)-state">
+Data: DOCTYPE public identifier\n   (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-public-identifier-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.58 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE public identifier (double-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-doctype-public-identifier-state">
+Data: after DOCTYPE public identifier state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current DOCTYPE token's public identifier.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   DOCTYPE token's public identifier.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-public-identifier-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.59 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE public identifier (single-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-doctype-public-identifier-state">
+Data: after DOCTYPE public identifier state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current DOCTYPE token's public identifier.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   DOCTYPE token's public identifier.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="after-doctype-public-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.60 
+Tag: </span>
+Tag: <dfn>
+Data: After DOCTYPE public identifier state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#between-doctype-public-and-system-identifiers-state">
+Data: between DOCTYPE public and system\n   identifiers state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's system\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-system-identifier-(double-quoted)-state">
+Data: DOCTYPE system identifier (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's system\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-system-identifier-(single-quoted)-state">
+Data: DOCTYPE system identifier (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="between-doctype-public-and-system-identifiers-state">
+Tag: <span class="secno">
+Data: 12.2.4.61 
+Tag: </span>
+Tag: <dfn>
+Data: Between DOCTYPE public and system identifiers state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the DOCTYPE token's system identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-system-identifier-(double-quoted)-state">
+Data: DOCTYPE system identifier\n   (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the DOCTYPE token's system identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-system-identifier-(single-quoted)-state">
+Data: DOCTYPE system identifier\n   (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="after-doctype-system-keyword-state">
+Tag: <span class="secno">
+Data: 12.2.4.62 
+Tag: </span>
+Tag: <dfn>
+Data: After DOCTYPE system keyword state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#before-doctype-system-identifier-state">
+Data: before DOCTYPE system identifier\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's system\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-system-identifier-(double-quoted)-state">
+Data: DOCTYPE system identifier (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's system\n   identifier to the empty string (not missing), then switch to the\n   
+Tag: <a href="#doctype-system-identifier-(single-quoted)-state">
+Data: DOCTYPE system identifier (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="before-doctype-system-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.63 
+Tag: </span>
+Tag: <dfn>
+Data: Before DOCTYPE system identifier state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Set the DOCTYPE token's system identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-system-identifier-(double-quoted)-state">
+Data: DOCTYPE system identifier\n   (double-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Set the DOCTYPE token's system identifier to the empty string\n   (not missing), then switch to the 
+Tag: <a href="#doctype-system-identifier-(single-quoted)-state">
+Data: DOCTYPE system identifier\n   (single-quoted) state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus\n   DOCTYPE state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-system-identifier-(double-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.64 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE system identifier (double-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0022 QUOTATION MARK (")
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-doctype-system-identifier-state">
+Data: after DOCTYPE system identifier\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current DOCTYPE token's system identifier.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   DOCTYPE token's system identifier.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="doctype-system-identifier-(single-quoted)-state">
+Tag: <span class="secno">
+Data: 12.2.4.65 
+Tag: </span>
+Tag: <dfn>
+Data: DOCTYPE system identifier (single-quoted) state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0027 APOSTROPHE (')
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#after-doctype-system-identifier-state">
+Data: after DOCTYPE system identifier\n   state
+Tag: </a>
+Data: .
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+0000 NULL
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Append a U+FFFD REPLACEMENT CHARACTER\n   character to the current DOCTYPE token's system identifier.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Emit that DOCTYPE token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Append the 
+Tag: <a href="parsing.html#current-input-character">
+Data: current input character
+Tag: </a>
+Data:  to the current\n   DOCTYPE token's system identifier.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="after-doctype-system-identifier-state">
+Tag: <span class="secno">
+Data: 12.2.4.66 
+Tag: </span>
+Tag: <dfn>
+Data: After DOCTYPE system identifier state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the current DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#data-state">
+Data: data\n   state
+Tag: </a>
+Data: . Set the DOCTYPE token's 
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to\n   
+Tag: <i>
+Data: on
+Tag: </i>
+Data: . Emit that DOCTYPE token. Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Tag: <a href="parsing.html#parse-error">
+Data: Parse error
+Tag: </a>
+Data: . Switch to the 
+Tag: <a href="#bogus-doctype-state">
+Data: bogus DOCTYPE\n   state
+Tag: </a>
+Data: . (This does 
+Tag: <em>
+Data: not
+Tag: </em>
+Data:  set the DOCTYPE token's\n   
+Tag: <i>
+Data: force-quirks flag
+Tag: </i>
+Data:  to 
+Tag: <i>
+Data: on
+Tag: </i>
+Data: .)
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="bogus-doctype-state">
+Tag: <span class="secno">
+Data: 12.2.4.67 
+Tag: </span>
+Tag: <dfn>
+Data: Bogus DOCTYPE state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Consume the 
+Tag: <a href="parsing.html#next-input-character">
+Data: next input character
+Tag: </a>
+Data: :
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+003E GREATER-THAN SIGN (>)
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the DOCTYPE\n   token.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: . Emit the DOCTYPE token.\n   Reconsume the EOF character.
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n   
+Tag: <dd>
+Data: Ignore the character.
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: <h5 id="cdata-section-state">
+Tag: <span class="secno">
+Data: 12.2.4.68 
+Tag: </span>
+Tag: <dfn>
+Data: CDATA section state
+Tag: </dfn>
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: Switch to the 
+Tag: <a href="#data-state">
+Data: data state
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: Consume every character up to the next occurrence of the three\n  character sequence U+005D RIGHT SQUARE BRACKET U+005D RIGHT SQUARE\n  BRACKET U+003E GREATER-THAN SIGN (
+Tag: <code title="">
+Data: ]]>
+Tag: </code>
+Data: ), or the\n  end of the file (EOF), whichever comes first. Emit a series of\n  character tokens consisting of all the characters consumed except\n  the matching three character sequence at the end (if one was found\n  before the end of the file)
+Comment: (not needed; taken care of by the
+  tree constructor), but with any U+0000 NULL characters replaced by
+  U+FFFD REPLACEMENT CHARACTER characters
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: If the end of the file was reached, reconsume the EOF\n  character.
+Tag: </p>
+Data: \n\n\n\n  
+Tag: <h5 id="tokenizing-character-references">
+Tag: <span class="secno">
+Data: 12.2.4.69 
+Tag: </span>
+Data: Tokenizing character references
+Tag: </h5>
+Data: \n\n  
+Tag: <p>
+Data: This section defines how to 
+Tag: <dfn id="consume-a-character-reference">
+Data: consume a character\n  reference
+Tag: </dfn>
+Data: . This definition is used when parsing character\n  references 
+Tag: <a href="#character-reference-in-data-state" title="character reference in data state">
+Data: in\n  text
+Tag: </a>
+Data:  and 
+Tag: <a href="#character-reference-in-attribute-value-state" title="character reference in attribute value
+  state">
+Data: in attributes
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n  
+Tag: <p>
+Data: The behavior depends on the identity of the next character (the\n  one immediately after the U+0026 AMPERSAND character):
+Tag: </p>
+Data: \n\n  
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0009 CHARACTER TABULATION (tab)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000A LINE FEED (LF)
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+000C FORM FEED (FF)
+Tag: </dt>
+Data: \n   
+Comment: <dt>U+000D CARRIAGE RETURN (CR)</dt>
+Data: \n   
+Tag: <dt>
+Data: U+0020 SPACE
+Tag: </dt>
+Data: \n\n   
+Tag: <dt>
+Data: U+003C LESS-THAN SIGN
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: U+0026 AMPERSAND
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: EOF
+Tag: </dt>
+Data: \n   
+Tag: <dt>
+Data: The 
+Tag: <dfn id="additional-allowed-character">
+Data: additional allowed character
+Tag: </dfn>
+Data: , if there is one
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: Not a character reference. No characters are consumed, and\n   nothing is returned. (This is not an error, either.)
+Tag: </dd>
+Data: \n\n\n   
+Tag: <dt>
+Data: U+0023 NUMBER SIGN (#)
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: \n\n    
+Tag: <p>
+Data: Consume the U+0023 NUMBER SIGN.
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: The behavior further depends on the character after the U+0023\n    NUMBER SIGN:
+Tag: </p>
+Data: \n\n    
+Tag: <dl class="switch">
+Tag: <dt>
+Data: U+0078 LATIN SMALL LETTER X
+Tag: </dt>
+Data: \n     
+Tag: <dt>
+Data: U+0058 LATIN CAPITAL LETTER X
+Tag: </dt>
+Data: \n\n     
+Tag: <dd>
+Data: \n\n      
+Tag: <p>
+Data: Consume the X.
+Tag: </p>
+Data: \n\n      
+Tag: <p>
+Data: Follow the steps below, but using the range of characters\n      U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9), U+0061 LATIN\n      SMALL LETTER A to U+0066 LATIN SMALL LETTER F, and U+0041 LATIN\n      CAPITAL LETTER A to U+0046 LATIN CAPITAL LETTER F (in other\n      words, 0-9, A-F, a-f).
+Tag: </p>
+Data: \n\n      
+Tag: <p>
+Data: When it comes to interpreting the number, interpret it as a\n      hexadecimal number.
+Tag: </p>
+Data: \n\n     
+Tag: </dd>
+Data: \n\n\n     
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n     
+Tag: <dd>
+Data: \n\n      
+Tag: <p>
+Data: Follow the steps below, but using the range of characters\n      U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9).
+Tag: </p>
+Data: \n\n      
+Tag: <p>
+Data: When it comes to interpreting the number, interpret it as a\n      decimal number.
+Tag: </p>
+Data: \n\n     
+Tag: </dd>
+Data: \n\n    
+Tag: </dl>
+Tag: <p>
+Data: Consume as many characters as match the range of characters\n    given above.
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: If no characters match the range, then don't consume any\n    characters (and unconsume the U+0023 NUMBER SIGN character and, if\n    appropriate, the X character). This is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse\n    error
+Tag: </a>
+Data: ; nothing is returned.
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: Otherwise, if the next character is a U+003B SEMICOLON, consume\n    that too. If it isn't, there is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse\n    error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: If one or more characters match the range, then take them all\n    and interpret the string of characters as a number (either\n    hexadecimal or decimal as appropriate).
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: If that number is one of the numbers in the first column of the\n    following table, then this is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: . Find the\n    row with that number in the first column, and return a character\n    token for the Unicode character given in the second column of that\n    row.
+Tag: </p>
+Data: \n\n    
+Tag: <table id="table-charref-overrides">
+Tag: <thead>
+Tag: <tr>
+Tag: <th>
+Data: Number 
+Tag: </th>
+Tag: <th colspan="2">
+Data: Unicode character\n     
+Tag: </th>
+Tag: </tr>
+Tag: </thead>
+Tag: <tbody>
+Tag: <tr>
+Tag: <td>
+Data: 0x00 
+Tag: </td>
+Tag: <td>
+Data: U+FFFD 
+Tag: </td>
+Tag: <td>
+Data: REPLACEMENT CHARACTER\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x0D 
+Tag: </td>
+Tag: <td>
+Data: U+000D 
+Tag: </td>
+Tag: <td>
+Data: CARRIAGE RETURN (CR)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x80 
+Tag: </td>
+Tag: <td>
+Data: U+20AC 
+Tag: </td>
+Tag: <td>
+Data: EURO SIGN (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x81 
+Tag: </td>
+Tag: <td>
+Data: U+0081 
+Tag: </td>
+Tag: <td>
+Data: <control>\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x82 
+Tag: </td>
+Tag: <td>
+Data: U+201A 
+Tag: </td>
+Tag: <td>
+Data: SINGLE LOW-9 QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x83 
+Tag: </td>
+Tag: <td>
+Data: U+0192 
+Tag: </td>
+Tag: <td>
+Data: LATIN SMALL LETTER F WITH HOOK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x84 
+Tag: </td>
+Tag: <td>
+Data: U+201E 
+Tag: </td>
+Tag: <td>
+Data: DOUBLE LOW-9 QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x85 
+Tag: </td>
+Tag: <td>
+Data: U+2026 
+Tag: </td>
+Tag: <td>
+Data: HORIZONTAL ELLIPSIS (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x86 
+Tag: </td>
+Tag: <td>
+Data: U+2020 
+Tag: </td>
+Tag: <td>
+Data: DAGGER (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x87 
+Tag: </td>
+Tag: <td>
+Data: U+2021 
+Tag: </td>
+Tag: <td>
+Data: DOUBLE DAGGER (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x88 
+Tag: </td>
+Tag: <td>
+Data: U+02C6 
+Tag: </td>
+Tag: <td>
+Data: MODIFIER LETTER CIRCUMFLEX ACCENT (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x89 
+Tag: </td>
+Tag: <td>
+Data: U+2030 
+Tag: </td>
+Tag: <td>
+Data: PER MILLE SIGN (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8A 
+Tag: </td>
+Tag: <td>
+Data: U+0160 
+Tag: </td>
+Tag: <td>
+Data: LATIN CAPITAL LETTER S WITH CARON (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8B 
+Tag: </td>
+Tag: <td>
+Data: U+2039 
+Tag: </td>
+Tag: <td>
+Data: SINGLE LEFT-POINTING ANGLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8C 
+Tag: </td>
+Tag: <td>
+Data: U+0152 
+Tag: </td>
+Tag: <td>
+Data: LATIN CAPITAL LIGATURE OE (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8D 
+Tag: </td>
+Tag: <td>
+Data: U+008D 
+Tag: </td>
+Tag: <td>
+Data: <control>\n\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8E 
+Tag: </td>
+Tag: <td>
+Data: U+017D 
+Tag: </td>
+Tag: <td>
+Data: LATIN CAPITAL LETTER Z WITH CARON (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x8F 
+Tag: </td>
+Tag: <td>
+Data: U+008F 
+Tag: </td>
+Tag: <td>
+Data: <control>\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x90 
+Tag: </td>
+Tag: <td>
+Data: U+0090 
+Tag: </td>
+Tag: <td>
+Data: <control>\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x91 
+Tag: </td>
+Tag: <td>
+Data: U+2018 
+Tag: </td>
+Tag: <td>
+Data: LEFT SINGLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x92 
+Tag: </td>
+Tag: <td>
+Data: U+2019 
+Tag: </td>
+Tag: <td>
+Data: RIGHT SINGLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x93 
+Tag: </td>
+Tag: <td>
+Data: U+201C 
+Tag: </td>
+Tag: <td>
+Data: LEFT DOUBLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x94 
+Tag: </td>
+Tag: <td>
+Data: U+201D 
+Tag: </td>
+Tag: <td>
+Data: RIGHT DOUBLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x95 
+Tag: </td>
+Tag: <td>
+Data: U+2022 
+Tag: </td>
+Tag: <td>
+Data: BULLET (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x96 
+Tag: </td>
+Tag: <td>
+Data: U+2013 
+Tag: </td>
+Tag: <td>
+Data: EN DASH (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x97 
+Tag: </td>
+Tag: <td>
+Data: U+2014 
+Tag: </td>
+Tag: <td>
+Data: EM DASH (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x98 
+Tag: </td>
+Tag: <td>
+Data: U+02DC 
+Tag: </td>
+Tag: <td>
+Data: SMALL TILDE (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x99 
+Tag: </td>
+Tag: <td>
+Data: U+2122 
+Tag: </td>
+Tag: <td>
+Data: TRADE MARK SIGN (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9A 
+Tag: </td>
+Tag: <td>
+Data: U+0161 
+Tag: </td>
+Tag: <td>
+Data: LATIN SMALL LETTER S WITH CARON (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9B 
+Tag: </td>
+Tag: <td>
+Data: U+203A 
+Tag: </td>
+Tag: <td>
+Data: SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9C 
+Tag: </td>
+Tag: <td>
+Data: U+0153 
+Tag: </td>
+Tag: <td>
+Data: LATIN SMALL LIGATURE OE (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9D 
+Tag: </td>
+Tag: <td>
+Data: U+009D 
+Tag: </td>
+Tag: <td>
+Data: <control>\n\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9E 
+Tag: </td>
+Tag: <td>
+Data: U+017E 
+Tag: </td>
+Tag: <td>
+Data: LATIN SMALL LETTER Z WITH CARON (�)\n      
+Tag: </td>
+Tag: </tr>
+Tag: <tr>
+Tag: <td>
+Data: 0x9F 
+Tag: </td>
+Tag: <td>
+Data: U+0178 
+Tag: </td>
+Tag: <td>
+Data: LATIN CAPITAL LETTER Y WITH DIAERESIS (�)\n    
+Tag: </td>
+Tag: </tr>
+Tag: </tbody>
+Tag: </table>
+Tag: <p>
+Data: Otherwise, if the number is in the range 0xD800 to 0xDFFF
+Comment: 
+    surrogates 
+Data:  or is greater than 0x10FFFF, then this is a\n    
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: . Return a U+FFFD REPLACEMENT\n    CHARACTER.
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: Otherwise, return a character token for the Unicode character\n    whose code point is that number.\n\n    
+Comment:  this is the same as the equivalent list in the input stream
+    section 
+Data: \n\n    If the number is in the range 0x0001 to 0x0008, 
+Comment:  HT, LF
+    allowed 
+Data:  
+Comment:  U+000B is in the next list 
+Data:  
+Comment:  FF, CR
+    allowed 
+Data:  0x000E to 0x001F, 
+Comment:  ASCII allowed 
+Data:  0x007F 
+Comment: to
+    0x0084, (0x0085 NEL not allowed), 0x0086
+Data:  to 0x009F, 0xFDD0 to\n    0xFDEF, or is one of 0x000B, 0xFFFE, 0xFFFF, 0x1FFFE, 0x1FFFF,\n    0x2FFFE, 0x2FFFF, 0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE,\n    0x5FFFF, 0x6FFFE, 0x6FFFF, 0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF,\n    0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF, 0xBFFFE, 0xBFFFF, 0xCFFFE,\n    0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF, 0xFFFFE, 0xFFFFF,\n    0x10FFFE, or 0x10FFFF, then this is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse\n    error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n   
+Tag: </dd>
+Data: \n\n   
+Tag: <dt>
+Data: Anything else
+Tag: </dt>
+Data: \n\n   
+Tag: <dd>
+Data: \n\n    
+Tag: <p>
+Data: Consume the maximum number of characters possible, with the\n    consumed characters matching one of the identifiers in the first\n    column of the 
+Tag: <a href="named-character-references.html#named-character-references">
+Data: named character references
+Tag: </a>
+Data:  table (in a\n    
+Tag: <a href="infrastructure.html#case-sensitive">
+Data: case-sensitive
+Tag: </a>
+Data:  manner).
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: If no match can be made, then no characters are consumed, and\n    nothing is returned. In this case, if the characters after the\n    U+0026 AMPERSAND character (&) consist of a sequence of one or\n    more characters in the range U+0030 DIGIT ZERO (0) to U+0039 DIGIT\n    NINE (9), U+0061 LATIN SMALL LETTER A to U+007A LATIN SMALL LETTER\n    Z, and U+0041 LATIN CAPITAL LETTER A to U+005A LATIN CAPITAL\n    LETTER Z, followed by a U+003B SEMICOLON character (;), then this\n    is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: If the character reference is being consumed 
+Tag: <a href="#character-reference-in-attribute-value-state" title="character reference in attribute value state">
+Data: as part of an\n    attribute
+Tag: </a>
+Data: , and the last character matched is not a U+003B\n    SEMICOLON character (;), and the next character is either a U+003D\n    EQUALS SIGN character (=) or in the range U+0030 DIGIT ZERO (0) to\n    U+0039 DIGIT NINE (9), U+0041 LATIN CAPITAL LETTER A to U+005A\n    LATIN CAPITAL LETTER Z, or U+0061 LATIN SMALL LETTER A to U+007A\n    LATIN SMALL LETTER Z, then, for historical reasons, all the\n    characters that were matched after the U+0026 AMPERSAND character\n    (&) must be unconsumed, and nothing is returned.
+Tag: </p>
+Data: \n    
+Comment:  "=" added because of http://www.w3.org/Bugs/Public/show_bug.cgi?id=9207#c5 
+Data: \n\n    
+Tag: <p>
+Data: Otherwise, a character reference is parsed. If the last\n    character matched is not a U+003B SEMICOLON character (;), there\n    is a 
+Tag: <a href="parsing.html#parse-error">
+Data: parse error
+Tag: </a>
+Data: .
+Tag: </p>
+Data: \n\n    
+Tag: <p>
+Data: Return one or two character tokens for the character(s)\n    corresponding to the character reference name (as given by the\n    second column of the 
+Tag: <a href="named-character-references.html#named-character-references">
+Data: named character references
+Tag: </a>
+Data: \n    table).
+Tag: </p>
+Data: \n\n    
+Tag: <div class="example">
+Data: \n\n     
+Tag: <p>
+Data: If the markup contains (not in an attribute) the string 
+Tag: <code title="">
+Data: I'm &notit; I tell you
+Tag: </code>
+Data: , the character\n     reference is parsed as "not", as in, 
+Tag: <code title="">
+Data: I'm �it;\n     I tell you
+Tag: </code>
+Data:  (and this is a parse error). But if the markup\n     was 
+Tag: <code title="">
+Data: I'm &notin; I tell you
+Tag: </code>
+Data: , the\n     character reference would be parsed as "notin;", resulting in\n     
+Tag: <code title="">
+Data: I'm ? I tell you
+Tag: </code>
+Data:  (and no parse\n     error).
+Tag: </p>
+Data: \n\n    
+Tag: </div>
+Data: \n\n   
+Tag: </dd>
+Data: \n\n  
+Tag: </dl>
+Tag: </div>
+Data: \n\n\n  
+Tag: </body>
+Tag: </html>

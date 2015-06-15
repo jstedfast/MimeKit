@@ -47,39 +47,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		protected HtmlTagContext (HtmlTagId tagId)
 		{
-			if (tagId == HtmlTagId.Unknown)
-				throw new ArgumentOutOfRangeException ("tagId");
-
-			TagName = tagId.ToHtmlTagName ();
 			TagId = tagId;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagContext"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="HtmlTagContext"/>.
-		/// </remarks>
-		/// <param name="tagName">The HTML tag name.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="tagName"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="tagName"/> is an invalid HTML tag name.
-		/// </exception>
-		protected HtmlTagContext (string tagName)
-		{
-			if (tagName == null)
-				throw new ArgumentNullException ("tagName");
-
-			if (tagName.Length == 0)
-				throw new ArgumentException ("The tag name cannot be empty.", "tagName");
-
-			if (!HtmlUtils.IsValidTagName (tagName))
-				throw new ArgumentException ("Invalid tag name.", "tagName");
-
-			TagId = tagName.ToHtmlTagId ();
-			TagName = tagName;
 		}
 
 		/// <summary>
@@ -144,8 +112,8 @@ namespace MimeKit.Text {
 		/// Gets whether or not the tag is an end tag.
 		/// </remarks>
 		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
-		public bool IsEndTag {
-			get; protected set;
+		public abstract bool IsEndTag {
+			get;
 		}
 
 		/// <summary>
@@ -177,8 +145,8 @@ namespace MimeKit.Text {
 		/// Gets the HTML tag name.
 		/// </remarks>
 		/// <value>The HTML tag name.</value>
-		public string TagName {
-			get; private set;
+		public abstract string TagName {
+			get;
 		}
 
 		/// <summary>

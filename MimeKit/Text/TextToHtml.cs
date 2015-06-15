@@ -148,6 +148,7 @@ namespace MimeKit.Text {
 		class TextToHtmlTagContext : HtmlTagContext
 		{
 			HtmlAttributeCollection attributes;
+			bool isEndTag;
 
 			public TextToHtmlTagContext (HtmlTagId tag, HtmlAttribute attr) : base (tag)
 			{
@@ -159,6 +160,10 @@ namespace MimeKit.Text {
 				attributes = HtmlAttributeCollection.Empty;
 			}
 
+			public override string TagName {
+				get { return TagId.ToHtmlTagName (); }
+			}
+
 			public override HtmlAttributeCollection Attributes {
 				get { return attributes; }
 			}
@@ -167,9 +172,13 @@ namespace MimeKit.Text {
 				get { return TagId == HtmlTagId.Br; }
 			}
 
+			public override bool IsEndTag {
+				get { return isEndTag; }
+			}
+
 			public void SetIsEndTag (bool value)
 			{
-				IsEndTag = value;
+				isEndTag = value;
 			}
 		}
 

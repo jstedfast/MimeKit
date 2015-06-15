@@ -165,6 +165,7 @@ namespace MimeKit.Text {
 		class FlowedToHtmlTagContext : HtmlTagContext
 		{
 			HtmlAttributeCollection attrs;
+			bool isEndTag;
 
 			public FlowedToHtmlTagContext (HtmlTagId tag, HtmlAttribute attr) : base (tag)
 			{
@@ -176,6 +177,10 @@ namespace MimeKit.Text {
 				attrs = HtmlAttributeCollection.Empty;
 			}
 
+			public override string TagName {
+				get { return TagId.ToHtmlTagName (); }
+			}
+
 			public override HtmlAttributeCollection Attributes {
 				get { return attrs; }
 			}
@@ -184,9 +189,13 @@ namespace MimeKit.Text {
 				get { return TagId == HtmlTagId.Br; }
 			}
 
+			public override bool IsEndTag {
+				get { return isEndTag; }
+			}
+
 			public void SetIsEndTag (bool value)
 			{
-				IsEndTag = value;
+				isEndTag = value;
 			}
 		}
 
