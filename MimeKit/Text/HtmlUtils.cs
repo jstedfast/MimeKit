@@ -91,26 +91,38 @@ namespace MimeKit.Text {
 
 			while (index < endIndex) {
 				char c = value[index++];
-				int nextIndex;
+				int unichar, nextIndex;
 
 				switch (c) {
-				case '\'':
-					if (c == quote)
-						output.Write ("&#39;");
-					else
-						output.Write (c);
-					break;
-				case '"':
-					if (c == quote)
-						output.Write ("&quot;");
-					else
-						output.Write (c);
-					break;
+				case '\t': case '\r': case '\n': case '\f': output.Write (c); break;
+				case '\'': output.Write (c == quote ? "&#39;" : "'"); break;
+				case '"': output.Write (c == quote ? "&quot;" : "\""); break;
 				case '&': output.Write ("&amp;"); break;
 				case '<': output.Write ("&lt;"); break;
 				case '>': output.Write ("&gt;"); break;
 				default:
-					output.Write (c);
+					if (c < 32 || (c >= 127 && c < 160)) {
+						// illegal control character
+						break;
+					}
+
+					if (c > 255 && char.IsSurrogate (c)) {
+						if (index + 1 < endIndex && char.IsSurrogatePair (c, value[index])) {
+							unichar = char.ConvertToUtf32 (c, value[index]);
+							index++;
+						} else {
+							unichar = c;
+						}
+					} else if (c >= 160) {
+						// 160-255 and non-surrogates
+						unichar = c;
+					} else {
+						// SPACE and other printable (safe) ASCII
+						output.Write (c);
+						break;
+					}
+
+					output.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
 					break;
 				}
 
@@ -390,24 +402,31 @@ namespace MimeKit.Text {
 				char c = data[index++];
 				int unichar, nextIndex;
 
-				switch ((int) c) {
+				switch (c) {
+				case '\t': case '\r': case '\n': case '\f': output.Write (c); break;
 				case '\'': output.Write ("&#39;"); break;
-				case 160: output.Write ("&nbsp;"); break;
 				case '"': output.Write ("&quot;"); break;
 				case '&': output.Write ("&amp;"); break;
 				case '<': output.Write ("&lt;"); break;
 				case '>': output.Write ("&gt;"); break;
 				default:
-					if (c >= 160 && c < 256) {
-						unichar = c;
-					} else if (char.IsSurrogate (c)) {
+					if (c < 32 || (c >= 127 && c < 160)) {
+						// illegal control character
+						break;
+					}
+
+					if (c > 255 && char.IsSurrogate (c)) {
 						if (index + 1 < endIndex && char.IsSurrogatePair (c, data[index])) {
 							unichar = char.ConvertToUtf32 (c, data[index]);
 							index++;
 						} else {
 							unichar = c;
 						}
+					} else if (c >= 160) {
+						// 160-255 and non-surrogates
+						unichar = c;
 					} else {
+						// SPACE and other printable (safe) ASCII
 						output.Write (c);
 						break;
 					}
