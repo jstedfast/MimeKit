@@ -305,6 +305,29 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets a value indicating whether this <see cref="MimePart"/> is an attachment.
+		/// </summary>
+		/// <remarks>
+		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
+		/// then this property returns <c>true</c>. Otherwise it is assumed that the
+		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
+		/// </remarks>
+		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		public bool IsAttachment {
+			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
+			set {
+				if (value) {
+					if (ContentDisposition == null)
+						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+					else if (!ContentDisposition.IsAttachment)
+						ContentDisposition.Disposition = ContentDisposition.Attachment;
+				} else if (ContentDisposition != null && ContentDisposition.IsAttachment) {
+					ContentDisposition.Disposition = ContentDisposition.Inline;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
