@@ -45,7 +45,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [5672](http://www.ietf.org/rfc/rfc5672.txt): RFC 4871 DomainKeys Identified Mail (DKIM) Signatures -- Update
 * [5750](http://www.ietf.org/rfc/rfc5750.txt): S/MIME Version 3.2 Certificate Handling (Obsoletes rfc3850)
 * [5751](http://www.ietf.org/rfc/rfc5751.txt): S/MIME Version 3.2 Message Specification (Obsoletes rfc3851)
-* [6376](http://www.ietf.org/rfc/rfc4376.txt): DomainKeys Identified Mail (DKIM) Signatures (Obsoletes rfc4871)
+* [6376](http://www.ietf.org/rfc/rfc6376.txt): DomainKeys Identified Mail (DKIM) Signatures (Obsoletes rfc4871)
 * [6532](http://www.ietf.org/rfc/rfc6532.txt): Internationalized Email Headers
 
 #### Other RFCs of interest:
