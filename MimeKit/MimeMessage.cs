@@ -865,7 +865,7 @@ namespace MimeKit {
 			return null;
 		}
 
-		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
+		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity entity)
 		{
 			if (entity == null)
 				yield break;
@@ -881,30 +881,18 @@ namespace MimeKit {
 				yield break;
 			}
 
-			var msgpart = entity as MessagePart;
-
-			if (msgpart != null) {
-				var message = msgpart.Message;
-
-				if (message != null) {
-					foreach (var part in EnumerateMimeParts (message.Body))
-						yield return part;
-				}
-
-				yield break;
-			}
-
-			yield return (MimePart) entity;
+			yield return entity;
 		}
 
 		/// <summary>
 		/// Gets the body parts of the message.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects.
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects,
+		/// but does not traverse into the bodies of attached messages.
 		/// </remarks>
 		/// <value>The body parts.</value>
-		public IEnumerable<MimePart> BodyParts {
+		public IEnumerable<MimeEntity> BodyParts {
 			get { return EnumerateMimeParts (Body); }
 		}
 
@@ -912,12 +900,12 @@ namespace MimeKit {
 		/// Gets the attachments.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects that
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects that
 		/// have a Content-Disposition header set to <c>"attachment"</c>.
 		/// </remarks>
 		/// <value>The attachments.</value>
-		public IEnumerable<MimePart> Attachments {
-			get { return EnumerateMimeParts (Body).Where (part => part.IsAttachment); }
+		public IEnumerable<MimeEntity> Attachments {
+			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
 		}
 
 		/// <summary>
