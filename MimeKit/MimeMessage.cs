@@ -71,6 +71,8 @@ namespace MimeKit {
 		};
 
 		readonly Dictionary<string, InternetAddressList> addresses;
+		MessageImportance importance = MessageImportance.Normal;
+		MessagePriority priority = MessagePriority.Normal;
 		readonly MessageIdList references;
 		MailboxAddress resentSender;
 		DateTimeOffset resentDate;
@@ -249,6 +251,73 @@ namespace MimeKit {
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Get or set the value of the Importance header.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the Importance header.
+		/// </remarks>
+		/// <value>The importance.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid <see cref="MessageImportance"/>.
+		/// </exception>
+		public MessageImportance Importance {
+			get { return importance; }
+			set {
+				if (value == importance)
+					return;
+
+				switch (value) {
+				case MessageImportance.Normal:
+				case MessageImportance.High:
+				case MessageImportance.Low:
+					SetHeader ("Importance", value.ToString ().ToLowerInvariant ());
+					importance = value;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException ("value");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get or set the value of the Priority header.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the Priority header.
+		/// </remarks>
+		/// <value>The priority.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
+		/// </exception>
+		public MessagePriority Priority {
+			get { return priority; }
+			set {
+				if (value == priority)
+					return;
+
+				string rawValue;
+
+				switch (value) {
+				case MessagePriority.NonUrgent:
+					rawValue = "non-urgent";
+					break;
+				case MessagePriority.Normal:
+					rawValue = "normal";
+					break;
+				case MessagePriority.Urgent:
+					rawValue = "urgent";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException ("value");
+				}
+
+				SetHeader ("Priority", rawValue);
+
+				priority = value;
+			}
 		}
 
 		/// <summary>
@@ -2127,6 +2196,12 @@ namespace MimeKit {
 			case HeaderId.Sender:
 				sender = null;
 				break;
+			case HeaderId.Importance:
+				importance = MessageImportance.Normal;
+				break;
+			case HeaderId.Priority:
+				priority = MessagePriority.Normal;
+				break;
 			case HeaderId.Date:
 				date = DateTimeOffset.MinValue;
 				break;
@@ -2179,6 +2254,20 @@ namespace MimeKit {
 				case HeaderId.ResentDate:
 					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate))
 						return;
+					break;
+				case HeaderId.Importance:
+					switch (header.Value.ToLowerInvariant ().Trim ()) {
+					case "high": importance = MessageImportance.High; break;
+					case "low": importance = MessageImportance.Low; break;
+					default: importance = MessageImportance.Normal; break;
+					}
+					break;
+				case HeaderId.Priority:
+					switch (header.Value.ToLowerInvariant ().Trim ()) {
+					case "non-urgent": priority = MessagePriority.NonUrgent; break;
+					case "urgent": priority = MessagePriority.Urgent; break;
+					default: priority = MessagePriority.Normal; break;
+					}
 					break;
 				case HeaderId.Date:
 					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out date))
@@ -2234,6 +2323,20 @@ namespace MimeKit {
 				case HeaderId.ResentDate:
 					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
 					break;
+				case HeaderId.Importance:
+					switch (e.Header.Value.ToLowerInvariant ().Trim ()) {
+					case "high": importance = MessageImportance.High; break;
+					case "low": importance = MessageImportance.Low; break;
+					default: importance = MessageImportance.Normal; break;
+					}
+					break;
+				case HeaderId.Priority:
+					switch (e.Header.Value.ToLowerInvariant ().Trim ()) {
+					case "non-urgent": priority = MessagePriority.NonUrgent; break;
+					case "urgent": priority = MessagePriority.Urgent; break;
+					default: priority = MessagePriority.Normal; break;
+					}
+					break;
 				case HeaderId.Date:
 					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
 					break;
@@ -2259,6 +2362,8 @@ namespace MimeKit {
 				references.Clear ();
 				references.Changed += ReferencesChanged;
 
+				importance = MessageImportance.Normal;
+				priority = MessagePriority.Normal;
 				resentMessageId = null;
 				resentSender = null;
 				inreplyto = null;
