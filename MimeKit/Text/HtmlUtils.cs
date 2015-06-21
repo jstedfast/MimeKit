@@ -71,7 +71,7 @@ namespace MimeKit.Text {
 			return endIndex;
 		}
 
-		static void HtmlEncodeAttribute (TextWriter output, ICharArray value, int startIndex, int count, char quote = '"')
+		static void HtmlAttributeEncode (TextWriter output, ICharArray value, int startIndex, int count, char quote = '"')
 		{
 			int endIndex = startIndex + count;
 			int index;
@@ -160,7 +160,7 @@ namespace MimeKit.Text {
 		/// <para>-or-</para>
 		/// <para><paramref name="quote"/> is not a valid quote character.</para>
 		/// </exception>
-		public static void HtmlEncodeAttribute (TextWriter output, char[] value, int startIndex, int count, char quote = '"')
+		public static void HtmlAttributeEncode (TextWriter output, char[] value, int startIndex, int count, char quote = '"')
 		{
 			if (output == null)
 				throw new ArgumentNullException ("output");
@@ -177,7 +177,7 @@ namespace MimeKit.Text {
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentOutOfRangeException ("quote");
 
-			HtmlEncodeAttribute (output, new CharArray (value), startIndex, count, quote);
+			HtmlAttributeEncode (output, new CharArray (value), startIndex, count, quote);
 		}
 
 		/// <summary>
@@ -200,7 +200,7 @@ namespace MimeKit.Text {
 		/// <para>-or-</para>
 		/// <para><paramref name="quote"/> is not a valid quote character.</para>
 		/// </exception>
-		public static string HtmlEncodeAttribute (char[] value, int startIndex, int count, char quote = '"')
+		public static string HtmlAttributeEncode (char[] value, int startIndex, int count, char quote = '"')
 		{
 			if (value == null)
 				throw new ArgumentNullException ("value");
@@ -217,7 +217,7 @@ namespace MimeKit.Text {
 			var encoded = new StringBuilder ();
 
 			using (var output = new StringWriter (encoded))
-				HtmlEncodeAttribute (output, new CharArray (value), startIndex, count, quote);
+				HtmlAttributeEncode (output, new CharArray (value), startIndex, count, quote);
 
 			return encoded.ToString ();
 		}
@@ -244,7 +244,7 @@ namespace MimeKit.Text {
 		/// <para>-or-</para>
 		/// <para><paramref name="quote"/> is not a valid quote character.</para>
 		/// </exception>
-		public static void HtmlEncodeAttribute (TextWriter output, string value, int startIndex, int count, char quote = '"')
+		public static void HtmlAttributeEncode (TextWriter output, string value, int startIndex, int count, char quote = '"')
 		{
 			if (output == null)
 				throw new ArgumentNullException ("output");
@@ -261,7 +261,7 @@ namespace MimeKit.Text {
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentOutOfRangeException ("quote");
 
-			HtmlEncodeAttribute (output, new CharString (value), startIndex, count, quote);
+			HtmlAttributeEncode (output, new CharString (value), startIndex, count, quote);
 		}
 
 		/// <summary>
@@ -281,7 +281,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="quote"/> is not a valid quote character.
 		/// </exception>
-		public static void HtmlEncodeAttribute (TextWriter output, string value, char quote = '"')
+		public static void HtmlAttributeEncode (TextWriter output, string value, char quote = '"')
 		{
 			if (output == null)
 				throw new ArgumentNullException ("output");
@@ -292,7 +292,7 @@ namespace MimeKit.Text {
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentOutOfRangeException ("quote");
 
-			HtmlEncodeAttribute (output, new CharString (value), 0, value.Length, quote);
+			HtmlAttributeEncode (output, new CharString (value), 0, value.Length, quote);
 		}
 
 		/// <summary>
@@ -315,7 +315,7 @@ namespace MimeKit.Text {
 		/// <para>-or-</para>
 		/// <para><paramref name="quote"/> is not a valid quote character.</para>
 		/// </exception>
-		public static string HtmlEncodeAttribute (string value, int startIndex, int count, char quote = '"')
+		public static string HtmlAttributeEncode (string value, int startIndex, int count, char quote = '"')
 		{
 			if (value == null)
 				throw new ArgumentNullException ("value");
@@ -332,7 +332,7 @@ namespace MimeKit.Text {
 			var encoded = new StringBuilder ();
 
 			using (var output = new StringWriter (encoded))
-				HtmlEncodeAttribute (output, new CharString (value), startIndex, count, quote);
+				HtmlAttributeEncode (output, new CharString (value), startIndex, count, quote);
 
 			return encoded.ToString ();
 		}
@@ -352,7 +352,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="quote"/> is not a valid quote character.
 		/// </exception>
-		public static string HtmlEncodeAttribute (string value, char quote = '"')
+		public static string HtmlAttributeEncode (string value, char quote = '"')
 		{
 			if (value == null)
 				throw new ArgumentNullException ("value");
@@ -363,7 +363,7 @@ namespace MimeKit.Text {
 			var encoded = new StringBuilder ();
 
 			using (var output = new StringWriter (encoded))
-				HtmlEncodeAttribute (output, new CharString (value), 0, value.Length, quote);
+				HtmlAttributeEncode (output, new CharString (value), 0, value.Length, quote);
 
 			return encoded.ToString ();
 		}
