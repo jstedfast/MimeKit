@@ -425,7 +425,7 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
 		/// </exception>
-		public IEnumerable<MimePart> ExtractAttachments ()
+		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{
 			var message = ConvertToMessage ();
 

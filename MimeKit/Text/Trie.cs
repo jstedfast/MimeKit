@@ -97,7 +97,7 @@ namespace MimeKit.Text {
 			if (startIndex < 0 || startIndex > text.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (count < 0 || startIndex + count > text.Length)
+			if (count < 0 || count > (text.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("count");
 		}
 
