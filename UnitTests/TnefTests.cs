@@ -472,7 +472,7 @@ namespace UnitTests {
 			foreach (var name in names) {
 				bool found = false;
 
-				foreach (var part in message.BodyParts) {
+				foreach (var part in message.BodyParts.OfType<MimePart> ()) {
 					if (part.FileName == name) {
 						found = true;
 						break;
