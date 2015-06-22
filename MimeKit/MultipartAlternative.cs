@@ -164,8 +164,15 @@ namespace MimeKit {
 				var related = this[i] as MultipartRelated;
 				var text = this[i] as TextPart;
 
-				if (related != null)
-					text = related.Root as TextPart;
+				if (related != null) {
+					var root = related.Root;
+
+					alternative = root as MultipartAlternative;
+					if (alternative != null)
+						return alternative.GetTextBody (format);
+
+					text = root as TextPart;
+				}
 
 				if (text != null && text.IsFormat (format))
 					return GetText (text);
