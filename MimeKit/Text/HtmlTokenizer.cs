@@ -1574,16 +1574,14 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
 					return null;
 				case '>':
+					attribute.Value = name.ToString ();
+					name.Length = 0;
+
 					return EmitTagToken ();
 				case '\'': case '<': case '=': case '`':
 					// parse error
 					goto default;
 				default:
-					if (c == quote) {
-						TokenizerState = HtmlTokenizerState.AfterAttributeValueQuoted;
-						break;
-					}
-
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}

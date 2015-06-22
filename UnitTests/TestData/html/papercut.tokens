@@ -19,16 +19,16 @@ Comment: [if gte mso 9]><xml>
 </o:shapelayout></xml><![endif]
 Tag: </head>
 Tag: <body lang="EN-US" link="#0563C1" vlink="#954F72">
-Tag: <div class>
-Tag: <WordSection1p class>
-Tag: <MsoNormalimg width="232" height="50" id="Picture_x0020_1" src="cid:image001.png@01CE6622.AACEBDC0">
+Tag: <div class="WordSection1">
+Tag: <p class="MsoNormal">
+Tag: <img width="232" height="50" id="Picture_x0020_1" src="cid:image001.png@01CE6622.AACEBDC0">
 Tag: <i>
 Tag: <o:p>
 Tag: </o:p>
 Tag: </i>
 Tag: </p>
-Tag: <p class>
-Tag: <MsoNormali>
+Tag: <p class="MsoNormal">
+Tag: <i>
 Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#A6A6A6">
 Data: The Simple Desktop Email Receiver.
 Tag: <o:p>
@@ -41,14 +41,14 @@ Data: Papercut v4.3.0.0 [2014-11-05] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalo:p>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: “Raw” message view re-added back as a view of the message data using AvalonEdit control for speed.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -56,34 +56,34 @@ Data: Papercut v4.2.1.0 [2014-10-11] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalo:p>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: #9861 Exception if the specified file name for a mime part was duplicate.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Web links in emails are launched in default browser. (Thanks Jamie Humphries!)
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Conditional Forward (RegEx) Rule based on body or headers.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: Added the "Mark-of-web" for the email viewer to remove IE security warnings.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: #9863 Papercut.Service was not correctly reporting it’s incoming mail directory to Papercut.Client.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -91,54 +91,54 @@ Data: Papercut v4.2.0.0 [2014-8-23] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalo:p>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: #9859 Now using <pre> tag when displaying the text email so that carriage returns/linefeeds are displayed.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: #9858 Now won’t close the app when failing to delete a message. Displays the reason for the failure as well.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: Increased the robustness and error handling of the SMTP FIle Receiving.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: Now validates the existence of and creates (if necessary) the Default Message Save Path directory.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: Improved the loading so that it catches all assembly loading errors and attempts to write them to the Event Log in case app load is failing.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Changed: Set the protocol logging to "Verbose".
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Changed: Papercut.Service default save location now defaults to %BaseDirectory%\Incoming.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Remove the "read-only" flag from the message file when attempting to delete.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Example Papercut.Service.json file with comments to explain the settings.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -146,14 +146,14 @@ Data: Papercut v4.1.0.0 [2014-8-13] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalo:p>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: #9851 Exception on TCP/IP port binding failure.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -161,69 +161,69 @@ Data: Papercut v4.0.0.0 [2014-7-24] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalo:p>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Automatic “rules” system and configuration. Currently only supports a forward rule. But unlimited forwards can be specified.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: “Loading” UI
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added: Save window height/width.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added support for rules to the backend service. Rules are configured by the front-end and pushed to the backend service automatically.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Switched to using MailKit instead of custom Smtp Client for additional options it offers.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Added authentication support to the forward rule.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Issue #9852: Converted Papercut.Service to use a json settings file. Papercut Client/UI will continue to use the .NET settings system do it it's complex system of overrides based on the current user account.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: Now properly disables the Message View if it’s disabled.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement:  UI consistency -- added one place for Option and Exit links on the main UI.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: Added "Delete (count)" to the delete button.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: Issue #9849 – Null Reference in the Attachment/Mime Section
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Improvement: SMTP Server failure handling and added additional logging to help with issue #9851.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -231,8 +231,8 @@ Data: Papercut v3.0.0.0 [2014-6-8] Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalspan style="border:none windowtext 1.0pt;padding:0in">
+Tag: <p class="MsoNormal">
+Tag: <span style="border:none windowtext 1.0pt;padding:0in">
 Tag: <br>
 Data: Papercut has switched to semantic versioning! That means you will have to uninstall old "clickonce" versions to get the latest as it will see it as an older version.
 Tag: </span>
@@ -241,29 +241,29 @@ Data: Modern UI
 Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: MVVM Architecture
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Watch Directories for New Messages
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Optional Backend Papercut Service
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Load on Windows Startup
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Attachments/Mime Sections
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -271,8 +271,8 @@ Data: Papercut 2014-5-1 Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalbr>
+Tag: <p class="MsoNormal">
+Tag: <br>
 Data: Fixed: Message list box scrolling caused unhandled exception.
 Tag: <o:p>
 Tag: </o:p>
@@ -282,20 +282,20 @@ Data: Papercut v2014-3-13 Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalbr>
+Tag: <p class="MsoNormal">
+Tag: <br>
 Data: Fixed: Converted back to .NET v4 so that XP users are supported.
 Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: Running papercut under SYSTEM account will now store messages in the application base directory instead of the \User\AppData\Papercut directory.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Change: Using MimeKitLite instead of full MimeKit.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <h1>
@@ -303,23 +303,23 @@ Data: Papercut v2014-3-8 Release Notes
 Tag: <o:p>
 Tag: </o:p>
 Tag: </h1>
-Tag: <p class>
-Tag: <MsoNormalspan style="color:#1F497D">
+Tag: <p class="MsoNormal">
+Tag: <span style="color:#1F497D">
 Tag: <o:p>
 Data:  
 Tag: </o:p>
 Tag: </span>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Change: Application now using the excellent 
-Tag: <MsoNormala href="https://github.com/jstedfast/MimeKit">
+Tag: <a href="https://github.com/jstedfast/MimeKit">
 Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif">
 Data: MimeKit
 Tag: </span>
 Tag: </a>
 Data:  library. Faster and better support for mime types.
-Tag: <span class>
-Tag: <apple-converted-spacespan style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Tag: <span class="apple-converted-space">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
 Data:  
 Tag: </span>
 Tag: </span>
@@ -343,8 +343,8 @@ Tag: <br>
 Data: Feature: Now you can delete a Message with the Delete Key (#9835) - message Content from last message is now correctly cleared (#9840)
 Tag: <br>
 Data: Feature: Changed Processing to Buffered File output for speed, etc.
-Tag: <span class>
-Tag: <apple-converted-spacespan style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Tag: <span class="apple-converted-space">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
 Data:  
 Tag: </span>
 Tag: </span>
@@ -361,9 +361,9 @@ Data: Fixed: fixed crash on start when there is an email with 0 byte.
 Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
-Tag: <p class>
+Tag: <p class="MsoNormal">
 Data: Fixed: Issue with email address parsing.
-Tag: <MsoNormalo:p>
+Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: </div>
