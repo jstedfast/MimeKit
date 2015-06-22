@@ -1,5 +1,14 @@
 # Release Notes
 
+### MimeKit 1.2.5
+
+* Changed BodyParts and Attachments to be IEnumerable<MimeEntity> -
+  WARNING! This is an API change! (issue #148)
+* Moved the IsAttachment property from MimePart down into MimeEntity.
+* Added MimeMessage.Importance and MimeMessage.Priority properties.
+* Vastly improved the HtmlToHtml text converter with a w3 compliant
+  HTML tokenizer.
+
 ### MimeKit 1.2.4
 
 * Added support for generating and verifying DKIM-Signature headers.
