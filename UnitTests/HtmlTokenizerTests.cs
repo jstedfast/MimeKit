@@ -139,6 +139,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestPapercut ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "papercut.html"));
+		}
+
+		[Test]
 		public void TestTokenizer ()
 		{
 			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "test.html"));

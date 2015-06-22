@@ -92,6 +92,8 @@
     <None Include="TestData\encoders\photo.uu" />
     <None Include="TestData\html\blocked.html" />
     <None Include="TestData\html\blocked.tokens" />
+    <None Include="TestData\html\papercut.html" />
+    <None Include="TestData\html\papercut.tokens" />
     <None Include="TestData\html\test.html" />
     <None Include="TestData\html\test.tokens" />
     <None Include="TestData\html\xamarin3.html" />

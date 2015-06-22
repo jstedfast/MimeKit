@@ -1502,7 +1502,7 @@ namespace MimeKit.Text {
 					// parse error
 					goto default;
 				default:
-					TokenizerState = HtmlTokenizerState.AttributeName;
+					TokenizerState = HtmlTokenizerState.AttributeValueUnquoted;
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
 				}
@@ -1687,10 +1687,12 @@ namespace MimeKit.Text {
 			switch (c) {
 			case '\t': case '\r': case '\n': case '\f': case ' ':
 				TokenizerState = HtmlTokenizerState.BeforeAttributeName;
+				data.Append (c);
 				consume = true;
 				break;
 			case '/':
 				TokenizerState = HtmlTokenizerState.SelfClosingStartTag;
+				data.Append (c);
 				consume = true;
 				break;
 			case '>':

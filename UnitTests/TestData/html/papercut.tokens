@@ -1,0 +1,372 @@
+Tag: <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+Tag: <head>
+Tag: <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+Tag: <meta name="Generator" content="Microsoft Word 15 (filtered medium)">
+Comment: [if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]
+Tag: <style>
+Data: <!--\r\n/* Font Definitions */\r\n@font-face\r\n\t{font-family:"Cambria Math";\r\n\tpanose-1:2 4 5 3 5 4 6 3 2 4;}\r\n@font-face\r\n\t{font-family:"Calibri Light";\r\n\tpanose-1:2 15 3 2 2 2 4 3 2 4;}\r\n@font-face\r\n\t{font-family:Calibri;\r\n\tpanose-1:2 15 5 2 2 2 4 3 2 4;}\r\n@font-face\r\n\t{font-family:"Segoe UI";\r\n\tpanose-1:2 11 5 2 4 2 4 2 2 3;}\r\n/* Style Definitions */\r\np.MsoNormal, li.MsoNormal, div.MsoNormal\r\n\t{margin:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tfont-size:11.0pt;\r\n\tfont-family:"Calibri",sans-serif;}\r\nh1\r\n\t{mso-style-priority:9;\r\n\tmso-style-link:"Heading 1 Char";\r\n\tmargin-top:12.0pt;\r\n\tmargin-right:0in;\r\n\tmargin-bottom:0in;\r\n\tmargin-left:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tpage-break-after:avoid;\r\n\tfont-size:16.0pt;\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;\r\n\tfont-weight:normal;}\r\nh2\r\n\t{mso-style-priority:9;\r\n\tmso-style-link:"Heading 2 Char";\r\n\tmargin-top:2.0pt;\r\n\tmargin-right:0in;\r\n\tmargin-bottom:0in;\r\n\tmargin-left:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tpage-break-after:avoid;\r\n\tfont-size:13.0pt;\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;\r\n\tfont-weight:normal;}\r\nh3\r\n\t{mso-style-priority:9;\r\n\tmso-style-link:"Heading 3 Char";\r\n\tmargin-top:2.0pt;\r\n\tmargin-right:0in;\r\n\tmargin-bottom:0in;\r\n\tmargin-left:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tpage-break-after:avoid;\r\n\tfont-size:12.0pt;\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#1F4D78;\r\n\tfont-weight:normal;}\r\nh4\r\n\t{mso-style-priority:9;\r\n\tmso-style-link:"Heading 4 Char";\r\n\tmargin-top:2.0pt;\r\n\tmargin-right:0in;\r\n\tmargin-bottom:0in;\r\n\tmargin-left:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tpage-break-after:avoid;\r\n\tfont-size:11.0pt;\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;\r\n\tfont-weight:normal;\r\n\tfont-style:italic;}\r\nh5\r\n\t{mso-style-priority:9;\r\n\tmso-style-link:"Heading 5 Char";\r\n\tmargin-top:2.0pt;\r\n\tmargin-right:0in;\r\n\tmargin-bottom:0in;\r\n\tmargin-left:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tpage-break-after:avoid;\r\n\tfont-size:11.0pt;\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;\r\n\tfont-weight:normal;}\r\na:link, span.MsoHyperlink\r\n\t{mso-style-priority:99;\r\n\tcolor:#0563C1;\r\n\ttext-decoration:underline;}\r\na:visited, span.MsoHyperlinkFollowed\r\n\t{mso-style-priority:99;\r\n\tcolor:#954F72;\r\n\ttext-decoration:underline;}\r\np.MsoNoSpacing, li.MsoNoSpacing, div.MsoNoSpacing\r\n\t{mso-style-priority:1;\r\n\tmargin:0in;\r\n\tmargin-bottom:.0001pt;\r\n\tfont-size:11.0pt;\r\n\tfont-family:"Calibri",sans-serif;}\r\nspan.Heading1Char\r\n\t{mso-style-name:"Heading 1 Char";\r\n\tmso-style-priority:9;\r\n\tmso-style-link:"Heading 1";\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;}\r\nspan.Heading2Char\r\n\t{mso-style-name:"Heading 2 Char";\r\n\tmso-style-priority:9;\r\n\tmso-style-link:"Heading 2";\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;}\r\nspan.Heading3Char\r\n\t{mso-style-name:"Heading 3 Char";\r\n\tmso-style-priority:9;\r\n\tmso-style-link:"Heading 3";\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#1F4D78;}\r\nspan.Heading4Char\r\n\t{mso-style-name:"Heading 4 Char";\r\n\tmso-style-priority:9;\r\n\tmso-style-link:"Heading 4";\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;\r\n\tfont-style:italic;}\r\nspan.Heading5Char\r\n\t{mso-style-name:"Heading 5 Char";\r\n\tmso-style-priority:9;\r\n\tmso-style-link:"Heading 5";\r\n\tfont-family:"Calibri Light",sans-serif;\r\n\tcolor:#2E74B5;}\r\nspan.EmailStyle23\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:windowtext;}\r\nspan.EmailStyle24\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle25\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle26\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle27\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle28\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:windowtext;}\r\nspan.apple-converted-space\r\n\t{mso-style-name:apple-converted-space;}\r\nspan.EmailStyle30\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle31\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle32\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle33\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle34\r\n\t{mso-style-type:personal;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\nspan.EmailStyle35\r\n\t{mso-style-type:personal-reply;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:#1F497D;}\r\n.MsoChpDefault\r\n\t{mso-style-type:export-only;\r\n\tfont-size:10.0pt;}\r\n@page WordSection1\r\n\t{size:8.5in 11.0in;\r\n\tmargin:1.0in 1.0in 1.0in 1.0in;}\r\ndiv.WordSection1\r\n\t{page:WordSection1;}\r\n-->
+Tag: </style>
+Comment: [if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]
+Comment: [if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]
+Tag: </head>
+Tag: <body lang="EN-US" link="#0563C1" vlink="#954F72">
+Tag: <div class>
+Tag: <WordSection1p class>
+Tag: <MsoNormalimg width="232" height="50" id="Picture_x0020_1" src="cid:image001.png@01CE6622.AACEBDC0">
+Tag: <i>
+Tag: <o:p>
+Tag: </o:p>
+Tag: </i>
+Tag: </p>
+Tag: <p class>
+Tag: <MsoNormali>
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#A6A6A6">
+Data: The Simple Desktop Email Receiver.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </span>
+Tag: </i>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.3.0.0 [2014-11-05] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalo:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: “Raw” message view re-added back as a view of the message data using AvalonEdit control for speed.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.2.1.0 [2014-10-11] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalo:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: #9861 Exception if the specified file name for a mime part was duplicate.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Web links in emails are launched in default browser. (Thanks Jamie Humphries!)
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Conditional Forward (RegEx) Rule based on body or headers.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: Added the "Mark-of-web" for the email viewer to remove IE security warnings.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: #9863 Papercut.Service was not correctly reporting it’s incoming mail directory to Papercut.Client.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.2.0.0 [2014-8-23] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalo:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: #9859 Now using <pre> tag when displaying the text email so that carriage returns/linefeeds are displayed.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: #9858 Now won’t close the app when failing to delete a message. Displays the reason for the failure as well.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: Increased the robustness and error handling of the SMTP FIle Receiving.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: Now validates the existence of and creates (if necessary) the Default Message Save Path directory.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: Improved the loading so that it catches all assembly loading errors and attempts to write them to the Event Log in case app load is failing.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Changed: Set the protocol logging to "Verbose".
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Changed: Papercut.Service default save location now defaults to %BaseDirectory%\Incoming.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Remove the "read-only" flag from the message file when attempting to delete.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Example Papercut.Service.json file with comments to explain the settings.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.1.0.0 [2014-8-13] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalo:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: #9851 Exception on TCP/IP port binding failure.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.0.0.0 [2014-7-24] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalo:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Automatic “rules” system and configuration. Currently only supports a forward rule. But unlimited forwards can be specified.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: “Loading” UI
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added: Save window height/width.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added support for rules to the backend service. Rules are configured by the front-end and pushed to the backend service automatically.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Switched to using MailKit instead of custom Smtp Client for additional options it offers.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Added authentication support to the forward rule.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Issue #9852: Converted Papercut.Service to use a json settings file. Papercut Client/UI will continue to use the .NET settings system do it it's complex system of overrides based on the current user account.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: Now properly disables the Message View if it’s disabled.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement:  UI consistency -- added one place for Option and Exit links on the main UI.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: Added "Delete (count)" to the delete button.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: Issue #9849 – Null Reference in the Attachment/Mime Section
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Improvement: SMTP Server failure handling and added additional logging to help with issue #9851.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v3.0.0.0 [2014-6-8] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalspan style="border:none windowtext 1.0pt;padding:0in">
+Tag: <br>
+Data: Papercut has switched to semantic versioning! That means you will have to uninstall old "clickonce" versions to get the latest as it will see it as an older version.
+Tag: </span>
+Tag: <br>
+Data: Modern UI
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: MVVM Architecture
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Watch Directories for New Messages
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Optional Backend Papercut Service
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Load on Windows Startup
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Attachments/Mime Sections
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut 2014-5-1 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalbr>
+Data: Fixed: Message list box scrolling caused unhandled exception.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v2014-3-13 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalbr>
+Data: Fixed: Converted back to .NET v4 so that XP users are supported.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: Running papercut under SYSTEM account will now store messages in the application base directory instead of the \User\AppData\Papercut directory.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Change: Using MimeKitLite instead of full MimeKit.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v2014-3-8 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class>
+Tag: <MsoNormalspan style="color:#1F497D">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </span>
+Tag: </p>
+Tag: <p class>
+Data: Change: Application now using the excellent 
+Tag: <MsoNormala href="https://github.com/jstedfast/MimeKit">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif">
+Data: MimeKit
+Tag: </span>
+Tag: </a>
+Data:  library. Faster and better support for mime types.
+Tag: <span class>
+Tag: <apple-converted-spacespan style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Data:  
+Tag: </span>
+Tag: </span>
+Tag: <br>
+Data: Change: Removed the the slow and annoying "raw view" and added "header view.”
+Tag: <br>
+Data: Change: Removed the Redundant "Html" view and added the "Text" view.
+Tag: <br>
+Data: Change: Changed "Close" to "Exit" as the close or minimize window button has the close functionality. It's nice to be able to exit Papercut from the main app window.
+Tag: <br>
+Data: Feature: Thanks to a little assistance from this answer on stack overflow (
+Tag: <a href="http://stackoverflow.com/questions/14103159/previewmouseleftbuttondown-interferes-with-clic-selection">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif">
+Data: http://stackoverflow.com/questions/14103159/previewmouseleftbuttondown-interferes-with-clic-selection
+Tag: </span>
+Tag: </a>
+Data: ) finally implemented that drag&drop message file feature. Now you can drag and drop a message file.
+Tag: <br>
+Data: Change: Saves and loads message in AppData\Papercut.
+Tag: <br>
+Data: Feature: Now you can delete a Message with the Delete Key (#9835) - message Content from last message is now correctly cleared (#9840)
+Tag: <br>
+Data: Feature: Changed Processing to Buffered File output for speed, etc.
+Tag: <span class>
+Tag: <apple-converted-spacespan style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Data:  
+Tag: </span>
+Tag: </span>
+Tag: <br>
+Data: Fixed: Issue #6026 -- Supports "Minimize on Close" option.
+Tag: <br>
+Data: Feature: Added CC and BCC to field list aka issue #9836.
+Tag: <br>
+Data: Feature: Added support for "dot stuffing", per RFC 2821, section 4.5.2.
+Tag: <br>
+Data: Fixed: FormatException on empty ReplyTo
+Tag: <br>
+Data: Fixed: fixed crash on start when there is an email with 0 byte.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class>
+Data: Fixed: Issue with email address parsing.
+Tag: <MsoNormalo:p>
+Tag: </o:p>
+Tag: </p>
+Tag: </div>
+Tag: </body>
+Tag: </html>
+Data: \n
