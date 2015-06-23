@@ -50,7 +50,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
 		/// S/MIME v3.x client implementations.
 		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
@@ -77,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
 		/// S/MIME v3.x client implementations.</para>
 		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
 		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
 		/// S/MIME v3.x client implementations.
 		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
 		/// S/MIME v3.x client implementations.</para>
 		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
 		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
