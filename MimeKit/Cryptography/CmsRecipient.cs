@@ -26,7 +26,12 @@
 
 using System;
 
+#if !PORTABLE
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+#endif
+
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -90,6 +95,59 @@ namespace MimeKit.Cryptography {
 			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			Certificate = certificate;
 		}
+
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <remarks>
+		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.
+		/// </remarks>
+		/// <param name="certificate">The recipient's certificate.</param>
+		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public CmsRecipient (X509Certificate2 certificate, SubjectIdentifierType recipientIdentifierType)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			if (recipientIdentifierType == SubjectIdentifierType.Unknown)
+				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			else
+				RecipientIdentifierType = recipientIdentifierType;
+
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+			Certificate = DotNetUtilities.FromX509Certificate (certificate);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorith, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.</para>
+		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
+		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
+		/// </remarks>
+		/// <param name="certificate">The recipient's certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public CmsRecipient (X509Certificate2 certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException ("certificate");
+
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			Certificate = DotNetUtilities.FromX509Certificate (certificate);
+		}
+#endif
 
 		/// <summary>
 		/// Gets the recipient's certificate.
