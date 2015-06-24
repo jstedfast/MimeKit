@@ -158,9 +158,10 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <returns>The HTML comment token.</returns>
 		/// <param name="comment">The comment.</param>
-		protected virtual HtmlCommentToken CreateCommentToken (string comment)
+		/// <param name="bogus"><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</param>
+		protected virtual HtmlCommentToken CreateCommentToken (string comment, bool bogus = false)
 		{
-			return new HtmlCommentToken (comment);
+			return new HtmlCommentToken (comment, bogus);
 		}
 
 		/// <summary>
@@ -287,17 +288,17 @@ namespace MimeKit.Text {
 			name.Length = 0;
 		}
 
-		HtmlToken EmitCommentToken (string comment)
+		HtmlToken EmitCommentToken (string comment, bool bogus = false)
 		{
-			var token = CreateCommentToken (comment);
+			var token = CreateCommentToken (comment, bogus);
 			data.Length = 0;
 			name.Length = 0;
 			return token;
 		}
 
-		HtmlToken EmitCommentToken (StringBuilder comment)
+		HtmlToken EmitCommentToken (StringBuilder comment, bool bogus = false)
 		{
-			return EmitCommentToken (comment.ToString ());
+			return EmitCommentToken (comment.ToString (), bogus);
 		}
 
 		HtmlToken EmitDocType ()
@@ -1741,10 +1742,12 @@ namespace MimeKit.Text {
 			int nc;
 			char c;
 
-			if (data.Length > 0) {
-				c = data[data.Length - 1];
-				data.Length = 1;
-				data[0] = c;
+			if (data.Length > 0 && data[0] == '<') {
+				// strip the leading '<' but leave the rest
+				var buf = data.ToString ();
+				for (int i = 1; i < data.Length; i++)
+					data[i - 1] = data[i];
+				data.Length--;
 			}
 
 			do {
@@ -1759,7 +1762,9 @@ namespace MimeKit.Text {
 				data.Append (c == '\0' ? '\uFFFD' : c);
 			} while (true);
 
-			return EmitCommentToken (data);
+			TokenizerState = HtmlTokenizerState.Data;
+
+			return EmitCommentToken (data, true);
 		}
 
 		HtmlToken ReadMarkupDeclarationOpen ()
@@ -1836,11 +1841,14 @@ namespace MimeKit.Text {
 						return EmitDataToken (false);
 					}
 
-					if ((c = (char) nc) != CData[count])
-						break;
+					c = (char) nc;
 
 					// Note: we save the data in case we hit a parse error and have to emit a data token
 					data.Append (c);
+
+					if (c != CData[count])
+						break;
+
 					count++;
 				}
 

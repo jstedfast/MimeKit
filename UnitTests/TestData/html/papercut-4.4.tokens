@@ -1,0 +1,498 @@
+Tag: <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+Tag: <head>
+Tag: <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+Tag: <meta name="Generator" content="Microsoft Word 15 (filtered medium)">
+Comment: [if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]
+Tag: <style>
+Data: <!--\n/* Font Definitions */\n@font-face\n\t{font-family:Wingdings;\n\tpanose-1:5 0 0 0 0 0 0 0 0 0;}\n@font-face\n\t{font-family:"Cambria Math";\n\tpanose-1:2 4 5 3 5 4 6 3 2 4;}\n@font-face\n\t{font-family:"Calibri Light";\n\tpanose-1:2 15 3 2 2 2 4 3 2 4;}\n@font-face\n\t{font-family:Calibri;\n\tpanose-1:2 15 5 2 2 2 4 3 2 4;}\n@font-face\n\t{font-family:"Segoe UI";\n\tpanose-1:2 11 5 2 4 2 4 2 2 3;}\n/* Style Definitions */\np.MsoNormal, li.MsoNormal, div.MsoNormal\n\t{margin:0in;\n\tmargin-bottom:.0001pt;\n\tfont-size:11.0pt;\n\tfont-family:"Calibri",sans-serif;}\nh1\n\t{mso-style-priority:9;\n\tmso-style-link:"Heading 1 Char";\n\tmargin-top:12.0pt;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:0in;\n\tmargin-bottom:.0001pt;\n\tpage-break-after:avoid;\n\tfont-size:16.0pt;\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;\n\tfont-weight:normal;}\nh2\n\t{mso-style-priority:9;\n\tmso-style-link:"Heading 2 Char";\n\tmargin-top:2.0pt;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:0in;\n\tmargin-bottom:.0001pt;\n\tpage-break-after:avoid;\n\tfont-size:13.0pt;\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;\n\tfont-weight:normal;}\nh3\n\t{mso-style-priority:9;\n\tmso-style-link:"Heading 3 Char";\n\tmargin-top:2.0pt;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:0in;\n\tmargin-bottom:.0001pt;\n\tpage-break-after:avoid;\n\tfont-size:12.0pt;\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#1F4D78;\n\tfont-weight:normal;}\nh4\n\t{mso-style-priority:9;\n\tmso-style-link:"Heading 4 Char";\n\tmargin-top:2.0pt;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:0in;\n\tmargin-bottom:.0001pt;\n\tpage-break-after:avoid;\n\tfont-size:11.0pt;\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;\n\tfont-weight:normal;\n\tfont-style:italic;}\nh5\n\t{mso-style-priority:9;\n\tmso-style-link:"Heading 5 Char";\n\tmargin-top:2.0pt;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:0in;\n\tmargin-bottom:.0001pt;\n\tpage-break-after:avoid;\n\tfont-size:11.0pt;\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;\n\tfont-weight:normal;}\na:link, span.MsoHyperlink\n\t{mso-style-priority:99;\n\tcolor:#0563C1;\n\ttext-decoration:underline;}\na:visited, span.MsoHyperlinkFollowed\n\t{mso-style-priority:99;\n\tcolor:#954F72;\n\ttext-decoration:underline;}\np.MsoNoSpacing, li.MsoNoSpacing, div.MsoNoSpacing\n\t{mso-style-priority:1;\n\tmargin:0in;\n\tmargin-bottom:.0001pt;\n\tfont-size:11.0pt;\n\tfont-family:"Calibri",sans-serif;}\np.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph\n\t{mso-style-priority:34;\n\tmargin-top:0in;\n\tmargin-right:0in;\n\tmargin-bottom:0in;\n\tmargin-left:.5in;\n\tmargin-bottom:.0001pt;\n\tfont-size:11.0pt;\n\tfont-family:"Calibri",sans-serif;}\nspan.Heading1Char\n\t{mso-style-name:"Heading 1 Char";\n\tmso-style-priority:9;\n\tmso-style-link:"Heading 1";\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;}\nspan.Heading2Char\n\t{mso-style-name:"Heading 2 Char";\n\tmso-style-priority:9;\n\tmso-style-link:"Heading 2";\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;}\nspan.Heading3Char\n\t{mso-style-name:"Heading 3 Char";\n\tmso-style-priority:9;\n\tmso-style-link:"Heading 3";\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#1F4D78;}\nspan.Heading4Char\n\t{mso-style-name:"Heading 4 Char";\n\tmso-style-priority:9;\n\tmso-style-link:"Heading 4";\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;\n\tfont-style:italic;}\nspan.Heading5Char\n\t{mso-style-name:"Heading 5 Char";\n\tmso-style-priority:9;\n\tmso-style-link:"Heading 5";\n\tfont-family:"Calibri Light",sans-serif;\n\tcolor:#2E74B5;}\nspan.EmailStyle23\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:windowtext;}\nspan.EmailStyle24\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle25\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle26\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle27\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle28\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:windowtext;}\nspan.apple-converted-space\n\t{mso-style-name:apple-converted-space;}\nspan.EmailStyle30\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle31\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle32\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle33\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle34\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle35\n\t{mso-style-type:personal;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\nspan.EmailStyle36\n\t{mso-style-type:personal-reply;\n\tfont-family:"Calibri",sans-serif;\n\tcolor:#1F497D;}\n.MsoChpDefault\n\t{mso-style-type:export-only;\n\tfont-size:10.0pt;}\n@page WordSection1\n\t{size:8.5in 11.0in;\n\tmargin:1.0in 1.0in 1.0in 1.0in;}\ndiv.WordSection1\n\t{page:WordSection1;}\n/* List Definitions */\n@list l0\n\t{mso-list-id:172839587;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:528529382 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}\n@list l0:level1\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:0in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l0:level2\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:.5in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l0:level3\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:1.0in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l0:level4\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:1.5in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l0:level5\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:2.0in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l0:level6\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:2.5in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l0:level7\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.0in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l0:level8\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.5in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l0:level9\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:4.0in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l1\n\t{mso-list-id:191499929;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:204919378 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}\n@list l1:level1\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:0in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l1:level2\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:.5in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l1:level3\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:1.0in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l1:level4\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:1.5in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l1:level5\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:2.0in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l1:level6\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:2.5in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l1:level7\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.0in;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l1:level8\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.5in;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l1:level9\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:4.0in;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l2\n\t{mso-list-id:367266850;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:1112035420 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}\n@list l2:level1\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l2:level2\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l2:level3\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l2:level4\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l2:level5\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l2:level6\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l2:level7\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l2:level8\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l2:level9\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l3\n\t{mso-list-id:1725762233;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:345930044 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}\n@list l3:level1\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l3:level2\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l3:level3\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l3:level4\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l3:level5\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l3:level6\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l3:level7\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l3:level8\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l3:level9\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l4\n\t{mso-list-id:1947493873;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:599701260 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}\n@list l4:level1\n\t{mso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:.25in;\n\ttext-indent:-.25in;}\n@list l4:level2\n\t{mso-level-number-format:alpha-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:.75in;\n\ttext-indent:-.25in;}\n@list l4:level3\n\t{mso-level-number-format:roman-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:right;\n\tmargin-left:1.25in;\n\ttext-indent:-9.0pt;}\n@list l4:level4\n\t{mso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:1.75in;\n\ttext-indent:-.25in;}\n@list l4:level5\n\t{mso-level-number-format:alpha-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:2.25in;\n\ttext-indent:-.25in;}\n@list l4:level6\n\t{mso-level-number-format:roman-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:right;\n\tmargin-left:2.75in;\n\ttext-indent:-9.0pt;}\n@list l4:level7\n\t{mso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.25in;\n\ttext-indent:-.25in;}\n@list l4:level8\n\t{mso-level-number-format:alpha-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\tmargin-left:3.75in;\n\ttext-indent:-.25in;}\n@list l4:level9\n\t{mso-level-number-format:roman-lower;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:right;\n\tmargin-left:4.25in;\n\ttext-indent:-9.0pt;}\n@list l5\n\t{mso-list-id:2071342730;\n\tmso-list-type:hybrid;\n\tmso-list-template-ids:835587950 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}\n@list l5:level1\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l5:level2\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l5:level3\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l5:level4\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l5:level5\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l5:level6\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\n@list l5:level7\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0B7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Symbol;}\n@list l5:level8\n\t{mso-level-number-format:bullet;\n\tmso-level-text:o;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:"Courier New";}\n@list l5:level9\n\t{mso-level-number-format:bullet;\n\tmso-level-text:\F0A7;\n\tmso-level-tab-stop:none;\n\tmso-level-number-position:left;\n\ttext-indent:-.25in;\n\tfont-family:Wingdings;}\nol\n\t{margin-bottom:0in;}\nul\n\t{margin-bottom:0in;}\n-->
+Tag: </style>
+Comment: [if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]
+Comment: [if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]
+Tag: </head>
+Tag: <body lang="EN-US" link="#0563C1" vlink="#954F72">
+Tag: <div class="WordSection1">
+Tag: <p class="MsoNormal">
+Tag: <img width="232" height="50" id="Picture_x0020_1" src="cid:image001.png@01CE6622.AACEBDC0">
+Tag: <i>
+Tag: <o:p>
+Tag: </o:p>
+Tag: </i>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Tag: <i>
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#A6A6A6">
+Data: The Simple Desktop Email Receiver.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </span>
+Tag: </i>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.4.0.0 [2015-06-23] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: #
+Tag: <span style="color:#253340">
+Data: 9864
+Tag: </span>
+Data:  “Log View” added to show all internal logging information for that session.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #
+Tag: <span style="color:#253340">
+Data: 9874 Message loading exception was not properly handled causing an unhandled exception and failure.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </span>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9872 On some systems there were permissions issues accessing the IP addresses for the local system causing an unhandled exception and failure.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Tag: <b>
+Data: Thanks to Jstedfast
+Tag: </b>
+Data:  (author of 
+Tag: <a href="https://github.com/jstedfast/mailkit">
+Data: MimeKit
+Tag: </a>
+Data: ) for his contribution:
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l2 level1 lfo6">
+Comment: ![if !supportLists]
+Tag: <span style="font-family:Symbol">
+Tag: <span style="mso-list:Ignore">
+Data: ·
+Tag: <span style="font:7.0pt \"Times New Roman\"">
+Data:          
+Tag: </span>
+Tag: </span>
+Tag: </span>
+Comment: ![endif]
+Data: Rewrote and improved the logic that renders the email HTML.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Tag: <b>
+Tag: <span style="color:#253340">
+Data: Thanks to MikeWill34
+Tag: </span>
+Tag: </b>
+Tag: <span style="color:#253340">
+Data:  for his
+Tag: <b>
+Data:  c
+Tag: </b>
+Data: ontributions:
+Tag: <o:p>
+Tag: </o:p>
+Tag: </span>
+Tag: </p>
+Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
+Comment: ![if !supportLists]
+Tag: <span style="font-family:Symbol">
+Tag: <span style="mso-list:Ignore">
+Data: ·
+Tag: <span style="font:7.0pt \"Times New Roman\"">
+Data:          
+Tag: </span>
+Tag: </span>
+Tag: </span>
+Comment: ![endif]
+Tag: <span style="color:#253340">
+Data: Fixed: #9870 When Aero is disabled (on servers, for example), the windows didn’t have a drop shadow. Now they have a solid border
+Tag: </span>
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
+Comment: ![if !supportLists]
+Tag: <span style="font-family:Symbol">
+Tag: <span style="mso-list:Ignore">
+Data: ·
+Tag: <span style="font:7.0pt \"Times New Roman\"">
+Data:          
+Tag: </span>
+Tag: </span>
+Tag: </span>
+Comment: ![endif]
+Tag: <span style="color:#253340">
+Data: Fixed: Mark of the Web “ActiveX” security warning on email display.
+Tag: </span>
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
+Comment: ![if !supportLists]
+Tag: <span style="font-family:Symbol">
+Tag: <span style="mso-list:Ignore">
+Data: ·
+Tag: <span style="font:7.0pt \"Times New Roman\"">
+Data:          
+Tag: </span>
+Tag: </span>
+Tag: </span>
+Comment: ![endif]
+Tag: <span style="color:#253340">
+Data: Improvement: Upgraded to Calburn Micro v2.0
+Tag: </span>
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.3.0.0 [2014-11-05] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: “Raw” message view re-added back as a view of the message data using AvalonEdit control for speed.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.2.1.0 [2014-10-11] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9861 Exception if the specified file name for a mime part was duplicate.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Web links in emails are launched in default browser. (Thanks Jamie Humphries!)
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Conditional Forward (RegEx) Rule based on body or headers.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: Added the "Mark-of-web" for the email viewer to remove IE security warnings.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9863 Papercut.Service was not correctly reporting it’s incoming mail directory to Papercut.Client.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.2.0.0 [2014-8-23] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9859 Now using <pre> tag when displaying the text email so that carriage returns/linefeeds are displayed.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9858 Now won’t close the app when failing to delete a message. Displays the reason for the failure as well.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: Increased the robustness and error handling of the SMTP FIle Receiving.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: Now validates the existence of and creates (if necessary) the Default Message Save Path directory.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: Improved the loading so that it catches all assembly loading errors and attempts to write them to the Event Log in case app load is failing.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Changed: Set the protocol logging to "Verbose".
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Changed: Papercut.Service default save location now defaults to %BaseDirectory%\Incoming.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Remove the "read-only" flag from the message file when attempting to delete.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Example Papercut.Service.json file with comments to explain the settings.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.1.0.0 [2014-8-13] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: #9851 Exception on TCP/IP port binding failure.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v4.0.0.0 [2014-7-24] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Automatic “rules” system and configuration. Currently only supports a forward rule. But unlimited forwards can be specified.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: “Loading” UI
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added: Save window height/width.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added support for rules to the backend service. Rules are configured by the front-end and pushed to the backend service automatically.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Switched to using MailKit instead of custom Smtp Client for additional options it offers.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Added authentication support to the forward rule.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Issue #9852: Converted Papercut.Service to use a json settings file. Papercut Client/UI will continue to use the .NET settings system do it it's complex system of overrides based on the current user account.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: Now properly disables the Message View if it’s disabled.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement:  UI consistency -- added one place for Option and Exit links on the main UI.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: Added "Delete (count)" to the delete button.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: Issue #9849 – Null Reference in the Attachment/Mime Section
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Improvement: SMTP Server failure handling and added additional logging to help with issue #9851.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v3.0.0.0 [2014-6-8] Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <span style="border:none windowtext 1.0pt;padding:0in">
+Tag: <br>
+Data: Papercut has switched to semantic versioning! That means you will have to uninstall old "clickonce" versions to get the latest as it will see it as an older version.
+Tag: </span>
+Tag: <br>
+Data: Modern UI
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: MVVM Architecture
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Watch Directories for New Messages
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Optional Backend Papercut Service
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Load on Windows Startup
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Attachments/Mime Sections
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut 2014-5-1 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <br>
+Data: Fixed: Message list box scrolling caused unhandled exception.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v2014-3-13 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <br>
+Data: Fixed: Converted back to .NET v4 so that XP users are supported.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: Running papercut under SYSTEM account will now store messages in the application base directory instead of the \User\AppData\Papercut directory.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Change: Using MimeKitLite instead of full MimeKit.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <h1>
+Data: Papercut v2014-3-8 Release Notes
+Tag: <o:p>
+Tag: </o:p>
+Tag: </h1>
+Tag: <p class="MsoNormal">
+Tag: <span style="color:#1F497D">
+Tag: <o:p>
+Data:  
+Tag: </o:p>
+Tag: </span>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Change: Application now using the excellent 
+Tag: <a href="https://github.com/jstedfast/MimeKit">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif">
+Data: MimeKit
+Tag: </span>
+Tag: </a>
+Data:  library. Faster and better support for mime types.
+Tag: <span class="apple-converted-space">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Data:  
+Tag: </span>
+Tag: </span>
+Tag: <br>
+Data: Change: Removed the the slow and annoying "raw view" and added "header view.”
+Tag: <br>
+Data: Change: Removed the Redundant "Html" view and added the "Text" view.
+Tag: <br>
+Data: Change: Changed "Close" to "Exit" as the close or minimize window button has the close functionality. It's nice to be able to exit Papercut from the main app window.
+Tag: <br>
+Data: Feature: Thanks to a little assistance from this answer on stack overflow (
+Tag: <a href="http://stackoverflow.com/questions/14103159/previewmouseleftbuttondown-interferes-with-clic-selection">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif">
+Data: http://stackoverflow.com/questions/14103159/previewmouseleftbuttondown-interferes-with-clic-selection
+Tag: </span>
+Tag: </a>
+Data: ) finally implemented that drag&drop message file feature. Now you can drag and drop a message file.
+Tag: <br>
+Data: Change: Saves and loads message in AppData\Papercut.
+Tag: <br>
+Data: Feature: Now you can delete a Message with the Delete Key (#9835) - message Content from last message is now correctly cleared (#9840)
+Tag: <br>
+Data: Feature: Changed Processing to Buffered File output for speed, etc.
+Tag: <span class="apple-converted-space">
+Tag: <span style="font-size:10.0pt;font-family:\"Segoe UI\",sans-serif;color:#253340">
+Data:  
+Tag: </span>
+Tag: </span>
+Tag: <br>
+Data: Fixed: Issue #6026 -- Supports "Minimize on Close" option.
+Tag: <br>
+Data: Feature: Added CC and BCC to field list aka issue #9836.
+Tag: <br>
+Data: Feature: Added support for "dot stuffing", per RFC 2821, section 4.5.2.
+Tag: <br>
+Data: Fixed: FormatException on empty ReplyTo
+Tag: <br>
+Data: Fixed: fixed crash on start when there is an email with 0 byte.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: <p class="MsoNormal">
+Data: Fixed: Issue with email address parsing.
+Tag: <o:p>
+Tag: </o:p>
+Tag: </p>
+Tag: </div>
+Tag: </body>
+Tag: </html>
+Data: \n

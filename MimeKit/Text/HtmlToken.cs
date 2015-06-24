@@ -104,14 +104,16 @@ namespace MimeKit.Text {
 		/// Creates a new <see cref="HtmlCommentToken"/>.
 		/// </remarks>
 		/// <param name="comment">The comment text.</param>
+		/// <param name="bogus"><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="comment"/> is <c>null</c>.
 		/// </exception>
-		public HtmlCommentToken (string comment) : base (HtmlTokenKind.Comment)
+		public HtmlCommentToken (string comment, bool bogus = false) : base (HtmlTokenKind.Comment)
 		{
 			if (comment == null)
 				throw new ArgumentNullException ("comment");
 
+			IsBogusComment = bogus;
 			Comment = comment;
 		}
 
@@ -123,7 +125,18 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The comment.</value>
 		public string Comment {
-			get; internal set;
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get whether or not the comment is a bogus comment.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether or not the comment is a bogus comment.
+		/// </remarks>
+		/// <value><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</value>
+		public bool IsBogusComment {
+			get; private set;
 		}
 
 		/// <summary>
@@ -141,9 +154,15 @@ namespace MimeKit.Text {
 			if (output == null)
 				throw new ArgumentNullException ("output");
 
-			output.Write ("<!--");
-			output.Write (Comment);
-			output.Write ("-->");
+			if (!IsBogusComment) {
+				output.Write ("<!--");
+				output.Write (Comment);
+				output.Write ("-->");
+			} else {
+				output.Write ('<');
+				output.Write (Comment);
+				output.Write ('>');
+			}
 		}
 	}
 
