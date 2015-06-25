@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.2.6
+
+* Fixed a bug in the HTML tokenizer to handle some weird HTML created by Outlook 15.0.
+* Added CmsRecipient .ctor overloads that accept X509Certificate2. (issue #149)
+
 ### MimeKit 1.2.5
 
 * Changed BodyParts and Attachments to be IEnumerable<MimeEntity> -
