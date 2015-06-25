@@ -46,6 +46,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// An abstract class for converting text from one format to another.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public abstract class TextConverter
 	{
 		internal readonly static List<UrlPattern> UrlPatterns;
@@ -312,6 +315,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Converts text from the <see cref="InputFormat"/> to the <see cref="OutputFormat"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <returns>The converted text.</returns>
 		/// <param name="text">The text to convert.</param>
 		/// <exception cref="System.ArgumentNullException">

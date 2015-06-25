@@ -33,6 +33,9 @@ namespace MimeKit.Text {
 	/// is ready to write a new HTML tag, allowing developers to customize
 	/// whether the tag gets written at all, which attributes get written, etc.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	/// <param name="tagContext">The HTML tag context.</param>
 	/// <param name="htmlWriter">The HTML writer.</param>
 	public delegate void HtmlTagCallback (HtmlTagContext tagContext, HtmlWriter htmlWriter);

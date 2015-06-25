@@ -33,6 +33,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// An HTML tag context used with the <see cref="HtmlTagCallback"/> delegate.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public abstract class HtmlTagContext
 	{
 		/// <summary>
@@ -56,6 +59,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the HTML tag attributes.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The attributes.</value>
 		public abstract HtmlAttributeCollection Attributes {
 			get;
@@ -111,6 +117,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether or not the tag is an end tag.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
 		public abstract bool IsEndTag {
 			get;
@@ -133,6 +142,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the HTML tag identifier.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The HTML tag identifier.</value>
 		public HtmlTagId TagId {
 			get; private set;
@@ -144,6 +156,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the HTML tag name.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The HTML tag name.</value>
 		public abstract string TagName {
 			get;
@@ -170,6 +185,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Writes the HTML tag to the given <see cref="HtmlWriter"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <param name="htmlWriter">The HTML writer.</param>
 		/// <param name="writeAttributes"><c>true</c> if the <see cref="Attributes"/> should also be written; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">

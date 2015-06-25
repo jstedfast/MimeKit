@@ -33,6 +33,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// An HTML attribute.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class HtmlAttribute
 	{
 		/// <summary>
@@ -101,6 +104,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the HTML attribute identifier.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The attribute identifier.</value>
 		public HtmlAttributeId Id {
 			get; private set;
@@ -112,6 +118,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the name of the attribute.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The name of the attribute.</value>
 		public string Name {
 			get; private set;
@@ -123,6 +132,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the value of the attribute.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The value of the attribute.</value>
 		public string Value {
 			get; internal set;

@@ -35,6 +35,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// Used to convert plain text into HTML.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class TextToHtml : TextConverter
 	{
 		readonly UrlScanner scanner;

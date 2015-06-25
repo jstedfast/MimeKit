@@ -37,6 +37,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// Used to convert flowed text (as described in rfc3676) into HTML.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class FlowedToHtml : TextConverter
 	{
 		readonly UrlScanner scanner;
@@ -87,6 +90,9 @@ namespace MimeKit.Text {
 		/// <see cref="DeleteSpace"/> should be set to <c>true</c>, otherwise <see cref="DeleteSpace"/>
 		/// should be set to false.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the trailing space on a wrapped line should be deleted; otherwise, <c>false</c>.</value>
 		public bool DeleteSpace {
 			get; set;

@@ -35,6 +35,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// Used to convert HTML into HTML.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class HtmlToHtml : TextConverter
 	{
 		//static readonly HashSet<string> AutoClosingTags;
