@@ -105,22 +105,22 @@ namespace UnitTests {
 					Multipart multipart;
 					MimeEntity entity;
 
-					Assert.IsInstanceOfType (typeof (Multipart), message.Body);
+					Assert.IsInstanceOf<Multipart> (message.Body);
 					multipart = (Multipart) message.Body;
 					Assert.AreEqual (1, multipart.Count);
 					entity = multipart[0];
 
-					Assert.IsInstanceOfType (typeof (Multipart), entity);
+					Assert.IsInstanceOf<Multipart> (entity);
 					multipart = (Multipart) entity;
 					Assert.AreEqual (1, multipart.Count);
 					entity = multipart[0];
 
-					Assert.IsInstanceOfType (typeof (Multipart), entity);
+					Assert.IsInstanceOf<Multipart> (entity);
 					multipart = (Multipart) entity;
 					Assert.AreEqual (1, multipart.Count);
 					entity = multipart[0];
 
-					Assert.IsInstanceOfType (typeof (TextPart), entity);
+					Assert.IsInstanceOf<TextPart> (entity);
 
 					using (var memory = new MemoryStream ()) {
 						entity.WriteTo (UnixFormatOptions, memory);

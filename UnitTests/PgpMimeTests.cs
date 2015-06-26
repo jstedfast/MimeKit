@@ -81,8 +81,8 @@ namespace UnitTests {
 				var protocol = multipart.ContentType.Parameters["protocol"];
 				Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
 
-				Assert.IsInstanceOfType (typeof (TextPart), multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOfType (typeof (ApplicationPgpSignature), multipart[1], "The second child is not a detached signature.");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
@@ -111,14 +111,14 @@ namespace UnitTests {
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				var encrypted = MultipartEncrypted.Create (ctx, recipients, cleartext);
+				var encrypted = MultipartEncrypted.Encrypt (ctx, recipients, cleartext);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
 				var decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 			}
 		}
@@ -136,7 +136,7 @@ namespace UnitTests {
 			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				var encrypted = MultipartEncrypted.Create (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
+				var encrypted = MultipartEncrypted.SignAndEncrypt (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
 
 				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 				//	encrypted.WriteTo (file);
@@ -144,7 +144,7 @@ namespace UnitTests {
 				DigitalSignatureCollection signatures;
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOfType (typeof (TextPart), decrypted, "Decrypted part is not the expected type.");
+				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
