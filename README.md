@@ -102,7 +102,6 @@ First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
 
     git clone https://github.com/jstedfast/MimeKit.git
     git clone https://github.com/jstedfast/bc-csharp.git
-    git clone https://github.com/jstedfast/Portable.Text.Encoding.git
 
 Currently, MimeKit depends on the vs2010 branch of bc-csharp for the Visual Studio 2010 project
 files that I've added (to replace the Visual Studio 2003 project files). To switch to that branch,
