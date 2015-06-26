@@ -61,9 +61,9 @@ namespace MimeKit.Text {
 			}
 		}
 
-		List<TrieState> failStates = new List<TrieState> ();
-		bool ignoreCase;
+		List<TrieState> failStates;
 		TrieState root;
+		bool icase;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.Trie"/> class.
@@ -74,8 +74,9 @@ namespace MimeKit.Text {
 		/// <param name="ignoreCase"><c>true</c> if searching should ignore case; otherwise, <c>false</c>.</param>
 		public Trie (bool ignoreCase)
 		{
+			failStates = new List<TrieState> ();
 			root = new TrieState (null);
-			this.ignoreCase = ignoreCase;
+			icase = ignoreCase;
 		}
 
 		/// <summary>
@@ -84,9 +85,8 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
 		/// </remarks>
-		public Trie ()
+		public Trie () : this (false)
 		{
-			root = new TrieState (null);
 		}
 
 		static void ValidateArguments (char[] text, int startIndex, int count)
@@ -173,7 +173,7 @@ namespace MimeKit.Text {
 
 			// Step 1: Add the pattern to the trie
 			for (int i = 0; i < pattern.Length; i++) {
-				c = ignoreCase ? char.ToLower (pattern[i]) : pattern[i];
+				c = icase ? char.ToLower (pattern[i]) : pattern[i];
 				match = FindMatch (state, c);
 				if (match == null)
 					state = Insert (state, depth, c);
@@ -273,7 +273,7 @@ namespace MimeKit.Text {
 			pattern = null;
 
 			for (int i = startIndex; i < endIndex; i++) {
-				c = ignoreCase ? char.ToLower (text[i]) : text[i];
+				c = icase ? char.ToLower (text[i]) : text[i];
 
 				while (state != null && (match = FindMatch (state, c)) == null && matched == 0)
 					state = state.Fail;
