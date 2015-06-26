@@ -193,7 +193,7 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}", parser.MboxMarker).AppendLine ();
+					builder.AppendFormat ("{0}", parser.MboxMarker.Trim ('\r', '\n')).AppendLine ();
 					if (message.From.Count > 0)
 						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
 					if (message.To.Count > 0)
@@ -227,7 +227,7 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}", parser.MboxMarker).AppendLine ();
+					builder.AppendFormat ("{0}", parser.MboxMarker.Trim ('\r', '\n')).AppendLine ();
 					if (message.From.Count > 0)
 						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
 					if (message.To.Count > 0)

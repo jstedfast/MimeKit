@@ -62,7 +62,7 @@ namespace UnitTests {
 							switch (text.Data[i]) {
 							case '\f': actual.Append ("\\f"); break;
 							case '\t': actual.Append ("\\t"); break;
-							case '\r': actual.Append ("\\r"); break;
+							case '\r': break;
 							case '\n': actual.Append ("\\n"); break;
 							default: actual.Append (text.Data[i]); break;
 							}
