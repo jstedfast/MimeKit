@@ -77,6 +77,7 @@ namespace UnitTests {
 				using (var encoded = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (encoded)) {
 						filtered.Add (EncoderFilter.Create (ContentEncoding.Base64));
+						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -141,6 +142,7 @@ namespace UnitTests {
 
 					using (var filtered = new FilteredStream (encoded)) {
 						filtered.Add (EncoderFilter.Create (ContentEncoding.UUEncode));
+						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);

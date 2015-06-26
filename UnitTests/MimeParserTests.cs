@@ -137,7 +137,7 @@ namespace UnitTests {
 			if (depth > 0)
 				builder.Append (new string (' ', depth * 3));
 
-			builder.AppendFormat ("Content-Type: {0}/{1}\n", entity.ContentType.MediaType, entity.ContentType.MediaSubtype);
+			builder.AppendFormat ("Content-Type: {0}/{1}", entity.ContentType.MediaType, entity.ContentType.MediaSubtype).AppendLine ();
 
 			if (entity is Multipart) {
 				var multipart = (Multipart) entity;
@@ -158,14 +158,14 @@ namespace UnitTests {
 				if (iter.Depth > 0)
 					builder.Append (new string (' ', iter.Depth * 3));
 
-				builder.AppendFormat ("Content-Type: {0}/{1}\n", ctype.MediaType, ctype.MediaSubtype);
+				builder.AppendFormat ("Content-Type: {0}/{1}", ctype.MediaType, ctype.MediaSubtype).AppendLine ();
 			}
 		}
 
 		[Test]
 		public void TestEmptyMultipartAlternative ()
 		{
-			string expected = @"Content-Type: multipart/mixed
+			const string expected = @"Content-Type: multipart/mixed
    Content-Type: multipart/alternative
    Content-Type: text/plain
 ";
@@ -193,15 +193,15 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}\n", parser.MboxMarker);
+					builder.AppendFormat ("{0}", parser.MboxMarker).AppendLine ();
 					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}\n", message.From);
+						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
 					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}\n", message.To);
-					builder.AppendFormat ("Subject: {0}\n", message.Subject);
-					builder.AppendFormat ("Date: {0}\n", DateUtils.FormatDate (message.Date));
+						builder.AppendFormat ("To: {0}", message.To).AppendLine ();
+					builder.AppendFormat ("Subject: {0}", message.Subject).AppendLine ();
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).AppendLine ();
 					DumpMimeTree (builder, message);
-					builder.Append ("\n");
+					builder.AppendLine ();
 				}
 			}
 
@@ -227,15 +227,15 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}\n", parser.MboxMarker);
+					builder.AppendFormat ("{0}", parser.MboxMarker).AppendLine ();
 					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}\n", message.From);
+						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
 					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}\n", message.To);
-					builder.AppendFormat ("Subject: {0}\n", message.Subject);
-					builder.AppendFormat ("Date: {0}\n", DateUtils.FormatDate (message.Date));
+						builder.AppendFormat ("To: {0}", message.To).AppendLine ();
+					builder.AppendFormat ("Subject: {0}", message.Subject).AppendLine ();
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).AppendLine ();
 					DumpMimeTree (builder, message);
-					builder.Append ("\n");
+					builder.AppendLine ();
 
 					// Force the various MimePart objects to write their content streams.
 					// The idea is that by forcing the MimeParts to seek in their content,

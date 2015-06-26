@@ -156,42 +156,51 @@ namespace UnitTests {
 		[Test]
 		public void TestBreakingOfLongParamValues ()
 		{
-			string encoded, expected;
-			ContentType type;
+			string expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*0=\"this is a really really long filename that should force MimeKit to b\";\n\tname*1=\"reak it apart - yay!.html\"";
 
-			expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*0=\"this is a really really long filename that should force MimeKit to b\";\n\tname*1=\"reak it apart - yay!.html\"";
-			type = new ContentType ("text", "plain");
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			var type = new ContentType ("text", "plain");
 			type.Parameters.Add ("charset", "iso-8859-1");
 			type.Parameters.Add ("name", "this is a really really long filename that should force MimeKit to break it apart - yay!.html");
-			encoded = type.ToString (Encoding.UTF8, true);
+
+			var encoded = type.ToString (Encoding.UTF8, true);
+
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
 		}
 
 		[Test]
 		public void TestEncodingOfParamValues ()
 		{
-			string encoded, expected;
-			ContentType type;
+			string expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*=iso-8859-1''Kristoffer%20Br%E5nemyr";
 
-			expected = "Content-Type: text/plain; charset=iso-8859-1;\n\tname*=iso-8859-1''Kristoffer%20Br%E5nemyr";
-			type = new ContentType ("text", "plain");
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			var type = new ContentType ("text", "plain");
 			type.Parameters.Add ("charset", "iso-8859-1");
 			type.Parameters.Add ("name", "Kristoffer Brånemyr");
-			encoded = type.ToString (Encoding.UTF8, true);
+
+			var encoded = type.ToString (Encoding.UTF8, true);
+
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
 		}
 
 		[Test]
 		public void TestEncodingOfLongParamValues ()
 		{
-			string encoded, expected;
-			ContentType type;
+			string expected = "Content-Type: text/plain; charset=utf-8;\n\tname*0*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*1*=%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5";
 
-			expected = "Content-Type: text/plain; charset=utf-8;\n\tname*0*=iso-8859-1''%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5;\n\tname*1*=%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5%E5";
-			type = new ContentType ("text", "plain");
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			var type = new ContentType ("text", "plain");
 			type.Parameters.Add ("charset", "utf-8");
 			type.Parameters.Add ("name", new string ('å', 40));
-			encoded = type.ToString (Encoding.UTF8, true);
+
+			var encoded = type.ToString (Encoding.UTF8, true);
+
 			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
 		}
 

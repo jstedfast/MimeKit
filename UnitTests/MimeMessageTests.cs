@@ -110,10 +110,7 @@ Just for fun....  -- Nathaniel<nl>
 				var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Unix;
-
-					message.WriteTo (options, serialized);
+					message.WriteTo (serialized);
 
 					result = Encoding.UTF8.GetString (serialized.ToArray ());
 				}
