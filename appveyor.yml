@@ -1,0 +1,11 @@
+version: 1.2.6.{build}
+
+configuration: Debug
+platform: Any CPU
+
+install:
+  - cmd: nuget restore
+
+build:
+  project: MimeKit.Net45.sln
+  verbosity: minimal

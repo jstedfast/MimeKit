@@ -1,9 +1,6 @@
 # MimeKit
 
-<a href="https://scan.coverity.com/projects/3201">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/3201/badge.svg"/>
-</a>
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)
 
 ## What is MimeKit?
 
