@@ -3,6 +3,5 @@ Mono.Data.Sqlite/Documentation
 *.userprefs
 *.suo
 test-results
-packages
 obj
 bin
