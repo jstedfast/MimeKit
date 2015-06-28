@@ -49,7 +49,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public HtmlEntityDecoder ()
 		{
-			pushed = new char[MaxEntityLength + 1];
+			pushed = new char[MaxEntityLength];
 		}
 
 		bool PushNumericEntity (char c)
@@ -122,7 +122,7 @@ namespace MimeKit.Text {
 				return true;
 			}
 
-			if (index + 1 >= MaxEntityLength)
+			if (index + 1 > MaxEntityLength)
 				return false;
 
 			if (c == ';')
