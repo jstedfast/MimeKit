@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -39,7 +40,7 @@ namespace UnitTests {
 	public class YEncodingTests
 	{
 		[Test]
-		public void TestDecodeSimpleYEncMessage ()
+		public void TestSimpleYEncMessage ()
 		{
 			using (var file = File.OpenRead ("../../TestData/yenc/simple.msg")) {
 				var message = MimeMessage.Load (file);
@@ -51,10 +52,53 @@ namespace UnitTests {
 						filtered.Add (new DecoderFilter (ydec));
 
 						((MimePart) message.Body).ContentObject.WriteTo (filtered);
+						filtered.Flush ();
 					}
 
+					decoded.Position = 0;
+
 					Assert.AreEqual (584, decoded.Length, "The decoded size does not match.");
-					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The checksum does not match.");
+					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match.");
+
+					// now re-encode it
+					using (var encoded = new MemoryStream ()) {
+						var ybegin = Encoding.ASCII.GetBytes ("-- \n=ybegin line=128 size=584 name=testfile.txt \n");
+						var yend = Encoding.ASCII.GetBytes ("=yend size=584 crc32=ded29f4f \n");
+						var yenc = new YEncoder ();
+
+						encoded.Write (ybegin, 0, ybegin.Length);
+
+						using (var filtered = new FilteredStream (encoded)) {
+							filtered.Add (new EncoderFilter (yenc));
+
+							decoded.CopyTo (filtered, 4096);
+							filtered.Flush ();
+						}
+
+						encoded.Write (yend, 0, yend.Length);
+
+						Assert.AreEqual (0xded29f4f, yenc.Checksum ^ 0xffffffff, "The encoded checksum does not match.");
+
+						using (var original = new MemoryStream ()) {
+							using (var filtered = new FilteredStream (original)) {
+								filtered.Add (new Dos2UnixFilter ());
+
+								((MimePart) message.Body).ContentObject.WriteTo (filtered);
+								filtered.Flush ();
+							}
+
+							var latin1 = Encoding.GetEncoding ("iso-8859-1");
+							var buf = original.GetBuffer ();
+
+							var expected = latin1.GetString (buf, 0, (int) original.Length);
+
+							buf = encoded.GetBuffer ();
+
+							var actual = latin1.GetString (buf, 0, (int) encoded.Length);
+
+							Assert.AreEqual (expected, actual, "Encoded value does not match original.");
+						}
+					}
 				}
 			}
 		}

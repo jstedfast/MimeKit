@@ -56,8 +56,7 @@ namespace MimeKit.Encodings {
 				throw new ArgumentOutOfRangeException ("maxLineLength");
 
 			lineLength = maxLineLength;
-			crc = new Crc32 ();
-
+			crc = new Crc32 (-1);
 			Reset ();
 		}
 
