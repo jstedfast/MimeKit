@@ -1092,7 +1092,7 @@ namespace MimeKit {
 
 						// find the next matching header and add it to the lookup table
 						for (int i = index + 1; i < headers.Count; i++) {
-							if (icase.Compare (headers[i].Field, header.Field) == 0) {
+							if (header.Field.Equals (headers[i].Field, StringComparison.OrdinalIgnoreCase)) {
 								table.Add (headers[i].Field, headers[i]);
 								break;
 							}
@@ -1112,8 +1112,12 @@ namespace MimeKit {
 
 				headers[index] = value;
 
-				OnChanged (header, HeaderListChangedAction.Removed);
-				OnChanged (value, HeaderListChangedAction.Added);
+				if (header.Field.Equals (value.Field, StringComparison.OrdinalIgnoreCase)) {
+					OnChanged (value, HeaderListChangedAction.Changed);
+				} else {
+					OnChanged (header, HeaderListChangedAction.Removed);
+					OnChanged (value, HeaderListChangedAction.Added);
+				}
 			}
 		}
 

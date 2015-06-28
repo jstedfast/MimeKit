@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Net.Mail;
+using System.Reflection;
 
 using NUnit.Framework;
 
@@ -249,6 +250,107 @@ Just for fun....  -- Nathaniel<nl>
 			Assert.AreEqual ("Resent Bcc <resent-bcc@example.com>", message.Headers[HeaderId.ResentBcc]);
 			Assert.AreEqual ("Thu, 28 Jun 2007 12:47:52 -0500", message.Headers[HeaderId.ResentDate]);
 			Assert.AreEqual ("<" + value + ">", message.Headers[HeaderId.ResentMessageId]);
+		}
+
+		[Test]
+		public void TestChangeHeaders ()
+		{
+			const string addressList1 = "\"Example 1\" <example1@example.com>, \"Example 2\" <example2@example.com>";
+			const string addressList2 = "\"Example 3\" <example3@example.com>, \"Example 4\" <example4@example.com>";
+			const string references1 = "<id1@example.com> <id2@example.com>";
+			const string references2 = "<id3@example.com> <id4@example.com>";
+			const string mailbox1 = "\"Example 1\" <example1@example.com>";
+			const string mailbox2 = "\"Example 2\" <example2@example.com>";
+			const string date1 = "Thu, 28 Jun 2007 12:47:52 -0500";
+			const string date2 = "Fri, 29 Jun 2007 12:47:52 -0500";
+			const string msgid1 = "message-id1@example.com";
+			const string msgid2 = "message-id2@example.com";
+			var message = new MimeMessage ();
+
+			foreach (var property in message.GetType ().GetProperties (BindingFlags.Instance | BindingFlags.Public)) {
+				var getter = property.GetGetMethod ();
+				DateTimeOffset date;
+				object value;
+				HeaderId id;
+
+				if (!Enum.TryParse (property.Name, out id))
+					continue;
+
+				switch (property.PropertyType.FullName) {
+				case "MimeKit.InternetAddressList":
+					message.Headers[id] = addressList1;
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (addressList1, value.ToString (), "Unexpected result when setting {0} to addressList1", property.Name);
+
+					message.Headers[message.Headers.IndexOf (id)] = new Header (id, addressList2);
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (addressList2, value.ToString (), "Unexpected result when setting {0} to addressList2", property.Name);
+					break;
+				case "MimeKit.MailboxAddress":
+					message.Headers[id] = mailbox1;
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (mailbox1, value.ToString (), "Unexpected result when setting {0} to mailbox1", property.Name);
+
+					message.Headers[message.Headers.IndexOf (id)] = new Header (id, mailbox2);
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (mailbox2, value.ToString (), "Unexpected result when setting {0} to mailbox2", property.Name);
+					break;
+				case "MimeKit.MessageIdList":
+					message.Headers[id] = references1;
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (references1, value.ToString (), "Unexpected result when setting {0} to references1", property.Name);
+
+					message.Headers[message.Headers.IndexOf (id)] = new Header (id, references2);
+
+					value = getter.Invoke (message, new object[0]);
+					Assert.AreEqual (references2, value.ToString (), "Unexpected result when setting {0} to references2", property.Name);
+					break;
+				case "System.DateTimeOffset":
+					message.Headers[id] = date1;
+
+					date = (DateTimeOffset) getter.Invoke (message, new object[0]);
+					Assert.AreEqual (date1, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date1", property.Name);
+
+					message.Headers[message.Headers.IndexOf (id)] = new Header (id, date2);
+
+					date = (DateTimeOffset) getter.Invoke (message, new object[0]);
+					Assert.AreEqual (date2, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date2", property.Name);
+					break;
+				case "System.String":
+					switch (id) {
+					case HeaderId.ResentMessageId:
+					case HeaderId.MessageId:
+					case HeaderId.InReplyTo:
+						message.Headers[id] = "<" + msgid1 + ">";
+
+						value = getter.Invoke (message, new object[0]);
+						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1", property.Name);
+
+						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "<" + msgid2 + ">");
+
+						value = getter.Invoke (message, new object[0]);
+						Assert.AreEqual (msgid2, value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+						break;
+					case HeaderId.Subject:
+						message.Headers[id] = "Subject #1";
+
+						value = getter.Invoke (message, new object[0]);
+						Assert.AreEqual ("Subject #1", value.ToString (), "Unexpected result when setting {0} to subject1", property.Name);
+
+						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "Subject #2");
+
+						value = getter.Invoke (message, new object[0]);
+						Assert.AreEqual ("Subject #2", value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+						break;
+					}
+					break;
+				}
+			}
 		}
 	}
 }
