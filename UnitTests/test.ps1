@@ -11,5 +11,4 @@ foreach ($elem in $tests) {
 	"-targetargs: ""$elem"" /framework:net-4.5 /noshadow" `
 	"-filter:+[MimeKit]* -[UnitTests]*" `
 	-output:opencover.xml `
-	-mergeoutput
 }
