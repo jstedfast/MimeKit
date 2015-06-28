@@ -164,5 +164,37 @@ namespace UnitTests {
 				}
 			}
 		}
+
+		[Test]
+		public void TestQuotedPrintableDecode ()
+		{
+			const string input = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).";
+			const string expected = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).";
+			var encoding = Encoding.GetEncoding ("iso-8859-8");
+			var decoder = new QuotedPrintableDecoder ();
+			var output = new byte[4096];
+
+			var buf = Encoding.ASCII.GetBytes (input);
+			int n = decoder.Decode (buf, 0, buf.Length, output);
+			var actual = encoding.GetString (output, 0, n);
+
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestQuotedPrintableEncode ()
+		{
+			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1=\n =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
+			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
+			var encoding = Encoding.GetEncoding ("iso-8859-8");
+			var encoder = new QuotedPrintableEncoder ();
+			var output = new byte[4096];
+
+			var buf = encoding.GetBytes (input);
+			int n = encoder.Flush (buf, 0, buf.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.AreEqual (expected, actual);
+		}
 	}
 }

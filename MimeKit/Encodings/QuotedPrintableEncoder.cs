@@ -251,9 +251,7 @@ namespace MimeKit.Encodings {
 				} else {
 					*outptr++ = c;
 				}
-			}
 
-			if (saved != '\n') {
 				// we end with =\n so that the \n isn't interpreted as
 				// a real \n when it gets decoded later
 				*outptr++ = (byte) '=';
