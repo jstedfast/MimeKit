@@ -83,6 +83,8 @@ namespace UnitTests {
 		[Test]
 		public void TestReading ()
 		{
+			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
+
 			do {
 				int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
 				int nread = chained.Read (cbuf, 0, n);
@@ -112,6 +114,8 @@ namespace UnitTests {
 		[Test]
 		public void TestRandomSeeking ()
 		{
+			Assert.IsTrue (chained.CanSeek, "Expected to be able to seek in the chained stream.");
+
 			for (int attempt = 0; attempt < 10; attempt++) {
 				long offset = random.Next () % master.Length;
 
