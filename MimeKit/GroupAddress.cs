@@ -160,8 +160,10 @@ namespace MimeKit {
 			builder.Append (": ");
 			lineLength += 2;
 
-			foreach (var member in Members)
-				member.Encode (options, builder, ref lineLength);
+			Members.Encode (options, builder, ref lineLength);
+
+			builder.Append (';');
+			lineLength++;
 		}
 
 		/// <summary>
