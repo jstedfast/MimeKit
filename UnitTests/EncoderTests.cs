@@ -196,5 +196,48 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected, actual);
 		}
+
+		[Test]
+		public void TestPassThroughEncode ()
+		{
+			var encoder = new PassThroughEncoder (ContentEncoding.Default);
+			var output = new byte[4096];
+			var input = new byte[4096];
+
+			for (int i = 0; i < input.Length; i++)
+				input[i] = (byte) (i & 0xff);
+
+			int n = encoder.Encode (input, 0, input.Length, output);
+
+			Assert.AreEqual (input.Length, n);
+
+			for (int i = 0; i < n; i++)
+				Assert.AreEqual (input[i], output[i]);
+
+			n = encoder.Flush (input, 0, input.Length, output);
+
+			Assert.AreEqual (input.Length, n);
+
+			for (int i = 0; i < n; i++)
+				Assert.AreEqual (input[i], output[i]);
+		}
+
+		[Test]
+		public void TestPassThroughDecode ()
+		{
+			var decoder = new PassThroughDecoder (ContentEncoding.Default);
+			var output = new byte[4096];
+			var input = new byte[4096];
+
+			for (int i = 0; i < input.Length; i++)
+				input[i] = (byte) (i & 0xff);
+
+			int n = decoder.Decode (input, 0, input.Length, output);
+
+			Assert.AreEqual (input.Length, n);
+
+			for (int i = 0; i < n; i++)
+				Assert.AreEqual (input[i], output[i]);
+		}
 	}
 }
