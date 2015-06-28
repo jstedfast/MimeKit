@@ -32,6 +32,7 @@ using System.Net.Mail;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -155,6 +156,99 @@ Just for fun....  -- Nathaniel<nl>
 			} catch (Exception ex) {
 				Assert.Fail (ex.Message);
 			}
+		}
+
+		[Test]
+		public void TestImportance ()
+		{
+			var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
+				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
+				"Yo dawg, what up?",
+				new TextPart { Text = "Hey! What's happenin'?" });
+			string value;
+
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+
+			message.Importance = MessageImportance.Low;
+			value = message.Headers[HeaderId.Importance];
+
+			Assert.AreEqual (MessageImportance.Low, message.Importance);
+			Assert.AreEqual ("low", value);
+
+			message.Importance = MessageImportance.High;
+			value = message.Headers[HeaderId.Importance];
+
+			Assert.AreEqual (MessageImportance.High, message.Importance);
+			Assert.AreEqual ("high", value);
+
+			message.Importance = MessageImportance.Normal;
+			value = message.Headers[HeaderId.Importance];
+
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.AreEqual ("normal", value);
+		}
+
+		[Test]
+		public void TestPriority ()
+		{
+			var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
+				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
+				"Yo dawg, what up?",
+				new TextPart { Text = "Hey! What's happenin'?" });
+			string value;
+
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+
+			message.Priority = MessagePriority.NonUrgent;
+			value = message.Headers[HeaderId.Priority];
+
+			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
+			Assert.AreEqual ("non-urgent", value);
+
+			message.Priority = MessagePriority.Urgent;
+			value = message.Headers[HeaderId.Priority];
+
+			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
+			Assert.AreEqual ("urgent", value);
+
+			message.Priority = MessagePriority.Normal;
+			value = message.Headers[HeaderId.Priority];
+
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.AreEqual ("normal", value);
+		}
+
+		[Test]
+		public void TestResend ()
+		{
+			var message = new MimeMessage (new [] { new MailboxAddress ("Example From", "from@example.com") },
+				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
+				"Yo dawg, what up?",
+				new TextPart { Text = "Hey! What's happenin'?" });
+			string value;
+
+			message.Date = new DateTimeOffset (1997, 6, 28, 12, 47, 52, new TimeSpan (-5, 0, 0));
+			message.ReplyTo.Add (new MailboxAddress ("Example Reply-To", "reply-to@example.com"));
+			message.Sender = new MailboxAddress ("Example Sender", "sender@example.com");
+			message.MessageId = MimeUtils.GenerateMessageId ();
+
+			message.ResentSender = new MailboxAddress ("Resent Sender", "resent-sender@example.com");
+			message.ResentFrom.Add (new MailboxAddress ("Resent From", "resent-from@example.com"));
+			message.ResentReplyTo.Add (new MailboxAddress ("Resent Reply-To", "resent-reply-to@example.com"));
+			message.ResentTo.Add (new MailboxAddress ("Resent To", "resent-to@example.com"));
+			message.ResentCc.Add (new MailboxAddress ("Resent Cc", "resent-cc@example.com"));
+			message.ResentBcc.Add (new MailboxAddress ("Resent Bcc", "resent-bcc@example.com"));
+			message.ResentDate = new DateTimeOffset (2007, 6, 28, 12, 47, 52, new TimeSpan (-5, 0, 0));
+			message.ResentMessageId = value = MimeUtils.GenerateMessageId ();
+
+			Assert.AreEqual ("Resent Sender <resent-sender@example.com>", message.Headers[HeaderId.ResentSender]);
+			Assert.AreEqual ("Resent From <resent-from@example.com>", message.Headers[HeaderId.ResentFrom]);
+			Assert.AreEqual ("Resent Reply-To <resent-reply-to@example.com>", message.Headers[HeaderId.ResentReplyTo]);
+			Assert.AreEqual ("Resent To <resent-to@example.com>", message.Headers[HeaderId.ResentTo]);
+			Assert.AreEqual ("Resent Cc <resent-cc@example.com>", message.Headers[HeaderId.ResentCc]);
+			Assert.AreEqual ("Resent Bcc <resent-bcc@example.com>", message.Headers[HeaderId.ResentBcc]);
+			Assert.AreEqual ("Thu, 28 Jun 2007 12:47:52 -0500", message.Headers[HeaderId.ResentDate]);
+			Assert.AreEqual ("<" + value + ">", message.Headers[HeaderId.ResentMessageId]);
 		}
 	}
 }
