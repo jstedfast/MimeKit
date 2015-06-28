@@ -160,5 +160,15 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected, decoded);
 		}
+
+		[Test]
+		public void TestHtmlNamespaces ()
+		{
+			foreach (HtmlNamespace ns in Enum.GetValues (typeof (HtmlNamespace))) {
+				var value = ns.ToNamespaceUrl ().ToHtmlNamespace ();
+
+				Assert.AreEqual (ns, value);
+			}
+		}
 	}
 }
