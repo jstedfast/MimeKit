@@ -61,7 +61,7 @@ namespace UnitTests {
 			Assert.IsTrue (blocks.CanRead, "Expected to be able to read from the memory block stream.");
 			Assert.IsTrue (blocks.CanWrite, "Expected to be able to write to the memory block stream.");
 			Assert.IsTrue (blocks.CanSeek, "Expected to be able to seek in the memory block stream.");
-			Assert.IsTrue (blocks.CanTimeout, "Expected to be able to set timeouts in the memory block stream.");
+			Assert.IsFalse (blocks.CanTimeout, "Did not expect to be able to set timeouts in the memory block stream.");
 
 			while (position < bytes.Length) {
 				int n = Math.Min (bytes.Length - position, random.Next () % 4096);
