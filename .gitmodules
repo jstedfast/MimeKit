@@ -1,0 +1,6 @@
+[submodule "submodules/Portable.Text.Encoding"]
+	path = submodules/Portable.Text.Encoding
+	url = git@github.com:jstedfast/Portable.Text.Encoding.git
+[submodule "submodules/bc-csharp"]
+	path = submodules/bc-csharp
+	url = git@github.com:jstedfast/bc-csharp.git

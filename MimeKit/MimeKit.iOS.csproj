@@ -52,7 +52,7 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.iOS.csproj">
+    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.iOS.csproj">
       <Project>{0249241C-205E-4AC0-828B-90F822359B9E}</Project>
       <Name>BouncyCastle.iOS</Name>
     </ProjectReference>

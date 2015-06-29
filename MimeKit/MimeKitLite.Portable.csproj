@@ -45,7 +45,7 @@
     <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj">
+    <ProjectReference Include="..\submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj">
       <Project>{EEE48C75-11BE-4B50-B759-F85B5052D473}</Project>
       <Name>Portable.Text.Encoding</Name>
     </ProjectReference>

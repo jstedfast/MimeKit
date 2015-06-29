@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj">
+    <ProjectReference Include="..\submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj">
       <Project>{B76A64F9-B00E-4243-AE89-5D024CA3B436}</Project>
       <Name>Portable.Text.Encoding.WindowsUniversal81</Name>
     </ProjectReference>

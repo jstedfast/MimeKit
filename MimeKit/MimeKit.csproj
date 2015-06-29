@@ -49,7 +49,7 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
+    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.csproj">
       <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
       <Name>BouncyCastle</Name>
     </ProjectReference>

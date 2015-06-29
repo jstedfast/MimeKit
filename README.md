@@ -1,6 +1,9 @@
 # MimeKit
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)
+|             |Build Status|Code Coverage|Static Analysis|
+|-------------|:----------:|:-----------:|:-------------:|
+|**Linux/Mac**|[![Build Status](https://travis-ci.org/jstedfast/MimeKit.svg)](https://travis-ci.org/jstedfast/MimeKit)|[![Code Coverage](https://coveralls.io/repos/jstedfast/MimeKit/badge.svg?branch=master)](https://coveralls.io/r/jstedfast/MimeKit?branch=master)|[![Static Analysis](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)|
+|**Windows**  |[![Build Status](https://ci.appveyor.com/api/projects/status/07h7cobihqficw3s?svg=true)](https://ci.appveyor.com/project/jstedfast/mimekit)|[Code Coverage](https://coveralls.io/repos/jstedfast/MimeKit/badge.svg?branch=master)](https://coveralls.io/r/jstedfast/MimeKit?branch=master)|[![Static Analysis](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)|
 
 ## What is MimeKit?
 
@@ -95,25 +98,18 @@ simply enter the following command:
 
 ## Building
 
-First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
+First, you'll need to clone MimeKit from my GitHub repository:
 
     git clone https://github.com/jstedfast/MimeKit.git
-    git clone https://github.com/jstedfast/bc-csharp.git
-    git clone https://github.com/jstedfast/Portable.Text.Encoding.git
-
-Currently, MimeKit depends on the vs2010 branch of bc-csharp for the Visual Studio 2010 project
-files that I've added (to replace the Visual Studio 2003 project files). To switch to that branch,
-
-    cd bc-csharp
-    git checkout -b vs2010 origin/vs2010
 
 In the top-level MimeKit source directory, there are several solution files:
 
-* MimeKit.sln includes projects for .NET 4.5, .NET 4.0, PCL (Profile7 and Profile111), Xamarin.Android, Xamarin.iOS, and Xamarin.Mac as well as the unit tests.
+* MimeKit.sln includes projects for .NET 3.5, .NET 4.0, .NET 4.5, PCL (Profile7 and Profile111), Xamarin.Android, and Xamarin.iOS as well as the unit tests.
 * MimeKit.Mobile.sln just includes the Xamarin.Android and Xamarin.iOS projects.
 * MimeKit.Net40.sln just includes the .NET 4.0 project.
+* MimeKit.Net45.sln includes the .NET 4.5 project and the unit tests.
 
-If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net40.sln instead of MimeKit.sln.
+If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net45.sln instead of MimeKit.sln.
 
 Once you've opened the appropriate MimeKit solution file in either Xamarin Studio or Visual Studio 2010+ (either will work),
 you can simply choose the Debug or Release build configuration and then build.

@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Android", "Mime
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.iOS", "MimeKit\MimeKitLite.iOS.csproj", "{5F211544-940D-46C9-98EB-4FD8F62506AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding", "..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj", "{EEE48C75-11BE-4B50-B759-F85B5052D473}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding", "submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj", "{EEE48C75-11BE-4B50-B759-F85B5052D473}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding.WindowsUniversal81", "..\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj", "{B76A64F9-B00E-4243-AE89-5D024CA3B436}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding.WindowsUniversal81", "submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj", "{B76A64F9-B00E-4243-AE89-5D024CA3B436}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Portable", "MimeKit\MimeKitLite.Portable.csproj", "{25C2DD3E-ED14-494F-9BD4-75536911C1BD}"
 EndProject

@@ -2,5 +2,6 @@
 *.nuspec text
 *.sln eol=crlf
 *.txt text
+*.tml text
 *.cs text
 *.md text
