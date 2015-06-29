@@ -102,7 +102,7 @@ namespace MimeKit {
 		/// <returns>The message body.</returns>
 		public MimeEntity ToMessageBody ()
 		{
-			Multipart alternative = null;
+			MultipartAlternative alternative = null;
 			MimeEntity body = null;
 
 			if (!string.IsNullOrEmpty (TextBody)) {
@@ -110,7 +110,7 @@ namespace MimeKit {
 				text.Text = TextBody;
 
 				if (!string.IsNullOrEmpty (HtmlBody)) {
-					alternative = new Multipart ("alternative");
+					alternative = new MultipartAlternative ();
 					alternative.Add (text);
 					body = alternative;
 				} else {

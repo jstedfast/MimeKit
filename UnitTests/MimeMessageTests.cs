@@ -352,5 +352,30 @@ Just for fun....  -- Nathaniel<nl>
 				}
 			}
 		}
+
+		[Test]
+		public void TestHtmlAndTextBodies ()
+		{
+			var message = new MimeMessage ();
+			var builder = new BodyBuilder ();
+
+			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
+			builder.TextBody = "This is the text body.";
+
+			builder.LinkedResources.Add ("empty.gif", new byte[0]);
+			builder.LinkedResources.Add ("empty.jpg", new byte[0]);
+			builder.Attachments.Add ("document.xls", new byte[0]);
+
+			foreach (var resource in builder.LinkedResources)
+				resource.ContentId = MimeUtils.GenerateMessageId ();
+
+			message.From.Add (new MailboxAddress ("Example Name", "name@example.com"));
+			message.To.Add (new MailboxAddress ("Destination", "dest@example.com"));
+			message.Subject = "This is the subject";
+			message.Body = builder.ToMessageBody ();
+
+			Assert.AreEqual (builder.HtmlBody, message.HtmlBody, "The HTML bodies do not match.");
+			Assert.AreEqual (builder.TextBody, message.TextBody, "The text bodies do not match.");
+		}
 	}
 }
