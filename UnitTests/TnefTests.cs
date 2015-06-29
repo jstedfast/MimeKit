@@ -482,6 +482,26 @@ namespace UnitTests {
 				if (!found)
 					Assert.Fail ("Failed to locate attachment: {0}", name);
 			}
+
+			// now use TnefPart to do the same thing
+			using (var content = File.OpenRead (path + ".tnef")) {
+				var tnef = new TnefPart { ContentObject = new ContentObject (content) };
+				var attachments = tnef.ExtractAttachments ().ToList ();
+
+				foreach (var name in names) {
+					bool found = false;
+
+					foreach (var part in attachments.OfType<MimePart> ()) {
+						if (part.FileName == name) {
+							found = true;
+							break;
+						}
+					}
+
+					if (!found)
+						Assert.Fail ("Failed to locate attachment in TnefPart: {0}", name);
+				}
+			}
 		}
 
 		[Test]
