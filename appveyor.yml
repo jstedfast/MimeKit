@@ -8,7 +8,7 @@ environment:
     secure: bY3HMQXJsuuHTqtDx878B8dh+vRw8Sr+ffu+i2ycNlnvN3NUsGXVCj/SUBlbsNdL
 
 install:
-  - cmd: nuget restore
+  - cmd: nuget restore MimeKit.Net45.sln
 
 build:
   project: MimeKit.Net45.sln
