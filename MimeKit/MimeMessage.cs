@@ -1174,35 +1174,45 @@ namespace MimeKit {
 
 		IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
 		{
-			var recipients = new List<MailboxAddress> ();
+			var recipients = new HashSet<MailboxAddress> ();
 
 			if (ResentSender != null || ResentFrom.Count > 0) {
 				if (includeSenders) {
 					if (ResentSender != null)
 						recipients.Add (ResentSender);
 
-					if (ResentFrom.Count > 0)
-						recipients.AddRange (ResentFrom.Mailboxes);
+					if (ResentFrom.Count > 0) {
+						foreach (var mailbox in ResentFrom.Mailboxes)
+							recipients.Add (mailbox);
+					}
 				}
 
-				recipients.AddRange (ResentTo.Mailboxes);
-				recipients.AddRange (ResentCc.Mailboxes);
-				recipients.AddRange (ResentBcc.Mailboxes);
+				foreach (var mailbox in ResentTo.Mailboxes)
+					recipients.Add (mailbox);
+				foreach (var mailbox in ResentCc.Mailboxes)
+					recipients.Add (mailbox);
+				foreach (var mailbox in ResentBcc.Mailboxes)
+					recipients.Add (mailbox);
 			} else {
 				if (includeSenders) {
 					if (Sender != null)
 						recipients.Add (Sender);
 
-					if (From.Count > 0)
-						recipients.AddRange (From.Mailboxes);
+					if (From.Count > 0) {
+						foreach (var mailbox in From.Mailboxes)
+							recipients.Add (mailbox);
+					}
 				}
 
-				recipients.AddRange (To.Mailboxes);
-				recipients.AddRange (Cc.Mailboxes);
-				recipients.AddRange (Bcc.Mailboxes);
+				foreach (var mailbox in To.Mailboxes)
+					recipients.Add (mailbox);
+				foreach (var mailbox in Cc.Mailboxes)
+					recipients.Add (mailbox);
+				foreach (var mailbox in Bcc.Mailboxes)
+					recipients.Add (mailbox);
 			}
 
-			return recipients;
+			return recipients.ToList ();
 		}
 
 #if ENABLE_CRYPTO
