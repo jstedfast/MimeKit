@@ -132,13 +132,20 @@ namespace UnitTests {
 		[Test]
 		public void TestSecureMimeSigning ()
 		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var message = new MimeMessage { Subject = "Test of S/MIME signing..." };
 
-			var cleartext = new TextPart ("plain");
-			cleartext.Text = "This is some cleartext that we'll end up signing...";
+			message.From.Add (self);
+			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
-				var multipart = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha1, cleartext);
+				message.Sign (ctx, DigestAlgorithm.Sha1);
+
+				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
+
+				var multipart = (MultipartSigned) message.Body;
+
 				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
 				var protocol = multipart.ContentType.Parameters["protocol"];
@@ -187,6 +194,8 @@ namespace UnitTests {
 			}
 
 			using (var ctx = CreateContext ()) {
+				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
+
 				var multipart = (MultipartSigned) message.Body;
 
 				var protocol = multipart.ContentType.Parameters["protocol"];
@@ -220,24 +229,27 @@ namespace UnitTests {
 		[Test]
 		public void TestSecureMimeEncryption ()
 		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var recipients = new List<MailboxAddress> ();
+			var message = new MimeMessage { Subject = "Test of S/MIME encryption..." };
 
-			// encrypt to ourselves...
-			recipients.Add (self);
-
-			var cleartext = new TextPart ("plain");
-			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
+			message.From.Add (self);
+			message.To.Add (self);
+			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
-				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, cleartext);
+				message.Encrypt (ctx);
+
+				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+
+				var encrypted = (ApplicationPkcs7Mime) message.Body;
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
 				var decrypted = encrypted.Decrypt (ctx);
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-				Assert.AreEqual (cleartext.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 			}
 		}
 
