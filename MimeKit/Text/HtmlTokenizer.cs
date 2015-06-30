@@ -2611,6 +2611,14 @@ namespace MimeKit.Text {
 			return EmitCDataToken ();
 		}
 
+		/// <summary>
+		/// Reads the next token.
+		/// </summary>
+		/// <remarks>
+		/// Reads the next token.
+		/// </remarks>
+		/// <returns><c>true</c> if the next token was read; otherwise, <c>false</c>.</returns>
+		/// <param name="token">THe token that was read.</param>
 		public bool ReadNextToken (out HtmlToken token)
 		{
 			do {
