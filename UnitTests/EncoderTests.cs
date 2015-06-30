@@ -71,13 +71,17 @@ namespace UnitTests {
 		public void TestBase64Encode ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.b64"))
-					file.CopyTo (original, 4096);
+				using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
+					using (var filtered = new FilteredStream (original)) {
+						filtered.Add (new Dos2UnixFilter ());
+						file.CopyTo (filtered, 4096);
+						filtered.Flush ();
+					}
+				}
 
 				using (var encoded = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (encoded)) {
 						filtered.Add (EncoderFilter.Create (ContentEncoding.Base64));
-						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -129,20 +133,22 @@ namespace UnitTests {
 		public void TestUUEncode ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.uu"))
-					file.CopyTo (original, 4096);
+				using (var file = File.OpenRead ("../../TestData/encoders/photo.uu")) {
+					using (var filtered = new FilteredStream (original)) {
+						filtered.Add (new Dos2UnixFilter ());
+						file.CopyTo (filtered, 4096);
+						filtered.Flush ();
+					}
+				}
 
 				using (var encoded = new MemoryStream ()) {
-					var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg");
-					var eol = FormatOptions.Default.NewLineBytes;
-					var end = Encoding.ASCII.GetBytes ("end");
+					var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\n");
+					var end = Encoding.ASCII.GetBytes ("end\n");
 
 					encoded.Write (begin, 0, begin.Length);
-					encoded.Write (eol, 0, eol.Length);
 
 					using (var filtered = new FilteredStream (encoded)) {
 						filtered.Add (EncoderFilter.Create (ContentEncoding.UUEncode));
-						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -151,7 +157,6 @@ namespace UnitTests {
 					}
 
 					encoded.Write (end, 0, end.Length);
-					encoded.Write (eol, 0, eol.Length);
 
 					var buf0 = original.GetBuffer ();
 					var buf1 = encoded.GetBuffer ();

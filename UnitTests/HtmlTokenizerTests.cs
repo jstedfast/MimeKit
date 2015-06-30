@@ -40,7 +40,7 @@ namespace UnitTests {
 		static void VerifyHtmlTokenizerOutput (string path)
 		{
 			var tokens = Path.ChangeExtension (path, ".tokens");
-			var expected = File.Exists (tokens) ? File.ReadAllText (tokens) : string.Empty;
+			var expected = File.Exists (tokens) ? File.ReadAllText (tokens).Replace ("\r", "") : string.Empty;
 			var actual = new StringBuilder ();
 
 			using (var textReader = File.OpenText (path)) {
@@ -67,7 +67,7 @@ namespace UnitTests {
 							default: actual.Append (text.Data[i]); break;
 							}
 						}
-						actual.AppendLine ();
+						actual.Append ('\n');
 						break;
 					case HtmlTokenKind.Tag:
 						var tag = (HtmlTagToken) token;
@@ -82,12 +82,12 @@ namespace UnitTests {
 						}
 
 						actual.Append (tag.IsEmptyElement ? "/>" : ">");
-
-						actual.AppendLine ();
+						actual.Append ('\n');
 						break;
 					case HtmlTokenKind.Comment:
 						var comment = (HtmlCommentToken) token;
-						actual.AppendLine (comment.Comment);
+						actual.Append (comment.Comment);
+						actual.Append ('\n');
 						break;
 					case HtmlTokenKind.DocType:
 						var doctype = (HtmlDocTypeToken) token;
@@ -109,7 +109,7 @@ namespace UnitTests {
 						}
 
 						actual.Append (">");
-						actual.AppendLine ();
+						actual.Append ('\n');
 						break;
 					default:
 						Assert.Fail ("Unhandled token type: {0}", token.Kind);
