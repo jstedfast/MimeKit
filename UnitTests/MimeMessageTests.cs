@@ -107,12 +107,15 @@ Just for fun....  -- Nathaniel<nl>
 ";
 			string result;
 
-			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText.Replace ("\r\n", "\n")))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
 				var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
-					message.WriteTo (serialized);
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
 
 					result = Encoding.UTF8.GetString (serialized.ToArray ());
 				}

@@ -137,7 +137,7 @@ namespace UnitTests {
 			if (depth > 0)
 				builder.Append (new string (' ', depth * 3));
 
-			builder.AppendFormat ("Content-Type: {0}/{1}", entity.ContentType.MediaType, entity.ContentType.MediaSubtype).AppendLine ();
+			builder.AppendFormat ("Content-Type: {0}/{1}", entity.ContentType.MediaType, entity.ContentType.MediaSubtype).Append ('\n');
 
 			if (entity is Multipart) {
 				var multipart = (Multipart) entity;
@@ -158,17 +158,17 @@ namespace UnitTests {
 				if (iter.Depth > 0)
 					builder.Append (new string (' ', iter.Depth * 3));
 
-				builder.AppendFormat ("Content-Type: {0}/{1}", ctype.MediaType, ctype.MediaSubtype).AppendLine ();
+				builder.AppendFormat ("Content-Type: {0}/{1}", ctype.MediaType, ctype.MediaSubtype).Append ('\n');
 			}
 		}
 
 		[Test]
 		public void TestEmptyMultipartAlternative ()
 		{
-			const string expected = @"Content-Type: multipart/mixed
+			string expected = @"Content-Type: multipart/mixed
    Content-Type: multipart/alternative
    Content-Type: text/plain
-";
+".Replace ("\r\n", "\n");
 
 			using (var stream = File.OpenRead ("../../TestData/messages/empty-multipart.txt")) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
@@ -184,7 +184,7 @@ namespace UnitTests {
 		[Test]
 		public void TestJwzMbox ()
 		{
-			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt");
+			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt").Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
@@ -193,15 +193,15 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}", parser.MboxMarker.Trim ('\r', '\n')).AppendLine ();
+					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
+						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
 					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}", message.To).AppendLine ();
-					builder.AppendFormat ("Subject: {0}", message.Subject).AppendLine ();
-					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).AppendLine ();
+						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
+					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
 					DumpMimeTree (builder, message);
-					builder.AppendLine ();
+					builder.Append ('\n');
 				}
 			}
 
@@ -218,24 +218,24 @@ namespace UnitTests {
 		[Test]
 		public void TestJwzPersistentMbox ()
 		{
-			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt");
+			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt").Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
 
-					builder.AppendFormat ("{0}", parser.MboxMarker.Trim ('\r', '\n')).AppendLine ();
+					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}", message.From).AppendLine ();
+						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
 					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}", message.To).AppendLine ();
-					builder.AppendFormat ("Subject: {0}", message.Subject).AppendLine ();
-					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).AppendLine ();
+						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
+					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
 					DumpMimeTree (builder, message);
-					builder.AppendLine ();
+					builder.Append ('\n');
 
 					// Force the various MimePart objects to write their content streams.
 					// The idea is that by forcing the MimeParts to seek in their content,
