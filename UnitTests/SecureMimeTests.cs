@@ -140,7 +140,7 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
-				message.Sign (ctx, DigestAlgorithm.Sha1);
+				message.Sign (ctx);
 
 				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
 
@@ -298,19 +298,21 @@ namespace UnitTests {
 		[Test]
 		public void TestSecureMimeSignAndEncrypt ()
 		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var recipients = new List<MailboxAddress> ();
-
-			// encrypt to ourselves...
-			recipients.Add (self);
-
-			var cleartext = new TextPart ("plain");
-			cleartext.Text = "This is some cleartext that we'll end up encrypting...";
-
+			var message = new MimeMessage { Subject = "Test of S/MIME encryption..." };
 			ApplicationPkcs7Mime encrypted;
 
+			message.From.Add (self);
+			message.To.Add (self);
+			message.Body = body;
+
 			using (var ctx = CreateContext ()) {
-				encrypted = ApplicationPkcs7Mime.SignAndEncrypt (ctx, self, DigestAlgorithm.Sha1, recipients, cleartext);
+				message.SignAndEncrypt (ctx);
+
+				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+
+				encrypted = (ApplicationPkcs7Mime) message.Body;
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 			}
@@ -326,7 +328,7 @@ namespace UnitTests {
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
 
 				var extracted = (TextPart) signed[0];
-				Assert.AreEqual (cleartext.Text, extracted.Text, "The decrypted text part's text does not match the original.");
+				Assert.AreEqual (body.Text, extracted.Text, "The decrypted text part's text does not match the original.");
 
 				var signatures = signed.Verify (ctx);
 

@@ -170,23 +170,33 @@ Just for fun....  -- Nathaniel<nl>
 
 			Assert.AreEqual (MessageImportance.Normal, message.Importance);
 
+			// Note: setting to normal should not change anything
+			message.Importance = MessageImportance.Normal;
+			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.Importance));
+
 			message.Importance = MessageImportance.Low;
 			value = message.Headers[HeaderId.Importance];
-
 			Assert.AreEqual (MessageImportance.Low, message.Importance);
 			Assert.AreEqual ("low", value);
 
 			message.Importance = MessageImportance.High;
 			value = message.Headers[HeaderId.Importance];
-
 			Assert.AreEqual (MessageImportance.High, message.Importance);
 			Assert.AreEqual ("high", value);
 
 			message.Importance = MessageImportance.Normal;
 			value = message.Headers[HeaderId.Importance];
-
 			Assert.AreEqual (MessageImportance.Normal, message.Importance);
 			Assert.AreEqual ("normal", value);
+
+			message.Headers[HeaderId.Importance] = "high";
+			Assert.AreEqual (MessageImportance.High, message.Importance);
+
+			message.Headers[HeaderId.Importance] = "low";
+			Assert.AreEqual (MessageImportance.Low, message.Importance);
+
+			message.Headers.Remove (HeaderId.Importance);
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
 		}
 
 		[Test]
@@ -200,23 +210,33 @@ Just for fun....  -- Nathaniel<nl>
 
 			Assert.AreEqual (MessagePriority.Normal, message.Priority);
 
+			// Note: setting to normal should not change anything
+			message.Priority = MessagePriority.Normal;
+			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.Priority));
+
 			message.Priority = MessagePriority.NonUrgent;
 			value = message.Headers[HeaderId.Priority];
-
 			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
 			Assert.AreEqual ("non-urgent", value);
 
 			message.Priority = MessagePriority.Urgent;
 			value = message.Headers[HeaderId.Priority];
-
 			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
 			Assert.AreEqual ("urgent", value);
 
 			message.Priority = MessagePriority.Normal;
 			value = message.Headers[HeaderId.Priority];
-
 			Assert.AreEqual (MessagePriority.Normal, message.Priority);
 			Assert.AreEqual ("normal", value);
+
+			message.Headers[HeaderId.Priority] = "non-urgent";
+			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
+
+			message.Headers[HeaderId.Priority] = "urgent";
+			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
+
+			message.Headers.Remove (HeaderId.Priority);
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
 		}
 
 		[Test]
@@ -269,6 +289,7 @@ Just for fun....  -- Nathaniel<nl>
 
 			foreach (var property in message.GetType ().GetProperties (BindingFlags.Instance | BindingFlags.Public)) {
 				var getter = property.GetGetMethod ();
+				var setter = property.GetSetMethod ();
 				DateTimeOffset date;
 				object value;
 				HeaderId id;
@@ -298,6 +319,11 @@ Just for fun....  -- Nathaniel<nl>
 
 					value = getter.Invoke (message, new object[0]);
 					Assert.AreEqual (mailbox2, value.ToString (), "Unexpected result when setting {0} to mailbox2", property.Name);
+
+					setter.Invoke (message, new object[] { null });
+					value = getter.Invoke (message, new object[0]);
+					Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
+					Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
 					break;
 				case "MimeKit.MessageIdList":
 					message.Headers[id] = references1;
@@ -335,6 +361,17 @@ Just for fun....  -- Nathaniel<nl>
 
 						value = getter.Invoke (message, new object[0]);
 						Assert.AreEqual (msgid2, value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+
+						setter.Invoke (message, new object[] { "<" + msgid1 + ">" });
+						value = getter.Invoke (message, new object[0]);
+						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1 via the setter.", property.Name);
+
+						if (id == HeaderId.InReplyTo) {
+							setter.Invoke (message, new object[] { null });
+							value = getter.Invoke (message, new object[0]);
+							Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
+							Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
+						}
 						break;
 					case HeaderId.Subject:
 						message.Headers[id] = "Subject #1";
