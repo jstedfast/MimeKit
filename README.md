@@ -1,5 +1,8 @@
 # MimeKit
 
+[![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/pr)](http://www.issuestats.com/github/jstedfast/MimeKit)
+[![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/issue)](http://www.issuestats.com/github/jstedfast/MimeKit)
+
 |             |Build Status|Code Coverage|Static Analysis|
 |-------------|:----------:|:-----------:|:-------------:|
 |**Linux/Mac**|[![Build Status](https://travis-ci.org/jstedfast/MimeKit.svg)](https://travis-ci.org/jstedfast/MimeKit)|[![Code Coverage](https://coveralls.io/repos/jstedfast/MimeKit/badge.svg?branch=HEAD)](https://coveralls.io/r/jstedfast/MimeKit?branch=HEAD)|[![Static Analysis](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)|
