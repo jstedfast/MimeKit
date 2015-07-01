@@ -134,7 +134,7 @@ namespace UnitTests {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of S/MIME signing..." };
+			var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
 
 			message.From.Add (self);
 			message.Body = body;
@@ -231,7 +231,7 @@ namespace UnitTests {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of S/MIME encryption..." };
+			var message = new MimeMessage { Subject = "Test of encrypting with S/MIME" };
 
 			message.From.Add (self);
 			message.To.Add (self);
@@ -298,9 +298,9 @@ namespace UnitTests {
 		[Test]
 		public void TestSecureMimeSignAndEncrypt ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of S/MIME encryption..." };
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "b7dd33847c3308dd9e12b4c3c94b545d76ab5e41");
+			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
 			ApplicationPkcs7Mime encrypted;
 
 			message.From.Add (self);

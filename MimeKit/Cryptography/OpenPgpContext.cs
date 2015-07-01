@@ -321,7 +321,7 @@ namespace MimeKit.Cryptography {
 		{
 			var secure = mailbox as SecureMailboxAddress;
 
-			if (secure != null) {
+			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
 
 				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
@@ -412,7 +412,7 @@ namespace MimeKit.Cryptography {
 		{
 			var secure = mailbox as SecureMailboxAddress;
 
-			if (secure != null) {
+			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
 
 				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
