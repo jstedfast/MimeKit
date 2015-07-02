@@ -33,6 +33,8 @@ using System.Collections.Generic;
 using Encoding = Portable.Text.Encoding;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	/// <summary>
 	/// A list of Message-Ids.
@@ -95,14 +97,10 @@ namespace MimeKit {
 
 		static string ValidateMessageId (string messageId)
 		{
-			var buffer = Encoding.UTF8.GetBytes (messageId);
-			InternetAddress addr;
-			int index = 0;
+			if (messageId.Length < 2 || messageId[0] != '<' || messageId[messageId.Length - 1] != '>')
+				return messageId;
 
-			if (!InternetAddress.TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
-				throw new ArgumentException ("Invalid Message-Id format.", "messageId");
-
-			return ((MailboxAddress) addr).Address;
+			return messageId.Substring (1, messageId.Length - 2);
 		}
 
 		/// <summary>
@@ -118,9 +116,6 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="messageId"/> is improperly formatted.
 		/// </exception>
 		public void Insert (int index, string messageId)
 		{
@@ -161,9 +156,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="value"/> is improperly formatted.
-		/// </exception>
 		public string this [int index] {
 			get { return references[index]; }
 			set {
@@ -191,9 +183,6 @@ namespace MimeKit {
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="messageId"/> is improperly formatted.
 		/// </exception>
 		public void Add (string messageId)
 		{
