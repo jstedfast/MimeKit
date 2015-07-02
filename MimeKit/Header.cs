@@ -767,7 +767,7 @@ namespace MimeKit {
 
 				if (token.Length > format.MaxLineLength) {
 					switch (name) {
-					case "v":
+					case "z":
 						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString (), '|');
 						break;
 					case "h":
