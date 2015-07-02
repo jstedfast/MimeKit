@@ -738,7 +738,7 @@ namespace MimeKit {
 				string name;
 
 				while (index < value.Length && value[index] != '=') {
-					if (!char.IsWhiteSpace (value[index]))
+					if (!IsWhiteSpace (value[index]))
 						token.Append (value[index]);
 					index++;
 				}
@@ -746,7 +746,7 @@ namespace MimeKit {
 				name = value.Substring (startIndex, index - startIndex);
 
 				while (index < value.Length && value[index] != ';') {
-					if (!char.IsWhiteSpace (value[index]))
+					if (!IsWhiteSpace (value[index]))
 						token.Append (value[index]);
 					index++;
 				}
@@ -819,7 +819,7 @@ namespace MimeKit {
 
 		static bool IsWhiteSpace (char c)
 		{
-			return c == ' ' || c == '\t';
+			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 		}
 
 		static IEnumerable<string> TokenizeText (string text)
