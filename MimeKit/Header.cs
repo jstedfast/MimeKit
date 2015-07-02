@@ -678,8 +678,8 @@ namespace MimeKit {
 			int startIndex = 0;
 
 			do {
-				int lineLeft = format.MaxLineLength - (lineLength + 1);
-				int index = Math.Max (startIndex + lineLeft, value.Length);
+				int lineLeft = format.MaxLineLength - lineLength;
+				int index = Math.Min (startIndex + lineLeft, value.Length);
 
 				encoded.Append (value.Substring (startIndex, index - startIndex));
 				lineLength += (index - startIndex);
@@ -691,7 +691,7 @@ namespace MimeKit {
 				encoded.Append ('\t');
 				lineLength = 1;
 
-				startIndex = index + 1;
+				startIndex = index;
 			} while (true);
 		}
 
@@ -725,8 +725,9 @@ namespace MimeKit {
 
 		static byte[] EncodeDkimSignatureHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
-			var encoded = new StringBuilder (" ");
+			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
+			var token = new StringBuilder ();
 			int index = 0;
 
 			while (index < value.Length) {
@@ -735,22 +736,27 @@ namespace MimeKit {
 
 				int startIndex = index;
 				string name;
-				int length;
 
-				while (index < value.Length && value[index] != '=')
+				while (index < value.Length && value[index] != '=') {
+					if (!char.IsWhiteSpace (value[index]))
+						token.Append (value[index]);
 					index++;
+				}
 
 				name = value.Substring (startIndex, index - startIndex);
 
-				while (index < value.Length && value[index] != ';')
+				while (index < value.Length && value[index] != ';') {
+					if (!char.IsWhiteSpace (value[index]))
+						token.Append (value[index]);
 					index++;
+				}
 
-				if (index < value.Length && value[index] == ';')
+				if (index < value.Length && value[index] == ';') {
+					token.Append (';');
 					index++;
+				}
 
-				length = index - startIndex;
-
-				if (lineLength + length + 1 > format.MaxLineLength || name == "bh" || name == "b") {
+				if (lineLength + token.Length + 1 > format.MaxLineLength || name == "bh" || name == "b") {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
@@ -759,24 +765,24 @@ namespace MimeKit {
 					lineLength++;
 				}
 
-				if (length > format.MaxLineLength) {
-					var token = value.Substring (startIndex, length);
-
+				if (token.Length > format.MaxLineLength) {
 					switch (name) {
 					case "v":
-						EncodeDkimHeaderList (format, encoded, ref lineLength, token, '|');
+						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString (), '|');
 						break;
 					case "h":
-						EncodeDkimHeaderList (format, encoded, ref lineLength, token, ':');
+						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString (), ':');
 						break;
 					default:
-						EncodeDkimLongValue (format, encoded, ref lineLength, token);
+						EncodeDkimLongValue (format, encoded, ref lineLength, token.ToString ());
 						break;
 					}
 				} else {
-					encoded.Append (value.Substring (startIndex, length));
-					lineLength += length;
+					encoded.Append (token.ToString ());
+					lineLength += token.Length;
 				}
+
+				token.Length = 0;
 			}
 
 			encoded.Append (format.NewLine);
