@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>1.2.6.0</version>
+        <version>1.2.7.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,9 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-	<releaseNotes>* Fixed a bug in the HTML tokenizer to handle some weird HTML created by Outlook 15.0.
-* Added CmsRecipient .ctor overloads that accept X509Certificate2. (issue #149)
+	<releaseNotes>* Fixed encoding GroupAddress with multiple mailbox addresses.
+* Fixed MessageIdList to be less strict in what it will accept.
+* Fixed logic for DKIM-Signature header folding.
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>

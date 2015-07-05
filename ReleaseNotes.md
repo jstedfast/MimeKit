@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 1.2.7
+
+* Fixed encoding GroupAddress with multiple mailbox addresses.
+* Fixed MessageIdList to be less strict in what it will accept.
+* Fixed logic for DKIM-Signature header folding.
+
 ### MimeKit 1.2.6
 
 * Fixed a bug in the HTML tokenizer to handle some weird HTML created by Outlook 15.0.
