@@ -26,17 +26,19 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
 	public class MessageDeliveryStatusTests
 	{
 		[Test]
-		public void TestParser ()
+		public void TestMimeParser ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "multipart-report.txt"));
 
@@ -58,6 +60,32 @@ namespace UnitTests {
 			Assert.AreEqual ("RFC822; newsletter-request@imusic.com", groups[1]["Final-Recipient"]);
 			Assert.AreEqual ("failed", groups[1]["Action"]);
 			Assert.AreEqual ("X-LOCAL; 500 (err.nosuchuser)", groups[1]["Diagnostic-Code"]);
+		}
+
+		[Test]
+		public void TestSerializedContent ()
+		{
+			const string expected = "Reporting-MTA: dns; mm1\nArrival-Date: Mon, 29 Jul 1996 02:12:50 -0700\n\nFinal-Recipient: RFC822; newsletter-request@imusic.com\nAction: failed\nDiagnostic-Code: X-LOCAL; 500 (err.nosuchuser)\n\n";
+			var mds = new MessageDeliveryStatus ();
+			var recipient = new HeaderList ();
+			var status = new HeaderList ();
+
+			status.Add ("Reporting-MTA", "dns; mm1");
+			status.Add ("Arrival-Date", DateUtils.FormatDate (new DateTimeOffset (1996, 7, 29, 2, 12, 50, new TimeSpan (-7, 0, 0))));
+
+			recipient.Add ("Final-Recipient", "RFC822; newsletter-request@imusic.com");
+			recipient.Add ("Action", "failed");
+			recipient.Add ("Diagnostic-Code", "X-LOCAL; 500 (err.nosuchuser)");
+
+			mds.StatusGroups.Add (status);
+			mds.StatusGroups.Add (recipient);
+
+			using (var memory = new MemoryStream ()) {
+				mds.ContentObject.DecodeTo (memory);
+
+				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
+				Assert.AreEqual (expected, text);
+			}
 		}
 	}
 }
