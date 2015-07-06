@@ -68,7 +68,6 @@ namespace MimeKit {
 		/// </remarks>
 		public const string Inline = "inline";
 
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		ParameterList parameters;
 		string disposition;
 
@@ -151,7 +150,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
 		public bool IsAttachment {
-			get { return icase.Compare (disposition, Attachment) == 0; }
+			get { return disposition.Equals (Attachment, StringComparison.OrdinalIgnoreCase); }
 			set { disposition = value ? Attachment : Inline; }
 		}
 

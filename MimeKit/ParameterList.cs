@@ -47,8 +47,6 @@ namespace MimeKit {
 	/// </remarks>
 	public class ParameterList : IList<Parameter>
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-
 		readonly Dictionary<string, Parameter> table;
 		readonly List<Parameter> parameters;
 
@@ -60,7 +58,7 @@ namespace MimeKit {
 		/// </remarks>
 		public ParameterList ()
 		{
-			table = new Dictionary<string, Parameter> (icase);
+			table = new Dictionary<string, Parameter> (StringComparer.OrdinalIgnoreCase);
 			parameters = new List<Parameter> ();
 		}
 
@@ -502,7 +500,7 @@ namespace MimeKit {
 				if (param == value)
 					return;
 
-				if (icase.Compare (param.Name, value.Name) == 0) {
+				if (param.Name.Equals (value.Name, StringComparison.OrdinalIgnoreCase)) {
 					// replace the old param with the new one
 					if (table[param.Name] == param)
 						table[param.Name] = value;
@@ -824,7 +822,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
-			var rfc2184 = new Dictionary<string, List<NameValuePair>> (icase);
+			var rfc2184 = new Dictionary<string, List<NameValuePair>> (StringComparer.OrdinalIgnoreCase);
 			var @params = new List<NameValuePair> ();
 			List<NameValuePair> parts;
 

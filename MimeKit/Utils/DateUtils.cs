@@ -114,7 +114,6 @@ namespace MimeKit.Utils {
 			"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 		};
 
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly Dictionary<string, int> timezones;
 		static readonly DateTokenFlags[] datetok;
 
@@ -184,7 +183,7 @@ namespace MimeKit.Utils {
 				name = name.Substring (0, 3);
 
 			for (int day = 0; day < WeekDays.Length; day++) {
-				if (icase.Compare (WeekDays[day], name) == 0) {
+				if (WeekDays[day].Equals (name, StringComparison.OrdinalIgnoreCase)) {
 					weekday = (DayOfWeek) day;
 					return true;
 				}
@@ -225,7 +224,7 @@ namespace MimeKit.Utils {
 				name = name.Substring (0, 3);
 
 			for (int i = 0; i < Months.Length; i++) {
-				if (icase.Compare (Months[i], name) == 0) {
+				if (Months[i].Equals (name, StringComparison.OrdinalIgnoreCase)) {
 					month = i + 1;
 					return true;
 				}

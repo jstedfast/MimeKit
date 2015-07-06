@@ -64,7 +64,6 @@ namespace MimeKit {
 	/// </remarks>
 	public class MimeMessage
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 		static readonly string[] StandardAddressHeaders = {
 			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
 			"From", "Reply-To", "To", "Cc", "Bcc"
@@ -85,7 +84,7 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (icase);
+			addresses = new Dictionary<string, InternetAddressList> (StringComparer.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
 
 			// initialize our address lists
@@ -112,7 +111,7 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (icase);
+			addresses = new Dictionary<string, InternetAddressList> (StringComparer.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
 
 			// initialize our address lists

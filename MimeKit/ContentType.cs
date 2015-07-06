@@ -310,9 +310,8 @@ namespace MimeKit {
 			if (mediaSubtype == null)
 				throw new ArgumentNullException ("mediaSubtype");
 
-			var stricase = StringComparer.OrdinalIgnoreCase;
-			if (mediaType == "*" || stricase.Compare (mediaType, type) == 0)
-				return mediaSubtype == "*" || stricase.Compare (mediaSubtype, subtype) == 0;
+			if (mediaType == "*" || mediaType.Equals (type, StringComparison.OrdinalIgnoreCase))
+				return mediaSubtype == "*" || mediaSubtype.Equals (subtype, StringComparison.OrdinalIgnoreCase);
 
 			return false;
 		}
