@@ -93,6 +93,7 @@
     <Compile Include="UrlScannerTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
+    <Compile Include="MessageDeliveryStatusTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
@@ -171,6 +172,7 @@
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
     <None Include="packages.config" />
+    <None Include="TestData\messages\multipart-report.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

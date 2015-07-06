@@ -1,0 +1,507 @@
+
+
+
+
+
+
+Internet Engineering Task Force (IETF)                 M. Kucherawy, Ed.
+Request for Comments: 6522                                     Cloudmark
+STD: 73                                                     January 2012
+Obsoletes: 3462
+Category: Standards Track
+ISSN: 2070-1721
+
+
+                  The Multipart/Report Media Type for
+          the Reporting of Mail System Administrative Messages
+
+Abstract
+
+   The multipart/report Multipurpose Internet Mail Extensions (MIME)
+   media type is a general "family" or "container" type for electronic
+   mail reports of any kind.  Although this memo defines only the use of
+   the multipart/report media type with respect to delivery status
+   reports, mail processing programs will benefit if a single media type
+   is used for all kinds of reports.
+
+   This memo obsoletes "The Multipart/Report Content Type for the
+   Reporting of Mail System Administrative Messages", RFC 3462, and
+   marks RFC 3462 and its predecessor as "Historic".
+
+Status of This Memo
+
+   This is an Internet Standards Track document.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Further information on
+   Internet Standards is available in Section 2 of RFC 5741.
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback on it may be obtained at
+   http://www.rfc-editor.org/info/rfc6522.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 1]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+Copyright Notice
+
+   Copyright (c) 2012 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+   This document may contain material from IETF Documents or IETF
+   Contributions published or made publicly available before November
+   10, 2008.  The person(s) controlling the copyright in some of this
+   material may not have granted the IETF Trust the right to allow
+   modifications of such material outside the IETF Standards Process.
+   Without obtaining an adequate license from the person(s) controlling
+   the copyright in such materials, this document may not be modified
+   outside the IETF Standards Process, and derivative works of it may
+   not be created outside the IETF Standards Process, except to format
+   it for publication as an RFC or to translate it into languages other
+   than English.
+
+Table of Contents
+
+   1. Introduction ....................................................3
+   2. Document Conventions ............................................3
+   3. The Multipart/Report Media Type .................................3
+   4. The text/rfc822-headers Media Type ..............................5
+   5. Registering New Report Types ....................................7
+   6. IANA Considerations .............................................7
+   7. Security Considerations .........................................7
+   8. References ......................................................7
+      8.1. Normative References .......................................7
+      8.2. Informative References .....................................8
+   Appendix A.  Acknowledgements ......................................9
+
+
+
+
+
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 2]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+1.  Introduction
+
+   [OLD-REPORT] and its antecedent declared the multipart/report media
+   type for use within the [MIME] construct to create a container for
+   mail system administrative reports of various kinds.
+
+   Practical experience has shown that the general requirement of having
+   that media type constrained to be used only as the outermost MIME
+   type of a message is overly restrictive and limits such things as the
+   transmission of multiple administrative reports within a single
+   overall message container.  In particular, it prevents one from
+   forwarding a report as part of another multipart MIME message.
+
+   This memo removes that constraint.  No other changes apart from some
+   editorial ones are made.  Other memos might update other documents to
+   establish or clarify the constraints on use of multipart/report in
+   contexts where such are needed.
+
+   This memo obsoletes RFC 3462.  RFC 3462 and its predecessor, RFC
+   1892, have been marked as "Historic".
+
+2.  Document Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [KEYWORDS].
+
+3.  The Multipart/Report Media Type
+
+   The multipart/report MIME media type is a general "family" or
+   "container" type for electronic mail reports of any kind.  Although
+   this memo defines only the use of the multipart/report media type
+   with respect to delivery status reports, mail processing programs
+   will benefit if a single media type is used for all kinds of reports.
+
+   Per [MIME-REG], the multipart/report media type is defined as
+   follows:
+
+   Type name:  multipart
+
+   Subtype name:  report
+
+   Required parameters:  boundary, report-type
+
+   Optional parameters:  none
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 3]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+   Encoding considerations:  7bit should always be adequate
+
+   Security considerations:  see Section 7 of [RFC6522]
+
+   Interoperability considerations:  see Section 1 of [RFC6522]
+
+   Published specification:  [RFC6522]
+
+   Applications that use this media type:  Mail Transfer Agents, Mail
+      User Agents, spam detection and reporting modules, virus detection
+      modules, and message authentication modules.
+
+   Additional information:
+
+      Magic number(s):  N/A
+
+      File extension(s):  N/A
+
+      Macintosh file type code(s):  N/A
+
+   Person and email address to contact for further information:  Murray
+      S. Kucherawy <msk@cloudmark.com>
+
+   Intended usage:  common
+
+   Restrictions on usage:  none; however, other applications that
+      register report types may establish such restrictions.
+
+   Author:  Murray S. Kucherawy <msk@cloudmark.com>
+
+   Change controller:  IESG
+
+   The syntax of multipart/report is identical to the multipart/mixed
+   content type defined in [MIME].  The report-type parameter identifies
+   the type of report.  The parameter is the MIME subtype of the second
+   body part of the multipart/report.  (See Section 5.)
+
+   The multipart/report media type contains either two or three sub-
+   parts, in the following order:
+
+   1.  (REQUIRED) The first body part contains a human-readable message.
+       The purpose of this message is to provide an easily understood
+       description of the condition(s) that caused the report to be
+       generated, for a human reader who might not have a user agent
+       capable of interpreting the second section of the multipart/
+       report.  The text in the first section can use any IANA-
+       registered MIME media type, charset, or language.  Where a
+       description of the error is desired in several languages or
+
+
+
+Kucherawy                    Standards Track                    [Page 4]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+       several media, a multipart/alternative construct MAY be used.
+       This body part MAY also be used to send detailed information that
+       cannot be easily formatted into the second body part.
+
+   2.  (REQUIRED) A machine-parsable body part containing an account of
+       the reported message handling event.  The purpose of this body
+       part is to provide a machine-readable description of the
+       condition(s) that caused the report to be generated, along with
+       details not present in the first body part that might be useful
+       to human experts.  An initial body part, message/delivery-status,
+       is defined in [DSN-FORMAT].
+
+   3.  (OPTIONAL) A body part containing the returned message or a
+       portion thereof.  This information could be useful to aid human
+       experts in diagnosing problems.  (Although it might also be
+       useful to allow the sender to identify the message about which
+       the report was issued, it is hoped that the envelope-id and
+       original-recipient-address returned in the message/report body
+       part will replace the traditional use of the returned content for
+       this purpose.)
+
+   Return of content can be wasteful of network bandwidth and a variety
+   of implementation strategies can be used.  Generally, the sender
+   needs to choose the appropriate strategy and inform the recipient of
+   the required level of returned content required.  In the absence of
+   an explicit request for level of return of content such as that
+   provided in [DSN-SMTP], the agent that generated the delivery service
+   report SHOULD return the full message content.
+
+   When 8-bit or binary data not encoded in a 7-bit form is to be
+   returned, and the return path is not guaranteed to be 8-bit or binary
+   capable, two options are available.  The original message MAY be
+   re-encoded into a legal 7-bit MIME message or the text/rfc822-headers
+   media type MAY be used to return only the original message headers.
+
+4.  The text/rfc822-headers Media Type
+
+   The text/rfc822-headers media type provides a mechanism to label and
+   return only the [MAIL] header of a failed message.  The header is not
+   the complete message and SHOULD NOT be returned using the message/
+   rfc822 media type defined in [MIME-TYPES].  The returned header is
+   useful for identifying the failed message and for diagnostics based
+   on the Received header fields.
+
+
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 5]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+   The text/rfc822-headers media type is defined as follows:
+
+   Type name:  text
+
+   Subtype name:  rfc822-headers
+
+   Required parameters:  None
+
+   Optional parameters:  None
+
+   Encoding considerations:  7-bit is sufficient for normal mail
+      headers, however, if the headers are broken or extended and
+      require encoding to make them legal 7-bit content, they MAY be
+      encoded with quoted-printable as defined in [MIME].
+
+   Security considerations:  See Section 7 of [RFC6522].
+
+   Interoperability considerations:  none
+
+   Published specification:  [RFC6522]
+
+   Applications that use this media type:  Mail Transfer Agents, Mail
+      User Agents, spam detection and reporting modules, virus detection
+      modules, and message authentication modules.
+
+   Additional information:
+
+      Magic number(s):  N/A
+
+      File extension(s):  N/A
+
+      Macintosh file type code(s):  N/A
+
+   Person and email address to contact for further information:  Murray
+      S. Kucherawy <msk@cloudmark.com>
+
+   Intended usage:  common
+
+   Restrictions on usage:  none
+
+   Author:  Murray S. Kucherawy <msk@cloudmark.com>
+
+   Change controller:  IESG
+
+   The text/rfc822-headers body part SHOULD contain all the mail header
+   fields from the message that caused the report.  The header includes
+   all header fields prior to the first blank line in the message.  They
+   include the MIME-Version and MIME content description fields.
+
+
+
+Kucherawy                    Standards Track                    [Page 6]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+5.  Registering New Report Types
+
+   Registration of new media types for the purpose of creating a new
+   report format SHOULD note in the Intended Usage section of the media
+   type registration that the type being registered is suitable for use
+   as a report-type (i.e., the second body part) in the context of this
+   specification.
+
+6.  IANA Considerations
+
+   IANA has updated the Media Type Registry to indicate that this memo
+   contains the current definition of the multipart/report and text/
+   rfc822-headers media types, obsoleting [OLD-REPORT].
+
+7.  Security Considerations
+
+   Automated use of report types without authentication presents several
+   security issues.  Forging negative reports presents the opportunity
+   for denial-of-service attacks when the reports are used for automated
+   maintenance of directories or mailing lists.  Forging positive
+   reports can cause the sender to incorrectly believe a message was
+   delivered when it was not.
+
+   A signature covering the entire multipart/report structure could be
+   used to prevent such forgeries; such a signature scheme is, however,
+   beyond the scope of this document.
+
+8.  References
+
+8.1.  Normative References
+
+   [KEYWORDS]    Bradner, S., "Key words for use in RFCs to Indicate
+                 Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [MAIL]        Resnick, P., Ed., "Internet Message Format", RFC 5322,
+                 October 2008.
+
+   [MIME]        Freed, N. and N. Borenstein, "Multipurpose Internet
+                 Mail Extensions (MIME) Part One: Format of Internet
+                 Message Bodies", RFC 2045, November 1996.
+
+   [MIME-REG]    Freed, N. and J. Klensin, "Media Type Specifications
+                 and Registration Procedures", BCP 13, RFC 4288,
+                 December 2005.
+
+   [MIME-TYPES]  Freed, N. and N. Borenstein, "Multipurpose Internet
+                 Mail Extensions (MIME) Part Two: Media Types",
+                 RFC 2046, November 1996.
+
+
+
+Kucherawy                    Standards Track                    [Page 7]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+8.2.  Informative References
+
+   [DSN-FORMAT]  Moore, K. and G. Vaudreuil, "An Extensible Message
+                 Format for Delivery Status Notifications", RFC 3464,
+                 January 2003.
+
+   [DSN-SMTP]    Moore, K., "Simple Mail Transfer Protocol (SMTP)
+                 Service Extension for Delivery Status Notifications
+                 (DSNs)", RFC 3461, January 2003.
+
+   [OLD-REPORT]  Vaudreuil, G., "The Multipart/Report Content Type for
+                 the Reporting of Mail System Administrative Messages",
+                 RFC 3462, January 2003.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 8]
+
+RFC 6522               Multipart/Report Media Type          January 2012
+
+
+Appendix A.  Acknowledgements
+
+   The author would like to thank Dave Crocker, Frank Ellermann, Ned
+   Freed, Randall Gellens, Alexey Melnikov, and Keith Moore for their
+   input to this update.
+
+   Thanks also go to Gregory M. Vaudreuil, the original creator of this
+   media type.
+
+Author's Address
+
+   Murray S. Kucherawy (editor)
+   Cloudmark
+   128 King St., 2nd Floor
+   San Francisco, CA  94107
+   US
+
+   Phone: +1 415 946 3800
+   EMail: msk@cloudmark.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kucherawy                    Standards Track                    [Page 9]
+

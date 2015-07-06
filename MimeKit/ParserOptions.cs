@@ -293,6 +293,8 @@ namespace MimeKit {
 				switch (subtype) {
 				case "disposition-notification":
 					return new MessageDispositionNotification (args);
+				case "delivery-status":
+					return new MessageDeliveryStatus (args);
 				case "partial":
 					if (!IsEncoded (headers))
 						return new MessagePartial (args);

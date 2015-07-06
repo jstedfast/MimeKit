@@ -135,6 +135,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Visit the message/delivery-status MIME entity.
+		/// </summary>
+		/// <remarks>
+		/// Visits the message/delivery-status MIME entity.
+		/// </remarks>
+		/// <param name="entity">The message/delivery-status MIME entity.</param>
+		protected internal virtual void VisitMessageDeliveryStatus (MessageDeliveryStatus entity)
+		{
+			VisitMimePart (entity);
+		}
+
+		/// <summary>
 		/// Visit the message contained within a message/rfc822 or message/news MIME entity.
 		/// </summary>
 		/// <remarks>

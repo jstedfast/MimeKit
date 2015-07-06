@@ -1439,7 +1439,7 @@ namespace MimeKit {
 					throw new FormatException ("Failed to parse headers.");
 			}
 
-			state = MimeParserState.Complete;
+			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
 
 			var parsed = new HeaderList (options);
 			foreach (var header in headers)

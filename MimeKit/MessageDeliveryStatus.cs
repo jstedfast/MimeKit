@@ -1,5 +1,5 @@
 ﻿//
-// MessageDispositionNotification.cs
+// MessageDeliveryStatus.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -30,19 +30,18 @@ using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
-	/// A message disposition notification MIME part.
+	/// A message delivery status MIME part.
 	/// </summary>
 	/// <remarks>
-	/// A message disposition notification MIME part is a machine readable notification
-	/// denoting the disposition of a message once it has been successfully delivered 
-	/// and has a MIME-type of message/disposition-notification.
+	/// A message delivery status MIME part is a machine readable notification denoting the
+	/// delivery status of a message and has a MIME-type of message/delivery-status.
 	/// </remarks>
-	public class MessageDispositionNotification : MimePart
+	public class MessageDeliveryStatus : MimePart
 	{
-		HeaderList fields;
+		HeaderListCollection groups;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessageDispositionNotification"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MessageDeliveryStatus"/> class.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
@@ -51,53 +50,63 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
-		public MessageDispositionNotification (MimeEntityConstructorArgs args) : base (args)
+		public MessageDeliveryStatus (MimeEntityConstructorArgs args) : base (args)
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessageDispositionNotification"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MessageDeliveryStatus"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MessageDispositionNotification"/>.
+		/// Creates a new <see cref="MessageDeliveryStatus"/>.
 		/// </remarks>
-		public MessageDispositionNotification () : base ("message", "disposition-notification")
+		public MessageDeliveryStatus () : base ("message", "delivery-status")
 		{
 		}
 
 		/// <summary>
-		/// Get the disposition notification fields.
+		/// Get the groups of delivery status fields.
 		/// </summary>
 		/// <remarks>
-		/// Gets the disposition notification fields.
+		/// Gets the groups of delivery status fields. The first group of fields
+		/// contains the per-message fields while each of the following groups
+		/// contains fields that pertain to particular recipients of the message.
 		/// </remarks>
 		/// <value>The fields.</value>
-		public HeaderList Fields {
+		public HeaderListCollection StatusGroups {
 			get {
-				if (fields == null) {
+				if (groups == null) {
 					if (ContentObject == null) {
 						ContentObject = new ContentObject (new MemoryBlockStream ());
-						fields = new HeaderList ();
+						groups = new HeaderListCollection ();
 					} else {
+						groups = new HeaderListCollection ();
+
 						using (var stream = ContentObject.Open ()) {
-							fields = HeaderList.Load (stream);
+							var parser = new MimeParser (stream, MimeFormat.Entity);
+
+							while (!parser.IsEndOfStream) {
+								var fields = parser.ParseHeaders ();
+								groups.Add (fields);
+							}
 						}
 					}
 
-					fields.Changed += OnFieldsChanged;
+					groups.Changed += OnGroupsChanged;
 				}
 
-				return fields;
+				return groups;
 			}
 		}
 
-		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
+		void OnGroupsChanged (object sender, EventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			fields.WriteTo (options, stream);
-			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			for (int i = 0; i < groups.Count; i++)
+				groups[i].WriteTo (options, stream);
+
 			stream.Position = 0;
 
 			ContentObject = new ContentObject (stream);
@@ -123,7 +132,7 @@ namespace MimeKit {
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
 
-			visitor.VisitMessageDispositionNotification (this);
+			visitor.VisitMessageDeliveryStatus (this);
 		}
 	}
 }

@@ -826,7 +826,7 @@ namespace MimeKit {
 		/// Determines whether or not the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified header is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// otherwise, <value>false</value>.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <c>null</c>.
