@@ -47,8 +47,6 @@ namespace MimeKit {
 	/// </remarks>
 	public sealed class HeaderList : IList<Header>
 	{
-		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
-
 		internal readonly ParserOptions Options;
 		internal bool Suppress;
 
@@ -58,7 +56,7 @@ namespace MimeKit {
 
 		internal HeaderList (ParserOptions options)
 		{
-			table = new Dictionary<string, Header> (icase);
+			table = new Dictionary<string, Header> (StringComparer.OrdinalIgnoreCase);
 			headers = new List<Header> ();
 			Options = options;
 		}
@@ -194,7 +192,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("field");
 
 			for (int i = 0; i < headers.Count; i++) {
-				if (icase.Compare (headers[i].Field, field) == 0)
+				if (headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
 					return i;
 			}
 
@@ -295,7 +293,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("field");
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
-				if (icase.Compare (headers[i].Field, field) == 0)
+				if (headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
 					return i;
 			}
 
@@ -396,7 +394,7 @@ namespace MimeKit {
 			table.Remove (field);
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
-				if (icase.Compare (headers[i].Field, field) != 0)
+				if (!headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				var header = headers[i];
@@ -888,7 +886,7 @@ namespace MimeKit {
 
 				// find the next matching header and add it to the lookup table
 				for (int i = index + 1; i < headers.Count; i++) {
-					if (icase.Compare (headers[i].Field, header.Field) == 0) {
+					if (headers[i].Field.Equals (header.Field, StringComparison.OrdinalIgnoreCase)) {
 						table.Add (headers[i].Field, headers[i]);
 						break;
 					}
@@ -930,7 +928,7 @@ namespace MimeKit {
 				if (headers[i] == first)
 					break;
 
-				if (icase.Compare (headers[i].Field, header.Field) != 0)
+				if (!headers[i].Field.Equals (header.Field, StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				headers[i].Changed -= HeaderChanged;
@@ -1033,7 +1031,7 @@ namespace MimeKit {
 
 				// find the next matching header and add it to the lookup table
 				for (int i = index + 1; i < headers.Count; i++) {
-					if (icase.Compare (headers[i].Field, header.Field) == 0) {
+					if (headers[i].Field.Equals (header.Field, StringComparison.OrdinalIgnoreCase)) {
 						table.Add (headers[i].Field, headers[i]);
 						break;
 					}
@@ -1081,7 +1079,7 @@ namespace MimeKit {
 				header.Changed -= HeaderChanged;
 				value.Changed += HeaderChanged;
 
-				if (icase.Compare (header.Field, value.Field) == 0) {
+				if (header.Field.Equals (value.Field, StringComparison.OrdinalIgnoreCase)) {
 					// replace the old header with the new one
 					if (table[header.Field] == header)
 						table[header.Field] = value;
@@ -1092,7 +1090,7 @@ namespace MimeKit {
 
 						// find the next matching header and add it to the lookup table
 						for (int i = index + 1; i < headers.Count; i++) {
-							if (header.Field.Equals (headers[i].Field, StringComparison.OrdinalIgnoreCase)) {
+							if (headers[i].Field.Equals (header.Field, StringComparison.OrdinalIgnoreCase)) {
 								table.Add (headers[i].Field, headers[i]);
 								break;
 							}
