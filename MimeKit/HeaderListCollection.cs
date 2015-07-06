@@ -143,6 +143,7 @@ namespace MimeKit {
 				groups[i].Changed -= OnGroupChanged;
 
 			groups.Clear ();
+			OnChanged ();
 		}
 
 		/// <summary>
@@ -206,6 +207,7 @@ namespace MimeKit {
 				return false;
 
 			group.Changed -= OnGroupChanged;
+			OnChanged ();
 
 			return true;
 		}

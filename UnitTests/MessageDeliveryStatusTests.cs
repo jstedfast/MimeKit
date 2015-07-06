@@ -80,11 +80,39 @@ namespace UnitTests {
 			mds.StatusGroups.Add (status);
 			mds.StatusGroups.Add (recipient);
 
+			Assert.IsTrue (mds.StatusGroups.Contains (status), "Expected the groups to contain the per-message status group.");
+			Assert.IsTrue (mds.StatusGroups.Contains (recipient), "Expected the groups to contain the recipient status group.");
+			Assert.IsFalse (mds.StatusGroups.IsReadOnly, "The status groups should not be read-only.");
+
 			using (var memory = new MemoryStream ()) {
 				mds.ContentObject.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
 				Assert.AreEqual (expected, text);
+			}
+
+			var dummy = new HeaderList ();
+			dummy.Add ("Dummy-Header", "dummy value");
+
+			mds.StatusGroups.Add (dummy);
+
+			Assert.IsTrue (mds.StatusGroups.Contains (dummy), "Expected the groups to contain the dummy group.");
+			Assert.IsTrue (mds.StatusGroups.Remove (dummy), "Expected removal of the dummy group to be successful.");
+
+			var expectedContent = mds.ContentObject;
+
+			dummy.Add ("Bogus-Header", "bogus value");
+
+			Assert.AreEqual (expectedContent, mds.ContentObject, "The content should not have changed since the dummy group has been removed.");
+
+			mds.StatusGroups.Clear ();
+
+			using (var memory = new MemoryStream ()) {
+				mds.ContentObject.DecodeTo (memory);
+
+				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
+
+				Assert.AreEqual (string.Empty, text);
 			}
 		}
 	}
