@@ -79,6 +79,8 @@
     <Compile Include="HtmlTokenizerTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="MemoryBlockStreamTests.cs" />
+    <Compile Include="MessageDeliveryStatusTests.cs" />
+    <Compile Include="MessageDispositionNotificiationTests.cs" />
     <Compile Include="MessagePartialTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
@@ -93,7 +95,6 @@
     <Compile Include="UrlScannerTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
-    <Compile Include="MessageDeliveryStatusTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
@@ -120,6 +121,8 @@
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
+    <None Include="TestData\messages\delivery-status.txt" />
+    <None Include="TestData\messages\disposition-notification.txt" />
     <None Include="TestData\messages\empty-multipart.txt" />
     <None Include="TestData\messages\multipart-digest.txt" />
     <None Include="TestData\messages\rfc2060.txt" />
@@ -172,7 +175,6 @@
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
     <None Include="packages.config" />
-    <None Include="TestData\messages\multipart-report.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -97,7 +97,6 @@ namespace MimeKit {
 			var options = FormatOptions.Default;
 
 			fields.WriteTo (options, stream);
-			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			stream.Position = 0;
 
 			ContentObject = new ContentObject (stream);

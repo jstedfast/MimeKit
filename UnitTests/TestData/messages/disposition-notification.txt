@@ -1,0 +1,43 @@
+Date: Wed, 20 Sep 1995 00:19:00 (EDT) -0400
+From: Joe Recipient <Joe_Recipient@example.com>
+Message-Id: <199509200019.12345@example.com>
+Subject: Disposition notification
+To: Jane Sender <Jane_Sender@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=disposition-notification;
+ boundary="RAA14128.773615765/example.com"
+
+--RAA14128.773615765/example.com
+
+The message sent on 1995 Sep 19 at 13:30:00 (EDT) -0400 to Joe
+Recipient <Joe_Recipient@example.com> with subject "First draft of
+report" has been displayed.  This is no guarantee that the message
+has been read or understood.
+
+--RAA14128.773615765/example.com
+content-type: message/disposition-notification
+
+Reporting-UA: joes-pc.cs.example.com; Foomail 97.1
+Original-Recipient: rfc822;Joe_Recipient@example.com
+Final-Recipient: rfc822;Joe_Recipient@example.com
+Original-Message-ID: <199509192301.23456@example.org>
+Disposition: manual-action/MDN-sent-manually; displayed
+
+--RAA14128.773615765/example.com
+content-type: message/rfc822
+
+Date: Tue, 19 Sep 1995 13:30:00 (EDT) -0400
+From: Jane Sender <Jane_Sender@example.com>
+Message-Id: <199509192301.23456@example.org>
+Subject: First draft of report
+To: Joe Recipient <Joe_Recipient@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+
+Hey Joe,
+
+This is a test message for the first draft of the multipart/report spec.
+
+- Jane
+
+--RAA14128.773615765/example.com--
