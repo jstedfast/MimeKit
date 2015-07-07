@@ -1,0 +1,23 @@
+DocType: <!DOCTYPE HTML>
+Data: \n
+Tag: <html>
+Data: \n  
+Tag: <head>
+Data: \n    
+Tag: <title>
+Data: Script Data Samples
+Tag: </title>
+Data: \n    
+Tag: <script>
+ScriptData: \n      
+ScriptData: <!-- This is a comment\n      </head>\n      -->\n    
+Tag: </script>
+Data: \n  
+Tag: </head>
+Data: \n  
+Tag: <body>
+Data: \n  
+Tag: </body>
+Data: \n
+Tag: </html>
+Data: \n

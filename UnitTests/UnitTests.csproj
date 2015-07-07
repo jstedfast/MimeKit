@@ -113,6 +113,8 @@
     <None Include="TestData\html\papercut.tokens" />
     <None Include="TestData\html\papercut-4.4.html" />
     <None Include="TestData\html\papercut-4.4.tokens" />
+    <None Include="TestData\html\script-data.html" />
+    <None Include="TestData\html\script-data.tokens" />
     <None Include="TestData\html\test.html" />
     <None Include="TestData\html\test.tokens" />
     <None Include="TestData\html\xamarin3.html" />

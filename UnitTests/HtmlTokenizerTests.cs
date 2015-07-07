@@ -145,6 +145,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestScriptData ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "script-data.html"));
+		}
+
+		[Test]
 		public void TestTokenizer ()
 		{
 			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "test.html"));

@@ -950,6 +950,7 @@ namespace MimeKit.Text {
 
 			if (nc == '-') {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapeStartDash;
+				data.Append ('-');
 				Read ();
 			} else {
 				TokenizerState = HtmlTokenizerState.ScriptData;
@@ -964,6 +965,7 @@ namespace MimeKit.Text {
 
 			if (nc == '-') {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapedDashDash;
+				data.Append ('-');
 				Read ();
 			} else {
 				TokenizerState = HtmlTokenizerState.ScriptData;
@@ -1070,7 +1072,7 @@ namespace MimeKit.Text {
 			char c = (char) nc;
 
 			if (c == '/') {
-				TokenizerState = HtmlTokenizerState.ScriptDataEndTagOpen;
+				TokenizerState = HtmlTokenizerState.ScriptDataEscapedEndTagOpen;
 				name.Length = 0;
 				Read ();
 			} else if (IsAsciiLetter (c)) {
@@ -1103,6 +1105,7 @@ namespace MimeKit.Text {
 
 			if (IsAsciiLetter (c)) {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapedEndTagName;
+				data.Append (c);
 				name.Append (c);
 				Read ();
 			} else {
@@ -1156,7 +1159,6 @@ namespace MimeKit.Text {
 				default:
 					if (!IsAsciiLetter (c)) {
 						TokenizerState = HtmlTokenizerState.ScriptData;
-						data.Append (c);
 						return null;
 					}
 
