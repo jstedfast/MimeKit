@@ -9,13 +9,47 @@ Data: Script Data Samples
 Tag: </title>
 Data: \n    
 Tag: <script>
-ScriptData: \n      
-ScriptData: <!-- This is a comment\n      </head>\n      -->\n    
+ScriptData: </head>
+Tag: </script>
+Data: \n    
+Tag: <script>
+ScriptData: <!----
+ScriptData: </head>-->
+Tag: </script/>
+Data: \n    
+Tag: <script>
+ScriptData: <!--
+ScriptData: <!--escaped!-->-->
+Tag: </script>
+Data: \n    
+Tag: <script>
+ScriptData: <!--
+ScriptData: <--escaped!
+Tag: </script/>
+Data: \n    
+Tag: <script>
+ScriptData: <!--
+ScriptData: <--
+ScriptData: <script>double escaped!</script>
+Tag: </script>
+Data: \n    
+Tag: <script>
+ScriptData: <!--
+ScriptData: <--
+ScriptData: <script>double escaped!-</script>
+Tag: </script>
+Data: \n    
+Tag: <script>
+ScriptData: <!--
+ScriptData: <--
+ScriptData: <script>double escaped!--<</script>
 Tag: </script>
 Data: \n  
 Tag: </head>
 Data: \n  
 Tag: <body>
+Data: \n    
+Tag: <br/>
 Data: \n  
 Tag: </body>
 Data: \n
