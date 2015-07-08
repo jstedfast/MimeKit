@@ -339,11 +339,11 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (memory);
 
-				#if !PORTABLE
+#if !PORTABLE
 				var buffer = memory.GetBuffer ();
-				#else
+#else
 				var buffer = memory.ToArray ();
-				#endif
+#endif
 				int count = (int) memory.Length;
 
 				return CharsetUtils.Latin1.GetString (buffer, 0, count);
@@ -442,7 +442,7 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
-		#if !PORTABLE
+#if !PORTABLE
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -528,7 +528,7 @@ namespace MimeKit {
 			using (var stream = File.OpenWrite (fileName))
 				WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
-		#endif
+#endif
 
 		/// <summary>
 		/// Removes the header.

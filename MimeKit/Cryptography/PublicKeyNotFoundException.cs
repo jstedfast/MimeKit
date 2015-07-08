@@ -34,12 +34,12 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a public key could not be found for a specified mailbox.
 	/// </remarks>
-#if !PORTABLE
+#if SERIALIZABLE
 	[Serializable]
 #endif
 	public class PublicKeyNotFoundException : Exception
 	{
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PublicKeyNotFoundException"/> class.
 		/// </summary>
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 			Mailbox = mailbox;
 		}
 
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
 		/// with information about the exception.

@@ -38,12 +38,12 @@ namespace MimeKit {
 	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
 	/// occurred.
 	/// </remarks>
-#if !PORTABLE
+#if SERIALIZABLE
 	[Serializable]
 #endif
 	public class ParseException : FormatException
 	{
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
 		/// </summary>
@@ -90,7 +90,7 @@ namespace MimeKit {
 			ErrorIndex = errorIndex;
 		}
 
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
 		/// with information about the exception.

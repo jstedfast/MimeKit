@@ -1066,7 +1066,7 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
-		#if !PORTABLE
+#if !PORTABLE
 		/// <summary>
 		/// Writes the message to the specified file.
 		/// </summary>
@@ -1152,7 +1152,7 @@ namespace MimeKit {
 			using (var stream = File.OpenWrite (fileName))
 				WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
-		#endif
+#endif
 
 		MailboxAddress GetMessageSigner ()
 		{
@@ -2603,8 +2603,6 @@ namespace MimeKit {
 #endif // !PORTABLE
 
 #if ENABLE_SNM
-		#region System.Net.Mail support
-
 		static MimePart GetMimePart (AttachmentBase item)
 		{
 			var mimeType = item.ContentType.ToString ();
@@ -2781,8 +2779,6 @@ namespace MimeKit {
 		{
 			return message != null ? CreateFromMailMessage (message) : null;
 		}
-
-		#endregion
 #endif
 	}
 }

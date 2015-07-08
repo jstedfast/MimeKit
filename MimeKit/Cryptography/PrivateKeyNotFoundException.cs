@@ -34,12 +34,12 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a private key could not be found for a specified mailbox or key id.
 	/// </remarks>
-#if !PORTABLE
+#if SERIALIZABLE
 	[Serializable]
 #endif
 	public class PrivateKeyNotFoundException : Exception
 	{
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
 		/// </summary>
@@ -108,7 +108,7 @@ namespace MimeKit.Cryptography {
 			KeyId = keyid.ToString ("X");
 		}
 
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
 		/// with information about the exception.

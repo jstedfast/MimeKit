@@ -34,12 +34,12 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// For more information about the error condition, check the <see cref="System.Exception.InnerException"/> property.
 	/// </remarks>
-#if !PORTABLE
+#if SERIALIZABLE
 	[Serializable]
 #endif
 	public class DigitalSignatureVerifyException : Exception
 	{
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DigitalSignatureVerifyException"/> class.
 		/// </summary>

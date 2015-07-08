@@ -35,12 +35,12 @@ namespace MimeKit.Tnef {
 	/// A <see cref="TnefException"/> occurs when when a TNEF stream is found to be
 	/// corrupted and cannot be read any futher.
 	/// </remarks>
-#if !PORTABLE
+#if SERIALIZABLE
 	[Serializable]
 #endif
 	public class TnefException : FormatException
 	{
-#if !PORTABLE
+#if SERIALIZABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefException"/> class.
 		/// </summary>

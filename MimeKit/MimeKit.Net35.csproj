@@ -19,7 +19,7 @@
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\lib\net35</OutputPath>
     <IntermediateOutputPath>obj\Debug\lib\net35</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -28,7 +28,7 @@
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\lib\net35</OutputPath>
     <IntermediateOutputPath>obj\Release\lib\net35</IntermediateOutputPath>
-    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

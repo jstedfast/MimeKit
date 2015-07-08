@@ -17,7 +17,7 @@
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\lib\net45</OutputPath>
     <IntermediateOutputPath>obj\Debug\lib\net45</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -26,7 +26,7 @@
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\lib\net45</OutputPath>
     <IntermediateOutputPath>obj\Release\lib\net45</IntermediateOutputPath>
-    <DefineConstants>TRACE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
+    <DefineConstants>TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
