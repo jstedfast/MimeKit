@@ -19,7 +19,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\lib\Xamarin.iOS</OutputPath>
     <IntermediateOutputPath>obj\Debug\lib\Xamarin.iOS</IntermediateOutputPath>
-    <DefineConstants>DEBUG;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
+    <DefineConstants>DEBUG;SERIALIZABLE;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
+    <DefineConstants>SERIALIZABLE;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
     <GenerateDocumentation>True</GenerateDocumentation>
     <DocumentationFile>bin\Release\lib\Xamarin.iOS\MimeKitLite.xml</DocumentationFile>
   </PropertyGroup>
