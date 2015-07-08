@@ -1884,6 +1884,7 @@ namespace MimeKit.Text {
 
 				if (count == 7) {
 					TokenizerState = HtmlTokenizerState.CDataSection;
+					data.Length = 0;
 					return null;
 				}
 			}

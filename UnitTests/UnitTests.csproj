@@ -108,6 +108,8 @@
     <None Include="TestData\encoders\photo.uu" />
     <None Include="TestData\html\blocked.html" />
     <None Include="TestData\html\blocked.tokens" />
+    <None Include="TestData\html\cdata.html" />
+    <None Include="TestData\html\cdata.tokens" />
     <None Include="TestData\html\HtmlEntities.json" />
     <None Include="TestData\html\papercut.html" />
     <None Include="TestData\html\papercut.tokens" />

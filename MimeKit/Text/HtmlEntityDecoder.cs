@@ -73,9 +73,9 @@ namespace MimeKit.Text {
 				v = c - '0';
 			} else if (xbase == 16) {
 				if (c >= 'a') {
-					v = c - 'a';
+					v = (c - 'a') + 10;
 				} else if (c >= 'A') {
-					v = c - 'A';
+					v = (c - 'A') + 10;
 				} else {
 					return false;
 				}

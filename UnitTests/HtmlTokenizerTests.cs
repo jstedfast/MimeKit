@@ -29,7 +29,6 @@ using System.IO;
 using System.Text;
 
 using MimeKit.Text;
-using MimeKit.Utils;
 
 using NUnit.Framework;
 
@@ -37,6 +36,24 @@ namespace UnitTests {
 	[TestFixture]
 	public class HtmlTokenizerTests
 	{
+		static string Quote (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var quoted = new StringBuilder (text.Length + 2, (text.Length * 2) + 2);
+
+			quoted.Append ("\"");
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == '\\' || text[i] == '"')
+					quoted.Append ('\\');
+				quoted.Append (text[i]);
+			}
+			quoted.Append ("\"");
+
+			return quoted.ToString ();
+		}
+
 		static void VerifyHtmlTokenizerOutput (string path)
 		{
 			var tokens = Path.ChangeExtension (path, ".tokens");
@@ -76,12 +93,13 @@ namespace UnitTests {
 
 						foreach (var attribute in tag.Attributes) {
 							if (attribute.Value != null)
-								actual.AppendFormat (" {0}={1}", attribute.Name, MimeUtils.Quote (attribute.Value));
+								actual.AppendFormat (" {0}={1}", attribute.Name, Quote (attribute.Value));
 							else
 								actual.AppendFormat (" {0}", attribute.Name);
 						}
 
 						actual.Append (tag.IsEmptyElement ? "/>" : ">");
+
 						actual.Append ('\n');
 						break;
 					case HtmlTokenKind.Comment:
@@ -101,11 +119,11 @@ namespace UnitTests {
 							actual.AppendFormat (" {0}", doctype.Name.ToUpperInvariant ());
 
 						if (doctype.PublicIdentifier != null) {
-							actual.AppendFormat (" PUBLIC {0}", MimeUtils.Quote (doctype.PublicIdentifier));
+							actual.AppendFormat (" PUBLIC {0}", Quote (doctype.PublicIdentifier));
 							if (doctype.SystemIdentifier != null)
-								actual.AppendFormat (" {0}", MimeUtils.Quote (doctype.SystemIdentifier));
+								actual.AppendFormat (" {0}", Quote (doctype.SystemIdentifier));
 						} else if (doctype.SystemIdentifier != null) {
-							actual.AppendFormat (" SYSTEM {0}", MimeUtils.Quote (doctype.SystemIdentifier));
+							actual.AppendFormat (" SYSTEM {0}", Quote (doctype.SystemIdentifier));
 						}
 
 						actual.Append (">");
@@ -145,9 +163,21 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestPapercut44 ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "papercut-4.4.html"));
+		}
+
+		[Test]
 		public void TestScriptData ()
 		{
 			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "script-data.html"));
+		}
+
+		[Test]
+		public void TestCData ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "cdata.html"));
 		}
 
 		[Test]

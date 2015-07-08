@@ -1,0 +1,20 @@
+DocType: <!DOCTYPE HTML SYSTEM "http://www.w3.org/TR/html4/loose.dtd">
+Data: \n
+Tag: <html xmlns="http://www.w3.org/2000/xmlns/">
+Data: \n  
+Tag: <head>
+Data: \n    
+Tag: <title>
+Data: CDATA Test Cases
+Tag: </title>
+Data: \n  
+Tag: </head>
+Data: \n  
+Tag: <body>
+Data: \n    
+CData: this is some CDATA text
+Data: \n  
+Tag: </body>
+Data: \n
+Tag: </html>
+Data: \n
