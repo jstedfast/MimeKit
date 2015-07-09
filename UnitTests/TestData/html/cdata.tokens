@@ -12,6 +12,10 @@ Tag: </head>
 Data: \n  
 Tag: <body>
 Data: \n    
+Comment: -
+Data: \n    
+Comment: 
+Data: \n    
 CData: this is some CDATA text
 Data: \n  
 Tag: </body>

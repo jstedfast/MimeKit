@@ -393,6 +393,7 @@ namespace MimeKit.Text {
 			return token;
 		}
 
+		// 8.2.4.69 Tokenizing character references
 		HtmlToken ReadCharacterReference (HtmlTokenizerState next)
 		{
 			int nc = Peek ();
@@ -549,6 +550,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.1 Data state
 		HtmlToken ReadData ()
 		{
 			do {
@@ -583,11 +585,13 @@ namespace MimeKit.Text {
 			return EmitDataToken (DecodeCharacterReferences);
 		}
 
+		// 8.2.4.2 Character reference in data state
 		HtmlToken ReadCharacterReferenceInData ()
 		{
 			return ReadCharacterReference (HtmlTokenizerState.Data);
 		}
 
+		// 8.2.4.3 RCDATA state
 		HtmlToken ReadRcData ()
 		{
 			do {
@@ -621,11 +625,13 @@ namespace MimeKit.Text {
 			return EmitDataToken (DecodeCharacterReferences);
 		}
 
+		// 8.2.4.4 Character reference in RCDATA state
 		HtmlToken ReadCharacterReferenceInRcData ()
 		{
 			return ReadCharacterReference (HtmlTokenizerState.RcData);
 		}
 
+		// 8.2.4.5 RAWTEXT state
 		HtmlToken ReadRawText ()
 		{
 			do {
@@ -652,6 +658,7 @@ namespace MimeKit.Text {
 			return EmitDataToken (false);
 		}
 
+		// 8.2.4.6 Script data state
 		HtmlToken ReadScriptData ()
 		{
 			do {
@@ -678,6 +685,7 @@ namespace MimeKit.Text {
 			return EmitScriptDataToken ();
 		}
 
+		// 8.2.4.7 PLAINTEXT state
 		HtmlToken ReadPlainText ()
 		{
 			int nc = Read ();
@@ -694,6 +702,7 @@ namespace MimeKit.Text {
 			return EmitDataToken (false);
 		}
 
+		// 8.2.4.8 Tag open state
 		HtmlToken ReadTagOpen ()
 		{
 			int nc = Read ();
@@ -729,6 +738,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.9 End tag open state
 		HtmlToken ReadEndTagOpen ()
 		{
 			int nc = Read ();
@@ -763,6 +773,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.10 Tag name state
 		HtmlToken ReadTagName ()
 		{
 			do {
@@ -806,31 +817,37 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.11 RCDATA less-than sign state
 		HtmlToken ReadRcDataLessThan ()
 		{
 			return ReadGenericRawTextLessThan (HtmlTokenizerState.RcData, HtmlTokenizerState.RcDataEndTagOpen);
 		}
 
+		// 8.2.4.12 RCDATA end tag open state
 		HtmlToken ReadRcDataEndTagOpen ()
 		{
 			return ReadGenericRawTextEndTagOpen (DecodeCharacterReferences, HtmlTokenizerState.RcData, HtmlTokenizerState.RcDataEndTagName);
 		}
 
+		// 8.2.4.13 RCDATA end tag name state
 		HtmlToken ReadRcDataEndTagName ()
 		{
 			return ReadGenericRawTextEndTagName (DecodeCharacterReferences, HtmlTokenizerState.RcData);
 		}
 
+		// 8.2.4.14 RAWTEXT less-than sign state
 		HtmlToken ReadRawTextLessThan ()
 		{
 			return ReadGenericRawTextLessThan (HtmlTokenizerState.RawText, HtmlTokenizerState.RawTextEndTagOpen);
 		}
 
+		// 8.2.4.15 RAWTEXT end tag open state
 		HtmlToken ReadRawTextEndTagOpen ()
 		{
 			return ReadGenericRawTextEndTagOpen (false, HtmlTokenizerState.RawText, HtmlTokenizerState.RawTextEndTagName);
 		}
 
+		// 8.2.4.16 RAWTEXT end tag name state
 		HtmlToken ReadRawTextEndTagName ()
 		{
 			return ReadGenericRawTextEndTagName (false, HtmlTokenizerState.RawText);
@@ -1375,6 +1392,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.34 Before attribute name state
 		HtmlToken ReadBeforeAttributeName ()
 		{
 			do {
@@ -1412,6 +1430,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.35 Attribute name state
 		HtmlToken ReadAttributeName ()
 		{
 			do {
@@ -1456,6 +1475,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.36 After attribute name state
 		HtmlToken ReadAfterAttributeName ()
 		{
 			do {
@@ -1496,6 +1516,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.37 Before attribute value state
 		HtmlToken ReadBeforeAttributeValue ()
 		{
 			do {
@@ -1540,6 +1561,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.38 Attribute value (double-quoted) state
 		HtmlToken ReadAttributeValueQuoted ()
 		{
 			do {
@@ -1579,6 +1601,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.40 Attribute value (unquoted) state
 		HtmlToken ReadAttributeValueUnquoted ()
 		{
 			do {
@@ -1624,6 +1647,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.41 Character reference in attribute value state
 		HtmlToken ReadCharacterReferenceInAttributeValue ()
 		{
 			char additionalAllowedCharacter = quote == '\0' ? '>' : quote;
@@ -1699,6 +1723,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.42 After attribute value (quoted) state
 		HtmlToken ReadAfterAttributeValueQuoted ()
 		{
 			HtmlToken token = null;
@@ -1740,6 +1765,7 @@ namespace MimeKit.Text {
 			return token;
 		}
 
+		// 8.2.4.43 Self-closing start tag state
 		HtmlToken ReadSelfClosingStartTag ()
 		{
 			int nc = Read ();
@@ -1767,6 +1793,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.44 Bogus comment state
 		HtmlToken ReadBogusComment ()
 		{
 			int nc;
@@ -1797,6 +1824,7 @@ namespace MimeKit.Text {
 			return EmitCommentToken (data, true);
 		}
 
+		// 8.2.4.45 Markup declaration open state
 		HtmlToken ReadMarkupDeclarationOpen ()
 		{
 			int count = 0, nc;
@@ -1895,6 +1923,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.46 Comment start state
 		HtmlToken ReadCommentStart ()
 		{
 			int nc = Read ();
@@ -1917,7 +1946,7 @@ namespace MimeKit.Text {
 			case '>': // parse error
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (string.Empty);
-			default: // parse error
+			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append (c == '\0' ? '\uFFFD' : c);
 				break;
@@ -1926,6 +1955,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.47 Comment start dash state
 		HtmlToken ReadCommentStartDash ()
 		{
 			int nc = Read ();
@@ -1947,7 +1977,7 @@ namespace MimeKit.Text {
 			case '>': // parse error
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (name);
-			default: // parse error
+			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append ('-');
 				name.Append (c == '\0' ? '\uFFFD' : c);
@@ -1957,6 +1987,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.48 Comment state
 		HtmlToken ReadComment ()
 		{
 			do {
@@ -1984,7 +2015,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
-		// FIXME: this is exactly the same as ReadCommentStartDash
+		// 8.2.4.49 Comment end dash state
 		HtmlToken ReadCommentEndDash ()
 		{
 			int nc = Read ();
@@ -2003,10 +2034,7 @@ namespace MimeKit.Text {
 			case '-':
 				TokenizerState = HtmlTokenizerState.CommentEnd;
 				break;
-			case '>': // parse error
-				TokenizerState = HtmlTokenizerState.Data;
-				return EmitCommentToken (name);
-			default: // parse error
+			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append ('-');
 				name.Append (c == '\0' ? '\uFFFD' : c);
@@ -2016,6 +2044,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.50 Comment end state
 		HtmlToken ReadCommentEnd ()
 		{
 			do {
@@ -2050,6 +2079,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.51 Comment end bang state
 		HtmlToken ReadCommentEndBang ()
 		{
 			int nc = Read ();
@@ -2082,6 +2112,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.52 DOCTYPE state
 		HtmlToken ReadDocType ()
 		{
 			int nc = Peek ();
@@ -2108,6 +2139,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.53 Before DOCTYPE name state
 		HtmlToken ReadBeforeDocTypeName ()
 		{
 			do {
@@ -2144,6 +2176,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.54 DOCTYPE name state
 		HtmlToken ReadDocTypeName ()
 		{
 			do {
@@ -2189,6 +2222,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.55 After DOCTYPE name state
 		HtmlToken ReadAfterDocTypeName ()
 		{
 			do {
@@ -2233,6 +2267,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.56 After DOCTYPE public keyword state
 		HtmlToken ReadAfterDocTypePublicKeyword ()
 		{
 			int nc = Read ();
@@ -2271,6 +2306,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.57 Before DOCTYPE public identifier state
 		HtmlToken ReadBeforeDocTypePublicIdentifier ()
 		{
 			do {
@@ -2308,6 +2344,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.58 DOCTYPE public identifier (double-quoted) state
 		HtmlToken ReadDocTypePublicIdentifierQuoted ()
 		{
 			do {
@@ -2356,6 +2393,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.60 After DOCTYPE public identifier state
 		HtmlToken ReadAfterDocTypePublicIdentifier ()
 		{
 			int nc = Read ();
@@ -2393,6 +2431,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.61 Between DOCTYPE public and system identifiers state
 		HtmlToken ReadBetweenDocTypePublicAndSystemIdentifiers ()
 		{
 			do {
@@ -2429,6 +2468,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.62 After DOCTYPE system keyword state
 		HtmlToken ReadAfterDocTypeSystemKeyword ()
 		{
 			int nc = Read ();
@@ -2467,6 +2507,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.63 Before DOCTYPE system identifier state
 		HtmlToken ReadBeforeDocTypeSystemIdentifier ()
 		{
 			do {
@@ -2504,6 +2545,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.64 DOCTYPE system identifier (double-quoted) state
 		HtmlToken ReadDocTypeSystemIdentifierQuoted ()
 		{
 			do {
@@ -2552,6 +2594,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
+		// 8.2.4.66 After DOCTYPE system identifier state
 		HtmlToken ReadAfterDocTypeSystemIdentifier ()
 		{
 			do {
@@ -2582,6 +2625,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.67 Bogus DOCTYPE state
 		HtmlToken ReadBogusDocType ()
 		{
 			do {
@@ -2606,6 +2650,7 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+		// 8.2.4.68 CDATA section state
 		HtmlToken ReadCDataSection ()
 		{
 			int nc = Read ();
