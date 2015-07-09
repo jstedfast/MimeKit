@@ -1077,12 +1077,15 @@ namespace MimeKit.Cryptography {
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
+			var unique = new HashSet<X509Certificate> ();
 			var cms = new CmsEnvelopedDataGenerator ();
 			int count = 0;
 
 			foreach (var recipient in recipients) {
-				cms.AddKeyTransRecipient (recipient.Certificate);
-				count++;
+				if (unique.Add (recipient.Certificate)) {
+					cms.AddKeyTransRecipient (recipient.Certificate);
+					count++;
+				}
 			}
 
 			if (count == 0)

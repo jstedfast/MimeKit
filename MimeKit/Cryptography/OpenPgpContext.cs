@@ -1006,14 +1006,17 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("content");
 
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (algorithm), true);
+			var unique = new HashSet<long> ();
 			int count = 0;
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
 					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
 
-				encrypter.AddMethod (recipient);
-				count++;
+				if (unique.Add (recipient.KeyId)) {
+					encrypter.AddMethod (recipient);
+					count++;
+				}
 			}
 
 			if (count == 0)
@@ -1148,8 +1151,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
-			// TODO: document the exceptions that can be thrown by BouncyCastle
-
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
 
@@ -1164,14 +1165,17 @@ namespace MimeKit.Cryptography {
 
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (cipherAlgo), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
+			var unique = new HashSet<long> ();
 			int count = 0;
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
 					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
 
-				encrypter.AddMethod (recipient);
-				count++;
+				if (unique.Add (recipient.KeyId)) {
+					encrypter.AddMethod (recipient);
+					count++;
+				}
 			}
 
 			if (count == 0)
