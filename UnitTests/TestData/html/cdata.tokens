@@ -1,3 +1,4 @@
+Comment: ?xml version="1.0" encoding="utf-8"?
 DocType: <!DOCTYPE HTML SYSTEM "http://www.w3.org/TR/html4/loose.dtd">
 Data: \n
 Tag: <html xmlns="http://www.w3.org/2000/xmlns/">
@@ -10,7 +11,7 @@ Tag: </title>
 Data: \n  
 Tag: </head>
 Data: \n  
-Tag: <body>
+Tag: <body attribute-name-with-no-value class="cdata">
 Data: \n    
 Comment: -
 Data: \n    
