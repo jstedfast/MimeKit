@@ -128,7 +128,7 @@ while (iter.MoveNext ()) {
     var multipart = iter.Parent as Multipart;
     var part = iter.Current as MimePart;
 
-    if (parent != null && part != null && part.IsAttachment) {
+    if (multipart != null && part != null && part.IsAttachment) {
         // keep track of each attachment's parent multipart
         multiparts.Add (multipart);
         attachments.Add (part);
@@ -351,7 +351,7 @@ configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
 provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
 Once you've made your choice and installed it (via NuGet or however), you'll need to
-implement your own `SecureMimeContext` class. Luckily, it's very simple to do. Assuming
+implement your own `SecureMimeContext` subclass. Luckily, it's very simple to do. Assuming
 you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
 class:
 
@@ -645,10 +645,27 @@ if (entity is ApplicationPkcs7Mime) {
 }
 ```
 
-## API Documentation
+## Donate
 
-For the complete API documentation, you can find up-todate documentation on the web
-at [http://jstedfast.github.io/MimeKit/docs](http://jstedfast.github.io/MimeKit/docs).
+MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
+goal of making it not only the very best MIME parser framework for .NET, but the best MIME parser
+framework for any programming language. I need your help to achieve this.
+
+<a href="http://www.pledgie.com/campaigns/29300" target="_blank">
+  <img src="http://www.pledgie.com/campaigns/29300.png?skin_name=chrome"
+       alt="Click here to lend your support to MimeKit and MailKit by making a donation via pledgie.com!"
+       border="0" />
+</a>
+
+## Reporting Bugs
+
+Have a bug or a feature request? [Please open a new issue](https://github.com/jstedfast/MimeKit/issues).
+
+Before opening a new issue, please search for existing issues to avoid submitting duplicates.
+
+## Documentation
+
+API documentation can be found at [http://mimekit.net/docs](http://mimekit.net/docs).
 
 A copy of the xml formatted API documentation is also included in the NuGet and/or
 Xamarin Component package.
