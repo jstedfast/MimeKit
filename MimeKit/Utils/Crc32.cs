@@ -95,7 +95,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		public Crc32 Clone ()
 		{
-			return new Crc32 { crc = crc };
+			return new Crc32 (initialValue) { crc = crc };
 		}
 
 		/// <summary>
