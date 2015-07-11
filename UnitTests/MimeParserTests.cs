@@ -287,6 +287,32 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestUnmungedFromLines ()
+		{
+			int count = 0;
+
+			using (var stream = File.OpenRead ("../../TestData/mbox/unmunged.mbox.txt")) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+
+				while (!parser.IsEndOfStream) {
+					parser.ParseMessage ();
+
+					var marker = parser.MboxMarker;
+
+					if ((count % 2) == 0) {
+						Assert.AreEqual ("From -", marker.TrimEnd (), "Message #{0}", count);
+					} else {
+						Assert.AreEqual ("From Russia with love", marker.TrimEnd (), "Message #{0}", count);
+					}
+
+					count++;
+				}
+			}
+
+			Assert.AreEqual (4, count, "Expected to find 4 messages.");
+		}
+
+		[Test]
 		public void TestIssue51 ()
 		{
 			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +

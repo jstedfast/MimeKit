@@ -1,0 +1,24 @@
+﻿From -
+From: Jeffrey Stedfast <jeff@xamarin.com>
+Subject: This is a test message with an unmunged From line
+MIME-Version: 1.0
+Content-Type: text/plain
+
+This is my favourite James Bond movie:
+
+From Russia with love
+
+What does Thunderbird do?
+
+From -
+From: Jeffrey Stedfast <jeff@xamarin.com>
+Subject: Another test message with an unmunged From line
+MIME-Version: 1.0
+Content-Type: text/plain
+
+This is my favourite James Bond movie:
+
+From Russia with love
+Year: 1963
+
+What did Thunderbird do this time?

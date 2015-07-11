@@ -403,11 +403,12 @@ namespace MimeKit {
 			bounds.Clear ();
 			if (format == MimeFormat.Mbox) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
-				mboxMarkerBuffer = new byte[ReadAheadSize];
-				state = MimeParserState.MboxMarker;
-			} else {
-				state = MimeParserState.Initialized;
+
+				if (mboxMarkerBuffer == null)
+					mboxMarkerBuffer = new byte[ReadAheadSize];
 			}
+
+			state = MimeParserState.Initialized;
 		}
 
 		/// <summary>

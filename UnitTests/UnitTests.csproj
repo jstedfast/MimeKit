@@ -125,6 +125,7 @@
     <None Include="TestData\mbox\jwz.mbox.txt" />
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
+    <None Include="TestData\mbox\unmunged.mbox.txt" />
     <None Include="TestData\messages\delivery-status.txt" />
     <None Include="TestData\messages\disposition-notification.txt" />
     <None Include="TestData\messages\empty-multipart.txt" />
