@@ -110,6 +110,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MimeParser : IEnumerable<MimeMessage>
 	{
+		static readonly byte[] UTF8ByteOrderMark = { 0xEF, 0xBB, 0xBF };
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 4;
@@ -793,19 +794,10 @@ namespace MimeKit {
 			return *text == (byte) '\n';
 		}
 
-		static bool IsByteOrderByte (byte c)
-		{
-			// Note: if an mbox or message has a BOM, it can only be UTF-8
-			switch (c) {
-			case 0xEF: case 0xBB: case 0xBF: // UTF-8
-				return true;
-			default:
-				return false;
-			}
-		}
-
 		unsafe bool StepByteOrderMark (byte* inbuf)
 		{
+			int bomIndex = 0;
+
 			do {
 				if (ReadAhead (ReadAheadSize, 0) <= 0) {
 					// failed to read any data... EOF
@@ -816,8 +808,10 @@ namespace MimeKit {
 				byte* inptr = inbuf + inputIndex;
 				byte* inend = inbuf + inputEnd;
 
-				while (inptr < inend && IsByteOrderByte (*inptr))
+				while (inptr < inend && bomIndex < UTF8ByteOrderMark.Length && *inptr == UTF8ByteOrderMark[bomIndex]) {
+					bomIndex++;
 					inptr++;
+				}
 
 				inputIndex = (int) (inptr - inbuf);
 			} while (inputIndex == inputEnd);
