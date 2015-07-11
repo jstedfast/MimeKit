@@ -290,6 +290,7 @@ namespace MimeKit {
 		{
 		}
 
+		// Note: this .ctor is only used by Clone()
 		internal Header (ParserOptions options, HeaderId id, string name, byte[] field, byte[] value)
 		{
 			Options = options;

@@ -95,6 +95,38 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmptyHeaders ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = HeaderList.Load (memory);
+
+					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
+		public void TestEmptyMessage ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var message = MimeMessage.Load (memory);
+
+					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse message: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestSimpleMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/simple.mbox.txt")) {

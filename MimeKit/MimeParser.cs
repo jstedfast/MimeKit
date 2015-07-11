@@ -793,6 +793,17 @@ namespace MimeKit {
 			return *text == (byte) '\n';
 		}
 
+		static bool IsByteOrderByte (byte c)
+		{
+			// Note: if an mbox or message has a BOM, it can only be UTF-8
+			switch (c) {
+			case 0xEF: case 0xBB: case 0xBF: // UTF-8
+				return true;
+			default:
+				return false;
+			}
+		}
+
 		unsafe bool StepByteOrderMark (byte* inbuf)
 		{
 			do {
@@ -805,7 +816,7 @@ namespace MimeKit {
 				byte* inptr = inbuf + inputIndex;
 				byte* inend = inbuf + inputEnd;
 
-				while (inptr < inend && IsControl (*inptr))
+				while (inptr < inend && IsByteOrderByte (*inptr))
 					inptr++;
 
 				inputIndex = (int) (inptr - inbuf);
