@@ -340,7 +340,7 @@ namespace MimeKit {
 				}
 
 				var options = FormatOptions.Default;
-				var builder = new StringBuilder ();
+				var builder = new StringBuilder (" ");
 				int len = "Sender: ".Length;
 
 				value.Encode (options, builder, ref len);
@@ -375,7 +375,7 @@ namespace MimeKit {
 				}
 
 				var options = FormatOptions.Default;
-				var builder = new StringBuilder ();
+				var builder = new StringBuilder (" ");
 				int len = "Resent-Sender: ".Length;
 
 				value.Encode (options, builder, ref len);
