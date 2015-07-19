@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 1.2.8
+
+* Added a new MessageDeliveryStatus MimePart subclass to make message/delivery-status
+  MIME parts easier to deal with.
+* Improved HtmlTokenizer's support for the script tag - it is should now be completely
+  bug free.
+* Fixed to filter out duplicate recipients when encrypting for S/MIME or PGP.
+* Fixed MimeParser to handle a message stream of just "\r\n".
+* Add a leading space in the Sender and Resent-Sender header values.
+
 ### MimeKit 1.2.7
 
 * Fixed encoding GroupAddress with multiple mailbox addresses.
