@@ -1477,6 +1477,9 @@ To: unlisted-recipients: ;
 Subject: email delivery error
 Date: Mon, 29 Jul 1996 02:13:08 -0700
 Content-Type: multipart/report
+   Content-Type: message/delivery-status
+   Content-Type: message/rfc822
+      Content-Type: text/plain
 
 From tro@partech.com Fri Apr 28 18:16:52 1995
 From: "Tom Olin" <tro@partech.com>
