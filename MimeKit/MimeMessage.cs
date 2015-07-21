@@ -1109,7 +1109,7 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
-			using (var stream = File.OpenWrite (fileName))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (options, stream, cancellationToken);
 		}
 
@@ -1149,7 +1149,7 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
-			using (var stream = File.OpenWrite (fileName))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 #endif
@@ -2555,9 +2555,8 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
-			using (var stream = File.OpenRead (fileName)) {
+			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
 				return Load (options, stream, cancellationToken);
-			}
 		}
 
 		/// <summary>
