@@ -287,6 +287,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestJapaneseMessage ()
+		{
+			const string subject = "日本語メールテスト (testing Japanese emails)";
+			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
+
+			using (var stream = File.OpenRead ("../../TestData/messages/japanese.txt")) {
+				var message = MimeMessage.Load (stream);
+
+				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
+				Assert.AreEqual (body, message.TextBody, "Message text does not match.");
+			}
+		}
+
+		[Test]
 		public void TestUnmungedFromLines ()
 		{
 			int count = 0;

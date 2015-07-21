@@ -211,6 +211,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestJapaneseISO2022JPHeaderDecoding ()
+		{
+			const string input = "Subject: =?ISO-2022-JP?B?GyRCRnxLXDhsJWEhPCVrJUYlOSVIGyhCICh0ZXN0aW5nIEph?=\n =?ISO-2022-JP?B?cGFuZXNlIGVtYWlscyk=?=";
+			const string expected = "日本語メールテスト (testing Japanese emails)";
+			Header header;
+
+			Assert.IsTrue (Header.TryParse (input, out header), "Failed to parse Japanese Subject header.");
+			Assert.AreEqual (HeaderId.Subject, header.Id, "HeaderId does not match");
+			Assert.AreEqual (expected, header.Value, "Subject values do not match.");
+		}
+
+		[Test]
 		public void TestReplacingHeaders ()
 		{
 			const string ReplacedContentType = "text/plain; charset=iso-8859-1; name=body.txt";

@@ -1,0 +1,17 @@
+Message-ID: <55AE6D15.4010805@veritas-vos-liberabit.com>
+Date: Wed, 22 Jul 2015 01:02:29 +0900
+From: Atsushi Eno <x@x.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Thunderbird/31.7.0
+MIME-Version: 1.0
+To: Jeffrey Stedfast <x@x.com>
+Subject: =?ISO-2022-JP?B?GyRCRnxLXDhsJWEhPCVrJUYlOSVIGyhCICh0ZXN0aW5nIEph?=
+ =?ISO-2022-JP?B?cGFuZXNlIGVtYWlscyk=?=
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+
+Let's see if both subject and body works fine...
+
+日本語が
+正常に
+送れているか
+テスト.
