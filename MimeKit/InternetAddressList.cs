@@ -50,7 +50,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
-	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>
+	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>, IComparable<InternetAddressList>
 	{
 		readonly List<InternetAddress> list = new List<InternetAddress> ();
 
@@ -424,6 +424,36 @@ namespace MimeKit {
 			}
 
 			return true;
+		}
+
+		#endregion
+
+		#region IComparable implementation
+
+		/// <summary>
+		/// Compares two internet address lists.
+		/// </summary>
+		/// <remarks>
+		/// Compares two internet address lists for the purpose of sorting.
+		/// </remarks>
+		/// <returns>The sort order of the current internet address list compared to the other internet address list.</returns>
+		/// <param name="other">The internet address list to compare to.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="other"/> is <c>null</c>.
+		/// </exception>
+		public int CompareTo (InternetAddressList other)
+		{
+			int rv;
+
+			if (other == null)
+				throw new ArgumentNullException ("other");
+
+			for (int i = 0; i < Math.Min (Count, other.Count); i++) {
+				if ((rv = this[i].CompareTo (other[i])) != 0)
+					return rv;
+			}
+
+			return Count - other.Count;
 		}
 
 		#endregion
