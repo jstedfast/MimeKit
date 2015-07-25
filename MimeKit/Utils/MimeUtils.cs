@@ -42,7 +42,7 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
-#if PORTABLE
+#if PORTABLE || COREFX
 		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
 #endif
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -52,7 +52,7 @@ namespace MimeKit.Utils {
 #if NET_3_5
 			var random = new RNGCryptoServiceProvider ();
 			random.GetBytes (buffer);
-#elif !PORTABLE
+#elif !PORTABLE && !COREFX
 			using (var random = new RNGCryptoServiceProvider ())
 				random.GetBytes (buffer);
 #else

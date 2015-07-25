@@ -339,7 +339,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (memory);
 
-#if !PORTABLE
+#if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();
@@ -442,7 +442,7 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
-#if !PORTABLE
+#if !PORTABLE && !COREFX
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -839,7 +839,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE
+#if !PORTABLE && !COREFX
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>

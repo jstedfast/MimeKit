@@ -473,7 +473,7 @@ namespace MimeKit {
 		{
 			var name = value.ToString ();
 
-#if PORTABLE
+#if PORTABLE || COREFX
 			var field = typeof (HeaderId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
 #else

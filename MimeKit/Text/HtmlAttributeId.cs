@@ -619,7 +619,7 @@ namespace MimeKit.Text {
 		{
 			var name = value.ToString ();
 
-#if PORTABLE
+#if PORTABLE || COREFX
 			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
 #else

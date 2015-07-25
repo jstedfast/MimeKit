@@ -25,7 +25,10 @@
 //
 
 using System;
+
+#if SERIALIZABLE
 using System.Runtime.Serialization;
+#endif
 
 namespace MimeKit.Tnef {
 	/// <summary>
