@@ -84,6 +84,11 @@ namespace MimeKit.Cryptography {
 			Initialize ();
 		}
 
+		internal static MD5 Create ()
+		{
+			return new MD5 ();
+		}
+
 		/// <summary>
 		/// Releases unmanaged resources and performs other cleanup operations before the
 		/// <see cref="MimeKit.Cryptography.MD5"/> is reclaimed by garbage collection.

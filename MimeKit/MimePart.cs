@@ -33,7 +33,7 @@ using System.Threading;
 using Encoding = Portable.Text.Encoding;
 using MD5 = MimeKit.Cryptography.MD5;
 #else
-using MD5 = System.Security.Cryptography.MD5CryptoServiceProvider;
+using MD5 = System.Security.Cryptography.MD5;
 #endif
 
 using MimeKit.IO.Filters;
@@ -429,7 +429,7 @@ namespace MimeKit {
 					if (ContentType.Matches ("text", "*"))
 						filtered.Add (new Unix2DosFilter ());
 
-					using (var md5 = new MD5 ())
+					using (var md5 = MD5.Create ())
 						checksum = md5.ComputeHash (filtered);
 				}
 

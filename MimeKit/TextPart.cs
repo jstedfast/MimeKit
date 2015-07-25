@@ -244,10 +244,10 @@ namespace MimeKit {
 				using (var memory = new MemoryStream ()) {
 					ContentObject.DecodeTo (memory);
 
-#if PORTABLE
-					var content = memory.ToArray ();
-#else
+#if !PORTABLE && !COREFX
 					var content = memory.GetBuffer ();
+#else
+					var content = memory.ToArray ();
 #endif
 					Encoding encoding = null;
 
@@ -343,10 +343,10 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				ContentObject.DecodeTo (memory);
 
-#if PORTABLE
-				var buffer = memory.ToArray ();
-#else
+#if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
+#else
+				var buffer = memory.ToArray ();
 #endif
 
 				return encoding.GetString (buffer, 0, (int) memory.Length);

@@ -213,10 +213,10 @@ namespace MimeKit {
 				}
 
 				var streams = new List<Stream> ();
-#if PORTABLE
-				var buf = memory.ToArray ();
-#else
+#if !PORTABLE && !COREFX
 				var buf = memory.GetBuffer ();
+#else
+				var buf = memory.ToArray ();
 #endif
 				long startIndex = 0;
 
