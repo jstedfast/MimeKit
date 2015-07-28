@@ -1037,7 +1037,7 @@ namespace MimeKit.Utils {
 
 		static int EstimateEncodedWordLength (Encoding charset, int byteCount, int encodeCount)
 		{
-			return EstimateEncodedWordLength (charset.HeaderName, byteCount, encodeCount);
+			return EstimateEncodedWordLength (CharsetUtils.GetMimeCharset (charset), byteCount, encodeCount);
 		}
 
 		static bool ExceedsMaxLineLength (FormatOptions options, Encoding charset, Word word)

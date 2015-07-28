@@ -116,6 +116,7 @@ namespace MimeKit.Utils {
 			// If your application requests the encoding name "iso-2022-jp", the .NET Framework
 			// returns encoding 50220. However, the encoding that is appropriate for your application
 			// will depend on the preferred treatment of the half-width Katakana characters.
+			AddAliases (aliases, 50220, -1, "iso-2022-jp");
 		}
 
 		static bool ProbeCharset (int codepage)
@@ -144,10 +145,12 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException ("encoding");
 
 			switch (encoding.CodePage) {
-			case 949: // ks_c_5601-1987
-				return "euc-kr";
+			case 932:   return "iso-2022-jp"; // shift_jis
+			case 949:   return "euc-kr";      // ks_c_5601-1987
+			case 50221: return "iso-2022-jp"; // csISO2022JP
+			case 50225: return "euc-kr";      // iso-2022-kr
 			default:
-				return encoding.HeaderName.ToLowerInvariant ();
+				return encoding.WebName.ToLowerInvariant ();
 			}
 		}
 
@@ -293,14 +296,14 @@ namespace MimeKit.Utils {
 							encoding = Encoding.GetEncoding (charset);
 							codepage = encoding.CodePage;
 
-							aliases[encoding.HeaderName] = codepage;
+							aliases[encoding.WebName] = codepage;
 						} catch {
 							codepage = -1;
 						}
 					} else {
 						try {
 							encoding = Encoding.GetEncoding (codepage);
-							aliases[encoding.HeaderName] = codepage;
+							aliases[encoding.WebName] = codepage;
 						} catch {
 							codepage = -1;
 						}
