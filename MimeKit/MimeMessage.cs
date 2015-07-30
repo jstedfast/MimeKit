@@ -1327,9 +1327,9 @@ namespace MimeKit {
 		void DkimWriteHeaders (FormatOptions options, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
 		{
 			var counts = new Dictionary<string, int> ();
-			Header header;
 
 			for (int i = 0; i < fields.Count; i++) {
+				var headers = fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase) ? Body.Headers : Headers;
 				var name = fields[i].ToLowerInvariant ();
 				int index, count, n = 0;
 
@@ -1342,18 +1342,18 @@ namespace MimeKit {
 				// multiple instances of such a header field MUST include the header field
 				// name multiple times in the list of header fields and MUST sign such header
 				// fields in order from the bottom of the header field block to the top.
-				index = Headers.LastIndexOf (name);
+				index = headers.LastIndexOf (name);
 
 				// find the n'th header with this name
 				while (n < count && --index >= 0) {
-					if (Headers[index].Field.Equals (name, StringComparison.OrdinalIgnoreCase))
+					if (headers[index].Field.Equals (name, StringComparison.OrdinalIgnoreCase))
 						n++;
 				}
 
 				if (index < 0)
 					continue;
 
-				header = Headers[index];
+				var header = headers[index];
 
 				switch (headerCanonicalizationAlgorithm) {
 				case DkimCanonicalizationAlgorithm.Relaxed:
