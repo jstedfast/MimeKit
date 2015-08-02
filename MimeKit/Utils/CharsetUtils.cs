@@ -529,6 +529,7 @@ namespace MimeKit.Utils {
 				try {
 					encoding = CharsetUtils.GetEncoding (codepage);
 				} catch (NotSupportedException) {
+				} catch (ArgumentException) {
 				}
 			}
 
