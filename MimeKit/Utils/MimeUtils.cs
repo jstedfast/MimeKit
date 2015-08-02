@@ -25,12 +25,11 @@
 //
 
 using System;
-using System.Net;
 using System.Text;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 
 #if !PORTABLE
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 #endif
 
