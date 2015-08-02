@@ -28,6 +28,7 @@ using System;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 
 #if !PORTABLE
 using System.Security.Cryptography;
@@ -117,7 +118,9 @@ namespace MimeKit.Utils {
 #if PORTABLE
 			return GenerateMessageId ("localhost.localdomain");
 #else
-			return GenerateMessageId (Dns.GetHostName ());
+			var properties = IPGlobalProperties.GetIPGlobalProperties ();
+
+			return GenerateMessageId (properties.HostName);
 #endif
 		}
 
