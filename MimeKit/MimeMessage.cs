@@ -1215,7 +1215,7 @@ namespace MimeKit {
 		}
 
 #if ENABLE_CRYPTO
-		static void DkimWriteHeaderRelaxed (FormatOptions options, Stream stream, Header header)
+		static void DkimWriteHeaderRelaxed (FormatOptions options, Stream stream, Header header, bool isDkimSignature)
 		{
 			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
 			var rawValue = header.GetRawValue (options);
@@ -1269,16 +1269,27 @@ namespace MimeKit {
 				index = nextLine;
 			}
 
-			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			if (!isDkimSignature)
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 		}
 
-		static void DkimWriteHeaderSimple (FormatOptions options, Stream stream, Header header)
+		static void DkimWriteHeaderSimple (FormatOptions options, Stream stream, Header header, bool isDkimSignature)
 		{
 			var rawValue = header.GetRawValue (options);
+			int rawLength = rawValue.Length;
+
+			if (isDkimSignature && rawLength > 0) {
+				if (rawValue[rawLength - 1] == (byte) '\n') {
+					rawLength--;
+
+					if (rawLength > 0 && rawValue[rawLength - 1] == (byte) '\r')
+						rawLength--;
+				}
+			}
 
 			stream.Write (header.RawField, 0, header.RawField.Length);
 			stream.Write (new [] { (byte) ':' }, 0, 1);
-			stream.Write (rawValue, 0, rawValue.Length);
+			stream.Write (rawValue, 0, rawLength);
 		}
 
 		static ISigner DkimGetDigestSigner (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
@@ -1357,10 +1368,10 @@ namespace MimeKit {
 
 				switch (headerCanonicalizationAlgorithm) {
 				case DkimCanonicalizationAlgorithm.Relaxed:
-					DkimWriteHeaderRelaxed (options, stream, header);
+					DkimWriteHeaderRelaxed (options, stream, header, false);
 					break;
 				default:
-					DkimWriteHeaderSimple (options, stream, header);
+					DkimWriteHeaderSimple (options, stream, header, false);
 					break;
 				}
 
@@ -1466,10 +1477,10 @@ namespace MimeKit {
 
 					switch (headerCanonicalizationAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimWriteHeaderRelaxed (options, filtered, dkim);
+						DkimWriteHeaderRelaxed (options, filtered, dkim, true);
 						break;
 					default:
-						DkimWriteHeaderSimple (options, filtered, dkim);
+						DkimWriteHeaderSimple (options, filtered, dkim, true);
 						break;
 					}
 
@@ -1726,10 +1737,10 @@ namespace MimeKit {
 
 					switch (headerAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimWriteHeaderRelaxed (options, filtered, header);
+						DkimWriteHeaderRelaxed (options, filtered, header, true);
 						break;
 					default:
-						DkimWriteHeaderSimple (options, filtered, header);
+						DkimWriteHeaderSimple (options, filtered, header, true);
 						break;
 					}
 
