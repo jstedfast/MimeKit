@@ -267,6 +267,128 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
+		/// Parses a Message-Id header value.
+		/// </summary>
+		/// <remarks>
+		/// Parses the Message-Id value, returning the addr-spec portion of the msg-id token.
+		/// </remarks>
+		/// <returns>The addr-spec portion of the msg-id token.</returns>
+		/// <param name="buffer">The raw byte buffer to parse.</param>
+		/// <param name="startIndex">The index into the buffer to start parsing.</param>
+		/// <param name="length">The length of the buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static string ParseMessageId (byte[] buffer, int startIndex, int length)
+		{
+			byte[] sentinels = { (byte) '>' };
+			int endIndex = startIndex + length;
+			int index = startIndex;
+			string msgid;
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("length");
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
+				return null;
+
+			if (index >= endIndex)
+				return null;
+
+			if (buffer[index] == '<') {
+				// skip over the '<'
+				index++;
+
+				if (index >= endIndex)
+					return null;
+			}
+
+			string localpart;
+			if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, false, out localpart))
+				return null;
+
+			if (index >= endIndex)
+				return null;
+
+			if (buffer[index] == (byte) '>') {
+				// The msgid token did not contain an @domain. Technically this is illegal, but for the
+				// sake of maximum compatibility, I guess we have no choice but to accept it...
+				return localpart;
+			}
+
+			if (buffer[index] != (byte) '@') {
+				// who the hell knows what we have here...
+				return null;
+			}
+
+			// skip over the '@'
+			index++;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
+				return null;
+
+			if (index >= endIndex)
+				return null;
+
+			if (buffer[index] == (byte) '>') {
+				// The msgid token was in the form "<local-part@>". Technically this is illegal, but for
+				// the sake of maximum compatibility, I guess we have no choice but to accept it...
+				// https://github.com/jstedfast/MimeKit/issues/102
+				return localpart + "@";
+			}
+
+			string domain;
+			if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
+				return null;
+
+			msgid = localpart + "@" + domain;
+
+			// Note: some Message-Id's are broken and in the form "<local-part@domain@domain>"
+			// https://github.com/jstedfast/MailKit/issues/138
+			while (index < endIndex && buffer[index] == (byte) '@') {
+				index++;
+
+				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
+					break;
+
+				msgid += "@" + domain;
+			}
+
+			return msgid;
+		}
+
+		/// <summary>
+		/// Parses a Message-Id header value.
+		/// </summary>
+		/// <remarks>
+		/// Parses the Message-Id value, returning the addr-spec portion of the msg-id token.
+		/// </remarks>
+		/// <returns>The addr-spec portion of the msg-id token.</returns>
+		/// <param name="text">The text to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static string ParseMessageId (string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+
+			return ParseMessageId (buffer, 0, buffer.Length);
+		}
+
+		/// <summary>
 		/// Tries to parse a version from a header such as Mime-Version.
 		/// </summary>
 		/// <remarks>
@@ -296,7 +418,7 @@ namespace MimeKit.Utils {
 			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
-			List<int> values = new List<int> ();
+			var values = new List<int> ();
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			int value;

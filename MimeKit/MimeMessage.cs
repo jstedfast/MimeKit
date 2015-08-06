@@ -2238,12 +2238,12 @@ namespace MimeKit {
 					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.ResentMessageId:
-					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
 					if (resentMessageId != null)
 						return;
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
 					if (messageId != null)
 						return;
 					break;
@@ -2315,10 +2315,10 @@ namespace MimeKit {
 					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
 					break;
 				case HeaderId.ResentMessageId:
-					resentMessageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
 					break;
 				case HeaderId.MessageId:
-					messageId = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
 					break;
 				case HeaderId.ResentSender:
 					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
