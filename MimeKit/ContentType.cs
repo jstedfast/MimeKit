@@ -60,34 +60,13 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="mediaType"/> is empty or contains invalid characters.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="mediaSubtype"/> is empty or contains invalid characters.</para>
-		/// </exception>
 		public ContentType (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
 				throw new ArgumentNullException ("mediaType");
 
-			if (mediaType.Length == 0)
-				throw new ArgumentException ("The type is not allowed to be empty.", "mediaType");
-
-			for (int i = 0; i < mediaType.Length; i++) {
-				if (mediaType[i] >= 127 || !IsAsciiAtom ((byte) mediaType[i]))
-					throw new ArgumentException ("Illegal characters in type.", "mediaType");
-			}
-
 			if (mediaSubtype == null)
 				throw new ArgumentNullException ("mediaSubtype");
-
-			if (mediaSubtype.Length == 0)
-				throw new ArgumentException ("The subtype is not allowed to be empty.", "mediaSubtype");
-
-			for (int i = 0; i < mediaSubtype.Length; i++) {
-				if (mediaSubtype[i] >= 127 || !IsToken ((byte) mediaSubtype[i]))
-					throw new ArgumentException ("Illegal characters in subtype.", "mediaSubtype");
-			}
 
 			Parameters = new ParameterList ();
 			subtype = mediaSubtype;
@@ -116,22 +95,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="value"/> is empty or contains invalid characters.
-		/// </exception>
 		public string MediaType {
 			get { return type; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
-
-				if (value.Length == 0)
-					throw new ArgumentException ("MediaType is not allowed to be empty.", "value");
-
-				for (int i = 0; i < value.Length; i++) {
-					if (value[i] > 127 || !IsAsciiAtom ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in media type.", "value");
-				}
 
 				if (type == value)
 					return;
@@ -154,22 +122,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="value"/> is empty or contains invalid characters.
-		/// </exception>
 		public string MediaSubtype {
 			get { return subtype; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
-
-				if (value.Length == 0)
-					throw new ArgumentException ("MediaSubtype is not allowed to be empty.", "value");
-
-				for (int i = 0; i < value.Length; i++) {
-					if (value[i] > 127 || !IsToken ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in media subtype.", "value");
-				}
 
 				if (subtype == value)
 					return;
