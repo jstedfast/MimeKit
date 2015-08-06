@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -155,7 +154,7 @@ namespace UnitTests
 				key = reader.ReadObject () as AsymmetricKeyParameter;
 			}
 
-			message.Verify (message.Headers[index], new DummyPublicKeyLocator (key));
+			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
