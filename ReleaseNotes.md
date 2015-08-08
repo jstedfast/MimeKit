@@ -1,5 +1,13 @@
 # Release Notes
 
+### MimeKit 1.2.9
+
+* Fixed WriteTo(string fileName) methods to overwrite the existing file. (issue #154)
+* Updated InternetAddressList to implement IComparable.
+* Fixed DKIM-Signature generation and verification.
+* Added support for Message-Id headers that do not properly use encapsulate the value
+  with angle brackets.
+
 ### MimeKit 1.2.8
 
 * Added a new MessageDeliveryStatus MimePart subclass to make message/delivery-status
