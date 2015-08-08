@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>1.2.8.0</version>
+        <version>1.2.9.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,12 +22,10 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-	<releaseNotes>* Added a new MessageDeliveryStatus MimePart subclass to make message/delivery-status MIME parts easier to deal with.
-* Improved HtmlTokenizer's support for the script tag - it is should now be completely bug free.
-* Fixed to filter out duplicate recipients when encrypting for S/MIME or PGP.
-* Fixed MimeParser to handle a message stream of just "\r\n".
-* Add a leading space in the Sender and Resent-Sender header values.
-</releaseNotes>
+        <releaseNotes>* Fixed WriteTo(string fileName) methods to overwrite the existing file. (issue #154)
+* Updated InternetAddressList to implement IComparable.
+* Fixed DKIM-Signature generation and verification.
+* Added support for Message-Id headers that do not properly use encapsulate the value with angle brackets.</releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
         <tags>mime encryption security smime s/mime openpgp pgp mbox email parser tnef net35 net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
@@ -40,26 +38,23 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
-	    <frameworkAssembly assemblyName="System" targetFramework=".NETFramework3.5" />
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework3.5" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework3.5" />
             <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework3.5" />
             <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework3.5" />
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid0.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System" targetFramework="Unsupported0.0" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="Unsupported0.0" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="Unsupported0.0" />
         </frameworkAssemblies>
     </metadata>
     <files>
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid\MimeKit.xml" />
-        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\BouncyCastle.dll" target="lib\xamarinios10\BouncyCastle.dll" />
-        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.dll" target="lib\xamarinios10\MimeKit.dll" />
-        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.xml" target="lib\xamarinios10\MimeKit.xml" />
-	<file src="..\MimeKit\bin\Release\lib\net35\BouncyCastle.dll" target="lib\net35\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\net35\BouncyCastle.dll" target="lib\net35\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\net35\BouncyCastle.xml" target="lib\net35\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net35\MimeKit.dll" target="lib\net35\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net35\MimeKit.xml" target="lib\net35\MimeKit.xml" />
@@ -71,11 +66,14 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
         <file src="..\MimeKit\bin\Release\lib\net45\BouncyCastle.xml" target="lib\net45\BouncyCastle.xml" />
         <file src="..\MimeKit\bin\Release\lib\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
-        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.dll" target="lib\wpa81\MimeKit.dll" />
-        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.xml" target="lib\wpa81\MimeKit.xml" />
-        <file src="..\MimeKit\bin\Release\lib\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
         <file src="..\MimeKit\bin\Release\lib\portable\MimeKit.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+xamarinios10+MonoTouch10\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\portable\MimeKit.xml" target="lib\portable-net45+win+wp80+MonoAndroid10+xamarinios10+MonoTouch10\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Portable.Text.Encoding.dll" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.dll" target="lib\wpa81\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\MimeKit.xml" target="lib\wpa81\MimeKit.xml" />
+        <file src="..\MimeKit\bin\Release\lib\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\BouncyCastle.dll" target="lib\xamarinios10\BouncyCastle.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.dll" target="lib\xamarinios10\MimeKit.dll" />
+        <file src="..\MimeKit\bin\Release\lib\Xamarin.iOS\MimeKit.xml" target="lib\xamarinios10\MimeKit.xml" />
     </files>
 </package>
