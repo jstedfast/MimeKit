@@ -103,7 +103,7 @@ namespace MimeKit.Utils {
 			AddAliases (aliases, 51932, -1, "eucjp-0", "euc-jp", "ujis-0", "ujis");
 
 			// Japanese charsets (aliases for Shift_JIS)
-			AddAliases (aliases, 932, -1, "jisx0208.1983-0", "jisx0212.1990-0", "pck");
+			AddAliases (aliases, 932, -1, "shift_jis", "jisx0208.1983-0", "jisx0212.1990-0", "pck");
 
 			// Note from http://msdn.microsoft.com/en-us/library/system.text.encoding.getencodings.aspx
 			// Encodings 50220 and 50222 are both associated with the name "iso-2022-jp", but they
@@ -296,14 +296,16 @@ namespace MimeKit.Utils {
 							encoding = Encoding.GetEncoding (charset);
 							codepage = encoding.CodePage;
 
-							aliases[encoding.WebName] = codepage;
+							if (!aliases.ContainsKey (charset))
+								aliases[charset] = codepage;
 						} catch {
 							codepage = -1;
 						}
 					} else {
 						try {
 							encoding = Encoding.GetEncoding (codepage);
-							aliases[encoding.WebName] = codepage;
+							if (!aliases.ContainsKey (charset))
+								aliases[charset] = codepage;
 						} catch {
 							codepage = -1;
 						}
