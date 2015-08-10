@@ -296,22 +296,23 @@ namespace MimeKit.Utils {
 							encoding = Encoding.GetEncoding (charset);
 							codepage = encoding.CodePage;
 
-							if (!aliases.ContainsKey (charset))
-								aliases[charset] = codepage;
+							if (!aliases.ContainsKey (encoding.WebName))
+								aliases[encoding.WebName] = codepage;
 						} catch {
 							codepage = -1;
 						}
 					} else {
 						try {
 							encoding = Encoding.GetEncoding (codepage);
-							if (!aliases.ContainsKey (charset))
-								aliases[charset] = codepage;
+							if (!aliases.ContainsKey (encoding.WebName))
+								aliases[encoding.WebName] = codepage;
 						} catch {
 							codepage = -1;
 						}
 					}
 
-					aliases[charset] = codepage;
+					if (!aliases.ContainsKey (charset))
+						aliases[charset] = codepage;
 				}
 			}
 
