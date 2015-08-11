@@ -71,7 +71,7 @@ namespace UnitTests {
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf", disposition.FileName, "The filename value does not match.");
+			Assert.AreEqual ("Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf", disposition.FileName, "The filename value does not match.");
 		}
 
 		[Test]
