@@ -594,7 +594,7 @@ namespace MimeKit.Text {
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
 
-			if (!SkipDomain (text, endIndex, ref index))
+			if (index >= endIndex || !SkipDomain (text, endIndex, ref index))
 				return false;
 
 			// check for a port

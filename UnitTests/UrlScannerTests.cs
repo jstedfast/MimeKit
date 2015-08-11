@@ -58,6 +58,11 @@ namespace UnitTests {
 			UrlMatch match;
 			string url;
 
+			if (expected == null) {
+				Assert.IsFalse (scanner.Scan (text, 0, text.Length, out match), "Should not have found a match.");
+				return;
+			}
+
 			Assert.IsTrue (scanner.Scan (text, 0, text.Length, out match), "Failed to find match.");
 
 			url = new string (text, match.StartIndex, match.EndIndex - match.StartIndex);
@@ -135,6 +140,12 @@ namespace UnitTests {
 		public void TestSimpleWebUrlWithPortAndPath ()
 		{
 			TestUrlScanner ("This is some text with an http://www.xamarin.com:80/logo.png url in it...", "http://www.xamarin.com:80/logo.png");
+		}
+
+		[Test]
+		public void TestTextEndingWithFtpDot ()
+		{
+			TestUrlScanner ("This is some text with that ends with ftp.", null);
 		}
 	}
 }
