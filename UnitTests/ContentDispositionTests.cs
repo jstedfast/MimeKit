@@ -65,6 +65,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestUnquotedFilenameParameterValues ()
+		{
+			const string text = "attachment; filename=Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf";
+			ContentDisposition disposition;
+
+			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf", disposition.FileName, "The filename value does not match.");
+		}
+
+		[Test]
 		public void TestFormData ()
 		{
 			const string text = "form-data; filename=\"form.txt\"";
