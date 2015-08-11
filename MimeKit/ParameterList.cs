@@ -735,8 +735,16 @@ namespace MimeKit {
 				// Note: Google Docs, for example, does not always quote name/filename parameters
 				// with spaces in the name. See https://github.com/jstedfast/MimeKit/issues/106
 				// for details.
+				//
+				// https://github.com/jstedfast/MimeKit/issues/159 adds to this suckage by having a
+				// multi-line unquoted value with spaces... don't you just love mail software written
+				// by people who have never heard of standards?
 				while (index < endIndex && text[index] != (byte) ';')
 					index++;
+
+				// don't consume any trailing whitespace (in particular, new-lines) as part of the value
+				while (index > valueIndex && text[index - 1].IsWhitespace ())
+					index--;
 			}
 
 			pair = new NameValuePair {
