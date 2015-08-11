@@ -735,7 +735,7 @@ namespace MimeKit {
 				// Note: Google Docs, for example, does not always quote name/filename parameters
 				// with spaces in the name. See https://github.com/jstedfast/MimeKit/issues/106
 				// for details.
-				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
+				while (index < endIndex && text[index] != (byte) ';')
 					index++;
 			}
 
