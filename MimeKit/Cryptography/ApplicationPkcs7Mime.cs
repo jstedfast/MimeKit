@@ -274,6 +274,9 @@ namespace MimeKit.Cryptography {
 		/// Imports the certificates contained in the content.
 		/// </remarks>
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
@@ -282,6 +285,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public void Import (SecureMimeContext ctx)
 		{
+			if (ctx == null)
+				throw new ArgumentNullException ("ctx");
+
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
 
