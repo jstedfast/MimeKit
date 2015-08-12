@@ -1801,7 +1801,6 @@ namespace MimeKit.Text {
 
 			if (data.Length > 0 && data[0] == '<') {
 				// strip the leading '<' but leave the rest
-				var buf = data.ToString ();
 				for (int i = 1; i < data.Length; i++)
 					data[i - 1] = data[i];
 				data.Length--;
