@@ -82,6 +82,12 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("MultipartAlternative");
+		}
+
 		/// <summary>
 		/// Get the text of the text/plain alternative.
 		/// </summary>
@@ -89,6 +95,9 @@ namespace MimeKit {
 		/// Gets the text of the text/plain alternative, if it exists.
 		/// </remarks>
 		/// <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string TextBody {
 			get { return GetTextBody (TextFormat.Text); }
 		}
@@ -100,6 +109,9 @@ namespace MimeKit {
 		/// Gets the HTML-formatted text of the text/html alternative, if it exists.
 		/// </remarks>
 		/// <value>The HTML if a text/html alternative exists; otherwise, <c>null</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
 		}
@@ -119,10 +131,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
+
+			CheckDisposed ();
 
 			visitor.VisitMultipartAlternative (this);
 		}
@@ -150,8 +167,13 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
 		/// <param name="format">The desired text format.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string GetTextBody (TextFormat format)
 		{
+			CheckDisposed ();
+
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 			for (int i = Count - 1; i >= 0; i--) {
 				var alternative = this[i] as MultipartAlternative;

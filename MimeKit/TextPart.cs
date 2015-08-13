@@ -158,6 +158,12 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("TextPart");
+		}
+
 		/// <summary>
 		/// Gets whether or not this text part contains enriched text.
 		/// </summary>
@@ -234,8 +240,13 @@ namespace MimeKit {
 		/// or <see cref="GetText(System.String)"/>.</para>
 		/// </remarks>
 		/// <value>The text.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string Text {
 			get {
+				CheckDisposed ();
+
 				if (ContentObject == null)
 					return string.Empty;
 
@@ -290,10 +301,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
+
+			CheckDisposed ();
 
 			visitor.VisitTextPart (this);
 		}
@@ -332,10 +348,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string GetText (Encoding encoding)
 		{
 			if (encoding == null)
 				throw new ArgumentNullException ("encoding");
+
+			CheckDisposed ();
 
 			if (ContentObject == null)
 				return string.Empty;
@@ -370,6 +391,9 @@ namespace MimeKit {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public string GetText (string charset)
 		{
 			if (charset == null)
@@ -393,6 +417,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public void SetText (Encoding encoding, string text)
 		{
 			if (encoding == null)
@@ -400,6 +427,8 @@ namespace MimeKit {
 
 			if (text == null)
 				throw new ArgumentNullException ("text");
+
+			CheckDisposed ();
 
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
 			var content = new MemoryStream (encoding.GetBytes (text));
@@ -423,6 +452,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
 		/// </exception>
 		public void SetText (string charset, string text)
 		{

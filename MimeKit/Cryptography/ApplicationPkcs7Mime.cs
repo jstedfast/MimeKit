@@ -111,6 +111,12 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		void CheckDisposed ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("ApplicationPkcs7Mime");
+		}
+
 		/// <summary>
 		/// Gets the value of the "smime-type" parameter.
 		/// </summary>
@@ -150,10 +156,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
+
+			CheckDisposed ();
 
 			visitor.VisitApplicationPkcs7Mime (this);
 		}
@@ -169,6 +180,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
@@ -179,6 +193,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			CheckDisposed ();
 
 			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
@@ -198,6 +214,9 @@ namespace MimeKit.Cryptography {
 		/// Decompresses the content using the default <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
 		/// </exception>
@@ -225,6 +244,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
 		/// </exception>
@@ -235,6 +257,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			CheckDisposed ();
 
 			if (SecureMimeType != SecureMimeType.EnvelopedData)
 				throw new InvalidOperationException ();
@@ -254,6 +278,9 @@ namespace MimeKit.Cryptography {
 		/// Decrypts the content using the default <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
@@ -277,6 +304,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
 		/// </exception>
@@ -287,6 +317,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			CheckDisposed ();
 
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
@@ -311,6 +343,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>
@@ -321,6 +356,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
+
+			CheckDisposed ();
 
 			if (SecureMimeType != SecureMimeType.SignedData)
 				throw new InvalidOperationException ();
@@ -341,6 +378,9 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="entity">The unencapsulated entity.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>

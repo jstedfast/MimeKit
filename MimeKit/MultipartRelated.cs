@@ -81,6 +81,12 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("MultipartRelated");
+		}
+
 		int GetRootIndex ()
 		{
 			string start = ContentType.Parameters["start"];
@@ -113,6 +119,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public MimeEntity Root {
 			get {
 				int index = GetRootIndex ();
@@ -125,6 +134,8 @@ namespace MimeKit {
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
+
+				CheckDisposed ();
 
 				int index;
 
@@ -169,10 +180,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
+
+			CheckDisposed ();
 
 			visitor.VisitMultipartRelated (this);
 		}
@@ -187,6 +203,9 @@ namespace MimeKit {
 		/// <param name="uri">The URI of the MIME part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
 		/// </exception>
 		public bool Contains (Uri uri)
 		{
@@ -210,10 +229,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		public int IndexOf (Uri uri)
 		{
 			if (uri == null)
 				throw new ArgumentNullException ("uri");
+
+			CheckDisposed ();
 
 			bool cid = uri.IsAbsoluteUri && uri.Scheme.ToLowerInvariant () == "cid";
 
@@ -263,6 +287,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
+		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
 		/// The MIME part for the specified URI could not be found.
 		/// </exception>
@@ -297,6 +324,9 @@ namespace MimeKit {
 		/// <param name="uri">The URI.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The object has been disposed.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
 		/// The MIME part for the specified URI could not be found.

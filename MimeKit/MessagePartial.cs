@@ -96,6 +96,12 @@ namespace MimeKit {
 			ContentType.Parameters.Add (new Parameter ("total", total.ToString ()));
 		}
 
+		void CheckDisposed ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("MessagePartial");
+		}
+
 		/// <summary>
 		/// Gets the "id" parameter of the Content-Type header.
 		/// </summary>
@@ -164,6 +170,8 @@ namespace MimeKit {
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
+
+			CheckDisposed ();
 
 			visitor.VisitMessagePartial (this);
 		}
