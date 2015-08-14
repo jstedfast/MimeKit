@@ -1,0 +1,1997 @@
+diff --git a/MimeKit/AttachmentCollection.cs b/MimeKit/AttachmentCollection.cs
+index 30e0b93..5303fa5 100644
+--- a/MimeKit/AttachmentCollection.cs
++++ b/MimeKit/AttachmentCollection.cs
+@@ -472,6 +472,9 @@ namespace MimeKit {
+ 		/// </remarks>
+ 		public void Clear ()
+ 		{
++			for (int i = 0; i < attachments.Count; i++)
++				attachments[i].Dispose ();
++
+ 			attachments.Clear ();
+ 		}
+ 
+@@ -599,6 +602,7 @@ namespace MimeKit {
+ 			if (index < 0 || index > Count)
+ 				throw new ArgumentOutOfRangeException ("index");
+ 
++			attachments[index].Dispose ();
+ 			attachments.RemoveAt (index);
+ 		}
+ 
+diff --git a/MimeKit/ContentObject.cs b/MimeKit/ContentObject.cs
+index 936e059..d8c32b1 100644
+--- a/MimeKit/ContentObject.cs
++++ b/MimeKit/ContentObject.cs
+@@ -41,7 +41,7 @@ namespace MimeKit {
+ 	/// </remarks>
+ 	public class ContentObject : IContentObject
+ 	{
+-		readonly Stream content;
++		Stream content;
+ 
+ 		/// <summary>
+ 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
+@@ -76,7 +76,24 @@ namespace MimeKit {
+ 			content = stream;
+ 		}
+ 
+-		#region IContentObject implementation
++		/// <summary>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.ContentObject"/> is reclaimed by garbage collection.
++		/// </summary>
++		/// <remarks>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.ContentObject"/> is reclaimed by garbage collection.
++		/// </remarks>
++		~ContentObject ()
++		{
++			Dispose (false);
++		}
++
++		void CheckDisposed ()
++		{
++			if (content == null)
++				throw new ObjectDisposedException ("ContentObject");
++		}
+ 
+ 		/// <summary>
+ 		/// Gets or sets the content encoding.
+@@ -99,8 +116,13 @@ namespace MimeKit {
+ 		/// stream using <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
+ 		/// </remarks>
+ 		/// <returns>The decoded content stream.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The <see cref="ContentObject"/> has been disposed.
++		/// </exception>
+ 		public Stream Open ()
+ 		{
++			CheckDisposed ();
++
+ 			content.Seek (0, SeekOrigin.Begin);
+ 
+ 			var filtered = new FilteredStream (content);
+@@ -122,6 +144,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="stream"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The <see cref="ContentObject"/> has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -133,6 +158,8 @@ namespace MimeKit {
+ 			if (stream == null)
+ 				throw new ArgumentNullException ("stream");
+ 
++			CheckDisposed ();
++
+ 			var readable = content as ICancellableStream;
+ 			var writable = stream as ICancellableStream;
+ 			var buf = new byte[4096];
+@@ -182,6 +209,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="stream"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The <see cref="ContentObject"/> has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -193,6 +223,8 @@ namespace MimeKit {
+ 			if (stream == null)
+ 				throw new ArgumentNullException ("stream");
+ 
++			CheckDisposed ();
++
+ 			using (var filtered = new FilteredStream (stream)) {
+ 				filtered.Add (DecoderFilter.Create (Encoding));
+ 				WriteTo (filtered, cancellationToken);
+@@ -200,6 +232,35 @@ namespace MimeKit {
+ 			}
+ 		}
+ 
+-		#endregion
++		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="ContentObject"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="ContentObject"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected virtual void Dispose (bool disposing)
++		{
++			if (disposing && content != null) {
++				content.Dispose ();
++				content = null;
++			}
++		}
++
++		/// <summary>
++		/// Releases all resources used by the <see cref="MimeKit.ContentObject"/> object.
++		/// </summary>
++		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.ContentObject"/>. The
++		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.ContentObject"/> in an unusable state. After
++		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.ContentObject"/> so
++		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.ContentObject"/> was occupying.</remarks>
++		public void Dispose ()
++		{
++			Dispose (true);
++			GC.SuppressFinalize (this);
++		}
+ 	}
+ }
+diff --git a/MimeKit/Cryptography/ApplicationPgpEncrypted.cs b/MimeKit/Cryptography/ApplicationPgpEncrypted.cs
+index 29c8605..9dfcd98 100644
+--- a/MimeKit/Cryptography/ApplicationPgpEncrypted.cs
++++ b/MimeKit/Cryptography/ApplicationPgpEncrypted.cs
+@@ -71,6 +71,12 @@ namespace MimeKit.Cryptography {
+ 			ContentObject = new ContentObject (content);
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("ApplicationPgpEncrypted");
++		}
++
+ 		/// <summary>
+ 		/// Dispatches to the specific visit method for this MIME entity.
+ 		/// </summary>
+@@ -86,11 +92,16 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitApplicationPgpEncrypted (this);
+ 		}
+ 	}
+diff --git a/MimeKit/Cryptography/ApplicationPgpSignature.cs b/MimeKit/Cryptography/ApplicationPgpSignature.cs
+index ea81d0f..5a00f39 100644
+--- a/MimeKit/Cryptography/ApplicationPgpSignature.cs
++++ b/MimeKit/Cryptography/ApplicationPgpSignature.cs
+@@ -78,6 +78,12 @@ namespace MimeKit.Cryptography {
+ 			ContentObject = new ContentObject (stream);
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("ApplicationPgpSignature");
++		}
++
+ 		/// <summary>
+ 		/// Dispatches to the specific visit method for this MIME entity.
+ 		/// </summary>
+@@ -93,11 +99,16 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitApplicationPgpSignature (this);
+ 		}
+ 	}
+diff --git a/MimeKit/Cryptography/ApplicationPkcs7Mime.cs b/MimeKit/Cryptography/ApplicationPkcs7Mime.cs
+index c5efaef..99f1dba 100644
+--- a/MimeKit/Cryptography/ApplicationPkcs7Mime.cs
++++ b/MimeKit/Cryptography/ApplicationPkcs7Mime.cs
+@@ -111,6 +111,12 @@ namespace MimeKit.Cryptography {
+ 			}
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("ApplicationPkcs7Mime");
++		}
++
+ 		/// <summary>
+ 		/// Gets the value of the "smime-type" parameter.
+ 		/// </summary>
+@@ -150,11 +156,16 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitApplicationPkcs7Mime (this);
+ 		}
+ 
+@@ -169,6 +180,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
+ 		/// </exception>
+@@ -180,6 +194,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			if (SecureMimeType != SecureMimeType.CompressedData)
+ 				throw new InvalidOperationException ();
+ 
+@@ -198,6 +214,9 @@ namespace MimeKit.Cryptography {
+ 		/// Decompresses the content using the default <see cref="SecureMimeContext"/>.
+ 		/// </remarks>
+ 		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
+ 		/// </exception>
+@@ -225,6 +244,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
+ 		/// </exception>
+@@ -236,6 +258,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			if (SecureMimeType != SecureMimeType.EnvelopedData)
+ 				throw new InvalidOperationException ();
+ 
+@@ -254,6 +278,9 @@ namespace MimeKit.Cryptography {
+ 		/// Decrypts the content using the default <see cref="SecureMimeContext"/>.
+ 		/// </remarks>
+ 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
+ 		/// </exception>
+@@ -277,6 +304,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
+ 		/// </exception>
+@@ -288,6 +318,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			if (SecureMimeType != SecureMimeType.CertsOnly)
+ 				throw new InvalidOperationException ();
+ 
+@@ -311,6 +343,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+ 		/// </exception>
+@@ -322,6 +357,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			if (SecureMimeType != SecureMimeType.SignedData)
+ 				throw new InvalidOperationException ();
+ 
+@@ -341,6 +378,9 @@ namespace MimeKit.Cryptography {
+ 		/// </remarks>
+ 		/// <returns>The list of digital signatures.</returns>
+ 		/// <param name="entity">The unencapsulated entity.</param>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+ 		/// </exception>
+diff --git a/MimeKit/Cryptography/ApplicationPkcs7Signature.cs b/MimeKit/Cryptography/ApplicationPkcs7Signature.cs
+index d721ee0..eb46450 100644
+--- a/MimeKit/Cryptography/ApplicationPkcs7Signature.cs
++++ b/MimeKit/Cryptography/ApplicationPkcs7Signature.cs
+@@ -92,11 +92,17 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			if (IsDisposed)
++				throw new ObjectDisposedException ("ApplicationPkcs7Signature");
++
+ 			visitor.VisitApplicationPkcs7Signature (this);
+ 		}
+ 	}
+diff --git a/MimeKit/Cryptography/MultipartEncrypted.cs b/MimeKit/Cryptography/MultipartEncrypted.cs
+index dde049a..c7e7025 100644
+--- a/MimeKit/Cryptography/MultipartEncrypted.cs
++++ b/MimeKit/Cryptography/MultipartEncrypted.cs
+@@ -65,6 +65,12 @@ namespace MimeKit.Cryptography {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MultipartEncrypted");
++		}
++
+ 		/// <summary>
+ 		/// Dispatches to the specific visit method for this MIME entity.
+ 		/// </summary>
+@@ -80,11 +86,16 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMultipartEncrypted (this);
+ 		}
+ 
+@@ -607,8 +618,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -737,8 +753,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -813,8 +834,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -986,8 +1012,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.Encrypt (recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.Encrypt (recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -1081,8 +1112,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -1137,8 +1173,13 @@ namespace MimeKit.Cryptography {
+ 				// add the protocol version part
+ 				encrypted.Add (new ApplicationPgpEncrypted ());
+ 
+-				// add the encrypted entity as the second part
+-				encrypted.Add (ctx.Encrypt (recipients, memory));
++				try {
++					// add the encrypted entity as the second part
++					encrypted.Add (ctx.Encrypt (recipients, memory));
++				} catch {
++					encrypted.Dispose ();
++					throw;
++				}
+ 
+ 				return encrypted;
+ 			}
+@@ -1230,6 +1271,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// <para>The <c>protocol</c> parameter was not specified.</para>
+ 		/// <para>-or-</para>
+@@ -1252,6 +1296,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			var protocol = ContentType.Parameters["protocol"];
+ 			if (string.IsNullOrEmpty (protocol))
+ 				throw new FormatException ();
+@@ -1298,6 +1344,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// <para>The <c>protocol</c> parameter was not specified.</para>
+ 		/// <para>-or-</para>
+@@ -1331,6 +1380,9 @@ namespace MimeKit.Cryptography {
+ 		/// </remarks>
+ 		/// <returns>The decrypted entity.</returns>
+ 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// <para>The <c>protocol</c> parameter was not specified.</para>
+ 		/// <para>-or-</para>
+@@ -1351,6 +1403,8 @@ namespace MimeKit.Cryptography {
+ 		/// </exception>
+ 		public MimeEntity Decrypt (out DigitalSignatureCollection signatures)
+ 		{
++			CheckDisposed ();
++
+ 			var protocol = ContentType.Parameters["protocol"];
+ 			if (string.IsNullOrEmpty (protocol))
+ 				throw new FormatException ();
+@@ -1400,6 +1454,9 @@ namespace MimeKit.Cryptography {
+ 		/// Decrypts the <see cref="MultipartEncrypted"/> part.
+ 		/// </remarks>
+ 		/// <returns>The decrypted entity.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// <para>The <c>protocol</c> parameter was not specified.</para>
+ 		/// <para>-or-</para>
+diff --git a/MimeKit/Cryptography/MultipartSigned.cs b/MimeKit/Cryptography/MultipartSigned.cs
+index 73c013d..7a43d4c 100644
+--- a/MimeKit/Cryptography/MultipartSigned.cs
++++ b/MimeKit/Cryptography/MultipartSigned.cs
+@@ -64,6 +64,12 @@ namespace MimeKit.Cryptography {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MultipartSigned");
++		}
++
+ 		/// <summary>
+ 		/// Dispatches to the specific visit method for this MIME entity.
+ 		/// </summary>
+@@ -79,11 +85,16 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMultipartSigned (this);
+ 		}
+ 
+@@ -152,11 +163,20 @@ namespace MimeKit.Cryptography {
+ 				// Note: we need to parse the modified entity structure to preserve any modifications
+ 				var parser = new MimeParser (memory, MimeFormat.Entity);
+ 				var parsed = parser.ParseEntity ();
++				MimePart signature;
++
+ 				memory.Position = 0;
+ 
+-				// sign the cleartext content
+-				var signature = ctx.Sign (signer, digestAlgo, memory);
++				try {
++					// sign the cleartext content
++					signature = ctx.Sign (signer, digestAlgo, memory);
++				} catch {
++					parsed.Dispose ();
++					throw;
++				}
++
+ 				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
++
+ 				var signed = new MultipartSigned ();
+ 
+ 				// set the protocol and micalg Content-Type parameters
+@@ -415,11 +435,16 @@ namespace MimeKit.Cryptography {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="constraint"/> is not a valid value.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+ 		{
+ 			if (maxLineLength < 72 || maxLineLength > 998)
+ 				throw new ArgumentOutOfRangeException ("maxLineLength");
+ 
++			CheckDisposed ();
++
+ 			// Note: we do not iterate over our children because they are already signed
+ 			// and changing them would break the signature. They should already be
+ 			// properly prepared, anyway.
+@@ -436,6 +461,9 @@ namespace MimeKit.Cryptography {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="ctx"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// The multipart is malformed in some way.
+ 		/// </exception>
+@@ -450,6 +478,8 @@ namespace MimeKit.Cryptography {
+ 			if (ctx == null)
+ 				throw new ArgumentNullException ("ctx");
+ 
++			CheckDisposed ();
++
+ 			var protocol = ContentType.Parameters["protocol"];
+ 			if (string.IsNullOrEmpty (protocol))
+ 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
+@@ -493,6 +523,9 @@ namespace MimeKit.Cryptography {
+ 		/// Verifies the multipart/signed part using the default cryptography context.
+ 		/// </remarks>
+ 		/// <returns>A signer info collection.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.FormatException">
+ 		/// <para>The <c>protocol</c> parameter was not specified.</para>
+ 		/// <para>-or-</para>
+@@ -506,6 +539,8 @@ namespace MimeKit.Cryptography {
+ 		/// </exception>
+ 		public DigitalSignatureCollection Verify ()
+ 		{
++			CheckDisposed ();
++
+ 			var protocol = ContentType.Parameters["protocol"];
+ 			if (string.IsNullOrEmpty (protocol))
+ 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
+diff --git a/MimeKit/IContentObject.cs b/MimeKit/IContentObject.cs
+index 1203001..3b9f698 100644
+--- a/MimeKit/IContentObject.cs
++++ b/MimeKit/IContentObject.cs
+@@ -24,6 +24,7 @@
+ // THE SOFTWARE.
+ //
+ 
++using System;
+ using System.IO;
+ using System.Threading;
+ 
+@@ -34,7 +35,7 @@ namespace MimeKit {
+     /// <remarks>
+     /// Implemented by <see cref="ContentObject"/>.
+     /// </remarks>
+-	public interface IContentObject
++	public interface IContentObject : IDisposable
+ 	{
+ 		/// <summary>
+ 		/// Gets the content encoding.
+diff --git a/MimeKit/MessageDeliveryStatus.cs b/MimeKit/MessageDeliveryStatus.cs
+index d3fbfae..800ec0a 100644
+--- a/MimeKit/MessageDeliveryStatus.cs
++++ b/MimeKit/MessageDeliveryStatus.cs
+@@ -64,6 +64,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MessageDeliveryStatus");
++		}
++
+ 		/// <summary>
+ 		/// Get the groups of delivery status fields.
+ 		/// </summary>
+@@ -127,11 +133,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMessageDeliveryStatus (this);
+ 		}
+ 	}
+diff --git a/MimeKit/MessageDispositionNotification.cs b/MimeKit/MessageDispositionNotification.cs
+index 193d5d8..2b5e343 100644
+--- a/MimeKit/MessageDispositionNotification.cs
++++ b/MimeKit/MessageDispositionNotification.cs
+@@ -65,6 +65,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MessageDispositionNotification");
++		}
++
+ 		/// <summary>
+ 		/// Get the disposition notification fields.
+ 		/// </summary>
+@@ -117,11 +123,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMessageDispositionNotification (this);
+ 		}
+ 	}
+diff --git a/MimeKit/MessagePart.cs b/MimeKit/MessagePart.cs
+index 9376b21..6bb743d 100644
+--- a/MimeKit/MessagePart.cs
++++ b/MimeKit/MessagePart.cs
+@@ -203,5 +203,23 @@ namespace MimeKit {
+ 			if (Message != null)
+ 				Message.WriteTo (options, stream, cancellationToken);
+ 		}
++
++		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="MessagePart"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="MessagePart"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected override void Dispose (bool disposing)
++		{
++			if (disposing && !IsDisposed && Message != null)
++				Message.Dispose ();
++
++			base.Dispose (disposing);
++		}
+ 	}
+ }
+diff --git a/MimeKit/MessagePartial.cs b/MimeKit/MessagePartial.cs
+index 4c04c45..9c89128 100644
+--- a/MimeKit/MessagePartial.cs
++++ b/MimeKit/MessagePartial.cs
+@@ -96,6 +96,12 @@ namespace MimeKit {
+ 			ContentType.Parameters.Add (new Parameter ("total", total.ToString ()));
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MessagePartial");
++		}
++
+ 		/// <summary>
+ 		/// Gets the "id" parameter of the Content-Type header.
+ 		/// </summary>
+@@ -165,6 +171,8 @@ namespace MimeKit {
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMessagePartial (this);
+ 		}
+ 
+diff --git a/MimeKit/MimeEntity.cs b/MimeKit/MimeEntity.cs
+index b7d0a6c..fafd546 100644
+--- a/MimeKit/MimeEntity.cs
++++ b/MimeKit/MimeEntity.cs
+@@ -49,7 +49,7 @@ namespace MimeKit {
+ 	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
+ 	/// derivatives of one of those.</para>
+ 	/// </remarks>
+-	public abstract class MimeEntity
++	public abstract class MimeEntity : IDisposable
+ 	{
+ 		ContentDisposition disposition;
+ 		string contentId;
+@@ -129,6 +129,25 @@ namespace MimeKit {
+ 		}
+ 
+ 		/// <summary>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.MimeEntity"/> is reclaimed by garbage collection.
++		/// </summary>
++		/// <remarks>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.MimeEntity"/> is reclaimed by garbage collection.
++		/// </remarks>
++		~MimeEntity ()
++		{
++			Dispose (false);
++		}
++
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MimeEntity");
++		}
++
++		/// <summary>
+ 		/// Tries to use the given object to initialize the appropriate property.
+ 		/// </summary>
+ 		/// <remarks>
+@@ -156,6 +175,17 @@ namespace MimeKit {
+ 		}
+ 
+ 		/// <summary>
++		/// Gets a value indicating whether the entity has been disposed.
++		/// </summary>
++		/// <remarks>
++		/// Gets a value indicating whether the entity has been disposed.
++		/// </remarks>
++		/// <value><c>true</c> if the entity has been disposed; otherwise, <c>false</c>.</value>
++		protected bool IsDisposed {
++			get; private set;
++		}
++
++		/// <summary>
+ 		/// Gets the list of headers.
+ 		/// </summary>
+ 		/// <remarks>
+@@ -177,9 +207,14 @@ namespace MimeKit {
+ 		/// be <c>null</c>.
+ 		/// </remarks>
+ 		/// <value>The content disposition.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public ContentDisposition ContentDisposition {
+ 			get { return disposition; }
+ 			set {
++				CheckDisposed ();
++
+ 				if (disposition == value)
+ 					return;
+ 
+@@ -221,9 +256,14 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentException">
+ 		/// <paramref name="value"/> is not an absolute URI.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public Uri ContentBase {
+ 			get { return baseUri; }
+ 			set {
++				CheckDisposed ();
++
+ 				if (baseUri == value)
+ 					return;
+ 
+@@ -252,9 +292,14 @@ namespace MimeKit {
+ 		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+ 		/// </remarks>
+ 		/// <value>The content location or <c>null</c>.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public Uri ContentLocation {
+ 			get { return location; }
+ 			set {
++				CheckDisposed ();
++
+ 				if (location == value)
+ 					return;
+ 
+@@ -279,9 +324,14 @@ namespace MimeKit {
+ 		/// when the HTML-formatted message body needs to reference image attachments.</para>
+ 		/// </remarks>
+ 		/// <value>The content identifier.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string ContentId {
+ 			get { return contentId; }
+ 			set {
++				CheckDisposed ();
++
+ 				if (contentId == value)
+ 					return;
+ 
+@@ -313,9 +363,14 @@ namespace MimeKit {
+ 		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
+ 		/// </remarks>
+ 		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public bool IsAttachment {
+ 			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
+ 			set {
++				CheckDisposed ();
++
+ 				if (value) {
+ 					if (ContentDisposition == null)
+ 						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+@@ -334,8 +389,13 @@ namespace MimeKit {
+ 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+ 		/// </remarks>
+ 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override string ToString ()
+ 		{
++			CheckDisposed ();
++
+ 			using (var memory = new MemoryStream ()) {
+ 				WriteTo (memory);
+ 
+@@ -365,11 +425,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public virtual void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMimeEntity (this);
+ 		}
+ 
+@@ -386,6 +451,9 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="constraint"/> is not a valid value.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public abstract void Prepare (EncodingConstraint constraint, int maxLineLength = 78);
+ 
+ 		/// <summary>
+@@ -403,6 +471,9 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -417,6 +488,8 @@ namespace MimeKit {
+ 			if (stream == null)
+ 				throw new ArgumentNullException ("stream");
+ 
++			CheckDisposed ();
++
+ 			Headers.WriteTo (options, stream, cancellationToken);
+ 		}
+ 
+@@ -706,6 +779,34 @@ namespace MimeKit {
+ 		}
+ 
+ 		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected virtual void Dispose (bool disposing)
++		{
++		}
++
++		/// <summary>
++		/// Releases all resources used by the <see cref="MimeKit.MimeEntity"/> object.
++		/// </summary>
++		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.MimeEntity"/>. The
++		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.MimeEntity"/> in an unusable state. After
++		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.MimeEntity"/> so
++		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.MimeEntity"/> was occupying.</remarks>
++		public void Dispose ()
++		{
++			Dispose (true);
++			GC.SuppressFinalize (this);
++			IsDisposed = true;
++		}
++
++		/// <summary>
+ 		/// Load a <see cref="MimeEntity"/> from the specified stream.
+ 		/// </summary>
+ 		/// <remarks>
+diff --git a/MimeKit/MimeMessage.cs b/MimeKit/MimeMessage.cs
+index e1bfff6..e5cca89 100644
+--- a/MimeKit/MimeMessage.cs
++++ b/MimeKit/MimeMessage.cs
+@@ -62,7 +62,7 @@ namespace MimeKit {
+ 	/// tree of MIME entities such as a text/plain MIME part and a collection
+ 	/// of file attachments.</para>
+ 	/// </remarks>
+-	public class MimeMessage
++	public class MimeMessage : IDisposable
+ 	{
+ 		static readonly string[] StandardAddressHeaders = {
+ 			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
+@@ -81,6 +81,7 @@ namespace MimeKit {
+ 		string messageId;
+ 		string inreplyto;
+ 		Version version;
++		bool disposed;
+ 
+ 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
+ 		{
+@@ -239,6 +240,19 @@ namespace MimeKit {
+ 		}
+ 
+ 		/// <summary>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.MimeMessage"/> is reclaimed by garbage collection.
++		/// </summary>
++		/// <remarks>
++		/// Releases unmanaged resources and performs other cleanup operations before the
++		/// <see cref="MimeKit.MimeMessage"/> is reclaimed by garbage collection.
++		/// </remarks>
++		~MimeMessage ()
++		{
++			Dispose (false);
++		}
++
++		/// <summary>
+ 		/// Gets the list of headers.
+ 		/// </summary>
+ 		/// <remarks>
+@@ -2385,6 +2399,36 @@ namespace MimeKit {
+ 		}
+ 
+ 		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected virtual void Dispose (bool disposing)
++		{
++			if (disposing && !disposed && Body != null)
++				Body.Dispose ();
++		}
++
++		/// <summary>
++		/// Releases all resources used by the <see cref="MimeKit.MimeMessage"/> object.
++		/// </summary>
++		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.MimeMessage"/>. The
++		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.MimeMessage"/> in an unusable state. After
++		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.MimeMessage"/> so
++		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.MimeMessage"/> was occupying.</remarks>
++		public void Dispose ()
++		{
++			Dispose (true);
++			GC.SuppressFinalize (this);
++			disposed = true;
++		}
++
++		/// <summary>
+ 		/// Load a <see cref="MimeMessage"/> from the specified stream.
+ 		/// </summary>
+ 		/// <remarks>
+@@ -2616,14 +2660,20 @@ namespace MimeKit {
+ 		static MimePart GetMimePart (AttachmentBase item)
+ 		{
+ 			var mimeType = item.ContentType.ToString ();
+-			var part = new MimePart (ContentType.Parse (mimeType));
++			var contentType = ContentType.Parse (mimeType);
++			ContentDisposition disposition = null;
+ 			var attachment = item as Attachment;
+ 
+ 			if (attachment != null) {
+-				var disposition = attachment.ContentDisposition.ToString ();
+-				part.ContentDisposition = ContentDisposition.Parse (disposition);
++				var text = attachment.ContentDisposition.ToString ();
++				disposition = ContentDisposition.Parse (text);
+ 			}
+ 
++			var part = new MimePart (contentType);
++
++			if (disposition != null)
++				part.ContentDisposition = disposition;
++
+ 			switch (item.TransferEncoding) {
+ 			case System.Net.Mime.TransferEncoding.QuotedPrintable:
+ 				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+@@ -2636,8 +2686,12 @@ namespace MimeKit {
+ 				break;
+ 			}
+ 
+-			if (item.ContentId != null)
+-				part.ContentId = item.ContentId;
++			if (item.ContentId != null) {
++				try {
++					part.ContentId = item.ContentId;
++				} catch (ArgumentException) {
++				}
++			}
+ 
+ 			var stream = new MemoryBlockStream ();
+ 			item.ContentStream.CopyTo (stream);
+@@ -2722,7 +2776,14 @@ namespace MimeKit {
+ 					alternative.Add (body);
+ 
+ 				foreach (var view in message.AlternateViews) {
+-					var part = GetMimePart (view);
++					MimePart part;
++
++					try {
++						part = GetMimePart (view);
++					} catch {
++						alternative.Dispose ();
++						throw;
++					}
+ 
+ 					if (view.BaseUri != null)
+ 						part.ContentLocation = view.BaseUri;
+@@ -2739,7 +2800,13 @@ namespace MimeKit {
+ 						related.Add (part);
+ 
+ 						foreach (var resource in view.LinkedResources) {
+-							part = GetMimePart (resource);
++							try {
++								part = GetMimePart (resource);
++							} catch {
++								alternative.Dispose ();
++								related.Dispose ();
++								throw;
++							}
+ 
+ 							if (resource.ContentLink != null)
+ 								part.ContentLocation = resource.ContentLink;
+@@ -2765,8 +2832,14 @@ namespace MimeKit {
+ 				if (body != null)
+ 					mixed.Add (body);
+ 
+-				foreach (var attachment in message.Attachments)
+-					mixed.Add (GetMimePart (attachment));
++				foreach (var attachment in message.Attachments) {
++					try {
++						mixed.Add (GetMimePart (attachment));
++					} catch {
++						mixed.Dispose ();
++						throw;
++					}
++				}
+ 
+ 				body = mixed;
+ 			}
+diff --git a/MimeKit/MimePart.cs b/MimeKit/MimePart.cs
+index e1b5de0..bdb9fca 100644
+--- a/MimeKit/MimePart.cs
++++ b/MimeKit/MimePart.cs
+@@ -100,36 +100,31 @@ namespace MimeKit {
+ 			if (args == null)
+ 				throw new ArgumentNullException ("args");
+ 
+-			IContentObject content = null;
+-
+ 			foreach (object obj in args) {
+ 				if (obj == null || TryInit (obj))
+ 					continue;
+ 
+ 				var co = obj as IContentObject;
+ 				if (co != null) {
+-					if (content != null)
++					if (ContentObject != null)
+ 						throw new ArgumentException ("ContentObject should not be specified more than once.");
+ 
+-					content = co;
++					ContentObject = co;
+ 					continue;
+ 				}
+ 
+ 				var stream = obj as Stream;
+ 				if (stream != null) {
+-					if (content != null)
++					if (ContentObject != null)
+ 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
+ 
+ 					// Use default as specified by ContentObject ctor when building a new MimePart.
+-					content = new ContentObject (stream);
++					ContentObject = new ContentObject (stream);
+ 					continue;
+ 				}
+ 
+ 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
+ 			}
+-
+-			if (content != null)
+-				ContentObject = content;
+ 		}
+ 
+ 		/// <summary>
+@@ -194,6 +189,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MimePart");
++		}
++
+ 		/// <summary>
+ 		/// Gets or sets the duration of the content if available.
+ 		/// </summary>
+@@ -336,11 +337,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMimePart (this);
+ 		}
+ 
+@@ -356,6 +362,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentOutOfRangeException">
+ 		/// <paramref name="constraint"/> is not a valid value.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -382,6 +391,9 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="constraint"/> is not a valid value.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -390,6 +402,8 @@ namespace MimeKit {
+ 		/// </exception>
+ 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
+ 		{
++			CheckDisposed ();
++
+ 			if (ContentObject == null)
+ 				return ContentEncoding.SevenBit;
+ 
+@@ -417,8 +431,13 @@ namespace MimeKit {
+ 		/// <exception cref="System.InvalidOperationException">
+ 		/// The <see cref="ContentObject"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string ComputeContentMd5 ()
+ 		{
++			CheckDisposed ();
++
+ 			if (ContentObject == null)
+ 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
+ 
+@@ -463,8 +482,13 @@ namespace MimeKit {
+ 		/// the values match.
+ 		/// </remarks>
+ 		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public bool VerifyContentMd5 ()
+ 		{
++			CheckDisposed ();
++
+ 			if (IsNullOrWhiteSpace (md5sum) || ContentObject == null)
+ 				return false;
+ 
+@@ -496,11 +520,16 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="constraint"/> is not a valid value.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+ 		{
+ 			if (maxLineLength < 72 || maxLineLength > 998)
+ 				throw new ArgumentOutOfRangeException ("maxLineLength");
+ 
++			CheckDisposed ();
++
+ 			switch (ContentTransferEncoding) {
+ 			case ContentEncoding.QuotedPrintable:
+ 			case ContentEncoding.UUEncode:
+@@ -537,6 +566,9 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.OperationCanceledException">
+ 		/// The operation was canceled via the cancellation token.
+ 		/// </exception>
+@@ -656,5 +688,23 @@ namespace MimeKit {
+ 				throw new ArgumentOutOfRangeException ("action");
+ 			}
+ 		}
++
++		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected override void Dispose (bool disposing)
++		{
++			if (disposing && !IsDisposed && ContentObject != null)
++				ContentObject.Dispose ();
++
++			base.Dispose (disposing);
++		}
+ 	}
+ }
+diff --git a/MimeKit/Multipart.cs b/MimeKit/Multipart.cs
+index f132fe4..bbbb840 100644
+--- a/MimeKit/Multipart.cs
++++ b/MimeKit/Multipart.cs
+@@ -145,6 +145,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("Multipart");
++		}
++
+ 		static string GenerateBoundary ()
+ 		{
+ 			var base64 = new Base64Encoder (true);
+@@ -169,12 +175,17 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="value"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string Boundary {
+ 			get { return ContentType.Boundary; }
+ 			set {
+ 				if (value == null)
+ 					throw new ArgumentNullException ("value");
+ 
++				CheckDisposed ();
++
+ 				if (Boundary == value)
+ 					return;
+ 
+@@ -197,6 +208,9 @@ namespace MimeKit {
+ 		/// it correctly.
+ 		/// </remarks>
+ 		/// <value>The preamble.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string Preamble {
+ 			get {
+ 				if (preamble == null && RawPreamble != null)
+@@ -205,6 +219,8 @@ namespace MimeKit {
+ 				return preamble;
+ 			}
+ 			set {
++				CheckDisposed ();
++
+ 				if (preamble == value)
+ 					return;
+ 
+@@ -231,6 +247,9 @@ namespace MimeKit {
+ 		/// child of the multipart and is rarely ever used.
+ 		/// </remarks>
+ 		/// <value>The epilogue.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string Epilogue {
+ 			get {
+ 				if (epilogue == null && RawEpilogue != null)
+@@ -239,6 +258,8 @@ namespace MimeKit {
+ 				return epilogue;
+ 			}
+ 			set {
++				CheckDisposed ();
++
+ 				if (epilogue == value)
+ 					return;
+ 
+@@ -268,11 +289,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMultipart (this);
+ 		}
+ 
+@@ -359,6 +385,8 @@ namespace MimeKit {
+ 			if (maxLineLength < 72 || maxLineLength > 998)
+ 				throw new ArgumentOutOfRangeException ("maxLineLength");
+ 
++			CheckDisposed ();
++
+ 			for (int i = 0; i < children.Count; i++)
+ 				children[i].Prepare (constraint, maxLineLength);
+ 		}
+@@ -468,11 +496,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="part"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void Add (MimeEntity part)
+ 		{
+ 			if (part == null)
+ 				throw new ArgumentNullException ("part");
+ 
++			CheckDisposed ();
++
+ 			children.Add (part);
+ 		}
+ 
+@@ -482,8 +515,13 @@ namespace MimeKit {
+ 		/// <remarks>
+ 		/// Removes all of the parts within the multipart.
+ 		/// </remarks>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void Clear ()
+ 		{
++			CheckDisposed ();
++
+ 			children.Clear ();
+ 		}
+ 
+@@ -499,11 +537,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="part"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public bool Contains (MimeEntity part)
+ 		{
+ 			if (part == null)
+ 				throw new ArgumentNullException ("part");
+ 
++			CheckDisposed ();
++
+ 			return children.Contains (part);
+ 		}
+ 
+@@ -522,8 +565,13 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentOutOfRangeException">
+ 		/// <paramref name="arrayIndex"/> is out of range.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void CopyTo (MimeEntity[] array, int arrayIndex)
+ 		{
++			CheckDisposed ();
++
+ 			children.CopyTo (array, arrayIndex);
+ 		}
+ 
+@@ -538,11 +586,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="part"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public bool Remove (MimeEntity part)
+ 		{
+ 			if (part == null)
+ 				throw new ArgumentNullException ("part");
+ 
++			CheckDisposed ();
++
+ 			return children.Remove (part);
+ 		}
+ 
+@@ -561,11 +614,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="part"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public int IndexOf (MimeEntity part)
+ 		{
+ 			if (part == null)
+ 				throw new ArgumentNullException ("part");
+ 
++			CheckDisposed ();
++
+ 			return children.IndexOf (part);
+ 		}
+ 
+@@ -583,6 +641,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentOutOfRangeException">
+ 		/// <paramref name="index"/> is out of range.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void Insert (int index, MimeEntity part)
+ 		{
+ 			if (index < 0 || index > children.Count)
+@@ -591,6 +652,8 @@ namespace MimeKit {
+ 			if (part == null)
+ 				throw new ArgumentNullException ("part");
+ 
++			CheckDisposed ();
++
+ 			children.Insert (index, part);
+ 		}
+ 
+@@ -604,8 +667,17 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentOutOfRangeException">
+ 		/// <paramref name="index"/> is out of range.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void RemoveAt (int index)
+ 		{
++			if (index < 0 || index > children.Count)
++				throw new ArgumentOutOfRangeException ("index");
++
++			CheckDisposed ();
++
++			children[index].Dispose ();
+ 			children.RemoveAt (index);
+ 		}
+ 
+@@ -623,12 +695,24 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentOutOfRangeException">
+ 		/// <paramref name="index"/> is out of range.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public MimeEntity this[int index] {
+ 			get { return children[index]; }
+ 			set {
++				if (index < 0 || index > children.Count)
++					throw new ArgumentOutOfRangeException ("index");
++
+ 				if (value == null)
+ 					throw new ArgumentNullException ("value");
+ 
++				CheckDisposed ();
++
++				if (value == children[index])
++					return;
++
++				children[index].Dispose ();
+ 				children[index] = value;
+ 			}
+ 		}
+@@ -644,8 +728,13 @@ namespace MimeKit {
+ 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+ 		/// </remarks>
+ 		/// <returns>The enumerator.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public IEnumerator<MimeEntity> GetEnumerator ()
+ 		{
++			CheckDisposed ();
++
+ 			return children.GetEnumerator ();
+ 		}
+ 
+@@ -660,11 +749,36 @@ namespace MimeKit {
+ 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+ 		/// </remarks>
+ 		/// <returns>The enumerator.</returns>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		IEnumerator IEnumerable.GetEnumerator ()
+ 		{
++			CheckDisposed ();
++
+ 			return children.GetEnumerator ();
+ 		}
+ 
+ 		#endregion
++
++		/// <summary>
++		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
++		/// optionally releases the managed resources.
++		/// </summary>
++		/// <remarks>
++		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
++		/// optionally releases the managed resources.
++		/// </remarks>
++		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
++		/// <c>false</c> to release only the unmanaged resources.</param>
++		protected override void Dispose (bool disposing)
++		{
++			if (disposing && !IsDisposed) {
++				for (int i = 0; i < children.Count; i++)
++					children[i].Dispose ();
++			}
++
++			base.Dispose (disposing);
++		}
+ 	}
+ }
+diff --git a/MimeKit/MultipartAlternative.cs b/MimeKit/MultipartAlternative.cs
+index 15cc761..15e8f00 100644
+--- a/MimeKit/MultipartAlternative.cs
++++ b/MimeKit/MultipartAlternative.cs
+@@ -82,6 +82,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MultipartAlternative");
++		}
++
+ 		/// <summary>
+ 		/// Get the text of the text/plain alternative.
+ 		/// </summary>
+@@ -89,6 +95,9 @@ namespace MimeKit {
+ 		/// Gets the text of the text/plain alternative, if it exists.
+ 		/// </remarks>
+ 		/// <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string TextBody {
+ 			get { return GetTextBody (TextFormat.Text); }
+ 		}
+@@ -100,6 +109,9 @@ namespace MimeKit {
+ 		/// Gets the HTML-formatted text of the text/html alternative, if it exists.
+ 		/// </remarks>
+ 		/// <value>The HTML if a text/html alternative exists; otherwise, <c>null</c>.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string HtmlBody {
+ 			get { return GetTextBody (TextFormat.Html); }
+ 		}
+@@ -119,11 +131,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMultipartAlternative (this);
+ 		}
+ 
+@@ -150,8 +167,13 @@ namespace MimeKit {
+ 		/// </remarks>
+ 		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+ 		/// <param name="format">The desired text format.</param>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string GetTextBody (TextFormat format)
+ 		{
++			CheckDisposed ();
++
+ 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
+ 			for (int i = Count - 1; i >= 0; i--) {
+ 				var alternative = this[i] as MultipartAlternative;
+diff --git a/MimeKit/MultipartRelated.cs b/MimeKit/MultipartRelated.cs
+index eb260d5..2ba06ab 100644
+--- a/MimeKit/MultipartRelated.cs
++++ b/MimeKit/MultipartRelated.cs
+@@ -81,6 +81,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("MultipartRelated");
++		}
++
+ 		int GetRootIndex ()
+ 		{
+ 			string start = ContentType.Parameters["start"];
+@@ -113,6 +119,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="value"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public MimeEntity Root {
+ 			get {
+ 				int index = GetRootIndex ();
+@@ -126,6 +135,8 @@ namespace MimeKit {
+ 				if (value == null)
+ 					throw new ArgumentNullException ("value");
+ 
++				CheckDisposed ();
++
+ 				int index;
+ 
+ 				if (Count > 0) {
+@@ -169,11 +180,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitMultipartRelated (this);
+ 		}
+ 
+@@ -188,6 +204,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="uri"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public bool Contains (Uri uri)
+ 		{
+ 			return IndexOf (uri) != -1;
+@@ -210,11 +229,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="uri"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public int IndexOf (Uri uri)
+ 		{
+ 			if (uri == null)
+ 				throw new ArgumentNullException ("uri");
+ 
++			CheckDisposed ();
++
+ 			bool cid = uri.IsAbsoluteUri && uri.Scheme.ToLowerInvariant () == "cid";
+ 
+ 			for (int index = 0; index < Count; index++) {
+@@ -263,6 +287,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="uri"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.IO.FileNotFoundException">
+ 		/// The MIME part for the specified URI could not be found.
+ 		/// </exception>
+@@ -298,6 +325,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="uri"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		/// <exception cref="System.IO.FileNotFoundException">
+ 		/// The MIME part for the specified URI could not be found.
+ 		/// </exception>
+diff --git a/MimeKit/TextPart.cs b/MimeKit/TextPart.cs
+index 4924ff9..3621efd 100644
+--- a/MimeKit/TextPart.cs
++++ b/MimeKit/TextPart.cs
+@@ -158,6 +158,12 @@ namespace MimeKit {
+ 		{
+ 		}
+ 
++		void CheckDisposed ()
++		{
++			if (IsDisposed)
++				throw new ObjectDisposedException ("TextPart");
++		}
++
+ 		/// <summary>
+ 		/// Gets whether or not this text part contains enriched text.
+ 		/// </summary>
+@@ -234,8 +240,13 @@ namespace MimeKit {
+ 		/// or <see cref="GetText(System.String)"/>.</para>
+ 		/// </remarks>
+ 		/// <value>The text.</value>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string Text {
+ 			get {
++				CheckDisposed ();
++
+ 				if (ContentObject == null)
+ 					return string.Empty;
+ 
+@@ -290,11 +301,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="visitor"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public override void Accept (MimeVisitor visitor)
+ 		{
+ 			if (visitor == null)
+ 				throw new ArgumentNullException ("visitor");
+ 
++			CheckDisposed ();
++
+ 			visitor.VisitTextPart (this);
+ 		}
+ 
+@@ -332,11 +348,16 @@ namespace MimeKit {
+ 		/// <exception cref="System.ArgumentNullException">
+ 		/// <paramref name="encoding"/> is <c>null</c>.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string GetText (Encoding encoding)
+ 		{
+ 			if (encoding == null)
+ 				throw new ArgumentNullException ("encoding");
+ 
++			CheckDisposed ();
++
+ 			if (ContentObject == null)
+ 				return string.Empty;
+ 
+@@ -370,6 +391,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.NotSupportedException">
+ 		/// The <paramref name="charset"/> is not supported.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public string GetText (string charset)
+ 		{
+ 			if (charset == null)
+@@ -393,6 +417,9 @@ namespace MimeKit {
+ 		/// <para>-or-</para>
+ 		/// <para><paramref name="text"/> is <c>null</c>.</para>
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void SetText (Encoding encoding, string text)
+ 		{
+ 			if (encoding == null)
+@@ -401,6 +428,8 @@ namespace MimeKit {
+ 			if (text == null)
+ 				throw new ArgumentNullException ("text");
+ 
++			CheckDisposed ();
++
+ 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
+ 			var content = new MemoryStream (encoding.GetBytes (text));
+ 			ContentObject = new ContentObject (content);
+@@ -424,6 +453,9 @@ namespace MimeKit {
+ 		/// <exception cref="System.NotSupportedException">
+ 		/// The <paramref name="charset"/> is not supported.
+ 		/// </exception>
++		/// <exception cref="System.ObjectDisposedException">
++		/// The object has been disposed.
++		/// </exception>
+ 		public void SetText (string charset, string text)
+ 		{
+ 			if (charset == null)
+diff --git a/MimeKit/Tnef/TnefPart.cs b/MimeKit/Tnef/TnefPart.cs
+index bdff709..0c7c548 100644
+--- a/MimeKit/Tnef/TnefPart.cs
++++ b/MimeKit/Tnef/TnefPart.cs
+@@ -427,10 +427,10 @@ namespace MimeKit.Tnef {
+ 		/// </exception>
+ 		public IEnumerable<MimeEntity> ExtractAttachments ()
+ 		{
+-			var message = ConvertToMessage ();
+-
+-			foreach (var attachment in message.BodyParts)
+-				yield return attachment;
++			using (var message = ConvertToMessage ()) {
++				foreach (var attachment in message.BodyParts)
++					yield return attachment;
++			}
+ 
+ 			yield break;
+ 		}
