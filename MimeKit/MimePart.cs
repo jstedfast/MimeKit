@@ -100,31 +100,36 @@ namespace MimeKit {
 			if (args == null)
 				throw new ArgumentNullException ("args");
 
+			IContentObject content = null;
+
 			foreach (object obj in args) {
 				if (obj == null || TryInit (obj))
 					continue;
 
 				var co = obj as IContentObject;
 				if (co != null) {
-					if (ContentObject != null)
+					if (content != null)
 						throw new ArgumentException ("ContentObject should not be specified more than once.");
 
-					ContentObject = co;
+					content = co;
 					continue;
 				}
 
 				var stream = obj as Stream;
 				if (stream != null) {
-					if (ContentObject != null)
+					if (content != null)
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
 					// Use default as specified by ContentObject ctor when building a new MimePart.
-					ContentObject = new ContentObject (stream);
+					content = new ContentObject (stream);
 					continue;
 				}
 
 				throw new ArgumentException ("Unknown initialization parameter: " + obj.GetType ());
 			}
+
+			if (content != null)
+				ContentObject = content;
 		}
 
 		/// <summary>
@@ -187,12 +192,6 @@ namespace MimeKit {
 		/// </remarks>
 		public MimePart () : base ("application", "octet-stream")
 		{
-		}
-
-		void CheckDisposed ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("MimePart");
 		}
 
 		/// <summary>
@@ -337,15 +336,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
-
-			CheckDisposed ();
 
 			visitor.VisitMimePart (this);
 		}
@@ -361,9 +355,6 @@ namespace MimeKit {
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="constraint"/> is not a valid value.
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -391,9 +382,6 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -402,8 +390,6 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			CheckDisposed ();
-
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
 
@@ -431,13 +417,8 @@ namespace MimeKit {
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="ContentObject"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public string ComputeContentMd5 ()
 		{
-			CheckDisposed ();
-
 			if (ContentObject == null)
 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
 
@@ -482,13 +463,8 @@ namespace MimeKit {
 		/// the values match.
 		/// </remarks>
 		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public bool VerifyContentMd5 ()
 		{
-			CheckDisposed ();
-
 			if (IsNullOrWhiteSpace (md5sum) || ContentObject == null)
 				return false;
 
@@ -520,15 +496,10 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < 72 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
-
-			CheckDisposed ();
 
 			switch (ContentTransferEncoding) {
 			case ContentEncoding.QuotedPrintable:
@@ -565,9 +536,6 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -687,24 +655,6 @@ namespace MimeKit {
 			default:
 				throw new ArgumentOutOfRangeException ("action");
 			}
-		}
-
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && !IsDisposed && ContentObject != null)
-				ContentObject.Dispose ();
-
-			base.Dispose (disposing);
 		}
 	}
 }

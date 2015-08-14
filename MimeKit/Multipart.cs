@@ -145,12 +145,6 @@ namespace MimeKit {
 		{
 		}
 
-		void CheckDisposed ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("Multipart");
-		}
-
 		static string GenerateBoundary ()
 		{
 			var base64 = new Base64Encoder (true);
@@ -175,16 +169,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public string Boundary {
 			get { return ContentType.Boundary; }
 			set {
 				if (value == null)
 					throw new ArgumentNullException ("value");
-
-				CheckDisposed ();
 
 				if (Boundary == value)
 					return;
@@ -208,9 +197,6 @@ namespace MimeKit {
 		/// it correctly.
 		/// </remarks>
 		/// <value>The preamble.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public string Preamble {
 			get {
 				if (preamble == null && RawPreamble != null)
@@ -219,8 +205,6 @@ namespace MimeKit {
 				return preamble;
 			}
 			set {
-				CheckDisposed ();
-
 				if (preamble == value)
 					return;
 
@@ -247,9 +231,6 @@ namespace MimeKit {
 		/// child of the multipart and is rarely ever used.
 		/// </remarks>
 		/// <value>The epilogue.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public string Epilogue {
 			get {
 				if (epilogue == null && RawEpilogue != null)
@@ -258,8 +239,6 @@ namespace MimeKit {
 				return epilogue;
 			}
 			set {
-				CheckDisposed ();
-
 				if (epilogue == value)
 					return;
 
@@ -289,15 +268,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
-
-			CheckDisposed ();
 
 			visitor.VisitMultipart (this);
 		}
@@ -384,8 +358,6 @@ namespace MimeKit {
 		{
 			if (maxLineLength < 72 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
-
-			CheckDisposed ();
 
 			for (int i = 0; i < children.Count; i++)
 				children[i].Prepare (constraint, maxLineLength);
@@ -496,15 +468,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public void Add (MimeEntity part)
 		{
 			if (part == null)
 				throw new ArgumentNullException ("part");
-
-			CheckDisposed ();
 
 			children.Add (part);
 		}
@@ -515,13 +482,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all of the parts within the multipart.
 		/// </remarks>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public void Clear ()
 		{
-			CheckDisposed ();
-
 			children.Clear ();
 		}
 
@@ -537,15 +499,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public bool Contains (MimeEntity part)
 		{
 			if (part == null)
 				throw new ArgumentNullException ("part");
-
-			CheckDisposed ();
 
 			return children.Contains (part);
 		}
@@ -565,13 +522,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
-			CheckDisposed ();
-
 			children.CopyTo (array, arrayIndex);
 		}
 
@@ -586,15 +538,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public bool Remove (MimeEntity part)
 		{
 			if (part == null)
 				throw new ArgumentNullException ("part");
-
-			CheckDisposed ();
 
 			return children.Remove (part);
 		}
@@ -614,15 +561,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="part"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public int IndexOf (MimeEntity part)
 		{
 			if (part == null)
 				throw new ArgumentNullException ("part");
-
-			CheckDisposed ();
 
 			return children.IndexOf (part);
 		}
@@ -641,9 +583,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public void Insert (int index, MimeEntity part)
 		{
 			if (index < 0 || index > children.Count)
@@ -651,8 +590,6 @@ namespace MimeKit {
 
 			if (part == null)
 				throw new ArgumentNullException ("part");
-
-			CheckDisposed ();
 
 			children.Insert (index, part);
 		}
@@ -667,17 +604,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public void RemoveAt (int index)
 		{
-			if (index < 0 || index > children.Count)
-				throw new ArgumentOutOfRangeException ("index");
-
-			CheckDisposed ();
-
-			children[index].Dispose ();
 			children.RemoveAt (index);
 		}
 
@@ -695,24 +623,12 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public MimeEntity this[int index] {
 			get { return children[index]; }
 			set {
-				if (index < 0 || index > children.Count)
-					throw new ArgumentOutOfRangeException ("index");
-
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
-				CheckDisposed ();
-
-				if (value == children[index])
-					return;
-
-				children[index].Dispose ();
 				children[index] = value;
 			}
 		}
@@ -728,13 +644,8 @@ namespace MimeKit {
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
 		/// </remarks>
 		/// <returns>The enumerator.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
-			CheckDisposed ();
-
 			return children.GetEnumerator ();
 		}
 
@@ -749,36 +660,11 @@ namespace MimeKit {
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
 		/// </remarks>
 		/// <returns>The enumerator.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
-			CheckDisposed ();
-
 			return children.GetEnumerator ();
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && !IsDisposed) {
-				for (int i = 0; i < children.Count; i++)
-					children[i].Dispose ();
-			}
-
-			base.Dispose (disposing);
-		}
 	}
 }

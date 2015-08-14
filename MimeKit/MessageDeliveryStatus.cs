@@ -64,12 +64,6 @@ namespace MimeKit {
 		{
 		}
 
-		void CheckDisposed ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("MessageDeliveryStatus");
-		}
-
 		/// <summary>
 		/// Get the groups of delivery status fields.
 		/// </summary>
@@ -133,15 +127,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
-
-			CheckDisposed ();
 
 			visitor.VisitMessageDeliveryStatus (this);
 		}

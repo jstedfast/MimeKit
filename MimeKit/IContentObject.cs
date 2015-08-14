@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.IO;
 using System.Threading;
 
@@ -35,7 +34,7 @@ namespace MimeKit {
     /// <remarks>
     /// Implemented by <see cref="ContentObject"/>.
     /// </remarks>
-	public interface IContentObject : IDisposable
+	public interface IContentObject
 	{
 		/// <summary>
 		/// Gets the content encoding.

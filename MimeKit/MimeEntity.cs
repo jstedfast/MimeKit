@@ -49,7 +49,7 @@ namespace MimeKit {
 	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
 	/// derivatives of one of those.</para>
 	/// </remarks>
-	public abstract class MimeEntity : IDisposable
+	public abstract class MimeEntity
 	{
 		ContentDisposition disposition;
 		string contentId;
@@ -129,25 +129,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.MimeEntity"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.MimeEntity"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeEntity ()
-		{
-			Dispose (false);
-		}
-
-		void CheckDisposed ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("MimeEntity");
-		}
-
-		/// <summary>
 		/// Tries to use the given object to initialize the appropriate property.
 		/// </summary>
 		/// <remarks>
@@ -175,17 +156,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether the entity has been disposed.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the entity has been disposed.
-		/// </remarks>
-		/// <value><c>true</c> if the entity has been disposed; otherwise, <c>false</c>.</value>
-		protected bool IsDisposed {
-			get; private set;
-		}
-
-		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
 		/// <remarks>
@@ -207,14 +177,9 @@ namespace MimeKit {
 		/// be <c>null</c>.
 		/// </remarks>
 		/// <value>The content disposition.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public ContentDisposition ContentDisposition {
 			get { return disposition; }
 			set {
-				CheckDisposed ();
-
 				if (disposition == value)
 					return;
 
@@ -256,14 +221,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is not an absolute URI.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public Uri ContentBase {
 			get { return baseUri; }
 			set {
-				CheckDisposed ();
-
 				if (baseUri == value)
 					return;
 
@@ -292,14 +252,9 @@ namespace MimeKit {
 		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
 		/// </remarks>
 		/// <value>The content location or <c>null</c>.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public Uri ContentLocation {
 			get { return location; }
 			set {
-				CheckDisposed ();
-
 				if (location == value)
 					return;
 
@@ -324,14 +279,9 @@ namespace MimeKit {
 		/// when the HTML-formatted message body needs to reference image attachments.</para>
 		/// </remarks>
 		/// <value>The content identifier.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public string ContentId {
 			get { return contentId; }
 			set {
-				CheckDisposed ();
-
 				if (contentId == value)
 					return;
 
@@ -363,14 +313,9 @@ namespace MimeKit {
 		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
 		/// </remarks>
 		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public bool IsAttachment {
 			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
 			set {
-				CheckDisposed ();
-
 				if (value) {
 					if (ContentDisposition == null)
 						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
@@ -389,13 +334,8 @@ namespace MimeKit {
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override string ToString ()
 		{
-			CheckDisposed ();
-
 			using (var memory = new MemoryStream ()) {
 				WriteTo (memory);
 
@@ -425,15 +365,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public virtual void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
-
-			CheckDisposed ();
 
 			visitor.VisitMimeEntity (this);
 		}
@@ -450,9 +385,6 @@ namespace MimeKit {
 		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
 		/// </exception>
 		public abstract void Prepare (EncodingConstraint constraint, int maxLineLength = 78);
 
@@ -471,9 +403,6 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -487,8 +416,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
-
-			CheckDisposed ();
 
 			Headers.WriteTo (options, stream, cancellationToken);
 		}
@@ -776,34 +703,6 @@ namespace MimeKit {
 		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
 		{
 			OnHeadersChanged (e.Action, e.Header);
-		}
-
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected virtual void Dispose (bool disposing)
-		{
-		}
-
-		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.MimeEntity"/> object.
-		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.MimeEntity"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.MimeEntity"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.MimeEntity"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.MimeEntity"/> was occupying.</remarks>
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
-			IsDisposed = true;
 		}
 
 		/// <summary>

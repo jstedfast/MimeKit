@@ -41,7 +41,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class ContentObject : IContentObject
 	{
-		Stream content;
+		readonly Stream content;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
@@ -76,24 +76,7 @@ namespace MimeKit {
 			content = stream;
 		}
 
-		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.ContentObject"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.ContentObject"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~ContentObject ()
-		{
-			Dispose (false);
-		}
-
-		void CheckDisposed ()
-		{
-			if (content == null)
-				throw new ObjectDisposedException ("ContentObject");
-		}
+		#region IContentObject implementation
 
 		/// <summary>
 		/// Gets or sets the content encoding.
@@ -116,13 +99,8 @@ namespace MimeKit {
 		/// stream using <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/>.
 		/// </remarks>
 		/// <returns>The decoded content stream.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ContentObject"/> has been disposed.
-		/// </exception>
 		public Stream Open ()
 		{
-			CheckDisposed ();
-
 			content.Seek (0, SeekOrigin.Begin);
 
 			var filtered = new FilteredStream (content);
@@ -144,9 +122,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ContentObject"/> has been disposed.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -157,8 +132,6 @@ namespace MimeKit {
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
-
-			CheckDisposed ();
 
 			var readable = content as ICancellableStream;
 			var writable = stream as ICancellableStream;
@@ -209,9 +182,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ContentObject"/> has been disposed.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -223,8 +193,6 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			CheckDisposed ();
-
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (Encoding));
 				WriteTo (filtered, cancellationToken);
@@ -232,35 +200,6 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="ContentObject"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="ContentObject"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected virtual void Dispose (bool disposing)
-		{
-			if (disposing && content != null) {
-				content.Dispose ();
-				content = null;
-			}
-		}
-
-		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.ContentObject"/> object.
-		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.ContentObject"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.ContentObject"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.ContentObject"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.ContentObject"/> was occupying.</remarks>
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
-		}
+		#endregion
 	}
 }

@@ -62,7 +62,7 @@ namespace MimeKit {
 	/// tree of MIME entities such as a text/plain MIME part and a collection
 	/// of file attachments.</para>
 	/// </remarks>
-	public class MimeMessage : IDisposable
+	public class MimeMessage
 	{
 		static readonly string[] StandardAddressHeaders = {
 			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
@@ -81,7 +81,6 @@ namespace MimeKit {
 		string messageId;
 		string inreplyto;
 		Version version;
-		bool disposed;
 
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
 		{
@@ -237,19 +236,6 @@ namespace MimeKit {
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
 			MessageId = MimeUtils.GenerateMessageId ();
-		}
-
-		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.MimeMessage"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.MimeMessage"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeMessage ()
-		{
-			Dispose (false);
 		}
 
 		/// <summary>
@@ -2399,36 +2385,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected virtual void Dispose (bool disposing)
-		{
-			if (disposing && !disposed && Body != null)
-				Body.Dispose ();
-		}
-
-		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.MimeMessage"/> object.
-		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.MimeMessage"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.MimeMessage"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.MimeMessage"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.MimeMessage"/> was occupying.</remarks>
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
-			disposed = true;
-		}
-
-		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
 		/// <remarks>
@@ -2660,19 +2616,13 @@ namespace MimeKit {
 		static MimePart GetMimePart (AttachmentBase item)
 		{
 			var mimeType = item.ContentType.ToString ();
-			var contentType = ContentType.Parse (mimeType);
-			ContentDisposition disposition = null;
+			var part = new MimePart (ContentType.Parse (mimeType));
 			var attachment = item as Attachment;
 
 			if (attachment != null) {
-				var text = attachment.ContentDisposition.ToString ();
-				disposition = ContentDisposition.Parse (text);
+				var disposition = attachment.ContentDisposition.ToString ();
+				part.ContentDisposition = ContentDisposition.Parse (disposition);
 			}
-
-			var part = new MimePart (contentType);
-
-			if (disposition != null)
-				part.ContentDisposition = disposition;
 
 			switch (item.TransferEncoding) {
 			case System.Net.Mime.TransferEncoding.QuotedPrintable:
@@ -2686,12 +2636,8 @@ namespace MimeKit {
 				break;
 			}
 
-			if (item.ContentId != null) {
-				try {
-					part.ContentId = item.ContentId;
-				} catch (ArgumentException) {
-				}
-			}
+			if (item.ContentId != null)
+				part.ContentId = item.ContentId;
 
 			var stream = new MemoryBlockStream ();
 			item.ContentStream.CopyTo (stream);
@@ -2776,14 +2722,7 @@ namespace MimeKit {
 					alternative.Add (body);
 
 				foreach (var view in message.AlternateViews) {
-					MimePart part;
-
-					try {
-						part = GetMimePart (view);
-					} catch {
-						alternative.Dispose ();
-						throw;
-					}
+					var part = GetMimePart (view);
 
 					if (view.BaseUri != null)
 						part.ContentLocation = view.BaseUri;
@@ -2800,13 +2739,7 @@ namespace MimeKit {
 						related.Add (part);
 
 						foreach (var resource in view.LinkedResources) {
-							try {
-								part = GetMimePart (resource);
-							} catch {
-								alternative.Dispose ();
-								related.Dispose ();
-								throw;
-							}
+							part = GetMimePart (resource);
 
 							if (resource.ContentLink != null)
 								part.ContentLocation = resource.ContentLink;
@@ -2832,14 +2765,8 @@ namespace MimeKit {
 				if (body != null)
 					mixed.Add (body);
 
-				foreach (var attachment in message.Attachments) {
-					try {
-						mixed.Add (GetMimePart (attachment));
-					} catch {
-						mixed.Dispose ();
-						throw;
-					}
-				}
+				foreach (var attachment in message.Attachments)
+					mixed.Add (GetMimePart (attachment));
 
 				body = mixed;
 			}

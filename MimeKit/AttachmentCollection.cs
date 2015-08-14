@@ -472,9 +472,6 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
-			for (int i = 0; i < attachments.Count; i++)
-				attachments[i].Dispose ();
-
 			attachments.Clear ();
 		}
 
@@ -602,7 +599,6 @@ namespace MimeKit {
 			if (index < 0 || index > Count)
 				throw new ArgumentOutOfRangeException ("index");
 
-			attachments[index].Dispose ();
 			attachments.RemoveAt (index);
 		}
 

@@ -65,12 +65,6 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		void CheckDisposed ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("MultipartEncrypted");
-		}
-
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -86,15 +80,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException ("visitor");
-
-			CheckDisposed ();
 
 			visitor.VisitMultipartEncrypted (this);
 		}
@@ -618,13 +607,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -753,13 +737,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -834,13 +813,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -1012,13 +986,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.Encrypt (recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.Encrypt (recipients, memory));
 
 				return encrypted;
 			}
@@ -1112,13 +1081,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
 
 				return encrypted;
 			}
@@ -1173,13 +1137,8 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				try {
-					// add the encrypted entity as the second part
-					encrypted.Add (ctx.Encrypt (recipients, memory));
-				} catch {
-					encrypted.Dispose ();
-					throw;
-				}
+				// add the encrypted entity as the second part
+				encrypted.Add (ctx.Encrypt (recipients, memory));
 
 				return encrypted;
 			}
@@ -1271,9 +1230,6 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
@@ -1295,8 +1251,6 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
-
-			CheckDisposed ();
 
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -1344,9 +1298,6 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
@@ -1380,9 +1331,6 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
@@ -1403,8 +1351,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (out DigitalSignatureCollection signatures)
 		{
-			CheckDisposed ();
-
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
@@ -1454,9 +1400,6 @@ namespace MimeKit.Cryptography {
 		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </remarks>
 		/// <returns>The decrypted entity.</returns>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The object has been disposed.
-		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
