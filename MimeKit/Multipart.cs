@@ -672,8 +672,12 @@ namespace MimeKit {
 		/// </exception>
 		public void RemoveAt (int index)
 		{
+			if (index < 0 || index > children.Count)
+				throw new ArgumentOutOfRangeException ("index");
+
 			CheckDisposed ();
 
+			children[index].Dispose ();
 			children.RemoveAt (index);
 		}
 
@@ -697,11 +701,18 @@ namespace MimeKit {
 		public MimeEntity this[int index] {
 			get { return children[index]; }
 			set {
+				if (index < 0 || index > children.Count)
+					throw new ArgumentOutOfRangeException ("index");
+
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
 				CheckDisposed ();
 
+				if (value == children[index])
+					return;
+
+				children[index].Dispose ();
 				children[index] = value;
 			}
 		}
