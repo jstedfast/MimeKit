@@ -2660,13 +2660,19 @@ namespace MimeKit {
 		static MimePart GetMimePart (AttachmentBase item)
 		{
 			var mimeType = item.ContentType.ToString ();
-			var part = new MimePart (ContentType.Parse (mimeType));
+			var contentType = ContentType.Parse (mimeType);
+			ContentDisposition disposition = null;
 			var attachment = item as Attachment;
 
 			if (attachment != null) {
-				var disposition = attachment.ContentDisposition.ToString ();
-				part.ContentDisposition = ContentDisposition.Parse (disposition);
+				var text = attachment.ContentDisposition.ToString ();
+				disposition = ContentDisposition.Parse (text);
 			}
+
+			var part = new MimePart (contentType);
+
+			if (disposition != null)
+				part.ContentDisposition = disposition;
 
 			switch (item.TransferEncoding) {
 			case System.Net.Mime.TransferEncoding.QuotedPrintable:
@@ -2680,8 +2686,12 @@ namespace MimeKit {
 				break;
 			}
 
-			if (item.ContentId != null)
-				part.ContentId = item.ContentId;
+			if (item.ContentId != null) {
+				try {
+					part.ContentId = item.ContentId;
+				} catch (ArgumentException) {
+				}
+			}
 
 			var stream = new MemoryBlockStream ();
 			item.ContentStream.CopyTo (stream);
@@ -2766,7 +2776,14 @@ namespace MimeKit {
 					alternative.Add (body);
 
 				foreach (var view in message.AlternateViews) {
-					var part = GetMimePart (view);
+					MimePart part;
+
+					try {
+						part = GetMimePart (view);
+					} catch {
+						alternative.Dispose ();
+						throw;
+					}
 
 					if (view.BaseUri != null)
 						part.ContentLocation = view.BaseUri;
@@ -2783,7 +2800,13 @@ namespace MimeKit {
 						related.Add (part);
 
 						foreach (var resource in view.LinkedResources) {
-							part = GetMimePart (resource);
+							try {
+								part = GetMimePart (resource);
+							} catch {
+								alternative.Dispose ();
+								related.Dispose ();
+								throw;
+							}
 
 							if (resource.ContentLink != null)
 								part.ContentLocation = resource.ContentLink;
@@ -2809,8 +2832,14 @@ namespace MimeKit {
 				if (body != null)
 					mixed.Add (body);
 
-				foreach (var attachment in message.Attachments)
-					mixed.Add (GetMimePart (attachment));
+				foreach (var attachment in message.Attachments) {
+					try {
+						mixed.Add (GetMimePart (attachment));
+					} catch {
+						mixed.Dispose ();
+						throw;
+					}
+				}
 
 				body = mixed;
 			}

@@ -427,10 +427,10 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{
-			var message = ConvertToMessage ();
-
-			foreach (var attachment in message.BodyParts)
-				yield return attachment;
+			using (var message = ConvertToMessage ()) {
+				foreach (var attachment in message.BodyParts)
+					yield return attachment;
+			}
 
 			yield break;
 		}

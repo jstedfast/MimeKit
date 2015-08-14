@@ -163,11 +163,20 @@ namespace MimeKit.Cryptography {
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
 				var parsed = parser.ParseEntity ();
+				MimePart signature;
+
 				memory.Position = 0;
 
-				// sign the cleartext content
-				var signature = ctx.Sign (signer, digestAlgo, memory);
+				try {
+					// sign the cleartext content
+					signature = ctx.Sign (signer, digestAlgo, memory);
+				} catch {
+					parsed.Dispose ();
+					throw;
+				}
+
 				var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
+
 				var signed = new MultipartSigned ();
 
 				// set the protocol and micalg Content-Type parameters

@@ -618,8 +618,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
@@ -748,8 +753,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
@@ -824,8 +834,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
@@ -997,8 +1012,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.Encrypt (recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
@@ -1092,8 +1112,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
@@ -1148,8 +1173,13 @@ namespace MimeKit.Cryptography {
 				// add the protocol version part
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (recipients, memory));
+				try {
+					// add the encrypted entity as the second part
+					encrypted.Add (ctx.Encrypt (recipients, memory));
+				} catch {
+					encrypted.Dispose ();
+					throw;
+				}
 
 				return encrypted;
 			}
