@@ -455,7 +455,7 @@ Saturday and I was hoping you could make it.<br>
 
 // Since sexy-pose.jpg is referenced from the html text, we'll need to add it
 // to builder.LinkedResources
-builder.LinkedResources.Add (@"C:\Users\Joey\Documents\SexySelfies\sexy-pose.jpg");
+builder.LinkedResources.Add (@"C:\Users\Joey\Documents\Selfies\sexy-pose.jpg");
 
 // We may also want to attach a calendar event for Monica's party...
 builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
