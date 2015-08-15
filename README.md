@@ -455,10 +455,10 @@ Saturday and I was hoping you could make it.<br>
 
 // Since sexy-pose.jpg is referenced from the html text, we'll need to add it
 // to builder.LinkedResources
-builder.LinkedResources.Add ("C:\\Users\\Joey\\Documents\\SexySelfies\\sexy-pose.jpg");
+builder.LinkedResources.Add (@"C:\Users\Joey\Documents\SexySelfies\sexy-pose.jpg");
 
 // We may also want to attach a calendar event for Monica's party...
-builder.Attachments.Add ("C:\\Users\Joey\\Documents\\party.ics");
+builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
 
 // Now we just need to set the message body and we're done
 message.Body = builder.ToMessageBody ();
