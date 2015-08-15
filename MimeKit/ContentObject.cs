@@ -41,8 +41,6 @@ namespace MimeKit {
 	/// </remarks>
 	public class ContentObject : IContentObject
 	{
-		readonly Stream content;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
 		/// </summary>
@@ -73,7 +71,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The stream does not support seeking.", "stream");
 
 			Encoding = encoding;
-			content = stream;
+			Stream = stream;
 		}
 
 		#region IContentObject implementation
@@ -92,6 +90,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets the content stream.
+		/// </summary>
+		/// <remarks>
+		/// Gets the content stream.
+		/// </remarks>
+		/// <value>The stream.</value>
+		public Stream Stream {
+			get; private set;
+		}
+
+		/// <summary>
 		/// Opens the decoded content stream.
 		/// </summary>
 		/// <remarks>
@@ -101,9 +110,9 @@ namespace MimeKit {
 		/// <returns>The decoded content stream.</returns>
 		public Stream Open ()
 		{
-			content.Seek (0, SeekOrigin.Begin);
+			Stream.Seek (0, SeekOrigin.Begin);
 
-			var filtered = new FilteredStream (content);
+			var filtered = new FilteredStream (Stream);
 			filtered.Add (DecoderFilter.Create (Encoding));
 
 			return filtered;
@@ -133,12 +142,12 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			var readable = content as ICancellableStream;
+			var readable = Stream as ICancellableStream;
 			var writable = stream as ICancellableStream;
 			var buf = new byte[4096];
 			int nread;
 
-			content.Seek (0, SeekOrigin.Begin);
+			Stream.Seek (0, SeekOrigin.Begin);
 
 			try {
 				do {
@@ -147,7 +156,7 @@ namespace MimeKit {
 							break;
 					} else {
 						cancellationToken.ThrowIfCancellationRequested ();
-						if ((nread = content.Read (buf, 0, buf.Length)) <= 0)
+						if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
 							break;
 					}
 
@@ -159,11 +168,11 @@ namespace MimeKit {
 					}
 				} while (true);
 
-				content.Seek (0, SeekOrigin.Begin);
+				Stream.Seek (0, SeekOrigin.Begin);
 			} catch (OperationCanceledException) {
 				// try and reset the stream
 				try {
-					content.Seek (0, SeekOrigin.Begin);
+					Stream.Seek (0, SeekOrigin.Begin);
 				} catch (IOException) {
 				}
 

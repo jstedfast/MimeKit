@@ -48,6 +48,15 @@ namespace MimeKit {
 		ContentEncoding Encoding { get; }
 
 		/// <summary>
+		/// Gets the content stream.
+		/// </summary>
+		/// <remarks>
+		/// Gets the content stream.
+		/// </remarks>
+		/// <value>The stream.</value>
+		Stream Stream { get; }
+
+		/// <summary>
 		/// Opens the decoded content stream.
 		/// </summary>
 		/// <remarks>
