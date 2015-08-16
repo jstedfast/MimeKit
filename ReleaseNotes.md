@@ -1,5 +1,14 @@
 # Release Notes
 
+### MimeKit 1.2.10
+
+* Added public Stream property to IContentObject.
+* Implemented a better fix for illegal unquoted multi-line Content-Type and
+  Content-Disposition parameter values. (issue #159)
+* Fixed the UrlScanner to properly handle "ftp." at the very end of the message text.
+  (issue #161)
+* Fixed charset handling logic to not override charset aliases already in the cache.
+
 ### MimeKit 1.2.9
 
 * Fixed WriteTo(string fileName) methods to overwrite the existing file. (issue #154)
