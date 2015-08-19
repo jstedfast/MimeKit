@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using MimeKit.IO.Filters;
 
 namespace MimeKit.IO {
@@ -38,7 +38,7 @@ namespace MimeKit.IO {
 	/// <remarks>
 	/// Passes data through each <see cref="IMimeFilter"/> as the data is read or written.
 	/// </remarks>
-	public class FilteredStream : Stream, ICancellableStream
+	public class FilteredStream : Stream
 	{
 		const int ReadBufferSize = 4096;
 
@@ -316,7 +316,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public int Read (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		public async Task<Int32> Read (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			CheckDisposed ();
 			CheckCanRead ();
@@ -330,16 +330,8 @@ namespace MimeKit.IO {
 			int nread;
 
 			if (filteredLength == 0) {
-				var cancellable = Source as ICancellableStream;
-
-				if (cancellable != null) {
-					if ((nread = cancellable.Read (readbuf, 0, ReadBufferSize, cancellationToken)) <= 0)
-						return nread;
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
-						return nread;
-				}
+				if ((nread = await Source.ReadAsync (readbuf, 0, ReadBufferSize, cancellationToken)) <= 0)
+					return nread;
 
 				// filter the data we've just read...
 				filteredLength = nread;
@@ -395,8 +387,13 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
-			return Read (buffer, offset, count, CancellationToken.None);
-		}
+            return Read(buffer, offset, count, CancellationToken.None).Result;
+        }
+
+		public override Task<Int32> ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)
+		{
+            return Read(buffer, offset, count, cancellationToken);
+        }
 
 		/// <summary>
 		/// Writes a sequence of bytes to the stream and advances the current
@@ -431,7 +428,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Write (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		public async Task Write (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			CheckDisposed ();
 			CheckCanWrite ();
@@ -448,14 +445,7 @@ namespace MimeKit.IO {
 			foreach (var filter in filters)
 				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
-			var cancellable = Source as ICancellableStream;
-
-			if (cancellable != null) {
-				cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				Source.Write (filtered, filteredIndex, filteredLength);
-			}
+			await Source.WriteAsync (filtered, filteredIndex, filteredLength, cancellationToken);
 		}
 
 		/// <summary>
@@ -489,8 +479,13 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
-			Write (buffer, offset, count, CancellationToken.None);
-		}
+            Write(buffer, offset, count, CancellationToken.None).Wait();
+        }
+
+		public override Task WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)
+		{
+			return Write(buffer, offset, count, cancellationToken);;
+        }
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -530,7 +525,7 @@ namespace MimeKit.IO {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Flush (CancellationToken cancellationToken)
+		public async Task Flush (CancellationToken cancellationToken)
 		{
 			CheckDisposed ();
 			CheckCanWrite ();
@@ -549,25 +544,14 @@ namespace MimeKit.IO {
 				flushed = true;
 			}
 
-			var cancellable = Source as ICancellableStream;
-
 			if (filteredLength > 0) {
-				if (cancellable != null) {
-					cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					Source.Write (filtered, filteredIndex, filteredLength);
-				}
+				await Source.WriteAsync (filtered, filteredIndex, filteredLength, cancellationToken);
 
 				filteredIndex = 0;
 				filteredLength = 0;
 			}
 
-			if (cancellable != null) {
-				cancellable.Flush (cancellationToken);
-			} else {
-				Source.Flush ();
-			}
+			await Source.FlushAsync (cancellationToken);
 		}
 
 		/// <summary>
@@ -589,8 +573,13 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Flush ()
 		{
-			Flush (CancellationToken.None);
-		}
+            Flush(CancellationToken.None).Wait();
+        }
+
+		public override Task FlushAsync(CancellationToken cancellationToken)
+		{
+			return Flush(cancellationToken);
+        }
 
 		/// <summary>
 		/// Sets the length of the stream.

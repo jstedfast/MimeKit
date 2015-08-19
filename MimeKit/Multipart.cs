@@ -30,7 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #endif
@@ -325,20 +325,14 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
+		static async Task WriteBytes (FormatOptions options, Stream stream, Byte[] bytes, CancellationToken cancellationToken)
 		{
-			var cancellable = stream as ICancellableStream;
 			var filter = options.CreateNewLineFilter ();
 			int index, length;
 
 			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
 
-			if (cancellable != null) {
-				cancellable.Write (output, index, length, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (output, index, length);
-			}
+			await stream.WriteAsync (output, index, length, cancellationToken);
 		}
 
 		/// <summary>
@@ -383,12 +377,12 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (options, stream, cancellationToken);
+			await base.WriteTo (options, stream, cancellationToken);
 
 			if (ContentType.Matches ("multipart", "signed")) {
 				// don't reformat the headers or content of any children of a multipart/signed
@@ -399,36 +393,20 @@ namespace MimeKit {
 				}
 			}
 
-			var cancellable = stream as ICancellableStream;
-
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				WriteBytes (options, stream, RawPreamble, cancellationToken);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
-			if (cancellable != null) {
-				for (int i = 0; i < children.Count; i++) {
-					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-					children[i].WriteTo (options, stream, cancellationToken);
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				}
-
-				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
-				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-			} else {
-				for (int i = 0; i < children.Count; i++) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (boundary, 0, boundary.Length - 2);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					children[i].WriteTo (options, stream, cancellationToken);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				}
-
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (boundary, 0, boundary.Length);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			for (int i = 0; i < children.Count; i++) {
+				await stream.WriteAsync (boundary, 0, boundary.Length - 2, cancellationToken);
+				await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				await children[i].WriteTo (options, stream, cancellationToken);
+				await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			}
+
+			await stream.WriteAsync(boundary, 0, boundary.Length);
+			await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
 				WriteBytes (options, stream, RawEpilogue, cancellationToken);

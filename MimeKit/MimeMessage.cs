@@ -30,7 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #endif
@@ -997,7 +997,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1016,22 +1016,15 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-						filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-						filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
+						await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken);
+						await filtered.WriteAsync(new [] { (byte) ':' }, 0, 1, cancellationToken);
+						await filtered.WriteAsync(header.RawValue, 0, header.RawValue.Length, cancellationToken);
 					}
 
-					filtered.Flush (cancellationToken);
+					await filtered.FlushAsync(cancellationToken);
 				}
 
-				var cancellable = stream as ICancellableStream;
-
-				if (cancellable != null) {
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				}
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 
 				try {
 					Body.Headers.Suppress = true;
@@ -1040,7 +1033,7 @@ namespace MimeKit {
 					Body.Headers.Suppress = false;
 				}
 			} else {
-				Headers.WriteTo (options, stream, cancellationToken);
+				await Headers.WriteTo (options, stream, cancellationToken);
 			}
 		}
 
@@ -1308,7 +1301,7 @@ namespace MimeKit {
 			return signer;
 		}
 
-		byte[] DkimHashBody (FormatOptions options, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm, int maxLength)
+		async Task<Byte[]> DkimHashBody (FormatOptions options, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm, int maxLength)
 		{
 			using (var stream = new DkimHashStream (signatureAlgorithm, maxLength)) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -1322,13 +1315,13 @@ namespace MimeKit {
 					if (Body != null) {
 						try {
 							Body.Headers.Suppress = true;
-							Body.WriteTo (options, stream, CancellationToken.None);
+							await Body.WriteTo (options, stream, CancellationToken.None);
 						} finally {
 							Body.Headers.Suppress = false;
 						}
 					}
 
-					filtered.Flush ();
+					await filtered.FlushAsync();
 				}
 
 				return stream.GenerateHash ();
@@ -1405,7 +1398,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		void Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		async Task Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1468,7 +1461,7 @@ namespace MimeKit {
 
 					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
 
-					hash = DkimHashBody (options, signer.SignatureAlgorithm, bodyCanonicalizationAlgorithm, -1);
+					hash = await DkimHashBody (options, signer.SignatureAlgorithm, bodyCanonicalizationAlgorithm, -1);
 					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
 					value.Append ("; b=");
 
@@ -1514,9 +1507,9 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		public void Sign (DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		public Task Sign (DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
-			Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			return Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
 
 		static bool IsWhiteSpace (char c)
@@ -1690,7 +1683,7 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		async Task<bool> Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1720,7 +1713,7 @@ namespace MimeKit {
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
-			var hash = Convert.ToBase64String (DkimHashBody (options, signatureAlgorithm, bodyAlgorithm, maxLength));
+			var hash = Convert.ToBase64String (await DkimHashBody (options, signatureAlgorithm, bodyAlgorithm, maxLength));
 
 			if (hash != bh)
 				return false;
@@ -1744,7 +1737,7 @@ namespace MimeKit {
 						break;
 					}
 
-					filtered.Flush ();
+					await filtered.FlushAsync (cancellationToken);
 				}
 
 				return stream.VerifySignature (b);
@@ -1774,7 +1767,7 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<bool> Verify (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Verify (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
 		}

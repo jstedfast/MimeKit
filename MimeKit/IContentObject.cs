@@ -26,6 +26,7 @@
 
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MimeKit {
 	/// <summary>
@@ -103,6 +104,6 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		Task WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 	}
 }

@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MimeKit {
 	/// <summary>
@@ -196,12 +197,12 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			base.WriteTo (options, stream, cancellationToken);
+			await base.WriteTo (options, stream, cancellationToken);
 
 			if (Message != null)
-				Message.WriteTo (options, stream, cancellationToken);
+				await Message.WriteTo (options, stream, cancellationToken);
 		}
 	}
 }

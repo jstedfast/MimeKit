@@ -30,7 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #endif
@@ -695,7 +695,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -720,14 +720,7 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 
-			var cancellable = stream as ICancellableStream;
-
-			if (cancellable != null) {
-				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-			}
+			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 		}
 
 		/// <summary>

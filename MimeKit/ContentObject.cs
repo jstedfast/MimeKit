@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
-
+using System.Threading.Tasks;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
 
@@ -137,13 +137,11 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			var readable = Stream as ICancellableStream;
-			var writable = stream as ICancellableStream;
 			var buf = new byte[4096];
 			int nread;
 
@@ -151,21 +149,10 @@ namespace MimeKit {
 
 			try {
 				do {
-					if (readable != null) {
-						if ((nread = readable.Read (buf, 0, buf.Length, cancellationToken)) <= 0)
+					if ((nread = await Stream.ReadAsync (buf, 0, buf.Length, cancellationToken)) <= 0)
 							break;
-					} else {
-						cancellationToken.ThrowIfCancellationRequested ();
-						if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
-							break;
-					}
 
-					if (writable != null) {
-						writable.Write (buf, 0, nread, cancellationToken);
-					} else {
-						cancellationToken.ThrowIfCancellationRequested ();
-						stream.Write (buf, 0, nread);
-					}
+					await stream.WriteAsync (buf, 0, nread, cancellationToken);
 				} while (true);
 
 				Stream.Seek (0, SeekOrigin.Begin);
