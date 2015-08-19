@@ -565,13 +565,13 @@ namespace MimeKit.Text {
 			int contentIndex = matchIndex + match.Pattern.Length;
 			int index = contentIndex;
 
-			if (contentIndex == endIndex)
+			if (contentIndex >= endIndex)
 				return false;
 
 			if (!SkipAddrspec (text, endIndex, ref index))
 				index = contentIndex;
 
-			if (text[index] == '?') {
+			if (index < endIndex && text[index] == '?') {
 				index++;
 
 				while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
