@@ -1542,7 +1542,7 @@ namespace MimeKit {
 					index++;
 
 				if (index + 1 >= token.Length)
-					throw new FormatException ("Malformed DKIM-Signature value.");
+					continue;
 
 				name = token.Substring (startIndex, index - startIndex).Trim ();
 				index++;
