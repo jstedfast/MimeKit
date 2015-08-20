@@ -394,7 +394,7 @@ namespace MimeKit {
 			}
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
-				WriteBytes (options, stream, RawPreamble, cancellationToken);
+                await WriteBytes(options, stream, RawPreamble, cancellationToken);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
@@ -405,11 +405,11 @@ namespace MimeKit {
 				await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			}
 
-			await stream.WriteAsync(boundary, 0, boundary.Length);
-			await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length);
+			await stream.WriteAsync(boundary, 0, boundary.Length, cancellationToken);
+			await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
-				WriteBytes (options, stream, RawEpilogue, cancellationToken);
+                await WriteBytes(options, stream, RawEpilogue, cancellationToken);
 		}
 
 		#region ICollection implementation

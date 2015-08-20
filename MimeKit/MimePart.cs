@@ -566,8 +566,8 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter ());
 
-					ContentObject.DecodeTo (filtered, cancellationToken);
-					filtered.Flush (cancellationToken);
+                    await ContentObject.DecodeTo (filtered, cancellationToken);
+                    await filtered.Flush (cancellationToken);
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
@@ -580,11 +580,11 @@ namespace MimeKit {
 			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.WriteTo (filtered, cancellationToken);
-					filtered.Flush (cancellationToken);
+                    await ContentObject.WriteTo (filtered, cancellationToken);
+                    await filtered.Flush (cancellationToken);
 				}
 			} else {
-				ContentObject.WriteTo (stream, cancellationToken);
+                await ContentObject.WriteTo (stream, cancellationToken);
 			}
 		}
 

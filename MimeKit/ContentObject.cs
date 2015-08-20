@@ -167,32 +167,32 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Decodes the content stream into another stream.
-		/// </summary>
-		/// <remarks>
-		/// Uses the <see cref="Encoding"/> to decode the content stream to the output stream.
-		/// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Decodes the content stream into another stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Uses the <see cref="Encoding"/> to decode the content stream to the output stream.
+	    /// </remarks>
+	    /// <param name="stream">The output stream.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="stream"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task DecodeTo (Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (Encoding));
-				WriteTo (filtered, cancellationToken);
-				filtered.Flush (cancellationToken);
+                await WriteTo(filtered, cancellationToken);
+                await filtered.Flush (cancellationToken);
 			}
 		}
 

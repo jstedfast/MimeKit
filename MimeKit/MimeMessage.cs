@@ -919,7 +919,7 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-				WriteTo (FormatOptions.Default, memory);
+                WriteTo(FormatOptions.Default, memory).Wait();
 
 #if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
@@ -931,7 +931,7 @@ namespace MimeKit {
 				return CharsetUtils.Latin1.GetString (buffer, 0, count);
 			}
 		}
-
+        
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME message.
 		/// </summary>
@@ -1028,7 +1028,7 @@ namespace MimeKit {
 
 				try {
 					Body.Headers.Suppress = true;
-					Body.WriteTo (options, stream, cancellationToken);
+                    await Body.WriteTo (options, stream, cancellationToken);
 				} finally {
 					Body.Headers.Suppress = false;
 				}
@@ -1037,64 +1037,64 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Writes the message to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes the message to the output stream using the default formatting options.
-		/// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Writes the message to the specified output stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Writes the message to the output stream using the default formatting options.
+	    /// </remarks>
+	    /// <param name="stream">The output stream.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="stream"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task WriteTo (Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+            await WriteTo(FormatOptions.Default, stream, cancellationToken);
 		}
 
 #if !PORTABLE && !COREFX
-		/// <summary>
-		/// Writes the message to the specified file.
-		/// </summary>
-		/// <remarks>
-		/// Writes the message to the specified file using the provided formatting options.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="fileName">The file.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.DirectoryNotFoundException">
-		/// <paramref name="fileName"/> is an invalid file path.
-		/// </exception>
-		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file path could not be found.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// The user does not have access to write to the specified file.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Writes the message to the specified file.
+	    /// </summary>
+	    /// <remarks>
+	    /// Writes the message to the specified file using the provided formatting options.
+	    /// </remarks>
+	    /// <param name="options">The formatting options.</param>
+	    /// <param name="fileName">The file.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="options"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="fileName"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+	    /// contains one or more invalid characters as defined by
+	    /// <see cref="System.IO.Path.InvalidPathChars"/>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.DirectoryNotFoundException">
+	    /// <paramref name="fileName"/> is an invalid file path.
+	    /// </exception>
+	    /// <exception cref="System.IO.FileNotFoundException">
+	    /// The specified file path could not be found.
+	    /// </exception>
+	    /// <exception cref="System.UnauthorizedAccessException">
+	    /// The user does not have access to write to the specified file.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task WriteTo (FormatOptions options, String fileName, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1103,47 +1103,47 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (options, stream, cancellationToken);
+                await WriteTo(options, stream, cancellationToken);
 		}
 
-		/// <summary>
-		/// Writes the message to the specified file.
-		/// </summary>
-		/// <remarks>
-		/// Writes the message to the specified file using the default formatting options.
-		/// </remarks>
-		/// <param name="fileName">The file.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.DirectoryNotFoundException">
-		/// <paramref name="fileName"/> is an invalid file path.
-		/// </exception>
-		/// <exception cref="System.IO.FileNotFoundException">
-		/// The specified file path could not be found.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// The user does not have access to write to the specified file.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Writes the message to the specified file.
+	    /// </summary>
+	    /// <remarks>
+	    /// Writes the message to the specified file using the default formatting options.
+	    /// </remarks>
+	    /// <param name="fileName">The file.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="fileName"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+	    /// contains one or more invalid characters as defined by
+	    /// <see cref="System.IO.Path.InvalidPathChars"/>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.DirectoryNotFoundException">
+	    /// <paramref name="fileName"/> is an invalid file path.
+	    /// </exception>
+	    /// <exception cref="System.IO.FileNotFoundException">
+	    /// The specified file path could not be found.
+	    /// </exception>
+	    /// <exception cref="System.UnauthorizedAccessException">
+	    /// The user does not have access to write to the specified file.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task WriteTo (String fileName, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+                await WriteTo(FormatOptions.Default, stream, cancellationToken);
 		}
 #endif
 
@@ -1772,38 +1772,38 @@ namespace MimeKit {
 			return Verify (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
 		}
 
-		/// <summary>
-		/// Sign the message using the specified cryptography context and digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
-		/// address as the signer address, otherwise the Sender or From address will be
-		/// used instead.
-		/// </remarks>
-		/// <param name="ctx">The cryptography context.</param>
-		/// <param name="digestAlgo">The digest algorithm.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or-</para>
-		/// <para>A sender has not been specified.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// The <paramref name="digestAlgo"/> was out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The <paramref name="digestAlgo"/> is not supported.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for the sender.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found for the sender.
-		/// </exception>
-		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+	    /// <summary>
+	    /// Sign the message using the specified cryptography context and digest algorithm.
+	    /// </summary>
+	    /// <remarks>
+	    /// If either of the Resent-Sender or Resent-From headers are set, then the message
+	    /// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+	    /// address as the signer address, otherwise the Sender or From address will be
+	    /// used instead.
+	    /// </remarks>
+	    /// <param name="ctx">The cryptography context.</param>
+	    /// <param name="digestAlgo">The digest algorithm.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="ctx"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.InvalidOperationException">
+	    /// <para>The <see cref="Body"/> has not been set.</para>
+	    /// <para>-or-</para>
+	    /// <para>A sender has not been specified.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// The <paramref name="digestAlgo"/> was out of range.
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// The <paramref name="digestAlgo"/> is not supported.
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A signing certificate could not be found for the sender.
+	    /// </exception>
+	    /// <exception cref="PrivateKeyNotFoundException">
+	    /// The private key could not be found for the sender.
+	    /// </exception>
+	    public async Task Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1815,68 +1815,68 @@ namespace MimeKit {
 			if (signer == null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
-			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body);
+			Body = await MultipartSigned.Create (ctx, signer, digestAlgo, Body);
 		}
 
-		/// <summary>
-		/// Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
-		/// address as the signer address, otherwise the Sender or From address will be
-		/// used instead.
-		/// </remarks>
-		/// <param name="ctx">The cryptography context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or-</para>
-		/// <para>A sender has not been specified.</para>
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for the sender.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found for the sender.
-		/// </exception>
-		public void Sign (CryptographyContext ctx)
+	    /// <summary>
+	    /// Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+	    /// </summary>
+	    /// <remarks>
+	    /// If either of the Resent-Sender or Resent-From headers are set, then the message
+	    /// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+	    /// address as the signer address, otherwise the Sender or From address will be
+	    /// used instead.
+	    /// </remarks>
+	    /// <param name="ctx">The cryptography context.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="ctx"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.InvalidOperationException">
+	    /// <para>The <see cref="Body"/> has not been set.</para>
+	    /// <para>-or-</para>
+	    /// <para>A sender has not been specified.</para>
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A signing certificate could not be found for the sender.
+	    /// </exception>
+	    /// <exception cref="PrivateKeyNotFoundException">
+	    /// The private key could not be found for the sender.
+	    /// </exception>
+	    public Task Sign (CryptographyContext ctx)
 		{
-			Sign (ctx, DigestAlgorithm.Sha1);
+			return Sign (ctx, DigestAlgorithm.Sha1);
 		}
 
-		/// <summary>
-		/// Encrypt the message to the sender and all of the recipients
-		/// using the specified cryptography context.
-		/// </summary>
-		/// <remarks>
-		/// If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be encrypted to all of the addresses specified in the Resent headers
-		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
-		/// the standard address headers (Sender, From, To, Cc, and Bcc).
-		/// </remarks>
-		/// <param name="ctx">The cryptography context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// An unknown type of cryptography context was used.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or-</para>
-		/// <para>No recipients have been specified.</para>
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate could not be found for one or more of the recipients.
-		/// </exception>
-		/// <exception cref="PublicKeyNotFoundException">
-		/// The public key could not be found for one or more of the recipients.
-		/// </exception>
-		public void Encrypt (CryptographyContext ctx)
+	    /// <summary>
+	    /// Encrypt the message to the sender and all of the recipients
+	    /// using the specified cryptography context.
+	    /// </summary>
+	    /// <remarks>
+	    /// If either of the Resent-Sender or Resent-From headers are set, then the message
+	    /// will be encrypted to all of the addresses specified in the Resent headers
+	    /// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+	    /// otherwise the message will be encrypted to all of the addresses specified in
+	    /// the standard address headers (Sender, From, To, Cc, and Bcc).
+	    /// </remarks>
+	    /// <param name="ctx">The cryptography context.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="ctx"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// An unknown type of cryptography context was used.
+	    /// </exception>
+	    /// <exception cref="System.InvalidOperationException">
+	    /// <para>The <see cref="Body"/> has not been set.</para>
+	    /// <para>-or-</para>
+	    /// <para>No recipients have been specified.</para>
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A certificate could not be found for one or more of the recipients.
+	    /// </exception>
+	    /// <exception cref="PublicKeyNotFoundException">
+	    /// The public key could not be found for one or more of the recipients.
+	    /// </exception>
+	    public async Task Encrypt (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1889,60 +1889,60 @@ namespace MimeKit {
 				throw new InvalidOperationException ("No recipients have been set.");
 
 			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
+				Body = await ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body);
+				Body = await MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
 			}
 		}
 
-		/// <summary>
-		/// Sign and encrypt the message to the sender and all of the recipients using
-		/// the specified cryptography context and the specified digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
-		/// address as the signer address, otherwise the Sender or From address will be
-		/// used instead.</para>
-		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
-		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
-		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
-		/// </remarks>
-		/// <param name="ctx">The cryptography context.</param>
-		/// <param name="digestAlgo">The digest algorithm.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// An unknown type of cryptography context was used.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// The <paramref name="digestAlgo"/> was out of range.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or-</para>
-		/// <para>The sender has been specified.</para>
-		/// <para>-or-</para>
-		/// <para>No recipients have been specified.</para>
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The <paramref name="digestAlgo"/> is not supported.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate could not be found for the signer or one or more of the recipients.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found for the sender.
-		/// </exception>
-		/// <exception cref="PublicKeyNotFoundException">
-		/// The public key could not be found for one or more of the recipients.
-		/// </exception>
-		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+	    /// <summary>
+	    /// Sign and encrypt the message to the sender and all of the recipients using
+	    /// the specified cryptography context and the specified digest algorithm.
+	    /// </summary>
+	    /// <remarks>
+	    /// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+	    /// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+	    /// address as the signer address, otherwise the Sender or From address will be
+	    /// used instead.</para>
+	    /// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+	    /// message will be encrypted to all of the addresses specified in the Resent headers
+	    /// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+	    /// otherwise the message will be encrypted to all of the addresses specified in
+	    /// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+	    /// </remarks>
+	    /// <param name="ctx">The cryptography context.</param>
+	    /// <param name="digestAlgo">The digest algorithm.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="ctx"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// An unknown type of cryptography context was used.
+	    /// </exception>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// The <paramref name="digestAlgo"/> was out of range.
+	    /// </exception>
+	    /// <exception cref="System.InvalidOperationException">
+	    /// <para>The <see cref="Body"/> has not been set.</para>
+	    /// <para>-or-</para>
+	    /// <para>The sender has been specified.</para>
+	    /// <para>-or-</para>
+	    /// <para>No recipients have been specified.</para>
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// The <paramref name="digestAlgo"/> is not supported.
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A certificate could not be found for the signer or one or more of the recipients.
+	    /// </exception>
+	    /// <exception cref="PrivateKeyNotFoundException">
+	    /// The private key could not be found for the sender.
+	    /// </exception>
+	    /// <exception cref="PublicKeyNotFoundException">
+	    /// The public key could not be found for one or more of the recipients.
+	    /// </exception>
+	    public async Task SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1959,55 +1959,55 @@ namespace MimeKit {
 				throw new InvalidOperationException ("No recipients have been set.");
 
 			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
+				Body = await ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
+				Body = await MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
 			}
 		}
 
-		/// <summary>
-		/// Sign and encrypt the message to the sender and all of the recipients using
-		/// the specified cryptography context and the SHA-1 digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
-		/// address as the signer address, otherwise the Sender or From address will be
-		/// used instead.</para>
-		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
-		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
-		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
-		/// </remarks>
-		/// <param name="ctx">The cryptography context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// An unknown type of cryptography context was used.
-		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The <see cref="Body"/> has not been set.</para>
-		/// <para>-or-</para>
-		/// <para>The sender has been specified.</para>
-		/// <para>-or-</para>
-		/// <para>No recipients have been specified.</para>
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate could not be found for the signer or one or more of the recipients.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found for the sender.
-		/// </exception>
-		/// <exception cref="PublicKeyNotFoundException">
-		/// The public key could not be found for one or more of the recipients.
-		/// </exception>
-		public void SignAndEncrypt (CryptographyContext ctx)
+	    /// <summary>
+	    /// Sign and encrypt the message to the sender and all of the recipients using
+	    /// the specified cryptography context and the SHA-1 digest algorithm.
+	    /// </summary>
+	    /// <remarks>
+	    /// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+	    /// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+	    /// address as the signer address, otherwise the Sender or From address will be
+	    /// used instead.</para>
+	    /// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+	    /// message will be encrypted to all of the addresses specified in the Resent headers
+	    /// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+	    /// otherwise the message will be encrypted to all of the addresses specified in
+	    /// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+	    /// </remarks>
+	    /// <param name="ctx">The cryptography context.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="ctx"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// An unknown type of cryptography context was used.
+	    /// </exception>
+	    /// <exception cref="System.InvalidOperationException">
+	    /// <para>The <see cref="Body"/> has not been set.</para>
+	    /// <para>-or-</para>
+	    /// <para>The sender has been specified.</para>
+	    /// <para>-or-</para>
+	    /// <para>No recipients have been specified.</para>
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A certificate could not be found for the signer or one or more of the recipients.
+	    /// </exception>
+	    /// <exception cref="PrivateKeyNotFoundException">
+	    /// The private key could not be found for the sender.
+	    /// </exception>
+	    /// <exception cref="PublicKeyNotFoundException">
+	    /// The public key could not be found for one or more of the recipients.
+	    /// </exception>
+	    public Task SignAndEncrypt (CryptographyContext ctx)
 		{
-			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
+			return SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
 #endif // ENABLE_CRYPTO
 

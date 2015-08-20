@@ -712,37 +712,37 @@ namespace MimeKit {
 				foreach (var header in headers) {
 					var rawValue = header.GetRawValue (options);
 
-					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+                    await filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
+                    await filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+                    await filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 				}
 
-				filtered.Flush (cancellationToken);
+                await filtered.Flush (cancellationToken);
 			}
 
 			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 		}
 
-		/// <summary>
-		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes all of the headers to the output stream.
-		/// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Writes all of the headers to the output stream.
+	    /// </remarks>
+	    /// <param name="stream">The output stream.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="stream"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task WriteTo (Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+            await WriteTo(FormatOptions.Default, stream, cancellationToken);
 		}
 
 		#region ICollection implementation

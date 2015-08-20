@@ -337,7 +337,7 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-				WriteTo (memory);
+                WriteTo(memory).Wait();
 
 #if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
