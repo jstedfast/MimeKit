@@ -1563,9 +1563,10 @@ namespace MimeKit {
 		}
 
 		static void ValidateDkimSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
-			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string h, out string bh, out string b, out int maxLength)
+			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
 		{
-			string v, a, c, l;
+			bool containsFrom = false;
+			string v, a, c, h, l;
 
 			if (!parameters.TryGetValue ("v", out v))
 				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
@@ -1626,6 +1627,17 @@ namespace MimeKit {
 
 			if (!parameters.TryGetValue ("h", out h))
 				throw new FormatException ("Malformed DKIM-Signature header: no signed header parameter detected.");
+
+			headers = h.Split (':');
+			for (int i = 0; i < headers.Length; i++) {
+				if (headers[i].Equals ("from", StringComparison.OrdinalIgnoreCase)) {
+					containsFrom = true;
+					break;
+				}
+			}
+
+			if (!containsFrom)
+				throw new FormatException (string.Format ("Malformed DKIM-Signature header: From header not signed."));
 
 			if (!parameters.TryGetValue ("bh", out bh))
 				throw new FormatException ("Malformed DKIM-Signature header: no body hash parameter detected.");
@@ -1708,11 +1720,12 @@ namespace MimeKit {
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
 			AsymmetricKeyParameter key;
-			string d, s, q, h, bh, b;
+			string d, s, q, bh, b;
+			string[] headers;
 			int maxLength;
 
 			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
-				out d, out s, out q, out h, out bh, out b, out maxLength);
+				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
@@ -1729,7 +1742,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					DkimWriteHeaders (options, h.Split (':'), headerAlgorithm, filtered);
+					DkimWriteHeaders (options, headers, headerAlgorithm, filtered);
 
 					// now include the DKIM-Signature header that we are verifying,
 					// but only after removing the "b=" signature value.
