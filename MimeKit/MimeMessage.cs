@@ -919,7 +919,7 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-                WriteTo(FormatOptions.Default, memory).Wait();
+                WriteTo(FormatOptions.Default, memory).GetAwaiter ().GetResult ();
 
 #if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();

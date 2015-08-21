@@ -204,7 +204,7 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException ("maxSize");
 
 			using (var memory = new MemoryStream ()) {
-				message.WriteTo (memory).Wait();
+				message.WriteTo (memory).GetAwaiter ().GetResult ();
 				memory.Seek (0, SeekOrigin.Begin);
 
 				if (memory.Length <= maxSize) {
