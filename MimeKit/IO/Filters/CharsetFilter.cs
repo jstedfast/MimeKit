@@ -187,7 +187,7 @@ namespace MimeKit.IO.Filters {
 				charsLeft = chars.Length;
 				charIndex = 0;
 
-				if (!decoded) {
+				if (!decoded && inputLeft > 0) {
 					decoder.Convert (input, inputIndex, inputLeft, chars, charIndex, charsLeft, flush, out nread, out nwritten, out decoded);
 					if (nwritten > 0)
 						encoded = false;
