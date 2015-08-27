@@ -1648,28 +1648,49 @@ namespace MimeKit {
 
 		static Header GetSignedDkimSignatureHeader (Header dkimSignature)
 		{
-			// modify the raw DKIM-Signature header value by chopping off the signature after the "b=" at the end
+			// modify the raw DKIM-Signature header value by chopping off the signature value after the "b="
 			var rawValue = (byte[]) dkimSignature.RawValue.Clone ();
-			int length = rawValue.Length;
+			int length = 0, index = 0;
 
-			// find the last ';' before the b=...
-			while (length > 0 && rawValue[length - 1] != (byte) ';')
-				length--;
+			do {
+				while (index < rawValue.Length && rawValue[index].IsWhitespace ())
+					index++;
 
-			// skip over any whitespace
-			while (length < rawValue.Length && rawValue[length].IsWhitespace ())
-				length++;
+				if (index + 2 < rawValue.Length) {
+					var param = (char) rawValue[index++];
 
-			if (length + 1 >= rawValue.Length || (rawValue[length] != (byte) 'b' && rawValue[length + 1] != (byte) '='))
-				throw new FormatException ("Malformed DKIM-Signature header: signature parameter is not at the end.");
+					while (index < rawValue.Length && rawValue[index].IsWhitespace ())
+						index++;
 
-			// skip over "b="
-			length += 2;
+					if (index < rawValue.Length && rawValue[index] == (byte) '=' && param == 'b') {
+						length = ++index;
 
-			if (length + 2 < rawValue.Length) {
-				rawValue[length++] = (byte) '\r';
-				rawValue[length++] = (byte) '\n';
-			}
+						while (index < rawValue.Length && rawValue[index] != (byte) ';')
+							index++;
+
+						if (index == rawValue.Length && rawValue[index - 1] == (byte) '\n') {
+							index--;
+
+							if (rawValue[index - 1] == (byte) '\r')
+								index--;
+						}
+
+						break;
+					}
+				}
+
+				while (index < rawValue.Length && rawValue[index] != (byte) ';')
+					index++;
+
+				if (index < rawValue.Length)
+					index++;
+			} while (index < rawValue.Length);
+
+			if (index == rawValue.Length)
+				throw new FormatException ("Malformed DKIM-Signature header: missing signature parameter.");
+
+			while (index < rawValue.Length)
+				rawValue[length++] = rawValue[index++];
 
 			Array.Resize (ref rawValue, length);
 
