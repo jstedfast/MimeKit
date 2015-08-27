@@ -1566,7 +1566,7 @@ namespace MimeKit {
 			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
 		{
 			bool containsFrom = false;
-			string v, a, c, h, l;
+			string v, a, c, h, l, i;
 
 			if (!parameters.TryGetValue ("v", out v))
 				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
@@ -1585,6 +1585,19 @@ namespace MimeKit {
 
 			if (!parameters.TryGetValue ("d", out d))
 				throw new FormatException ("Malformed DKIM-Signature header: no domain parameter detected.");
+
+			if (parameters.TryGetValue ("i", out i)) {
+				string ident;
+				int at;
+
+				if ((at = i.LastIndexOf ('@')) == -1)
+					throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
+
+				ident = i.Substring (at + 1);
+
+				if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
+					throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
+			}
 
 			if (!parameters.TryGetValue ("s", out s))
 				throw new FormatException ("Malformed DKIM-Signature header: no selector parameter detected.");
