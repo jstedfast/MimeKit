@@ -211,6 +211,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestJapaneseUTF8HeaderDecoding ()
+		{
+			const string input = "Subject: =?UTF-8?B?RndkOiDjgI7jg53jgrHjg6Ljg7Mgzqnjg6vjg5Pjg7zjg7vOseOCteODleOCoeOCpOOCog==?= =?UTF-8?B?44CP44KS44OX44Os44Kk44GV44KM44Gf55qG44GV44G+44G4IDcyMOeorumhnuOBruODneOCseODog==?= =?UTF-8?B?44Oz44GM5Yui44Ge44KN44GE77yBM0RT5pyA5paw44K944OV44OI44Gu44GK44GX44KJ44Gb44Gn44GZ?=";
+			const string expected = "Fwd: 『ポケモン Ωルビー・αサファイア』をプレイされた皆さまへ 720種類のポケモンが勢ぞろい！3DS最新ソフトのおしらせです";
+			Header header;
+
+			Assert.IsTrue (Header.TryParse (input, out header), "Failed to parse Japanese Subject header.");
+			Assert.AreEqual (HeaderId.Subject, header.Id, "HeaderId does not match");
+			Assert.AreEqual (expected, header.Value, "Subject values do not match.");
+		}
+
+		[Test]
 		public void TestJapaneseISO2022JPHeaderDecoding ()
 		{
 			const string input = "Subject: =?ISO-2022-JP?B?GyRCRnxLXDhsJWEhPCVrJUYlOSVIGyhCICh0ZXN0aW5nIEph?=\n =?ISO-2022-JP?B?cGFuZXNlIGVtYWlscyk=?=";
