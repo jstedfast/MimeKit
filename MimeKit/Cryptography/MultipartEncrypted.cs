@@ -26,7 +26,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
@@ -126,9 +126,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
+			return await SignAndEncrypt(ctx, signer, digestAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -167,9 +167,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (signer, digestAlgo, recipients, entity);
+			return await SignAndEncrypt(signer, digestAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -218,9 +218,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
+			return await SignAndEncrypt(ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -266,9 +266,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
+			return await SignAndEncrypt(ctx, signer, digestAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -316,9 +316,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, entity);
+			return await SignAndEncrypt(signer, digestAlgo, cipherAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -363,9 +363,9 @@ namespace MimeKit.Cryptography {
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
 		[Obsolete ("Use the equivalent SignAndEncrypt() method instead.")]
-		public static MultipartEncrypted Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return SignAndEncrypt (signer, digestAlgo, recipients, entity);
+			return await SignAndEncrypt(signer, digestAlgo, recipients, entity);
 		}
 
 		/// <summary>
@@ -391,9 +391,9 @@ namespace MimeKit.Cryptography {
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
-			return Encrypt (ctx, recipients, entity);
+			return await Encrypt(ctx, recipients, entity);
 		}
 
 		/// <summary>
@@ -419,9 +419,9 @@ namespace MimeKit.Cryptography {
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
-			return Encrypt (recipients, entity);
+			return await Encrypt(recipients, entity);
 		}
 
 		/// <summary>
@@ -451,9 +451,9 @@ namespace MimeKit.Cryptography {
 		/// THe specified encryption algorithm is not supported.
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return Encrypt (ctx, algorithm, recipients, entity);
+			return await Encrypt(ctx, algorithm, recipients, entity);
 		}
 
 		/// <summary>
@@ -479,7 +479,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static Task<MultipartEncrypted> Create (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			return Encrypt (ctx, recipients, entity);
 		}
@@ -510,9 +510,9 @@ namespace MimeKit.Cryptography {
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return Encrypt (algorithm, recipients, entity);
+			return await Encrypt(algorithm, recipients, entity);
 		}
 
 		/// <summary>
@@ -538,9 +538,9 @@ namespace MimeKit.Cryptography {
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
 		/// </exception>
 		[Obsolete ("Use the equivalent Encrypt() method instead.")]
-		public static MultipartEncrypted Create (IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Create (IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
-			return Encrypt (recipients, entity);
+			return await Encrypt(recipients, entity);
 		}
 
 		#endregion
@@ -580,7 +580,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -598,7 +598,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				entity.WriteTo (options, memory);
+                await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
 				var encrypted = new MultipartEncrypted ();
@@ -649,7 +649,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -661,7 +661,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
+				return await SignAndEncrypt(ctx, signer, digestAlgo, recipients, entity);
 			}
 		}
 
@@ -710,7 +710,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -728,7 +728,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				entity.WriteTo (options, memory);
+                await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
 				var encrypted = new MultipartEncrypted ();
@@ -786,7 +786,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -804,7 +804,7 @@ namespace MimeKit.Cryptography {
 				var options = FormatOptions.CloneDefault ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
-				entity.WriteTo (options, memory);
+                await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
 				var encrypted = new MultipartEncrypted ();
@@ -864,7 +864,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -876,7 +876,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
+				return await SignAndEncrypt(ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
 			}
 		}
 
@@ -921,7 +921,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -933,7 +933,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
+				return await SignAndEncrypt(ctx, signer, digestAlgo, recipients, entity);
 			}
 		}
 
@@ -959,7 +959,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -974,7 +974,7 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -1015,7 +1015,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -1024,7 +1024,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return Encrypt (ctx, recipients, entity);
+				return await Encrypt(ctx, recipients, entity);
 			}
 		}
 
@@ -1054,7 +1054,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// THe specified encryption algorithm is not supported.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1069,7 +1069,7 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -1110,7 +1110,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1125,7 +1125,7 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -1169,7 +1169,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
-		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -1178,7 +1178,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return Encrypt (ctx, algorithm, recipients, entity);
+				return await Encrypt(ctx, algorithm, recipients, entity);
 			}
 		}
 
@@ -1204,7 +1204,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
+		public static async Task<MultipartEncrypted> Encrypt (IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -1213,7 +1213,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("entity");
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
-				return Encrypt (ctx, recipients, entity);
+				return await Encrypt(ctx, recipients, entity);
 			}
 		}
 

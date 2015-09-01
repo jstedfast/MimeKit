@@ -25,7 +25,7 @@
 //
 
 using System;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
@@ -122,7 +122,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static async Task<MultipartSigned> Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -143,7 +143,7 @@ namespace MimeKit.Cryptography {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -205,7 +205,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static async Task<MultipartSigned> Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -229,7 +229,7 @@ namespace MimeKit.Cryptography {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -290,10 +290,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static async Task<MultipartSigned> Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature")) {
-				return Create (ctx, signer, digestAlgo, entity);
+				return await Create (ctx, signer, digestAlgo, entity);
 			}
 		}
 
@@ -319,7 +319,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
+		public static async Task<MultipartSigned> Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -343,7 +343,7 @@ namespace MimeKit.Cryptography {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
+                    await entity.WriteTo (filtered);
 					filtered.Flush ();
 				}
 
@@ -395,10 +395,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
+		public static async Task<MultipartSigned> Create (CmsSigner signer, MimeEntity entity)
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature")) {
-				return Create (ctx, signer, entity);
+				return await Create(ctx, signer, entity);
 			}
 		}
 
@@ -445,7 +445,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (CryptographyContext ctx)
+		public async Task<DigitalSignatureCollection> Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -470,7 +470,7 @@ namespace MimeKit.Cryptography {
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
 			using (var signatureData = new MemoryBlockStream ()) {
-				signature.ContentObject.DecodeTo (signatureData);
+                await signature.ContentObject.DecodeTo (signatureData);
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {
@@ -478,7 +478,7 @@ namespace MimeKit.Cryptography {
 					var options = FormatOptions.CloneDefault ();
 					options.NewLineFormat = NewLineFormat.Dos;
 
-					this[0].WriteTo (options, cleartext);
+                    await this[0].WriteTo (options, cleartext);
 					cleartext.Position = 0;
 
 					return ctx.Verify (cleartext, signatureData);
@@ -504,7 +504,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify ()
+		public async Task<DigitalSignatureCollection> Verify ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 			protocol = protocol.Trim ().ToLowerInvariant ();
 
 			using (var ctx = CryptographyContext.Create (protocol)) {
-				return Verify (ctx);
+				return await Verify(ctx);
 			}
 		}
 	}

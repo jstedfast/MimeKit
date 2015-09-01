@@ -25,7 +25,7 @@
 //
 
 using System;
-
+using System.Threading.Tasks;
 using MimeKit.IO;
 
 namespace MimeKit {
@@ -84,19 +84,19 @@ namespace MimeKit {
 						}
 					}
 
-					fields.Changed += OnFieldsChanged;
+					fields.Changed += (sender, e) => OnFieldsChanged(sender, e);
 				}
 
 				return fields;
 			}
 		}
 
-		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
+	    async Task OnFieldsChanged (Object sender, HeaderListChangedEventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			fields.WriteTo (options, stream);
+            await fields.WriteTo (options, stream);
 			stream.Position = 0;
 
 			ContentObject = new ContentObject (stream);

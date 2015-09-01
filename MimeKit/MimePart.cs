@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 using MD5 = MimeKit.Cryptography.MD5;
@@ -543,28 +543,20 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			base.WriteTo (options, stream, cancellationToken);
+			await base.WriteTo (options, stream, cancellationToken);
 
 			if (ContentObject == null)
 				return;
-
-			var cancellable = stream as ICancellableStream;
 
 			if (ContentObject.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 
-					if (cancellable != null) {
-						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
-						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-					} else {
-						cancellationToken.ThrowIfCancellationRequested ();
-						stream.Write (buffer, 0, buffer.Length);
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					}
+					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken);
+					await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 
 				// transcode the content into the desired Content-Transfer-Encoding
@@ -574,30 +566,25 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter ());
 
-					ContentObject.DecodeTo (filtered, cancellationToken);
-					filtered.Flush (cancellationToken);
+                    await ContentObject.DecodeTo (filtered, cancellationToken);
+                    await filtered.Flush (cancellationToken);
 				}
 
 				if (encoding == ContentEncoding.UUEncode) {
 					var buffer = Encoding.ASCII.GetBytes ("end");
 
-					if (cancellable != null) {
-						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
-						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-					} else {
-						cancellationToken.ThrowIfCancellationRequested ();
-						stream.Write (buffer, 0, buffer.Length);
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					}
+					cancellationToken.ThrowIfCancellationRequested ();
+					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken);
+					await stream.WriteAsync(options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
-					ContentObject.WriteTo (filtered, cancellationToken);
-					filtered.Flush (cancellationToken);
+                    await ContentObject.WriteTo (filtered, cancellationToken);
+                    await filtered.Flush (cancellationToken);
 				}
 			} else {
-				ContentObject.WriteTo (stream, cancellationToken);
+                await ContentObject.WriteTo (stream, cancellationToken);
 			}
 		}
 

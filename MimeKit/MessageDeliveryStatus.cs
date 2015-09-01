@@ -25,7 +25,7 @@
 //
 
 using System;
-
+using System.Threading.Tasks;
 using MimeKit.IO;
 
 namespace MimeKit {
@@ -92,20 +92,20 @@ namespace MimeKit {
 						}
 					}
 
-					groups.Changed += OnGroupsChanged;
+					groups.Changed += (sender, e) => OnGroupsChanged(sender, e);
 				}
 
 				return groups;
 			}
 		}
 
-		void OnGroupsChanged (object sender, EventArgs e)
+	    async Task OnGroupsChanged (Object sender, EventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
 			for (int i = 0; i < groups.Count; i++)
-				groups[i].WriteTo (options, stream);
+                await groups[i].WriteTo (options, stream);
 
 			stream.Position = 0;
 

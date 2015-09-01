@@ -30,7 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #endif
@@ -695,7 +695,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -712,44 +712,37 @@ namespace MimeKit {
 				foreach (var header in headers) {
 					var rawValue = header.GetRawValue (options);
 
-					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+                    await filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
+                    await filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+                    await filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 				}
 
-				filtered.Flush (cancellationToken);
+                await filtered.Flush (cancellationToken);
 			}
 
-			var cancellable = stream as ICancellableStream;
-
-			if (cancellable != null) {
-				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-			}
+			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 		}
 
-		/// <summary>
-		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes all of the headers to the output stream.
-		/// </remarks>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+	    /// <summary>
+	    /// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Writes all of the headers to the output stream.
+	    /// </remarks>
+	    /// <param name="stream">The output stream.</param>
+	    /// <param name="cancellationToken">A cancellation token.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <paramref name="stream"/> is <c>null</c>.
+	    /// </exception>
+	    /// <exception cref="System.OperationCanceledException">
+	    /// The operation was canceled via the cancellation token.
+	    /// </exception>
+	    /// <exception cref="System.IO.IOException">
+	    /// An I/O error occurred.
+	    /// </exception>
+	    public async Task WriteTo (Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+            await WriteTo(FormatOptions.Default, stream, cancellationToken);
 		}
 
 		#region ICollection implementation

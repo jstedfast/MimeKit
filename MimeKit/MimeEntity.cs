@@ -30,7 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #endif
@@ -337,7 +337,7 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-				WriteTo (memory);
+                WriteTo(memory).GetAwaiter ().GetResult ();
 
 #if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
@@ -409,7 +409,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual async Task WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -417,7 +417,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			Headers.WriteTo (options, stream, cancellationToken);
+			await Headers.WriteTo (options, stream, cancellationToken);
 		}
 
 		/// <summary>
@@ -437,9 +437,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			await WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
 #if !PORTABLE && !COREFX
@@ -477,7 +477,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -486,7 +486,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (options, stream, cancellationToken);
+				await WriteTo (options, stream, cancellationToken);
 		}
 
 		/// <summary>
@@ -520,13 +520,13 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+				await WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 #endif
 
