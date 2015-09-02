@@ -1217,56 +1217,47 @@ namespace MimeKit {
 #if ENABLE_CRYPTO
 		static void DkimWriteHeaderRelaxed (FormatOptions options, Stream stream, Header header, bool isDkimSignature)
 		{
+			// o  Convert all header field names (not the header field values) to
+			//    lowercase.  For example, convert "SUBJect: AbC" to "subject: AbC".
 			var name = Encoding.ASCII.GetBytes (header.Field.ToLowerInvariant ());
 			var rawValue = header.GetRawValue (options);
 			int index = 0;
 
+			// o  Delete any WSP characters remaining before and after the colon
+			//    separating the header field name from the header field value.  The
+			//    colon separator MUST be retained.
 			stream.Write (name, 0, name.Length);
 			stream.WriteByte ((byte) ':');
 
-			// look for the first non-whitespace character
-			while (index < rawValue.Length && rawValue[index].IsBlank ())
+			// trim leading whitespace...
+			while (index < rawValue.Length && rawValue[index].IsWhitespace ())
 				index++;
 
 			while (index < rawValue.Length) {
 				int startIndex = index;
-				int endIndex, nextLine;
 
 				// look for the first non-whitespace character
-				while (index < rawValue.Length && rawValue[index].IsBlank ())
+				while (index < rawValue.Length && rawValue[index].IsWhitespace ())
 					index++;
 
-				// look for the end of the line
-				endIndex = index;
-				while (endIndex < rawValue.Length && rawValue[endIndex] != (byte) '\n')
-					endIndex++;
+				// o  Delete all WSP characters at the end of each unfolded header field
+				//    value.
+				if (index >= rawValue.Length)
+					break;
 
-				nextLine = endIndex + 1;
-
-				if (endIndex > index && rawValue[endIndex - 1] == (byte) '\r')
-					endIndex--;
-
+				// o  Convert all sequences of one or more WSP characters to a single SP
+				//    character.  WSP characters here include those before and after a
+				//    line folding boundary.
 				if (index > startIndex)
 					stream.WriteByte ((byte) ' ');
 
-				while (index < endIndex) {
-					startIndex = index;
+				startIndex = index;
 
-					while (index < endIndex && !rawValue[index].IsBlank ())
-						index++;
+				while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
+					index++;
 
+				if (index > startIndex)
 					stream.Write (rawValue, startIndex, index - startIndex);
-
-					startIndex = index;
-
-					while (index < endIndex && rawValue[index].IsBlank ())
-						index++;
-
-					if (index > startIndex)
-						stream.WriteByte ((byte) ' ');
-				}
-
-				index = nextLine;
 			}
 
 			if (!isDkimSignature)
