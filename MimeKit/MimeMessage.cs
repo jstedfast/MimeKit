@@ -1313,7 +1313,7 @@ namespace MimeKit {
 					if (Body != null) {
 						try {
 							Body.Headers.Suppress = true;
-							Body.WriteTo (options, stream, CancellationToken.None);
+							Body.WriteTo (options, filtered, CancellationToken.None);
 						} finally {
 							Body.Headers.Suppress = false;
 						}
