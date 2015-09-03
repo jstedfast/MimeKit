@@ -70,6 +70,7 @@
     <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DateParserTests.cs" />
+    <Compile Include="DkimRelaxedBodyFilterTests.cs" />
     <Compile Include="DkimTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />

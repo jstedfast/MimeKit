@@ -1,0 +1,95 @@
+﻿//
+// DkimRelaxedBodyFilterTests.cs
+//
+// Author: Jeffrey Stedfast <jeff@xamarin.com>
+//
+// Copyright (c) 2015 Xamarin Inc. (www.xamarin.com)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+
+using NUnit.Framework;
+
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+
+using MimeKit;
+using MimeKit.Cryptography;
+
+namespace UnitTests {
+	[TestFixture]
+	public class DkimRelaxedBodyFilterTests
+	{
+		[Test]
+		public void TestWhiteSpaceBeforeNewLine ()
+		{
+			const string text = "This is a test of the relaxed body filter   \n   \n";
+			const string expected = "This is a test of the relaxed body filter\n\n";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+			int outputIndex, outputLength;
+			byte[] output;
+			string actual;
+
+			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
+			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestMultipleWhiteSpacesPerLine ()
+		{
+			const string text = "This is a test of the relaxed body filter with  \t multiple \t  spaces\n";
+			const string expected = "This is a test of the relaxed body filter with multiple spaces\n";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+			int outputIndex, outputLength;
+			byte[] output;
+			string actual;
+
+			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
+			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestNonEmptyBodyEndingWithMultipleNewLines ()
+		{
+			const string text = "This is a test of the relaxed body filter with a non-empty body ending with multiple new-lines\n\n\n";
+			const string expected = "This is a test of the relaxed body filter with a non-empty body ending with multiple new-lines\n";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+			int outputIndex, outputLength;
+			byte[] output;
+			string actual;
+
+			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
+			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.AreEqual (expected, actual);
+		}
+	}
+}
