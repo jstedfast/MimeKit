@@ -167,7 +167,7 @@ namespace MimeKit {
 			}
 
 			attachment.FileName = Path.GetFileName (fileName);
-			attachment.IsAttachment = true;
+			attachment.IsAttachment = !linked;
 
 			if (linked)
 				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
