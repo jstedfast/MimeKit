@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>1.2.10.0</version>
+        <version>1.2.11.0</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,14 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-        <releaseNotes>* Added public Stream property to IContentObject.
-* Implemented a better fix for illegal unquoted multi-line Content-Type and Content-Disposition parameter values. (issue #159)
-* Fixed the UrlScanner to properly handle "ftp." at the very end of the message text. (issue #161)
-* Fixed charset handling logic to not override charset aliases already in the cache.
+        <releaseNotes>* Fixed an IndexOutOfRangeException bug in the TextToHTML converter logic. (issue #165)
+* Fixed the DKIM-Signature verification logic to be more lenient in parsing DKIM-Signature headers. (issue #166)
+* Fixed the DKIM-Signature verification logic to error-out if the h= parameter does not include the From header. (issue #167)
+* Fixed the DKIM-Signature verification logic to make sure that the domain-name in the i= param matches (or is a subdomain of) the d= value. (issue #169)
+* Fixed the CharsetFilter to avoid calling Convert() on empty input.
+* Fixed logic for canonicalizing header values using the releaxed DKIM algorithm. (issue #171)
+* Fixed AttachmentCollection to mark embedded parts as inline instead of attachment.
+* Fixed the DKIM-Signature logic (both signing and verifying) to properly canonicalize the body content. (issue #172)
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>

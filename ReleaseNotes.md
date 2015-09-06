@@ -1,5 +1,21 @@
 # Release Notes
 
+### MimeKit 1.2.11
+
+* Fixed an IndexOutOfRangeException bug in the TextToHTML converter logic. (issue #165)
+* Fixed the DKIM-Signature verification logic to be more lenient in parsing DKIM-Signature
+  headers. (issue #166)
+* Fixed the DKIM-Signature verification logic to error-out if the h= parameter does not
+  include the From header. (issue #167)
+* Fixed the DKIM-Signature verification logic to make sure that the domain-name in the i=
+  param matches (or is a subdomain of) the d= value. (issue #169)
+* Fixed the CharsetFilter to avoid calling Convert() on empty input.
+* Fixed logic for canonicalizing header values using the releaxed DKIM algorithm.
+  (issue #171)
+* Fixed AttachmentCollection to mark embedded parts as inline instead of attachment.
+* Fixed the DKIM-Signature logic (both signing and verifying) to properly canonicalize the
+  body content. (issue #172)
+
 ### MimeKit 1.2.10
 
 * Added public Stream property to IContentObject.
