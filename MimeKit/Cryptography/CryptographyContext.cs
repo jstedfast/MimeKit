@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -216,7 +217,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
-		public abstract MimeEntity Decrypt (Stream encryptedData);
+		public abstract Task<MimeEntity> Decrypt(Stream encryptedData);
 
 		/// <summary>
 		/// Imports the public certificates or keys from the specified stream.

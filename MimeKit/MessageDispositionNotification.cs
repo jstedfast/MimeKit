@@ -71,32 +71,36 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the disposition notification fields.
 		/// </remarks>
-		/// <value>The fields.</value>
-		public HeaderList Fields {
-			get {
-				if (fields == null) {
-					if (ContentObject == null) {
-						ContentObject = new ContentObject (new MemoryBlockStream ());
-						fields = new HeaderList ();
-					} else {
-						using (var stream = ContentObject.Open ()) {
-							fields = HeaderList.Load (stream);
-						}
+		/// <returns>The fields.</returns>
+		public async Task<HeaderList> GetFields()
+		{
+			if (fields == null)
+			{
+				if (ContentObject == null)
+				{
+					ContentObject = new ContentObject(new MemoryBlockStream());
+					fields = new HeaderList();
+				}
+				else
+				{
+					using (var stream = ContentObject.Open())
+					{
+						fields = await HeaderList.Load(stream);
 					}
-
-					fields.Changed += (sender, e) => OnFieldsChanged(sender, e);
 				}
 
-				return fields;
+				fields.Changed += (sender, e) => OnFieldsChanged(sender, e);
 			}
+
+			return fields;
 		}
 
-	    async Task OnFieldsChanged (Object sender, HeaderListChangedEventArgs e)
+		async Task OnFieldsChanged (Object sender, HeaderListChangedEventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-            await fields.WriteTo (options, stream);
+			await fields.WriteTo (options, stream);
 			stream.Position = 0;
 
 			ContentObject = new ContentObject (stream);

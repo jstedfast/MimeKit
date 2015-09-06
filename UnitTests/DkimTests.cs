@@ -113,7 +113,7 @@ namespace UnitTests
 
 			var dkim = message.Headers[0];
 
-			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)).Result, "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -141,9 +141,9 @@ namespace UnitTests
 		}
 
 		[Test]
-		public void TestVerifyGoogleMailDkimSignature ()
+		public async void TestVerifyGoogleMailDkimSignature ()
 		{
-			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
+			var message = await MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			AsymmetricKeyParameter key;
 
@@ -154,7 +154,7 @@ namespace UnitTests
 				key = reader.ReadObject () as AsymmetricKeyParameter;
 			}
 
-			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
+			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)).Result, "Failed to verify GMail signature.");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
@@ -166,19 +166,19 @@ namespace UnitTests
 
 			var dkim = message.Headers[0];
 
-			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)).Result, "Failed to verify DKIM-Signature.");
 
 			message.Headers.RemoveAt (0);
 		}
 
 		[Test]
-		public void TestDkimSignVerifyJwzMbox ()
+		public async void TestDkimSignVerifyJwzMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					var message = await parser.ParseMessage ();
 
 					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
 						DkimCanonicalizationAlgorithm.Relaxed,

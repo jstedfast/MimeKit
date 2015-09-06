@@ -151,7 +151,7 @@ namespace MimeKit.Cryptography {
 
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
-				var parsed = parser.ParseEntity ();
+				var parsed = await parser.ParseEntity ();
 				memory.Position = 0;
 
 				// sign the cleartext content
@@ -237,7 +237,7 @@ namespace MimeKit.Cryptography {
 
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
-				var parsed = parser.ParseEntity ();
+				var parsed = await parser.ParseEntity ();
 				memory.Position = 0;
 
 				// sign the cleartext content
@@ -351,7 +351,7 @@ namespace MimeKit.Cryptography {
 
 				// Note: we need to parse the modified entity structure to preserve any modifications
 				var parser = new MimeParser (memory, MimeFormat.Entity);
-				var parsed = parser.ParseEntity ();
+				var parsed = await parser.ParseEntity ();
 				memory.Position = 0;
 
 				// sign the cleartext content

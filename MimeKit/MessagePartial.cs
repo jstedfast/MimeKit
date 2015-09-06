@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using MimeKit.IO;
 using MimeKit.Utils;
 
@@ -287,7 +287,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more partials is missing.</para>
 		/// </exception>
-		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
+		public static async Task<MimeMessage> Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -326,7 +326,7 @@ namespace MimeKit {
 
 				var parser = new MimeParser (options, chained);
 
-				return parser.ParseMessage ();
+				return await parser.ParseMessage ();
 			}
 		}
 
@@ -342,9 +342,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="partials"/>is <c>null</c>.
 		/// </exception>
-		public static MimeMessage Join (IEnumerable<MessagePartial> partials)
+		public static async Task<MimeMessage> Join (IEnumerable<MessagePartial> partials)
 		{
-			return Join (ParserOptions.Default, partials);
+			return await Join (ParserOptions.Default, partials);
 		}
 	}
 }

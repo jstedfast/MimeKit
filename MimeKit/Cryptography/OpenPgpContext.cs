@@ -29,7 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -1300,7 +1300,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
+		public VerifiedStream GetDecryptedVerifiedStream (Stream encryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -1416,6 +1416,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				memory.Position = 0;
+				DigitalSignatureCollection signatures;
 
 				if (signatureList != null) {
 					if (onepassList != null && signatureList.Count == onepassList.Count) {
@@ -1434,7 +1435,7 @@ namespace MimeKit.Cryptography {
 					signatures = null;
 				}
 
-				return memory;
+				return new VerifiedStream(memory, signatures);
 			}
 		}
 
@@ -1468,41 +1469,7 @@ namespace MimeKit.Cryptography {
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			return GetDecryptedStream (encryptedData, out signatures);
-		}
-
-		/// <summary>
-		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
-		/// </summary>
-		/// <remarks>
-		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
-		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
-		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encryptedData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found to decrypt the stream.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
-		/// An OpenPGP error occurred.
-		/// </exception>
-		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
-		{
-			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
-
-			var decrypted = GetDecryptedStream (encryptedData, out signatures);
-
-			return MimeEntity.Load (decrypted, true);
+			return GetDecryptedVerifiedStream (encryptedData).Memory;
 		}
 
 		/// <summary>
@@ -1528,14 +1495,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData)
+		public override async Task<MimeEntity> Decrypt (Stream encryptedData)
 		{
-			DigitalSignatureCollection signatures;
-
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
-			return Decrypt (encryptedData, out signatures);
+			var decryptedVerifiedStream = GetDecryptedVerifiedStream (encryptedData);
+			var decrypted = decryptedVerifiedStream.Memory;
+
+			return (new VerifiedMimeEntity(decryptedVerifiedStream.Signatures, await MimeEntity.Load(decrypted, true))).MimeEntity;
 		}
 
 		/// <summary>
@@ -1598,6 +1566,11 @@ namespace MimeKit.Cryptography {
 				File.Replace (tmp, SecretKeyRingPath, bak);
 			else
 				File.Move (tmp, SecretKeyRingPath);
+		}
+
+		internal Task<VerifiedMimeEntity> Decrypt(MemoryBlockStream memory)
+		{
+			throw new NotImplementedException();
 		}
 
 		/// <summary>

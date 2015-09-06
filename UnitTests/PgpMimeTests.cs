@@ -91,7 +91,7 @@ namespace UnitTests {
 				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
 				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
 
-				var signatures = multipart.Verify (ctx);
+				var signatures = multipart.Verify (ctx).Result;
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
 					try {
@@ -106,7 +106,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestPgpMimeEncryption ()
+		public async void TestPgpMimeEncryption ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -117,7 +117,7 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				message.Encrypt (ctx);
+                await message.Encrypt(ctx);
 
 				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
 
@@ -126,7 +126,7 @@ namespace UnitTests {
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt (ctx);
+				var decrypted = await encrypted.Decrypt (ctx);
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
@@ -134,7 +134,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestPgpMimeSignAndEncrypt ()
+		public async void TestPgpMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
@@ -145,7 +145,7 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				message.SignAndEncrypt (ctx);
+				await message.SignAndEncrypt (ctx);
 
 				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
 
@@ -155,7 +155,7 @@ namespace UnitTests {
 				//	encrypted.WriteTo (file);
 
 				DigitalSignatureCollection signatures;
-				var decrypted = encrypted.Decrypt (ctx, out signatures);
+				var decrypted = await encrypted.Decrypt (ctx, out signatures);
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");

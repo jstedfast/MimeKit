@@ -159,7 +159,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestChainedHeadersAndContent ()
+		public async void TestChainedHeadersAndContent ()
 		{
 			var buf = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\n");
 			var headers = new MemoryStream ();
@@ -177,7 +177,7 @@ namespace UnitTests {
 			chained.Add (headers);
 			chained.Add (content);
 
-			var entity = MimeEntity.Load (chained, true) as TextPart;
+			var entity = (await MimeEntity.Load (chained, true)) as TextPart;
 
 			Assert.AreEqual ("Hello, world!\r\n", entity.Text);
 		}

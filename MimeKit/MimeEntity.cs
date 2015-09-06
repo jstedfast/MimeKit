@@ -736,7 +736,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -774,7 +774,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (options, stream, false, cancellationToken);
 		}
@@ -807,7 +807,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
@@ -834,7 +834,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
@@ -879,7 +879,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MimeEntity> Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -888,7 +888,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
-				return Load (options, stream, cancellationToken);
+				return await Load (options, stream, cancellationToken);
 		}
 
 		/// <summary>
@@ -927,7 +927,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}
@@ -961,7 +961,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1010,7 +1010,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> Load (ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, contentType, content, cancellationToken);
 		}

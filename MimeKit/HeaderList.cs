@@ -1192,7 +1192,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static HeaderList Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<HeaderList> Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1202,7 +1202,7 @@ namespace MimeKit {
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity);
 
-			return parser.ParseHeaders (cancellationToken);
+			return await parser.ParseHeaders (cancellationToken);
 		}
 
 		/// <summary>
@@ -1227,7 +1227,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static HeaderList Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<HeaderList> Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, stream, cancellationToken);
 		}
@@ -1272,7 +1272,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static HeaderList Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<HeaderList> Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1281,7 +1281,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.OpenRead (fileName)) {
-				return Load (options, stream, cancellationToken);
+				return await Load (options, stream, cancellationToken);
 			}
 		}
 
@@ -1321,7 +1321,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static HeaderList Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<HeaderList> Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}

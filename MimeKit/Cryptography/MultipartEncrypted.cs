@@ -1247,7 +1247,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures)
+		public async Task<VerifiedMimeEntity> Decrypt (OpenPgpContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -1280,49 +1280,15 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				encrypted.ContentObject.DecodeTo (memory);
+				await encrypted.ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Decrypt (memory, out signatures);
+			    var mimeEntity = await ctx.Decrypt (memory);
+			    return mimeEntity;
 			}
 		}
 
-		/// <summary>
-		/// Decrypts the <see cref="MultipartEncrypted"/> part.
-		/// </summary>
-		/// <remarks>
-		/// Decrypts the <see cref="MultipartEncrypted"/> part.
-		/// </remarks>
-		/// <returns>The decrypted entity.</returns>
-		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// <para>The <c>protocol</c> parameter was not specified.</para>
-		/// <para>-or-</para>
-		/// <para>The multipart is malformed in some way.</para>
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found to decrypt the encrypted data.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx)
-		{
-			DigitalSignatureCollection signatures;
-
-			return Decrypt (ctx, out signatures);
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Decrypts the <see cref="MultipartEncrypted"/> part.
 		/// </summary>
 		/// <remarks>
@@ -1349,7 +1315,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (out DigitalSignatureCollection signatures)
+		public async Task<MimeEntity> Decrypt ()
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -1380,49 +1346,15 @@ namespace MimeKit.Cryptography {
 				using (var memory = new MemoryBlockStream ()) {
 					var pgp = ctx as OpenPgpContext;
 
-					encrypted.ContentObject.DecodeTo (memory);
+					await encrypted.ContentObject.DecodeTo (memory);
 					memory.Position = 0;
 
 					if (pgp != null)
-						return pgp.Decrypt (memory, out signatures);
+						return (await pgp.Decrypt (memory)).MimeEntity;
 
-					signatures = null;
-
-					return ctx.Decrypt (memory);
+					return await ctx.Decrypt (memory);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Decrypts the <see cref="MultipartEncrypted"/> part.
-		/// </summary>
-		/// <remarks>
-		/// Decrypts the <see cref="MultipartEncrypted"/> part.
-		/// </remarks>
-		/// <returns>The decrypted entity.</returns>
-		/// <exception cref="System.FormatException">
-		/// <para>The <c>protocol</c> parameter was not specified.</para>
-		/// <para>-or-</para>
-		/// <para>The multipart is malformed in some way.</para>
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// A suitable <see cref="MimeKit.Cryptography.CryptographyContext"/> for
-		/// decrypting could not be found.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found to decrypt the encrypted data.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		public MimeEntity Decrypt ()
-		{
-			DigitalSignatureCollection signatures;
-
-			return Decrypt (out signatures);
 		}
 	}
 }

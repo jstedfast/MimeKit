@@ -46,13 +46,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestHeaderParser ()
+		public async void TestHeaderParser ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = await HeaderList.Load (memory);
 					string value;
 
 					Assert.AreEqual (3, headers.Count, "Unexpected header count.");
@@ -75,13 +75,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSingleHeaderNoTerminator ()
+		public async void TestSingleHeaderNoTerminator ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = await HeaderList.Load (memory);
 
 					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
 
@@ -95,13 +95,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEmptyHeaders ()
+		public async void TestEmptyHeaders ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = await HeaderList.Load (memory);
 
 					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
@@ -111,13 +111,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEmptyMessage ()
+		public async void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var message = MimeMessage.Load (memory);
+					var message = await MimeMessage.Load (memory);
 
 					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
@@ -127,13 +127,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleMbox ()
+		public async void TestSimpleMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/simple.mbox.txt")) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					var message = await parser.ParseMessage ();
 					Multipart multipart;
 					MimeEntity entity;
 
@@ -155,7 +155,7 @@ namespace UnitTests {
 					Assert.IsInstanceOf<TextPart> (entity);
 
 					using (var memory = new MemoryStream ()) {
-						entity.WriteTo (UnixFormatOptions, memory);
+						await entity.WriteTo (UnixFormatOptions, memory);
 
 						var text = Encoding.ASCII.GetString (memory.ToArray ());
 						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
@@ -204,7 +204,7 @@ namespace UnitTests {
 
 			using (var stream = File.OpenRead ("../../TestData/messages/empty-multipart.txt")) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				var message = parser.ParseMessage ().Result;
 				var builder = new StringBuilder ();
 
 				DumpMimeTree (builder, message);
@@ -223,7 +223,7 @@ namespace UnitTests {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					var message = parser.ParseMessage ().Result;
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -257,7 +257,7 @@ namespace UnitTests {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					var message = parser.ParseMessage ().Result;
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -287,13 +287,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestJapaneseMessage ()
+		public async void TestJapaneseMessage ()
 		{
 			const string subject = "日本語メールテスト (testing Japanese emails)";
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
 			using (var stream = File.OpenRead ("../../TestData/messages/japanese.txt")) {
-				var message = MimeMessage.Load (stream);
+				var message = await MimeMessage.Load (stream);
 
 				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
 				Assert.AreEqual (body, message.TextBody, "Message text does not match.");

@@ -479,7 +479,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
-            Write(buffer, offset, count, CancellationToken.None).GetAwaiter ().GetResult ();
+            throw new NotSupportedException("Use WriteAsync.");
+            Write(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
         }
 
 		public override Task WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)

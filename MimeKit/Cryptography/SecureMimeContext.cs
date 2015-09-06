@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
@@ -516,7 +516,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decompress (Stream stream)
+		public Task<MimeEntity> Decompress (Stream stream)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -999,7 +999,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
+		public async Task<VerifiedMimeEntity> Verify (Stream signedData)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException ("signedData");
@@ -1007,9 +1007,9 @@ namespace MimeKit.Cryptography {
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
 
-			entity = MimeEntity.Load (signed.ContentStream);
+			var entity = await MimeEntity.Load (signed.ContentStream);
 
-			return GetDigitalSignatures (parser);
+			return new VerifiedMimeEntity(GetDigitalSignatures (parser), entity);
 		}
 
 		class VoteComparer : IComparer<int>
@@ -1214,7 +1214,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData)
+		public override async Task<MimeEntity> Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
@@ -1231,7 +1231,7 @@ namespace MimeKit.Cryptography {
 				var content = recipient.GetContent (key);
 				var memory = new MemoryStream (content, false);
 
-				return MimeEntity.Load (memory, true);
+				return await MimeEntity.Load (memory, true);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");

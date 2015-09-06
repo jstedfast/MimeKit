@@ -39,12 +39,12 @@ namespace UnitTests {
 		{
 			using (var file = File.OpenRead (path)) {
 				var parser = new MimeParser (file);
-				return parser.ParseMessage ();
+				return parser.ParseMessage ().Result;
 			}
 		}
 
 		[Test]
-		public void TestReassemble ()
+		public async void TestReassemble ()
 		{
 			var message1 = Load ("../../TestData/partial/message-partial.1.msg.txt");
 			var message2 = Load ("../../TestData/partial/message-partial.2.msg.txt");
@@ -56,7 +56,7 @@ namespace UnitTests {
 			Assert.IsTrue (message2.Body is MessagePartial, "The body of message-partial.2.msg is not a message/partial");
 
 			var partials = new MessagePartial[] { (MessagePartial) message1.Body, (MessagePartial) message2.Body };
-			var message = MessagePartial.Join (partials);
+			var message = await MessagePartial.Join (partials);
 
 			Assert.IsNotNull (message, "Failed to reconstruct the message");
 			Assert.AreEqual ("{15_3779; Victoria & Cherry}: suzeFan - 2377h003.jpg", message.Subject, "Subjects do not match");

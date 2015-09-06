@@ -40,7 +40,7 @@ namespace UnitTests {
 	public class MimeMessageTests
 	{
 		[Test]
-		public void TestReserialization ()
+		public async void TestReserialization ()
 		{
 			const string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
 Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
@@ -109,13 +109,13 @@ Just for fun....  -- Nathaniel<nl>
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText.Replace ("\r\n", "\n")))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				var message = await parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Unix;
 
-					message.WriteTo (options, serialized);
+                    await message.WriteTo(options, serialized);
 
 					result = Encoding.UTF8.GetString (serialized.ToArray ());
 				}

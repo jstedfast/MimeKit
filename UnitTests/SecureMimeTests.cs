@@ -65,17 +65,17 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeCompression ()
+		public async void TestSecureMimeCompression ()
 		{
 			var original = new TextPart ("plain");
 			original.Text = "This is some text that we'll end up compressing...";
 
 			using (var ctx = CreateContext ()) {
-				var compressed = ApplicationPkcs7Mime.Compress (ctx, original);
+				var compressed = ApplicationPkcs7Mime.Compress (ctx, original).Result;
 
 				Assert.AreEqual (SecureMimeType.CompressedData, compressed.SecureMimeType, "S/MIME type did not match.");
 
-				var decompressed = compressed.Decompress (ctx);
+				var decompressed = await compressed.Decompress (ctx);
 
 				Assert.IsInstanceOf<TextPart> (decompressed, "Decompressed part is not the expected type.");
 				Assert.AreEqual (original.Text, ((TextPart) decompressed).Text, "Decompressed content is not the same as the original.");
@@ -83,7 +83,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeEncapsulatedSigning ()
+		public async void TestSecureMimeEncapsulatedSigning ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
@@ -91,12 +91,13 @@ namespace UnitTests {
 			cleartext.Text = "This is some text that we'll end up signing...";
 
 			using (var ctx = CreateContext ()) {
-				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
-				MimeEntity extracted;
+				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext).Result;
 
 				Assert.AreEqual (SecureMimeType.SignedData, signed.SecureMimeType, "S/MIME type did not match.");
 
-				var signatures = signed.Verify (ctx, out extracted);
+			    var verifiedMimeEntity = await signed.Verify (ctx);
+                var extracted = verifiedMimeEntity.MimeEntity;
+                var signatures = verifiedMimeEntity.DigitalSignatureCollection;
 
 				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 				Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
@@ -154,7 +155,7 @@ namespace UnitTests {
 				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signatures = multipart.Verify (ctx);
+				var signatures = multipart.Verify (ctx).Result;
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
 					try {
@@ -190,7 +191,7 @@ namespace UnitTests {
 
 			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
-				message = parser.ParseMessage ();
+				message = parser.ParseMessage ().Result;
 			}
 
 			using (var ctx = CreateContext ()) {
@@ -203,7 +204,7 @@ namespace UnitTests {
 
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signatures = multipart.Verify (ctx);
+				var signatures = multipart.Verify (ctx).Result;
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
 					try {
@@ -227,7 +228,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeEncryption ()
+		public async void TestSecureMimeEncryption ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -238,7 +239,7 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
-				message.Encrypt (ctx);
+				await message.Encrypt (ctx);
 
 				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
 
@@ -246,7 +247,7 @@ namespace UnitTests {
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
-				var decrypted = encrypted.Decrypt (ctx);
+				var decrypted = await encrypted.Decrypt (ctx);
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
@@ -254,7 +255,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeDecryptThunderbird ()
+		public async void TestSecureMimeDecryptThunderbird ()
 		{
 			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
 			MimeMessage message;
@@ -264,7 +265,7 @@ namespace UnitTests {
 
 			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
-				message = parser.ParseMessage ();
+				message = await parser.ParseMessage ();
 			}
 
 			using (var ctx = CreateContext ()) {
@@ -279,7 +280,7 @@ namespace UnitTests {
 				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
 
 				try {
-					decrypted = encrypted.Decrypt (ctx);
+					decrypted = await encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
 					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
@@ -296,7 +297,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeSignAndEncrypt ()
+		public async void TestSecureMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "b7dd33847c3308dd9e12b4c3c94b545d76ab5e41");
@@ -308,7 +309,7 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
-				message.SignAndEncrypt (ctx);
+                await message.SignAndEncrypt(ctx);
 
 				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
 
@@ -318,7 +319,7 @@ namespace UnitTests {
 			}
 
 			using (var ctx = CreateContext ()) {
-				var decrypted = encrypted.Decrypt (ctx);
+				var decrypted = await encrypted.Decrypt (ctx);
 
 				// The decrypted part should be a multipart/signed
 				Assert.IsInstanceOf<MultipartSigned> (decrypted, "Expected the decrypted part to be a multipart/signed.");
@@ -330,7 +331,7 @@ namespace UnitTests {
 				var extracted = (TextPart) signed[0];
 				Assert.AreEqual (body.Text, extracted.Text, "The decrypted text part's text does not match the original.");
 
-				var signatures = signed.Verify (ctx);
+				var signatures = signed.Verify (ctx).Result;
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
@@ -361,7 +362,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeDecryptVerifyThunderbird ()
+		public async void TestSecureMimeDecryptVerifyThunderbird ()
 		{
 			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
 			MimeMessage message;
@@ -371,7 +372,7 @@ namespace UnitTests {
 
 			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
-				message = parser.ParseMessage ();
+				message = await parser.ParseMessage ();
 			}
 
 			using (var ctx = CreateContext ()) {
@@ -386,7 +387,7 @@ namespace UnitTests {
 				Assert.AreEqual ("enveloped-data", type, "Unexpected smime-type parameter.");
 
 				try {
-					decrypted = encrypted.Decrypt (ctx);
+					decrypted = await encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
 					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
@@ -407,7 +408,7 @@ namespace UnitTests {
 				Assert.IsInstanceOf<MimePart> (multipart[1], "Expected the second part of the decrypted multipart to be a MimePart.");
 				Assert.IsInstanceOf<MimePart> (multipart[2], "Expected the third part of the decrypted multipart to be a MimePart.");
 
-				var signatures = signed.Verify (ctx);
+				var signatures = signed.Verify (ctx).Result;
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {

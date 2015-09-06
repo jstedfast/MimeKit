@@ -72,40 +72,45 @@ namespace MimeKit {
 		/// contains the per-message fields while each of the following groups
 		/// contains fields that pertain to particular recipients of the message.
 		/// </remarks>
-		/// <value>The fields.</value>
-		public HeaderListCollection StatusGroups {
-			get {
-				if (groups == null) {
-					if (ContentObject == null) {
-						ContentObject = new ContentObject (new MemoryBlockStream ());
-						groups = new HeaderListCollection ();
-					} else {
-						groups = new HeaderListCollection ();
+		/// <returns>The fields.</returns>
+		public async Task<HeaderListCollection> GetStatusGroups()
+		{
+			if (groups == null)
+			{
+				if (ContentObject == null)
+				{
+					ContentObject = new ContentObject(new MemoryBlockStream());
+					groups = new HeaderListCollection();
+				}
+				else
+				{
+					groups = new HeaderListCollection();
 
-						using (var stream = ContentObject.Open ()) {
-							var parser = new MimeParser (stream, MimeFormat.Entity);
+					using (var stream = ContentObject.Open())
+					{
+						var parser = new MimeParser(stream, MimeFormat.Entity);
 
-							while (!parser.IsEndOfStream) {
-								var fields = parser.ParseHeaders ();
-								groups.Add (fields);
-							}
+						while (!parser.IsEndOfStream)
+						{
+							var fields = await parser.ParseHeaders();
+							groups.Add(fields);
 						}
 					}
-
-					groups.Changed += (sender, e) => OnGroupsChanged(sender, e);
 				}
 
-				return groups;
+				groups.Changed += (sender, e) => OnGroupsChanged(sender, e);
 			}
+
+			return groups;
 		}
 
-	    async Task OnGroupsChanged (Object sender, EventArgs e)
+		async Task OnGroupsChanged (Object sender, EventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
 			for (int i = 0; i < groups.Count; i++)
-                await groups[i].WriteTo (options, stream);
+				await groups[i].WriteTo (options, stream);
 
 			stream.Position = 0;
 

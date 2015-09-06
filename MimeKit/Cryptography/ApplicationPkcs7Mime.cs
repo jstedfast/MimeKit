@@ -175,7 +175,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decompress (SecureMimeContext ctx)
+		public async Task<MimeEntity> Decompress (SecureMimeContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -187,7 +187,7 @@ namespace MimeKit.Cryptography {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Decompress (memory);
+				return await ctx.Decompress (memory);
 			}
 		}
 
@@ -204,13 +204,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decompress ()
+		public async Task<MimeEntity> Decompress ()
 		{
 			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Decompress (ctx);
+				return await Decompress (ctx);
 			}
 		}
 
@@ -231,7 +231,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx)
+		public async Task<MimeEntity> Decrypt (SecureMimeContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -240,10 +240,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+		    	await ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Decrypt (memory);
+				return await ctx.Decrypt (memory);
 			}
 		}
 
@@ -260,10 +260,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt ()
+		public async Task<MimeEntity> Decrypt ()
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Decrypt (ctx);
+				return await Decrypt (ctx);
 			}
 		}
 
@@ -317,7 +317,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
+		public async Task<VerifiedMimeEntity> Verify (SecureMimeContext ctx)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException ("ctx");
@@ -326,10 +326,11 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				await ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Verify (memory, out entity);
+			    var verifiedMimeEntity = await ctx.Verify (memory);
+			    return verifiedMimeEntity;
 			}
 		}
 
@@ -347,10 +348,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (out MimeEntity entity)
+		public async Task<VerifiedMimeEntity> Verify ()
 		{
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Verify (ctx, out entity);
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
+			{
+			    return await Verify (ctx);
 			}
 		}
 

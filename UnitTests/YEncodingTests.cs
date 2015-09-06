@@ -40,10 +40,10 @@ namespace UnitTests {
 	public class YEncodingTests
 	{
 		[Test]
-		public void TestSimpleYEncMessage ()
+		public async void TestSimpleYEncMessage ()
 		{
 			using (var file = File.OpenRead ("../../TestData/yenc/simple.msg")) {
-				var message = MimeMessage.Load (file);
+				var message = await MimeMessage.Load (file);
 
 				using (var decoded = new MemoryStream ()) {
 					var ydec = new YDecoder ();
@@ -51,7 +51,7 @@ namespace UnitTests {
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
 
-						((MimePart) message.Body).ContentObject.WriteTo (filtered);
+						await ((MimePart) message.Body).ContentObject.WriteTo (filtered);
 						filtered.Flush ();
 					}
 
@@ -83,7 +83,7 @@ namespace UnitTests {
 							using (var filtered = new FilteredStream (original)) {
 								filtered.Add (new Dos2UnixFilter ());
 
-								((MimePart) message.Body).ContentObject.WriteTo (filtered);
+								await ((MimePart) message.Body).ContentObject.WriteTo (filtered);
 								filtered.Flush ();
 							}
 

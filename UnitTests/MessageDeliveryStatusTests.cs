@@ -38,9 +38,9 @@ namespace UnitTests {
 	public class MessageDeliveryStatusTests
 	{
 		[Test]
-		public void TestMimeParser ()
+		public async void TestMimeParser ()
 		{
-			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "delivery-status.txt"));
+			var message = await MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "delivery-status.txt"));
 
 			Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level body part to be a multipart/report.");
 
@@ -49,7 +49,7 @@ namespace UnitTests {
 			Assert.IsInstanceOf<MessageDeliveryStatus> (multipart[0], "Expected first part to be a message/delivery-status.");
 
 			var mds = (MessageDeliveryStatus) multipart[0];
-			var groups = mds.StatusGroups;
+			var groups = await mds.GetStatusGroups();
 
 			Assert.IsNotNull (groups, "Did not expect null status groups.");
 			Assert.AreEqual (2, groups.Count, "Expected 2 groups of headers.");
@@ -63,7 +63,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSerializedContent ()
+		public async void TestSerializedContent ()
 		{
 			const string expected = "Reporting-MTA: dns; mm1\nArrival-Date: Mon, 29 Jul 1996 02:12:50 -0700\n\nFinal-Recipient: RFC822; newsletter-request@imusic.com\nAction: failed\nDiagnostic-Code: X-LOCAL; 500 (err.nosuchuser)\n\n";
 			var mds = new MessageDeliveryStatus ();
@@ -77,15 +77,15 @@ namespace UnitTests {
 			recipient.Add ("Action", "failed");
 			recipient.Add ("Diagnostic-Code", "X-LOCAL; 500 (err.nosuchuser)");
 
-			mds.StatusGroups.Add (status);
-			mds.StatusGroups.Add (recipient);
+			(await mds.GetStatusGroups()).Add (status);
+			(await mds.GetStatusGroups()).Add (recipient);
 
-			Assert.IsTrue (mds.StatusGroups.Contains (status), "Expected the groups to contain the per-message status group.");
-			Assert.IsTrue (mds.StatusGroups.Contains (recipient), "Expected the groups to contain the recipient status group.");
-			Assert.IsFalse (mds.StatusGroups.IsReadOnly, "The status groups should not be read-only.");
+			Assert.IsTrue ((await mds.GetStatusGroups()).Contains (status), "Expected the groups to contain the per-message status group.");
+			Assert.IsTrue ((await mds.GetStatusGroups()).Contains (recipient), "Expected the groups to contain the recipient status group.");
+			Assert.IsFalse ((await mds.GetStatusGroups()).IsReadOnly, "The status groups should not be read-only.");
 
 			using (var memory = new MemoryStream ()) {
-				mds.ContentObject.DecodeTo (memory);
+				await mds.ContentObject.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
 				Assert.AreEqual (expected, text);
@@ -94,10 +94,10 @@ namespace UnitTests {
 			var dummy = new HeaderList ();
 			dummy.Add ("Dummy-Header", "dummy value");
 
-			mds.StatusGroups.Add (dummy);
+            (await mds.GetStatusGroups()).Add (dummy);
 
-			Assert.IsTrue (mds.StatusGroups.Contains (dummy), "Expected the groups to contain the dummy group.");
-			Assert.IsTrue (mds.StatusGroups.Remove (dummy), "Expected removal of the dummy group to be successful.");
+			Assert.IsTrue ((await mds.GetStatusGroups()).Contains (dummy), "Expected the groups to contain the dummy group.");
+			Assert.IsTrue ((await mds.GetStatusGroups()).Remove (dummy), "Expected removal of the dummy group to be successful.");
 
 			var expectedContent = mds.ContentObject;
 
@@ -105,10 +105,10 @@ namespace UnitTests {
 
 			Assert.AreEqual (expectedContent, mds.ContentObject, "The content should not have changed since the dummy group has been removed.");
 
-			mds.StatusGroups.Clear ();
+            (await mds.GetStatusGroups()).Clear ();
 
 			using (var memory = new MemoryStream ()) {
-				mds.ContentObject.DecodeTo (memory);
+				await mds.ContentObject.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
 

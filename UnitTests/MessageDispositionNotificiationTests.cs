@@ -37,9 +37,9 @@ namespace UnitTests {
 	public class MessageDispositionNotificiationTests
 	{
 		[Test]
-		public void TestMimeParser ()
+		public async void TestMimeParser ()
 		{
-			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "disposition-notification.txt"));
+			var message = await MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "disposition-notification.txt"));
 
 			Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level body part to be a multipart/report.");
 
@@ -48,7 +48,7 @@ namespace UnitTests {
 			Assert.IsInstanceOf<MessageDispositionNotification> (multipart[1], "Expected second part to be a message/disposition-notification.");
 
 			var mdn = (MessageDispositionNotification) multipart[1];
-			var fields = mdn.Fields;
+			var fields = await mdn.GetFields();
 
 			Assert.IsNotNull (fields, "Did not expect null set of fields.");
 			Assert.AreEqual (5, fields.Count, "Expected 5 fields.");
@@ -61,19 +61,19 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSerializedContent ()
+		public async void TestSerializedContent ()
 		{
 			const string expected = "Reporting-UA: joes-pc.cs.example.com; Foomail 97.1\nOriginal-Recipient: rfc822;Joe_Recipient@example.com\nFinal-Recipient: rfc822;Joe_Recipient@example.com\nOriginal-Message-ID: <199509192301.23456@example.org>\nDisposition: manual-action/MDN-sent-manually; displayed\n\n";
 			var mdn = new MessageDispositionNotification ();
 
-			mdn.Fields.Add ("Reporting-UA", "joes-pc.cs.example.com; Foomail 97.1");
-			mdn.Fields.Add ("Original-Recipient", "rfc822;Joe_Recipient@example.com");
-			mdn.Fields.Add ("Final-Recipient", "rfc822;Joe_Recipient@example.com");
-			mdn.Fields.Add ("Original-Message-ID", "<199509192301.23456@example.org>");
-			mdn.Fields.Add ("Disposition", "manual-action/MDN-sent-manually; displayed");
+			(await mdn.GetFields()).Add ("Reporting-UA", "joes-pc.cs.example.com; Foomail 97.1");
+			(await mdn.GetFields()).Add ("Original-Recipient", "rfc822;Joe_Recipient@example.com");
+			(await mdn.GetFields()).Add ("Final-Recipient", "rfc822;Joe_Recipient@example.com");
+			(await mdn.GetFields()).Add ("Original-Message-ID", "<199509192301.23456@example.org>");
+			(await mdn.GetFields()).Add ("Disposition", "manual-action/MDN-sent-manually; displayed");
 
 			using (var memory = new MemoryStream ()) {
-				mdn.ContentObject.DecodeTo (memory);
+				await mdn.ContentObject.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
 				Assert.AreEqual (expected, text);
