@@ -10,7 +10,7 @@
 * Fixed the DKIM-Signature verification logic to make sure that the domain-name in the i=
   param matches (or is a subdomain of) the d= value. (issue #169)
 * Fixed the CharsetFilter to avoid calling Convert() on empty input.
-* Fixed logic for canonicalizing header values using the releaxed DKIM algorithm.
+* Fixed logic for canonicalizing header values using the relaxed DKIM algorithm.
   (issue #171)
 * Fixed AttachmentCollection to mark embedded parts as inline instead of attachment.
 * Fixed the DKIM-Signature logic (both signing and verifying) to properly canonicalize the
