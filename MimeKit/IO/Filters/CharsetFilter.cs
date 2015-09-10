@@ -194,6 +194,8 @@ namespace MimeKit.IO.Filters {
 					charIndex += nwritten;
 					inputIndex += nread;
 					inputLeft -= nread;
+				} else {
+					decoded = true;
 				}
 				
 				charsLeft = charIndex;
