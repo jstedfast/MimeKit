@@ -215,7 +215,7 @@ namespace MimeKit.IO.Filters {
 
 			outputLength = outputOffset;
 			outputIndex = 0;
-				
+
 			return OutputBuffer;
 		}
 
