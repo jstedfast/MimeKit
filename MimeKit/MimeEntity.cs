@@ -327,28 +327,29 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
-		/// </summary>
-		/// <remarks>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
-		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
-		public override string ToString ()
-		{
-			using (var memory = new MemoryStream ()) {
-                WriteTo(memory).GetAwaiter ().GetResult ();
+        /// <summary>
+        /// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+        /// </summary>
+        /// <remarks>
+        /// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+        /// </remarks>
+        /// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
+        public async Task<string> GetStringAsync()
+        {
+            using (var memory = new MemoryStream())
+            {
+                await WriteTo(memory);
 
 #if !PORTABLE && !COREFX
-				var buffer = memory.GetBuffer ();
+                var buffer = memory.GetBuffer();
 #else
 				var buffer = memory.ToArray ();
 #endif
-				int count = (int) memory.Length;
+                int count = (int)memory.Length;
 
-				return CharsetUtils.Latin1.GetString (buffer, 0, count);
-			}
-		}
+                return CharsetUtils.Latin1.GetString(buffer, 0, count);
+            }
+        }
 
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.

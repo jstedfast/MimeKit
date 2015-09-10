@@ -387,7 +387,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override int Read (byte[] buffer, int offset, int count)
 		{
-            return Read(buffer, offset, count, CancellationToken.None).GetAwaiter ().GetResult ();
+		    throw new Exception("Use ReadAsync");
+//            return Read(buffer, offset, count, CancellationToken.None);
         }
 
 		public override Task<Int32> ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)
@@ -479,8 +480,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Write (byte[] buffer, int offset, int count)
 		{
-            throw new NotSupportedException("Use WriteAsync.");
-            Write(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
+		    throw new NotSupportedException("Use WriteAsync");
+//            Write(buffer, offset, count, CancellationToken.None);
         }
 
 		public override Task WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellationToken)
@@ -574,7 +575,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override void Flush ()
 		{
-            Flush(CancellationToken.None).GetAwaiter ().GetResult ();
+		    throw new Exception("Use FlushAsync");
+//            Flush(CancellationToken.None);
         }
 
 		public override Task FlushAsync(CancellationToken cancellationToken)

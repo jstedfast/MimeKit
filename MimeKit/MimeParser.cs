@@ -923,11 +923,11 @@ namespace MimeKit {
 				state = format == MimeFormat.Mbox ? MimeParserState.MboxMarker : MimeParserState.MessageHeaders;
 				break;
 			case MimeParserState.MboxMarker:
-				StepMboxMarker ();
+				await StepMboxMarker ();
 				break;
 			case MimeParserState.MessageHeaders:
 			case MimeParserState.Headers:
-				StepHeaders ();
+				await StepHeaders ();
 				break;
 			case MimeParserState.Content:
 				break;
@@ -1450,18 +1450,10 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<MimeEntity> ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
+		public Task<MimeEntity> ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
-
-			unsafe
-			{
-				fixed (byte* inbuf = input)
-				{
-					_inbuf = inbuf;
-					return ParseEntityAsync().GetAwaiter().GetResult();
-				}
-			}
+			return ParseEntityAsync();
 		}
 
 		async Task<MimeMessage> ParseMessageAsync ()
@@ -1554,17 +1546,12 @@ namespace MimeKit {
 				_inbufHandle = GCHandle.Alloc(input, GCHandleType.Pinned);
 				_inbuf = (byte*)_inbufHandle.AddrOfPinnedObject().ToPointer();
 			}
-				
-//                fixed (byte* inbuf = input)
-//                {
-//                    _inbuf = inbuf;
+
 			try {
 				return await ParseMessageAsync();
 			} finally {
 				_inbufHandle.Free();
 			}
-//                }
-			
 		}
 	}
 }

@@ -916,10 +916,10 @@ namespace MimeKit {
 		/// to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</para>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
-		public override string ToString ()
+		public async Task<string> GetStringAsync()
 		{
 			using (var memory = new MemoryStream ()) {
-                WriteTo(FormatOptions.Default, memory).GetAwaiter ().GetResult ();
+                await WriteTo(FormatOptions.Default, memory);
 
 #if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();

@@ -195,24 +195,26 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxSize"/> is less than <c>1</c>.
 		/// </exception>
-		public static IEnumerable<MimeMessage> Split (MimeMessage message, int maxSize)
+		public static async Task<IEnumerable<MimeMessage>> Split (MimeMessage message, int maxSize)
 		{
-			if (message == null)
+		    if (message == null)
 				throw new ArgumentNullException ("message");
 
 			if (maxSize < 1)
 				throw new ArgumentOutOfRangeException ("maxSize");
 
-			using (var memory = new MemoryStream ()) {
-				message.WriteTo (memory).GetAwaiter ().GetResult ();
+		    var split = new List<MimeMessage>();
+		    using (var memory = new MemoryStream ()) {
+				await message.WriteTo (memory);
 				memory.Seek (0, SeekOrigin.Begin);
 
-				if (memory.Length <= maxSize) {
-					yield return message;
-					yield break;
+				if (memory.Length <= maxSize)
+				{
+				    split.Add(message);
+				    return split;
 				}
 
-				var streams = new List<Stream> ();
+			    var streams = new List<Stream> ();
 #if !PORTABLE && !COREFX
 				var buf = memory.GetBuffer ();
 #else
@@ -250,11 +252,11 @@ namespace MimeKit {
 					submessage.MessageId = MimeUtils.GenerateMessageId ();
 					submessage.Body = part;
 
-					yield return submessage;
+					split.Add(submessage);
 				}
 			}
 
-			yield break;
+			return split;
 		}
 
 		static int PartialCompare (MessagePartial partial1, MessagePartial partial2)

@@ -184,7 +184,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				await ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
 				return await ctx.Decompress (memory);
