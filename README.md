@@ -1,5 +1,7 @@
 # MimeKit
 
+[![Join the chat at https://gitter.im/jstedfast/MimeKit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jstedfast/MimeKit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/pr)](http://www.issuestats.com/github/jstedfast/MimeKit)
 [![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/issue)](http://www.issuestats.com/github/jstedfast/MimeKit)
 
