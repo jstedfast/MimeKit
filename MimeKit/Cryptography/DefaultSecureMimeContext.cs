@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
@@ -457,23 +457,23 @@ namespace MimeKit.Cryptography {
 			dbase.Add (new X509CrlRecord (crl));
 		}
 
-		/// <summary>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
-		/// </summary>
-		/// <remarks>
-		/// Imports all of the certificates and keys from the pkcs12-encoded stream.
-		/// </remarks>
-		/// <param name="stream">The raw certificate and key data.</param>
-		/// <param name="password">The password to unlock the data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public override void Import (Stream stream, string password)
+	    /// <summary>
+	    /// Imports certificates and keys from a pkcs12-encoded stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Imports all of the certificates and keys from the pkcs12-encoded stream.
+	    /// </remarks>
+	    /// <param name="stream">The raw certificate and key data.</param>
+	    /// <param name="password">The password to unlock the data.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="stream"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="password"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="Org.BouncyCastle.Cms.CmsException">
+	    /// An error occurred in the cryptographic message syntax subsystem.
+	    /// </exception>
+	    public override Task Import (Stream stream, string password)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -521,6 +521,8 @@ namespace MimeKit.Cryptography {
 						dbase.Add (new X509CertificateRecord (entry.Certificate));
 				}
 			}
+
+            return Task.FromResult(true);
 		}
 
 		#endregion

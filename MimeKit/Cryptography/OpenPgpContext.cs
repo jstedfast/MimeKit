@@ -609,82 +609,82 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		/// <summary>
-		/// Cryptographically signs the content.
-		/// </summary>
-		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="digestAlgo"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// A signing key could not be found for <paramref name="signer"/>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
-		{
-			if (signer == null)
-				throw new ArgumentNullException ("signer");
+        /// <summary>
+        /// Cryptographically signs the content.
+        /// </summary>
+        /// <remarks>
+        /// Cryptographically signs the content using the specified signer and digest algorithm.
+        /// </remarks>
+        /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+        /// containing the detached signature data.</returns>
+        /// <param name="signer">The signer.</param>
+        /// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        /// <param name="content">The content.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <para><paramref name="signer"/> is <c>null</c>.</para>
+        /// <para>-or-</para>
+        /// <para><paramref name="content"/> is <c>null</c>.</para>
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <paramref name="digestAlgo"/> is out of range.
+        /// </exception>
+        /// <exception cref="System.NotSupportedException">
+        /// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+        /// </exception>
+        /// <exception cref="PrivateKeyNotFoundException">
+        /// A signing key could not be found for <paramref name="signer"/>.
+        /// </exception>
+        /// <exception cref="System.OperationCanceledException">
+        /// The user chose to cancel the password prompt.
+        /// </exception>
+        /// <exception cref="System.UnauthorizedAccessException">
+        /// 3 bad attempts were made to unlock the secret key.
+        /// </exception>
+        public override async Task<MimePart> Sign(MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+        {
+            if (signer == null)
+                throw new ArgumentNullException("signer");
 
-			if (content == null)
-				throw new ArgumentNullException ("content");
+            if (content == null)
+                throw new ArgumentNullException("content");
 
-			var key = GetSigningKey (signer);
+            var key = GetSigningKey(signer);
 
-			return Sign (key, digestAlgo, content);
-		}
+            return await Sign(key, digestAlgo, content);
+        }
 
-		/// <summary>
-		/// Cryptographically signs the content.
-		/// </summary>
-		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="signer"/> cannot be used for signing.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// The <paramref name="digestAlgo"/> was out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The <paramref name="digestAlgo"/> is not supported.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content)
+        /// <summary>
+        /// Cryptographically signs the content.
+        /// </summary>
+        /// <remarks>
+        /// Cryptographically signs the content using the specified signer and digest algorithm.
+        /// </remarks>
+        /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+        /// containing the detached signature data.</returns>
+        /// <param name="signer">The signer.</param>
+        /// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+        /// <param name="content">The content.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <para><paramref name="signer"/> is <c>null</c>.</para>
+        /// <para>-or-</para>
+        /// <para><paramref name="content"/> is <c>null</c>.</para>
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// <paramref name="signer"/> cannot be used for signing.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// The <paramref name="digestAlgo"/> was out of range.
+        /// </exception>
+        /// <exception cref="System.NotSupportedException">
+        /// The <paramref name="digestAlgo"/> is not supported.
+        /// </exception>
+        /// <exception cref="System.OperationCanceledException">
+        /// The user chose to cancel the password prompt.
+        /// </exception>
+        /// <exception cref="System.UnauthorizedAccessException">
+        /// 3 bad attempts were made to unlock the secret key.
+        /// </exception>
+        public async Task<ApplicationPgpSignature> Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -707,16 +707,16 @@ namespace MimeKit.Cryptography {
 
 					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
 
-					while ((nread = content.Read (buf, 0, buf.Length)) > 0)
+					while ((nread = await content.ReadAsync (buf, 0, buf.Length)) > 0)
 						signatureGenerator.Update (buf, 0, nread);
 
 					var signature = signatureGenerator.Generate ();
 
 					signature.Encode (compressed);
-					compressed.Flush ();
+					await compressed.FlushAsync ();
 				}
 
-				armored.Flush ();
+				await armored.FlushAsync ();
 			}
 
 			memory.Position = 0;
@@ -878,30 +878,30 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
-		/// </summary>
-		/// <remarks>
-		/// Encrypts the specified content for the specified recipients.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
-		/// <para>-or-</para>
-		/// <para>No recipients were specified.</para>
-		/// </exception>
-		/// <exception cref="PublicKeyNotFoundException">
-		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
-		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
+	    /// <summary>
+	    /// Encrypts the specified content for the specified recipients.
+	    /// </summary>
+	    /// <remarks>
+	    /// Encrypts the specified content for the specified recipients.
+	    /// </remarks>
+	    /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+	    /// containing the encrypted data.</returns>
+	    /// <param name="recipients">The recipients.</param>
+	    /// <param name="content">The content.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="recipients"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="content"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentException">
+	    /// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+	    /// <para>-or-</para>
+	    /// <para>No recipients were specified.</para>
+	    /// </exception>
+	    /// <exception cref="PublicKeyNotFoundException">
+	    /// A public key could not be found for one or more of the <paramref name="recipients"/>.
+	    /// </exception>
+	    public override Task<MimePart> Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -913,7 +913,7 @@ namespace MimeKit.Cryptography {
 			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
-		static Stream Compress (Stream content)
+		static async Task<Stream> Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryBlockStream ();
@@ -922,11 +922,11 @@ namespace MimeKit.Cryptography {
 				var literalGenerator = new PgpLiteralDataGenerator ();
 
 				using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-					content.CopyTo (literal, 4096);
-					literal.Flush ();
+					await content.CopyToAsync (literal, 4096);
+					await literal.FlushAsync ();
 				}
 
-				compressed.Flush ();
+				await compressed.FlushAsync ();
 			}
 
 			memory.Position = 0;
@@ -934,19 +934,19 @@ namespace MimeKit.Cryptography {
 			return memory;
 		}
 
-		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
+		static async Task<Stream> Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
 		{
 			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
-				using (var compressed = Compress (content)) {
+				using (var compressed = await Compress (content)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						compressed.CopyTo (encrypted, 4096);
-						encrypted.Flush ();
+						await compressed.CopyToAsync (encrypted, 4096);
+						await encrypted.FlushAsync ();
 					}
 				}
 
-				armored.Flush ();
+				await armored.FlushAsync ();
 			}
 
 			memory.Position = 0;
@@ -997,7 +997,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The specified encryption algorithm is not supported.
 		/// </exception>
-		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public async Task<MimePart> Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException ("recipients");
@@ -1022,7 +1022,7 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No recipients specified.", "recipients");
 
-			var encrypted = Encrypt (encrypter, content);
+			var encrypted = await Encrypt (encrypter, content);
 
 			return new MimePart ("application", "octet-stream") {
 				ContentDisposition = new ContentDisposition ("attachment"),
@@ -1050,7 +1050,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
-		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
+		public Task<MimePart> Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			return Encrypt (defaultAlgorithm, recipients, content);
 		}
@@ -1097,7 +1097,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
+		public Task<MimePart> SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -1149,7 +1149,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public async Task<MimePart> SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -1206,16 +1206,16 @@ namespace MimeKit.Cryptography {
 
 						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
 							signatureGenerator.Update (buf, 0, nread);
-							literal.Write (buf, 0, nread);
+							await literal.WriteAsync (buf, 0, nread);
 						}
 
-						literal.Flush ();
+						await literal.FlushAsync ();
 					}
 
 					var signature = signatureGenerator.Generate ();
 					signature.Encode (signed);
 
-					signed.Flush ();
+					await signed.FlushAsync ();
 				}
 
 				compressed.Position = 0;
@@ -1223,11 +1223,11 @@ namespace MimeKit.Cryptography {
 				var memory = new MemoryBlockStream ();
 				using (var armored = new ArmoredOutputStream (memory)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						compressed.CopyTo (encrypted, 4096);
-						encrypted.Flush ();
+						await compressed.CopyToAsync (encrypted, 4096);
+						await encrypted.FlushAsync ();
 					}
 
-					armored.Flush ();
+					await armored.FlushAsync ();
 				}
 
 				memory.Position = 0;
@@ -1271,7 +1271,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public Task<MimePart> SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content);
 		}

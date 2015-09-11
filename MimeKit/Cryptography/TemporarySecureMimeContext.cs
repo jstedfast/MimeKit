@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
@@ -269,20 +269,20 @@ namespace MimeKit.Cryptography {
 			capabilities[certificate] = algorithms;
 		}
 
-		/// <summary>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
-		/// </summary>
-		/// <remarks>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
-		/// </remarks>
-		/// <param name="stream">The raw certificate and key data.</param>
-		/// <param name="password">The password to unlock the stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
-		/// </exception>
-		public override void Import (Stream stream, string password)
+	    /// <summary>
+	    /// Imports certificates and keys from a pkcs12-encoded stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Imports certificates and keys from a pkcs12-encoded stream.
+	    /// </remarks>
+	    /// <param name="stream">The raw certificate and key data.</param>
+	    /// <param name="password">The password to unlock the stream.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="stream"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="password"/> is <c>null</c>.</para>
+	    /// </exception>
+	    public override Task Import (Stream stream, string password)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -306,6 +306,8 @@ namespace MimeKit.Cryptography {
 					certificates.Add (entry.Certificate);
 				}
 			}
+
+            return Task.FromResult(true);
 		}
 
 		/// <summary>

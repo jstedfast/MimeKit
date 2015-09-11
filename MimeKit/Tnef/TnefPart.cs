@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
 #else
@@ -119,7 +119,7 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
+		static async Task ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
 			var prop = reader.TnefPropertyReader;
 
@@ -151,7 +151,7 @@ namespace MimeKit.Tnef {
 							filtered.Add (converter);
 
 							using (var compressed = prop.GetRawValueReadStream ()) {
-								compressed.CopyTo (filtered, 4096);
+								await compressed.CopyToAsync (filtered, 4096);
 								filtered.Flush ();
 							}
 						}
@@ -188,7 +188,7 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
+		static async Task ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
 			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
@@ -266,7 +266,7 @@ namespace MimeKit.Tnef {
 							// the rest is content
 							using (var filtered = new FilteredStream (content)) {
 								filtered.Add (filter);
-								stream.CopyTo (filtered, 4096);
+								await stream.CopyToAsync (filtered, 4096);
 								filtered.Flush ();
 							}
 

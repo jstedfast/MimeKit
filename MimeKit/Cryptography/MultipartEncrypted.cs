@@ -608,7 +608,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				encrypted.Add (await ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -738,7 +738,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
+				encrypted.Add (await ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -814,7 +814,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
+				encrypted.Add (await ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory));
 
 				return encrypted;
 			}
@@ -987,7 +987,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (recipients, memory));
+				encrypted.Add (await ctx.Encrypt (recipients, memory));
 
 				return encrypted;
 			}
@@ -1082,7 +1082,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (algorithm, recipients, memory));
+				encrypted.Add (await ctx.Encrypt (algorithm, recipients, memory));
 
 				return encrypted;
 			}
@@ -1138,7 +1138,7 @@ namespace MimeKit.Cryptography {
 				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
-				encrypted.Add (ctx.Encrypt (recipients, memory));
+				encrypted.Add (await ctx.Encrypt (recipients, memory));
 
 				return encrypted;
 			}

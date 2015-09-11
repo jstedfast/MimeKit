@@ -425,7 +425,7 @@ namespace MimeKit.Cryptography {
 			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
-		static byte[] ReadAllBytes (Stream stream)
+		static async Task<byte[]> ReadAllBytes (Stream stream)
 		{
 			if (stream is MemoryBlockStream)
 				return ((MemoryBlockStream) stream).ToArray ();
@@ -434,40 +434,40 @@ namespace MimeKit.Cryptography {
 				return ((MemoryStream) stream).ToArray ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				stream.CopyTo (memory, 4096);
+				await stream.CopyToAsync (memory, 4096);
 				return memory.ToArray ();
 			}
 		}
 
-		/// <summary>
-		/// Sign and encapsulate the content using the specified signer.
-		/// </summary>
-		/// <remarks>
-		/// Sign and encapsulate the content using the specified signer.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="digestAlgo"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for <paramref name="signer"/>.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+	    /// <summary>
+	    /// Sign and encapsulate the content using the specified signer.
+	    /// </summary>
+	    /// <remarks>
+	    /// Sign and encapsulate the content using the specified signer.
+	    /// </remarks>
+	    /// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+	    /// containing the detached signature data.</returns>
+	    /// <param name="signer">The signer.</param>
+	    /// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+	    /// <param name="content">The content.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="signer"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="content"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <paramref name="digestAlgo"/> is out of range.
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A signing certificate could not be found for <paramref name="signer"/>.
+	    /// </exception>
+	    /// <exception cref="System.Security.Cryptography.CryptographicException">
+	    /// An error occurred in the cryptographic message syntax subsystem.
+	    /// </exception>
+	    public override async Task<ApplicationPkcs7Mime> EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -475,7 +475,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var contentInfo = new ContentInfo (await ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 			var signed = new SignedCms (contentInfo, false);
 			signed.ComputeSignature (cmsSigner);
@@ -484,35 +484,35 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, new MemoryStream (signedData, false));
 		}
 
-		/// <summary>
-		/// Sign the content using the specified signer.
-		/// </summary>
-		/// <remarks>
-		/// Sign the content using the specified signer.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="digestAlgo"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for <paramref name="signer"/>.
-		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+	    /// <summary>
+	    /// Sign the content using the specified signer.
+	    /// </summary>
+	    /// <remarks>
+	    /// Sign the content using the specified signer.
+	    /// </remarks>
+	    /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+	    /// containing the detached signature data.</returns>
+	    /// <param name="signer">The signer.</param>
+	    /// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+	    /// <param name="content">The content.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="signer"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="content"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <paramref name="digestAlgo"/> is out of range.
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A signing certificate could not be found for <paramref name="signer"/>.
+	    /// </exception>
+	    /// <exception cref="System.Security.Cryptography.CryptographicException">
+	    /// An error occurred in the cryptographic message syntax subsystem.
+	    /// </exception>
+	    public override async Task<MimePart> Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
 				throw new ArgumentNullException ("signer");
@@ -520,7 +520,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException ("content");
 
-			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var contentInfo = new ContentInfo (await ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 			var signed = new SignedCms (contentInfo, true);
 			signed.ComputeSignature (cmsSigner);
@@ -543,21 +543,21 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<MimeEntity> Decrypt (Stream encryptedData)
+		public override async Task<MimeEntity> Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 
 			var enveloped = new EnvelopedCms ();
 
-			enveloped.Decode (ReadAllBytes (encryptedData));
+			enveloped.Decode (await ReadAllBytes (encryptedData));
 			enveloped.Decrypt ();
 
 			var decryptedData = enveloped.Encode ();
 
 			var memory = new MemoryStream (decryptedData, false);
 
-			return MimeEntity.Load (memory, true);
+			return await MimeEntity.Load (memory, true);
 		}
 
 		/// <summary>
@@ -600,23 +600,23 @@ namespace MimeKit.Cryptography {
 			// TODO: figure out where to store the CRLs...
 		}
 
-		/// <summary>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
-		/// </summary>
-		/// <remarks>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
-		/// </remarks>
-		/// <param name="stream">The raw certificate and key data.</param>
-		/// <param name="password">The password to unlock the stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
-		public override void Import (Stream stream, string password)
+	    /// <summary>
+	    /// Imports certificates and keys from a pkcs12-encoded stream.
+	    /// </summary>
+	    /// <remarks>
+	    /// Imports certificates and keys from a pkcs12-encoded stream.
+	    /// </remarks>
+	    /// <param name="stream">The raw certificate and key data.</param>
+	    /// <param name="password">The password to unlock the stream.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="stream"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="password"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// Importing keys is not supported by this cryptography context.
+	    /// </exception>
+	    public override async Task Import (Stream stream, string password)
 		{
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
@@ -624,7 +624,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException ("password");
 
-			var rawData = ReadAllBytes (stream);
+			var rawData = await ReadAllBytes (stream);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var certs = new X509Certificate2Collection ();
 

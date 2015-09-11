@@ -143,32 +143,32 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
 
-		/// <summary>
-		/// Cryptographically signs the content.
-		/// </summary>
-		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the detached signature data.</returns>
-		/// <param name="signer">The signer.</param>
-		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="digestAlgo"/> is out of range.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A signing certificate could not be found for <paramref name="signer"/>.
-		/// </exception>
-		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content);
+	    /// <summary>
+	    /// Cryptographically signs the content.
+	    /// </summary>
+	    /// <remarks>
+	    /// Cryptographically signs the content using the specified signer and digest algorithm.
+	    /// </remarks>
+	    /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+	    /// containing the detached signature data.</returns>
+	    /// <param name="signer">The signer.</param>
+	    /// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+	    /// <param name="content">The content.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="signer"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="content"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <paramref name="digestAlgo"/> is out of range.
+	    /// </exception>
+	    /// <exception cref="System.NotSupportedException">
+	    /// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A signing certificate could not be found for <paramref name="signer"/>.
+	    /// </exception>
+	    public abstract Task<MimePart> Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content);
 
 		/// <summary>
 		/// Verifies the specified content using the detached signatureData.
@@ -186,25 +186,25 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public abstract DigitalSignatureCollection Verify (Stream content, Stream signatureData);
 
-		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
-		/// </summary>
-		/// <remarks>
-		/// Encrypts the specified content for the specified recipients.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
-		/// </exception>
-		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
+	    /// <summary>
+	    /// Encrypts the specified content for the specified recipients.
+	    /// </summary>
+	    /// <remarks>
+	    /// Encrypts the specified content for the specified recipients.
+	    /// </remarks>
+	    /// <returns>A new <see cref="MimeKit.MimePart"/> instance
+	    /// containing the encrypted data.</returns>
+	    /// <param name="recipients">The recipients.</param>
+	    /// <param name="content">The content.</param>
+	    /// <exception cref="System.ArgumentNullException">
+	    /// <para><paramref name="recipients"/> is <c>null</c>.</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="content"/> is <c>null</c>.</para>
+	    /// </exception>
+	    /// <exception cref="CertificateNotFoundException">
+	    /// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+	    /// </exception>
+	    public abstract Task<MimePart> Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
 		/// Decrypts the specified encryptedData.

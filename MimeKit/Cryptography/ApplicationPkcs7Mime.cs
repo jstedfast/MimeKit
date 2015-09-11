@@ -536,7 +536,7 @@ namespace MimeKit.Cryptography {
                 await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
-				return (ApplicationPkcs7Mime) ctx.Encrypt (recipients, memory);
+				return (ApplicationPkcs7Mime) (await ctx.Encrypt (recipients, memory));
 			}
 		}
 
@@ -619,7 +619,7 @@ namespace MimeKit.Cryptography {
                 await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
-				return ctx.EncapsulatedSign (signer, memory);
+				return await ctx.EncapsulatedSign (signer, memory);
 			}
 		}
 
@@ -703,7 +703,7 @@ namespace MimeKit.Cryptography {
                 await entity.WriteTo (options, memory);
 				memory.Position = 0;
 
-				return ctx.EncapsulatedSign (signer, digestAlgo, memory);
+				return await ctx.EncapsulatedSign (signer, digestAlgo, memory);
 			}
 		}
 
