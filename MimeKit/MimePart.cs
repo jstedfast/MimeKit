@@ -362,9 +362,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<ContentEncoding> GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return GetBestEncoding (constraint, 78, cancellationToken);
+			return await GetBestEncoding (constraint, 78, cancellationToken);
 		}
 
 		/// <summary>
@@ -388,7 +388,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<ContentEncoding> GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ContentObject == null)
 				return ContentEncoding.SevenBit;
@@ -398,8 +398,8 @@ namespace MimeKit {
 					var filter = new BestEncodingFilter ();
 
 					filtered.Add (filter);
-					ContentObject.DecodeTo (filtered, cancellationToken);
-					filtered.Flush ();
+					await ContentObject.DecodeTo (filtered, cancellationToken);
+					await filtered.FlushAsync (cancellationToken);
 
 					return filter.GetBestEncoding (constraint, maxLineLength);
 				}
@@ -483,20 +483,20 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Prepare the MIME entity for transport using the specified encoding constraints.
-		/// </summary>
-		/// <remarks>
-		/// Prepares the MIME entity for transport using the specified encoding constraints.
-		/// </remarks>
-		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="constraint"/> is not a valid value.</para>
-		/// </exception>
-		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+	    /// <summary>
+	    /// Prepare the MIME entity for transport using the specified encoding constraints.
+	    /// </summary>
+	    /// <remarks>
+	    /// Prepares the MIME entity for transport using the specified encoding constraints.
+	    /// </remarks>
+	    /// <param name="constraint">The encoding constraint.</param>
+	    /// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="constraint"/> is not a valid value.</para>
+	    /// </exception>
+	    public override async Task Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < 72 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
@@ -515,7 +515,7 @@ namespace MimeKit {
 				break;
 			}
 
-			var best = GetBestEncoding (constraint, maxLineLength);
+			var best = await GetBestEncoding (constraint, maxLineLength);
 
 			if (ContentTransferEncoding == ContentEncoding.Default && best == ContentEncoding.SevenBit)
 				return;

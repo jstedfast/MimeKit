@@ -955,26 +955,26 @@ namespace MimeKit {
 			visitor.VisitMimeMessage (this);
 		}
 
-		/// <summary>
-		/// Prepare the message for transport using the specified encoding constraints.
-		/// </summary>
-		/// <remarks>
-		/// Prepares the message for transport using the specified encoding constraints.
-		/// </remarks>
-		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="constraint"/> is not a valid value.</para>
-		/// </exception>
-		public virtual void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+	    /// <summary>
+	    /// Prepare the message for transport using the specified encoding constraints.
+	    /// </summary>
+	    /// <remarks>
+	    /// Prepares the message for transport using the specified encoding constraints.
+	    /// </remarks>
+	    /// <param name="constraint">The encoding constraint.</param>
+	    /// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="constraint"/> is not a valid value.</para>
+	    /// </exception>
+	    public virtual async Task Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < 72 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
 
 			if (Body != null)
-				Body.Prepare (constraint, maxLineLength);
+				await Body.Prepare (constraint, maxLineLength);
 		}
 
 		/// <summary>
@@ -1423,7 +1423,7 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
-			Prepare (EncodingConstraint.SevenBit, 78);
+			await Prepare (EncodingConstraint.SevenBit, 78);
 
 			var t = DateTime.Now - DateUtils.UnixEpoch;
 			var value = new StringBuilder ("v=1");

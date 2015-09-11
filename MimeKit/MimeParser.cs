@@ -1392,16 +1392,20 @@ namespace MimeKit {
 		{
 			token = cancellationToken;
 
-			var tcs = new TaskCompletionSource<HeaderList>();
+            unsafe
+            {
+                _inbufHandle = GCHandle.Alloc(input, GCHandleType.Pinned);
+                _inbuf = (byte*)_inbufHandle.AddrOfPinnedObject().ToPointer();
+            }
 
-			unsafe {
-				fixed (byte* inbuf = input){
-					_inbuf = inbuf;
-					ParseHeadersAsync ().Wait();
-				}
+            try
+            {
+				return await ParseHeadersAsync ();
 			}
-
-			return await tcs.Task;
+			finally
+			{
+                _inbufHandle.Free();
+            }
 		}
 
 		async Task<MimeEntity> ParseEntityAsync ()

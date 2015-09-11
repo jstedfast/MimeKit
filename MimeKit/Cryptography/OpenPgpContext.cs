@@ -1464,8 +1464,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Stream GetDecryptedStream (Stream encryptedData)
 		{
-			DigitalSignatureCollection signatures;
-
 			if (encryptedData == null)
 				throw new ArgumentNullException ("encryptedData");
 

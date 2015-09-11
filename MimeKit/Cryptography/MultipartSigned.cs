@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			entity.Prepare (EncodingConstraint.SevenBit, 78);
+			await entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -216,7 +216,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			entity.Prepare (EncodingConstraint.SevenBit, 78);
+			await entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -330,7 +330,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException ("entity");
 
-			entity.Prepare (EncodingConstraint.SevenBit, 78);
+			await entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -402,20 +402,20 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		/// <summary>
-		/// Prepare the MIME entity for transport using the specified encoding constraints.
-		/// </summary>
-		/// <remarks>
-		/// Prepares the MIME entity for transport using the specified encoding constraints.
-		/// </remarks>
-		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="constraint"/> is not a valid value.</para>
-		/// </exception>
-		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+	    /// <summary>
+	    /// Prepare the MIME entity for transport using the specified encoding constraints.
+	    /// </summary>
+	    /// <remarks>
+	    /// Prepares the MIME entity for transport using the specified encoding constraints.
+	    /// </remarks>
+	    /// <param name="constraint">The encoding constraint.</param>
+	    /// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+	    /// <exception cref="System.ArgumentOutOfRangeException">
+	    /// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+	    /// <para>-or-</para>
+	    /// <para><paramref name="constraint"/> is not a valid value.</para>
+	    /// </exception>
+	    public override Task Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < 72 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
@@ -423,6 +423,8 @@ namespace MimeKit.Cryptography {
 			// Note: we do not iterate over our children because they are already signed
 			// and changing them would break the signature. They should already be
 			// properly prepared, anyway.
+
+            return Task.FromResult(true);
 		}
 
 		/// <summary>

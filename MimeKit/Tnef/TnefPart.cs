@@ -351,7 +351,7 @@ namespace MimeKit.Tnef {
 			} while (reader.ReadNextAttribute ());
 		}
 
-		static MimeMessage ExtractTnefMessage (TnefReader reader)
+		static async Task<MimeMessage> ExtractTnefMessage (TnefReader reader)
 		{
 			var builder = new BodyBuilder ();
 			var message = new MimeMessage ();
@@ -367,7 +367,7 @@ namespace MimeKit.Tnef {
 					ExtractRecipientTable (reader, message);
 					break;
 				case TnefAttributeTag.MapiProperties:
-					ExtractMapiProperties (reader, message, builder);
+					await ExtractMapiProperties (reader, message, builder);
 					break;
 				case TnefAttributeTag.DateSent:
 					message.Date = prop.ReadValueAsDateTime ();
@@ -379,7 +379,7 @@ namespace MimeKit.Tnef {
 			}
 
 			if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
-				ExtractAttachments (reader, builder);
+				await ExtractAttachments (reader, builder);
 
 			message.Body = builder.ToMessageBody ();
 
@@ -398,7 +398,7 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
 		/// </exception>
-		public MimeMessage ConvertToMessage ()
+		public async Task<MimeMessage> ConvertToMessage ()
 		{
 			if (ContentObject == null)
 				throw new InvalidOperationException ("Cannot parse TNEF data without a ContentObject.");
@@ -411,7 +411,7 @@ namespace MimeKit.Tnef {
 			}
 
 			using (var reader = new TnefReader (ContentObject.Open (), codepage, TnefComplianceMode.Loose)) {
-				return ExtractTnefMessage (reader);
+				return await ExtractTnefMessage (reader);
 			}
 		}
 
@@ -425,14 +425,14 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
 		/// </exception>
-		public IEnumerable<MimeEntity> ExtractAttachments ()
+		public async Task<List<MimeEntity>> ExtractAttachments ()
 		{
-			var message = ConvertToMessage ();
+		    var message = await ConvertToMessage ();
 
-			foreach (var attachment in message.BodyParts)
-				yield return attachment;
+		    var attachments = new List<MimeEntity>();
+		    attachments.AddRange(message.BodyParts);
 
-			yield break;
+			return attachments;
 		}
 	}
 }
