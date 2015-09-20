@@ -1,5 +1,9 @@
 # Release Notes
 
+### MimeKit 1.2.12
+
+* Prevent infinite loop when flushing CharsetFilter when there is no input data left.
+
 ### MimeKit 1.2.11
 
 * Fixed an IndexOutOfRangeException bug in the TextToHTML converter logic. (issue #165)
