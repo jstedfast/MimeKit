@@ -472,7 +472,7 @@ Before you can begin using MimeKit's S/MIME support, you will need to decide whi
 database to use for certificate storage.
 
 If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
-anything (although you certianly can if you want to) because, by default, I've
+anything (although you certainly can if you want to) because, by default, I've
 configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 
 If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
