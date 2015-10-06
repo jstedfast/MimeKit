@@ -44,12 +44,9 @@ namespace MimeKit.Encodings {
 			0x77, 0x78, 0x79, 0x7A, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2B, 0x2F
 		};
 
-		const int QuartetsPerLine = 18;
-		const int MaxInputPerLine = QuartetsPerLine * 3;
-		const int MaxLineLength = (QuartetsPerLine * 4) + 1;
-
-		int quartets;
+		readonly int quartetsPerLine;
 		readonly bool rfc2047;
+		int quartets;
 		byte saved1;
 		byte saved2;
 		byte saved;
@@ -57,11 +54,20 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
 		/// </summary>
-		/// <param name="rfc2047">
-		/// <c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.
-		/// </param>
-		internal Base64Encoder (bool rfc2047)
+		/// <remarks>
+		/// Creates a new base64 encoder.
+		/// </remarks>
+		/// <param name="rfc2047"><c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.</param>
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
+		/// </exception>
+		internal Base64Encoder (bool rfc2047, int maxLineLength = 72)
 		{
+			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
+				throw new ArgumentOutOfRangeException ("maxLineLength");
+
+			quartetsPerLine = maxLineLength / 4;
 			this.rfc2047 = rfc2047;
 			Reset ();
 		}
@@ -72,7 +78,11 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new base64 encoder.
 		/// </remarks>
-		public Base64Encoder () : this (false)
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
+		/// </exception>
+		public Base64Encoder (int maxLineLength = 72) : this (false, maxLineLength)
 		{
 		}
 
@@ -85,7 +95,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="Base64Encoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new Base64Encoder (rfc2047);
+			var encoder = new Base64Encoder (rfc2047, quartetsPerLine * 4);
 
 			encoder.quartets = quartets;
 			encoder.saved1 = saved1;
@@ -119,7 +129,10 @@ namespace MimeKit.Encodings {
 			if (rfc2047)
 				return ((inputLength + 2) / 3) * 4;
 
-			return (((inputLength + 2) / MaxInputPerLine) * MaxLineLength) + MaxLineLength;
+			int maxLineLength = (quartetsPerLine * 4) + 1;
+			int maxInputPerLine = quartetsPerLine * 3;
+
+			return (((inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -165,7 +178,7 @@ namespace MimeKit.Encodings {
 					*outptr++ = base64_alphabet[c3 & 0x3f];
 
 					// encode 18 quartets per line
-					if (!rfc2047 && (++quartets) >= QuartetsPerLine) {
+					if (!rfc2047 && (++quartets) >= quartetsPerLine) {
 						*outptr++ = (byte) '\n';
 						quartets = 0;
 					}
