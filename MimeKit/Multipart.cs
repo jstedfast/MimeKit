@@ -350,13 +350,13 @@ namespace MimeKit {
 		/// <param name="constraint">The encoding constraint.</param>
 		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
+		/// <para><paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
-			if (maxLineLength < 72 || maxLineLength > 998)
+			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException ("maxLineLength");
 
 			for (int i = 0; i < children.Count; i++)

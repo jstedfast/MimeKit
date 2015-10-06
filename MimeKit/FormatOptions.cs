@@ -65,6 +65,9 @@ namespace MimeKit {
 			new byte[] { (byte) '\n' }, new byte[] { (byte) '\r', (byte) '\n' }
 		};
 
+		internal const int MaximumLineLength = 998;
+		internal const int MinimumLineLength = 60;
+
 		const int DefaultMaxLineLength = 78;
 
 		bool allowMixedHeaderCharsets;
