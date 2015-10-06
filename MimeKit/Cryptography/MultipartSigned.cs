@@ -409,7 +409,7 @@ namespace MimeKit.Cryptography {
 		/// Prepares the MIME entity for transport using the specified encoding constraints.
 		/// </remarks>
 		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
+		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).</para>
 		/// <para>-or-</para>
