@@ -25,7 +25,6 @@
 //
 
 using MimeKit.Utils;
-using MimeKit.IO.Filters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -34,10 +33,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A filter for the DKIM relaxed body canonicalization.
 	/// </remarks>
-	class DkimRelaxedBodyFilter : MimeFilterBase
+	class DkimRelaxedBodyFilter : DkimBodyFilter
 	{
-		bool lastWasNewLine, isEmptyLine, lwsp;
-		int emptyLines;
+		bool lwsp;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimRelaxedBodyFilter"/> class.
@@ -47,13 +45,13 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public DkimRelaxedBodyFilter ()
 		{
-			lastWasNewLine = true;
-			isEmptyLine = true;
-			emptyLines = 0;
+			LastWasNewLine = true;
+			IsEmptyLine = true;
+			EmptyLines = 0;
 			lwsp = false;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf, bool flush)
+		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
 		{
 			byte* inend = inbuf + length;
 			byte* outptr = outbuf;
@@ -62,36 +60,36 @@ namespace MimeKit.Cryptography {
 
 			while (inptr < inend) {
 				if (*inptr == (byte) '\r') {
-					if (!isEmptyLine) {
+					if (!IsEmptyLine) {
 						*outptr++ = *inptr;
 						lwsp = false;
 						count++;
 					}
 				} else if (*inptr == (byte) '\n') {
-					if (!isEmptyLine) {
+					if (!IsEmptyLine) {
 						*outptr++ = *inptr;
-						lastWasNewLine = true;
-						isEmptyLine = true;
-						emptyLines = 0;
+						LastWasNewLine = true;
+						IsEmptyLine = true;
+						EmptyLines = 0;
 						lwsp = false;
 						count++;
 					} else {
-						emptyLines++;
+						EmptyLines++;
 					}
 				} else {
-					if (emptyLines > 0) {
+					if (EmptyLines > 0) {
 						// unwind our collection of empty lines
-						while (emptyLines > 0) {
+						while (EmptyLines > 0) {
 							*outptr++ = (byte) '\r';
 							*outptr++ = (byte) '\n';
-							emptyLines--;
+							EmptyLines--;
 							count += 2;
 						}
 					}
 
 					if ((*inptr).IsBlank ()) {
-						lastWasNewLine = false;
-						isEmptyLine = false;
+						LastWasNewLine = false;
+						IsEmptyLine = false;
 						lwsp = true;
 					} else {
 						if (lwsp) {
@@ -100,8 +98,8 @@ namespace MimeKit.Cryptography {
 							count++;
 						}
 
-						lastWasNewLine = false;
-						isEmptyLine = false;
+						LastWasNewLine = false;
+						IsEmptyLine = false;
 						lwsp = false;
 
 						*outptr++ = *inptr;
@@ -110,16 +108,6 @@ namespace MimeKit.Cryptography {
 				}
 
 				inptr++;
-			}
-
-			if (flush && !lastWasNewLine) {
-				*outptr++ = (byte) '\r';
-				*outptr++ = (byte) '\n';
-				lastWasNewLine = true;
-				isEmptyLine = true;
-				emptyLines = 0;
-				lwsp = false;
-				count += 2;
 			}
 
 			return count;
@@ -141,11 +129,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			EnsureOutputSize (length + (lwsp ? 1 : 0) + emptyLines * 2 + (flush ? 2 : 0), false);
+			EnsureOutputSize (length + (lwsp ? 1 : 0) + EmptyLines * 2, false);
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = OutputBuffer) {
-					outputLength = Filter (inptr + startIndex, length, outptr, flush);
+					outputLength = Filter (inptr + startIndex, length, outptr);
 				}
 			}
 
@@ -162,9 +150,9 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public override void Reset ()
 		{
-			lastWasNewLine = true;
-			isEmptyLine = true;
-			emptyLines = 0;
+			LastWasNewLine = true;
+			IsEmptyLine = true;
+			EmptyLines = 0;
 			lwsp = false;
 
 			base.Reset ();

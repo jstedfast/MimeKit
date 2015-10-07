@@ -1303,12 +1303,15 @@ namespace MimeKit {
 		{
 			using (var stream = new DkimHashStream (signatureAlgorithm, maxLength)) {
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
+					DkimBodyFilter dkim;
 
 					if (bodyCanonicalizationAlgorithm == DkimCanonicalizationAlgorithm.Relaxed)
-						filtered.Add (new DkimRelaxedBodyFilter ());
+						dkim = new DkimRelaxedBodyFilter ();
 					else
-						filtered.Add (new DkimSimpleBodyFilter ());
+						dkim = new DkimSimpleBodyFilter ();
+
+					filtered.Add (options.CreateNewLineFilter ());
+					filtered.Add (dkim);
 
 					if (Body != null) {
 						try {
@@ -1320,6 +1323,9 @@ namespace MimeKit {
 					}
 
 					filtered.Flush ();
+
+					if (!dkim.LastWasNewLine)
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
 				return stream.GenerateHash ();

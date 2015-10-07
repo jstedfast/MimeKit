@@ -70,6 +70,7 @@
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
     <Compile Include="Cryptography\DigitalSignatureVerifyException.cs" />
+    <Compile Include="Cryptography\DkimBodyFilter.cs" />
     <Compile Include="Cryptography\DkimCanonicalizationAlgorithm.cs" />
     <Compile Include="Cryptography\DkimHashStream.cs" />
     <Compile Include="Cryptography\DkimRelaxedBodyFilter.cs" />
