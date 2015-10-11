@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.2.13
+
+* Modified Base64Encoder's .ctor to allow specifying a maxLineLength.
+* Fixed DKIM signing logic for multipart/alternative messages. (issue #178)
+
 ### MimeKit 1.2.12
 
 * Prevent infinite loop when flushing CharsetFilter when there is no input data left.
