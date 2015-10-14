@@ -1429,7 +1429,7 @@ namespace MimeKit {
 
 			Prepare (EncodingConstraint.SevenBit, 78);
 
-			var t = DateTime.Now - DateUtils.UnixEpoch;
+			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
 			var value = new StringBuilder ("v=1");
 			byte[] signature, hash;
 			Header dkim;
