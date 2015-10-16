@@ -157,6 +157,25 @@ namespace UnitTests
 			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
 		}
 
+		[Test]
+		public void TestVerifyGoogleMultipartRelatedDkimSignature ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			AsymmetricKeyParameter key;
+
+			var txt = message.ToString ().Substring (1100, 2400);
+
+			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
+				var reader = new PemReader (stream);
+
+				key = reader.ReadObject () as AsymmetricKeyParameter;
+			}
+
+			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
+		}
+
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
 			var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };

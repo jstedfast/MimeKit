@@ -205,7 +205,7 @@ namespace MimeKit {
 				return preamble;
 			}
 			set {
-				if (preamble == value)
+				if (Preamble == value)
 					return;
 
 				if (value != null) {
@@ -227,8 +227,9 @@ namespace MimeKit {
 		/// Gets or sets the epilogue.
 		/// </summary>
 		/// <remarks>
-		/// A multipart epiloque is the text that ppears after the last
-		/// child of the multipart and is rarely ever used.
+		/// A multipart epiloque is the text that appears after the closing boundary
+		/// of the multipart and is typically either empty or a single new line
+		/// character sequence.
 		/// </remarks>
 		/// <value>The epilogue.</value>
 		public string Epilogue {
@@ -239,7 +240,7 @@ namespace MimeKit {
 				return epilogue;
 			}
 			set {
-				if (epilogue == value)
+				if (Epilogue == value)
 					return;
 
 				if (value != null) {
@@ -415,7 +416,9 @@ namespace MimeKit {
 				}
 
 				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
-				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+
+				if (RawEpilogue == null)
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				for (int i = 0; i < children.Count; i++) {
 					cancellationToken.ThrowIfCancellationRequested ();
@@ -427,7 +430,9 @@ namespace MimeKit {
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+				if (RawEpilogue == null)
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			}
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)

@@ -1210,10 +1210,33 @@ namespace MimeKit {
 			}
 		}
 
+		static bool EndsWithLineFeed (MemoryStream memory)
+		{
+			byte[] buffer;
+
+			if (memory.Length == 0)
+				return false;
+
+#if !PORTABLE && !COREFX
+			buffer = memory.GetBuffer ();
+#else
+			buffer = new byte[1];
+
+			memory.Seek (-1, SeekOrigin.End);
+			memory.Read (buffer, 0, 1);
+#endif
+
+			return buffer[buffer.Length - 1] == (byte) '\n';
+		}
+
 		unsafe BoundaryType MultipartScanEpilogue (Multipart multipart, byte* inbuf)
 		{
 			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (inbuf, memory, true);
+				var found = ScanContent (inbuf, memory, false);
+
+				if (found == BoundaryType.Eos && !EndsWithLineFeed (memory))
+					memory.Write (FormatOptions.Default.NewLineBytes, 0, FormatOptions.Default.NewLineBytes.Length);
+
 				multipart.RawEpilogue = memory.ToArray ();
 				return found;
 			}
