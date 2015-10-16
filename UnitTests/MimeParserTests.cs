@@ -327,6 +327,19 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMultipartEpilogueWithText ()
+		{
+			const string epilogue = "\nPeter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
+
+			using (var stream = File.OpenRead ("../../TestData/messages/epilogue.txt")) {
+				var message = MimeMessage.Load (stream);
+				var multipart = message.Body as Multipart;
+
+				Assert.AreEqual (epilogue, multipart.Epilogue, "The epilogue does not match");
+			}
+		}
+
+		[Test]
 		public void TestIssue51 ()
 		{
 			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +

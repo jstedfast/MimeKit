@@ -131,6 +131,7 @@
     <None Include="TestData\messages\delivery-status.txt" />
     <None Include="TestData\messages\disposition-notification.txt" />
     <None Include="TestData\messages\empty-multipart.txt" />
+    <None Include="TestData\messages\epilogue.txt" />
     <None Include="TestData\messages\japanese.txt" />
     <None Include="TestData\messages\multipart-digest.txt" />
     <None Include="TestData\messages\rfc2060.txt" />

@@ -854,7 +854,7 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		unsafe bool SkipLine (byte* inbuf)
+		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine)
 		{
 			do {
 				byte* inptr = inbuf + inputIndex;
@@ -866,12 +866,19 @@ namespace MimeKit {
 					inptr++;
 
 				if (inptr < inend) {
-					inputIndex = (int) (inptr - inbuf) + 1;
+					inputIndex = (int) (inptr - inbuf);
+
+					if (consumeNewLine) {
+						inputIndex++;
+					} else if (*(inptr - 1) == (byte) '\r') {
+						inputIndex--;
+					}
+
 					return true;
 				}
 
 				inputIndex = inputEnd;
-				if (ReadAhead (ReadAheadSize, 0) <= 0)
+				if (ReadAhead (ReadAheadSize, 1) <= 0)
 					return false;
 			} while (true);
 		}
@@ -1210,32 +1217,10 @@ namespace MimeKit {
 			}
 		}
 
-		static bool EndsWithLineFeed (MemoryStream memory)
-		{
-			byte[] buffer;
-
-			if (memory.Length == 0)
-				return false;
-
-#if !PORTABLE && !COREFX
-			buffer = memory.GetBuffer ();
-#else
-			buffer = new byte[1];
-
-			memory.Seek (-1, SeekOrigin.End);
-			memory.Read (buffer, 0, 1);
-#endif
-
-			return buffer[buffer.Length - 1] == (byte) '\n';
-		}
-
 		unsafe BoundaryType MultipartScanEpilogue (Multipart multipart, byte* inbuf)
 		{
 			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (inbuf, memory, false);
-
-				if (found == BoundaryType.Eos && !EndsWithLineFeed (memory))
-					memory.Write (FormatOptions.Default.NewLineBytes, 0, FormatOptions.Default.NewLineBytes.Length);
+				var found = ScanContent (inbuf, memory, true);
 
 				multipart.RawEpilogue = memory.ToArray ();
 				return found;
@@ -1248,7 +1233,7 @@ namespace MimeKit {
 
 			do {
 				// skip over the boundary marker
-				if (!SkipLine (inbuf))
+				if (!SkipLine (inbuf, true))
 					return BoundaryType.Eos;
 
 				// parse the headers
@@ -1309,7 +1294,7 @@ namespace MimeKit {
 
 			if (found == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
-				SkipLine (inbuf);
+				SkipLine (inbuf, false);
 				PopBoundary ();
 
 				return MultipartScanEpilogue (multipart, inbuf);
