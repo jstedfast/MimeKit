@@ -117,13 +117,13 @@ namespace MimeKit {
 			}
 		}
 
-		internal IMimeFilter CreateNewLineFilter ()
+		internal IMimeFilter CreateNewLineFilter (bool ensureNewLine = false)
 		{
 			switch (NewLineFormat) {
 			case NewLineFormat.Unix:
-				return new Dos2UnixFilter ();
+				return new Dos2UnixFilter (ensureNewLine);
 			default:
-				return new Unix2DosFilter ();
+				return new Unix2DosFilter (ensureNewLine);
 			}
 		}
 

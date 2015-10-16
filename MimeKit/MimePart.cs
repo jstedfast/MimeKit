@@ -572,7 +572,7 @@ namespace MimeKit {
 					filtered.Add (EncoderFilter.Create (encoding));
 
 					if (encoding != ContentEncoding.Binary)
-						filtered.Add (options.CreateNewLineFilter ());
+						filtered.Add (options.CreateNewLineFilter (true));
 
 					ContentObject.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
@@ -592,7 +592,9 @@ namespace MimeKit {
 				}
 			} else if (encoding != ContentEncoding.Binary) {
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
+					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
+					// MimeMessage.WriteTo() *always* ends with a new-line.
+					filtered.Add (options.CreateNewLineFilter (Headers.Suppress));
 					ContentObject.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}

@@ -33,6 +33,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class Unix2DosFilter : MimeFilterBase
 	{
+		bool ensureNewLine;
 		byte pc;
 
 		/// <summary>
@@ -41,11 +42,13 @@ namespace MimeKit.IO.Filters {
 		/// <remarks>
 		/// Creates a new <see cref="Unix2DosFilter"/>.
 		/// </remarks>
-		public Unix2DosFilter ()
+		/// <param name="ensureNewLine">Ensure that the stream ends with a new line.</param>
+		public Unix2DosFilter (bool ensureNewLine = false)
 		{
+			this.ensureNewLine = ensureNewLine;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
+		unsafe int Filter (byte* inbuf, int length, byte* outbuf, bool flush)
 		{
 			byte* inend = inbuf + length;
 			byte* outptr = outbuf;
@@ -63,6 +66,11 @@ namespace MimeKit.IO.Filters {
 				}
 
 				pc = *inptr++;
+			}
+
+			if (flush && ensureNewLine && pc != (byte) '\n') {
+				*outptr++ = (byte) '\r';
+				*outptr++ = (byte) '\n';
 			}
 
 			return (int) (outptr - outbuf);
@@ -84,13 +92,13 @@ namespace MimeKit.IO.Filters {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			EnsureOutputSize (length * 2, false);
+			EnsureOutputSize (length * 2 + (flush && ensureNewLine ? 2 : 0), false);
 
 			outputIndex = 0;
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = OutputBuffer) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
+					outputLength = Filter (inptr + startIndex, length, outptr, flush);
 				}
 			}
 
