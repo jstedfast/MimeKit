@@ -335,7 +335,10 @@ namespace UnitTests {
 				var message = MimeMessage.Load (stream);
 				var multipart = message.Body as Multipart;
 
-				Assert.AreEqual (epilogue, multipart.Epilogue, "The epilogue does not match");
+				Assert.AreEqual (epilogue, multipart.Epilogue.Replace ("\r\n", "\n"), "The epilogue does not match");
+
+				Assert.IsTrue (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n',
+					"The RawEpilogue does not start with a new-line.");
 			}
 		}
 
