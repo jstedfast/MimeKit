@@ -230,5 +230,33 @@ namespace UnitTests {
 
 			Assert.AreEqual ("local-part", msgid);
 		}
+
+		[Test]
+		public void TestMultipartPreambleFolding ()
+		{
+			const string text = "This is a multipart MIME message. If you are reading this text, then it means that your mail client does not support MIME.\n";
+			const string expected = "This is a multipart MIME message. If you are reading this text, then it means\nthat your mail client does not support MIME.\n";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var actual = Multipart.FoldPreambleOrEpilogue (options, text, false);
+
+			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
+		}
+
+		[Test]
+		public void TestMultipartEpilogueFolding ()
+		{
+			const string text = "This is a multipart epilogue.";
+			const string expected = "\nThis is a multipart epilogue.\n";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var actual = Multipart.FoldPreambleOrEpilogue (options, text, true);
+
+			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
+		}
 	}
 }

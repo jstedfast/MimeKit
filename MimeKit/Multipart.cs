@@ -209,7 +209,7 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value, false);
 					RawPreamble = Encoding.UTF8.GetBytes (folded);
 					preamble = folded;
 				} else {
@@ -234,8 +234,18 @@ namespace MimeKit {
 		/// <value>The epilogue.</value>
 		public string Epilogue {
 			get {
-				if (epilogue == null && RawEpilogue != null)
-					epilogue = CharsetUtils.ConvertToUnicode (Headers.Options, RawEpilogue, 0, RawEpilogue.Length);
+				if (epilogue == null && RawEpilogue != null) {
+					int index = 0;
+
+					// Note: In practice, the RawEpilogue contains the CRLF belonging to the end-boundary, but
+					// for sanity, we pretend that it doesn't.
+					if ((RawEpilogue.Length > 1 && RawEpilogue[0] == (byte) '\r' && RawEpilogue[1] == (byte) '\n'))
+						index += 2;
+					else if (RawEpilogue.Length > 1 && RawEpilogue[0] == (byte) '\n')
+						index++;
+
+					epilogue = CharsetUtils.ConvertToUnicode (Headers.Options, RawEpilogue, index, RawEpilogue.Length - index);
+				}
 
 				return epilogue;
 			}
@@ -244,9 +254,9 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
-					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value);
+					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value, true);
 					RawEpilogue = Encoding.UTF8.GetBytes (folded);
-					epilogue = folded;
+					epilogue = null;
 				} else {
 					RawEpilogue = null;
 					epilogue = null;
@@ -277,12 +287,15 @@ namespace MimeKit {
 			visitor.VisitMultipart (this);
 		}
 
-		static string FoldPreambleOrEpilogue (FormatOptions options, string text)
+		internal static string FoldPreambleOrEpilogue (FormatOptions options, string text, bool isEpilogue)
 		{
 			var builder = new StringBuilder ();
 			int startIndex, wordIndex;
 			int lineLength = 0;
 			int index = 0;
+
+			if (isEpilogue)
+				builder.Append (options.NewLine);
 
 			while (index < text.Length) {
 				startIndex = index;
