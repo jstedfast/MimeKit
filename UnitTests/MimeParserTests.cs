@@ -329,7 +329,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMultipartEpilogueWithText ()
 		{
-			const string epilogue = "\nPeter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
+			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
 			using (var stream = File.OpenRead ("../../TestData/messages/epilogue.txt")) {
 				var message = MimeMessage.Load (stream);
