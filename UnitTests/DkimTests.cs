@@ -164,8 +164,6 @@ namespace UnitTests
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			AsymmetricKeyParameter key;
 
-			var txt = message.ToString ().Substring (1100, 2400);
-
 			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
 			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
 				var reader = new PemReader (stream);
