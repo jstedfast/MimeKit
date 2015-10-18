@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 1.2.14
+
+* Fixed DKIM-Signature signing logic to use a UTC-based timestamp value rather than a
+  timestamp based on the local-time. (issue #180)
+* Fixed Multipart epilogue parsing and serialization logic to make sure that serializing
+  a multipart is properly byte-for-byte identical to the original text. This fixes a
+  corner-case that affected all types of digital signatures (DKIM, PGP, and S/MIME)
+  spanning across nested multiparts. (issue #181)
+* Fixed MimeMessage.WriteTo() to ensure that the output stream always ends with a new-line.
+
 ### MimeKit 1.2.13
 
 * Modified Base64Encoder's .ctor to allow specifying a maxLineLength.
