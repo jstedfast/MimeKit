@@ -27,7 +27,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
-        <tags>mime mbox email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
+        <tags>mime mbox mail email parser tnef net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
             <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
