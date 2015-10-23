@@ -519,6 +519,7 @@ namespace MimeKit.Utils {
 			try {
 				date = new DateTimeOffset (year.Value, month.Value, day.Value, hour, minute, second, offset);
 			} catch (ArgumentOutOfRangeException) {
+				date = new DateTimeOffset ();
 				return false;
 			}
 
