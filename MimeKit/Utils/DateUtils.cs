@@ -407,7 +407,11 @@ namespace MimeKit.Utils {
 
 			var offset = new TimeSpan (hours, minutes, 0);
 
-			date = new DateTimeOffset (year, month, day, hour, minute, second, offset);
+			try {
+				date = new DateTimeOffset (year, month, day, hour, minute, second, offset);
+			} catch (ArgumentOutOfRangeException) {
+				return false;
+			}
 
 			return true;
 		}
@@ -512,7 +516,11 @@ namespace MimeKit.Utils {
 				offset = new TimeSpan (0);
 			}
 
-			date = new DateTimeOffset (year.Value, month.Value, day.Value, hour, minute, second, offset);
+			try {
+				date = new DateTimeOffset (year.Value, month.Value, day.Value, hour, minute, second, offset);
+			} catch (ArgumentOutOfRangeException) {
+				return false;
+			}
 
 			return true;
 		}
