@@ -359,8 +359,8 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Compresses the specified entity using the specified <see cref="SecureMimeContext"/>.</para>
-		/// <para>It should be noted that this feature is not supported by most mail clients,
-		/// even among those that support S/MIME.</para>
+		/// <para><alert class="warning">Most mail clients, even among those that support S/MIME,
+		/// do not support compression.</alert></para>
 		/// </remarks>
 		/// <returns>The compressed entity.</returns>
 		/// <param name="ctx">The S/MIME context to use for compressing.</param>
@@ -397,8 +397,8 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Compresses the specified entity using the default <see cref="SecureMimeContext"/>.</para>
-		/// <para>It should be noted that this feature is not supported by most mail clients,
-		/// even among those that support S/MIME.</para>
+		/// <para><alert class="warning">Most mail clients, even among those that support S/MIME,
+		/// do not support compression.</alert></para>
 		/// </remarks>
 		/// <returns>The compressed entity.</returns>
 		/// <param name="entity">The entity.</param>

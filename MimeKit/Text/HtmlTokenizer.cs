@@ -73,8 +73,8 @@ namespace MimeKit.Text {
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets whether or not the tokenizer should decode character references.</para>
-		/// <para>Note: Character references in attribute values will still be decoded even if this
-		/// value is set to <c>false</c>.</para>
+		/// <para><alert class="warning">Character references in attribute values will still be decoded
+		/// even if this value is set to <c>false</c>.</alert></para>
 		/// </remarks>
 		/// <value><c>true</c> if character references should be decoded; otherwise, <c>false</c>.</value>
 		public bool DecodeCharacterReferences {

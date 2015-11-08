@@ -242,10 +242,14 @@ namespace MimeKit {
 		/// Gets the list of headers.
 		/// </summary>
 		/// <remarks>
-		/// Represents the list of headers for a message. Typically, the headers of
+		/// <para>Represents the list of headers for a message. Typically, the headers of
 		/// a message will contain transmission headers such as From and To along
 		/// with metadata headers such as Subject and Date, but may include just
-		/// about anything.
+		/// about anything.</para>
+		/// <para><alert class="tip">To access any MIME headers other than
+		/// <see cref="HeaderId.MimeVersion"/>, you will need to access the
+		/// <see cref="MimeEntity.Headers"/> property of the <see cref="Body"/>.
+		/// </alert></para>
 		/// </remarks>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
@@ -912,8 +916,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</para>
-		/// <para>Note: In general, the string returned from this method SHOULD NOT be used for serializing the message
-		/// to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</para>
+		/// <para><alert class="warning">Note: In general, the string returned from this method SHOULD NOT be used for serializing
+		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</alert></para>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
 		public override string ToString ()
