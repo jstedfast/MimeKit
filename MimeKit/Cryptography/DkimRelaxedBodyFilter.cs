@@ -51,7 +51,7 @@ namespace MimeKit.Cryptography {
 			lwsp = false;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
+		unsafe int Filter (byte* inbuf, int length, byte* outbuf, bool flush)
 		{
 			byte* inend = inbuf + length;
 			byte* outptr = outbuf;
@@ -110,6 +110,13 @@ namespace MimeKit.Cryptography {
 				inptr++;
 			}
 
+			if (flush && lwsp) {
+				// collapse lwsp to a single space
+				*outptr++ = (byte) ' ';
+				lwsp = false;
+				count++;
+			}
+
 			return count;
 		}
 
@@ -133,7 +140,7 @@ namespace MimeKit.Cryptography {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = OutputBuffer) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
+					outputLength = Filter (inptr + startIndex, length, outptr, flush);
 				}
 			}
 
