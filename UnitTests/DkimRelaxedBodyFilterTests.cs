@@ -91,22 +91,5 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected, actual);
 		}
-
-		[Test]
-		public void TestTrailingLineWithOnlySpaceOrTab ()
-		{
-			const string text = "Hello!\r\n\r\n ";
-			const string expected = "Hello!\r\n\r\n ";
-			var input = Encoding.ASCII.GetBytes (text);
-			var filter = new DkimRelaxedBodyFilter ();
-			int outputIndex, outputLength;
-			byte[] output;
-			string actual;
-
-			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
-			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
-
-			Assert.AreEqual (expected, actual);
-		}
 	}
 }
