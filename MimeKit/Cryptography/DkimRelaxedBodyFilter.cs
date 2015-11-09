@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 
 					if ((*inptr).IsBlank ()) {
 						LastWasNewLine = false;
-						IsEmptyLine = false;
+						//IsEmptyLine = false;
 						lwsp = true;
 					} else {
 						if (lwsp) {
