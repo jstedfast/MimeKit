@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			EnsureOutputSize (length + (lwsp ? 1 : 0) + EmptyLines * 2, false);
+			EnsureOutputSize (length + (lwsp ? 1 : 0) + EmptyLines * 2 + 1, false);
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = OutputBuffer) {
