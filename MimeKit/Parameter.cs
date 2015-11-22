@@ -429,7 +429,7 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding encoding)
+		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
 			string quoted;
 
@@ -457,7 +457,7 @@ namespace MimeKit {
 				return;
 			}
 
-			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, this.encoding ?? encoding);
+			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, encoding ?? headerEncoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = (Encoder) bestEncoding.GetEncoder ();
