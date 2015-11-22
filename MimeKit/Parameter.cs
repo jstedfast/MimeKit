@@ -457,7 +457,7 @@ namespace MimeKit {
 				return;
 			}
 
-			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, Encoding ?? encoding);
+			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, this.encoding ?? encoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = (Encoder) bestEncoding.GetEncoder ();
