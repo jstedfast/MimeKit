@@ -45,6 +45,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class Parameter
 	{
+		Encoding encoding;
 		string text;
 
 		/// <summary>
@@ -61,7 +62,7 @@ namespace MimeKit {
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The <paramref name="name"/> contains illegal characters.
+		/// <paramref name="name"/> contains illegal characters.
 		/// </exception>
 		public Parameter (string name, string value)
 		{
@@ -79,8 +80,102 @@ namespace MimeKit {
 			if (value == null)
 				throw new ArgumentNullException ("value");
 
-			Name = name;
 			Value = value;
+			Name = name;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Parameter"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new parameter with the specified name and value.
+		/// </remarks>
+		/// <param name="encoding">The character encoding.</param>
+		/// <param name="name">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="name"/> contains illegal characters.
+		/// </exception>
+		public Parameter (Encoding encoding, string name, string value)
+		{
+			if (encoding == null)
+				throw new ArgumentNullException ("encoding");
+
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (name.Length == 0)
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+
+			for (int i = 0; i < name.Length; i++) {
+				if (name[i] > 127 || !IsAttr ((byte) name[i]))
+					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+			}
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Encoding = encoding;
+			Value = value;
+			Name = name;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Parameter"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new parameter with the specified name and value.
+		/// </remarks>
+		/// <param name="charset">The character encoding.</param>
+		/// <param name="name">The parameter name.</param>
+		/// <param name="value">The parameter value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="charset"/> cannot be empty.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="name"/> contains illegal characters.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="charset"/> is not supported.
+		/// </exception>
+		public Parameter (string charset, string name, string value)
+		{
+			if (charset == null)
+				throw new ArgumentNullException ("charset");
+
+			if (charset.Length == 0)
+				throw new ArgumentException ("The charset name cannot be empty.", "charset");
+
+			if (name == null)
+				throw new ArgumentNullException ("name");
+
+			if (name.Length == 0)
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+
+			for (int i = 0; i < name.Length; i++) {
+				if (name[i] > 127 || !IsAttr ((byte) name[i]))
+					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+			}
+
+			if (value == null)
+				throw new ArgumentNullException ("value");
+
+			Encoding = CharsetUtils.GetEncoding (charset);
+			Value = value;
+			Name = name;
 		}
 
 		static bool IsAttr (byte c)
@@ -97,6 +192,24 @@ namespace MimeKit {
 		/// <value>The parameter name.</value>
 		public string Name {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Gets or sets the parameter value character encoding.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the parameter value character encoding.
+		/// </remarks>
+		/// <value>The character encoding.</value>
+		public Encoding Encoding {
+			get { return encoding ?? CharsetUtils.UTF8; }
+			set {
+				if (encoding == value)
+					return;
+
+				encoding = value;
+				OnChanged ();
+			}
 		}
 
 		/// <summary>
@@ -344,7 +457,7 @@ namespace MimeKit {
 				return;
 			}
 
-			var bestEncoding = options.International ? Encoding.UTF8 : GetBestEncoding (Value, encoding);
+			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, Encoding ?? encoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = (Encoder) bestEncoding.GetEncoder ();

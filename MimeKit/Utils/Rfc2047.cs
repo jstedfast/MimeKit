@@ -653,6 +653,44 @@ namespace MimeKit.Utils {
 			return DecodePhrase (phrase, 0, phrase.Length);
 		}
 
+		internal static string DecodeText (ParserOptions options, byte[] text, int startIndex, int count, out int codepage)
+		{
+			codepage = Encoding.UTF8.CodePage;
+
+			if (count == 0)
+				return string.Empty;
+
+			unsafe {
+				fixed (byte* inbuf = text) {
+					var tokens = TokenizeText (options, inbuf, startIndex, count);
+
+					// collect the charsets used to encode each encoded-word token
+					// (and the number of tokens each charset was used in)
+					var codepages = new Dictionary<int, int> ();
+					foreach (var token in tokens) {
+						if (token.CodePage == 0)
+							continue;
+
+						if (!codepages.ContainsKey (token.CodePage))
+							codepages.Add (token.CodePage, 1);
+						else
+							codepages[token.CodePage]++;
+					}
+
+					int max = 0;
+					foreach (var kvp in codepages) {
+						if (kvp.Value <= max)
+							continue;
+
+						max = Math.Max (kvp.Value, max);
+						codepage = kvp.Key;
+					}
+
+					return DecodeTokens (options, tokens, text, inbuf, count);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Decodes unstructured text.
 		/// </summary>
