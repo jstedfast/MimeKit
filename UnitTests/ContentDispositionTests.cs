@@ -75,6 +75,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestChineseFilename ()
+		{
+			const string expected = " attachment;\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.txt\n";
+			var disposition = new ContentDisposition (ContentDisposition.Attachment) {
+				FileName = "测试文本.txt"
+			};
+
+			var format = FormatOptions.Default.Clone ();
+			format.NewLineFormat = NewLineFormat.Unix;
+
+			var encoded = disposition.Encode (format, Encoding.UTF8);
+
+			Assert.AreEqual (expected, encoded, "The encoded Chinese filename parameter does not match the expected value.");
+			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
+		}
+
+		[Test]
 		public void TestFormData ()
 		{
 			const string text = "form-data; filename=\"form.txt\"";
