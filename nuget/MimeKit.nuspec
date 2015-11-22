@@ -18,7 +18,7 @@ MimeKit's parser also uses a real tokenizer when parsing the headers rather than
 
 In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.
 
-API documentation can be found on the web at http://jstedfast.github.io/MimeKit/docs
+API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
