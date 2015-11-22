@@ -1,5 +1,13 @@
 # Release Notes
 
+### MimeKit 1.2.15
+
+* Fixed the Date parser to catch exceptions thrown by the DateTimeOffset .ctor if any of the
+  fields are out of range.
+* Fixed logic for trimming trailing blank lines for the DKIM relaxed body algorithm. (issue #187)
+* Fixed DKIM body filters to reserve extra space in the output buffer. (issue #188)
+* Allow specifying a charset encoding for each Content-Type/Disposition parameter.
+
 ### MimeKit 1.2.14
 
 * Fixed DKIM-Signature signing logic to use a UTC-based timestamp value rather than a

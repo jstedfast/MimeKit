@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.2.14.0</version>
+        <version>1.2.15.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,8 @@ API documentation can be found on the web at http://jstedfast.github.io/MimeKit/
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Fixed Multipart epilogue parsing and serialization logic to make sure that serializing a multipart is properly byte-for-byte identical to the original text. (issue #181)
-* Fixed MimeMessage.WriteTo() to ensure that the output stream always ends with a new-line.
+        <releaseNotes>* Fixed the Date parser to catch exceptions thrown by the DateTimeOffset .ctor if any of the fields are out of range.
+* Allow specifying a charset encoding for each Content-Type/Disposition parameter.
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
