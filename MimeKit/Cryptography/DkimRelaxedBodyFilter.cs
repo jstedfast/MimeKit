@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System.Collections.Generic;
-
 using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
