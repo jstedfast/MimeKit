@@ -41,23 +41,22 @@ namespace UnitTests {
 	[TestFixture]
 	public class DkimRelaxedBodyFilterTests
 	{
-		// Disabled because it conflicts with TestTrimmingEmptyLines()
-//		[Test]
-//		public void TestWhiteSpaceBeforeNewLine ()
-//		{
-//			const string text = "This is a test of the relaxed body filter   \n   \n";
-//			const string expected = "This is a test of the relaxed body filter\n\n";
-//			var input = Encoding.ASCII.GetBytes (text);
-//			var filter = new DkimRelaxedBodyFilter ();
-//			int outputIndex, outputLength;
-//			byte[] output;
-//			string actual;
-//
-//			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
-//			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
-//
-//			Assert.AreEqual (expected, actual);
-//		}
+		[Test]
+		public void TestWhiteSpaceBeforeNewLine ()
+		{
+			const string text = "text\t \r\n\t \r\ntext\t \r\n";
+			const string expected = "text\r\n\r\ntext\r\n";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+			int outputIndex, outputLength;
+			byte[] output;
+			string actual;
+
+			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
+			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.AreEqual (expected, actual);
+		}
 
 		[Test]
 		public void TestTrimmingEmptyLines ()

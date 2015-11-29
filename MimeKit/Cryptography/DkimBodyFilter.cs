@@ -61,10 +61,10 @@ namespace MimeKit.Cryptography
 		protected int EmptyLines;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimBodyFilterBase"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimBodyFilter"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DkimBodyFilterBase"/>.
+		/// Creates a new <see cref="DkimBodyFilter"/>.
 		/// </remarks>
 		protected DkimBodyFilter ()
 		{

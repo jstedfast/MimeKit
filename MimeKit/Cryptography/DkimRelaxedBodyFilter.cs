@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Collections.Generic;
+
 using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
@@ -47,8 +49,6 @@ namespace MimeKit.Cryptography {
 		{
 			LastWasNewLine = true;
 			IsEmptyLine = true;
-			EmptyLines = 0;
-			lwsp = false;
 		}
 
 		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
@@ -59,23 +59,32 @@ namespace MimeKit.Cryptography {
 			int count = 0;
 
 			while (inptr < inend) {
-				if (*inptr == (byte) '\r') {
-					if (!IsEmptyLine) {
-						*outptr++ = *inptr;
-						lwsp = false;
-						count++;
-					}
-				} else if (*inptr == (byte) '\n') {
-					if (!IsEmptyLine) {
-						*outptr++ = *inptr;
+				if (*inptr == (byte) '\r' && (inptr + 1) < inend && *(inptr + 1) == (byte) '\n') {
+					if (IsEmptyLine) {
+						EmptyLines++;
+					} else {
+						*outptr++ = (byte) '\r';
+						*outptr++ = (byte) '\n';
 						LastWasNewLine = true;
 						IsEmptyLine = true;
-						EmptyLines = 0;
-						lwsp = false;
-						count++;
-					} else {
-						EmptyLines++;
+						count += 2;
 					}
+
+					lwsp = false;
+					inptr++;
+				} else if (*inptr == (byte) '\n') {
+					if (IsEmptyLine) {
+						EmptyLines++;
+					} else {
+						*outptr++ = (byte) '\n';
+						LastWasNewLine = true;
+						IsEmptyLine = true;
+						count++;
+					}
+
+					lwsp = false;
+				} else if ((*inptr).IsBlank ()) {
+					lwsp = true;
 				} else {
 					if (EmptyLines > 0) {
 						// unwind our collection of empty lines
@@ -87,24 +96,18 @@ namespace MimeKit.Cryptography {
 						}
 					}
 
-					if ((*inptr).IsBlank ()) {
-						LastWasNewLine = false;
-						//IsEmptyLine = false;
-						lwsp = true;
-					} else {
-						if (lwsp) {
-							// collapse lwsp to a single space
-							*outptr++ = (byte) ' ';
-							count++;
-						}
-
-						LastWasNewLine = false;
-						IsEmptyLine = false;
-						lwsp = false;
-
-						*outptr++ = *inptr;
+					if (lwsp) {
+						// collapse lwsp to a single space
+						*outptr++ = (byte) ' ';
 						count++;
 					}
+
+					LastWasNewLine = false;
+					IsEmptyLine = false;
+					lwsp = false;
+
+					*outptr++ = *inptr;
+					count++;
 				}
 
 				inptr++;
@@ -129,7 +132,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
-			EnsureOutputSize (length + (lwsp ? 1 : 0) + EmptyLines * 2 + 1, false);
+			EnsureOutputSize (length + (lwsp ? 1 : 0) + (EmptyLines * 2) + 1, false);
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = OutputBuffer) {
