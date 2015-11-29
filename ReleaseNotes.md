@@ -1,5 +1,9 @@
 # Release Notes
 
+### MimeKit 1.2.16
+
+* Fixed relaxed body canonicalization logic for DKIM signatures. (issue #190)
+
 ### MimeKit 1.2.15
 
 * Fixed the Date parser to catch exceptions thrown by the DateTimeOffset .ctor if any of the
