@@ -78,6 +78,7 @@ namespace MimeKit.Cryptography {
 			Domain = domain;
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
@@ -144,6 +145,7 @@ namespace MimeKit.Cryptography {
 			Selector = selector;
 			Domain = domain;
 		}
+#endif
 
 		/// <summary>
 		/// Gets the private key.

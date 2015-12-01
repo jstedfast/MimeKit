@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 			ContentDisposition = new ContentDisposition ("attachment");
 			ContentTransferEncoding = ContentEncoding.SevenBit;
 
-			var content = new MemoryStream (Encoding.ASCII.GetBytes ("Version: 1\n"), false);
+			var content = new MemoryStream (Encoding.UTF8.GetBytes ("Version: 1\n"), false);
 
 			ContentObject = new ContentObject (content);
 		}

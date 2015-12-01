@@ -314,10 +314,14 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextConstructor != null)
 						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
 
+#if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable)
 						throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.SecureMimeContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
 
 					return new DefaultSecureMimeContext ();
+#else
+					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.SecureMimeContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
+#endif
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
 				case "application/x-pgp-encrypted":
@@ -333,6 +337,22 @@ namespace MimeKit.Cryptography {
 				}
 			}
 		}
+
+#if PORTABLE
+		static ConstructorInfo GetConstructor (TypeInfo type)
+		{
+			foreach (var ctor in type.DeclaredConstructors) {
+				var args = ctor.GetParameters ();
+
+				if (args.Length != 0)
+					continue;
+
+				return ctor;
+			}
+
+			return null;
+		}
+#endif
 
 		/// <summary>
 		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
@@ -357,15 +377,25 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException ("type");
 
+#if PORTABLE || COREFX
+			var info = type.GetTypeInfo ();
+#else
+			var info = type;
+#endif
+
+#if PORTABLE
+			var ctor = GetConstructor (info);
+#else
 			var ctor = type.GetConstructor (new Type[0]);
+#endif
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", "type");
 
-			if (type.IsSubclassOf (typeof (SecureMimeContext))) {
+			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
 					SecureMimeContextConstructor = ctor;
 				}
-			} else if (type.IsSubclassOf (typeof (OpenPgpContext))) {
+			} else if (info.IsSubclassOf (typeof (OpenPgpContext))) {
 				lock (mutex) {
 					OpenPgpContextConstructor = ctor;
 				}
