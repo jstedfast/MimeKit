@@ -196,6 +196,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Imports the certificate(s) from the specified file.
 		/// </summary>
@@ -220,6 +221,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				Import (stream);
 		}
+#endif
 
 		/// <summary>
 		/// Imports the certificate(s) from the specified byte array.
@@ -287,6 +289,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Imports certificates and private keys from the specified file.
 		/// </summary>
@@ -323,6 +326,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				Import (stream, password);
 		}
+#endif
 
 		/// <summary>
 		/// Imports certificates and private keys from the specified byte array.
@@ -370,6 +374,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Exports the certificates to an unencrypted file.
 		/// </summary>
@@ -406,6 +411,7 @@ namespace MimeKit.Cryptography {
 			using (var file = File.Create (fileName))
 				Export (file);
 		}
+#endif
 
 		/// <summary>
 		/// Exports the specified stream and password to a pkcs12 encrypted file.
@@ -464,6 +470,7 @@ namespace MimeKit.Cryptography {
 			store.Save (stream, password.ToCharArray (), new SecureRandom ());
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Exports the specified stream and password to a pkcs12 encrypted file.
 		/// </summary>
@@ -506,6 +513,7 @@ namespace MimeKit.Cryptography {
 			using (var file = File.Create (fileName))
 				Export (file, password);
 		}
+#endif
 
 		/// <summary>
 		/// Gets an enumerator of matching X.509 certificates based on the specified selector.

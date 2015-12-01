@@ -66,6 +66,29 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+#if PORTABLE
+		/// <summary>
+		/// Gets the public keyring.
+		/// </summary>
+		/// <remarks>
+		/// Gets the public keyring.
+		/// </remarks>
+		/// <value>The public key ring.</value>
+		protected Stream PublicKeyRing {
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets the secret keyring.
+		/// </summary>
+		/// <remarks>
+		/// Gets the secret keyring.
+		/// </remarks>
+		/// <value>The secret key ring.</value>
+		protected Stream SecretKeyRing {
+			get; set;
+		}
+#else
 		/// <summary>
 		/// Gets the public keyring path.
 		/// </summary>
@@ -87,6 +110,7 @@ namespace MimeKit.Cryptography {
 		protected string SecretKeyRingPath {
 			get; set;
 		}
+#endif
 
 		/// <summary>
 		/// Gets the public keyring bundle.
@@ -250,6 +274,47 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+#if PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyrings.
+		/// </remarks>
+		/// <param name="pubring">The public keyring.</param>
+		/// <param name="secring">The secret keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="pubring"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="secring"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading one of the keyring files.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred while parsing one of the keyring files.
+		/// </exception>
+		protected OpenPgpContext (Stream pubring, Stream secring)
+		{
+			if (pubring == null)
+				throw new ArgumentNullException ("pubring");
+
+			if (secring == null)
+				throw new ArgumentNullException ("secring");
+
+			PublicKeyRing = pubring;
+			SecretKeyRing = secring;
+
+			PublicKeyRingBundle = new PgpPublicKeyRingBundle (pubring);
+			SecretKeyRingBundle = new PgpSecretKeyRingBundle (secring);
+
+			if (pubring.CanSeek)
+				pubring.Seek (0, SeekOrigin.Begin);
+
+			if (secring.CanSeek)
+				secring.Seek (0, SeekOrigin.Begin);
+		}
+#else
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
 		/// </summary>
@@ -296,6 +361,7 @@ namespace MimeKit.Cryptography {
 				SecretKeyRingBundle = new PgpSecretKeyRingBundle (new byte[0]);
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
@@ -813,7 +879,11 @@ namespace MimeKit.Cryptography {
 			var memory = content as MemoryStream;
 			if (memory != null) {
 				// We can optimize things a bit if we've got a memory stream...
+#if !PORTABLE && !COREFX
 				var buffer = memory.GetBuffer ();
+#else
+				var buffer = memory.ToArray ();
+#endif
 
 				for (int index = (int) memory.Position; index < (int) memory.Length; index++) {
 					byte c = buffer[index];
@@ -1550,6 +1620,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected void SavePublicKeyRingBundle ()
 		{
+#if !PORTABLE
 			var filename = Path.GetFileName (PublicKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (PublicKeyRingPath);
 			var tmp = Path.Combine (dirname, "." + filename);
@@ -1567,6 +1638,10 @@ namespace MimeKit.Cryptography {
 				File.Replace (tmp, PublicKeyRingPath, bak);
 			else
 				File.Move (tmp, PublicKeyRingPath);
+#else
+			PublicKeyRingBundle.Encode (PublicKeyRing);
+			PublicKeyRing.Seek (0, SeekOrigin.Begin);
+#endif
 		}
 
 		/// <summary>
@@ -1581,6 +1656,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected void SaveSecretKeyRingBundle ()
 		{
+#if !PORTABLE
 			var filename = Path.GetFileName (SecretKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (SecretKeyRingPath);
 			var tmp = Path.Combine (dirname, "." + filename);
@@ -1598,6 +1674,10 @@ namespace MimeKit.Cryptography {
 				File.Replace (tmp, SecretKeyRingPath, bak);
 			else
 				File.Move (tmp, SecretKeyRingPath);
+#else
+			SecretKeyRingBundle.Encode (SecretKeyRing);
+			SecretKeyRing.Seek (0, SeekOrigin.Begin);
+#endif
 		}
 
 		/// <summary>
