@@ -67,7 +67,7 @@ namespace UnitTests {
 
 			var part = multipart[1] as MimePart;
 			Assert.IsNotNull (part, "Second part is null or not a MimePart");
-			Assert.IsTrue (part.ContentType.Matches ("image", "jpeg"), "Attachment is not an image/jpeg");
+			Assert.IsTrue (part.ContentType.IsMimeType ("image", "jpeg"), "Attachment is not an image/jpeg");
 			Assert.AreEqual ("2377h003.jpg", part.FileName, "Attachment filename is not the expected value");
 		}
 	}

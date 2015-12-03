@@ -404,7 +404,7 @@ namespace MimeKit {
 
 			base.WriteTo (options, stream, cancellationToken);
 
-			if (ContentType.Matches ("multipart", "signed")) {
+			if (ContentType.IsMimeType ("multipart", "signed")) {
 				// don't reformat the headers or content of any children of a multipart/signed
 				if (options.International || options.HiddenHeaders.Count > 0) {
 					options = options.Clone ();

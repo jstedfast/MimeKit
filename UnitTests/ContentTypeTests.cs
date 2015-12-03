@@ -108,7 +108,7 @@ namespace UnitTests {
 
 			Assert.IsFalse (ContentType.TryParse (text, out type), "Content-Type should have failed to parse");
 			Assert.IsNotNull (type, "ContentType should not be null");
-			Assert.IsTrue (type.Matches ("text", "plain"), "ContenType should match text/plain");
+			Assert.IsTrue (type.IsMimeType ("text", "plain"), "ContenType should match text/plain");
 		}
 
 		[Test]

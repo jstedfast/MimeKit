@@ -930,7 +930,7 @@ namespace MimeKit {
 				return type;
 			}
 
-			if (parent == null || !parent.Matches ("multipart", "digest"))
+			if (parent == null || !parent.IsMimeType ("multipart", "digest"))
 				return new ContentType ("text", "plain");
 
 			return new ContentType ("message", "rfc822");

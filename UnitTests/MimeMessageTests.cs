@@ -139,7 +139,7 @@ Just for fun....  -- Nathaniel<nl>
 			var message = (MimeMessage) mail;
 
 			Assert.IsTrue (message.Body is Multipart, "THe top-level MIME part should be a multipart.");
-			Assert.IsTrue (message.Body.ContentType.Matches ("multipart", "alternative"), "The top-level MIME part should be multipart/alternative.");
+			Assert.IsTrue (message.Body.ContentType.IsMimeType ("multipart", "alternative"), "The top-level MIME part should be multipart/alternative.");
 
 			var multipart = (Multipart) message.Body;
 

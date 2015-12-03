@@ -156,7 +156,7 @@ namespace MimeKit {
 		{
 			MimePart attachment;
 
-			if (contentType.Matches ("text", "*")) {
+			if (contentType.IsMimeType ("text", "*")) {
 				attachment = new TextPart (contentType.MediaSubtype);
 				foreach (var param in contentType.Parameters)
 					attachment.ContentType.Parameters.Add (param);

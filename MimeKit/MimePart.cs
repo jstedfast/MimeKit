@@ -426,7 +426,7 @@ namespace MimeKit {
 				byte[] checksum;
 
 				using (var filtered = new FilteredStream (stream)) {
-					if (ContentType.Matches ("text", "*"))
+					if (ContentType.IsMimeType ("text", "*"))
 						filtered.Add (new Unix2DosFilter ());
 
 					using (var md5 = MD5.Create ())

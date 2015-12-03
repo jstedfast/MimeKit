@@ -1276,7 +1276,7 @@ namespace MimeKit.Cryptography {
 			if (encrypted == null || encrypted.ContentObject == null)
 				throw new FormatException ();
 
-			if (!encrypted.ContentType.Matches ("application", "octet-stream"))
+			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
 				throw new FormatException ();
 
 			using (var memory = new MemoryBlockStream ()) {
@@ -1373,7 +1373,7 @@ namespace MimeKit.Cryptography {
 			if (encrypted == null || encrypted.ContentObject == null)
 				throw new FormatException ();
 
-			if (!encrypted.ContentType.Matches ("application", "octet-stream"))
+			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
 				throw new FormatException ();
 
 			using (var ctx = CryptographyContext.Create (protocol)) {

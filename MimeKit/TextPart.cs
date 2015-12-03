@@ -167,7 +167,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
 		bool IsEnriched {
-			get { return ContentType.Matches ("text", "enriched") || ContentType.Matches ("text", "richtext"); }
+			get { return ContentType.IsMimeType ("text", "enriched") || ContentType.IsMimeType ("text", "richtext"); }
 		}
 
 		/// <summary>
@@ -197,7 +197,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsHtml {
-			get { return ContentType.Matches ("text", "html"); }
+			get { return ContentType.IsMimeType ("text", "html"); }
 		}
 
 		/// <summary>
@@ -208,7 +208,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsPlain {
-			get { return ContentType.Matches ("text", "plain"); }
+			get { return ContentType.IsMimeType ("text", "plain"); }
 		}
 
 		/// <summary>
@@ -219,7 +219,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
 		public bool IsRichText {
-			get { return ContentType.Matches ("text", "rtf") || ContentType.Matches ("application", "rtf"); }
+			get { return ContentType.IsMimeType ("text", "rtf") || ContentType.IsMimeType ("application", "rtf"); }
 		}
 
 		/// <summary>

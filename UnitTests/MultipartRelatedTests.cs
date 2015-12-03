@@ -59,7 +59,7 @@ namespace UnitTests {
 			var root = related.Root;
 
 			Assert.IsNotNull (root, "The root document should not be null.");
-			Assert.IsTrue (root.ContentType.Matches ("text", "html"), "The root document has an unexpected mime-type.");
+			Assert.IsTrue (root.ContentType.IsMimeType ("text", "html"), "The root document has an unexpected mime-type.");
 
 			// Note: MimeKit no longer sets the "start" parameter if the root is the first MIME part due to a bug in Thunderbird.
 			//var start = "<" + root.ContentId + ">";
@@ -94,7 +94,7 @@ namespace UnitTests {
 			var root = related.Root;
 
 			Assert.IsNotNull (root, "The root document should not be null.");
-			Assert.IsTrue (root.ContentType.Matches ("text", "html"), "The root document has an unexpected mime-type.");
+			Assert.IsTrue (root.ContentType.IsMimeType ("text", "html"), "The root document has an unexpected mime-type.");
 
 			// Note: MimeKit no longer sets the "start" parameter if the root is the first MIME part due to a bug in Thunderbird.
 			//var start = "<" + root.ContentId + ">";
