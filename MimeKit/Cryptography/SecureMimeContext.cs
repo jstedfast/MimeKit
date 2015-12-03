@@ -1297,7 +1297,7 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryBlockStream ();
 
 			cms.AddCertificates (certificates);
-			cms.Open (memory).Close ();
+			cms.Open (memory).Dispose ();
 			memory.Position = 0;
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
