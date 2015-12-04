@@ -1,0 +1,8 @@
+{
+  "frameworks": {
+    "net40": {}
+  },
+  "runtimes": {
+    "win-anycpu": {}
+  }
+}
