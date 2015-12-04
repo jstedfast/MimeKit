@@ -1,7 +1,8 @@
 Mono.Data.Sqlite/Documentation
-*~
+*project.lock.json
 *.userprefs
 *.suo
+*~
 test-results
 packages
 obj
