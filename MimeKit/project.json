@@ -10,6 +10,9 @@
 
   "frameworks": {
     "net45": {
+      "compilationOptions": {
+        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
+      },
       "frameworkAssemblies": {
         "System.Core": "",
         "System.Data": "",
@@ -21,6 +24,9 @@
       }
     },
     "net40": {
+      "compilationOptions": {
+        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
+      },
       "frameworkAssemblies": {
         "System.Core": "",
         "System.Data": "",
@@ -32,6 +38,9 @@
       }
     },
     "net35": {
+      "compilationOptions": {
+        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM", "NET_3_5" ]
+      },
       "frameworkAssemblies": {
         "System.Core": "",
         "System.Data": "",
