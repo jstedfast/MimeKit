@@ -6,28 +6,88 @@
   "projectUrl": "https://github.com/jstedfast/MimeKit",
   "licenseUrl": "https://github.com/jstedfast/MimeKit/blob/master/License.md",
 
-  "dependencies": {
-    "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-beta-23019",
-    "System.Security.Cryptography.Hashing": "4.0.0-beta-23019",
-    "System.Text.Encoding.Extensions": "4.0.10-beta-23019",
-    "System.Text.Encoding.CodePages": "4.0.0-beta-23019",
-    "System.Text.Encoding": "4.0.10-beta-23019",
-    "System.Net.NetworkInformation": "4.0.10-beta-23123",
-    "System.Net.NameResolution": "4.0.0-beta-23019",
-    "System.Collections": "4.0.10-beta-23019",
-    "System.Threading": "4.0.10-beta-23019",
-    "System.Runtime": "4.0.20-beta-23019",
-    "System.Linq": "4.0.0-beta-23019",
-    "Microsoft.CSharp": "4.0.0-beta-23019"
-  },
-
   "frameworks": {
-    "dotnet": { }
-  },
-
-  "compilationOptions": {
-    "define": [ "COREFX" ],
-    "allowUnsafe": true
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+	"System.Xml": "",
+        "System.Xml.Linq": "",
+        "Microsoft.CSharp": "",
+      }
+    },
+    "net40": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+	"System.Xml": "",
+        "System.Xml.Linq": "",
+        "Microsoft.CSharp": "",
+      }
+    },
+    "net35": {
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+	"System.Xml": "",
+        "System.Xml.Linq": "",
+        "Microsoft.CSharp": "",
+      }
+    },
+    ".NETPortable,Version=v4.5,Profile=Profile7": {
+      "compilationOptions": {
+        "define": [ "PORTABLE", "ENABLE_CRYPTO" ]
+      },
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+	"System.Xml": "",
+        "System.Xml.Linq": "",
+        "Microsoft.CSharp": "",
+      }
+    },
+    ".NETPortable,Version=v4.5,Profile=Profile111": {
+      "compilationOptions": {
+        "define": [ "PORTABLE", "ENABLE_CRYPTO" ]
+      },
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+	"System.Xml": "",
+        "System.Xml.Linq": "",
+        "Microsoft.CSharp": "",
+      }
+    },
+    "dotnet": {
+      "compilationOptions": {
+        "define": [ "COREFX" ],
+        "allowUnsafe": true
+      },
+      "dependencies": {
+        "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-beta-23019",
+        "System.Security.Cryptography.Hashing": "4.0.0-beta-23019",
+        "System.Text.Encoding.Extensions": "4.0.10",
+        "System.Text.Encoding.CodePages": "4.0.0-beta-23019",
+        "System.Text.Encoding": "4.0.10",
+        "System.Net.NetworkInformation": "4.0.10-beta-23123",
+        "System.Net.NameResolution": "4.0.0-beta-23019",
+        "System.Collections": "4.0.10",
+        "System.Threading": "4.0.10",
+        "System.Runtime": "4.0.20",
+        "System.Linq": "4.0.0",
+        "Microsoft.CSharp": "4.0.0"
+      }
+    }
   },
 
   "compile": [
@@ -165,5 +225,5 @@
     "TextPart.cs"
   ],
 
-  "compileExclude": [ "packages.*.config", "Cryptography\\*.cs", "MacInterop\\*.cs" ],
+  "compileExclude": [ "packages.*.config", "MacInterop\\*.cs" ],
 }
