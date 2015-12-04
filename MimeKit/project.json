@@ -74,7 +74,7 @@
     },
     "dotnet": {
       "compilationOptions": {
-        "define": [ "COREFX" ],
+        "define": [ "COREFX", "ENABLE_CRYPTO" ],
         "allowUnsafe": true
       },
       "dependencies": {
@@ -89,10 +89,14 @@
         "System.Threading": "4.0.10",
         "System.Runtime": "4.0.20",
         "System.Linq": "4.0.0",
-        "Microsoft.CSharp": "4.0.0"
-      }
+        "Microsoft.CSharp": "4.0.0",
+        "Portable.BouncyCastle": "1.8.0"
+      },
+      "compileExclude": [
+        "MimeKit.*.project.json",
+        "packages.*.config",
+        "MacInterop\\*.cs"
+      ]
     }
   },
-
-  "compileExclude": [ "packages.*.config", "MimeKit.*.project.json", "MacInterop\\*.cs" ]
 }
