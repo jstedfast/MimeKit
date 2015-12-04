@@ -31,7 +31,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle ("MimeKit")]
-[assembly: AssemblyDescription ("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")]
+[assembly: AssemblyDescription ("A complete MIME library with support for S/MIME, PGP, DKIM and Unix mbox spools.")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Xamarin Inc.")]
 [assembly: AssemblyProduct ("MimeKit")]
