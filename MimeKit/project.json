@@ -3,7 +3,7 @@
   "title": "MimeKit",
   "description": "An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.",
   "authors": [ "Jeffrey Stedfast" ],
-  "tags": [ "mime", "encryption", "security", "smime", "s/mime", "openpgp", "pgp", "mbox", "email", "parser", "tnef", "net35", "net40", "net45", "corefx", "xamarin", "android", "ios", "monodroid", "monotouch", "win8", "wp81" ],
+  "tags": [ "mime", "encryption", "dkim", "security", "smime", "s/mime", "openpgp", "pgp", "mbox", "email", "parser", "tnef", "net35", "net40", "net45", "corefx", "xamarin", "android", "ios", "monodroid", "monotouch", "win8", "wp81" ],
   "projectUrl": "https://github.com/jstedfast/MimeKit",
   "licenseUrl": "https://github.com/jstedfast/MimeKit/blob/master/License.md",
   "language": "en-US",
