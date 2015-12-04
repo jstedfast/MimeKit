@@ -43,8 +43,9 @@
     "Cryptography/SqliteCertificateDatabase.cs",
     "Cryptography/WindowsSecureMimeContext.cs",
     "Cryptography/X509CertificateDatabase.cs",
+    "MacInterop/*.cs"
+    "CancellationToken.cs",
     "MimeKit.*.project.json",
     "packages.*.config",
-    "MacInterop/*.cs"
   ]
 }
