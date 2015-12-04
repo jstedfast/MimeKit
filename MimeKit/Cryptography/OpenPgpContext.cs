@@ -848,7 +848,7 @@ namespace MimeKit.Cryptography {
 			case PublicKeyAlgorithmTag.RsaSign:        return PublicKeyAlgorithm.RsaSign;
 			case PublicKeyAlgorithmTag.ElGamalEncrypt: return PublicKeyAlgorithm.ElGamalEncrypt;
 			case PublicKeyAlgorithmTag.Dsa:            return PublicKeyAlgorithm.Dsa;
-			case PublicKeyAlgorithmTag.EC:             return PublicKeyAlgorithm.EllipticCurve;
+			case PublicKeyAlgorithmTag.ECDH:           return PublicKeyAlgorithm.EllipticCurve;
 			case PublicKeyAlgorithmTag.ECDsa:          return PublicKeyAlgorithm.EllipticCurveDsa;
 			case PublicKeyAlgorithmTag.ElGamalGeneral: return PublicKeyAlgorithm.ElGamalGeneral;
 			case PublicKeyAlgorithmTag.DiffieHellman:  return PublicKeyAlgorithm.DiffieHellman;

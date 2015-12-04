@@ -813,57 +813,57 @@ namespace MimeKit.Cryptography {
 			if (identifier == null)
 				throw new ArgumentNullException ("identifier");
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes256Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Aes256Cbc) {
 				algorithm = EncryptionAlgorithm.Aes256;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes192Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Aes192Cbc) {
 				algorithm = EncryptionAlgorithm.Aes192;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Aes128Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Aes128Cbc) {
 				algorithm = EncryptionAlgorithm.Aes128;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia256Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Camellia256Cbc) {
 				algorithm = EncryptionAlgorithm.Camellia256;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia192Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Camellia192Cbc) {
 				algorithm = EncryptionAlgorithm.Camellia192;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Camellia128Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Camellia128Cbc) {
 				algorithm = EncryptionAlgorithm.Camellia128;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.Cast5Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Cast5Cbc) {
 				algorithm = EncryptionAlgorithm.Cast5;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.DesEde3Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.DesEde3Cbc) {
 				algorithm = EncryptionAlgorithm.TripleDes;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == SmimeCapability.DesCbc.Id) {
+			if (identifier.Algorithm.Id == SmimeCapability.DesCbc.Id) {
 				algorithm = EncryptionAlgorithm.Des;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.IdeaCbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.IdeaCbc) {
 				algorithm = EncryptionAlgorithm.Idea;
 				return true;
 			}
 
-			if (identifier.ObjectID.Id == CmsEnvelopedGenerator.RC2Cbc) {
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.RC2Cbc) {
 				var param = (DerInteger) identifier.Parameters;
 				int bits = param.Value.IntValue;
 
