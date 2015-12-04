@@ -9,79 +9,6 @@
   "language": "en-US",
 
   "frameworks": {
-    "net45": {
-      "compilationOptions": {
-        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
-      },
-      "frameworkAssemblies": {
-        "System.Core": "",
-        "System.Data": "",
-        "System.Data.DataSetExtensions": "",
-        "System.Security": "",
-        "System.Xml": "",
-        "System.Xml.Linq": "",
-        "Microsoft.CSharp": ""
-      }
-    },
-    "net40": {
-      "compilationOptions": {
-        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
-      },
-      "frameworkAssemblies": {
-        "System.Core": "",
-        "System.Data": "",
-        "System.Data.DataSetExtensions": "",
-        "System.Security": "",
-        "System.Xml": "",
-        "System.Xml.Linq": "",
-        "Microsoft.CSharp": ""
-      }
-    },
-    "net35": {
-      "compilationOptions": {
-        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM", "NET_3_5" ]
-      },
-      "frameworkAssemblies": {
-        "System.Core": "",
-        "System.Data": "",
-        "System.Data.DataSetExtensions": "",
-        "System.Security": "",
-        "System.Xml": "",
-        "System.Xml.Linq": ""
-      }
-    },
-    ".NETPortable,Version=v4.5,Profile=Profile7": {
-      "compilationOptions": {
-        "define": [ "PORTABLE", "ENABLE_CRYPTO" ]
-      },
-      "frameworkAssemblies": {
-        "System.Core": "",
-        "System.Xml": "",
-        "System.Xml.Linq": "",
-        "Microsoft.CSharp": ""
-      }
-    },
-    ".NETPortable,Version=v4.5,Profile=Profile111": {
-      "compilationOptions": {
-        "define": [ "PORTABLE", "ENABLE_CRYPTO" ]
-      },
-      "frameworkAssemblies": {
-        "System.Core": "",
-        "System.Xml": "",
-        "System.Xml.Linq": "",
-        "Microsoft.CSharp": ""
-      }
-    },
-    "MonoAndroid,Version=v4.0.3": {
-      "compilationOptions": {
-        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
-      }
-    },
-    "Xamarin.iOS,Version=v1.0": {
-      "compilationOptions": {
-        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
-      }
-    },
     "dotnet": {
       "compilationOptions": {
         "define": [ "COREFX", "ENABLE_CRYPTO" ],
@@ -90,23 +17,34 @@
       "dependencies": {
         "System.Security.Cryptography.Algorithms": "4.0.0-beta-23225",
         "System.Security.Cryptography.Primitives": "4.0.0-beta-23225",
+        "System.Runtime.Serialization.Primitives": "4.0.0",
         "System.Text.Encoding.Extensions": "4.0.10",
         "System.Text.Encoding.CodePages": "4.0.0",
         "System.Text.Encoding": "4.0.10",
         "System.Net.NetworkInformation": "4.0.0",
         "System.Net.Primitives": "4.0.0",
         "System.Collections": "4.0.10",
+        "System.Data.Common": "4.0.0",
         "System.Threading": "4.0.10",
         "System.Runtime": "4.0.20",
         "System.Linq": "4.0.0",
         "Microsoft.CSharp": "4.0.0",
         "Portable.BouncyCastle": "1.8.0"
-      },
-      "compileExclude": [
-        "MimeKit.*.project.json",
-        "packages.*.config",
-        "MacInterop\\*.cs"
-      ]
+      }
     }
   },
+  "compileExclude": [
+    "Cryptography/DbExtensions.cs",
+    "Cryptography/DefaultSecureMimeContext.cs",
+    "Cryptography/GnuPGContext.cs",
+    "Cryptography/MacSecureMimeContext.cs",
+    "Cryptography/NpgsqlCertificateDatabase.cs",
+    "Cryptography/SqlCertificateDatabase.cs",
+    "Cryptography/SqliteCertificateDatabase.cs",
+    "Cryptography/WindowsSecureMimeContext.cs",
+    "Cryptography/X509CertificateDatabase.cs",
+    "MimeKit.*.project.json",
+    "packages.*.config",
+    "MacInterop/*.cs"
+  ]
 }

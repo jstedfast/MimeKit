@@ -314,7 +314,7 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextConstructor != null)
 						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
 
-#if !PORTABLE
+#if !PORTABLE && !COREFX
 					if (!SqliteCertificateDatabase.IsAvailable)
 						throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.SecureMimeContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
 

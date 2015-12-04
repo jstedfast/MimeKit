@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 			Domain = domain;
 		}
 
-#if !PORTABLE
+#if !PORTABLE && !COREFX
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
