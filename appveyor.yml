@@ -11,7 +11,7 @@ install:
 - cmd: >-
     git submodule update --init --recursive
 
-    dnu restore
+    nuget restore MimeKit.Net45.sln
 
 build:
   project: MimeKit.Net45.sln
