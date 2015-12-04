@@ -72,6 +72,16 @@
         "Microsoft.CSharp": ""
       }
     },
+    "MonoAndroid,Version=v4.0.3": {
+      "compilationOptions": {
+        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
+      }
+    },
+    "Xamarin.iOS,Version=v1.0": {
+      "compilationOptions": {
+        "define": [ "SERIALIZABLE", "ENABLE_CRYPTO", "ENABLE_SNM" ]
+      }
+    },
     "dotnet": {
       "compilationOptions": {
         "define": [ "COREFX", "ENABLE_CRYPTO" ],
