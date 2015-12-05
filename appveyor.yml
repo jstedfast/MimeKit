@@ -1,4 +1,4 @@
-version: 1.2.16.{build}
+version: 1.2.17.{build}
 os: Visual Studio 2015
 configuration: Debug
 platform: Any CPU
@@ -8,10 +8,8 @@ environment:
     secure: bY3HMQXJsuuHTqtDx878B8dh+vRw8Sr+ffu+i2ycNlnvN3NUsGXVCj/SUBlbsNdL
 
 install:
-- cmd: >-
-    git submodule update --init --recursive
-
-    nuget restore MimeKit.Net45.sln
+  - cmd: git submodule update --init --recursive
+  - cmd: nuget restore MimeKit.Net45.sln
 
 build:
   project: MimeKit.Net45.sln
