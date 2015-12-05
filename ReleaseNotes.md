@@ -1,11 +1,14 @@
 # Release Notes
 
+### MimeKit 1.3.0
+
+* Added support for dnxcore50
+
 ### MimeKit 1.2.17
 
 * Fixed DkimRelaxedBodyFilter to properly handle CRLF split across buffers.
 * Added ContentType.IsMimeType method to replace CongtentType.Matches.
 * Added S/MIME, PGP and DKIM support to the PCL and WindowsUniversal versions of MimeKit.
-* Ported MimeKit to dnxcore50.
 
 ### MimeKit 1.2.16
 
