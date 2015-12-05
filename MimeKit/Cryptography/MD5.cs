@@ -75,7 +75,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new instance of an MD5 hash algorithm context.
 		/// </remarks>
-		public MD5 ()
+		MD5 ()
 		{
 			queuedData = new byte [BLOCK_SIZE_BYTES];
 			buff = new uint[16];
@@ -84,7 +84,13 @@ namespace MimeKit.Cryptography {
 			Initialize ();
 		}
 
-		internal static MD5 Create ()
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MD5"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new instance of an MD5 hash algorithm context.
+		/// </remarks>
+		public static MD5 Create ()
 		{
 			return new MD5 ();
 		}
