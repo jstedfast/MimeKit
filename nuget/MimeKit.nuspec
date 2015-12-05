@@ -74,6 +74,11 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 	  <group targetFramework="wpa81">
 	    <dependency id="Portable.BouncyCastle" version="1.8.0" />
 	  </group>
+	  <group targetFramework="xamarinios10" />
+	  <group targetFramework="MonoAndroid" />
+	  <group targetFramework="net45" />
+	  <group targetFramework="net40" />
+	  <group targetFramework="net35" />
 	</dependencies>
     </metadata>
     <files>
