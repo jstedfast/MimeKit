@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-#if PORTABLE || COREFX
+#if PORTABLE
 		/// <summary>
 		/// Gets the public keyring.
 		/// </summary>
@@ -274,7 +274,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-#if PORTABLE || COREFX
+#if PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
 		/// </summary>
@@ -1620,7 +1620,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected void SavePublicKeyRingBundle ()
 		{
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 			var filename = Path.GetFileName (PublicKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (PublicKeyRingPath);
 			var tmp = Path.Combine (dirname, "." + filename);
@@ -1635,8 +1635,10 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (PublicKeyRingPath))
+#if !COREFX
 				File.Replace (tmp, PublicKeyRingPath, bak);
 			else
+#endif
 				File.Move (tmp, PublicKeyRingPath);
 #else
 			PublicKeyRingBundle.Encode (PublicKeyRing);
@@ -1656,7 +1658,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected void SaveSecretKeyRingBundle ()
 		{
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 			var filename = Path.GetFileName (SecretKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (SecretKeyRingPath);
 			var tmp = Path.Combine (dirname, "." + filename);
@@ -1671,8 +1673,10 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (SecretKeyRingPath))
+#if !COREFX
 				File.Replace (tmp, SecretKeyRingPath, bak);
 			else
+#endif
 				File.Move (tmp, SecretKeyRingPath);
 #else
 			SecretKeyRingBundle.Encode (SecretKeyRing);

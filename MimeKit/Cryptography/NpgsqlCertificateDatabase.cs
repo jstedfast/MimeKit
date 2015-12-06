@@ -29,6 +29,7 @@ using System.IO;
 using System.Data;
 using System.Text;
 using System.Reflection;
+using System.Data.Common;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -64,7 +65,7 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
-		static IDbConnection CreateConnection (string connectionString)
+		static DbConnection CreateConnection (string connectionString)
 		{
 			if (connectionString == null)
 				throw new ArgumentNullException ("connectionString");
@@ -72,7 +73,7 @@ namespace MimeKit.Cryptography {
 			if (connectionString.Length == 0)
 				throw new ArgumentException ("The connection string cannot be empty.", "connectionString");
 
-			return (IDbConnection) Activator.CreateInstance (npgsqlConnectionClass, new [] { connectionString });
+			return (DbConnection) Activator.CreateInstance (npgsqlConnectionClass, new [] { connectionString });
 		}
 
 		/// <summary>
@@ -109,7 +110,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		public NpgsqlCertificateDatabase (IDbConnection connection, string password) : base (connection, password)
+		public NpgsqlCertificateDatabase (DbConnection connection, string password) : base (connection, password)
 		{
 		}
 
@@ -120,9 +121,9 @@ namespace MimeKit.Cryptography {
 		/// Constructs the command to create a certificates table suitable for storing
 		/// <see cref="X509CertificateRecord"/> objects.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
-		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
-		protected override IDbCommand GetCreateCertificatesTableCommand (IDbConnection connection)
+		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		protected override DbCommand GetCreateCertificatesTableCommand (DbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
 			var columns = X509CertificateRecord.ColumnNames;
@@ -167,9 +168,9 @@ namespace MimeKit.Cryptography {
 		/// Constructs the command to create a CRLs table suitable for storing
 		/// <see cref="X509CertificateRecord"/> objects.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
-		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
-		protected override IDbCommand GetCreateCrlsTableCommand (IDbConnection connection)
+		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		protected override DbCommand GetCreateCrlsTableCommand (DbConnection connection)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
 			var columns = X509CrlRecord.ColumnNames;

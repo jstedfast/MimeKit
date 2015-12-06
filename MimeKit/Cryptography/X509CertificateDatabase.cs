@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Data;
+using System.Data.Common;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -128,7 +129,7 @@ namespace MimeKit.Cryptography {
 			get; set;
 		}
 
-		static int ReadBinaryBlob (IDataRecord reader, int column, ref byte[] buffer)
+		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
 			long nread;
 
@@ -140,7 +141,7 @@ namespace MimeKit.Cryptography {
 			return (int) reader.GetBytes (column, 0, buffer, 0, (int) nread);
 		}
 
-		static X509Certificate DecodeCertificate (IDataRecord reader, X509CertificateParser parser, int column, ref byte[] buffer)
+		static X509Certificate DecodeCertificate (DbDataReader reader, X509CertificateParser parser, int column, ref byte[] buffer)
 		{
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
@@ -149,7 +150,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static X509Crl DecodeX509Crl (IDataRecord reader, X509CrlParser parser, int column, ref byte[] buffer)
+		static X509Crl DecodeX509Crl (DbDataReader reader, X509CrlParser parser, int column, ref byte[] buffer)
 		{
 			int nread = ReadBinaryBlob (reader, column, ref buffer);
 
@@ -217,7 +218,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		AsymmetricKeyParameter DecodePrivateKey (IDataRecord reader, int column, ref byte[] buffer)
+		AsymmetricKeyParameter DecodePrivateKey (DbDataReader reader, int column, ref byte[] buffer)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -232,7 +233,7 @@ namespace MimeKit.Cryptography {
 			return key != null ? EncryptAsymmetricKeyParameter (key) : null;
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (IDataRecord reader, int column)
+		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (DbDataReader reader, int column)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -271,7 +272,7 @@ namespace MimeKit.Cryptography {
 			return string.Join (",", tokens);
 		}
 
-		X509CertificateRecord LoadCertificateRecord (IDataRecord reader, X509CertificateParser parser, ref byte[] buffer)
+		X509CertificateRecord LoadCertificateRecord (DbDataReader reader, X509CertificateParser parser, ref byte[] buffer)
 		{
 			var record = new X509CertificateRecord ();
 
@@ -301,7 +302,7 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
-		X509CrlRecord LoadCrlRecord (IDataRecord reader, X509CrlParser parser, ref byte[] buffer)
+		X509CrlRecord LoadCrlRecord (DbDataReader reader, X509CrlParser parser, ref byte[] buffer)
 		{
 			var record = new X509CrlRecord ();
 
@@ -365,7 +366,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract IDbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
@@ -378,7 +379,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract IDbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select certificate records matching the specified selector.
@@ -391,7 +392,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract IDbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -437,7 +438,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract IDbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select the record for the specified CRL.
@@ -448,7 +449,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract IDbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select all CRLs in the table.
@@ -457,7 +458,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select all CRLs in the table.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		protected abstract IDbCommand GetSelectAllCrlsCommand ();
+		protected abstract DbCommand GetSelectAllCrlsCommand ();
 
 		/// <summary>
 		/// Gets the database command to delete the specified certificate record.
@@ -467,7 +468,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
-		protected abstract IDbCommand GetDeleteCommand (X509CertificateRecord record);
+		protected abstract DbCommand GetDeleteCommand (X509CertificateRecord record);
 
 		/// <summary>
 		/// Gets the database command to delete the specified CRL record.
@@ -477,7 +478,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The record.</param>
-		protected abstract IDbCommand GetDeleteCommand (X509CrlRecord record);
+		protected abstract DbCommand GetDeleteCommand (X509CrlRecord record);
 
 		/// <summary>
 		/// Gets the value for the specified column.
@@ -545,7 +546,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
-		protected abstract IDbCommand GetInsertCommand (X509CertificateRecord record);
+		protected abstract DbCommand GetInsertCommand (X509CertificateRecord record);
 
 		/// <summary>
 		/// Gets the database command to insert the specified CRL record.
@@ -555,7 +556,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
-		protected abstract IDbCommand GetInsertCommand (X509CrlRecord record);
+		protected abstract DbCommand GetInsertCommand (X509CrlRecord record);
 
 		/// <summary>
 		/// Gets the database command to update the specified record.
@@ -566,7 +567,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
-		protected abstract IDbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to update the specified CRL record.
@@ -576,7 +577,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
-		protected abstract IDbCommand GetUpdateCommand (X509CrlRecord record);
+		protected abstract DbCommand GetUpdateCommand (X509CrlRecord record);
 
 		/// <summary>
 		/// Find the specified certificate.
@@ -607,7 +608,11 @@ namespace MimeKit.Cryptography {
 						return LoadCertificateRecord (reader, parser, ref buffer);
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -638,7 +643,11 @@ namespace MimeKit.Cryptography {
 							yield return record.Certificate;
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -670,7 +679,11 @@ namespace MimeKit.Cryptography {
 							yield return record.PrivateKey;
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -709,7 +722,11 @@ namespace MimeKit.Cryptography {
 						yield return LoadCertificateRecord (reader, parser, ref buffer);
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -743,7 +760,11 @@ namespace MimeKit.Cryptography {
 							yield return record;
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -840,7 +861,11 @@ namespace MimeKit.Cryptography {
 						yield return LoadCrlRecord (reader, parser, ref buffer);
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -876,7 +901,11 @@ namespace MimeKit.Cryptography {
 						return LoadCrlRecord (reader, parser, ref buffer);
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
@@ -966,14 +995,18 @@ namespace MimeKit.Cryptography {
 						crls.Add (record.Crl);
 					}
 				} finally {
+#if COREFX
+					reader.Dispose ();
+#else
 					reader.Close ();
+#endif
 				}
 			}
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
-		#region IX509Store implementation
+#region IX509Store implementation
 
 		/// <summary>
 		/// Gets a collection of matching certificates matching the specified selector.
@@ -988,9 +1021,9 @@ namespace MimeKit.Cryptography {
 			return new List<X509Certificate> (FindCertificates (selector));
 		}
 
-		#endregion
+#endregion
 
-		#region IDisposable implementation
+#region IDisposable implementation
 
 		/// <summary>
 		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
@@ -1023,6 +1056,6 @@ namespace MimeKit.Cryptography {
 			GC.SuppressFinalize (this);
 		}
 
-		#endregion
+#endregion
 	}
 }

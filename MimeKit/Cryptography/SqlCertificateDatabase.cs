@@ -27,6 +27,7 @@
 using System;
 using System.Data;
 using System.Text;
+using System.Data.Common;
 
 #if __MOBILE__
 using Mono.Data.Sqlite;
@@ -50,7 +51,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
-		readonly IDbConnection connection;
+		readonly DbConnection connection;
 		bool disposed;
 
 		/// <summary>
@@ -66,7 +67,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		protected SqlCertificateDatabase (IDbConnection connection, string password) : base (password)
+		protected SqlCertificateDatabase (DbConnection connection, string password) : base (password)
 		{
 			if (connection == null)
 				throw new ArgumentNullException ("connection");
@@ -87,9 +88,9 @@ namespace MimeKit.Cryptography {
 		/// Constructs the command to create a certificates table suitable for storing
 		/// <see cref="X509CertificateRecord"/> objects.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
-		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
-		protected abstract IDbCommand GetCreateCertificatesTableCommand (IDbConnection connection);
+		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		protected abstract DbCommand GetCreateCertificatesTableCommand (DbConnection connection);
 
 		/// <summary>
 		/// Gets the command to create the CRLs table.
@@ -98,11 +99,11 @@ namespace MimeKit.Cryptography {
 		/// Constructs the command to create a CRLs table suitable for storing
 		/// <see cref="X509CertificateRecord"/> objects.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.IDbCommand"/>.</returns>
-		/// <param name="connection">The <see cref="System.Data.IDbConnection"/>.</param>
-		protected abstract IDbCommand GetCreateCrlsTableCommand (IDbConnection connection);
+		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		protected abstract DbCommand GetCreateCrlsTableCommand (DbConnection connection);
 
-		static void CreateIndex (IDbConnection connection, string tableName, string[] columnNames)
+		static void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
 			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
@@ -115,9 +116,8 @@ namespace MimeKit.Cryptography {
 
 		void CreateCertificatesTable ()
 		{
-			using (var command = GetCreateCertificatesTableCommand (connection)) {
+			using (var command = GetCreateCertificatesTableCommand (connection))
 				command.ExecuteNonQuery ();
-			}
 
 			CreateIndex (connection, "CERTIFICATES", new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
 			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "FINGERPRINT" });
@@ -129,9 +129,8 @@ namespace MimeKit.Cryptography {
 
 		void CreateCrlsTable ()
 		{
-			using (var command = GetCreateCrlsTableCommand (connection)) {
+			using (var command = GetCreateCrlsTableCommand (connection))
 				command.ExecuteNonQuery ();
-			}
 
 			CreateIndex (connection, "CRLS", new [] { "ISSUERNAME" });
 			CreateIndex (connection, "CRLS", new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
@@ -146,7 +145,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override IDbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
@@ -174,7 +173,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
 		/// <param name="requirePrivateKey">true</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override IDbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var secure = mailbox as SecureMailboxAddress;
@@ -220,7 +219,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedOnly">If set to <c>true</c> trusted only.</param>
 		/// <param name="requirePrivateKey">true</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override IDbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var match = selector as X509CertStoreSelector;
@@ -294,7 +293,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override IDbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields)
+		protected override DbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
 			var command = connection.CreateCommand ();
@@ -315,7 +314,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override IDbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields)
+		protected override DbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
 			var issuerName = crl.IssuerDN.ToString ();
@@ -337,7 +336,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select all CRLs in the table.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		protected override IDbCommand GetSelectAllCrlsCommand ()
+		protected override DbCommand GetSelectAllCrlsCommand ()
 		{
 			var command = connection.CreateCommand ();
 
@@ -355,7 +354,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
-		protected override IDbCommand GetDeleteCommand (X509CertificateRecord record)
+		protected override DbCommand GetDeleteCommand (X509CertificateRecord record)
 		{
 			var command = connection.CreateCommand ();
 
@@ -374,7 +373,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The record.</param>
-		protected override IDbCommand GetDeleteCommand (X509CrlRecord record)
+		protected override DbCommand GetDeleteCommand (X509CrlRecord record)
 		{
 			var command = connection.CreateCommand ();
 
@@ -393,7 +392,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
-		protected override IDbCommand GetInsertCommand (X509CertificateRecord record)
+		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var columns = X509CertificateRecord.ColumnNames;
@@ -431,7 +430,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
-		protected override IDbCommand GetInsertCommand (X509CrlRecord record)
+		protected override DbCommand GetInsertCommand (X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CRLS(");
 			var variables = new StringBuilder ("VALUES(");
@@ -470,7 +469,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
-		protected override IDbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields)
+		protected override DbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
 			var statement = new StringBuilder ("UPDATE CERTIFICATES SET ");
 			var columns = GetColumnNames (fields & ~X509CertificateRecordFields.Id);
@@ -507,7 +506,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
-		protected override IDbCommand GetUpdateCommand (X509CrlRecord record)
+		protected override DbCommand GetUpdateCommand (X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("UPDATE CRLS SET ");
 			var columns = X509CrlRecord.ColumnNames;

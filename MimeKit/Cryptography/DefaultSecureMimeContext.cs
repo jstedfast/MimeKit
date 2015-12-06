@@ -71,6 +71,7 @@ namespace MimeKit.Cryptography {
 		{
 			string path;
 
+#if !COREFX
 			if (Path.DirectorySeparatorChar == '\\') {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 				path = Path.Combine (appData, "Roaming\\mimekit");
@@ -78,6 +79,9 @@ namespace MimeKit.Cryptography {
 				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
 				path = Path.Combine (home, ".mimekit");
 			}
+#else
+			path = ".mimekit";
+#endif
 
 			if (!Directory.Exists (path))
 				Directory.CreateDirectory (path);
@@ -195,7 +199,7 @@ namespace MimeKit.Cryptography {
 			dbase = database;
 		}
 
-		#region implemented abstract members of SecureMimeContext
+#region implemented abstract members of SecureMimeContext
 
 		/// <summary>
 		/// Gets the X.509 certificate matching the specified selector.
@@ -523,7 +527,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Imports a DER-encoded certificate stream.

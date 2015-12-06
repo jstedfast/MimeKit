@@ -25,25 +25,20 @@
         "System.Net.NetworkInformation": "4.0.0",
         "System.Net.Primitives": "4.0.11-beta-23516",
         "System.Collections": "4.0.10",
-        "System.Data.Common": "4.0.0",
+        "System.Data.Common": "4.0.1-beta-23516",
         "System.Threading": "4.0.10",
-        "System.Runtime": "4.0.20",
+        "System.Runtime": "4.0.21-beta-23516",
         "System.Linq": "4.0.0",
         "Microsoft.CSharp": "4.0.0",
+        "Microsoft.Data.Sqlite": "1.0.0-rc1-final",
         "Portable.BouncyCastle": "1.8.0"
       }
     }
   },
   "compileExclude": [
-    "Cryptography/DbExtensions.cs",
-    "Cryptography/DefaultSecureMimeContext.cs",
-    "Cryptography/GnuPGContext.cs",
     "Cryptography/MacSecureMimeContext.cs",
     "Cryptography/NpgsqlCertificateDatabase.cs",
-    "Cryptography/SqlCertificateDatabase.cs",
-    "Cryptography/SqliteCertificateDatabase.cs",
     "Cryptography/WindowsSecureMimeContext.cs",
-    "Cryptography/X509CertificateDatabase.cs",
     "MacInterop/*.cs",
     "CancellationToken.cs",
     "MimeKit.*.project.json",

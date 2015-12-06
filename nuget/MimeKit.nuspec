@@ -54,6 +54,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 	  <group targetFramework="dnxcore50">
 	    <dependency id="System.Security.Cryptography.Algorithms" version="4.0.0-beta-23516" />
 	    <dependency id="System.Security.Cryptography.Primitives" version="4.0.0-beta-23516" />
+	    <dependency id="System.Runtime.Serialization.Primitives" version="4.0.10" />
 	    <dependency id="System.Text.Encoding.Extensions" version="4.0.10" />
 	    <dependency id="System.Text.Encoding.CodePages" version="4.0.0" />
 	    <dependency id="System.Text.Encoding" version="4.0.10" />
@@ -61,11 +62,12 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 	    <dependency id="System.Net.NetworkInformation" version="4.0.0" />
 	    <dependency id="System.Net.Primitives" version="4.0.11-beta-23516" />
 	    <dependency id="System.Collections" version="4.0.10" />
-	    <dependency id="System.Data.Common" version="4.0.0" />
+	    <dependency id="System.Data.Common" version="4.0.1-beta-23516" />
 	    <dependency id="System.Threading" version="4.0.10" />
-	    <dependency id="System.Runtime" version="4.0.20" />
+	    <dependency id="System.Runtime" version="4.0.21-beta-23516" />
 	    <dependency id="System.Linq" version="4.0.0" />
 	    <dependency id="Microsoft.CSharp" version="4.0.0" />
+	    <dependency id="Microsoft.Data.Sqlite" version="1.0.0-rc1-final" />
 	    <dependency id="Portable.BouncyCastle" version="1.8.0" />
 	  </group>
 	  <group targetFramework="portable-net45+win+wp80+MonoAndroid10+xamarinios10+MonoTouch10">

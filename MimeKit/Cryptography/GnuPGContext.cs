@@ -44,6 +44,7 @@ namespace MimeKit.Cryptography {
 			string gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
 
 			if (gnupg == null) {
+#if !COREFX
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 					gnupg = Path.Combine (appData, "gnupg");
@@ -51,6 +52,9 @@ namespace MimeKit.Cryptography {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
 					gnupg = Path.Combine (home, ".gnupg");
 				}
+#else
+				gnupg = ".gnupg";
+#endif
 			}
 
 			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
