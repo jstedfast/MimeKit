@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>1.3.0-beta1</version>
+        <version>1.3.0-beta2</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -46,9 +46,9 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
             <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid1.0" />
             <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid1.0" />
             <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid1.0" />
-            <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
-            <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
+            <frameworkAssembly assemblyName="System" targetFramework="xamarinios10" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework="xamarinios10" />
+            <frameworkAssembly assemblyName="System.Data" targetFramework="xamarinios10" />
         </frameworkAssemblies>
 	<dependencies>
 	  <group targetFramework="dnxcore50">
