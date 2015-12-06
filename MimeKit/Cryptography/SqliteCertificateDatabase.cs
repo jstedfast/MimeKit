@@ -32,8 +32,6 @@ using System.Data.Common;
 
 #if __MOBILE__
 using Mono.Data.Sqlite;
-#elif COREFX
-using Microsoft.Data.Sqlite;
 #else
 using System.Reflection;
 #endif
@@ -50,7 +48,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class SqliteCertificateDatabase : SqlCertificateDatabase
 	{
-#if !__MOBILE__ && !COREFX
+#if !__MOBILE__
 		static readonly Type sqliteConnectionStringBuilderClass;
 		static readonly Type sqliteConnectionClass;
 		static readonly Assembly sqliteAssembly;
@@ -62,14 +60,28 @@ namespace MimeKit.Cryptography {
 		// assembly.
 		static SqliteCertificateDatabase ()
 		{
-#if !__MOBILE__ && !COREFX
+#if COREFX
+			try {
+				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
+					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");
+					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnectionStringBuilder");
+
+					// Make sure that the runtime can load the native sqlite library
+					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+
+					IsAvailable = true;
+				}
+			} catch (FileNotFoundException) {
+			} catch (FileLoadException) {
+			} catch (BadImageFormatException) {
+			}
+#elif !__MOBILE__
 			var platform = Environment.OSVersion.Platform;
 
 			try {
 				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
 				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
-					sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
-					if (sqliteAssembly != null) {
+					if ((sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite")) != null) {
 						sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
 						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
 
@@ -83,8 +95,7 @@ namespace MimeKit.Cryptography {
 
 				// System.Data.Sqlite is only available for Windows-based platforms.
 				if (!IsAvailable && platform != PlatformID.Unix && platform != PlatformID.MacOSX) {
-					sqliteAssembly = Assembly.Load ("System.Data.SQLite");
-					if (sqliteAssembly != null) {
+					if ((sqliteAssembly = Assembly.Load ("System.Data.SQLite")) != null) {
 						sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
 						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
 
@@ -116,27 +127,23 @@ namespace MimeKit.Cryptography {
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The file name cannot be empty.", "fileName");
 
-#if !__MOBILE__ && !COREFX
+#if !__MOBILE__
+			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
 			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-			sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+
 			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
 
-			if (!File.Exists (fileName))
-				sqliteConnectionClass.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
-
-			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
-
-			return (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
-#elif COREFX
-			var builder = new SqliteConnectionStringBuilder ();
-			builder.DataSource = fileName;
+			if (dateTimeFormat != null)
+				dateTimeFormat.SetValue (builder, 0, null);
 
 			if (!File.Exists (fileName)) {
 				Directory.CreateDirectory (Path.GetDirectoryName (fileName));
 				File.Create (fileName).Dispose ();
 			}
 
-			return new SqliteConnection (builder.ConnectionString);
+			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+
+			return (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
 #else
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;

@@ -40,6 +40,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class CryptographyContext : IDisposable
 	{
+		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
 		static ConstructorInfo SecureMimeContextConstructor;
 		static ConstructorInfo OpenPgpContextConstructor;
 		static readonly object mutex = new object ();
@@ -315,12 +316,18 @@ namespace MimeKit.Cryptography {
 						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
 
 #if !PORTABLE
-					if (!SqliteCertificateDatabase.IsAvailable)
-						throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.SecureMimeContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
+					if (!SqliteCertificateDatabase.IsAvailable) {
+						const string format = "SQLite is not available. Either install the {0} nuget or subclass MimeKit.Cryptography.SecureMimeContext and register it with MimeKit.Cryptography.CryptographyContext.Register().";
+#if COREFX
+						throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
+#else
+						throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
+#endif
+					}
 
 					return new DefaultSecureMimeContext ();
 #else
-					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.SecureMimeContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
+					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.SecureMimeContext"));
 #endif
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
@@ -331,7 +338,7 @@ namespace MimeKit.Cryptography {
 					if (OpenPgpContextConstructor != null)
 						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
 
-					throw new NotSupportedException ("You need to subclass MimeKit.Cryptography.GnuPGContext and then register it with MimeKit.Cryptography.CryptographyContext.Register().");
+					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.OpenPgpContext or MimeKit.Cryptography.GnuPGContext"));
 				default:
 					throw new NotSupportedException ();
 				}
