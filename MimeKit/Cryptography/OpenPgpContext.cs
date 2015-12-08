@@ -436,7 +436,7 @@ namespace MimeKit.Cryptography {
 					long seconds = key.GetValidSeconds ();
 					if (seconds != 0) {
 						var expires = key.CreationTime.AddSeconds ((double) seconds);
-						if (expires >= DateTime.Now)
+						if (expires <= DateTime.Now)
 							continue;
 					}
 
@@ -531,7 +531,7 @@ namespace MimeKit.Cryptography {
 					long seconds = pubkey.GetValidSeconds ();
 					if (seconds != 0) {
 						var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
-						if (DateTime.Now >= expires)
+						if (expires <= DateTime.Now)
 							continue;
 					}
 
