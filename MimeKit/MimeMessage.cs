@@ -625,13 +625,13 @@ namespace MimeKit {
 				}
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				InternetAddress addr;
+				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				inreplyto = ((MailboxAddress) addr).Address;
+				inreplyto = mailbox.Address;
 
 				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
 			}
@@ -663,13 +663,13 @@ namespace MimeKit {
 					return;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				InternetAddress addr;
+				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
 					throw new ArgumentException ("Invalid Message-Id format.", "value");
 
-				messageId = ((MailboxAddress) addr).Address;
+				messageId = mailbox.Address;
 
 				SetHeader ("Message-Id", "<" + messageId + ">");
 			}
@@ -701,13 +701,13 @@ namespace MimeKit {
 					return;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				InternetAddress addr;
+				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
 
-				resentMessageId = ((MailboxAddress) addr).Address;
+				resentMessageId = mailbox.Address;
 
 				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
 			}
@@ -2268,7 +2268,6 @@ namespace MimeKit {
 					continue;
 
 				var rawValue = header.RawValue;
-				InternetAddress address;
 				int index = 0;
 
 				switch (id) {
@@ -2296,14 +2295,12 @@ namespace MimeKit {
 						return;
 					break;
 				case HeaderId.ResentSender:
-					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
-						resentSender = address as MailboxAddress;
+					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
 					if (resentSender != null)
 						return;
 					break;
 				case HeaderId.Sender:
-					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
-						sender = address as MailboxAddress;
+					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
 					if (sender != null)
 						return;
 					break;
@@ -2336,7 +2333,6 @@ namespace MimeKit {
 		void HeadersChanged (object o, HeaderListChangedEventArgs e)
 		{
 			InternetAddressList list;
-			InternetAddress address;
 			byte[] rawValue;
 			int index = 0;
 
@@ -2369,12 +2365,10 @@ namespace MimeKit {
 					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
 					break;
 				case HeaderId.ResentSender:
-					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
-						resentSender = address as MailboxAddress;
+					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
 					break;
 				case HeaderId.Sender:
-					if (InternetAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out address))
-						sender = address as MailboxAddress;
+					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
 					break;
 				case HeaderId.ResentDate:
 					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);

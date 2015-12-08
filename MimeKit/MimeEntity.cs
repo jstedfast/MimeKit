@@ -292,13 +292,13 @@ namespace MimeKit {
 				}
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				InternetAddress addr;
+				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
 					throw new ArgumentException ("Invalid Content-Id format.");
 
-				contentId = ((MailboxAddress) addr).Address;
+				contentId = mailbox.Address;
 
 				SetHeader ("Content-Id", "<" + contentId + ">");
 			}

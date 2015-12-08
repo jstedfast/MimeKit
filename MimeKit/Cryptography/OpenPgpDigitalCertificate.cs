@@ -58,19 +58,14 @@ namespace MimeKit.Cryptography {
 
 			foreach (string userId in pubkey.GetUserIds ()) {
 				data = Encoding.UTF8.GetBytes (userId);
-				InternetAddress address;
+				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!InternetAddress.TryParse (ParserOptions.Default, data, ref index, data.Length, false, out address))
-					continue;
-
-				Name = address.Name;
-
-				var mailbox = address as MailboxAddress;
-				if (mailbox == null)
+				if (!MailboxAddress.TryParse (ParserOptions.Default, data, ref index, data.Length, false, out mailbox))
 					continue;
 
 				Email = mailbox.Address;
+				Name = mailbox.Name;
 				break;
 			}
 		}

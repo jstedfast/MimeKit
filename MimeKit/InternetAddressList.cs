@@ -545,7 +545,8 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, bool throwOnError, out List<InternetAddress> addresses)
 		{
-			List<InternetAddress> list = new List<InternetAddress> ();
+			var flags = throwOnError ? InternetAddress.TryParseFlags.Parse : InternetAddress.TryParseFlags.TryParse;
+			var list = new List<InternetAddress> ();
 			InternetAddress address;
 
 			addresses = null;
@@ -564,7 +565,7 @@ namespace MimeKit {
 				if (isGroup && text[index] == (byte) ';')
 					break;
 
-				if (!InternetAddress.TryParse (options, text, ref index, endIndex, throwOnError, out address)) {
+				if (!InternetAddress.TryParse (options, text, ref index, endIndex, flags, out address)) {
 					// skip this address...
 					while (index < endIndex && text[index] != (byte) ',' && (!isGroup || text[index] != (byte) ';'))
 						index++;
