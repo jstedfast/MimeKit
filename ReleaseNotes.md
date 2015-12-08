@@ -9,6 +9,7 @@
 * Fixed DkimRelaxedBodyFilter to properly handle CRLF split across buffers.
 * Added ContentType.IsMimeType method to replace CongtentType.Matches.
 * Added S/MIME, PGP and DKIM support to the PCL and WindowsUniversal versions of MimeKit.
+* Fixed PGP key expiration calculation when encrypting. (issue #194)
 
 ### MimeKit 1.2.16
 
