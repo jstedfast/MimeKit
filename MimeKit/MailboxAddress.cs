@@ -371,7 +371,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -426,7 +426,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -450,7 +450,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -500,7 +500,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -522,7 +522,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -565,7 +565,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -583,7 +583,7 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -625,7 +625,7 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the the address is not a mailbox address or
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -643,7 +643,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -695,7 +696,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -720,7 +722,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -767,7 +770,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -790,7 +794,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -830,7 +835,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -849,7 +855,8 @@ namespace MimeKit {
 		/// Parses the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the text contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -890,7 +897,8 @@ namespace MimeKit {
 		/// Parses the given text into a new <see cref="MimeKit.MailboxAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="MailboxAddress"/>. If the text contains more data, then parsing will fail.
+		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
+		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.MailboxAddress"/>.</returns>
 		/// <param name="text">The text.</param>

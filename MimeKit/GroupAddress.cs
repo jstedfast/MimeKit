@@ -254,7 +254,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -309,7 +309,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -333,7 +333,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -383,7 +383,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -405,7 +405,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -448,7 +448,7 @@ namespace MimeKit {
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -466,7 +466,7 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -508,7 +508,7 @@ namespace MimeKit {
 		/// Tries to parse the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the the address is not a group address or
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
 		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
@@ -526,7 +526,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -578,7 +579,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -603,7 +605,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -650,7 +653,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -673,7 +677,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -713,7 +718,8 @@ namespace MimeKit {
 		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
@@ -732,7 +738,8 @@ namespace MimeKit {
 		/// Parses the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the text contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="options">The parser options to use.</param>
@@ -773,7 +780,8 @@ namespace MimeKit {
 		/// Parses the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses a single <see cref="GroupAddress"/>. If the text contains more data, then parsing will fail.
+		/// Parses a single <see cref="GroupAddress"/>. If the address is not a group address or
+		/// there is more than a single group address, then parsing will fail.
 		/// </remarks>
 		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
 		/// <param name="text">The text.</param>
