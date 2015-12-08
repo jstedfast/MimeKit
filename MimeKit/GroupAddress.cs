@@ -232,6 +232,24 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
+		static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out GroupAddress group)
+		{
+			var flags = TryParseFlags.AllowGroupAddress;
+			InternetAddress address;
+
+			if (throwOnError)
+				flags |= TryParseFlags.ThrowOnError;
+
+			if (!InternetAddress.TryParse (options, text, ref index, endIndex, flags, out address)) {
+				group = null;
+				return false;
+			}
+
+			group = (GroupAddress) address;
+
+			return true;
+		}
+
 		/// <summary>
 		/// Tries to parse the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
 		/// </summary>
@@ -256,16 +274,35 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out GroupAddress group)
 		{
-			InternetAddress address;
+			if (options == null)
+				throw new ArgumentNullException ("options");
 
-			if (!InternetAddress.TryParse (options, buffer, startIndex, length, out address)) {
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("length");
+
+			int endIndex = startIndex + length;
+			int index = startIndex;
+
+			if (!TryParse (options, buffer, ref index, endIndex, false, out group))
+				return false;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
 				group = null;
 				return false;
 			}
 
-			group = address as GroupAddress;
+			if (index != endIndex) {
+				group = null;
+				return false;
+			}
 
-			return group != null;
+			return true;
 		}
 
 		/// <summary>
@@ -314,16 +351,32 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out GroupAddress group)
 		{
-			InternetAddress address;
+			if (options == null)
+				throw new ArgumentNullException ("options");
 
-			if (!InternetAddress.TryParse (options, buffer, startIndex, out address)) {
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex >= buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int endIndex = buffer.Length;
+			int index = startIndex;
+
+			if (!TryParse (options, buffer, ref index, endIndex, false, out group))
+				return false;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
 				group = null;
 				return false;
 			}
 
-			group = address as GroupAddress;
+			if (index != endIndex) {
+				group = null;
+				return false;
+			}
 
-			return group != null;
+			return true;
 		}
 
 		/// <summary>
@@ -366,16 +419,29 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out GroupAddress group)
 		{
-			InternetAddress address;
+			if (options == null)
+				throw new ArgumentNullException ("options");
 
-			if (!InternetAddress.TryParse (options, buffer, out address)) {
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			int endIndex = buffer.Length;
+			int index = 0;
+
+			if (!TryParse (options, buffer, ref index, endIndex, false, out group))
+				return false;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
 				group = null;
 				return false;
 			}
 
-			group = address as GroupAddress;
+			if (index != endIndex) {
+				group = null;
+				return false;
+			}
 
-			return group != null;
+			return true;
 		}
 
 		/// <summary>
@@ -412,16 +478,30 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
 		{
-			InternetAddress address;
+			if (options == null)
+				throw new ArgumentNullException ("options");
 
-			if (!InternetAddress.TryParse (options, text, out address)) {
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int endIndex = buffer.Length;
+			int index = 0;
+
+			if (!TryParse (options, buffer, ref index, endIndex, false, out group))
+				return false;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
 				group = null;
 				return false;
 			}
 
-			group = address as GroupAddress;
+			if (index != endIndex) {
+				group = null;
+				return false;
+			}
 
-			return group != null;
+			return true;
 		}
 
 		/// <summary>
@@ -440,6 +520,272 @@ namespace MimeKit {
 		public static bool TryParse (string text, out GroupAddress group)
 		{
 			return TryParse (ParserOptions.Default, text, out group);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("length");
+
+			int endIndex = startIndex + length;
+			int index = startIndex;
+			GroupAddress group;
+
+			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
+				throw new ParseException ("No group address found.", startIndex, startIndex);
+
+			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
+
+			if (index != endIndex)
+				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+
+			return group;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The number of bytes in the input buffer to parse.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (byte[] buffer, int startIndex, int length)
+		{
+			return Parse (ParserOptions.Default, buffer, startIndex, length);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/>is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (ParserOptions options, byte[] buffer, int startIndex)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			int endIndex = buffer.Length;
+			int index = startIndex;
+			GroupAddress group;
+
+			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
+				throw new ParseException ("No group address found.", startIndex, startIndex);
+
+			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
+
+			if (index != endIndex)
+				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+
+			return group;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> is out of range.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (byte[] buffer, int startIndex)
+		{
+			return Parse (ParserOptions.Default, buffer, startIndex);
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (ParserOptions options, byte[] buffer)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			int endIndex = buffer.Length;
+			GroupAddress group;
+			int index = 0;
+
+			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
+				throw new ParseException ("No group address found.", 0, 0);
+
+			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
+
+			if (index != endIndex)
+				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+
+			return group;
+		}
+
+		/// <summary>
+		/// Parses the given input buffer into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the buffer contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="buffer">The input buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="buffer"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (byte[] buffer)
+		{
+			return Parse (ParserOptions.Default, buffer);
+		}
+
+		/// <summary>
+		/// Parses the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the text contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="text"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (ParserOptions options, string text)
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (text == null)
+				throw new ArgumentNullException ("text");
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int endIndex = buffer.Length;
+			GroupAddress group;
+			int index = 0;
+
+			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
+				throw new ParseException ("No group address found.", 0, 0);
+
+			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
+
+			if (index != endIndex)
+				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+
+			return group;
+		}
+
+		/// <summary>
+		/// Parses the given text into a new <see cref="MimeKit.GroupAddress"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single <see cref="GroupAddress"/>. If the text contains more data, then parsing will fail.
+		/// </remarks>
+		/// <returns>The parsed <see cref="MimeKit.GroupAddress"/>.</returns>
+		/// <param name="text">The text.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="MimeKit.ParseException">
+		/// <paramref name="text"/> could not be parsed.
+		/// </exception>
+		public static new GroupAddress Parse (string text)
+		{
+			return Parse (ParserOptions.Default, text);
 		}
 	}
 }
