@@ -755,12 +755,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, TryParseFlags.TryParse, out address))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				address = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				address = null;
 				return false;
 			}
@@ -820,12 +815,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, TryParseFlags.TryParse, out address))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				address = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				address = null;
 				return false;
 			}
@@ -880,12 +870,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, TryParseFlags.TryParse, out address))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				address = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				address = null;
 				return false;
 			}

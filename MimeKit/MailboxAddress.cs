@@ -409,12 +409,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, false, out mailbox))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				mailbox = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				mailbox = null;
 				return false;
 			}
@@ -483,12 +478,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, false, out mailbox))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				mailbox = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				mailbox = null;
 				return false;
 			}
@@ -548,12 +538,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, false, out mailbox))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				mailbox = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				mailbox = null;
 				return false;
 			}
@@ -608,12 +593,7 @@ namespace MimeKit {
 			if (!TryParse (options, buffer, ref index, endIndex, false, out mailbox))
 				return false;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
-				mailbox = null;
-				return false;
-			}
-
-			if (index != endIndex) {
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
 				mailbox = null;
 				return false;
 			}
