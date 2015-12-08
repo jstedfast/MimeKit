@@ -81,7 +81,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ApplicationPkcs7Mime (SecureMimeType type, Stream stream) : base ("application", "pkcs7-mime")
 		{
-			ContentDisposition = new ContentDisposition ("attachment");
+			ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 			ContentTransferEncoding = ContentEncoding.Base64;
 			ContentObject = new ContentObject (stream);
 

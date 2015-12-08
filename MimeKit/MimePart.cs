@@ -300,7 +300,7 @@ namespace MimeKit {
 			set {
 				if (value != null) {
 					if (ContentDisposition == null)
-						ContentDisposition = new ContentDisposition ();
+						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 					ContentDisposition.FileName = value;
 				} else if (ContentDisposition != null) {
 					ContentDisposition.FileName = value;
