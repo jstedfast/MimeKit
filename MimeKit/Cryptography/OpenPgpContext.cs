@@ -376,14 +376,6 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		static string HexEncode (long keyId, int length)
-		{
-			if (length < 16)
-				return ((int) keyId).ToString ("X2");
-
-			return keyId.ToString ("X2");
-		}
-
 		static string HexEncode (byte[] data)
 		{
 			var fingerprint = new StringBuilder ();
@@ -399,11 +391,15 @@ namespace MimeKit.Cryptography {
 			var secure = mailbox as SecureMailboxAddress;
 
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				var hexid = HexEncode (key.KeyId, secure.Fingerprint.Length);
-				var fingerprint = HexEncode (key.GetFingerprint ());
+				if (secure.Fingerprint.Length > 16) {
+					var fingerprint = HexEncode (key.GetFingerprint ());
 
-				return secure.Fingerprint.EndsWith (hexid, StringComparison.OrdinalIgnoreCase) ||
-					secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
+					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
+				} else {
+					var id = key.KeyId.ToString ("X2");
+
+					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
+				}
 			}
 
 			foreach (string userId in key.GetUserIds ()) {
@@ -492,11 +488,15 @@ namespace MimeKit.Cryptography {
 			var secure = mailbox as SecureMailboxAddress;
 
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				var hexid = HexEncode (key.KeyId, secure.Fingerprint.Length);
-				var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
+				if (secure.Fingerprint.Length > 16) {
+					var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
 
-				return secure.Fingerprint.EndsWith (hexid, StringComparison.OrdinalIgnoreCase) ||
-					secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
+					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
+				} else {
+					var id = key.KeyId.ToString ("X2");
+
+					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
+				}
 			}
 
 			foreach (string userId in key.UserIds) {
