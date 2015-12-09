@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -375,7 +376,7 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
-		static string GetFingerprint (long keyId, int length)
+		static string HexEncode (long keyId, int length)
 		{
 			if (length < 16)
 				return ((int) keyId).ToString ("X2");
@@ -383,14 +384,26 @@ namespace MimeKit.Cryptography {
 			return keyId.ToString ("X2");
 		}
 
+		static string HexEncode (byte[] data)
+		{
+			var fingerprint = new StringBuilder ();
+
+			for (int i = 0; i < data.Length; i++)
+				fingerprint.Append (data[i].ToString ("x2"));
+
+			return fingerprint.ToString ();
+		}
+
 		static bool PgpPublicKeyMatches (PgpPublicKey key, MailboxAddress mailbox)
 		{
 			var secure = mailbox as SecureMailboxAddress;
 
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
+				var hexid = HexEncode (key.KeyId, secure.Fingerprint.Length);
+				var fingerprint = HexEncode (key.GetFingerprint ());
 
-				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
+				return secure.Fingerprint.EndsWith (hexid, StringComparison.OrdinalIgnoreCase) ||
+					secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
 			}
 
 			foreach (string userId in key.GetUserIds ()) {
@@ -479,9 +492,11 @@ namespace MimeKit.Cryptography {
 			var secure = mailbox as SecureMailboxAddress;
 
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				var fingerprint = GetFingerprint (key.KeyId, secure.Fingerprint.Length);
+				var hexid = HexEncode (key.KeyId, secure.Fingerprint.Length);
+				var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
 
-				return secure.Fingerprint.EndsWith (fingerprint, StringComparison.OrdinalIgnoreCase);
+				return secure.Fingerprint.EndsWith (hexid, StringComparison.OrdinalIgnoreCase) ||
+					secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
 			}
 
 			foreach (string userId in key.UserIds) {
