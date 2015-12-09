@@ -8,6 +8,8 @@
     <OutputType>Library</OutputType>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,10 +77,13 @@
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />
+    <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
+    <Compile Include="InternetAddressTests.cs" />
+    <Compile Include="MailboxAddressTests.cs" />
     <Compile Include="MemoryBlockStreamTests.cs" />
     <Compile Include="MessageDeliveryStatusTests.cs" />
     <Compile Include="MessageDispositionNotificiationTests.cs" />

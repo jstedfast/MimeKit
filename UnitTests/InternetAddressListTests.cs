@@ -1,5 +1,5 @@
 //
-// AddressParserTests.cs
+// InternetAddressListTests.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
