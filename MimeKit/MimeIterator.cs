@@ -434,7 +434,7 @@ namespace MimeKit {
 		public void Dispose ()
 		{
 			Dispose (true);
-			GC.SuppressFinalize ();
+			GC.SuppressFinalize (this);
 		}
 	}
 }
