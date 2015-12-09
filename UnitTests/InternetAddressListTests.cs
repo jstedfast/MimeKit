@@ -80,6 +80,30 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseWhiteSpace ()
+		{
+			try {
+				InternetAddress.Parse ("   ");
+				Assert.Fail ("InternetAddress.Parse() should fail to parse whitespace.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (3, ex.TokenIndex, "ParseException did not have the correct token index.");
+				Assert.AreEqual (3, ex.ErrorIndex, "ParseException did not have the error index.");
+			} catch {
+				Assert.Fail ("InternetAddress.Parse() should throw ParseException.");
+			}
+
+			try {
+				InternetAddressList.Parse ("   ");
+				Assert.Fail ("InternetAddressList.Parse() should fail to parse whitespace.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (3, ex.TokenIndex, "ParseException did not have the correct token index.");
+				Assert.AreEqual (3, ex.ErrorIndex, "ParseException did not have the error index.");
+			} catch {
+				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
+			}
+		}
+
+		[Test]
 		public void TestSimpleAddrSpec ()
 		{
 			var expected = new InternetAddressList ();
