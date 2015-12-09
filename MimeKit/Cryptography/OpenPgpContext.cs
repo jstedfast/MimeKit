@@ -396,7 +396,7 @@ namespace MimeKit.Cryptography {
 
 					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
 				} else {
-					var id = key.KeyId.ToString ("X2");
+					var id = ((int) key.KeyId).ToString ("X2");
 
 					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 				}
@@ -493,7 +493,7 @@ namespace MimeKit.Cryptography {
 
 					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
 				} else {
-					var id = key.KeyId.ToString ("X2");
+					var id = ((int) key.KeyId).ToString ("X2");
 
 					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 				}
