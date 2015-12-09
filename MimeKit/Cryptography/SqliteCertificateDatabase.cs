@@ -137,7 +137,11 @@ namespace MimeKit.Cryptography {
 				dateTimeFormat.SetValue (builder, 0, null);
 
 			if (!File.Exists (fileName)) {
-				Directory.CreateDirectory (Path.GetDirectoryName (fileName));
+				var dir = Path.GetDirectoryName (fileName);
+
+				if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
+					Directory.CreateDirectory (dir);
+
 				File.Create (fileName).Dispose ();
 			}
 
@@ -150,7 +154,11 @@ namespace MimeKit.Cryptography {
 			builder.DataSource = fileName;
 
 			if (!File.Exists (fileName)) {
-				Directory.CreateDirectory (Path.GetDirectoryName (fileName));
+				var dir = Path.GetDirectoryName (fileName);
+
+				if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
+					Directory.CreateDirectory (dir);
+
 				SqliteConnection.CreateFile (fileName);
 			}
 
