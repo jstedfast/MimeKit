@@ -51,7 +51,7 @@ namespace MimeKit.Utils {
 	static class ByteExtensions
 	{
 		const string AtomSafeCharacters = "!#$%&'*+-/=?^_`{|}~";
-		const string AttributeSpecials = "*'%";    // attribute specials from rfc2184
+		const string AttributeSpecials = "*'%";    // attribute specials from rfc2184/rfc2231
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1

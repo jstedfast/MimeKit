@@ -889,7 +889,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string DecodeRfc2184 (out Encoding encoding, ref Decoder decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
+		static string DecodeRfc2231 (out Encoding encoding, ref Decoder decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
 		{
 			int endIndex = startIndex + count;
 			int index = startIndex;
@@ -931,7 +931,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
-			var rfc2184 = new Dictionary<string, List<NameValuePair>> (StringComparer.OrdinalIgnoreCase);
+			var rfc2231 = new Dictionary<string, List<NameValuePair>> (StringComparer.OrdinalIgnoreCase);
 			var @params = new List<NameValuePair> ();
 			List<NameValuePair> parts;
 
@@ -958,11 +958,11 @@ namespace MimeKit {
 					return false;
 
 				if (pair.Id.HasValue) {
-					if (rfc2184.TryGetValue (pair.Name, out parts)) {
+					if (rfc2231.TryGetValue (pair.Name, out parts)) {
 						parts.Add (pair);
 					} else {
 						parts = new List<NameValuePair> ();
-						rfc2184[pair.Name] = parts;
+						rfc2231[pair.Name] = parts;
 						@params.Add (pair);
 						parts.Add (pair);
 					}
@@ -996,7 +996,7 @@ namespace MimeKit {
 				string value;
 
 				if (param.Id.HasValue) {
-					parts = rfc2184[param.Name];
+					parts = rfc2231[param.Name];
 					parts.Sort ();
 
 					value = string.Empty;
@@ -1016,7 +1016,7 @@ namespace MimeKit {
 								length -= 2;
 							}
 
-							value += DecodeRfc2184 (out charset, ref decoder, hex, buffer, startIndex, length, flush);
+							value += DecodeRfc2231 (out charset, ref decoder, hex, buffer, startIndex, length, flush);
 							encoding = encoding ?? charset;
 						} else if (length >= 2 && buffer[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options,buffer, startIndex, length);
@@ -1029,15 +1029,15 @@ namespace MimeKit {
 					}
 					hex.Reset ();
 				} else if (param.Encoded) {
-					value = DecodeRfc2184 (out encoding, ref decoder, hex, buffer, startIndex, length, true);
+					value = DecodeRfc2231 (out encoding, ref decoder, hex, buffer, startIndex, length, true);
 					hex.Reset ();
 				} else if (!paramList.Contains (param.Name)) {
-					// Note: If we've got an rfc2184-encoded version of the same parameter, then
+					// Note: If we've got an rfc2231-encoded version of the same parameter, then
 					// we'll want to choose that one as opposed to the ASCII variant (i.e. this one).
 					//
 					// While most mail clients that I know of do not send multiple parameters of the
 					// same name, rfc6266 suggests that HTTP servers are using this approach to work
-					// around HTTP clients that do not (yet) implement support for the rfc2184/2231
+					// around HTTP clients that do not (yet) implement support for the rfc2231
 					// encoding of parameter values. Since none of the MIME specifications provide
 					// any suggestions for dealing with this, following rfc6266 seems to make the
 					// most sense, even though it is meant for HTTP clients and servers.

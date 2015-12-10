@@ -71,7 +71,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMultipartParameterExampleFromRfc2184 ()
+		public void TestMultipartParameterExampleFromRfc2231 ()
 		{
 			const string text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
 			ContentType type;
@@ -112,7 +112,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEncodedParameterExampleFromRfc2184 ()
+		public void TestEncodedParameterExampleFromRfc2231 ()
 		{
 			const string text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
 			ContentType type;
@@ -126,7 +126,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMultipartEncodedParameterExampleFromRfc2184 ()
+		public void TestMultipartEncodedParameterExampleFromRfc2231 ()
 		{
 			const string text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
 			ContentType type;
