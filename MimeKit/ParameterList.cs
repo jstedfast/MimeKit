@@ -987,6 +987,7 @@ namespace MimeKit {
 			var hex = new HexDecoder ();
 
 			foreach (var param in @params) {
+				var method = ParameterEncodingMethod.Default;
 				int startIndex = param.ValueStart;
 				int length = param.ValueLength;
 				var buffer = param.Value;
@@ -996,6 +997,7 @@ namespace MimeKit {
 				string value;
 
 				if (param.Id.HasValue) {
+					method = ParameterEncodingMethod.Rfc2231;
 					parts = rfc2231[param.Name];
 					parts.Sort ();
 
@@ -1030,6 +1032,7 @@ namespace MimeKit {
 					hex.Reset ();
 				} else if (param.Encoded) {
 					value = DecodeRfc2231 (out encoding, ref decoder, hex, buffer, startIndex, length, true);
+					method = ParameterEncodingMethod.Rfc2231;
 					hex.Reset ();
 				} else if (!paramList.Contains (param.Name)) {
 					// Note: If we've got an rfc2231-encoded version of the same parameter, then
@@ -1052,8 +1055,10 @@ namespace MimeKit {
 						value = string.Empty;
 					}
 
-					if (codepage != -1 && codepage != 65001)
+					if (codepage != -1 && codepage != 65001) {
 						encoding = CharsetUtils.GetEncoding (codepage);
+						method = ParameterEncodingMethod.Rfc2047;
+					}
 				} else {
 					continue;
 				}
@@ -1063,9 +1068,13 @@ namespace MimeKit {
 					parameter.Value = value;
 				} else if (encoding != null) {
 					paramList.Add (encoding, param.Name, value);
+					parameter = paramList[paramList.Count - 1];
 				} else {
 					paramList.Add (param.Name, value);
+					parameter = paramList[paramList.Count - 1];
 				}
+
+				parameter.EncodingMethod = method;
 			}
 
 			return true;

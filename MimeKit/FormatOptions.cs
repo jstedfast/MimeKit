@@ -202,20 +202,33 @@ namespace MimeKit {
 		/// The method to use for encoding Content-Type and Content-Disposition parameter values.
 		/// </summary>
 		/// <remarks>
-		/// The MIME specifications specify that the proper method for encoding Content-Type and
-		/// Content-Disposition parameter values is the method described in
+		/// <para>The method to use for encoding Content-Type and Content-Disposition parameter
+		/// values when the <see cref="Parameter.EncodingMethod"/> is set to
+		/// <see cref="ParameterEncodingMethod.Default"/>.</para>
+		/// <para>The MIME specifications specify that the proper method for encoding Content-Type
+		/// and Content-Disposition parameter values is the method described in
 		/// <a href="https://tools.ietf.org/html/rfc2231">rfc2231</a>. However, it is common for
 		/// some older email clients to improperly encode using the method described in
-		/// <a href="https://tools.ietf.org/html/rfc2047">rfc2047</a> instead.
+		/// <a href="https://tools.ietf.org/html/rfc2047">rfc2047</a> instead.</para>
 		/// </remarks>
 		/// <value>The parameter encoding method that will be used.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid value.
+		/// </exception>
 		public ParameterEncodingMethod ParameterEncodingMethod {
 			get { return parameterEncodingMethod; }
 			set {
 				if (this == Default)
 					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
-				parameterEncodingMethod = value;
+				switch (value) {
+				case ParameterEncodingMethod.Rfc2047:
+				case ParameterEncodingMethod.Rfc2231:
+					parameterEncodingMethod = value;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException ("value");
+				}
 			}
 		}
 

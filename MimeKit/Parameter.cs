@@ -45,6 +45,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class Parameter
 	{
+		ParameterEncodingMethod encodingMethod;
 		Encoding encoding;
 		string text;
 
@@ -208,6 +209,43 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the parameter encoding method to use.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the parameter encoding method to use.</para>
+		/// <para>The MIME specifications specify that the proper method for encoding Content-Type
+		/// and Content-Disposition parameter values is the method described in
+		/// <a href="https://tools.ietf.org/html/rfc2231">rfc2231</a>. However, it is common for
+		/// some older email clients to improperly encode using the method described in
+		/// <a href="https://tools.ietf.org/html/rfc2047">rfc2047</a> instead.</para>
+		/// <para>If set to <see cref="ParameterEncodingMethod.Default"/>, the encoding
+		/// method used will default to the value set on the <see cref="FormatOptions"/>.</para>
+		/// </remarks>
+		/// <value>The encoding method.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid value.
+		/// </exception>
+		public ParameterEncodingMethod EncodingMethod {
+			get { return encodingMethod; }
+			set {
+				if (encodingMethod == value)
+					return;
+
+				switch (value) {
+				case ParameterEncodingMethod.Default:
+				case ParameterEncodingMethod.Rfc2047:
+				case ParameterEncodingMethod.Rfc2231:
+					encodingMethod = value;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException ("value");
+				}
+
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the parameter value.
 		/// </summary>
 		/// <remarks>
@@ -248,10 +286,25 @@ namespace MimeKit {
 			Rfc2231
 		}
 
-		static EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
+		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
 		{
-			var encode = options.ParameterEncodingMethod == ParameterEncodingMethod.Rfc2047 ? EncodeMethod.Rfc2047 : EncodeMethod.Rfc2231;
 			var method = EncodeMethod.None;
+			EncodeMethod encode;
+
+			switch (encodingMethod) {
+			default:
+				if (options.ParameterEncodingMethod == ParameterEncodingMethod.Rfc2231)
+					encode = EncodeMethod.Rfc2231;
+				else
+					encode = EncodeMethod.Rfc2047;
+				break;
+			case ParameterEncodingMethod.Rfc2231:
+				encode = EncodeMethod.Rfc2231;
+				break;
+			case ParameterEncodingMethod.Rfc2047:
+				encode = EncodeMethod.Rfc2047;
+				break;
+			}
 
 			quoted = null;
 
