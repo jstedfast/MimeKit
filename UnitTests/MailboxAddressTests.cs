@@ -203,9 +203,19 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMultipleMailboxes ()
+		{
+			const string text = "Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
+			int tokenIndex = text.IndexOf (',');
+			int errorIndex = tokenIndex;
+
+			TestParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseGroup ()
 		{
-			const string text = "Agents of Shield: Skye <skye@shield.gov>, Fitz <fitz@shield.gov>, Mai <mai@shield.gov>;";
+			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>;";
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
@@ -215,7 +225,7 @@ namespace UnitTests {
 		[Test]
 		public void TestParseIncompleteGroup ()
 		{
-			const string text = "Agents of Shield: Skye <skye@shield.gov>, Fitz <fitz@shield.gov>, Mai <mai@shield.gov>";
+			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 

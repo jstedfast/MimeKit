@@ -209,7 +209,7 @@ namespace UnitTests {
 		[Test]
 		public void TestParseGroup ()
 		{
-			const string text = "Agents of Shield: Skye <skye@shield.gov>, Fitz <fitz@shield.gov>, Mai <mai@shield.gov>;";
+			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>;";
 
 			TestParse (text);
 		}
@@ -217,12 +217,22 @@ namespace UnitTests {
 		[Test]
 		public void TestParseIncompleteGroup ()
 		{
-			const string text = "Agents of Shield: Skye <skye@shield.gov>, Fitz <fitz@shield.gov>, Mai <mai@shield.gov>";
+			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
 			int tokenIndex = 0;
 			int errorIndex = text.Length;
 
 			// Note: the TryParse() methods are a little more forgiving than Parse().
 			TestParseFailure (text, true, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseGroupAndMailbox ()
+		{
+			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, May <may@shield.gov>;, Fury <fury@shield.gov>";
+			int tokenIndex = text.IndexOf (';') + 1;
+			int errorIndex = tokenIndex;
+
+			TestParseFailure (text, false, tokenIndex, errorIndex);
 		}
 	}
 }
