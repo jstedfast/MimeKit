@@ -239,7 +239,7 @@ namespace MimeKit {
 		enum EncodeMethod {
 			None,
 			Quote,
-			Rfc2184
+			Rfc2231
 		}
 
 		static EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
@@ -249,21 +249,21 @@ namespace MimeKit {
 			quoted = null;
 
 			if (name.Length + 1 + value.Length >= options.MaxLineLength)
-				return EncodeMethod.Rfc2184;
+				return EncodeMethod.Rfc2231;
 
 			for (int i = 0; i < value.Length; i++) {
 				if (value[i] < 128) {
 					var c = (byte) value[i];
 
 					if (c.IsCtrl ())
-						return EncodeMethod.Rfc2184;
+						return EncodeMethod.Rfc2231;
 
 					if (!c.IsAttr ())
 						method = EncodeMethod.Quote;
 				} else if (options.International) {
 					method = EncodeMethod.Quote;
 				} else {
-					return EncodeMethod.Rfc2184;
+					return EncodeMethod.Rfc2231;
 				}
 			}
 
@@ -271,7 +271,7 @@ namespace MimeKit {
 				quoted = MimeUtils.Quote (value);
 
 				if (name.Length + 1 + quoted.Length >= options.MaxLineLength)
-					return EncodeMethod.Rfc2184;
+					return EncodeMethod.Rfc2231;
 			}
 
 			return method;
@@ -286,14 +286,14 @@ namespace MimeKit {
 					var c = (byte) value[i];
 
 					if (c.IsCtrl ())
-						return EncodeMethod.Rfc2184;
+						return EncodeMethod.Rfc2231;
 
 					if (!c.IsAttr ())
 						method = EncodeMethod.Quote;
 				} else if (options.International) {
 					method = EncodeMethod.Quote;
 				} else {
-					return EncodeMethod.Rfc2184;
+					return EncodeMethod.Rfc2231;
 				}
 			}
 
@@ -306,7 +306,7 @@ namespace MimeKit {
 
 			for (int i = 0; i < length; i++) {
 				if (value[i] >= 127 || value[i].IsCtrl ())
-					return EncodeMethod.Rfc2184;
+					return EncodeMethod.Rfc2231;
 
 				if (!value[i].IsAttr ())
 					method = EncodeMethod.Quote;
@@ -429,34 +429,8 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding headerEncoding)
+		void EncodeRfc2231 (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			string quoted;
-
-			var method = GetEncodeMethod (options, Name, Value, out quoted);
-			if (method == EncodeMethod.None)
-				quoted = Value;
-
-			if (method != EncodeMethod.Rfc2184) {
-				builder.Append (';');
-				lineLength++;
-
-				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
-					builder.Append (options.NewLine);
-					builder.Append ('\t');
-					lineLength = 1;
-				} else {
-					builder.Append (' ');
-					lineLength++;
-				}
-
-				lineLength += Name.Length + 1 + quoted.Length;
-				builder.Append (Name);
-				builder.Append ('=');
-				builder.Append (quoted);
-				return;
-			}
-
 			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, encoding ?? headerEncoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
@@ -513,6 +487,38 @@ namespace MimeKit {
 				lineLength += length;
 				i++;
 			} while (index < chars.Length);
+		}
+
+		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding headerEncoding)
+		{
+			string quoted;
+
+			switch (GetEncodeMethod (options, Name, Value, out quoted)) {
+			case EncodeMethod.Rfc2231:
+				EncodeRfc2231 (options, builder, ref lineLength, headerEncoding);
+				break;
+			case EncodeMethod.None:
+				quoted = Value;
+				goto default;
+			default:
+				builder.Append (';');
+				lineLength++;
+
+				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
+					builder.Append (options.NewLine);
+					builder.Append ('\t');
+					lineLength = 1;
+				} else {
+					builder.Append (' ');
+					lineLength++;
+				}
+
+				lineLength += Name.Length + 1 + quoted.Length;
+				builder.Append (Name);
+				builder.Append ('=');
+				builder.Append (quoted);
+				break;
+			}
 		}
 
 		/// <summary>
