@@ -626,7 +626,7 @@ using (var ctx = new MyGnuPGContext ()) {
 
 As mentioned earlier, PGP/MIME uses a multipart/encrypted part to encapsulate the encrypted content.
 
-A multipart/encrtpted contains exactly 2 parts: the first `MimeEntity` is the version information while the
+A multipart/encrypted contains exactly 2 parts: the first `MimeEntity` is the version information while the
 second `MimeEntity` is the actual encrypted content and will typically be an application/octet-stream.
 
 The first thing you must do is find the `MultipartEncrypted` part (see the section on traversing MIME parts).
