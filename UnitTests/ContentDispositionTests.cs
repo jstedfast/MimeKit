@@ -77,11 +77,32 @@ namespace UnitTests {
 		[Test]
 		public void TestChineseFilename ()
 		{
-			const string expected = " attachment; filename*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.txt\n";
+			const string expected = " attachment;\n\tfilename*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.txt\n";
 			var disposition = new ContentDisposition (ContentDisposition.Attachment);
 			disposition.Parameters.Add ("GB18030", "filename", "测试文本.txt");
 
 			var format = FormatOptions.Default.Clone ();
+			format.NewLineFormat = NewLineFormat.Unix;
+
+			var encoded = disposition.Encode (format, Encoding.UTF8);
+			Parameter param;
+
+			Assert.AreEqual (expected, encoded, "The encoded Chinese filename parameter does not match the expected value.");
+			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
+			Assert.IsTrue (disposition.Parameters.TryGetValue ("filename", out param), "Failed to locate filename parameter.");
+			Assert.AreEqual ("GB18030", param.Encoding.HeaderName, "The filename encoding did not match.");
+		}
+
+		[Test]
+		public void TestChineseFilename2047 ()
+		{
+			const string expected = " attachment; filename=\"=?gb18030?b?suLK1M7Esb4udHh0?=\"\n";
+			var disposition = new ContentDisposition (ContentDisposition.Attachment);
+			disposition.Parameters.Add ("GB18030", "filename", "测试文本.txt");
+
+			var format = FormatOptions.Default.Clone ();
+			format.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047;
 			format.NewLineFormat = NewLineFormat.Unix;
 
 			var encoded = disposition.Encode (format, Encoding.UTF8);

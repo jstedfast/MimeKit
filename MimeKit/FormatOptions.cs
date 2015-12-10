@@ -70,6 +70,7 @@ namespace MimeKit {
 
 		const int DefaultMaxLineLength = 78;
 
+		ParameterEncodingMethod parameterEncodingMethod;
 		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
 		bool international;
@@ -197,6 +198,27 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// The method to use for encoding Content-Type and Content-Disposition parameter values.
+		/// </summary>
+		/// <remarks>
+		/// The MIME specifications specify that the proper method for encoding Content-Type and
+		/// Content-Disposition parameter values is the method described in
+		/// <a href="https://tools.ietf.org/html/rfc2231">rfc2231</a>. However, it is common for
+		/// some older email clients to improperly encode using the method described in
+		/// <a href="https://tools.ietf.org/html/rfc2047">rfc2047</a> instead.
+		/// </remarks>
+		/// <value>The parameter encoding method that will be used.</value>
+		public ParameterEncodingMethod ParameterEncodingMethod {
+			get { return parameterEncodingMethod; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
+
+				parameterEncodingMethod = value;
+			}
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -212,6 +234,7 @@ namespace MimeKit {
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
+			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
 			//maxLineLength = DefaultMaxLineLength;
 			allowMixedHeaderCharsets = true;
 			international = false;
@@ -236,6 +259,7 @@ namespace MimeKit {
 			options.newLineFormat = newLineFormat;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
+			options.parameterEncodingMethod = parameterEncodingMethod;
 			options.international = international;
 			return options;
 		}

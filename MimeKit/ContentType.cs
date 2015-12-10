@@ -298,12 +298,14 @@ namespace MimeKit {
 
 		internal string Encode (FormatOptions options, Encoding charset)
 		{
-			int lineLength = "Content-Type: ".Length;
+			int lineLength = "Content-Type:".Length;
 			var value = new StringBuilder (" ");
 
 			value.Append (MediaType);
 			value.Append ('/');
 			value.Append (MediaSubtype);
+
+			lineLength += value.Length;
 
 			Parameters.Encode (options, value, ref lineLength, charset);
 			value.Append (options.NewLine);

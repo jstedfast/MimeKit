@@ -962,8 +962,9 @@ namespace MimeKit.Utils {
 			return encoding.CodePage == 50220 || encoding.CodePage == 50222;
 		}
 
-		static void AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		internal static int AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
+			int startLength = str.Length;
 			var chars = new char[length];
 			IMimeEncoder encoder;
 			byte[] word, encoded;
@@ -994,6 +995,8 @@ namespace MimeKit.Utils {
 			for (int i = 0; i < len; i++)
 				str.Append ((char) encoded[i]);
 			str.Append ("?=");
+
+			return str.Length - startLength;
 		}
 
 		static void AppendQuoted (StringBuilder str, string text, int startIndex, int length)

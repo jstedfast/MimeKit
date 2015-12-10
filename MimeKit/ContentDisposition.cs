@@ -330,10 +330,12 @@ namespace MimeKit {
 
 		internal string Encode (FormatOptions options, Encoding charset)
 		{
-			int lineLength = "Content-Disposition: ".Length;
+			int lineLength = "Content-Disposition:".Length;
 			var value = new StringBuilder (" ");
 
 			value.Append (disposition);
+			lineLength += value.Length;
+
 			Parameters.Encode (options, value, ref lineLength, charset);
 			value.Append (options.NewLine);
 
