@@ -385,6 +385,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
@@ -397,12 +398,12 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (Boundary == null)
 				Boundary = GenerateBoundary ();
 
-			base.WriteTo (options, stream, cancellationToken);
+			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
 			if (ContentType.IsMimeType ("multipart", "signed")) {
 				// don't reformat the headers or content of any children of a multipart/signed
@@ -424,7 +425,7 @@ namespace MimeKit {
 				for (int i = 0; i < children.Count; i++) {
 					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-					children[i].WriteTo (options, stream, cancellationToken);
+					children[i].WriteTo (options, stream, false, cancellationToken);
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 
@@ -437,7 +438,7 @@ namespace MimeKit {
 					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (boundary, 0, boundary.Length - 2);
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					children[i].WriteTo (options, stream, cancellationToken);
+					children[i].WriteTo (options, stream, false, cancellationToken);
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 

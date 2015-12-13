@@ -397,6 +397,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
@@ -409,7 +410,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -417,7 +418,57 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			Headers.WriteTo (options, stream, cancellationToken);
+			if (!contentOnly)
+				Headers.WriteTo (options, stream, cancellationToken);
+		}
+
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			WriteTo (options, stream, false, cancellationToken);
+		}
+
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entity to the output stream.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
 
 		/// <summary>
@@ -439,10 +490,57 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
 #if !PORTABLE && !COREFX
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="fileName">The file.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				WriteTo (options, stream, contentOnly, cancellationToken);
+		}
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -486,7 +584,48 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (options, stream, cancellationToken);
+				WriteTo (options, stream, false, cancellationToken);
+		}
+
+		/// <summary>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// </remarks>
+		/// <param name="fileName">The file.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
 
 		/// <summary>
@@ -526,7 +665,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("fileName");
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+				WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
 #endif
 
