@@ -296,14 +296,15 @@ namespace MimeKit {
 		/// for display purposes.
 		/// </remarks>
 		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
-		public override string ToString (bool encode)
+		public override string ToString (FormatOptions options, bool encode)
 		{
 			if (encode) {
 				var builder = new StringBuilder ();
 				int lineLength = 0;
 
-				Encode (FormatOptions.Default, builder, ref lineLength);
+				Encode (options, builder, ref lineLength);
 
 				return builder.ToString ();
 			}

@@ -177,15 +177,16 @@ namespace MimeKit {
 		/// will therefor only be suitable for display purposes.
 		/// </remarks>
 		/// <returns>A string representing the <see cref="GroupAddress"/>.</returns>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="GroupAddress"/> will be encoded.</param>
-		public override string ToString (bool encode)
+		public override string ToString (FormatOptions options, bool encode)
 		{
 			var builder = new StringBuilder ();
 
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (FormatOptions.Default, builder, ref lineLength);
+				Encode (options, builder, ref lineLength);
 			} else {
 				builder.Append (Name);
 				builder.Append (':');

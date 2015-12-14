@@ -227,8 +227,26 @@ namespace MimeKit {
 		/// return a string suitable only for display purposes.</para>
 		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
-		public abstract string ToString (bool encode);
+		public abstract string ToString (FormatOptions options, bool encode);
+
+		/// <summary>
+		/// Returns a string representation of the <see cref="InternetAddress"/>,
+		/// optionally encoding it for transport.
+		/// </summary>
+		/// <remarks>
+		/// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
+		/// an encoded version of the internet address according to the rules described in rfc2047.</para>
+		/// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
+		/// return a string suitable only for display purposes.</para>
+		/// </remarks>
+		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
+		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
+		public string ToString (bool encode)
+		{
+			return ToString (FormatOptions.Default, encode);
+		}
 
 		/// <summary>
 		/// Returns a string representation of a <see cref="InternetAddress"/> suitable for display.
@@ -239,7 +257,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (false);
+			return ToString (FormatOptions.Default, false);
 		}
 
 		internal event EventHandler Changed;
