@@ -229,6 +229,9 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="options"/> is <c>null</c>.
+		/// </exception>
 		public abstract string ToString (FormatOptions options, bool encode);
 
 		/// <summary>

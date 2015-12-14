@@ -322,13 +322,19 @@ namespace MimeKit {
 		/// the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
+		/// <param name="options">The formatting options.</param>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
 		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="charset"/> is <c>null</c>.
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
 		/// </exception>
-		public string ToString (Encoding charset, bool encode)
+		public string ToString (FormatOptions options, Encoding charset, bool encode)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
 
@@ -340,12 +346,31 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = value.Length;
 
-				Parameters.Encode (FormatOptions.Default, value, ref lineLength, charset);
+				Parameters.Encode (options, value, ref lineLength, charset);
 			} else {
 				value.Append (Parameters.ToString ());
 			}
 
 			return value.ToString ();
+		}
+
+		/// <summary>
+		/// Serializes the <see cref="ContentType"/> to a string,
+		/// optionally encoding the parameters.
+		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentType"/>, optionally encoding
+		/// the parameters as they would be encoded for transport.
+		/// </remarks>
+		/// <returns>The serialized string.</returns>
+		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
+		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="charset"/> is <c>null</c>.
+		/// </exception>
+		public string ToString (Encoding charset, bool encode)
+		{
+			return ToString (FormatOptions.Default, charset, encode);
 		}
 
 		/// <summary>
@@ -359,7 +384,7 @@ namespace MimeKit {
 		/// <see cref="MimeKit.ContentType"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (Encoding.UTF8, false);
+			return ToString (FormatOptions.Default, Encoding.UTF8, false);
 		}
 
 		internal event EventHandler Changed;

@@ -298,8 +298,14 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="options"/> is <c>null</c>.
+		/// </exception>
 		public override string ToString (FormatOptions options, bool encode)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			if (encode) {
 				var builder = new StringBuilder ();
 				int lineLength = 0;

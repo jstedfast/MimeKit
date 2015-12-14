@@ -179,8 +179,14 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="GroupAddress"/>.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="GroupAddress"/> will be encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="options"/> is <c>null</c>.
+		/// </exception>
 		public override string ToString (FormatOptions options, bool encode)
 		{
+			if (options == null)
+				throw new ArgumentNullException ("options");
+
 			var builder = new StringBuilder ();
 
 			if (encode) {
