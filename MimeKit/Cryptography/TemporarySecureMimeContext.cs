@@ -184,7 +184,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			var now = DateTime.Now;
+			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
 				if (certificate.NotBefore > now || certificate.NotAfter < now)
@@ -228,7 +228,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var now = DateTime.Now;
+			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
 				AsymmetricKeyParameter key;

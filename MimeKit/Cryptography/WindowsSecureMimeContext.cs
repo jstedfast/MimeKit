@@ -240,7 +240,7 @@ namespace MimeKit.Cryptography {
 		{
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
-			var now = DateTime.Now;
+			var now = DateTime.UtcNow;
 
 			store.Open (OpenFlags.ReadOnly);
 
@@ -345,7 +345,7 @@ namespace MimeKit.Cryptography {
 		{
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
-			var now = DateTime.Now;
+			var now = DateTime.UtcNow;
 
 			store.Open (OpenFlags.ReadOnly);
 

@@ -319,7 +319,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, CmsRecipientFields)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
@@ -360,7 +360,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, CmsSignerFields)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
@@ -498,12 +498,12 @@ namespace MimeKit.Cryptography {
 					if (entry.Key.IsPrivate) {
 						if ((record = dbase.Find (chain[0].Certificate, ImportPkcs12Fields)) == null) {
 							record = new X509CertificateRecord (chain[0].Certificate, entry.Key);
-							record.AlgorithmsUpdated = DateTime.Now;
+							record.AlgorithmsUpdated = DateTime.UtcNow;
 							record.Algorithms = enabledAlgorithms;
 							record.IsTrusted = true;
 							dbase.Add (record);
 						} else {
-							record.AlgorithmsUpdated = DateTime.Now;
+							record.AlgorithmsUpdated = DateTime.UtcNow;
 							record.Algorithms = enabledAlgorithms;
 							if (record.PrivateKey == null)
 								record.PrivateKey = entry.Key;
