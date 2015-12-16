@@ -67,7 +67,7 @@ namespace UnitTests {
 		[Test]
 		public void TestUnquotedFilenameParameterValues ()
 		{
-			const string text = "attachment; filename=Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf";
+			const string text = " attachment; filename=Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf";
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");

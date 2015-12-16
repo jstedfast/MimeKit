@@ -4,6 +4,20 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.18
+
+* Removed unimplemented TNEF APIs.
+* Use DateTime.UtcNow for S/MIME certificate validity checks.
+* Added ToString() methods on ContentType/Disposition that take FormatOptions.
+* Added a new ToString() method to InternetAddress that takes a FormatOptions. (issue #208)
+* Added a MimeEntity.WriteTo() method that takes a bool contentOnly parameter. (issue #207)
+* Added support for encoding parameter values using rfc2047 encoded-words instead of
+  the standard rfc2231 encoding.
+* Fixed SecureMailboxAddress's Fingerprint property to work with both the PGP key ID
+  *and* the fingerprint. Previously only worked with the PGP key id. (issue #203)
+* Added GroupAddress.Parse() and MailboxAddress.Parse() methods. (issue #197)
+* Set a default filename when generating application/pgp-signature parts. (issue #195)
+
 ### MimeKit 1.2.17
 
 * Fixed DkimRelaxedBodyFilter to properly handle CRLF split across buffers.

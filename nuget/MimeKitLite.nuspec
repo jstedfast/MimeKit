@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKitLite</id>
-        <version>1.2.17.0</version>
+        <version>1.2.18.0</version>
         <title>MimeKit Lite: A complete MIME library</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -22,7 +22,12 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
         <summary>An Open Source library for creating and parsing MIME messages.</summary>
-        <releaseNotes>* Added ContentType.IsMimeType method to replace CongtentType.Matches.
+        <releaseNotes>* Removed unimplemented TNEF APIs.
+* Added ToString() methods on ContentType/Disposition that take FormatOptions.
+* Added a new ToString() method to InternetAddress that takes a FormatOptions. (issue #208)
+* Added a MimeEntity.WriteTo() method that takes a bool contentOnly parameter. (issue #207)
+* Added support for encoding parameter values using rfc2047 encoded-words instead of the standard rfc2231 encoding.
+* Added GroupAddress.Parse() and MailboxAddress.Parse() methods. (issue #197)
 </releaseNotes>
         <copyright>Xamarin Inc.</copyright>
         <language>en-US</language>
