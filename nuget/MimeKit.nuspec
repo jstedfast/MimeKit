@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MimeKit</id>
-        <version>1.2.18</version>
+        <version>1.2.18.2</version>
         <title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
         <authors>Jeffrey Stedfast</authors>
         <owners>Jeffrey Stedfast</owners>
@@ -56,41 +56,20 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
             <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
         </frameworkAssemblies>
 	<dependencies>
-	  <group targetFramework="dnxcore50">
-	    <dependency id="System.Security.Cryptography.Algorithms" version="4.0.0-beta-23516" />
-	    <dependency id="System.Security.Cryptography.Primitives" version="4.0.0-beta-23516" />
-	    <dependency id="System.Runtime.Serialization.Primitives" version="4.1.0-beta-23516" />
-	    <dependency id="System.Text.Encoding.Extensions" version="4.0.11-beta-23516" />
-	    <dependency id="System.Text.Encoding.CodePages" version="4.0.1-beta-23516" />
-	    <dependency id="System.Text.Encoding" version="4.0.11-beta-23516" />
-	    <dependency id="System.Net.NameResolution" version="4.0.0-beta-23516" />
-	    <dependency id="System.Net.NetworkInformation" version="4.1.0-beta-23516" />
-	    <dependency id="System.Net.Primitives" version="4.0.11-beta-23516" />
-	    <dependency id="System.Collections" version="4.0.11-beta-23516" />
-	    <dependency id="System.Data.Common" version="4.0.1-beta-23516" />
-	    <dependency id="System.Reflection" version="4.1.0-beta-23516" />
-	    <dependency id="System.Threading" version="4.0.11-beta-23516" />
-	    <dependency id="System.Runtime" version="4.0.21-beta-23516" />
-	    <dependency id="System.Linq" version="4.0.1-beta-23516" />
-	    <dependency id="Microsoft.CSharp" version="4.0.1-beta-23516" />
-	    <dependency id="Portable.BouncyCastle" version="1.8.0" />
-	  </group>
+	  <group targetFramework="net35" />
+	  <group targetFramework="net40" />
+	  <group targetFramework="net45" />
+	  <group targetFramework="MonoAndroid10" />
+	  <group targetFramework="Xamarin.iOS10" />
 	  <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
 	    <dependency id="Portable.BouncyCastle" version="1.8.0" />
 	  </group>
 	  <group targetFramework="wpa81">
 	    <dependency id="Portable.BouncyCastle" version="1.8.0" />
 	  </group>
-	  <group targetFramework="Xamarin.iOS10" />
-	  <group targetFramework="MonoAndroid10" />
-	  <group targetFramework="net45" />
-	  <group targetFramework="net40" />
-	  <group targetFramework="net35" />
 	</dependencies>
     </metadata>
     <files>
-        <file src="..\MimeKit\bin\Release\lib\corefx\Release\dnxcore50\MimeKit.dll" target="lib\dnxcore50\MimeKit.dll" />
-        <file src="..\MimeKit\bin\Release\lib\corefx\Release\dnxcore50\MimeKit.xml" target="lib\dnxcore50\MimeKit.xml" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid10\BouncyCastle.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid10\MimeKit.dll" />
         <file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid10\MimeKit.xml" />
