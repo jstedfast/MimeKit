@@ -107,7 +107,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// For more details about why this may be useful, you can find more information
-		/// at http://www.jwz.org/doc/content-length.html
+		/// at <a href="http://www.jwz.org/doc/content-length.html">
+		/// http://www.jwz.org/doc/content-length.html</a>.
 		/// </remarks>
 		/// <value><c>true</c> if the Content-Length value should be respected;
 		/// otherwise, <c>false</c>.</value>

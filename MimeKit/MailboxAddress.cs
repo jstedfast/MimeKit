@@ -176,9 +176,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>International addresses are addresses that contain international
 		/// characters in either their local-parts or their domains.</para>
-		/// <para>For more information, see http://tools.ietf.org/html/rfc6532#section-3.2</para>
+		/// <para>For more information, see section 3.2 of
+		/// <a href="https://tools.ietf.org/html/rfc6532#section-3.2">rfc6532</a>.</para>
 		/// </remarks>
-		/// <value><c>true</c> if th address is an international address; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if the address is an international address; otherwise, <c>false</c>.</value>
 		public bool IsInternational {
 			get {
 				if (address == null)

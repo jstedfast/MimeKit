@@ -155,10 +155,13 @@ namespace MimeKit {
 		/// Gets or sets whether the new "Internationalized Email" formatting standards should be used.
 		/// </summary>
 		/// <remarks>
-		/// <para>The new "Internationalized Email" format is defined by rfc6530 and rfc6532.</para>
+		/// <para>The new "Internationalized Email" format is defined by
+		/// <a href="https://tools.ietf.org/html/rfc6530">rfc6530</a> and
+		/// <a href="https://tools.ietf.org/html/rfc6532">rfc6532</a>.</para>
 		/// <para>This feature should only be used when formatting messages meant to be sent via
-		/// SMTP using the SMTPUTF8 extension (rfc6531) or when appending messages to an IMAP folder
-		/// via UTF8 APPEND (rfc6855).</para>
+		/// SMTP using the SMTPUTF8 extension (<a href="https://tools.ietf.org/html/rfc6531">rfc6531</a>)
+		/// or when appending messages to an IMAP folder via UTF8 APPEND
+		/// (<a href="https://tools.ietf.org/html/rfc6855">rfc6855</a>).</para>
 		/// </remarks>
 		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
 		/// <exception cref="System.InvalidOperationException">
@@ -178,14 +181,16 @@ namespace MimeKit {
 		/// Gets or sets whether the formatter should allow mixed charsets in the headers.
 		/// </summary>
 		/// <remarks>
-		/// <para>When this option is enabled, the MIME formatter will try to use ISO-8859-1
-		/// to encode headers when appropriate rather than being forced to use the specified
-		/// charset for all encoded-word tokens in order to maximize readability.</para>
+		/// <para>When this option is enabled, the MIME formatter will try to use US-ASCII and/or
+		/// ISO-8859-1 to encode headers when appropriate rather than being forced to use the
+		/// specified charset for all encoded-word tokens in order to maximize readability.</para>
 		/// <para>Unfortunately, mail clients like Outlook and Thunderbird do not treat
 		/// encoded-word tokens individually and assume that all tokens are encoded using the
 		/// charset declared in the first encoded-word token despite the specification
 		/// explicitly stating that each encoded-word token should be treated independently.</para>
-		/// <para>The Thunderbird bug can be tracked at https://bugzilla.mozilla.org/show_bug.cgi?id=317263</para>
+		/// <para>The Thunderbird bug can be tracked at
+		/// <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=317263">
+		/// https://bugzilla.mozilla.org/show_bug.cgi?id=317263</a>.</para>
 		/// </remarks>
 		/// <value><c>true</c> if the formatter should be allowed to use ISO-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
 		public bool AllowMixedHeaderCharsets {

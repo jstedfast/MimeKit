@@ -35,7 +35,7 @@ namespace MimeKit.Encodings {
 	/// <remarks>
 	/// <para>The yEncoding is an encoding that is most commonly used with Usenet and
 	/// is a binary encoding that includes a 32-bit cyclic redundancy check.</para>
-	/// <para>For more information, see http://www.yenc.org/</para>
+	/// <para>For more information, see <a href="http://www.yenc.org">www.yenc.org</a>.</para>
 	/// </remarks>
 	public class YEncoder : IMimeEncoder
 	{

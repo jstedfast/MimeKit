@@ -215,7 +215,7 @@ namespace MimeKit {
 		/// <para>The Content-Base header specifies the base URI for the <see cref="MimeEntity"/>
 		/// in cases where the <see cref="ContentLocation"/> is a relative URI.</para>
 		/// <para>The Content-Base URI must be an absolute URI.</para>
-		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc2110">rfc2110</a>.</para>
 		/// </remarks>
 		/// <value>The base content URI or <c>null</c>.</value>
 		/// <exception cref="System.ArgumentException">
@@ -249,7 +249,7 @@ namespace MimeKit {
 		/// within the same multipart/related container to reference this part by URI. This
 		/// can be useful, for example, when constructing an HTML message body that needs to
 		/// reference image attachments.</para>
-		/// <para>For more information, see http://www.ietf.org/rfc/rfc2110.txt</para>
+		/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc2110">rfc2110</a>.</para>
 		/// </remarks>
 		/// <value>The content location or <c>null</c>.</value>
 		public Uri ContentLocation {
