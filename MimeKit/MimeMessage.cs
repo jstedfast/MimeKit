@@ -1070,7 +1070,7 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 		/// <summary>
 		/// Writes the message to the specified file.
 		/// </summary>
@@ -2560,7 +2560,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>

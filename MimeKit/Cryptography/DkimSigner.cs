@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 			Domain = domain;
 		}
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
@@ -131,10 +131,12 @@ namespace MimeKit.Cryptography {
 
 			AsymmetricCipherKeyPair key;
 
-			using (var stream = new StreamReader (fileName)) {
-				var reader = new PemReader (stream);
+			using (var stream = File.OpenRead (fileName)) {
+				using (var reader = new StreamReader (stream)) {
+					var pem = new PemReader (reader);
 
-				key = reader.ReadObject () as AsymmetricCipherKeyPair;
+					key = pem.ReadObject () as AsymmetricCipherKeyPair;
+				}
 			}
 
 			if (key == null)

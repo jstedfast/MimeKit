@@ -1239,7 +1239,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, cancellationToken);
 		}
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="HeaderList"/> from the specified file.
 		/// </summary>

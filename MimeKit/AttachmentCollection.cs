@@ -351,7 +351,7 @@ namespace MimeKit {
 			return attachment;
 		}
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 		/// <summary>
 		/// Add the specified attachment.
 		/// </summary>
