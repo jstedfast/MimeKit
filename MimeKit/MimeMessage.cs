@@ -1717,6 +1717,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Verifies the specified DKIM-Signature header.
 		/// </remarks>
+		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
@@ -1737,7 +1738,7 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
@@ -1805,6 +1806,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Verifies the specified DKIM-Signature header.
 		/// </remarks>
+		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
