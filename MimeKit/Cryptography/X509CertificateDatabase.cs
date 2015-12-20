@@ -46,7 +46,7 @@ namespace MimeKit.Cryptography {
 	/// An X.509 certificate database.
 	/// </summary>
 	/// <remarks>
-	/// An X.509 certificate database is used for storing certificates, metdata related to the certificates
+	/// An X.509 certificate database is used for storing certificates, metadata related to the certificates
 	/// (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
 	/// and private keys.
 	/// </remarks>

@@ -209,7 +209,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>The method to use for encoding Content-Type and Content-Disposition parameter
 		/// values when the <see cref="Parameter.EncodingMethod"/> is set to
-		/// <see cref="ParameterEncodingMethod.Default"/>.</para>
+		/// <see cref="MimeKit.ParameterEncodingMethod.Default"/>.</para>
 		/// <para>The MIME specifications specify that the proper method for encoding Content-Type
 		/// and Content-Disposition parameter values is the method described in
 		/// <a href="https://tools.ietf.org/html/rfc2231">rfc2231</a>. However, it is common for
