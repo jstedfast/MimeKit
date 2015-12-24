@@ -349,11 +349,11 @@ namespace MimeKit.Text {
 				switch (tag.Id) {
 				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
 					TokenizerState = HtmlTokenizerState.RawText;
-					activeTagName = tag.Name;
+					activeTagName = tag.Name.ToLowerInvariant ();
 					break;
 				case HtmlTagId.Title: case HtmlTagId.TextArea:
 					TokenizerState = HtmlTokenizerState.RcData;
-					activeTagName = tag.Name;
+					activeTagName = tag.Name.ToLowerInvariant ();
 					break;
 				case HtmlTagId.PlainText:
 					TokenizerState = HtmlTokenizerState.PlainText;
@@ -364,7 +364,7 @@ namespace MimeKit.Text {
 				case HtmlTagId.NoScript:
 					// TODO: only switch into the RawText state if scripting is enabled
 					TokenizerState = HtmlTokenizerState.RawText;
-					activeTagName = tag.Name;
+					activeTagName = tag.Name.ToLowerInvariant ();
 					break;
 				case HtmlTagId.Html:
 					TokenizerState = HtmlTokenizerState.Data;
