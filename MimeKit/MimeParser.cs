@@ -475,12 +475,6 @@ namespace MimeKit {
 
 			end = input.Length - PadSize;
 
-			// Note: if a previously parsed MimePart's content has been read,
-			// then the stream position will have moved and will need to be
-			// reset.
-			if (persistent && stream.Position != offset)
-				stream.Seek (offset, SeekOrigin.Begin);
-
 			// use the cancellable stream interface if available...
 			var cancellable = stream as ICancellableStream;
 			if (cancellable != null) {
@@ -886,8 +880,6 @@ namespace MimeKit {
 		unsafe MimeParserState Step (byte* inbuf)
 		{
 			switch (state) {
-			case MimeParserState.Error:
-				break;
 			case MimeParserState.Initialized:
 				if (!StepByteOrderMark (inbuf)) {
 					state = MimeParserState.Eos;
@@ -903,14 +895,6 @@ namespace MimeKit {
 			case MimeParserState.Headers:
 				StepHeaders (inbuf);
 				break;
-			case MimeParserState.Content:
-				break;
-			case MimeParserState.Complete:
-				break;
-			case MimeParserState.Eos:
-				break;
-			default:
-				throw new IndexOutOfRangeException ("state");
 			}
 
 			return state;
@@ -1375,6 +1359,12 @@ namespace MimeKit {
 
 		unsafe MimeEntity ParseEntity (byte* inbuf)
 		{
+			// Note: if a previously parsed MimePart's content has been read,
+			// then the stream position will have moved and will need to be
+			// reset.
+			if (persistent && stream.Position != offset)
+				stream.Seek (offset, SeekOrigin.Begin);
+
 			state = MimeParserState.Headers;
 			while (state < MimeParserState.Content) {
 				if (Step (inbuf) == MimeParserState.Error)
@@ -1433,6 +1423,12 @@ namespace MimeKit {
 		unsafe MimeMessage ParseMessage (byte* inbuf)
 		{
 			BoundaryType found;
+
+			// Note: if a previously parsed MimePart's content has been read,
+			// then the stream position will have moved and will need to be
+			// reset.
+			if (persistent && stream.Position != offset)
+				stream.Seek (offset, SeekOrigin.Begin);
 
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
