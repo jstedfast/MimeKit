@@ -138,6 +138,7 @@
     <None Include="TestData\messages\empty-multipart.txt" />
     <None Include="TestData\messages\epilogue.txt" />
     <None Include="TestData\messages\japanese.txt" />
+    <None Include="TestData\messages\missing-subtype.txt" />
     <None Include="TestData\messages\multipart-digest.txt" />
     <None Include="TestData\messages\rfc2060.txt" />
     <None Include="TestData\openpgp\mimekit.gpg.pub" />

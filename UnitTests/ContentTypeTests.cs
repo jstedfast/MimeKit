@@ -291,5 +291,16 @@ namespace UnitTests {
 			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
 			Assert.AreEqual (type.Parameters["name"], "Test Name.pdf", "name values do not match: {0}", text);
 		}
+
+		[Test]
+		public void TestMimeTypeWithoutSubtype ()
+		{
+			const string text = "application-x-gzip; name=document.xml.gz";
+			ContentType type;
+
+			// this should fail due to the missing subtype
+			Assert.IsFalse (ContentType.TryParse (text, out type), "Should not have parsed: {0}", text);
+			Assert.IsNull (type, "The content type should be null.");
+		}
 	}
 }

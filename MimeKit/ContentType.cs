@@ -148,7 +148,7 @@ namespace MimeKit {
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
-			private set {
+			internal set {
 				if (parameters != null)
 					parameters.Changed -= OnParametersChanged;
 

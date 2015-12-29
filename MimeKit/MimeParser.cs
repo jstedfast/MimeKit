@@ -927,8 +927,21 @@ namespace MimeKit {
 				var rawValue = headers[i].RawValue;
 				int index = 0;
 
-				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out type) && type == null)
-					return new ContentType ("application", "octet-stream");
+				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out type) && type == null) {
+					// if 'type' is null, then it means that even the mime-type was unintelligible
+					type = new ContentType ("application", "octet-stream");
+
+					// attempt to recover any parameters...
+					while (index < rawValue.Length && rawValue[index] != ';')
+						index++;
+
+					if (++index < rawValue.Length) {
+						ParameterList parameters;
+
+						if (ParameterList.TryParse (options, rawValue, ref index, rawValue.Length, false, out parameters))
+							type.Parameters = parameters;
+					}
+				}
 
 				return type;
 			}

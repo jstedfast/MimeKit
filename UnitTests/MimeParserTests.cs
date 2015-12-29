@@ -343,6 +343,19 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMissingSubtype ()
+		{
+			using (var stream = File.OpenRead ("../../TestData/messages/missing-subtype.txt")) {
+				var message = MimeMessage.Load (stream);
+				var type = message.Body.ContentType;
+
+				Assert.AreEqual ("application", type.MediaType, "The media type is not the default.");
+				Assert.AreEqual ("octet-stream", type.MediaSubtype, "The media subtype is not the default.");
+				Assert.AreEqual ("document.xml.gz", type.Name, "The parameters do not seem to have been parsed.");
+			}
+		}
+
+		[Test]
 		public void TestIssue51 ()
 		{
 			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +

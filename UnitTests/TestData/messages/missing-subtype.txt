@@ -1,0 +1,8 @@
+From: someone <someone@somewhere.com>
+To: someone else <someone.else@somewhere.else.com>
+Subject: Test of an invalid mime-type
+Date: Tue, 29 Dec 2015 09:06:17 -0400
+MIME-Version: 1.0
+Content-Type: application-x-gzip; name="document.xml.gz"
+
+blah blah blah
