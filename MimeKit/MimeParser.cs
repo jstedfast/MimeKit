@@ -924,7 +924,10 @@ namespace MimeKit {
 				if (!headers[i].Field.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
 					continue;
 
-				if (!ContentType.TryParse (options, headers[i].RawValue, out type) && type == null)
+				var rawValue = headers[i].RawValue;
+				int index = 0;
+
+				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out type) && type == null)
 					return new ContentType ("application", "octet-stream");
 
 				return type;
