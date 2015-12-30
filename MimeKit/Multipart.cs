@@ -423,10 +423,14 @@ namespace MimeKit {
 
 			if (cancellable != null) {
 				for (int i = 0; i < children.Count; i++) {
+					var part = children[i] as MimePart;
+
 					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+
+					if (part == null || (part.ContentObject != null && part.ContentObject.Stream.Length != 0))
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 
 				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
@@ -435,11 +439,15 @@ namespace MimeKit {
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				for (int i = 0; i < children.Count; i++) {
+					var part = children[i] as MimePart;
+
 					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (boundary, 0, boundary.Length - 2);
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					children[i].WriteTo (options, stream, false, cancellationToken);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					if (part == null || (part.ContentObject != null && part.ContentObject.Stream.Length != 0))
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
 				cancellationToken.ThrowIfCancellationRequested ();

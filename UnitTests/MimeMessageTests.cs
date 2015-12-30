@@ -125,6 +125,51 @@ Just for fun....  -- Nathaniel<nl>
 		}
 
 		[Test]
+		public void TestReserializationEmptyPart ()
+		{
+			const string rawMessageText = @"Date: Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
+From: Nathaniel Borenstein <nsb>
+X-Andrew-Message-Size: 152+1
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary=""Interpart.Boundary.IeCBvV20M2YtEoUA0A""
+To: Ned Freed <ned@innosoft.com>,
+    ysato@etl.go.jp (Yutaka Sato =?ISO-2022-JP?B?GyRAOjRGI0stGyhK?= )
+Subject: MIME & int'l mail
+
+> THIS IS A MESSAGE IN 'MIME' FORMAT.  Your mail reader does not support MIME.
+> Please read the first section, which is plain text, and ignore the rest.
+
+--Interpart.Boundary.IeCBvV20M2YtEoUA0A
+Content-type: text/plain; charset=US-ASCII
+
+This is the body.
+
+--Interpart.Boundary.IeCBvV20M2YtEoUA0A
+Content-type: text/plain; charset=US-ASCII; name=empty.txt
+
+--Interpart.Boundary.IeCBvV20M2YtEoUA0A--
+";
+			string result;
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText.Replace ("\r\n", "\n")))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					result = Encoding.UTF8.GetString (serialized.ToArray ());
+				}
+			}
+
+			Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+		}
+
+		[Test]
 		public void TestMailMessageToMimeMessage ()
 		{
 			var mail = new MailMessage ();
