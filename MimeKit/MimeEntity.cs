@@ -770,6 +770,8 @@ namespace MimeKit {
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
+			MailboxAddress mailbox;
+			int index = 0;
 			string text;
 
 			switch (action) {
@@ -802,7 +804,10 @@ namespace MimeKit {
 						baseUri = null;
 					break;
 				case HeaderId.ContentId:
-					contentId = MimeUtils.EnumerateReferences (header.RawValue, 0, header.RawValue.Length).FirstOrDefault ();
+					if (MailboxAddress.TryParse (Headers.Options, header.RawValue, ref index, header.RawValue.Length, false, out mailbox))
+						contentId = mailbox.Address;
+					else
+						contentId = null;
 					break;
 				}
 				break;
