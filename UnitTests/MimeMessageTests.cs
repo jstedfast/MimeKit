@@ -514,6 +514,70 @@ Content-type: text/plain; charset=US-ASCII; name=empty.txt
 		}
 
 		[Test]
+		public void TestClearHeaders ()
+		{
+			var message = new MimeMessage ();
+
+			message.Subject = "Clear the headers!";
+
+			message.Sender = new MailboxAddress ("Sender", "sender@sender.com");
+			message.ReplyTo.Add (new MailboxAddress ("Reply-To", "reply-to@reply-to.com"));
+			message.From.Add (new MailboxAddress ("From", "from@from.com"));
+			message.To.Add (new MailboxAddress ("To", "to@to.com"));
+			message.Cc.Add (new MailboxAddress ("Cc", "cc@cc.com"));
+			message.Bcc.Add (new MailboxAddress ("Bcc", "bcc@bcc.com"));
+			message.MessageId = MimeUtils.GenerateMessageId ();
+			message.Date = DateTimeOffset.Now;
+
+			message.ResentSender = new MailboxAddress ("Sender", "sender@sender.com");
+			message.ResentReplyTo.Add (new MailboxAddress ("Reply-To", "reply-to@reply-to.com"));
+			message.ResentFrom.Add (new MailboxAddress ("From", "from@from.com"));
+			message.ResentTo.Add (new MailboxAddress ("To", "to@to.com"));
+			message.ResentCc.Add (new MailboxAddress ("Cc", "cc@cc.com"));
+			message.ResentBcc.Add (new MailboxAddress ("Bcc", "bcc@bcc.com"));
+			message.ResentMessageId = MimeUtils.GenerateMessageId ();
+			message.ResentDate = DateTimeOffset.Now;
+
+			message.Importance = MessageImportance.High;
+			message.Priority = MessagePriority.Urgent;
+
+			message.References.Add ("<id1@localhost>");
+			message.InReplyTo = "<id1@localhost>";
+
+			message.MimeVersion = new Version (1, 0);
+
+			message.Headers.Clear ();
+
+			Assert.IsNull (message.Subject, "Subject has not been cleared.");
+
+			Assert.IsNull (message.Sender, "Sender has not been cleared.");
+			Assert.AreEqual (0, message.ReplyTo.Count, "Reply-To has not been cleared.");
+			Assert.AreEqual (0, message.From.Count, "From has not been cleared.");
+			Assert.AreEqual (0, message.To.Count, "To has not been cleared.");
+			Assert.AreEqual (0, message.Cc.Count, "Cc has not been cleared.");
+			Assert.AreEqual (0, message.Bcc.Count, "Bcc has not been cleared.");
+			Assert.IsNull (message.MessageId, "Message-Id has not been cleared.");
+			Assert.AreEqual (DateTimeOffset.MinValue, message.Date, "Date has not been cleared.");
+
+			Assert.IsNull (message.ResentSender, "Resent-Sender has not been cleared.");
+			Assert.AreEqual (0, message.ResentReplyTo.Count, "Resent-Reply-To has not been cleared.");
+			Assert.AreEqual (0, message.ResentFrom.Count, "Resent-From has not been cleared.");
+			Assert.AreEqual (0, message.ResentTo.Count, "Resent-To has not been cleared.");
+			Assert.AreEqual (0, message.ResentCc.Count, "Resent-Cc has not been cleared.");
+			Assert.AreEqual (0, message.ResentBcc.Count, "Resent-Bcc has not been cleared.");
+			Assert.IsNull (message.ResentMessageId, "Resent-Message-Id has not been cleared.");
+			Assert.AreEqual (DateTimeOffset.MinValue, message.ResentDate, "Resent-Date has not been cleared.");
+
+			Assert.AreEqual (MessageImportance.Normal, message.Importance, "Importance has not been cleared.");
+			Assert.AreEqual (MessagePriority.Normal, message.Priority, "Priority has not been cleared.");
+
+			Assert.AreEqual (0, message.References.Count, "References has not been cleared.");
+			Assert.IsNull (message.InReplyTo, "In-Reply-To has not been cleared.");
+
+			Assert.IsNull (message.MimeVersion, "MIME-Version has not been cleared.");
+		}
+
+		[Test]
 		public void TestHtmlAndTextBodies ()
 		{
 			var message = new MimeMessage ();

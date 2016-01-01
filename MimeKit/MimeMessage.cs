@@ -2414,6 +2414,7 @@ namespace MimeKit {
 				references.Clear ();
 				references.Changed += ReferencesChanged;
 
+				resentDate = date = DateTimeOffset.MinValue;
 				importance = MessageImportance.Normal;
 				priority = MessagePriority.Normal;
 				resentMessageId = null;
