@@ -794,6 +794,9 @@ MimeKit is a personal open source project that I have put thousands of hours int
 goal of making it not only the very best MIME parser framework for .NET, but the best MIME parser
 framework for any programming language. I need your help to achieve this.
 
+Donating helps pay for things such as web hosting and licenses for developer tools such as a
+performance profiler, memory profiler, a static code analysis tool, and more.
+
 <a href="http://www.pledgie.com/campaigns/29300" target="_blank">
   <img src="http://www.pledgie.com/campaigns/29300.png?skin_name=chrome"
        alt="Click here to lend your support to MimeKit and MailKit by making a donation via pledgie.com!"
