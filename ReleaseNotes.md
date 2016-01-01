@@ -4,6 +4,14 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.19
+
+* Handle illegal Content-Id headers that do not enclose their values in <>'s. (issue #215)
+* Fixed reserialization of MimeParts with empty content. (issue #213)
+* Improved parsing logic for malformed Content-Type headers.
+* Fixed HtmlTokenizer to work properly when some closing tags were not lowercase.
+* Bumped Bouncy Castle to v1.8.1.
+
 ### MimeKit 1.2.18
 
 * Removed unimplemented TNEF APIs.
