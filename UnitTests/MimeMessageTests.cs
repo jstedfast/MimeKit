@@ -439,6 +439,81 @@ Content-type: text/plain; charset=US-ASCII; name=empty.txt
 		}
 
 		[Test]
+		public void TestImportanceChanged ()
+		{
+			var message = new MimeMessage ();
+
+			message.Headers.Add (HeaderId.Importance, "high");
+			Assert.AreEqual (MessageImportance.High, message.Importance);
+
+			message.Headers.Remove (HeaderId.Importance);
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+
+			message.Headers.Add (HeaderId.Importance, "low");
+			Assert.AreEqual (MessageImportance.Low, message.Importance);
+
+			message.Headers.Remove (HeaderId.Importance);
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+
+			message.Headers.Add (HeaderId.Importance, "normal");
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+
+			message.Headers.Remove (HeaderId.Importance);
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+
+			message.Headers.Add (HeaderId.Importance, "invalid-value");
+			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+		}
+
+		[Test]
+		public void TestPriorityChanged ()
+		{
+			var message = new MimeMessage ();
+
+			message.Headers.Add (HeaderId.Priority, "urgent");
+			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
+
+			message.Headers.Remove (HeaderId.Priority);
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+
+			message.Headers.Add (HeaderId.Priority, "non-urgent");
+			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
+
+			message.Headers.Remove (HeaderId.Priority);
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+
+			message.Headers.Add (HeaderId.Priority, "normal");
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+
+			message.Headers.Remove (HeaderId.Priority);
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+
+			message.Headers.Add (HeaderId.Priority, "invalid-value");
+			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+		}
+
+		[Test]
+		public void TestReferencesChanged ()
+		{
+			var message = new MimeMessage ();
+			Header references;
+
+			message.Headers.Add (HeaderId.References, "<id1@localhost> <id2@localhost>");
+			Assert.AreEqual (2, message.References.Count, "The number of references does not match.");
+			Assert.AreEqual ("id1@localhost", message.References[0], "The first references does not match.");
+			Assert.AreEqual ("id2@localhost", message.References[1], "The second references does not match.");
+
+			message.References.Add ("id3@localhost");
+
+			Assert.IsTrue (message.Headers.TryGetHeader ("References", out references), "Failed to get References header.");
+			Assert.AreEqual ("<id1@localhost> <id2@localhost> <id3@localhost>", references.Value, "The modified Reference header does not match.");
+
+			message.References.Clear ();
+
+			Assert.IsFalse (message.Headers.TryGetHeader ("References", out references), "References header should have been removed.");
+		}
+
+		[Test]
 		public void TestHtmlAndTextBodies ()
 		{
 			var message = new MimeMessage ();
