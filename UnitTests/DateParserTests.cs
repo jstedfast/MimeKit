@@ -35,6 +35,7 @@ namespace UnitTests {
 	public class DateParserTests
 	{
 		static readonly string[] dates = {
+			"Sun, 08 Dec 91 09:11:00 +0000",
 			"8 Dec 1991 09:11 (Sunday)",
 			"26 Dec 1991 20:45 (Thursday)",
 			"Tue, 9 Jun 92 03:45:24 JST",
@@ -49,10 +50,12 @@ namespace UnitTests {
 			"Tue, 11 Feb 2014 22:27:10 +0100 (CET)",
 			"Wed, 6 Aug 2014 01:53:48 -2200",
 			"Tue, 21 Apr 15 14:44:51 GMT",
-			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)"
+			"Tue, 21 April 15 14:44:51 GMT",
+			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)",
 		};
 
 		static readonly string[] expected = {
+			"Sun, 08 Dec 1991 09:11:00 +0000",
 			"Sun, 08 Dec 1991 09:11:00 +0000",
 			"Thu, 26 Dec 1991 20:45:00 +0000",
 			"Tue, 09 Jun 1992 03:45:24 +0000",
@@ -67,7 +70,8 @@ namespace UnitTests {
 			"Tue, 11 Feb 2014 22:27:10 +0100",
 			"Wed, 06 Aug 2014 01:53:48 +0200",
 			"Tue, 21 Apr 2015 14:44:51 +0000",
-			"Thu, 01 Oct 2015 14:40:57 +0200"
+			"Tue, 21 Apr 2015 14:44:51 +0000",
+			"Thu, 01 Oct 2015 14:40:57 +0200",
 		};
 
 		[Test]
@@ -76,10 +80,22 @@ namespace UnitTests {
 			for (int i = 0; i < dates.Length; i++) {
 				var text = Encoding.UTF8.GetBytes (dates[i]);
 				DateTimeOffset date;
+				string parsed;
 
 				Assert.IsTrue (DateUtils.TryParse (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
-				var parsed = DateUtils.FormatDate (date);
+				parsed = DateUtils.FormatDate (date);
+				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
 
+				Assert.IsTrue (DateUtils.TryParse (text, 0, out date), "Failed to parse date: {0}", dates[i]);
+				parsed = DateUtils.FormatDate (date);
+				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+
+				Assert.IsTrue (DateUtils.TryParse (text, out date), "Failed to parse date: {0}", dates[i]);
+				parsed = DateUtils.FormatDate (date);
+				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+
+				Assert.IsTrue (DateUtils.TryParse (dates[i], out date), "Failed to parse date: {0}", dates[i]);
+				parsed = DateUtils.FormatDate (date);
 				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
 			}
 		}
