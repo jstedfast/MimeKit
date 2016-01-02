@@ -78,6 +78,7 @@
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
+    <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />

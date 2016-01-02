@@ -1363,6 +1363,9 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
 		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
 			int length = buffer.Length - startIndex;
 
 			return TryParse (options, buffer, startIndex, length, out header);
@@ -1386,6 +1389,9 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
 		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
 			int length = buffer.Length - startIndex;
 
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
