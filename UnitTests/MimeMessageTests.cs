@@ -580,26 +580,33 @@ Content-type: text/plain; charset=US-ASCII; name=empty.txt
 		[Test]
 		public void TestHtmlAndTextBodies ()
 		{
-			var message = new MimeMessage ();
-			var builder = new BodyBuilder ();
+			const string HtmlBody = "<html>This is an <b>html</b> body.</html>";
+			const string TextBody = "This is the text body.";
+			MimeMessage message;
 
-			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
-			builder.TextBody = "This is the text body.";
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.1.txt"));
+			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.1.txt.");
+			Assert.AreEqual (null, message.HtmlBody, "The HTML bodies do not match for body.1.txt.");
 
-			builder.LinkedResources.Add ("empty.gif", new byte[0]);
-			builder.LinkedResources.Add ("empty.jpg", new byte[0]);
-			builder.Attachments.Add ("document.xls", new byte[0]);
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.2.txt"));
+			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.2.txt.");
+			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.2.txt.");
 
-			foreach (var resource in builder.LinkedResources)
-				resource.ContentId = MimeUtils.GenerateMessageId ();
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.3.txt"));
+			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.3.txt.");
+			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.3.txt.");
 
-			message.From.Add (new MailboxAddress ("Example Name", "name@example.com"));
-			message.To.Add (new MailboxAddress ("Destination", "dest@example.com"));
-			message.Subject = "This is the subject";
-			message.Body = builder.ToMessageBody ();
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.4.txt"));
+			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.4.txt.");
+			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.4.txt.");
 
-			Assert.AreEqual (builder.HtmlBody, message.HtmlBody, "The HTML bodies do not match.");
-			Assert.AreEqual (builder.TextBody, message.TextBody, "The text bodies do not match.");
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.5.txt"));
+			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.5.txt.");
+			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.5.txt.");
+
+			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.6.txt"));
+			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.6.txt.");
+			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.6.txt.");
 		}
 	}
 }

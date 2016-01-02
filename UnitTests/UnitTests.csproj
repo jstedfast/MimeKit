@@ -133,6 +133,12 @@
     <None Include="TestData\mbox\jwz-summary.txt" />
     <None Include="TestData\mbox\simple.mbox.txt" />
     <None Include="TestData\mbox\unmunged.mbox.txt" />
+    <None Include="TestData\messages\body.1.txt" />
+    <None Include="TestData\messages\body.2.txt" />
+    <None Include="TestData\messages\body.3.txt" />
+    <None Include="TestData\messages\body.4.txt" />
+    <None Include="TestData\messages\body.5.txt" />
+    <None Include="TestData\messages\body.6.txt" />
     <None Include="TestData\messages\delivery-status.txt" />
     <None Include="TestData\messages\disposition-notification.txt" />
     <None Include="TestData\messages\empty-multipart.txt" />

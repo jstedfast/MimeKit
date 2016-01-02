@@ -1,0 +1,28 @@
+From: MimeKit Unit Tests <mimekit@mimekit.net>
+To: MimeKit Unit Tests <mimekit@mimekit.net>
+Subject: MimeMessage.TextBody and HtmlBody tests
+Date: Sat, 2 Jan 2016 17:42:00 -0400
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="Next_Alternative"
+
+--Next_Alternative
+Content-Type: multipart/related; boundary="Next_Related"
+
+--Next_Related
+Content-Type: text/html
+
+<html>This is an <b>html</b> body.</html>
+--Next_Related
+Content-Type: image/gif; name="empty.gif"
+Content-Disposition: inline; filename="empty.gif"
+
+--Next_Related
+Content-Type: image/jpeg; name="empty.jpg"
+Content-Disposition: inline; filename="empty.jpg"
+
+--Next_Related--
+--Next_Alternative
+Content-Type: text/plain
+
+This is the text body.
+--Next_Alternative--
