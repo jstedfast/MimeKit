@@ -79,12 +79,13 @@ namespace MimeKit.Utils {
 				for (i = 0; i < values.Length; i++)
 					table[values[i]] &= ~bit;
 
-				if (bitcopy != CharType.None) {
-					for (i = 0; i < 256; i++) {
-						if ((table[i] & bitcopy) != 0)
-							table[i] &= ~bit;
-					}
-				}
+				// Note: not actually used...
+				//if (bitcopy != CharType.None) {
+				//	for (i = 0; i < 256; i++) {
+				//		if ((table[i] & bitcopy) != 0)
+				//			table[i] &= ~bit;
+				//	}
+				//}
 			} else {
 				for (i = 0; i < values.Length; i++)
 					table[values[i]] |= bit;
@@ -138,10 +139,10 @@ namespace MimeKit.Utils {
 			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);
 		}
 
-		public static bool IsAscii (this byte c)
-		{
-			return (table[c] & CharType.IsAscii) != 0;
-		}
+		//public static bool IsAscii (this byte c)
+		//{
+		//	return (table[c] & CharType.IsAscii) != 0;
+		//}
 
 		public static bool IsAsciiAtom (this byte c)
 		{
@@ -203,21 +204,21 @@ namespace MimeKit.Utils {
 			return (table[c] & CharType.IsXDigit) != 0;
 		}
 
-		public static byte ToLower (this byte c)
-		{
-			if (c >= 0x41 && c <= 0x5A)
-				return (byte) (c + 0x20);
+		//public static byte ToLower (this byte c)
+		//{
+		//	if (c >= 0x41 && c <= 0x5A)
+		//		return (byte) (c + 0x20);
+		//
+		//	return c;
+		//}
 
-			return c;
-		}
-
-		public static byte ToUpper (this byte c)
-		{
-			if (c >= 0x61 && c <= 0x7A)
-				return (byte) (c - 0x20);
-
-			return c;
-		}
+		//public static byte ToUpper (this byte c)
+		//{
+		//	if (c >= 0x61 && c <= 0x7A)
+		//		return (byte) (c - 0x20);
+		//
+		//	return c;
+		//}
 
 		public static byte ToXDigit (this byte c)
 		{
