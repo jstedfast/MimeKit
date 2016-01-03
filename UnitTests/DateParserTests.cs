@@ -77,10 +77,12 @@ namespace UnitTests {
 		[Test]
 		public void TestDateParser ()
 		{
+			DateTimeOffset date;
+			string parsed;
+			byte[] text;
+
 			for (int i = 0; i < dates.Length; i++) {
-				var text = Encoding.UTF8.GetBytes (dates[i]);
-				DateTimeOffset date;
-				string parsed;
+				text = Encoding.UTF8.GetBytes (dates[i]);
 
 				Assert.IsTrue (DateUtils.TryParse (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
 				parsed = DateUtils.FormatDate (date);
@@ -98,6 +100,13 @@ namespace UnitTests {
 				parsed = DateUtils.FormatDate (date);
 				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
 			}
+
+			text = Encoding.ASCII.GetBytes ("this is pure junk");
+
+			Assert.IsFalse (DateUtils.TryParse (text, 0, text.Length, out date), "Should not have parsed junk.");
+			Assert.IsFalse (DateUtils.TryParse (text, 0, out date), "Should not have parsed junk.");
+			Assert.IsFalse (DateUtils.TryParse (text, out date), "Should not have parsed junk.");
+			Assert.IsFalse (DateUtils.TryParse ("this is pure junk", out date), "Should not have parsed junk.");
 		}
 	}
 }
