@@ -173,6 +173,14 @@ Content-type: text/plain; charset=US-ASCII; name=empty.txt
 		public void TestMailMessageToMimeMessage ()
 		{
 			var mail = new MailMessage ();
+			mail.Sender = new MailAddress ("sender@sender.com", "The Real Sender");
+			mail.From = new MailAddress ("from@from.com", "From Whence it Came");
+			mail.ReplyToList.Add (new MailAddress ("reply-to@reply-to.com"));
+			mail.To.Add (new MailAddress ("to@to.com", "The Primary Recipient"));
+			mail.CC.Add (new MailAddress ("cc@cc.com", "The Carbon-Copied Recipient"));
+			mail.Bcc.Add (new MailAddress ("bcc@bcc.com", "The Blind Carbon-Copied Recipient"));
+			mail.Subject = "This is the message subject";
+			mail.Priority = MailPriority.High;
 			mail.Body = null;
 
 			var text = new MemoryStream (Encoding.ASCII.GetBytes ("This is plain text."), false);
@@ -183,7 +191,21 @@ Content-type: text/plain; charset=US-ASCII; name=empty.txt
 
 			var message = (MimeMessage) mail;
 
-			Assert.IsTrue (message.Body is Multipart, "THe top-level MIME part should be a multipart.");
+			Assert.AreEqual (mail.Sender.DisplayName, message.Sender.Name, "The sender names do not match.");
+			Assert.AreEqual (mail.Sender.Address, message.Sender.Address, "The sender addresses do not match.");
+			Assert.AreEqual (mail.From.DisplayName, message.From[0].Name, "The from names do not match.");
+			Assert.AreEqual (mail.From.Address, ((MailboxAddress) message.From[0]).Address, "The from addresses do not match.");
+			Assert.AreEqual (mail.ReplyToList[0].DisplayName, message.ReplyTo[0].Name, "The reply-to names do not match.");
+			Assert.AreEqual (mail.ReplyToList[0].Address, ((MailboxAddress) message.ReplyTo[0]).Address, "The reply-to addresses do not match.");
+			Assert.AreEqual (mail.To[0].DisplayName, message.To[0].Name, "The to names do not match.");
+			Assert.AreEqual (mail.To[0].Address, ((MailboxAddress) message.To[0]).Address, "The to addresses do not match.");
+			Assert.AreEqual (mail.CC[0].DisplayName, message.Cc[0].Name, "The cc names do not match.");
+			Assert.AreEqual (mail.CC[0].Address, ((MailboxAddress) message.Cc[0]).Address, "The cc addresses do not match.");
+			Assert.AreEqual (mail.Bcc[0].DisplayName, message.Bcc[0].Name, "The bcc names do not match.");
+			Assert.AreEqual (mail.Bcc[0].Address, ((MailboxAddress) message.Bcc[0]).Address, "The bcc addresses do not match.");
+			Assert.AreEqual (mail.Subject, message.Subject, "The message subjects do not match.");
+			Assert.AreEqual (MessagePriority.Urgent, message.Priority, "The message priority does not match.");
+			Assert.IsTrue (message.Body is Multipart, "The top-level MIME part should be a multipart.");
 			Assert.IsTrue (message.Body.ContentType.IsMimeType ("multipart", "alternative"), "The top-level MIME part should be multipart/alternative.");
 
 			var multipart = (Multipart) message.Body;
