@@ -111,6 +111,8 @@ namespace UnitTests {
 			var decoder = new Base64Decoder ();
 			var output = new byte[4096];
 
+			Assert.AreEqual (ContentEncoding.Base64, decoder.Encoding);
+
 			for (int i = 0; i < base64EncodedPatterns.Length; i++) {
 				decoder.Reset ();
 				var buf = Encoding.ASCII.GetBytes (base64EncodedPatterns[i]);
@@ -235,6 +237,7 @@ namespace UnitTests {
 		static readonly string[] qpEncodedPatterns = {
 			"=e1=e2=E3=E4\r\n",
 			"=e1=g2=E3=E4\r\n",
+			"=e1=eg=E3=E4\r\n",
 			"   =e1 =e2  =E3\t=E4  \t \t    \r\n",
 			"Soft line=\r\n\tHard line\r\n",
 			"width==\r\n340 height=3d200\r\n",
@@ -243,6 +246,7 @@ namespace UnitTests {
 		static readonly string[] qpDecodedPatterns = {
 			"\u00e1\u00e2\u00e3\u00e4\r\n",
 			"\u00e1=g2\u00e3\u00e4\r\n",
+			"\u00e1=eg\u00e3\u00e4\r\n",
 			"   \u00e1 \u00e2  \u00e3\t\u00e4  \t \t    \r\n",
 			"Soft line\tHard line\r\n",
 			"width=340 height=200\r\n"
@@ -259,6 +263,8 @@ namespace UnitTests {
 			string actual;
 			byte[] buf;
 			int n;
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, decoder.Encoding);
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = decoder.Decode (buf, 0, buf.Length, output);
@@ -284,6 +290,8 @@ namespace UnitTests {
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
 			var encoder = new QuotedPrintableEncoder ();
 			var output = new byte[4096];
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
 
 			var buf = encoding.GetBytes (input);
 			int n = encoder.Flush (buf, 0, buf.Length, output);
