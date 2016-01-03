@@ -307,8 +307,11 @@ namespace UnitTests {
 			}
 
 			using (var memory = new MemoryStream ()) {
-				using (var stream = new ChainedStream ())
+				using (var stream = new ChainedStream ()) {
+					stream.Add (memory);
+
 					AssertStreamArguments (stream);
+				}
 			}
 		}
 	}
