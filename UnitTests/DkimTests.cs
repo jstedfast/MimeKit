@@ -69,7 +69,7 @@ namespace UnitTests
 
 		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm)
 		{
-			return new DkimSigner (DkimKeys.Private, "example.com", "1433868189.example") {
+			return new DkimSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
 				SignatureAlgorithm = algorithm,
 				AgentOrUserIdentifier = "@eng.example.com",
 				QueryMethod = "dns/txt",
