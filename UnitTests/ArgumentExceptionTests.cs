@@ -112,7 +112,7 @@ namespace UnitTests {
 			var buffer = new byte[1024];
 
 			foreach (var method in type.GetMethods (BindingFlags.Public | BindingFlags.Static)) {
-				if (method.Name != "Parse")
+				if (method.Name != "Parse" && method.Name != "TryParse")
 					continue;
 
 				var parameters = method.GetParameters ();
@@ -136,19 +136,19 @@ namespace UnitTests {
 					args[idx++] = text;
 				}
 
-				for (int i = idx; i < parameters.Length; i++) {
-					switch (parameters[i].Name) {
-					case "startIndex": args[i] = 0; break;
-					case "length": args[i] = length; break;
-					default:
-						Assert.Fail ("Unknown parameter: {0} for {1}.Parse", parameters[i].Name, type.Name);
-						break;
-					}
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// startIndex
+					args[idx++] = 0;
+				}
+
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// length
+					args[idx++] = length;
 				}
 
 				if (bufferIndex == 1) {
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-						"{0}.Parse did not throw an exception when options was null.", type.Name);
+						"{0}.{1} did not throw an exception when options was null.", type.Name, method.Name);
 					Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
 					Assert.AreEqual ("options", ex.ParamName);
@@ -159,18 +159,19 @@ namespace UnitTests {
 				var buf = args[bufferIndex];
 				args[bufferIndex] = null;
 				tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-					"{0}.Parse did not throw an exception when {1} was null.", type.Name, parameters[bufferIndex].Name);
+					"{0}.{1} did not throw an exception when {2} was null.", type.Name, method.Name, parameters[bufferIndex].Name);
 				Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
 				ex = (ArgumentException) tie.InnerException;
 				Assert.AreEqual (parameters[bufferIndex].Name, ex.ParamName);
 				args[bufferIndex] = buf;
 
-				if (idx < parameters.Length) {
+				idx = bufferIndex + 1;
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
 					// startIndex
 					args[idx] = -1;
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-						"{0}.Parse did not throw ArgumentOutOfRangeException when {1} was -1.", type.Name, parameters[idx].Name);
+						"{0}.{1} did not throw ArgumentOutOfRangeException when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
 					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
@@ -178,7 +179,7 @@ namespace UnitTests {
 					args[idx] = length + 1;
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-						"{0}.Parse did not throw an exception when {1} was > length.", type.Name, parameters[idx].Name);
+						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
 					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
@@ -186,12 +187,12 @@ namespace UnitTests {
 					args[idx++] = 0;
 				}
 
-				if (idx < parameters.Length) {
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
 					// length
 					args[idx] = -1;
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-						"{0}.Parse did not throw an exception when {1} was -1.", type.Name, parameters[idx].Name);
+						"{0}.{1} did not throw an exception when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
 					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
@@ -199,7 +200,7 @@ namespace UnitTests {
 					args[idx] = length + 1;
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
-						"{0}.Parse did not throw an exception when {1} was > length.", type.Name, parameters[idx].Name);
+						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
 					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
