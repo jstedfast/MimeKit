@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
 using NUnit.Framework;
 
@@ -91,11 +92,7 @@ namespace UnitTests {
 				using (var decoded = new MemoryStream ()) {
 					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
 						using (var filtered = new FilteredStream (file)) {
-							var filter = DecoderFilter.Create (ContentEncoding.Base64);
-
-							filtered.Add (filter);
-							filter.Reset ();
-
+							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
 							filtered.CopyTo (decoded, 4096);
 						}
 					}
@@ -148,10 +145,7 @@ namespace UnitTests {
 
 				using (var encoded = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (encoded)) {
-						var filter = EncoderFilter.Create (ContentEncoding.Base64);
-
-						filtered.Add (filter);
-						filter.Reset ();
+						filtered.Add (EncoderFilter.Create (ContentEncoding.Base64));
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -181,11 +175,7 @@ namespace UnitTests {
 				using (var decoded = new MemoryStream ()) {
 					using (var file = File.OpenRead ("../../TestData/encoders/photo.uu")) {
 						using (var filtered = new FilteredStream (file)) {
-							var filter = DecoderFilter.Create (ContentEncoding.UUEncode);
-
-							filtered.Add (filter);
-							filter.Reset ();
-
+							filtered.Add (DecoderFilter.Create (ContentEncoding.UUEncode));
 							filtered.CopyTo (decoded, 4096);
 						}
 					}
@@ -221,10 +211,7 @@ namespace UnitTests {
 					encoded.Write (begin, 0, begin.Length);
 
 					using (var filtered = new FilteredStream (encoded)) {
-						var filter = EncoderFilter.Create (ContentEncoding.UUEncode);
-
-						filtered.Add (filter);
-						filter.Reset ();
+						filtered.Add (EncoderFilter.Create (ContentEncoding.UUEncode));
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -357,6 +344,198 @@ namespace UnitTests {
 				Assert.AreEqual (input[i], output[i]);
 
 			decoder.Reset ();
+		}
+
+		static void AssertIsEncoderFilter (ContentEncoding encoding, ContentEncoding expected)
+		{
+			var filter = EncoderFilter.Create (encoding);
+
+			Assert.IsInstanceOf<EncoderFilter> (filter, "Expected EncoderFilter for ContentEncoding.{0}", encoding);
+
+			var encoder = (EncoderFilter) filter;
+
+			Assert.AreEqual (expected, encoder.Encoding, "Expected encoder's Encoding to be ContentEncoding.{0}", expected);
+		}
+
+		static void AssertIsEncoderFilter (string encoding, ContentEncoding expected)
+		{
+			var filter = EncoderFilter.Create (encoding);
+
+			Assert.IsInstanceOf<EncoderFilter> (filter, "Expected EncoderFilter for \"{0}\"", encoding);
+
+			var encoder = (EncoderFilter) filter;
+
+			Assert.AreEqual (expected, encoder.Encoding, "Expected encoder's Encoding to be ContentEncoding.{0}", expected);
+		}
+
+		[Test]
+		public void TestCreateEncoders ()
+		{
+			AssertIsEncoderFilter (ContentEncoding.Base64, ContentEncoding.Base64);
+			AssertIsEncoderFilter ("base64", ContentEncoding.Base64);
+
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.Binary));
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("binary"));
+
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.Default));
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("x-invalid"));
+
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.EightBit));
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("8bit"));
+
+			AssertIsEncoderFilter (ContentEncoding.QuotedPrintable, ContentEncoding.QuotedPrintable);
+			AssertIsEncoderFilter ("quoted-printable", ContentEncoding.QuotedPrintable);
+
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.SevenBit));
+			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("7bit"));
+
+			AssertIsEncoderFilter (ContentEncoding.UUEncode, ContentEncoding.UUEncode);
+			AssertIsEncoderFilter ("x-uuencode", ContentEncoding.UUEncode);
+			AssertIsEncoderFilter ("uuencode", ContentEncoding.UUEncode);
+		}
+
+		static void AssertIsDecoderFilter (ContentEncoding encoding, ContentEncoding expected)
+		{
+			var filter = DecoderFilter.Create (encoding);
+
+			Assert.IsInstanceOf<DecoderFilter> (filter, "Expected DecoderFilter for ContentEncoding.{0}", encoding);
+
+			var decoder = (DecoderFilter) filter;
+
+			Assert.AreEqual (expected, decoder.Encoding, "Expected decoder's Encoding to be ContentEncoding.{0}", expected);
+		}
+
+		static void AssertIsDecoderFilter (string encoding, ContentEncoding expected)
+		{
+			var filter = DecoderFilter.Create (encoding);
+
+			Assert.IsInstanceOf<DecoderFilter> (filter, "Expected DecoderFilter for \"{0}\"", encoding);
+
+			var decoder = (DecoderFilter) filter;
+
+			Assert.AreEqual (expected, decoder.Encoding, "Expected decoder's Encoding to be ContentEncoding.{0}", expected);
+		}
+
+		[Test]
+		public void TestCreateDecoders ()
+		{
+			AssertIsDecoderFilter (ContentEncoding.Base64, ContentEncoding.Base64);
+			AssertIsDecoderFilter ("base64", ContentEncoding.Base64);
+
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.Binary));
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("binary"));
+
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.Default));
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("x-invalid"));
+
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.EightBit));
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("8bit"));
+
+			AssertIsDecoderFilter (ContentEncoding.QuotedPrintable, ContentEncoding.QuotedPrintable);
+			AssertIsDecoderFilter ("quoted-printable", ContentEncoding.QuotedPrintable);
+
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.SevenBit));
+			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("7bit"));
+
+			AssertIsDecoderFilter (ContentEncoding.UUEncode, ContentEncoding.UUEncode);
+			AssertIsDecoderFilter ("x-uuencode", ContentEncoding.UUEncode);
+			AssertIsDecoderFilter ("uuencode", ContentEncoding.UUEncode);
+		}
+
+		static object GetEnumValue (Type type, int value)
+		{
+			return Enum.Parse (type, value.ToString ());
+		}
+
+		static void CloneAndAssert (IMimeEncoder encoder)
+		{
+			var random = new Random ();
+
+			// first, set some random state
+			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
+				if ((field.Attributes & FieldAttributes.InitOnly) != 0)
+					continue;
+
+				if (field.FieldType.IsEnum) {
+					field.SetValue (encoder, GetEnumValue (field.FieldType, random.Next (1, 255)));
+				} else if (field.FieldType == typeof (int)) {
+					field.SetValue (encoder, random.Next (1, int.MaxValue));
+				} else if (field.FieldType == typeof (uint)) {
+					field.SetValue (encoder, (uint) random.Next (1, int.MaxValue));
+				} else if (field.FieldType == typeof (bool)) {
+					field.SetValue (encoder, true);
+				} else if (field.FieldType == typeof (byte)) {
+					field.SetValue (encoder, (byte) random.Next (1, 255));
+				} else if (field.FieldType == typeof (short)) {
+					field.SetValue (encoder, (short) random.Next (1, short.MaxValue));
+				} else {
+					Assert.Fail ("Unknown field type: {0}.{1}", encoder.GetType ().Name, field.Name);
+				}
+			}
+
+			var clone = encoder.Clone ();
+
+			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
+				var expected = field.GetValue (encoder);
+				var actual = field.GetValue (clone);
+
+				Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+			}
+		}
+
+		static void CloneAndAssert (IMimeDecoder decoder)
+		{
+			var random = new Random ();
+
+			// first, set some random state
+			foreach (var field in decoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
+				if ((field.Attributes & FieldAttributes.InitOnly) != 0)
+					continue;
+
+				if (field.FieldType.IsEnum) {
+					field.SetValue (decoder, GetEnumValue (field.FieldType, random.Next (1, 255)));
+				} else if (field.FieldType == typeof (int)) {
+					field.SetValue (decoder, random.Next (1, int.MaxValue));
+				} else if (field.FieldType == typeof (uint)) {
+					field.SetValue (decoder, (uint) random.Next (1, int.MaxValue));
+				} else if (field.FieldType == typeof (bool)) {
+					field.SetValue (decoder, true);
+				} else if (field.FieldType == typeof (byte)) {
+					field.SetValue (decoder, (byte) random.Next (1, 255));
+				} else if (field.FieldType == typeof (short)) {
+					field.SetValue (decoder, (short) random.Next (1, short.MaxValue));
+				} else {
+					Assert.Fail ("Unknown field type: {0}.{1}", decoder.GetType ().Name, field.Name);
+				}
+			}
+
+			var clone = decoder.Clone ();
+
+			foreach (var field in decoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
+				var expected = field.GetValue (decoder);
+				var actual = field.GetValue (clone);
+
+				Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", decoder.GetType ().Name, field.Name);
+			}
+		}
+
+		[Test]
+		public void TestCloning ()
+		{
+			CloneAndAssert (new Base64Encoder (true, 76));
+			CloneAndAssert (new Base64Encoder (false, 76));
+			CloneAndAssert (new HexEncoder ());
+			CloneAndAssert (new QEncoder (QEncodeMode.Text));
+			CloneAndAssert (new QEncoder (QEncodeMode.Phrase));
+			CloneAndAssert (new QuotedPrintableEncoder ());
+			CloneAndAssert (new UUEncoder ());
+
+			CloneAndAssert (new Base64Decoder ());
+			CloneAndAssert (new HexDecoder ());
+			CloneAndAssert (new QuotedPrintableDecoder (true));
+			CloneAndAssert (new QuotedPrintableDecoder (false));
+			CloneAndAssert (new UUDecoder (true));
+			CloneAndAssert (new UUDecoder (false));
 		}
 	}
 }

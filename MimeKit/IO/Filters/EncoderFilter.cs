@@ -64,7 +64,7 @@ namespace MimeKit.IO.Filters {
 		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.EncoderFilter"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="EncoderFilter"/> using the specified encoder.
+		/// Creates a new <see cref="IMimeFilter"/> using the specified encoder.
 		/// </remarks>
 		/// <param name="encoder">A specific encoder for the filter to use.</param>
 		public EncoderFilter (IMimeEncoder encoder)
@@ -76,7 +76,7 @@ namespace MimeKit.IO.Filters {
 		/// Create a filter that will encode using specified encoding.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="EncoderFilter"/> for the specified encoding.
+		/// Creates a new <see cref="IMimeFilter"/> for the specified encoding.
 		/// </remarks>
 		/// <returns>A new encoder filter.</returns>
 		/// <param name="encoding">The encoding to create a filter for.</param>
