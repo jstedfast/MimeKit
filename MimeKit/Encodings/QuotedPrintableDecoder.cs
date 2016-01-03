@@ -45,8 +45,8 @@ namespace MimeKit.Encodings {
 			DecodeByte
 		}
 
-		QpDecoderState state;
 		readonly bool rfc2047;
+		QpDecoderState state;
 		byte saved;
 
 		/// <summary>
@@ -61,7 +61,6 @@ namespace MimeKit.Encodings {
 		public QuotedPrintableDecoder (bool rfc2047)
 		{
 			this.rfc2047 = rfc2047;
-			Reset ();
 		}
 
 		/// <summary>

@@ -68,7 +68,6 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public Base64Decoder ()
 		{
-			Reset ();
 		}
 
 		/// <summary>

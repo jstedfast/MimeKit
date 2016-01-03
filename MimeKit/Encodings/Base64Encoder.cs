@@ -69,7 +69,6 @@ namespace MimeKit.Encodings {
 
 			quartetsPerLine = maxLineLength / 4;
 			this.rfc2047 = rfc2047;
-			Reset ();
 		}
 
 		/// <summary>

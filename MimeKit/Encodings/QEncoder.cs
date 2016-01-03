@@ -75,7 +75,6 @@ namespace MimeKit.Encodings {
 		public QEncoder (QEncodeMode mode)
 		{
 			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
-			Reset ();
 		}
 
 		/// <summary>

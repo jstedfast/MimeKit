@@ -55,7 +55,6 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public UUEncoder ()
 		{
-			Reset ();
 		}
 
 		/// <summary>
