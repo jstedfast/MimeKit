@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Reflection;
 
 using NUnit.Framework;
@@ -38,7 +39,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
-		static void AssertInvalidArguments (IMimeFilter filter)
+		static void AssertFilterArguments (IMimeFilter filter)
 		{
 			int outputIndex, outputLength;
 			var input = new byte[1024];
@@ -88,20 +89,20 @@ namespace UnitTests {
 		[Test]
 		public void TestFilterArguments ()
 		{
-			AssertInvalidArguments (new Dos2UnixFilter ());
-			AssertInvalidArguments (new Unix2DosFilter ());
-			AssertInvalidArguments (new ArmoredFromFilter ());
-			AssertInvalidArguments (new BestEncodingFilter ());
-			AssertInvalidArguments (new CharsetFilter ("iso-8859-1", "utf-8"));
-			AssertInvalidArguments (DecoderFilter.Create (ContentEncoding.Base64));
-			AssertInvalidArguments (EncoderFilter.Create (ContentEncoding.Base64));
-			AssertInvalidArguments (DecoderFilter.Create (ContentEncoding.QuotedPrintable));
-			AssertInvalidArguments (EncoderFilter.Create (ContentEncoding.QuotedPrintable));
-			AssertInvalidArguments (DecoderFilter.Create (ContentEncoding.UUEncode));
-			AssertInvalidArguments (EncoderFilter.Create (ContentEncoding.UUEncode));
-			AssertInvalidArguments (new TrailingWhitespaceFilter ());
-			AssertInvalidArguments (new DkimRelaxedBodyFilter ());
-			AssertInvalidArguments (new DkimSimpleBodyFilter ());
+			AssertFilterArguments (new Dos2UnixFilter ());
+			AssertFilterArguments (new Unix2DosFilter ());
+			AssertFilterArguments (new ArmoredFromFilter ());
+			AssertFilterArguments (new BestEncodingFilter ());
+			AssertFilterArguments (new CharsetFilter ("iso-8859-1", "utf-8"));
+			AssertFilterArguments (DecoderFilter.Create (ContentEncoding.Base64));
+			AssertFilterArguments (EncoderFilter.Create (ContentEncoding.Base64));
+			AssertFilterArguments (DecoderFilter.Create (ContentEncoding.QuotedPrintable));
+			AssertFilterArguments (EncoderFilter.Create (ContentEncoding.QuotedPrintable));
+			AssertFilterArguments (DecoderFilter.Create (ContentEncoding.UUEncode));
+			AssertFilterArguments (EncoderFilter.Create (ContentEncoding.UUEncode));
+			AssertFilterArguments (new TrailingWhitespaceFilter ());
+			AssertFilterArguments (new DkimRelaxedBodyFilter ());
+			AssertFilterArguments (new DkimSimpleBodyFilter ());
 		}
 
 		static void AssertParseArguments (Type type)
@@ -218,6 +219,87 @@ namespace UnitTests {
 
 			AssertParseArguments (typeof (ContentDisposition));
 			AssertParseArguments (typeof (ContentType));
+		}
+
+		static void AssertStreamArguments (Stream stream)
+		{
+			var buffer = new byte[1024];
+			ArgumentException ex;
+
+			if (stream.CanRead) {
+				ex = Assert.Throws<ArgumentNullException> (() => stream.Read (null, 0, 0),
+					"{0}.Read() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
+				Assert.AreEqual ("buffer", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, -1, 0),
+					"{0}.Read() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
+				Assert.AreEqual ("offset", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, buffer.Length + 1, 0),
+					"{0}.Read() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
+				Assert.AreEqual ("offset", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, 0, -1),
+					"{0}.Read() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
+				Assert.AreEqual ("count", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, 0, buffer.Length + 1),
+					"{0}.Read() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
+				Assert.AreEqual ("count", ex.ParamName);
+			}
+
+			if (stream.CanWrite) {
+				ex = Assert.Throws<ArgumentNullException> (() => stream.Write (null, 0, 0),
+					"{0}.Write() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
+				Assert.AreEqual ("buffer", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0),
+					"{0}.Write() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
+				Assert.AreEqual ("offset", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, buffer.Length + 1, 0),
+					"{0}.Write() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
+				Assert.AreEqual ("offset", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1),
+					"{0}.Write() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
+				Assert.AreEqual ("count", ex.ParamName);
+
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, buffer.Length + 1),
+					"{0}.Write() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
+				Assert.AreEqual ("count", ex.ParamName);
+			}
+
+			if (stream.CanSeek) {
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Seek (0, (SeekOrigin) 255),
+					"{0}.Seek() does not throw an ArgumentOutOfRangeException when origin is invalid.", stream.GetType ().Name);
+				Assert.AreEqual ("origin", ex.ParamName);
+			}
+		}
+
+		[Test]
+		public void TestStreamArguments ()
+		{
+			using (var stream = new MeasuringStream ())
+				AssertStreamArguments (stream);
+
+			using (var stream = new MemoryBlockStream ())
+				AssertStreamArguments (stream);
+
+			using (var memory = new MemoryStream ()) {
+				using (var stream = new FilteredStream (memory))
+					AssertStreamArguments (stream);
+			}
+
+			using (var memory = new MemoryStream ()) {
+				using (var stream = new BoundStream (memory, 0, -1, true))
+					AssertStreamArguments (stream);
+			}
+
+			using (var memory = new MemoryStream ()) {
+				using (var stream = new ChainedStream ())
+					AssertStreamArguments (stream);
+			}
 		}
 	}
 }
