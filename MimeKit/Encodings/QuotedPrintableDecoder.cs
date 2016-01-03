@@ -172,23 +172,34 @@ namespace MimeKit.Encodings {
 					break;
 				case QpDecoderState.EqualSign:
 					c = *inptr++;
-					if (c == '\n') {
-						// this is a soft break ("=\n")
-						state = QpDecoderState.PassThrough;
-					} else {
+
+					if (c.IsXDigit ()) {
 						state = QpDecoderState.DecodeByte;
 						saved = c;
+					} else if (c == '=') {
+						// invalid encoded sequence - pass it through undecoded
+						*outptr++ = (byte) '=';
+					} else {
+						state = QpDecoderState.PassThrough;
+
+						// check for soft line break ("=\n" or "=\r\n")
+						if (c == '\r' && inptr < inend && *inptr == '\n')
+							c = *inptr++;
+
+						if (c != '\r' && c != '\n') {
+							// invalid encoded sequence - pass it through undecoded
+							*outptr++ = (byte) '=';
+							*outptr++ = c;
+						}
 					}
 					break;
 				case QpDecoderState.DecodeByte:
 					c = *inptr++;
-					if (c.IsXDigit () && saved.IsXDigit ()) {
+					if (c.IsXDigit ()) {
 						saved = saved.ToXDigit ();
 						c = c.ToXDigit ();
 
 						*outptr++ = (byte) ((saved << 4) | c);
-					} else if (saved == '\r' && c == '\n') {
-						// end-of-line
 					} else {
 						// invalid encoded sequence - pass it through undecoded
 						*outptr++ = (byte) '=';

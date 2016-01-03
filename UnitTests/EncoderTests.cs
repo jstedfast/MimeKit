@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.IO;
+using MimeKit.Utils;
 using MimeKit.IO.Filters;
 using MimeKit.Encodings;
 
@@ -170,6 +171,22 @@ namespace UnitTests {
 			}
 		}
 
+		static readonly string[] qpEncodedPatterns = {
+			"=e1=e2=E3=E4\r\n",
+			"=e1=g2=E3=E4\r\n",
+			"   =e1 =e2  =E3\t=E4  \t \t    \r\n",
+			"Soft line=\r\n\tHard line\r\n",
+			"width==\r\n340 height=3d200\r\n",
+
+		};
+		static readonly string[] qpDecodedPatterns = {
+			"\u00e1\u00e2\u00e3\u00e4\r\n",
+			"\u00e1=g2\u00e3\u00e4\r\n",
+			"   \u00e1 \u00e2  \u00e3\t\u00e4  \t \t    \r\n",
+			"Soft line\tHard line\r\n",
+			"width=340 height=200\r\n"
+		};
+
 		[Test]
 		public void TestQuotedPrintableDecode ()
 		{
@@ -178,12 +195,24 @@ namespace UnitTests {
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
 			var decoder = new QuotedPrintableDecoder ();
 			var output = new byte[4096];
+			string actual;
+			byte[] buf;
+			int n;
 
-			var buf = Encoding.ASCII.GetBytes (input);
-			int n = decoder.Decode (buf, 0, buf.Length, output);
-			var actual = encoding.GetString (output, 0, n);
-
+			buf = Encoding.ASCII.GetBytes (input);
+			n = decoder.Decode (buf, 0, buf.Length, output);
+			actual = encoding.GetString (output, 0, n);
 			Assert.AreEqual (expected, actual);
+
+			encoding = CharsetUtils.Latin1;
+
+			for (int i = 0; i < qpEncodedPatterns.Length; i++) {
+				decoder.Reset ();
+				buf = encoding.GetBytes (qpEncodedPatterns[i]);
+				n = decoder.Decode (buf, 0, buf.Length, output);
+				actual = encoding.GetString (output, 0, n);
+				Assert.AreEqual (qpDecodedPatterns[i], actual, "Failed to decode qpEncodedPatterns[{0}]", i);
+			}
 		}
 
 		[Test]
