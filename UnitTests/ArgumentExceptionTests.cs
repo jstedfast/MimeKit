@@ -247,6 +247,9 @@ namespace UnitTests {
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, 0, buffer.Length + 1),
 					"{0}.Read() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
 				Assert.AreEqual ("count", ex.ParamName);
+			} else {
+				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length),
+					"{0}.Read() does not throw a NotSupportedException when CanRead is false.", stream.GetType ().Name);
 			}
 
 			if (stream.CanWrite) {
@@ -269,12 +272,18 @@ namespace UnitTests {
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, buffer.Length + 1),
 					"{0}.Write() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
 				Assert.AreEqual ("count", ex.ParamName);
+			} else {
+				Assert.Throws<NotSupportedException> (() => stream.Write (buffer, 0, buffer.Length),
+					"{0}.Write() does not throw a NotSupportedException when CanWrite is false.", stream.GetType ().Name);
 			}
 
 			if (stream.CanSeek) {
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Seek (0, (SeekOrigin) 255),
 					"{0}.Seek() does not throw an ArgumentOutOfRangeException when origin is invalid.", stream.GetType ().Name);
 				Assert.AreEqual ("origin", ex.ParamName);
+			} else {
+				Assert.Throws<NotSupportedException> (() => stream.Seek (0, SeekOrigin.Begin),
+					"{0}.Seek() does not throw a NotSupportedException when CanSeek is false.", stream.GetType ().Name);
 			}
 		}
 
