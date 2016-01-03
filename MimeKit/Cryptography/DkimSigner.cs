@@ -146,7 +146,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			if (key == null)
+			if (key == null || !key.IsPrivate)
 				throw new FormatException ("Private key not found.");
 
 			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
