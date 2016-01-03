@@ -1,5 +1,5 @@
 ﻿//
-// FilterTests.cs
+// ArgumentExceptionTests.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -25,16 +25,18 @@
 //
 
 using System;
+using System.Reflection;
 
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.IO;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
-	public class FilterTests
+	public class ArgumentExceptionTests
 	{
 		static void AssertInvalidArguments (IMimeFilter filter)
 		{
@@ -84,7 +86,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestInvalidArguments ()
+		public void TestFilterArguments ()
 		{
 			AssertInvalidArguments (new Dos2UnixFilter ());
 			AssertInvalidArguments (new Unix2DosFilter ());
@@ -100,6 +102,122 @@ namespace UnitTests {
 			AssertInvalidArguments (new TrailingWhitespaceFilter ());
 			AssertInvalidArguments (new DkimRelaxedBodyFilter ());
 			AssertInvalidArguments (new DkimSimpleBodyFilter ());
+		}
+
+		static void AssertParseArguments (Type type)
+		{
+			const string text = "this is a dummy text buffer";
+			var options = ParserOptions.Default;
+			var buffer = new byte[1024];
+
+			foreach (var method in type.GetMethods (BindingFlags.Public | BindingFlags.Static)) {
+				if (method.Name != "Parse")
+					continue;
+
+				var parameters = method.GetParameters ();
+				var args = new object[parameters.Length];
+				TargetInvocationException tie;
+				ArgumentException ex;
+				int bufferIndex = 0;
+				int idx = 0;
+				int length;
+
+				if (parameters[idx].ParameterType == typeof (ParserOptions))
+					args[idx++] = null;
+
+				// this is either a byte[] or string buffer
+				bufferIndex = idx;
+				if (parameters[idx].ParameterType == typeof (byte[])) {
+					length = buffer.Length;
+					args[idx++] = buffer;
+				} else {
+					length = text.Length;
+					args[idx++] = text;
+				}
+
+				for (int i = idx; i < parameters.Length; i++) {
+					switch (parameters[i].Name) {
+					case "startIndex": args[i] = 0; break;
+					case "length": args[i] = length; break;
+					default:
+						Assert.Fail ("Unknown parameter: {0} for {1}.Parse", parameters[i].Name, type.Name);
+						break;
+					}
+				}
+
+				if (bufferIndex == 1) {
+					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+						"{0}.Parse did not throw an exception when options was null.", type.Name);
+					Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
+					ex = (ArgumentException) tie.InnerException;
+					Assert.AreEqual ("options", ex.ParamName);
+
+					args[0] = options;
+				}
+
+				var buf = args[bufferIndex];
+				args[bufferIndex] = null;
+				tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+					"{0}.Parse did not throw an exception when {1} was null.", type.Name, parameters[bufferIndex].Name);
+				Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
+				ex = (ArgumentException) tie.InnerException;
+				Assert.AreEqual (parameters[bufferIndex].Name, ex.ParamName);
+				args[bufferIndex] = buf;
+
+				if (idx < parameters.Length) {
+					// startIndex
+					args[idx] = -1;
+
+					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+						"{0}.Parse did not throw ArgumentOutOfRangeException when {1} was -1.", type.Name, parameters[idx].Name);
+					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					ex = (ArgumentException) tie.InnerException;
+					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+
+					args[idx] = length + 1;
+
+					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+						"{0}.Parse did not throw an exception when {1} was > length.", type.Name, parameters[idx].Name);
+					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					ex = (ArgumentException) tie.InnerException;
+					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+
+					args[idx++] = 0;
+				}
+
+				if (idx < parameters.Length) {
+					// length
+					args[idx] = -1;
+
+					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+						"{0}.Parse did not throw an exception when {1} was -1.", type.Name, parameters[idx].Name);
+					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					ex = (ArgumentException) tie.InnerException;
+					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+
+					args[idx] = length + 1;
+
+					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
+						"{0}.Parse did not throw an exception when {1} was > length.", type.Name, parameters[idx].Name);
+					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					ex = (ArgumentException) tie.InnerException;
+					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+
+					idx++;
+				}
+			}
+		}
+
+		[Test]
+		public void TestParseArguments ()
+		{
+			AssertParseArguments (typeof (GroupAddress));
+			AssertParseArguments (typeof (MailboxAddress));
+			AssertParseArguments (typeof (InternetAddress));
+			AssertParseArguments (typeof (InternetAddressList));
+
+			AssertParseArguments (typeof (ContentDisposition));
+			AssertParseArguments (typeof (ContentType));
 		}
 	}
 }
