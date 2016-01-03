@@ -120,6 +120,7 @@ namespace MimeKit.Encodings {
 			var decoder = new YDecoder (initial == YDecoderState.Payload);
 
 			decoder.crc = crc.Clone ();
+			decoder.escaped = escaped;
 			decoder.state = state;
 			decoder.octet = octet;
 			decoder.eoln = eoln;

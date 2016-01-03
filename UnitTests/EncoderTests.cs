@@ -447,28 +447,31 @@ namespace UnitTests {
 			return Enum.Parse (type, value.ToString ());
 		}
 
-		static void SetRandomState (object encoder)
+		static void SetRandomState (object fsm)
 		{
 			var random = new Random ();
 
-			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
+			foreach (var field in fsm.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
 				if ((field.Attributes & FieldAttributes.InitOnly) != 0)
 					continue;
 
 				if (field.FieldType.IsEnum) {
-					field.SetValue (encoder, GetEnumValue (field.FieldType, random.Next (1, 255)));
+					field.SetValue (fsm, GetEnumValue (field.FieldType, random.Next (1, 255)));
 				} else if (field.FieldType == typeof (int)) {
-					field.SetValue (encoder, random.Next (1, int.MaxValue));
+					field.SetValue (fsm, random.Next (1, int.MaxValue));
 				} else if (field.FieldType == typeof (uint)) {
-					field.SetValue (encoder, (uint) random.Next (1, int.MaxValue));
+					field.SetValue (fsm, (uint) random.Next (1, int.MaxValue));
 				} else if (field.FieldType == typeof (bool)) {
-					field.SetValue (encoder, true);
+					field.SetValue (fsm, true);
 				} else if (field.FieldType == typeof (byte)) {
-					field.SetValue (encoder, (byte) random.Next (1, 255));
+					field.SetValue (fsm, (byte) random.Next (1, 255));
 				} else if (field.FieldType == typeof (short)) {
-					field.SetValue (encoder, (short) random.Next (1, short.MaxValue));
+					field.SetValue (fsm, (short) random.Next (1, short.MaxValue));
+				} else if (field.FieldType == typeof (Crc32)) {
+					var crc = field.GetValue (fsm);
+					SetRandomState (crc);
 				} else {
-					Assert.Fail ("Unknown field type: {0}.{1}", encoder.GetType ().Name, field.Name);
+					Assert.Fail ("Unknown field type: {0}.{1}", fsm.GetType ().Name, field.Name);
 				}
 			}
 		}
@@ -479,7 +482,14 @@ namespace UnitTests {
 				var expected = field.GetValue (encoder);
 				var actual = field.GetValue (clone);
 
-				Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+				if (expected.GetType () == typeof (Crc32)) {
+					var crc0 = (Crc32) expected;
+					var crc1 = (Crc32) actual;
+
+					Assert.AreEqual (crc0.Checksum, crc1.Checksum, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+				} else {
+					Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+				}
 			}
 		}
 
@@ -513,6 +523,7 @@ namespace UnitTests {
 			CloneAndAssert (new QEncoder (QEncodeMode.Phrase));
 			CloneAndAssert (new QuotedPrintableEncoder ());
 			CloneAndAssert (new UUEncoder ());
+			CloneAndAssert (new YEncoder (76));
 
 			CloneAndAssert (new Base64Decoder ());
 			CloneAndAssert (new HexDecoder ());
@@ -520,6 +531,8 @@ namespace UnitTests {
 			CloneAndAssert (new QuotedPrintableDecoder (false));
 			CloneAndAssert (new UUDecoder (true));
 			CloneAndAssert (new UUDecoder (false));
+			CloneAndAssert (new YDecoder (true));
+			CloneAndAssert (new YDecoder (false));
 		}
 
 		static void ResetAndAssert (IMimeEncoder encoder)
@@ -560,6 +573,7 @@ namespace UnitTests {
 			ResetAndAssert (new QEncoder (QEncodeMode.Phrase));
 			ResetAndAssert (new QuotedPrintableEncoder ());
 			ResetAndAssert (new UUEncoder ());
+			ResetAndAssert (new YEncoder (76));
 
 			ResetAndAssert (new Base64Decoder ());
 			ResetAndAssert (new HexDecoder ());
@@ -567,6 +581,8 @@ namespace UnitTests {
 			ResetAndAssert (new QuotedPrintableDecoder (false));
 			ResetAndAssert (new UUDecoder (true));
 			ResetAndAssert (new UUDecoder (false));
+			ResetAndAssert (new YDecoder (true));
+			ResetAndAssert (new YDecoder (false));
 		}
 	}
 }

@@ -39,7 +39,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class YEncoder : IMimeEncoder
 	{
-		int lineLength;
+		readonly int lineLength;
 		byte octets;
 		Crc32 crc;
 
@@ -80,9 +80,8 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="YEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new YEncoder ();
+			var encoder = new YEncoder (lineLength);
 
-			encoder.lineLength = lineLength;
 			encoder.crc = crc.Clone ();
 			encoder.octets = octets;
 
