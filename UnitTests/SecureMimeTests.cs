@@ -30,6 +30,8 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
+using Org.BouncyCastle.X509;
+
 using MimeKit;
 using MimeKit.Cryptography;
 
@@ -45,22 +47,27 @@ namespace UnitTests {
 		[TestFixtureSetUp]
 		public void SetUp ()
 		{
-			using (var ctx = (DefaultSecureMimeContext) CreateContext ()) {
+			using (var ctx = CreateContext ()) {
 				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 				string path;
 
 				foreach (var filename in CertificateAuthorities) {
 					path = Path.Combine (dataDir, filename);
 					using (var file = File.OpenRead (path)) {
-						ctx.Import (file, true);
+						if (ctx is DefaultSecureMimeContext) {
+							((DefaultSecureMimeContext) ctx).Import (file, true);
+						} else {
+							var parser = new X509CertificateParser ();
+							foreach (X509Certificate certificate in parser.ReadCertificates (file))
+								ctx.Import (certificate);
+						}
 					}
 				}
 
 				path = Path.Combine (dataDir, "smime.p12");
 
-				using (var file = File.OpenRead (path)) {
+				using (var file = File.OpenRead (path))
 					ctx.Import (file, "no.secret");
-				}
 			}
 		}
 
@@ -457,6 +464,17 @@ namespace UnitTests {
 					Assert.IsFalse (imported.keys.Count > 0, "One or more of the certificates included the private key.");
 				}
 			}
+		}
+	}
+
+	[TestFixture]
+	public class SecureMimeTests : SecureMimeTestsBase
+	{
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext ();
+
+		protected override SecureMimeContext CreateContext ()
+		{
+			return ctx;
 		}
 	}
 
