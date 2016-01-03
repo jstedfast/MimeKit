@@ -221,7 +221,22 @@ namespace UnitTests {
 			unfolded = Header.Unfold (folded).Replace (" ", "");
 
 			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
-			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly. ");
+			Assert.IsTrue (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly.");
+			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestReallyLongWordHeaderFolding ()
+		{
+			const string original = "This is a header value with_a_really_really_really_long_word_that_will_need_to_be_broken_up_in_order_to_fold";
+			var options = FormatOptions.Default.Clone ();
+			string folded, unfolded;
+
+			folded = Header.Fold (options, "Subject", original);
+			unfolded = Header.Unfold (folded).Replace (" _", "_");
+
+			Assert.IsTrue (folded[folded.Length - 1] == '\n', "The folded header does not end with a new line.");
+			Assert.IsTrue (GetMaxLineLength (folded) <= FormatOptions.Default.MaxLineLength, "The raw header value is not folded properly.");
 			Assert.AreEqual (original, unfolded, "Unfolded header does not match the original header value.");
 		}
 

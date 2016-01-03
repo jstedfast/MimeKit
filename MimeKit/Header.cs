@@ -871,7 +871,7 @@ namespace MimeKit {
 			lineLength = Math.Max (lineLength, 1);
 
 			while (startIndex < word.Length) {
-				int length = Math.Min (format.MaxLineLength - lineLength, word.Length);
+				int length = Math.Min (format.MaxLineLength - lineLength, word.Length - startIndex);
 
 				if (char.IsSurrogatePair (word, startIndex + length - 1))
 					length--;
