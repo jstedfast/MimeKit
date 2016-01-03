@@ -91,7 +91,10 @@ namespace UnitTests {
 				using (var decoded = new MemoryStream ()) {
 					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
 						using (var filtered = new FilteredStream (file)) {
-							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
+							var filter = DecoderFilter.Create (ContentEncoding.Base64);
+
+							filtered.Add (filter);
+							filter.Reset ();
 
 							filtered.CopyTo (decoded, 4096);
 						}
@@ -145,7 +148,10 @@ namespace UnitTests {
 
 				using (var encoded = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (ContentEncoding.Base64));
+						var filter = EncoderFilter.Create (ContentEncoding.Base64);
+
+						filtered.Add (filter);
+						filter.Reset ();
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -175,7 +181,10 @@ namespace UnitTests {
 				using (var decoded = new MemoryStream ()) {
 					using (var file = File.OpenRead ("../../TestData/encoders/photo.uu")) {
 						using (var filtered = new FilteredStream (file)) {
-							filtered.Add (DecoderFilter.Create (ContentEncoding.UUEncode));
+							var filter = DecoderFilter.Create (ContentEncoding.UUEncode);
+
+							filtered.Add (filter);
+							filter.Reset ();
 
 							filtered.CopyTo (decoded, 4096);
 						}
@@ -212,7 +221,10 @@ namespace UnitTests {
 					encoded.Write (begin, 0, begin.Length);
 
 					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (ContentEncoding.UUEncode));
+						var filter = EncoderFilter.Create (ContentEncoding.UUEncode);
+
+						filtered.Add (filter);
+						filter.Reset ();
 
 						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
 							file.CopyTo (filtered, 4096);
@@ -323,6 +335,8 @@ namespace UnitTests {
 
 			for (int i = 0; i < n; i++)
 				Assert.AreEqual (input[i], output[i]);
+
+			encoder.Reset ();
 		}
 
 		[Test]
@@ -341,6 +355,8 @@ namespace UnitTests {
 
 			for (int i = 0; i < n; i++)
 				Assert.AreEqual (input[i], output[i]);
+
+			decoder.Reset ();
 		}
 	}
 }
