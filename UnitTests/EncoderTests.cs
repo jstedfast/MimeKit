@@ -447,11 +447,10 @@ namespace UnitTests {
 			return Enum.Parse (type, value.ToString ());
 		}
 
-		static void CloneAndAssert (IMimeEncoder encoder)
+		static void SetRandomState (object encoder)
 		{
 			var random = new Random ();
 
-			// first, set some random state
 			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
 				if ((field.Attributes & FieldAttributes.InitOnly) != 0)
 					continue;
@@ -472,9 +471,10 @@ namespace UnitTests {
 					Assert.Fail ("Unknown field type: {0}.{1}", encoder.GetType ().Name, field.Name);
 				}
 			}
+		}
 
-			var clone = encoder.Clone ();
-
+		static void AssertState (object encoder, object clone)
+		{
 			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
 				var expected = field.GetValue (encoder);
 				var actual = field.GetValue (clone);
@@ -483,44 +483,28 @@ namespace UnitTests {
 			}
 		}
 
+		static void CloneAndAssert (IMimeEncoder encoder)
+		{
+			// first, set some random state
+			SetRandomState (encoder);
+
+			var clone = encoder.Clone ();
+
+			AssertState (encoder, clone);
+		}
+
 		static void CloneAndAssert (IMimeDecoder decoder)
 		{
-			var random = new Random ();
-
 			// first, set some random state
-			foreach (var field in decoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
-				if ((field.Attributes & FieldAttributes.InitOnly) != 0)
-					continue;
-
-				if (field.FieldType.IsEnum) {
-					field.SetValue (decoder, GetEnumValue (field.FieldType, random.Next (1, 255)));
-				} else if (field.FieldType == typeof (int)) {
-					field.SetValue (decoder, random.Next (1, int.MaxValue));
-				} else if (field.FieldType == typeof (uint)) {
-					field.SetValue (decoder, (uint) random.Next (1, int.MaxValue));
-				} else if (field.FieldType == typeof (bool)) {
-					field.SetValue (decoder, true);
-				} else if (field.FieldType == typeof (byte)) {
-					field.SetValue (decoder, (byte) random.Next (1, 255));
-				} else if (field.FieldType == typeof (short)) {
-					field.SetValue (decoder, (short) random.Next (1, short.MaxValue));
-				} else {
-					Assert.Fail ("Unknown field type: {0}.{1}", decoder.GetType ().Name, field.Name);
-				}
-			}
+			SetRandomState (decoder);
 
 			var clone = decoder.Clone ();
 
-			foreach (var field in decoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
-				var expected = field.GetValue (decoder);
-				var actual = field.GetValue (clone);
-
-				Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", decoder.GetType ().Name, field.Name);
-			}
+			AssertState (decoder, clone);
 		}
 
 		[Test]
-		public void TestCloning ()
+		public void TestClone ()
 		{
 			CloneAndAssert (new Base64Encoder (true, 76));
 			CloneAndAssert (new Base64Encoder (false, 76));
@@ -536,6 +520,53 @@ namespace UnitTests {
 			CloneAndAssert (new QuotedPrintableDecoder (false));
 			CloneAndAssert (new UUDecoder (true));
 			CloneAndAssert (new UUDecoder (false));
+		}
+
+		static void ResetAndAssert (IMimeEncoder encoder)
+		{
+			// clone the encoder at it's initial state
+			var clone = encoder.Clone ();
+
+			// set some random state on the clone
+			SetRandomState (clone);
+
+			// reset the clone and make sure it matches
+			clone.Reset ();
+
+			AssertState (encoder, clone);
+		}
+
+		static void ResetAndAssert (IMimeDecoder decoder)
+		{
+			// clone the decoder at it's initial state
+			var clone = decoder.Clone ();
+
+			// set some random state on the clone
+			SetRandomState (clone);
+
+			// reset the clone and make sure it matches
+			clone.Reset ();
+
+			AssertState (decoder, clone);
+		}
+
+		[Test]
+		public void TestReset ()
+		{
+			ResetAndAssert (new Base64Encoder (true, 76));
+			ResetAndAssert (new Base64Encoder (false, 76));
+			ResetAndAssert (new HexEncoder ());
+			ResetAndAssert (new QEncoder (QEncodeMode.Text));
+			ResetAndAssert (new QEncoder (QEncodeMode.Phrase));
+			ResetAndAssert (new QuotedPrintableEncoder ());
+			ResetAndAssert (new UUEncoder ());
+
+			ResetAndAssert (new Base64Decoder ());
+			ResetAndAssert (new HexDecoder ());
+			ResetAndAssert (new QuotedPrintableDecoder (true));
+			ResetAndAssert (new QuotedPrintableDecoder (false));
+			ResetAndAssert (new UUDecoder (true));
+			ResetAndAssert (new UUDecoder (false));
 		}
 	}
 }
