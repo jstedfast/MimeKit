@@ -135,7 +135,7 @@ namespace MimeKit.Cryptography {
 				using (var reader = new StreamReader (stream)) {
 					var pem = new PemReader (reader);
 
-					keyObject = pem.ReadObject ();
+					var keyObject = pem.ReadObject ();
 					
         				if (keyObject is AsymmetricKeyParameter)
         				{
