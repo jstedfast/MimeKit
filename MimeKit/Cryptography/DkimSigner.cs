@@ -140,6 +140,10 @@ namespace MimeKit.Cryptography {
         				if (keyObject is AsymmetricKeyParameter)
         				{
         					key = keyObject as AsymmetricKeyParameter;
+        					if (!key.IsPrivate ())
+        					{
+        						key = null;
+        					}
         				}
             				else if (keyObject is AsymmetricCipherKeyPair)
             				{
