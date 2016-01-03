@@ -32,6 +32,7 @@ using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.IO;
+using MimeKit.Utils;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
@@ -220,6 +221,8 @@ namespace UnitTests {
 
 			AssertParseArguments (typeof (ContentDisposition));
 			AssertParseArguments (typeof (ContentType));
+
+			AssertParseArguments (typeof (DateUtils));
 		}
 
 		static void AssertStreamArguments (Stream stream)
