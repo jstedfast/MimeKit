@@ -184,10 +184,10 @@ namespace MimeKit.Utils {
 			return (table[c] & (CharType.IsTokenSpecial | CharType.IsWhitespace | CharType.IsControl)) == 0;
 		}
 
-		public static bool IsTokenSpecial (this byte c)
-		{
-			return (table[c] & CharType.IsTokenSpecial) != 0;
-		}
+		//public static bool IsTokenSpecial (this byte c)
+		//{
+		//	return (table[c] & CharType.IsTokenSpecial) != 0;
+		//}
 
 		public static bool IsType (this byte c, CharType type)
 		{
