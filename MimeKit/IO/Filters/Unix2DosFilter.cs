@@ -33,7 +33,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class Unix2DosFilter : MimeFilterBase
 	{
-		bool ensureNewLine;
+		readonly bool ensureNewLine;
 		byte pc;
 
 		/// <summary>
