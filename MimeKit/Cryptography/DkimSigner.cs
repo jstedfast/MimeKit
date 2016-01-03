@@ -129,13 +129,27 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException ("selector");
 
-			AsymmetricCipherKeyPair key;
+			AsymmetricKeyParameter key;
 
 			using (var stream = File.OpenRead (fileName)) {
 				using (var reader = new StreamReader (stream)) {
 					var pem = new PemReader (reader);
 
-					key = pem.ReadObject () as AsymmetricCipherKeyPair;
+					var keyObject = pem.ReadObject ();
+					
+        				if (keyObject is AsymmetricKeyParameter)
+        				{
+        					key = keyObject as AsymmetricKeyParameter;
+        					if (!key.IsPrivate ())
+        					{
+        						key = null;
+        					}
+        				}
+            				else if (keyObject is AsymmetricCipherKeyPair)
+            				{
+                				var pair = keyObject as AsymmetricCipherKeyPair;
+                				key = pair.Private;
+					}
 				}
 			}
 
@@ -143,7 +157,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("Private key not found.");
 
 			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
-			PrivateKey = key.Private;
+			PrivateKey = key;
 			Selector = selector;
 			Domain = domain;
 		}
