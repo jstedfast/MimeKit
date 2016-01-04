@@ -189,6 +189,7 @@ namespace UnitTests
 		}
 
 		[Test]
+		[Ignore]
 		public void TestDkimSignVerifyJwzMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
