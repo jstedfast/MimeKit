@@ -224,6 +224,7 @@ namespace UnitTests {
 			AssertParseArguments (typeof (Header));
 
 			AssertParseArguments (typeof (DateUtils));
+			AssertParseArguments (typeof (MimeUtils));
 		}
 
 		static void AssertStreamArguments (Stream stream)

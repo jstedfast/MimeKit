@@ -89,6 +89,18 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException ("text");
 		}
 
+		public static void ValidateArguments (byte[] buffer, int startIndex, int length)
+		{
+			if (buffer == null)
+				throw new ArgumentNullException ("buffer");
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				throw new ArgumentOutOfRangeException ("startIndex");
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				throw new ArgumentOutOfRangeException ("length");
+		}
+
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
 		{
 			int startIndex = index;

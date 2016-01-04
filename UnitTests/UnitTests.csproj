@@ -93,6 +93,7 @@
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
+    <Compile Include="MimeUtilsTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
