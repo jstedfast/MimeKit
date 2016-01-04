@@ -632,6 +632,31 @@ namespace MimeKit {
 		/// Parses a Content-Disposition value from the supplied text.
 		/// </remarks>
 		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">The parser options.</param>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="disposition">The parsed disposition.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		public static bool TryParse (ParserOptions options, string text, out ContentDisposition disposition)
+		{
+			ParseUtils.ValidateArguments (options, text);
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out disposition);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.ContentDisposition"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a Content-Disposition value from the supplied text.
+		/// </remarks>
+		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -639,13 +664,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (string text, out ContentDisposition disposition)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int index = 0;
-
-			return TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out disposition);
+			return TryParse (ParserOptions.Default, text, out disposition);
 		}
 
 		/// <summary>
@@ -833,11 +852,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentDisposition Parse (ParserOptions options, string text)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			ContentDisposition disposition;
