@@ -3,6 +3,12 @@ os: Visual Studio 2015
 configuration: Debug
 platform: Any CPU
 
+branches:
+  only:
+  - master
+
+skip_tags: true
+
 environment:
   COVERALLS_REPO_TOKEN:
     secure: bY3HMQXJsuuHTqtDx878B8dh+vRw8Sr+ffu+i2ycNlnvN3NUsGXVCj/SUBlbsNdL
