@@ -35,6 +35,16 @@ namespace UnitTests {
 	public class ContentDispositionTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var disposition = new ContentDisposition ();
+
+			Assert.Throws<ArgumentNullException> (() => disposition.Disposition = null, "Setting the disposition to null value should throw.");
+			Assert.Throws<ArgumentException> (() => disposition.Disposition = string.Empty, "Setting the disposition to an empty value should throw.");
+			Assert.Throws<ArgumentException> (() => disposition.Disposition = "žádost", "Setting the disposition to a non-ascii value should throw.");
+		}
+
+		[Test]
 		public void TestMultipleParametersWithIdenticalNames ()
 		{
 			ContentDisposition disposition;
@@ -174,11 +184,19 @@ namespace UnitTests {
 			var disposition = new ContentDisposition ();
 			var format = FormatOptions.Default.Clone ();
 			const long size = 37001;
+			Parameter param;
 			string encoded;
 
 			format.NewLineFormat = NewLineFormat.Unix;
 
+			Assert.AreEqual (ContentDisposition.Attachment, disposition.Disposition, "The disposition should be 'attachment'.");
 			Assert.IsTrue (disposition.IsAttachment, "IsAttachment should be true by default.");
+
+			Assert.IsNull (disposition.FileName, "The filename should default to null.");
+			Assert.IsNull (disposition.CreationDate, "The creation-date should default to null.");
+			Assert.IsNull (disposition.ModificationDate, "The modification-date should default to null.");
+			Assert.IsNull (disposition.ReadDate, "The read-date should default to null.");
+			Assert.IsNull (disposition.Size, "The size should default to null.");
 
 			disposition.FileName = "document.doc";
 			disposition.CreationDate = ctime;
@@ -197,6 +215,25 @@ namespace UnitTests {
 			Assert.AreEqual (mtime, disposition.ModificationDate, "The modification-date parameter does not match.");
 			Assert.AreEqual (atime, disposition.ReadDate, "The read-date parameter does not match.");
 			Assert.AreEqual (size, disposition.Size, "The size parameter does not match.");
+
+			disposition.CreationDate = null;
+			Assert.IsFalse (disposition.Parameters.TryGetValue ("creation-date", out param), "The creation-date parameter should have been removed.");
+
+			disposition.ModificationDate = null;
+			Assert.IsFalse (disposition.Parameters.TryGetValue ("modification-date", out param), "The modification-date parameter should have been removed.");
+
+			disposition.ReadDate = null;
+			Assert.IsFalse (disposition.Parameters.TryGetValue ("read-date", out param), "The read-date parameter should have been removed.");
+
+			disposition.FileName = null;
+			Assert.IsFalse (disposition.Parameters.TryGetValue ("filename", out param), "The filename parameter should have been removed.");
+
+			disposition.Size = null;
+			Assert.IsFalse (disposition.Parameters.TryGetValue ("size", out param), "The size parameter should have been removed.");
+
+			disposition.IsAttachment = false;
+			Assert.AreEqual (ContentDisposition.Inline, disposition.Disposition, "The disposition should be 'inline'.");
+			Assert.IsFalse (disposition.IsAttachment, "IsAttachment should be false.");
 		}
 	}
 }
