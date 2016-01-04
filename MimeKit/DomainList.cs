@@ -374,13 +374,13 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
 		/// <c>false</c> otherwise.</returns>
-		/// <param name="text">The text buffer to parse.</param>
+		/// <param name="buffer">The buffer to parse.</param>
 		/// <param name="index">The index to start parsing.</param>
 		/// <param name="endIndex">An index of the end of the input.</param>
 		/// <param name="throwOnError">A flag indicating whether or not an
 		/// exception should be thrown on error.</param>
 		/// <param name="route">The parsed DomainList.</param>
-		internal static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out DomainList route)
+		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, out DomainList route)
 		{
 			var domains = new List<string> ();
 			int startIndex = index;
@@ -399,25 +399,25 @@ namespace MimeKit {
 					return false;
 				}
 
-				if (!ParseUtils.TryParseDomain (text, ref index, endIndex, DomainSentinels, throwOnError, out domain))
+				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, DomainSentinels, throwOnError, out domain))
 					return false;
 
 				domains.Add (domain);
 
 				// Note: obs-domain-list allows for null domains between commas
 				do {
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, throwOnError))
 						return false;
 
-					if (index >= endIndex || text[index] != (byte) ',')
+					if (index >= endIndex || buffer[index] != (byte) ',')
 						break;
 
 					index++;
 				} while (true);
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, throwOnError))
 					return false;
-			} while (index < text.Length && text[index] == (byte) '@');
+			} while (index < buffer.Length && buffer[index] == (byte) '@');
 
 			route = new DomainList (domains);
 

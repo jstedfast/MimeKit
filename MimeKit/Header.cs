@@ -1299,17 +1299,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			unsafe {
 				fixed (byte* inptr = buffer) {
@@ -1363,12 +1353,15 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int length = buffer.Length - startIndex;
 
-			return TryParse (options, buffer, startIndex, length, out header);
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return TryParse (options.Clone (), inptr + startIndex, length, true, out header);
+				}
+			}
 		}
 
 		/// <summary>
@@ -1389,12 +1382,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
 		{
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			int length = buffer.Length - startIndex;
-
-			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
+			return TryParse (ParserOptions.Default, buffer, startIndex, out header);
 		}
 
 		/// <summary>
@@ -1414,7 +1402,13 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
 		{
-			return TryParse (options, buffer, 0, buffer.Length, out header);
+			ParseUtils.ValidateArguments (options, buffer);
+
+			unsafe {
+				fixed (byte* inptr = buffer) {
+					return TryParse (options.Clone (), inptr, buffer.Length, true, out header);
+				}
+			}
 		}
 
 		/// <summary>
@@ -1431,7 +1425,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out Header header)
 		{
-			return TryParse (ParserOptions.Default, buffer, 0, buffer.Length, out header);
+			return TryParse (ParserOptions.Default, buffer, out header);
 		}
 
 		/// <summary>
@@ -1451,11 +1445,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out Header header)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 

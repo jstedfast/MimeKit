@@ -512,17 +512,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentType type)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			int index = startIndex;
 
@@ -574,14 +564,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentType type)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int index = startIndex;
 
@@ -626,11 +609,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentType type)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			ParseUtils.ValidateArguments (options, buffer);
 
 			int index = 0;
 
@@ -661,6 +640,31 @@ namespace MimeKit {
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
 		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <param name="options">THe parser options.</param>
+		/// <param name="text">The text to parse.</param>
+		/// <param name="type">The parsed content type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		public static bool TryParse (ParserOptions options, string text, out ContentType type)
+		{
+			ParseUtils.ValidateArguments (options, text);
+
+			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			return TryParse (options, buffer, ref index, buffer.Length, false, out type);
+		}
+
+		/// <summary>
+		/// Tries to parse the given text into a new <see cref="MimeKit.ContentType"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// Parses a Content-Type value from the specified text.
+		/// </remarks>
+		/// <returns><c>true</c>, if the content type was successfully parsed, <c>false</c> otherwise.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -668,13 +672,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (string text, out ContentType type)
 		{
-			if (text == null)
-				throw new ArgumentNullException ("text");
-
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int index = 0;
-
-			return TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out type);
+			return TryParse (ParserOptions.Default, text, out type);
 		}
 
 		/// <summary>
@@ -703,17 +701,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			int index = startIndex;
 			ContentType type;
@@ -772,14 +760,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int index = startIndex;
 			ContentType type;
@@ -831,11 +812,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+			ParseUtils.ValidateArguments (options, buffer);
 
 			ContentType type;
 			int index = 0;
@@ -883,11 +860,7 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, string text)
 		{
-			if (options == null)
-				throw new ArgumentNullException ("options");
-
-			if (text == null)
-				throw new ArgumentNullException ("text");
+			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			ContentType type;
