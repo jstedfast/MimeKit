@@ -56,11 +56,15 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeUtils.ParseMessageId (buffer, buffer.Length + 1, 0), "MimeUtils.ParseMessageId (buffer, buffer.Length + 1, 0)");
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeUtils.ParseMessageId (buffer, 0, -1), "MimeUtils.ParseMessageId (buffer, 0, -1)");
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeUtils.ParseMessageId (buffer, 0, buffer.Length + 1), "MimeUtils.ParseMessageId (buffer, 0, buffer.Length + 1)");
+
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.Quote (null), "MimeUtils.Quote (null)");
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.Unquote (null), "MimeUtils.Unquote (null)");
 		}
 
 		static readonly string[] GoodReferences = {
 			" <local (comment) . (comment) part (comment) @ (comment) localhost (comment) . (comment) localdomain (comment) >", "local.part@localhost.localdomain",
 			"<local-part@domain1@domain2>",                                                                                     "local-part@domain1@domain2",
+			"<local-part>",                                                                                                     "local-part",
 		};
 
 		[Test]
@@ -79,6 +83,7 @@ namespace UnitTests {
 
 		static readonly string[] BadReferences = {
 			" (this is an unterminated comment...",
+			"(this is just a comment)",
 			"<",
 			"<:invalid-local-part;@domain.com>",
 			"<local-part",
