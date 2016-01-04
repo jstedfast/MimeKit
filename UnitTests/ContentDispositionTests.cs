@@ -42,6 +42,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => disposition.Disposition = null, "Setting the disposition to null value should throw.");
 			Assert.Throws<ArgumentException> (() => disposition.Disposition = string.Empty, "Setting the disposition to an empty value should throw.");
 			Assert.Throws<ArgumentException> (() => disposition.Disposition = "žádost", "Setting the disposition to a non-ascii value should throw.");
+			Assert.Throws<ArgumentException> (() => disposition.Disposition = "two atoms", "Setting the disposition to multiple atom tokens should throw.");
 		}
 
 		[Test]
