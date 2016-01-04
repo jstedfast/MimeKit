@@ -164,7 +164,7 @@ namespace UnitTests {
 		[Test]
 		public void TestDispositionParameters ()
 		{
-			const string expected = " attachment; filename=document.doc;\n" +
+			const string expected = "Content-Disposition: attachment; filename=document.doc;\n" +
 				"\tcreation-date=\"Sat, 04 Jan 1997 15:22:17 -0400\";\n" +
 				"\tmodification-date=\"Thu, 04 Jan 2007 15:22:17 -0400\";\n" +
 				"\tread-date=\"Wed, 04 Jan 2012 15:22:17 -0400\"; size=37001\n";
@@ -186,11 +186,11 @@ namespace UnitTests {
 			disposition.ReadDate = atime;
 			disposition.Size = size;
 
-			encoded = disposition.Encode (format, Encoding.UTF8);
+			encoded = disposition.ToString (format, Encoding.UTF8, true);
 
 			Assert.AreEqual (expected, encoded, "The encoded Content-Disposition does not match.");
 
-			disposition = ContentDisposition.Parse (encoded);
+			disposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.AreEqual ("document.doc", disposition.FileName, "The filename parameter does not match.");
 			Assert.AreEqual (ctime, disposition.CreationDate, "The CreationDate parameter does not match.");
