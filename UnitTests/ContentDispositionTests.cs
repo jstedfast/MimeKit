@@ -167,13 +167,13 @@ namespace UnitTests {
 			const string expected = "Content-Disposition: attachment; filename=document.doc;\n" +
 				"\tcreation-date=\"Sat, 04 Jan 1997 15:22:17 -0400\";\n" +
 				"\tmodification-date=\"Thu, 04 Jan 2007 15:22:17 -0400\";\n" +
-				"\tread-date=\"Wed, 04 Jan 2012 15:22:17 -0400\"; size=37001\n";
+				"\tread-date=\"Wed, 04 Jan 2012 15:22:17 -0400\"; size=37001";
 			var ctime = new DateTimeOffset (1997, 1, 4, 15, 22, 17, new TimeSpan (-4, 0, 0));
 			var mtime = new DateTimeOffset (2007, 1, 4, 15, 22, 17, new TimeSpan (-4, 0, 0));
 			var atime = new DateTimeOffset (2012, 1, 4, 15, 22, 17, new TimeSpan (-4, 0, 0));
 			var disposition = new ContentDisposition ();
 			var format = FormatOptions.Default.Clone ();
-			long size = 37001;
+			const long size = 37001;
 			string encoded;
 
 			format.NewLineFormat = NewLineFormat.Unix;
@@ -193,10 +193,10 @@ namespace UnitTests {
 			disposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.AreEqual ("document.doc", disposition.FileName, "The filename parameter does not match.");
-			Assert.AreEqual (ctime, disposition.CreationDate, "The CreationDate parameter does not match.");
-			Assert.AreEqual (mtime, disposition.ModificationDate, "The ModificationDate parameter does not match.");
-			Assert.AreEqual (atime, disposition.ReadDate, "The ReadDate parameter does not match.");
-			Assert.AreEqual (size, disposition.Size, "The Size parameter does not match.");
+			Assert.AreEqual (ctime, disposition.CreationDate, "The creation-date parameter does not match.");
+			Assert.AreEqual (mtime, disposition.ModificationDate, "The modification-date parameter does not match.");
+			Assert.AreEqual (atime, disposition.ReadDate, "The read-date parameter does not match.");
+			Assert.AreEqual (size, disposition.Size, "The size parameter does not match.");
 		}
 	}
 }
