@@ -221,6 +221,7 @@ namespace UnitTests {
 
 			AssertParseArguments (typeof (ContentDisposition));
 			AssertParseArguments (typeof (ContentType));
+			AssertParseArguments (typeof (Header));
 
 			AssertParseArguments (typeof (DateUtils));
 		}
