@@ -58,20 +58,42 @@ namespace UnitTests {
 			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
 				"filename*1*=\"%70%74%61%63%69%20%73%6D%6C%6F%75%76%79%20%31%32%2E%31%32%2E\";\n " +
 				"filename*2*=\"%64%6F%63\"";
+			const string expected = "ČPP - žádost o akceptaci smlouvy 12.12.doc";
+			var buffer = Encoding.ASCII.GetBytes (text);
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("ČPP - žádost o akceptaci smlouvy 12.12.doc", disposition.FileName, "The filename value does not match.");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
 		}
 
 		[Test]
 		public void TestUnquotedFilenameParameterValues ()
 		{
 			const string text = " attachment; filename=Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf";
+			const string expected = "Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf";
+			var buffer = Encoding.ASCII.GetBytes (text);
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf", disposition.FileName, "The filename value does not match.");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
 		}
 
 		[Test]
@@ -119,9 +141,22 @@ namespace UnitTests {
 		public void TestFormData ()
 		{
 			const string text = "form-data; filename=\"form.txt\"";
+			var buffer = Encoding.ASCII.GetBytes (text);
 			ContentDisposition disposition;
 
 			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
+			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
+			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
+			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+
+			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
 			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
 			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
 		}
