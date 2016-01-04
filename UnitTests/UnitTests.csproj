@@ -94,6 +94,7 @@
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
+    <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
     <Compile Include="RtfCompressedToRtfTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
