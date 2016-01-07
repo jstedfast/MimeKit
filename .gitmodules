@@ -4,3 +4,4 @@
 [submodule "submodules/bc-csharp"]
 	path = submodules/bc-csharp
 	url = https://github.com/jstedfast/bc-csharp.git
+	branch = build-fix
