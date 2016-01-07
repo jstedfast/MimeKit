@@ -231,5 +231,28 @@ namespace UnitTests {
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
+
+		[Test]
+		public void TestInternationalMailbox ()
+		{
+			var mailbox = new MailboxAddress ("Kristoffer Brånemyr", "brånemyr@swipenet.se");
+
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
+		}
+
+		[Test]
+		public void TestRoutedMailbox ()
+		{
+			const string expected = "Rusty McRouterson\n\t<@comcast.net,@forward.com,@geek.net:rusty@final-destination.com>";
+			var mailbox = new MailboxAddress ("Rusty McRouterson", "rusty@final-destination.com");
+
+			mailbox.Route.Add ("comcast.net");
+			mailbox.Route.Add ("forward.com");
+			mailbox.Route.Add ("geek.net");
+
+			Assert.AreEqual (expected, mailbox.ToString (true), "Encoded mailbox does not match.");
+
+			AssertParse (expected);
+		}
 	}
 }
