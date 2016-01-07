@@ -160,27 +160,67 @@ namespace UnitTests {
 		public void TestParseNameLessThan ()
 		{
 			const string text = "Name <";
-			int tokenIndex = 0;
+			const int tokenIndex = 0;
 			int errorIndex = text.Length;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
-		public void TestParseIncompleteMailbox ()
+		public void TestParseMailboxWithEmptyDomain ()
 		{
 			const string text = "jeff@";
-			int tokenIndex = 0;
+			const int tokenIndex = 0;
 			int errorIndex = text.Length;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
-		public void TestParseMailboxWithIncompleteComment ()
+		public void TestParseMailboxWithIncompleteLocalPart ()
+		{
+			const string text = "jeff.";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseIncompleteQuotedString ()
+		{
+			const string text = "\"This quoted string never ends... oh no!";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithIncompleteCommentAfterName ()
+		{
+			const string text = "Name (incomplete comment";
+			int tokenIndex = text.IndexOf ('(');
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
 		{
 			const string text = "jeff@xamarin.com (incomplete comment";
 			int tokenIndex = text.IndexOf ('(');
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseIncompleteAddrspec ()
+		{
+			const string text = "jeff@ (comment)";
+			const int tokenIndex = 0;
 			int errorIndex = text.Length;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
@@ -203,6 +243,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithIncompleteRoute ()
+		{
+			const string text = "Skye <@";
+			int tokenIndex = text.IndexOf ('@');
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithoutColonAfterRoute ()
+		{
+			const string text = "Skye <@hackers.com,@shield.gov";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseMultipleMailboxes ()
 		{
 			const string text = "Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
@@ -216,7 +276,7 @@ namespace UnitTests {
 		public void TestParseGroup ()
 		{
 			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>;";
-			int tokenIndex = 0;
+			const int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
@@ -226,7 +286,7 @@ namespace UnitTests {
 		public void TestParseIncompleteGroup ()
 		{
 			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
-			int tokenIndex = 0;
+			const int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);

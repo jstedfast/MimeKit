@@ -359,11 +359,11 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out MailboxAddress mailbox)
 		{
-			var flags = TryParseFlags.AllowMailboxAddress;
+			var flags = AddressParserFlags.AllowMailboxAddress;
 			InternetAddress address;
 
 			if (throwOnError)
-				flags |= TryParseFlags.ThrowOnError;
+				flags |= AddressParserFlags.ThrowOnError;
 
 			if (!InternetAddress.TryParse (options, text, ref index, endIndex, flags, out address)) {
 				mailbox = null;

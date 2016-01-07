@@ -241,11 +241,11 @@ namespace MimeKit {
 
 		static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out GroupAddress group)
 		{
-			var flags = TryParseFlags.AllowGroupAddress;
+			var flags = AddressParserFlags.AllowGroupAddress;
 			InternetAddress address;
 
 			if (throwOnError)
-				flags |= TryParseFlags.ThrowOnError;
+				flags |= AddressParserFlags.ThrowOnError;
 
 			if (!InternetAddress.TryParse (options, text, ref index, endIndex, flags, out address)) {
 				group = null;

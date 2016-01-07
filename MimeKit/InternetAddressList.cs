@@ -545,7 +545,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, bool throwOnError, out List<InternetAddress> addresses)
 		{
-			var flags = throwOnError ? InternetAddress.TryParseFlags.Parse : InternetAddress.TryParseFlags.TryParse;
+			var flags = throwOnError ? InternetAddress.AddressParserFlags.Parse : InternetAddress.AddressParserFlags.TryParse;
 			var list = new List<InternetAddress> ();
 			InternetAddress address;
 
