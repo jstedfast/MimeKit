@@ -626,7 +626,7 @@ namespace MimeKit.Tnef {
 				return false;
 			}
 
-			return CheckRawValueLength ();
+			return true;
 		}
 
 		/// <summary>
