@@ -238,6 +238,14 @@ namespace UnitTests {
 			var mailbox = new MailboxAddress ("Kristoffer Brånemyr", "brånemyr@swipenet.se");
 
 			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
+
+			mailbox = new MailboxAddress ("Kristoffer Brånemyr", "ztion@swipenet.se");
+
+			Assert.IsFalse (mailbox.IsInternational, "IsInternational");
+
+			mailbox.Route.Add ("brånemyr");
+
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
 		}
 
 		[Test]
