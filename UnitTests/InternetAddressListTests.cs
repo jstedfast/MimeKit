@@ -59,50 +59,6 @@ namespace UnitTests {
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
 		}
 
-		[Test]
-		public void TestTryParseWhiteSpace ()
-		{
-			try {
-				InternetAddress address;
-
-				Assert.IsFalse (InternetAddress.TryParse ("   ", out address), "InternetAddress.TryParse() should fail to parse whitespace.");
-			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.TryParse() should not throw an exception: {0}", ex);
-			}
-
-			try {
-				InternetAddressList list;
-
-				Assert.IsFalse (InternetAddressList.TryParse ("   ", out list), "InternetAddressList.TryParse() should fail to parse whitespace.");
-			} catch (Exception ex) {
-				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
-			}
-		}
-
-		[Test]
-		public void TestParseWhiteSpace ()
-		{
-			try {
-				InternetAddress.Parse ("   ");
-				Assert.Fail ("InternetAddress.Parse() should fail to parse whitespace.");
-			} catch (ParseException ex) {
-				Assert.AreEqual (3, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (3, ex.ErrorIndex, "ParseException did not have the error index.");
-			} catch {
-				Assert.Fail ("InternetAddress.Parse() should throw ParseException.");
-			}
-
-			try {
-				InternetAddressList.Parse ("   ");
-				Assert.Fail ("InternetAddressList.Parse() should fail to parse whitespace.");
-			} catch (ParseException ex) {
-				Assert.AreEqual (3, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (3, ex.ErrorIndex, "ParseException did not have the error index.");
-			} catch {
-				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
-			}
-		}
-
 		static void AssertTryParse (string text, string encoded, InternetAddressList expected)
 		{
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -161,6 +117,89 @@ namespace UnitTests {
 			AssertParse (text, encoded, expected);
 		}
 
+		static void AssertTryParseFails (string text)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+			InternetAddressList result;
+
+			try {
+				Assert.IsFalse (InternetAddressList.TryParse ("   ", out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsFalse (InternetAddressList.TryParse (buffer, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsFalse (InternetAddressList.TryParse (buffer, 0, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsFalse (InternetAddressList.TryParse (buffer, 0, buffer.Length, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+			} catch (Exception ex) {
+				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+			}
+		}
+
+		static void AssertParseFails (string text)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+
+			try {
+				InternetAddressList.Parse ("   ");
+				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+			} catch (ParseException) {
+				// success
+			} catch {
+				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
+			}
+
+			try {
+				InternetAddressList.Parse (buffer);
+				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+			} catch (ParseException) {
+				// success
+			} catch {
+				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
+			}
+
+			try {
+				InternetAddressList.Parse (buffer, 0);
+				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+			} catch (ParseException) {
+				// success
+			} catch {
+				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
+			}
+
+			try {
+				InternetAddressList.Parse (buffer, 0, buffer.Length);
+				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+			} catch (ParseException) {
+				// success
+			} catch {
+				Assert.Fail ("InternetAddressList.Parse() should throw ParseException.");
+			}
+		}
+
+		static void AssertParseAndTryParseFail (string text)
+		{
+			AssertTryParseFails (text);
+			AssertParseFails (text);
+		}
+
+		[Test]
+		public void TestParseWhiteSpace ()
+		{
+			AssertParseAndTryParseFail ("   ");
+		}
+
 		[Test]
 		public void TestSimpleAddrSpec ()
 		{
@@ -199,7 +238,6 @@ namespace UnitTests {
 			const string text = "\":sysmail\"@  Some-Group. Some-Org,\n Muhammed.(I am  the greatest) Ali @(the)Vegas.WBA";
 			const string encoded = "\":sysmail\"@Some-Group.Some-Org, Muhammed.Ali@Vegas.WBA";
 			var expected = new InternetAddressList ();
-			InternetAddressList result;
 
 			expected.Add (new MailboxAddress ("", "\":sysmail\"@Some-Group.Some-Org"));
 			expected.Add (new MailboxAddress ("", "Muhammed.Ali@Vegas.WBA"));
@@ -293,9 +331,8 @@ namespace UnitTests {
 		public void TestListWithGroupAndAddrspec ()
 		{
 			const string text = "GNOME Hackers: Miguel de Icaza <miguel@gnome.org>, Havoc Pennington <hp@redhat.com>;, fejj@helixcode.com";
-			string encoded = "GNOME Hackers: Miguel de Icaza <miguel@gnome.org>, Havoc Pennington\n\t<hp@redhat.com>;, fejj@helixcode.com";
+			const string encoded = "GNOME Hackers: Miguel de Icaza <miguel@gnome.org>, Havoc Pennington\n\t<hp@redhat.com>;, fejj@helixcode.com";
 			var expected = new InternetAddressList ();
-			InternetAddressList result;
 
 			expected.Add (new GroupAddress ("GNOME Hackers", new InternetAddress[] {
 				new MailboxAddress ("Miguel de Icaza", "miguel@gnome.org"),
@@ -303,11 +340,7 @@ namespace UnitTests {
 			}));
 			expected.Add (new MailboxAddress ("", "fejj@helixcode.com"));
 
-			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "Failed to parse: {0}", text);
-			AssertInternetAddressListsEqual (encoded, expected, result);
-
-			result = InternetAddressList.Parse (text);
-			AssertInternetAddressListsEqual (encoded, expected, result);
+			AssertParseAndTryParse (text, encoded, expected);
 		}
 
 		[Test]
@@ -395,11 +428,11 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingSimpleMailboxWithQuotedName ()
 		{
+			const string expected = "\"Stedfast, Jeffrey\" <fejj@gnome.org>";
 			var mailbox = new MailboxAddress ("Stedfast, Jeffrey", "fejj@gnome.org");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "\"Stedfast, Jeffrey\" <fejj@gnome.org>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding quoted mailbox did not match expected result: {0}", expected);
@@ -431,12 +464,12 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingMailboxWithReallyLongWord ()
 		{
-			var name = "reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllllllllllllllllllllllllllllllllllllllllllllllly long word";
+			const string expected = "=?us-ascii?q?reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllll?=\n =?us-ascii?q?llllllllllllllllllllllllllllllllllllllllllly?= long word\n\t<really.long.word@example.com>";
+			const string name = "reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllllllllllllllllllllllllllllllllllllllllllllllly long word";
 			var mailbox = new MailboxAddress (name, "really.long.word@example.com");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "=?us-ascii?q?reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllll?=\n =?us-ascii?q?llllllllllllllllllllllllllllllllllllllllllly?= long word\n\t<really.long.word@example.com>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding really long mailbox did not match expected result: {0}", expected);
@@ -447,11 +480,11 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingMailboxWithArabicName ()
 		{
+			const string expected = "=?utf-8?b?2YfZhCDYqtiq2YPZhNmFINin2YTZhNi62Kkg2KfZhNil2YbYrNmE2YrYstmK2Kk=?=\n =?utf-8?b?IC/Yp9mE2LnYsdio2YrYqdif?= <do.you.speak@arabic.com>";
 			var mailbox = new MailboxAddress ("هل تتكلم اللغة الإنجليزية /العربية؟", "do.you.speak@arabic.com");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "=?utf-8?b?2YfZhCDYqtiq2YPZhNmFINin2YTZhNi62Kkg2KfZhNil2YbYrNmE2YrYstmK2Kk=?=\n =?utf-8?b?IC/Yp9mE2LnYsdio2YrYqdif?= <do.you.speak@arabic.com>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding arabic mailbox did not match expected result: {0}", expected);
@@ -462,11 +495,11 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodingMailboxWithJapaneseName ()
 		{
+			const string expected = "=?utf-8?b?54uC44Gj44Gf44GT44Gu5LiW44Gn54uC44GG44Gq44KJ5rCX44Gv56K644GL44Gg?=\n =?utf-8?b?44CC?= <famous@quotes.ja>";
 			var mailbox = new MailboxAddress ("狂ったこの世で狂うなら気は確かだ。", "famous@quotes.ja");
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var expected = "=?utf-8?b?54uC44Gj44Gf44GT44Gu5LiW44Gn54uC44GG44Gq44KJ5rCX44Gv56K644GL44Gg?=\n =?utf-8?b?44CC?= <famous@quotes.ja>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
 			Assert.AreEqual (expected, actual, "Encoding japanese mailbox did not match expected result: {0}", expected);
