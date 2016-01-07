@@ -131,15 +131,17 @@ namespace UnitTests
 
 		static string GetImageData (MimePart image)
 		{
-			using (var memory = new MemoryStream ()) {
-				image.ContentObject.DecodeTo (memory);
-
-				var buffer = memory.GetBuffer ();
-				int length = (int) memory.Length;
-
-				return string.Format ("data:{0};base64,{1}", image.ContentType.MimeType,
-					Convert.ToBase64String (buffer, 0, length, Base64FormattingOptions.None));
-			}
+//			using (var memory = new MemoryStream ()) {
+//				image.ContentObject.DecodeTo (memory);
+//
+//				var buffer = memory.GetBuffer ();
+//				int length = (int) memory.Length;
+//
+//				return string.Format ("data:{0};base64,{1}", image.ContentType.MimeType,
+//					Convert.ToBase64String (buffer, 0, length, Base64FormattingOptions.None));
+//			}
+			return string.Format ("data:{0};base64,[base64 data for {1}]",
+				image.ContentType.MimeType, image.ContentId);
 		}
 
 		// Replaces <img src=...> urls that refer to images embedded within the message with

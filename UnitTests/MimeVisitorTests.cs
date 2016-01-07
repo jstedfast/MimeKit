@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -58,11 +59,12 @@ namespace UnitTests {
 					if (!string.IsNullOrEmpty (actual))
 						actual = actual.Replace ("\r\n", "\n");
 
-					//if (!File.Exists (path) && actual != null)
-					//	File.WriteAllText (path, actual);
+//					if (!File.Exists (path) && actual != null) {
+//						File.WriteAllText (path, actual);
+//					}
 
 					if (File.Exists (path))
-						expected = File.ReadAllText (path).Replace ("\r\n", "\n");
+						expected = File.ReadAllText (path, Encoding.UTF8).Replace ("\r\n", "\n");
 					else
 						expected = null;
 
