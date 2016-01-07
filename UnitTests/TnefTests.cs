@@ -61,36 +61,36 @@ namespace UnitTests {
 							Assert.Fail ("Invalid recipient type.");
 							break;
 						}
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, recipientType);
+						//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, recipientType);
 						break;
 					case TnefPropertyId.TransmitableDisplayName:
 						if (string.IsNullOrEmpty (name)) {
 							name = prop.ReadValueAsString ();
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
+							//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
 						} else {
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+							//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
 						}
 						break;
 					case TnefPropertyId.DisplayName:
 						name = prop.ReadValueAsString ();
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
+						//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, name);
 						break;
 					case TnefPropertyId.EmailAddress:
 						if (string.IsNullOrEmpty (addr)) {
 							addr = prop.ReadValueAsString ();
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
+							//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
 						} else {
-							Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+							//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
 						}
 						break;
 					case TnefPropertyId.SmtpAddress:
 						// The SmtpAddress, if it exists, should take precedence over the EmailAddress
 						// (since the SmtpAddress is meant to be used in the RCPT TO command).
 						addr = prop.ReadValueAsString ();
-						Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
+						//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
 						break;
 					default:
-						Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+						//Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 						break;
 					}
 				}
@@ -113,7 +113,7 @@ namespace UnitTests {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.MessageId = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.MessageId);
+						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.MessageId);
 					} else {
 						Assert.Fail ("Unknown property type for Message-Id: {0}", prop.PropertyTag.ValueTnefType);
 					}
@@ -122,7 +122,7 @@ namespace UnitTests {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.Subject = prop.ReadValueAsString ();
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.Subject);
+						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.Subject);
 					} else {
 						Assert.Fail ("Unknown property type for Subject: {0}", prop.PropertyTag.ValueTnefType);
 					}
@@ -151,7 +151,7 @@ namespace UnitTests {
 
 						builder.Attachments.Add (rtf);
 
-						Console.WriteLine ("Message Property: {0} = <compressed rtf data>", prop.PropertyTag.Id);
+						//Console.WriteLine ("Message Property: {0} = <compressed rtf data>", prop.PropertyTag.Id);
 					} else {
 						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
@@ -166,7 +166,7 @@ namespace UnitTests {
 
 						builder.Attachments.Add (html);
 
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, html.Text);
+						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, html.Text);
 					} else {
 						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
@@ -181,7 +181,7 @@ namespace UnitTests {
 
 						builder.Attachments.Add (plain);
 
-						Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, plain.Text);
+						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, plain.Text);
 					} else {
 						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
@@ -195,7 +195,7 @@ namespace UnitTests {
 						value = null;
 					}
 
-					Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
+					//Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
 					break;
 				}
 			}
@@ -214,7 +214,7 @@ namespace UnitTests {
 			DateTime time;
 			string text;
 
-			Console.WriteLine ("Extracting attachments...");
+			//Console.WriteLine ("Extracting attachments...");
 
 			do {
 				if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
@@ -222,12 +222,12 @@ namespace UnitTests {
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
-					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					//Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					attachMethod = TnefAttachMethod.ByValue;
 					attachment = new MimePart ();
 					break;
 				case TnefAttributeTag.Attachment:
-					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					//Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					if (attachment == null)
 						break;
 
@@ -236,14 +236,14 @@ namespace UnitTests {
 						case TnefPropertyId.AttachLongFilename:
 							attachment.FileName = prop.ReadValueAsString ();
 
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
 							break;
 						case TnefPropertyId.AttachFilename:
 							if (attachment.FileName == null) {
 								attachment.FileName = prop.ReadValueAsString ();
-								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
+								//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.FileName);
 							} else {
-								Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
+								//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, prop.ReadValueAsString ());
 							}
 							break;
 						case TnefPropertyId.AttachContentLocation:
@@ -252,16 +252,16 @@ namespace UnitTests {
 								attachment.ContentLocation = new Uri (text, UriKind.Absolute);
 							else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
 								attachment.ContentLocation = new Uri (text, UriKind.Relative);
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentBase:
 							text = prop.ReadValueAsString ();
 							attachment.ContentBase = new Uri (text, UriKind.Absolute);
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentId:
 							attachment.ContentId = prop.ReadValueAsString ();
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
@@ -269,11 +269,11 @@ namespace UnitTests {
 								attachment.ContentDisposition = new ContentDisposition (text);
 							else
 								attachment.ContentDisposition.Disposition = text;
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachMethod:
 							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachMethod);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachMethod);
 							break;
 						case TnefPropertyId.AttachMimeTag:
 							text = prop.ReadValueAsString ();
@@ -282,7 +282,7 @@ namespace UnitTests {
 								attachment.ContentType.MediaType = mimeType[0].Trim ();
 								attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
 							}
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachFlags:
 							flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
@@ -292,7 +292,7 @@ namespace UnitTests {
 								else
 									attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
 							}
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, flags);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, flags);
 							break;
 						case TnefPropertyId.AttachData:
 							var stream = prop.GetRawValueReadStream ();
@@ -321,29 +321,29 @@ namespace UnitTests {
 							attachment.ContentObject = new ContentObject (content);
 							filter.Reset ();
 
-							Console.WriteLine ("Attachment Property: {0} has GUID {1}", prop.PropertyTag.Id, new Guid (guid));
+							//Console.WriteLine ("Attachment Property: {0} has GUID {1}", prop.PropertyTag.Id, new Guid (guid));
 
 							builder.Attachments.Add (attachment);
 							break;
 						case TnefPropertyId.DisplayName:
 							attachment.ContentType.Name = prop.ReadValueAsString ();
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
 							break;
 						case TnefPropertyId.AttachSize:
 							if (attachment.ContentDisposition == null)
 								attachment.ContentDisposition = new ContentDisposition ();
 
 							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
-							Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentDisposition.Size.Value);
+							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentDisposition.Size.Value);
 							break;
 						default:
-							Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+							//Console.WriteLine ("Attachment Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
 							break;
 						}
 					}
 					break;
 				case TnefAttributeTag.AttachData:
-					Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
+					//Console.WriteLine ("Attachment Attribute: {0}", reader.AttributeTag);
 					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
 						break;
 
@@ -365,7 +365,7 @@ namespace UnitTests {
 						attachment.ContentDisposition.CreationDate = time;
 					}
 
-					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
+					//Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
 					break;
 				case TnefAttributeTag.AttachModifyDate:
 					time = prop.ReadValueAsDateTime ();
@@ -377,7 +377,7 @@ namespace UnitTests {
 						attachment.ContentDisposition.ModificationDate = time;
 					}
 
-					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
+					//Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, time);
 					break;
 				case TnefAttributeTag.AttachTitle:
 					text = prop.ReadValueAsString ();
@@ -385,10 +385,10 @@ namespace UnitTests {
 					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
 						attachment.FileName = text;
 
-					Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
+					//Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
 					break;
 				default:
-					Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					//Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 					break;
 				}
 			} while (reader.ReadNextAttribute ());
@@ -417,27 +417,26 @@ namespace UnitTests {
 					break;
 				case TnefAttributeTag.DateSent:
 					message.Date = prop.ReadValueAsDateTime ();
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, message.Date);
+					//Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, message.Date);
 					break;
 				case TnefAttributeTag.Body:
 					builder.TextBody = prop.ReadValueAsString ();
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, builder.TextBody);
+					//Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, builder.TextBody);
 					break;
 				case TnefAttributeTag.TnefVersion:
-					Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, prop.ReadValueAsInt32 ());
+					//Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, prop.ReadValueAsInt32 ());
 					break;
 				case TnefAttributeTag.OemCodepage:
 					int codepage = prop.ReadValueAsInt32 ();
 					try {
 						var encoding = Encoding.GetEncoding (codepage);
-						Console.WriteLine ("Message Attribute: OemCodepage = {0}", encoding.HeaderName);
-					}
-					catch {
-						Console.WriteLine ("Message Attribute: OemCodepage = {0}", codepage);
+						//Console.WriteLine ("Message Attribute: OemCodepage = {0}", encoding.HeaderName);
+					} catch {
+						//Console.WriteLine ("Message Attribute: OemCodepage = {0}", codepage);
 					}
 					break;
 				default:
-					Console.WriteLine ("Message Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					//Console.WriteLine ("Message Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
 					break;
 				}
 			}
@@ -445,7 +444,7 @@ namespace UnitTests {
 			if (reader.AttributeLevel == TnefAttributeLevel.Attachment) {
 				ExtractAttachments (reader, builder);
 			} else {
-				Console.WriteLine ("no attachments");
+				//Console.WriteLine ("no attachments");
 			}
 
 			message.Body = builder.ToMessageBody ();
