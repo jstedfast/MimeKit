@@ -207,11 +207,21 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
+		public void TestParseMailboxWithIncompleteCommentAfterAddrspec ()
 		{
 			const string text = "jeff@xamarin.com (incomplete comment";
 			const int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('@');
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
+		{
+			const string text = "<jeff@xamarin.com> (incomplete comment";
+			const int tokenIndex = 0;
+			const int errorIndex = 0;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
@@ -266,6 +276,17 @@ namespace UnitTests {
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
+		// FIXME: need to test Strict vs Loose ParserOptions
+		//[Test]
+		//public void TestParseMailboxWithMissingGreaterThan ()
+		//{
+		//	const string text = "Skye <skye@shield.gov";
+		//	const int tokenIndex = 0;
+		//	int errorIndex = text.Length;
+		//
+		//	AssertParseFailure (text, true, tokenIndex, errorIndex);
+		//}
+
 		[Test]
 		public void TestParseGroup ()
 		{
@@ -283,6 +304,16 @@ namespace UnitTests {
 
 			// Note: the TryParse() methods are a little more forgiving than Parse().
 			AssertParseFailure (text, true, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseGroupNameColon ()
+		{
+			const string text = "Agents of Shield:";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]

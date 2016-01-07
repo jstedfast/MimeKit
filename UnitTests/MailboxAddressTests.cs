@@ -207,9 +207,19 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
+		public void TestParseMailboxWithIncompleteCommentAfterAddrspec ()
 		{
 			const string text = "jeff@xamarin.com (incomplete comment";
+			int tokenIndex = text.IndexOf ('(');
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
+		{
+			const string text = "<jeff@xamarin.com> (incomplete comment";
 			int tokenIndex = text.IndexOf ('(');
 			int errorIndex = text.Length;
 
@@ -246,7 +256,7 @@ namespace UnitTests {
 		public void TestParseMailboxWithIncompleteRoute ()
 		{
 			const string text = "Skye <@";
-			int tokenIndex = text.IndexOf ('@');
+			const int tokenIndex = 0;
 			int errorIndex = text.Length;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
@@ -261,6 +271,17 @@ namespace UnitTests {
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
+
+		// FIXME: need to test Strict vs Loose ParserOptions
+		//[Test]
+		//public void TestParseMailboxWithMissingGreaterThan ()
+		//{
+		//	const string text = "Skye <skye@shield.gov";
+		//	const int tokenIndex = 0;
+		//	int errorIndex = text.Length;
+		//
+		//	AssertParseFailure (text, true, tokenIndex, errorIndex);
+		//}
 
 		[Test]
 		public void TestParseMultipleMailboxes ()
@@ -286,6 +307,16 @@ namespace UnitTests {
 		public void TestParseIncompleteGroup ()
 		{
 			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>";
+			const int tokenIndex = 0;
+			int errorIndex = text.IndexOf (':');
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseGroupNameColon ()
+		{
+			const string text = "Agents of Shield:";
 			const int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
