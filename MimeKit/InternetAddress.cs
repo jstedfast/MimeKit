@@ -402,7 +402,8 @@ namespace MimeKit {
 			}
 
 			if (text[index] == (byte) '@') {
-				if (!DomainList.TryParse (text, ref index, endIndex, throwOnError, out route)) {
+				// Note: we always pass 'false' as the throwOnError argument here so that we can throw a more informative exception on error
+				if (!DomainList.TryParse (text, ref index, endIndex, false, out route)) {
 					if (throwOnError)
 						throw new ParseException (string.Format ("Invalid route in mailbox at offset {0}", startIndex), startIndex, index);
 
