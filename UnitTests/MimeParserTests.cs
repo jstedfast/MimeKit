@@ -298,7 +298,7 @@ namespace UnitTests {
 				var message = MimeMessage.Load (stream);
 
 				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
-				Assert.AreEqual (body, message.TextBody, "Message text does not match.");
+				Assert.AreEqual (body, message.TextBody.Replace ("\r\n", "\n"), "Message text does not match.");
 			}
 		}
 

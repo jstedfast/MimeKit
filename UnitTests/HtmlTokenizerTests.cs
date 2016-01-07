@@ -47,6 +47,8 @@ namespace UnitTests {
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
 					quoted.Append ('\\');
+				else if (text[i] == '\r')
+					continue;
 				quoted.Append (text[i]);
 			}
 			quoted.Append ("\"");
@@ -57,7 +59,7 @@ namespace UnitTests {
 		static void VerifyHtmlTokenizerOutput (string path)
 		{
 			var tokens = Path.ChangeExtension (path, ".tokens");
-			var expected = File.Exists (tokens) ? File.ReadAllText (tokens).Replace ("\r", "") : string.Empty;
+			var expected = File.Exists (tokens) ? File.ReadAllText (tokens).Replace ("\r\n", "\n") : string.Empty;
 			var actual = new StringBuilder ();
 
 			using (var textReader = File.OpenText (path)) {
@@ -104,7 +106,7 @@ namespace UnitTests {
 						break;
 					case HtmlTokenKind.Comment:
 						var comment = (HtmlCommentToken) token;
-						actual.Append (comment.Comment);
+						actual.Append (comment.Comment.Replace ("\r\n", "\n"));
 						actual.Append ('\n');
 						break;
 					case HtmlTokenKind.DocType:
