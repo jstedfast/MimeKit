@@ -36,6 +36,8 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeParserTests
 	{
+		static string MessagesDataDir = Path.Combine ("..", "..", "TestData", "messages");
+		static string MboxDataDir = Path.Combine ("..", "..", "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
 
 		[SetUp]
@@ -129,7 +131,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSimpleMbox ()
 		{
-			using (var stream = File.OpenRead ("../../TestData/mbox/simple.mbox.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -202,7 +204,7 @@ namespace UnitTests {
    Content-Type: text/plain
 ".Replace ("\r\n", "\n");
 
-			using (var stream = File.OpenRead ("../../TestData/messages/empty-multipart.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "empty-multipart.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 				var builder = new StringBuilder ();
@@ -216,10 +218,10 @@ namespace UnitTests {
 		[Test]
 		public void TestJwzMbox ()
 		{
-			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt").Replace ("\r\n", "\n");
+			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -250,10 +252,10 @@ namespace UnitTests {
 		[Test]
 		public void TestJwzPersistentMbox ()
 		{
-			var summary = File.ReadAllText ("../../TestData/mbox/jwz-summary.txt").Replace ("\r\n", "\n");
+			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -292,7 +294,7 @@ namespace UnitTests {
 			const string subject = "日本語メールテスト (testing Japanese emails)";
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
-			using (var stream = File.OpenRead ("../../TestData/messages/japanese.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
 				var message = MimeMessage.Load (stream);
 
 				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
@@ -305,7 +307,7 @@ namespace UnitTests {
 		{
 			int count = 0;
 
-			using (var stream = File.OpenRead ("../../TestData/mbox/unmunged.mbox.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "unmunged.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -331,7 +333,7 @@ namespace UnitTests {
 		{
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
-			using (var stream = File.OpenRead ("../../TestData/messages/epilogue.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
 				var message = MimeMessage.Load (stream);
 				var multipart = message.Body as Multipart;
 
@@ -345,7 +347,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMissingSubtype ()
 		{
-			using (var stream = File.OpenRead ("../../TestData/messages/missing-subtype.txt")) {
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
 				var message = MimeMessage.Load (stream);
 				var type = message.Body.ContentType;
 

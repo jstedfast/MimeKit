@@ -82,6 +82,7 @@
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="HtmlEntityDecoderTests.cs" />
+    <Compile Include="HtmlPreviewVisitor.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="InternetAddressTests.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
     <Compile Include="MimeUtilsTests.cs" />
+    <Compile Include="MimeVisitorTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
