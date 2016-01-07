@@ -566,6 +566,9 @@ namespace MimeKit {
 
 					long length = inptr - start;
 
+					if (inptr > start && *(inptr - 1) == (byte) '\r')
+						length--;
+
 					// consume the '\n'
 					inptr++;
 
