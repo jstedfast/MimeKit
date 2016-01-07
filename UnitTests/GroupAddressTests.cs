@@ -35,7 +35,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class GroupAddressTests
 	{
-		static void TestParseFailure (string text, bool result, int tokenIndex, int errorIndex)
+		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
 		{
 			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
 			GroupAddress group;
@@ -86,7 +86,7 @@ namespace UnitTests {
 			}
 		}
 
-		static void TestParse (string text)
+		static void AssertParse (string text)
 		{
 			var buffer = Encoding.ASCII.GetBytes (text);
 			GroupAddress group;
@@ -143,7 +143,7 @@ namespace UnitTests {
 		[Test]
 		public void TestParseEmpty ()
 		{
-			TestParseFailure (string.Empty, false, 0, 0);
+			AssertParseFailure (string.Empty, false, 0, 0);
 		}
 
 		[Test]
@@ -153,7 +153,7 @@ namespace UnitTests {
 			int tokenIndex = text.Length;
 			int errorIndex = text.Length;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -163,7 +163,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('<');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -173,7 +173,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('@');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -183,7 +183,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('@');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -193,7 +193,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('@');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -203,7 +203,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf ('<');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -211,7 +211,7 @@ namespace UnitTests {
 		{
 			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>;";
 
-			TestParse (text);
+			AssertParse (text);
 		}
 
 		[Test]
@@ -222,7 +222,7 @@ namespace UnitTests {
 			int errorIndex = text.Length;
 
 			// Note: the TryParse() methods are a little more forgiving than Parse().
-			TestParseFailure (text, true, tokenIndex, errorIndex);
+			AssertParseFailure (text, true, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -232,7 +232,7 @@ namespace UnitTests {
 			int tokenIndex = text.IndexOf (';') + 1;
 			int errorIndex = tokenIndex;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 	}
 }

@@ -75,6 +75,7 @@
     <Compile Include="DateParserTests.cs" />
     <Compile Include="DkimRelaxedBodyFilterTests.cs" />
     <Compile Include="DkimTests.cs" />
+    <Compile Include="DomainListTests.cs" />
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />

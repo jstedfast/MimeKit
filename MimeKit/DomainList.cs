@@ -55,8 +55,8 @@ namespace MimeKit {
 		/// </exception>
 		public DomainList (IEnumerable<string> domains)
 		{
-            if (domains == null)
-                throw new ArgumentNullException ("domains");
+			if (domains == null)
+				throw new ArgumentNullException ("domains");
 
 			this.domains = new List<string> (domains);
 		}

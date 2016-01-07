@@ -35,7 +35,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class MailboxAddressTests
 	{
-		static void TestParseFailure (string text, bool result, int tokenIndex, int errorIndex)
+		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
 		{
 			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
 			MailboxAddress mailbox;
@@ -86,7 +86,7 @@ namespace UnitTests {
 			}
 		}
 
-		static void TestParse (string text)
+		static void AssertParse (string text)
 		{
 			var buffer = Encoding.ASCII.GetBytes (text);
 			MailboxAddress mailbox;
@@ -143,7 +143,7 @@ namespace UnitTests {
 		[Test]
 		public void TestParseEmpty ()
 		{
-			TestParseFailure (string.Empty, false, 0, 0);
+			AssertParseFailure (string.Empty, false, 0, 0);
 		}
 
 		[Test]
@@ -153,7 +153,7 @@ namespace UnitTests {
 			int tokenIndex = text.Length;
 			int errorIndex = text.Length;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -163,7 +163,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.Length;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -173,7 +173,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.Length;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -183,7 +183,7 @@ namespace UnitTests {
 			int tokenIndex = text.IndexOf ('(');
 			int errorIndex = text.Length;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -191,7 +191,7 @@ namespace UnitTests {
 		{
 			const string text = "jeff@xamarin.com";
 
-			TestParse (text);
+			AssertParse (text);
 		}
 
 		[Test]
@@ -199,7 +199,7 @@ namespace UnitTests {
 		{
 			const string text = "Jeffrey Stedfast <jeff@xamarin.com>";
 
-			TestParse (text);
+			AssertParse (text);
 		}
 
 		[Test]
@@ -209,7 +209,7 @@ namespace UnitTests {
 			int tokenIndex = text.IndexOf (',');
 			int errorIndex = tokenIndex;
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -219,7 +219,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
 		[Test]
@@ -229,7 +229,7 @@ namespace UnitTests {
 			int tokenIndex = 0;
 			int errorIndex = text.IndexOf (':');
 
-			TestParseFailure (text, false, tokenIndex, errorIndex);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 	}
 }
