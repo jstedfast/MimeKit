@@ -59,9 +59,8 @@ namespace UnitTests {
 					if (!string.IsNullOrEmpty (actual))
 						actual = actual.Replace ("\r\n", "\n");
 
-//					if (!File.Exists (path) && actual != null) {
-//						File.WriteAllText (path, actual);
-//					}
+					if (!File.Exists (path) && actual != null)
+						File.WriteAllText (path, actual);
 
 					if (File.Exists (path))
 						expected = File.ReadAllText (path, Encoding.UTF8).Replace ("\r\n", "\n");

@@ -206,5 +206,10 @@ namespace UnitTests
 
 			base.VisitTextPart (entity);
 		}
+
+		protected internal override void VisitMessagePart (MessagePart entity)
+		{
+			// don't descend into message/rfc822 parts
+		}
 	}
 }
