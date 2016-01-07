@@ -236,6 +236,14 @@ namespace UnitTests {
 		public void TestInternationalMailbox ()
 		{
 			var mailbox = new MailboxAddress ("Kristoffer Brånemyr", "brånemyr@swipenet.se");
+			const string expected = "Kristoffer Brånemyr <brånemyr@swipenet.se>";
+			var options = FormatOptions.Default.Clone ();
+			string encoded;
+
+			options.International = true;
+
+			encoded = mailbox.ToString (options, true);
+			Assert.AreEqual (expected, encoded, "ToString");
 
 			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
 
