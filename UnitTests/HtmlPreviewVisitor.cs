@@ -25,12 +25,10 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 
 using MimeKit;
 using MimeKit.Text;
-using MimeKit.Tnef;
 
 namespace UnitTests
 {
@@ -40,7 +38,6 @@ namespace UnitTests
 	class HtmlPreviewVisitor : MimeVisitor
 	{
 		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
-		readonly List<MimeEntity> attachments = new List<MimeEntity> ();
 		string body;
 
 		/// <summary>
@@ -55,16 +52,8 @@ namespace UnitTests
 		/// </summary>
 		public void Reset ()
 		{
-			attachments.Clear ();
 			stack.Clear ();
 			body = null;
-		}
-
-		/// <summary>
-		/// The list of attachments that were in the MimeMessage.
-		/// </summary>
-		public IList<MimeEntity> Attachments {
-			get { return attachments; }
 		}
 
 		/// <summary>
@@ -193,8 +182,7 @@ namespace UnitTests
 			TextConverter converter;
 
 			if (body != null) {
-				// since we've already found the body, treat this as an attachment
-				attachments.Add (entity);
+				base.VisitTextPart (entity);
 				return;
 			}
 
@@ -215,25 +203,8 @@ namespace UnitTests
 			}
 
 			body = converter.Convert (entity.Text);
-		}
 
-		protected internal override void VisitTnefPart (TnefPart entity)
-		{
-			// extract any attachments in the MS-TNEF part
-			attachments.AddRange (entity.ExtractAttachments ());
-		}
-
-		protected internal override void VisitMessagePart (MessagePart entity)
-		{
-			// treat message/rfc822 parts as attachments
-			attachments.Add (entity);
-		}
-
-		protected internal override void VisitMimePart (MimePart entity)
-		{
-			// realistically, if we've gotten this far, then we can treat this as an attachment
-			// even if the IsAttachment property is false.
-			attachments.Add (entity);
+			base.VisitTextPart (entity);
 		}
 	}
 }

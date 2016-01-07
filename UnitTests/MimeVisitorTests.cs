@@ -52,7 +52,7 @@ namespace UnitTests {
 					var message = parser.ParseMessage ();
 					string expected, actual;
 
-					message.Accept (visitor);
+					visitor.Visit (message);
 
 					actual = visitor.HtmlBody;
 
