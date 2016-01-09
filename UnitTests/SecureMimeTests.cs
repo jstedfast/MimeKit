@@ -51,6 +51,8 @@ namespace UnitTests {
 				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 				string path;
 
+				CryptographyContext.Register (ctx.GetType ());
+
 				foreach (var filename in CertificateAuthorities) {
 					path = Path.Combine (dataDir, filename);
 					using (var file = File.OpenRead (path)) {
@@ -481,9 +483,16 @@ namespace UnitTests {
 	[TestFixture]
 	public class SecureMimeSqliteTests : SecureMimeTestsBase
 	{
+		class MySecureMimeContext : DefaultSecureMimeContext
+		{
+			public MySecureMimeContext () : base ("smime.db", "no.secret")
+			{
+			}
+		}
+
 		protected override SecureMimeContext CreateContext ()
 		{
-			return new DefaultSecureMimeContext ("smime.db", "no.secret");
+			return new MySecureMimeContext ();
 		}
 	}
 
