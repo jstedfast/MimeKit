@@ -891,32 +891,11 @@ namespace MimeKit.Cryptography {
 				signatures.Add (signature);
 			}
 
-			var memory = content as MemoryStream;
-			if (memory != null) {
-				// We can optimize things a bit if we've got a memory stream...
-#if !PORTABLE && !COREFX
-				var buffer = memory.GetBuffer ();
-#else
-				var buffer = memory.ToArray ();
-#endif
-
-				for (int index = (int) memory.Position; index < (int) memory.Length; index++) {
-					byte c = buffer[index];
-
-					for (int i = 0; i < signatures.Count; i++) {
-						if (signatures[i].SignerCertificate != null) {
-							var pgp = (OpenPgpDigitalSignature) signatures[i];
-							pgp.Signature.Update (c);
-						}
-					}
-				}
-			} else {
-				while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-					for (int i = 0; i < signatures.Count; i++) {
-						if (signatures[i].SignerCertificate != null) {
-							var pgp = (OpenPgpDigitalSignature) signatures[i];
-							pgp.Signature.Update (buf, 0, nread);
-						}
+			while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
+				for (int i = 0; i < signatures.Count; i++) {
+					if (signatures[i].SignerCertificate != null) {
+						var pgp = (OpenPgpDigitalSignature) signatures[i];
+						pgp.Signature.Update (buf, 0, nread);
 					}
 				}
 			}
