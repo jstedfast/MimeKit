@@ -446,5 +446,21 @@ namespace UnitTests {
 				}
 			}
 		}
+
+		[Test]
+		public void TestExport ()
+		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			using (var ctx = new DummyOpenPgpContext ()) {
+				Assert.AreEqual ("application/pgp-keys", ctx.KeyExchangeProtocol, "The key-exchange protocol does not match.");
+
+				var exported = ctx.Export (new [] { self });
+
+				Assert.IsNotNull (exported, "The exported MIME part should not be null.");
+				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.AreEqual ("application/pgp-keys", exported.ContentType.MimeType);
+			}
+		}
 	}
 }
