@@ -161,7 +161,7 @@ namespace UnitTests {
 		public void TestMimeMessageEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
 			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
 			message.From.Add (self);
@@ -462,6 +462,25 @@ namespace UnitTests {
 				Assert.IsNotNull (exported, "The exported MIME part should not be null.");
 				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
 				Assert.AreEqual ("application/pgp-keys", exported.ContentType.MimeType);
+			}
+		}
+
+		[Test]
+		public void TestDefaultEncryptionAlgorithm ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
+					if (algorithm == EncryptionAlgorithm.RC240 ||
+						algorithm == EncryptionAlgorithm.RC264 || 
+						algorithm == EncryptionAlgorithm.RC2128) {
+						Assert.Throws<NotSupportedException> (() => ctx.DefaultEncryptionAlgorithm = algorithm);
+						continue;
+					}
+
+					ctx.DefaultEncryptionAlgorithm = algorithm;
+
+					Assert.AreEqual (algorithm, ctx.DefaultEncryptionAlgorithm, "Default encryption algorithm does not match.");
+				}
 			}
 		}
 	}
