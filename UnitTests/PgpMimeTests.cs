@@ -118,38 +118,40 @@ namespace UnitTests {
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				signer = ctx.GetSigningKey (self);
-			}
 
-			foreach (DigestAlgorithm digest in Enum.GetValues (typeof (DigestAlgorithm))) {
-				if (digest == DigestAlgorithm.None ||
-					digest == DigestAlgorithm.DoubleSha ||
-					digest == DigestAlgorithm.Tiger192 ||
-					digest == DigestAlgorithm.Haval5160 ||
-					digest == DigestAlgorithm.MD4)
-					continue;
+				foreach (DigestAlgorithm digest in Enum.GetValues (typeof (DigestAlgorithm))) {
+					if (digest == DigestAlgorithm.None ||
+						digest == DigestAlgorithm.DoubleSha ||
+						digest == DigestAlgorithm.Tiger192 ||
+						digest == DigestAlgorithm.Haval5160 ||
+						digest == DigestAlgorithm.MD4)
+						continue;
 
-				var multipart = MultipartSigned.Create (signer, digest, body);
+					var multipart = MultipartSigned.Create (signer, digest, body);
 
-				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+					Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
 
-				var micalg = multipart.ContentType.Parameters["micalg"];
-				Assert.AreEqual ("pgp-" + digest.ToString ().ToLowerInvariant (), micalg, "The multipart/signed micalg does not match.");
+					var micalg = multipart.ContentType.Parameters["micalg"];
+					var algorithm = ctx.GetDigestAlgorithm (micalg);
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+					Assert.AreEqual (digest, algorithm, "The multipart/signed micalg does not match.");
 
-				var signatures = multipart.Verify ();
-				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
+					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+					Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+					var signatures = multipart.Verify ();
+					Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+					foreach (var signature in signatures) {
+						try {
+							bool valid = signature.Verify ();
+
+							Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+						} catch (DigitalSignatureVerifyException ex) {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 				}
 			}
