@@ -963,41 +963,6 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
-		/// </summary>
-		/// <remarks>
-		/// Encrypts the specified content for the specified recipients.
-		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
-		/// <param name="recipients">The recipients.</param>
-		/// <param name="content">The content.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
-		/// <para>-or-</para>
-		/// <para>No recipients were specified.</para>
-		/// </exception>
-		/// <exception cref="PublicKeyNotFoundException">
-		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
-		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
-		{
-			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
-
-			if (content == null)
-				throw new ArgumentNullException ("content");
-
-			// TODO: document the exceptions that can be thrown by BouncyCastle
-			return Encrypt (GetPublicKeys (recipients), content);
-		}
-
 		static Stream Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
@@ -1066,6 +1031,80 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
 		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			// TODO: document the exceptions that can be thrown by BouncyCastle
+			return Encrypt (GetPublicKeys (recipients), content);
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			// TODO: document the exceptions that can be thrown by BouncyCastle
+			return Encrypt (algorithm, GetPublicKeys (recipients), content);
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -1110,7 +1149,7 @@ namespace MimeKit.Cryptography {
 			var encrypted = Encrypt (encrypter, content);
 
 			return new MimePart ("application", "octet-stream") {
-				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
 				ContentObject = new ContentObject (encrypted),
 			};
 		}
@@ -1234,6 +1273,58 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException ("signer");
+
+			if (recipients == null)
+				throw new ArgumentNullException ("recipients");
+
+			if (content == null)
+				throw new ArgumentNullException ("content");
+
+			var key = GetSigningKey (signer);
+
+			return SignAndEncrypt (key, digestAlgo, cipherAlgo, GetPublicKeys (recipients), content);
+		}
+
+		/// <summary>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="cipherAlgo">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password prompt.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
 		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (signer == null)
@@ -1318,7 +1409,7 @@ namespace MimeKit.Cryptography {
 				memory.Position = 0;
 
 				return new MimePart ("application", "octet-stream") {
-					ContentDisposition = new ContentDisposition ("attachment"),
+					ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
 					ContentObject = new ContentObject (memory)
 				};
 			}
@@ -1847,7 +1938,7 @@ namespace MimeKit.Cryptography {
 			content.Position = 0;
 
 			return new MimePart ("application", "pgp-keys") {
-				ContentDisposition = new ContentDisposition ("attachment"),
+				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
 				ContentObject = new ContentObject (content)
 			};
 		}
