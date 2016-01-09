@@ -470,7 +470,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		protected virtual IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
+		internal protected virtual IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException ("mailboxes");
@@ -526,7 +526,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// A private key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
+		internal protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException ("mailbox");
@@ -1054,7 +1054,7 @@ namespace MimeKit.Cryptography {
 			case EncryptionAlgorithm.Idea:        return SymmetricKeyAlgorithmTag.Idea;
 			case EncryptionAlgorithm.Blowfish:    return SymmetricKeyAlgorithmTag.Blowfish;
 			case EncryptionAlgorithm.Twofish:     return SymmetricKeyAlgorithmTag.Twofish;
-			default: throw new NotSupportedException ();
+			default: throw new NotSupportedException (string.Format ("{0} is not supported.", algorithm));
 			}
 		}
 
