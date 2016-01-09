@@ -110,35 +110,47 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMultipartSignUsingKeys ()
+		public void TestMultipartSignedSignUsingKeys ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
 			PgpSecretKey signer;
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			var multipart = MultipartSigned.Create (signer, DigestAlgorithm.Sha1, body);
+			foreach (DigestAlgorithm digest in Enum.GetValues (typeof (DigestAlgorithm))) {
+				if (digest == DigestAlgorithm.None ||
+					digest == DigestAlgorithm.DoubleSha ||
+					digest == DigestAlgorithm.Tiger192 ||
+					digest == DigestAlgorithm.Haval5160 ||
+					digest == DigestAlgorithm.MD4)
+					continue;
 
-			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+				var multipart = MultipartSigned.Create (signer, digest, body);
 
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
+				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
 
-			var signatures = multipart.Verify ();
-			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-			foreach (var signature in signatures) {
-				try {
-					bool valid = signature.Verify ();
+				var micalg = multipart.ContentType.Parameters["micalg"];
+				Assert.AreEqual ("pgp-" + digest.ToString ().ToLowerInvariant (), micalg, "The multipart/signed micalg does not match.");
 
-					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+
+				var signatures = multipart.Verify ();
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
 				}
 			}
 		}
@@ -377,31 +389,24 @@ namespace UnitTests {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-				if (algorithm == EncryptionAlgorithm.RC240 ||
-					algorithm == EncryptionAlgorithm.RC264 || 
-					algorithm == EncryptionAlgorithm.RC2128)
-					continue;
-				
-				var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, algorithm, new [] { self }, body);
+			var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new [] { self }, body);
 
-				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
-				//	encrypted.WriteTo (file);
+			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
+			//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt (out signatures);
+			var decrypted = encrypted.Decrypt (out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 
-				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
-					}
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					Assert.Fail ("Failed to verify signature: {0}", ex);
 				}
 			}
 		}
@@ -420,31 +425,24 @@ namespace UnitTests {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-				if (algorithm == EncryptionAlgorithm.RC240 ||
-					algorithm == EncryptionAlgorithm.RC264 || 
-					algorithm == EncryptionAlgorithm.RC2128)
-					continue;
-				
-				var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, algorithm, recipients, body);
+			var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
 
-				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
-				//	encrypted.WriteTo (file);
+			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
+			//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt (out signatures);
+			var decrypted = encrypted.Decrypt (out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 
-				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
-					}
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					Assert.Fail ("Failed to verify signature: {0}", ex);
 				}
 			}
 		}

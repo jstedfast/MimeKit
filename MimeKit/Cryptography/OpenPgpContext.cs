@@ -47,7 +47,109 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
-		EncryptionAlgorithm defaultAlgorithm = EncryptionAlgorithm.Cast5;
+		EncryptionAlgorithm defaultAlgorithm;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
+		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
+		/// <see cref="SecretKeyRingBundle"/> properties themselves.
+		/// </remarks>
+		protected OpenPgpContext ()
+		{
+			defaultAlgorithm = EncryptionAlgorithm.Cast5;
+		}
+
+#if PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyrings.
+		/// </remarks>
+		/// <param name="pubring">The public keyring.</param>
+		/// <param name="secring">The secret keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="pubring"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="secring"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading one of the keyring files.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred while parsing one of the keyring files.
+		/// </exception>
+		protected OpenPgpContext (Stream pubring, Stream secring) : this ()
+		{
+			if (pubring == null)
+				throw new ArgumentNullException ("pubring");
+
+			if (secring == null)
+				throw new ArgumentNullException ("secring");
+
+			PublicKeyRing = pubring;
+			SecretKeyRing = secring;
+
+			PublicKeyRingBundle = new PgpPublicKeyRingBundle (pubring);
+			SecretKeyRingBundle = new PgpSecretKeyRingBundle (secring);
+
+			if (pubring.CanSeek)
+				pubring.Seek (0, SeekOrigin.Begin);
+
+			if (secring.CanSeek)
+				secring.Seek (0, SeekOrigin.Begin);
+		}
+#else
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyring paths.
+		/// </remarks>
+		/// <param name="pubring">The public keyring file path.</param>
+		/// <param name="secring">The secret keyring file path.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="pubring"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="secring"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading one of the keyring files.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred while parsing one of the keyring files.
+		/// </exception>
+		protected OpenPgpContext (string pubring, string secring) : this ()
+		{
+			if (pubring == null)
+				throw new ArgumentNullException ("pubring");
+
+			if (secring == null)
+				throw new ArgumentNullException ("secring");
+
+			PublicKeyRingPath = pubring;
+			SecretKeyRingPath = secring;
+
+			if (File.Exists (pubring)) {
+				using (var file = File.OpenRead (pubring)) {
+					PublicKeyRingBundle = new PgpPublicKeyRingBundle (file);
+				}
+			} else {
+				PublicKeyRingBundle = new PgpPublicKeyRingBundle (new byte[0]);
+			}
+
+			if (File.Exists (secring)) {
+				using (var file = File.OpenRead (secring)) {
+					SecretKeyRingBundle = new PgpSecretKeyRingBundle (file);
+				}
+			} else {
+				SecretKeyRingBundle = new PgpSecretKeyRingBundle (new byte[0]);
+			}
+		}
+#endif
 
 		/// <summary>
 		/// Gets or sets the default encryption algorithm.
@@ -273,107 +375,6 @@ namespace MimeKit.Cryptography {
 			case "pgp-md4":         return DigestAlgorithm.MD4;
 			default:                return DigestAlgorithm.None;
 			}
-		}
-
-#if PORTABLE
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyrings.
-		/// </remarks>
-		/// <param name="pubring">The public keyring.</param>
-		/// <param name="secring">The secret keyring.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="pubring"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="secring"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An error occurred while reading one of the keyring files.
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
-		/// An error occurred while parsing one of the keyring files.
-		/// </exception>
-		protected OpenPgpContext (Stream pubring, Stream secring)
-		{
-			if (pubring == null)
-				throw new ArgumentNullException ("pubring");
-
-			if (secring == null)
-				throw new ArgumentNullException ("secring");
-
-			PublicKeyRing = pubring;
-			SecretKeyRing = secring;
-
-			PublicKeyRingBundle = new PgpPublicKeyRingBundle (pubring);
-			SecretKeyRingBundle = new PgpSecretKeyRingBundle (secring);
-
-			if (pubring.CanSeek)
-				pubring.Seek (0, SeekOrigin.Begin);
-
-			if (secring.CanSeek)
-				secring.Seek (0, SeekOrigin.Begin);
-		}
-#else
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyring paths.
-		/// </remarks>
-		/// <param name="pubring">The public keyring file path.</param>
-		/// <param name="secring">The secret keyring file path.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="pubring"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="secring"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An error occurred while reading one of the keyring files.
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
-		/// An error occurred while parsing one of the keyring files.
-		/// </exception>
-		protected OpenPgpContext (string pubring, string secring)
-		{
-			if (pubring == null)
-				throw new ArgumentNullException ("pubring");
-
-			if (secring == null)
-				throw new ArgumentNullException ("secring");
-
-			PublicKeyRingPath = pubring;
-			SecretKeyRingPath = secring;
-
-			if (File.Exists (pubring)) {
-				using (var file = File.OpenRead (pubring)) {
-					PublicKeyRingBundle = new PgpPublicKeyRingBundle (file);
-				}
-			} else {
-				PublicKeyRingBundle = new PgpPublicKeyRingBundle (new byte[0]);
-			}
-
-			if (File.Exists (secring)) {
-				using (var file = File.OpenRead (secring)) {
-					SecretKeyRingBundle = new PgpSecretKeyRingBundle (file);
-				}
-			} else {
-				SecretKeyRingBundle = new PgpSecretKeyRingBundle (new byte[0]);
-			}
-		}
-#endif
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
-		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
-		/// <see cref="SecretKeyRingBundle"/> properties themselves.
-		/// </remarks>
-		protected OpenPgpContext ()
-		{
 		}
 
 		static string HexEncode (byte[] data)
@@ -668,8 +669,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="digestAlgo"/> is out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <paramref name="digestAlgo"/> does not have an equivalent
-		/// <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> value.
+		/// <paramref name="digestAlgo"/> is not a supported digest algorithm.
 		/// </exception>
 		public static HashAlgorithmTag GetHashAlgorithm (DigestAlgorithm digestAlgo)
 		{
@@ -677,15 +677,15 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.MD5:       return HashAlgorithmTag.MD5;
 			case DigestAlgorithm.Sha1:      return HashAlgorithmTag.Sha1;
 			case DigestAlgorithm.RipeMD160: return HashAlgorithmTag.RipeMD160;
-			case DigestAlgorithm.DoubleSha: return HashAlgorithmTag.DoubleSha;
+			case DigestAlgorithm.DoubleSha: throw new NotSupportedException ("The Double SHA digest algorithm is not supported.");
 			case DigestAlgorithm.MD2:       return HashAlgorithmTag.MD2;
-			case DigestAlgorithm.Tiger192:  return HashAlgorithmTag.Tiger192;
-			case DigestAlgorithm.Haval5160: return HashAlgorithmTag.Haval5pass160;
+			case DigestAlgorithm.Tiger192:  throw new NotSupportedException ("The Tiger-192 digest algorithm is not supported.");
+			case DigestAlgorithm.Haval5160: throw new NotSupportedException ("The HAVAL 5 160 digest algorithm is not supported.");
 			case DigestAlgorithm.Sha256:    return HashAlgorithmTag.Sha256;
 			case DigestAlgorithm.Sha384:    return HashAlgorithmTag.Sha384;
 			case DigestAlgorithm.Sha512:    return HashAlgorithmTag.Sha512;
 			case DigestAlgorithm.Sha224:    return HashAlgorithmTag.Sha224;
-			case DigestAlgorithm.MD4: throw new NotSupportedException ("The MD4 digest algorithm is not supported.");
+			case DigestAlgorithm.MD4:       throw new NotSupportedException ("The MD4 digest algorithm is not supported.");
 			default: throw new ArgumentOutOfRangeException ("digestAlgo");
 			}
 		}
