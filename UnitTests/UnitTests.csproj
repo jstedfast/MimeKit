@@ -86,6 +86,7 @@
     <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlPreviewVisitor.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />
+    <Compile Include="HtmlUtilsTests.cs" />
     <Compile Include="HtmlWriterTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="InternetAddressTests.cs" />
