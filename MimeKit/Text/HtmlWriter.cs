@@ -406,7 +406,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			EncodeAttributeName (id.ToString ());
+			EncodeAttributeName (id.ToAttributeName ());
 		}
 
 		/// <summary>

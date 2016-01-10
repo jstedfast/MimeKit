@@ -1,0 +1,6 @@
+Tag: <html>
+Data: \n  
+Tag: <body>
+Data: \n    
+Tag: <plaintext>
+Data: This is some plain text and should not need to have <'s and >'s encoded as entities within.\n\n    Tags and end tags such as <b>BOLD!</b> </body> should have no effect in here.\n\n    The <plaintext> tag is very much like the Hotel California.\n\n    "Relax", said the nightman. "We are programmed to receive. You can checkout anytime you like, but you can never leave."\n\n    Once you enter a </plaintext> tag, you can never leave.\n

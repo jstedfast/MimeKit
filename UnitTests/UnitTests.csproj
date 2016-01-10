@@ -82,9 +82,11 @@
     <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
+    <Compile Include="HtmlAttributeTests.cs" />
     <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlPreviewVisitor.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />
+    <Compile Include="HtmlWriterTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="InternetAddressTests.cs" />
     <Compile Include="MailboxAddressTests.cs" />
@@ -129,6 +131,8 @@
     <None Include="TestData\html\papercut.tokens" />
     <None Include="TestData\html\papercut-4.4.html" />
     <None Include="TestData\html\papercut-4.4.tokens" />
+    <None Include="TestData\html\plaintext.html" />
+    <None Include="TestData\html\plaintext.tokens" />
     <None Include="TestData\html\script-data.html" />
     <None Include="TestData\html\script-data.tokens" />
     <None Include="TestData\html\test.html" />

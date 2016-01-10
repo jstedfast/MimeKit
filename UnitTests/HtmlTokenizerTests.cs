@@ -58,8 +58,11 @@ namespace UnitTests {
 
 		static void VerifyHtmlTokenizerOutput (string path)
 		{
+			var outpath = Path.ChangeExtension (path, ".out.html");
 			var tokens = Path.ChangeExtension (path, ".tokens");
+			var expectedOutput = File.Exists (outpath) ? File.ReadAllText (outpath).Replace ("\r\n", "\n") : string.Empty;
 			var expected = File.Exists (tokens) ? File.ReadAllText (tokens).Replace ("\r\n", "\n") : string.Empty;
+			var output = new StringBuilder ();
 			var actual = new StringBuilder ();
 
 			using (var textReader = File.OpenText (path)) {
@@ -69,6 +72,8 @@ namespace UnitTests {
 				Assert.AreEqual (HtmlTokenizerState.Data, tokenizer.TokenizerState);
 
 				while (tokenizer.ReadNextToken (out token)) {
+					output.Append (token.ToString ());
+
 					actual.AppendFormat ("{0}: ", token.Kind);
 
 					switch (token.Kind) {
@@ -143,7 +148,11 @@ namespace UnitTests {
 			if (!File.Exists (tokens))
 				File.WriteAllText (tokens, actual.ToString ());
 
+			if (!File.Exists (outpath))
+				File.WriteAllText (outpath, output.ToString ());
+
 			Assert.AreEqual (expected, actual.ToString (), "The token stream does not match the expected tokens.");
+			Assert.AreEqual (expectedOutput, output.ToString (), "The output stream does not match the expected output.");
 		}
 
 		[Test]
@@ -186,6 +195,12 @@ namespace UnitTests {
 		public void TestTokenizer ()
 		{
 			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "test.html"));
+		}
+
+		[Test]
+		public void TestPlainText ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "plaintext.html"));
 		}
 
 		[Test]
