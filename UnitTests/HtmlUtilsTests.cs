@@ -110,5 +110,98 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, 0, text.Length + 1));
 		}
+
+		static void AssertHtmlAttributeEncode (string text, string expected)
+		{
+			string encoded;
+
+			encoded = HtmlUtils.HtmlAttributeEncode (text);
+			Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(string)");
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlAttributeEncode (writer, text);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(TextWriter,string)");
+			}
+
+			encoded = HtmlUtils.HtmlAttributeEncode (text, 0, text.Length);
+			Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(string,int,int)");
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlAttributeEncode (writer, text, 0, text.Length);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(TextWriter,string,int,int)");
+			}
+
+			encoded = HtmlUtils.HtmlAttributeEncode (text.ToCharArray (), 0, text.Length);
+			Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(char[],int,int)");
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlAttributeEncode (writer, text.ToCharArray (), 0, text.Length);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlAttributeEncode(TextWriter,char[],int,int)");
+			}
+		}
+
+		static void AssertHtmlEncode (string text, string expected)
+		{
+			string encoded, decoded;
+
+			encoded = HtmlUtils.HtmlEncode (text);
+			Assert.AreEqual (expected, encoded, "HtmlEncode(string)");
+
+			encoded = HtmlUtils.HtmlEncode (text, 0, text.Length);
+			Assert.AreEqual (expected, encoded, "HtmlEncode(string,int,int)");
+
+			encoded = HtmlUtils.HtmlEncode (text.ToCharArray (), 0, text.Length);
+			Assert.AreEqual (expected, encoded, "HtmlEncode(char[],int,int)");
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlEncode (writer, text);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlEncode(TextWriter,string)");
+			}
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlEncode (writer, text, 0, text.Length);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlEncode(TextWriter,string,int,int)");
+			}
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlEncode (writer, text.ToCharArray (), 0, text.Length);
+				encoded = writer.ToString ();
+				Assert.AreEqual (expected, encoded, "HtmlEncode(TextWriter,char[],int,int)");
+			}
+
+			decoded = HtmlUtils.HtmlDecode (encoded);
+			Assert.AreEqual (text, decoded, "HtmlDecode(string)");
+
+			decoded = HtmlUtils.HtmlDecode (encoded, 0, encoded.Length);
+			Assert.AreEqual (text, decoded, "HtmlDecode(string,int,int)");
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlDecode (writer, encoded);
+				decoded = writer.ToString ();
+				Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string)");
+			}
+
+			using (var writer = new StringWriter ()) {
+				HtmlUtils.HtmlDecode (writer, encoded, 0, encoded.Length);
+				decoded = writer.ToString ();
+				Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string,int,int)");
+			}
+		}
+
+		[Test]
+		public void TestEncode ()
+		{
+			const string attributeValue = "\"if (showJapaneseText &amp;&amp; x &lt;= 1)\ttext = '&#29378;&#12387;&#12383;&#12371;&#12398;&#19990;&#12391;&#29378;&#12358;&#12394;&#12425;&#27671;&#12399;&#30906;&#12363;&#12384;&#12290;';\"";
+			const string encoded = "if (showJapaneseText &amp;&amp; x &lt;= 1)\ttext = &#39;狂ったこの世で狂うなら気は確かだ。&#39;;";
+			const string text = "if (showJapaneseText && x <= 1)\ttext = '狂ったこの世で狂うなら気は確かだ。';";
+
+			AssertHtmlAttributeEncode (text, attributeValue);
+			AssertHtmlEncode (text, encoded);
+		}
 	}
 }

@@ -58,11 +58,14 @@ namespace MimeKit.Text {
 		static int IndexOfHtmlEncodeAttributeChar (ICharArray value, int startIndex, int endIndex, char quote)
 		{
 			for (int i = startIndex; i < endIndex; i++) {
-				switch (value[i]) {
+				char c = value[i];
+
+				switch (c) {
+				case '\t': case '\r': case '\n': case '\f': break;
 				case '&': case '<': case '>':
 					return i;
 				default:
-					if (value[i] == quote)
+					if (c == quote || c < 32 || c >= 127)
 						return i;
 					break;
 				}
@@ -91,7 +94,7 @@ namespace MimeKit.Text {
 
 			while (index < endIndex) {
 				char c = value[index++];
-				int unichar, nextIndex;
+				int unichar;
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': output.Write (c); break;
@@ -124,14 +127,6 @@ namespace MimeKit.Text {
 
 					output.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
 					break;
-				}
-
-				if (index >= endIndex)
-					break;
-
-				if ((nextIndex = IndexOfHtmlEncodeAttributeChar (value, index, endIndex, quote)) > index) {
-					value.Write (output, index, nextIndex - index);
-					index = nextIndex;
 				}
 			}
 
