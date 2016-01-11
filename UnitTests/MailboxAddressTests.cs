@@ -357,7 +357,7 @@ namespace UnitTests {
 			mailbox.Route.Add ("forward.com");
 			mailbox.Route.Add ("geek.net");
 
-			Assert.AreEqual (expected, mailbox.ToString (true), "Encoded mailbox does not match.");
+			Assert.AreEqual (expected, mailbox.ToString (true).Replace ("\r\n", "\n"), "Encoded mailbox does not match.");
 
 			AssertParse (expected);
 		}
