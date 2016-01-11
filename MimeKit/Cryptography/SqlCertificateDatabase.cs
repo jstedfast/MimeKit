@@ -550,9 +550,10 @@ namespace MimeKit.Cryptography {
 			if (disposing && !disposed) {
 				if (connection != null)
 					connection.Dispose ();
+				disposed = true;
 			}
 
-			disposed = true;
+			base.Dispose (disposing);
 		}
 	}
 }
