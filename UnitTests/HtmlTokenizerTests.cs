@@ -65,7 +65,7 @@ namespace UnitTests {
 			var output = new StringBuilder ();
 			var actual = new StringBuilder ();
 
-			using (var textReader = File.OpenText (path)) {
+			using (var textReader = new StreamReader (path, Encoding.GetEncoding (1252))) {
 				var tokenizer = new HtmlTokenizer (textReader);
 				HtmlToken token;
 

@@ -3,7 +3,7 @@ Data: \n
 Tag: <html lang="en-US-x-hixie" class="split chapter">
 Tag: <head>
 Tag: <title>
-Data: 12.2.4 Tokenization � HTML Standard
+Data: 12.2.4 Tokenization — HTML Standard
 Tag: </title>
 Tag: <script>
 ScriptData: \n   var loadTimer = new Date();\n   var current_revision = "r" + "$Revision: 7024 $".substr(11);\n   current_revision = current_revision.substr(0, current_revision.length - 2);\n   var last_known_revision = current_revision;\n   function getCookie(name) {\n     var params = location.search.substr(1).split("&");\n     for (var index = 0; index 
@@ -49,7 +49,7 @@ Data: HTML
 Tag: </h1>
 Data: \n    
 Tag: <h2 class="no-num no-toc">
-Data: Living Standard � Last Updated 10 March 2012
+Data: Living Standard — Last Updated 10 March 2012
 Tag: </h2>
 Data: \n   
 Tag: </hgroup>
@@ -59,11 +59,11 @@ Data: \n
 Tag: <a href="parsing.html">
 Data: ? 12.2 Parsing HTML documents
 Tag: </a>
-Data:  �\n   
+Data:  –\n   
 Tag: <a href="index.html#contents">
 Data: Table of contents
 Tag: </a>
-Data:  �\n   
+Data:  –\n   
 Tag: <a href="tree-construction.html">
 Data: 12.2.5 Tree construction ?
 Tag: </a>
@@ -7518,7 +7518,7 @@ Tag: <td>
 Data: U+20AC 
 Tag: </td>
 Tag: <td>
-Data: EURO SIGN (�)\n      
+Data: EURO SIGN (€)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7540,7 +7540,7 @@ Tag: <td>
 Data: U+201A 
 Tag: </td>
 Tag: <td>
-Data: SINGLE LOW-9 QUOTATION MARK (�)\n      
+Data: SINGLE LOW-9 QUOTATION MARK (‚)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7551,7 +7551,7 @@ Tag: <td>
 Data: U+0192 
 Tag: </td>
 Tag: <td>
-Data: LATIN SMALL LETTER F WITH HOOK (�)\n      
+Data: LATIN SMALL LETTER F WITH HOOK (ƒ)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7562,7 +7562,7 @@ Tag: <td>
 Data: U+201E 
 Tag: </td>
 Tag: <td>
-Data: DOUBLE LOW-9 QUOTATION MARK (�)\n      
+Data: DOUBLE LOW-9 QUOTATION MARK („)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7573,7 +7573,7 @@ Tag: <td>
 Data: U+2026 
 Tag: </td>
 Tag: <td>
-Data: HORIZONTAL ELLIPSIS (�)\n      
+Data: HORIZONTAL ELLIPSIS (…)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7584,7 +7584,7 @@ Tag: <td>
 Data: U+2020 
 Tag: </td>
 Tag: <td>
-Data: DAGGER (�)\n      
+Data: DAGGER (†)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7595,7 +7595,7 @@ Tag: <td>
 Data: U+2021 
 Tag: </td>
 Tag: <td>
-Data: DOUBLE DAGGER (�)\n      
+Data: DOUBLE DAGGER (‡)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7606,7 +7606,7 @@ Tag: <td>
 Data: U+02C6 
 Tag: </td>
 Tag: <td>
-Data: MODIFIER LETTER CIRCUMFLEX ACCENT (�)\n      
+Data: MODIFIER LETTER CIRCUMFLEX ACCENT (ˆ)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7617,7 +7617,7 @@ Tag: <td>
 Data: U+2030 
 Tag: </td>
 Tag: <td>
-Data: PER MILLE SIGN (�)\n      
+Data: PER MILLE SIGN (‰)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7628,7 +7628,7 @@ Tag: <td>
 Data: U+0160 
 Tag: </td>
 Tag: <td>
-Data: LATIN CAPITAL LETTER S WITH CARON (�)\n      
+Data: LATIN CAPITAL LETTER S WITH CARON (Š)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7639,7 +7639,7 @@ Tag: <td>
 Data: U+2039 
 Tag: </td>
 Tag: <td>
-Data: SINGLE LEFT-POINTING ANGLE QUOTATION MARK (�)\n      
+Data: SINGLE LEFT-POINTING ANGLE QUOTATION MARK (‹)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7650,7 +7650,7 @@ Tag: <td>
 Data: U+0152 
 Tag: </td>
 Tag: <td>
-Data: LATIN CAPITAL LIGATURE OE (�)\n      
+Data: LATIN CAPITAL LIGATURE OE (Œ)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7672,7 +7672,7 @@ Tag: <td>
 Data: U+017D 
 Tag: </td>
 Tag: <td>
-Data: LATIN CAPITAL LETTER Z WITH CARON (�)\n      
+Data: LATIN CAPITAL LETTER Z WITH CARON (Ž)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7705,7 +7705,7 @@ Tag: <td>
 Data: U+2018 
 Tag: </td>
 Tag: <td>
-Data: LEFT SINGLE QUOTATION MARK (�)\n      
+Data: LEFT SINGLE QUOTATION MARK (‘)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7716,7 +7716,7 @@ Tag: <td>
 Data: U+2019 
 Tag: </td>
 Tag: <td>
-Data: RIGHT SINGLE QUOTATION MARK (�)\n      
+Data: RIGHT SINGLE QUOTATION MARK (’)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7727,7 +7727,7 @@ Tag: <td>
 Data: U+201C 
 Tag: </td>
 Tag: <td>
-Data: LEFT DOUBLE QUOTATION MARK (�)\n      
+Data: LEFT DOUBLE QUOTATION MARK (“)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7738,7 +7738,7 @@ Tag: <td>
 Data: U+201D 
 Tag: </td>
 Tag: <td>
-Data: RIGHT DOUBLE QUOTATION MARK (�)\n      
+Data: RIGHT DOUBLE QUOTATION MARK (”)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7749,7 +7749,7 @@ Tag: <td>
 Data: U+2022 
 Tag: </td>
 Tag: <td>
-Data: BULLET (�)\n      
+Data: BULLET (•)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7760,7 +7760,7 @@ Tag: <td>
 Data: U+2013 
 Tag: </td>
 Tag: <td>
-Data: EN DASH (�)\n      
+Data: EN DASH (–)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7771,7 +7771,7 @@ Tag: <td>
 Data: U+2014 
 Tag: </td>
 Tag: <td>
-Data: EM DASH (�)\n      
+Data: EM DASH (—)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7782,7 +7782,7 @@ Tag: <td>
 Data: U+02DC 
 Tag: </td>
 Tag: <td>
-Data: SMALL TILDE (�)\n      
+Data: SMALL TILDE (˜)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7793,7 +7793,7 @@ Tag: <td>
 Data: U+2122 
 Tag: </td>
 Tag: <td>
-Data: TRADE MARK SIGN (�)\n      
+Data: TRADE MARK SIGN (™)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7804,7 +7804,7 @@ Tag: <td>
 Data: U+0161 
 Tag: </td>
 Tag: <td>
-Data: LATIN SMALL LETTER S WITH CARON (�)\n      
+Data: LATIN SMALL LETTER S WITH CARON (š)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7815,7 +7815,7 @@ Tag: <td>
 Data: U+203A 
 Tag: </td>
 Tag: <td>
-Data: SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (�)\n      
+Data: SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (›)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7826,7 +7826,7 @@ Tag: <td>
 Data: U+0153 
 Tag: </td>
 Tag: <td>
-Data: LATIN SMALL LIGATURE OE (�)\n      
+Data: LATIN SMALL LIGATURE OE (œ)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7848,7 +7848,7 @@ Tag: <td>
 Data: U+017E 
 Tag: </td>
 Tag: <td>
-Data: LATIN SMALL LETTER Z WITH CARON (�)\n      
+Data: LATIN SMALL LETTER Z WITH CARON (ž)\n      
 Tag: </td>
 Tag: </tr>
 Tag: <tr>
@@ -7859,7 +7859,7 @@ Tag: <td>
 Data: U+0178 
 Tag: </td>
 Tag: <td>
-Data: LATIN CAPITAL LETTER Y WITH DIAERESIS (�)\n    
+Data: LATIN CAPITAL LETTER Y WITH DIAERESIS (Ÿ)\n    
 Tag: </td>
 Tag: </tr>
 Tag: </tbody>
@@ -7962,7 +7962,7 @@ Data: I'm &notit; I tell you
 Tag: </code>
 Data: , the character\n     reference is parsed as "not", as in, 
 Tag: <code title="">
-Data: I'm �it;\n     I tell you
+Data: I'm ¬it;\n     I tell you
 Tag: </code>
 Data:  (and this is a parse error). But if the markup\n     was 
 Tag: <code title="">
