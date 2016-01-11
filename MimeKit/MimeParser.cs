@@ -1224,7 +1224,6 @@ namespace MimeKit {
 		{
 			using (var memory = new MemoryStream ()) {
 				var found = ScanContent (inbuf, memory, true);
-
 				multipart.RawEpilogue = memory.ToArray ();
 				return found;
 			}
@@ -1297,6 +1296,7 @@ namespace MimeKit {
 
 			if (found == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
+				multipart.WriteEndBoundary = true;
 				SkipLine (inbuf, false);
 				PopBoundary ();
 

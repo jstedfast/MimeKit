@@ -133,6 +133,7 @@ namespace MimeKit {
 		{
 			ContentType.Parameters["boundary"] = GenerateBoundary ();
 			children = new List<MimeEntity> ();
+			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -256,12 +257,24 @@ namespace MimeKit {
 				if (value != null) {
 					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value, true);
 					RawEpilogue = Encoding.UTF8.GetBytes (folded);
+					WriteEndBoundary = true;
 					epilogue = null;
 				} else {
 					RawEpilogue = null;
 					epilogue = null;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Gets or sets whether the end boundary should be written.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether the end boundary should be written.
+		/// </remarks>
+		/// <value><c>true</c> if the end boundary should be written; otherwise, <c>false</c>.</value>
+		internal bool WriteEndBoundary {
+			get; set;
 		}
 
 		/// <summary>
@@ -423,15 +436,22 @@ namespace MimeKit {
 
 			if (cancellable != null) {
 				for (int i = 0; i < children.Count; i++) {
+					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
 					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if (part == null || (part.ContentObject != null && part.ContentObject.Stream.Length != 0))
-						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					if ((part != null && ContentObject.IsNullOrEmpty (part.ContentObject)) ||
+						(multi != null && !multi.WriteEndBoundary))
+						continue;
+
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
+
+				if (!WriteEndBoundary)
+					return;
 
 				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
 
@@ -439,6 +459,7 @@ namespace MimeKit {
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				for (int i = 0; i < children.Count; i++) {
+					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
 					cancellationToken.ThrowIfCancellationRequested ();
@@ -446,15 +467,23 @@ namespace MimeKit {
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if (part == null || (part.ContentObject != null && part.ContentObject.Stream.Length != 0))
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					if ((part != null && ContentObject.IsNullOrEmpty (part.ContentObject)) ||
+						(multi != null && !multi.WriteEndBoundary))
+						continue;
+
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
+
+				if (!WriteEndBoundary)
+					return;
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length);
 
-				if (RawEpilogue == null)
+				if (RawEpilogue == null) {
+					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
 			}
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
