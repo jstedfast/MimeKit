@@ -101,8 +101,6 @@ Content-Transfer-Encoding: quoted-printable
 <nl>
 Just for fun....  -- Nathaniel<nl>
 
---Alternative.Boundary.IeCBvV20M2Yt4oU=wd--
-
 --Interpart.Boundary.IeCBvV20M2YtEoUA0A--
 ".Replace ("\r\n", "\n");
 			string result;
