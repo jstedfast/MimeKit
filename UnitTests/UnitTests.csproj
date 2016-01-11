@@ -119,6 +119,7 @@
     <None Include="TestData\dkim\example.tinydns" />
     <None Include="TestData\dkim\gmail.msg" />
     <None Include="TestData\dkim\gmail.pub" />
+    <None Include="TestData\dkim\multipart-no-end-boundary.msg" />
     <None Include="TestData\dkim\related.msg" />
     <None Include="TestData\encoders\photo.b64" />
     <None Include="TestData\encoders\photo.jpg" />
