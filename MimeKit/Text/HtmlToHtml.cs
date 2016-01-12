@@ -50,7 +50,7 @@ namespace MimeKit.Text {
 		//		"p",
 		//		"td",
 		//		"tr"
-		//	}, StringComparer.OrdinalIgnoreCase);
+		//	}, MimeUtils.OrdinalIgnoreCase);
 		//}
 
 		/// <summary>

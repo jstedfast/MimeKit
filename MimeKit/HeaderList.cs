@@ -36,6 +36,7 @@ using Encoding = Portable.Text.Encoding;
 #endif
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -56,7 +57,7 @@ namespace MimeKit {
 
 		internal HeaderList (ParserOptions options)
 		{
-			table = new Dictionary<string, Header> (StringComparer.OrdinalIgnoreCase);
+			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
 			headers = new List<Header> ();
 			Options = options;
 		}

@@ -29,6 +29,8 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Text {
 	/// <summary>
 	/// HTML tag identifiers.
@@ -740,7 +742,7 @@ namespace MimeKit.Text {
 		{
 			var values = (HtmlTagId[]) Enum.GetValues (typeof (HtmlTagId));
 
-			TagNameToId = new Dictionary<string, HtmlTagId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+			TagNameToId = new Dictionary<string, HtmlTagId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
 			for (int i = 0; i < values.Length - 1; i++)
 				TagNameToId.Add (values[i].ToHtmlTagName (), values[i]);

@@ -27,6 +27,8 @@
 using System;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	/// <summary>
 	/// A mapping of file name extensions to the corresponding MIME-type.
@@ -40,7 +42,7 @@ namespace MimeKit {
 
 		static MimeTypes ()
 		{
-			mimeTypes = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
+			mimeTypes = new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase);
 			mimeTypes.Add ("323", "text/h323");
 			mimeTypes.Add ("3dmf", "x-world/x-3dmf");
 			mimeTypes.Add ("3dm", "x-world/x-3dmf");

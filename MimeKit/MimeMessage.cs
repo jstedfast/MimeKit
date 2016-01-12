@@ -84,7 +84,7 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (StringComparer.OrdinalIgnoreCase);
+			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
 
 			// initialize our address lists
@@ -111,7 +111,7 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (StringComparer.OrdinalIgnoreCase);
+			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
 
 			// initialize our address lists

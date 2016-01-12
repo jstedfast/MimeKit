@@ -59,7 +59,7 @@ namespace MimeKit {
 		/// </remarks>
 		public ParameterList ()
 		{
-			table = new Dictionary<string, Parameter> (StringComparer.OrdinalIgnoreCase);
+			table = new Dictionary<string, Parameter> (MimeUtils.OrdinalIgnoreCase);
 			parameters = new List<Parameter> ();
 		}
 
@@ -931,7 +931,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
 		{
-			var rfc2231 = new Dictionary<string, List<NameValuePair>> (StringComparer.OrdinalIgnoreCase);
+			var rfc2231 = new Dictionary<string, List<NameValuePair>> (MimeUtils.OrdinalIgnoreCase);
 			var @params = new List<NameValuePair> ();
 			List<NameValuePair> parts;
 

@@ -30,6 +30,8 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	/// <summary>
 	/// An enumeration of common header fields.
@@ -455,7 +457,7 @@ namespace MimeKit {
 		{
 			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
 
-			dict = new Dictionary<string, HeaderId> (values.Length - 1, StringComparer.OrdinalIgnoreCase);
+			dict = new Dictionary<string, HeaderId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
 			for (int i = 0; i < values.Length - 1; i++)
 				dict.Add (values[i].ToHeaderName (), values[i]);

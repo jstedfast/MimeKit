@@ -47,6 +47,14 @@ namespace MimeKit.Utils {
 #endif
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+		/// <summary>
+		/// A string comparer that performs a case-insensitive ordinal string comparison.
+		/// </summary>
+		/// <remarks>
+		/// A string comparer that performs a case-insensitive ordinal string comparison.
+		/// </remarks>
+		public static readonly IEqualityComparer<string> OrdinalIgnoreCase = new OptimizedOrdinalIgnoreCaseComparer ();
+
 		internal static void GetRandomBytes (byte[] buffer)
 		{
 #if NET_3_5

@@ -189,6 +189,7 @@
     <Compile Include="Utils\Crc32.cs" />
     <Compile Include="Utils\DateUtils.cs" />
     <Compile Include="Utils\MimeUtils.cs" />
+    <Compile Include="Utils\OptimizedOrdinalComparer.cs" />
     <Compile Include="Utils\PackedByteArray.cs" />
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
