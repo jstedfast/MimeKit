@@ -43,7 +43,7 @@ namespace UnitTests {
 			const string ReplacedContentId = "<content.id.2@localhost>";
 			var headers = new HeaderList ();
 
-			headers.Add ("Content-Disposition", "attachment");
+			headers.Add (HeaderId.ContentDisposition, "attachment");
 			headers.Add ("Content-Id", "<content-id.1@localhost>");
 			headers.Add ("Content-Location", "C:\\location");
 			headers.Insert (0, "Content-Type", "text/plain");
@@ -57,7 +57,7 @@ namespace UnitTests {
 			Assert.AreEqual (ReplacedContentDisposition, headers["Content-Disposition"], "Content-Disposition has unexpected value after replacing it.");
 			Assert.AreEqual (1, headers.IndexOf ("Content-Disposition"), "Replaced Content-Disposition not in the expected position.");
 
-			headers.Replace (HeaderId.ContentType, "UTF-8", ReplacedContentType);
+			headers.Replace (HeaderId.ContentType, ReplacedContentType);
 			Assert.AreEqual (4, headers.Count, "Unexpected number of headers after replacing Content-Type.");
 			Assert.AreEqual (ReplacedContentType, headers["Content-Type"], "Content-Type has unexpected value after replacing it.");
 			Assert.AreEqual (0, headers.IndexOf ("Content-Type"), "Replaced Content-Type not in the expected position.");
