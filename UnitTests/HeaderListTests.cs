@@ -43,9 +43,9 @@ namespace UnitTests {
 			const string ReplacedContentId = "<content.id.2@localhost>";
 			var headers = new HeaderList ();
 
-			headers.Add (HeaderId.ContentDisposition, "attachment");
-			headers.Add ("Content-Id", "<content-id.1@localhost>");
-			headers.Add ("Content-Location", "C:\\location");
+			headers.Add (HeaderId.ContentId, "<content-id.1@localhost>");
+			headers.Add ("Content-Location", "http://www.location.com");
+			headers.Insert (0, HeaderId.ContentDisposition, "attachment");
 			headers.Insert (0, "Content-Type", "text/plain");
 
 			Assert.IsTrue (headers.Contains (HeaderId.ContentType), "Expected the list of headers to contain HeaderId.ContentType.");
