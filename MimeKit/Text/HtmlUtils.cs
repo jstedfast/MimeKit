@@ -152,6 +152,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
 		/// a valid range in the value.
+		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="quote"/> is not a valid quote character.
 		/// </exception>
