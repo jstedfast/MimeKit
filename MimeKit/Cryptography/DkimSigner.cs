@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException ("selector");
 
-			AsymmetricKeyParameter key;
+			AsymmetricKeyParameter key = null;
 
 			using (var stream = File.OpenRead (fileName)) {
 				using (var reader = new StreamReader (stream)) {
