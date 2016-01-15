@@ -110,23 +110,25 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException ("obj");
 
 			unsafe {
-				fixed (char *src = obj) {
-					int hash1 = 5381;
-					int hash2 = hash1;
-					char *s = src;
-					int c;
+				unchecked {
+					fixed (char *src = obj) {
+						int hash1 = 5381;
+						int hash2 = hash1;
+						char *s = src;
+						int c;
 
-					while ((c = s[0]) != 0) {
-						hash1 = ((hash1 << 5) + hash1) ^ ToUpper (c);
+						while ((c = s[0]) != 0) {
+							hash1 = ((hash1 << 5) + hash1) ^ ToUpper (c);
 
-						if ((c = s[1]) == 0)
-							break;
+							if ((c = s[1]) == 0)
+								break;
 
-						hash2 = ((hash2 << 5) + hash2) ^ ToUpper (c);
-						s += 2;
+							hash2 = ((hash2 << 5) + hash2) ^ ToUpper (c);
+							s += 2;
+						}
+
+						return hash1 + (hash2 * 1566083941);
 					}
-
-					return hash1 + (hash2 * 1566083941);
 				}
 			}
 		}
