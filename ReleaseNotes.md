@@ -4,6 +4,26 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.20
+
+* Fixed a bug in the TnefPropertyReader that would break when not all properties were read
+  by the consumer of the API.
+* Fixed the InternetAddress parser to throw a more informative error when parsing broken
+  routes in mailboxes.
+* Added HeaderList.Add(*, Encoding, string) and .Insert(*, Encoding, string) methods.
+* Added more OpenPgpContext.Encrypt() overloads (and equivalent MultipartEncrypted overloads).
+* Fixed HtmlUtils.HtmlAttributeEncode() to properly encode non-ascii characters as entities.
+* Fixed HtmlUtils.HtmlEncode() to properly encode non-ascii characters as entities.
+* Fixed MimeParser to track whether or not each multipart had an end boundary so that
+  when they get reserialized, they match the original. (issue #218)
+* Implemented an optimized OrdinalIgnoreCase string comparer which improves the performance
+  of the MimeParser slightly.
+* Fixed QuotedPrintableDecoder to properly handle "==" sequences.
+* Added a ContentDisposition.TryParse(ParserOptions,string) method.
+* Added a ContentType.TryParse(ParserOptions,string) method.
+* Fixed MimeParser to trim the CR from the mbox From marker.
+* Fixed SqlCertificateDatabase to properly chain Dispose.
+
 ### MimeKit 1.2.19
 
 * Handle illegal Content-Id headers that do not enclose their values in <>'s. (issue #215)
