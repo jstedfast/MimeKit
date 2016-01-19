@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKit</id>
-		<version>1.3.0-beta5</version>
+		<version>1.3.0-beta6</version>
 		<title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -57,7 +57,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 		<group targetFramework="net45" />
 		<group targetFramework="MonoAndroid10" />
 		<group targetFramework="Xamarin.iOS10" />
-		<group targetFramework="dnxcore50">
+		<group targetFramework=".NETPlatform5.4">
 			<dependency id="System.Security.Cryptography.Algorithms" version="4.0.0-beta-23516" />
 			<dependency id="System.Security.Cryptography.Primitives" version="4.0.0-beta-23516" />
 			<dependency id="System.Runtime.Serialization.Primitives" version="4.1.0-beta-23516" />
@@ -85,8 +85,8 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 	</dependencies>
 	</metadata>
 	<files>
-		<file src="..\MimeKit\bin\Release\lib\corefx\Release\dnxcore50\MimeKit.dll" target="lib\dnxcore50\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\lib\corefx\Release\dnxcore50\MimeKit.xml" target="lib\dnxcore50\MimeKit.xml" />
+		<file src="..\MimeKit\bin\Release\lib\corefx\Release\dotnet5.4\MimeKit.dll" target="lib\dotnet5.4\MimeKit.dll" />
+		<file src="..\MimeKit\bin\Release\lib\corefx\Release\dotnet5.4\MimeKit.xml" target="lib\dotnet5.4\MimeKit.xml" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid10\BouncyCastle.dll" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid10\MimeKit.dll" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid10\MimeKit.xml" />
