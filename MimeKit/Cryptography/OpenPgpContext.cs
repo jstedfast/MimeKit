@@ -1812,7 +1812,9 @@ namespace MimeKit.Cryptography {
 		/// Imports secret pgp keys from the specified stream.
 		/// </summary>
 		/// <remarks>
-		/// Imports secret pgp keys from the specified stream.
+		/// <para>Imports secret pgp keys from the specified stream.</para>
+		/// <para>The stream should consist of an armored secret keyring bundle
+		/// containing 1 or more secret keys.</para>
 		/// </remarks>
 		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
