@@ -39,8 +39,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class PgpMimeTests
 	{
-		[SetUp]
-		public void SetUp ()
+		static PgpMimeTests ()
 		{
 			Environment.SetEnvironmentVariable ("GNUPGHOME", Path.GetFullPath ("."));
 			var dataDir = Path.Combine ("..", "..", "TestData", "openpgp");
@@ -60,11 +59,13 @@ namespace UnitTests {
 		public void TearDown ()
 		{
 			try {
+				File.Delete ("pubring.gpg~");
 				File.Delete ("pubring.gpg");
 			} catch {
 			}
 
 			try {
+				File.Delete ("secring.gpg~");
 				File.Delete ("secring.gpg");
 			} catch {
 			}
