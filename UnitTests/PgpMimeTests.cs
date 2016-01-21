@@ -529,7 +529,11 @@ namespace UnitTests {
 				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.None), "GetDigestAlgorithmName");
 
 				// Import
-				Assert.Throws<ArgumentNullException> (() => ctx.Import (null), "Import");
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null), "Import");
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpPublicKeyRing) null), "Import");
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpPublicKeyRingBundle) null), "Import");
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpSecretKeyRing) null), "Import");
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpSecretKeyRingBundle) null), "Import");
 
 				// ImportSecretKeys
 				Assert.Throws<ArgumentNullException> (() => ctx.ImportSecretKeys (null), "ImportSecretKeys");

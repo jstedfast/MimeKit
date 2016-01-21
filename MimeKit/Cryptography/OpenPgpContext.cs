@@ -1782,6 +1782,56 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Imports a public pgp keyring.
+		/// </summary>
+		/// <remarks>
+		/// Imports a public pgp keyring.
+		/// </remarks>
+		/// <param name="keyring">The pgp keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		public void Import (PgpPublicKeyRing keyring)
+		{
+			if (keyring == null)
+				throw new ArgumentNullException ("keyring");
+
+			if (PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId))
+				return;
+
+			PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
+			SavePublicKeyRingBundle ();
+		}
+
+		/// <summary>
+		/// Imports a public pgp keyring bundle.
+		/// </summary>
+		/// <remarks>
+		/// Imports a public pgp keyring bundle.
+		/// </remarks>
+		/// <param name="bundle">The pgp keyring bundle.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="bundle"/> is <c>null</c>.
+		/// </exception>
+		public void Import (PgpPublicKeyRingBundle bundle)
+		{
+			if (bundle == null)
+				throw new ArgumentNullException ("bundle");
+
+			int publicKeysAdded = 0;
+
+			foreach (PgpPublicKeyRing pubring in bundle.GetKeyRings ()) {
+				if (!PublicKeyRingBundle.Contains (pubring.GetPublicKey ().KeyId)) {
+					PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, pubring);
+					publicKeysAdded++;
+				}
+			}
+
+			if (publicKeysAdded > 0)
+				SavePublicKeyRingBundle ();
+		}
+
+		/// <summary>
 		/// Imports public pgp keys from the specified stream.
 		/// </summary>
 		/// <remarks>
@@ -1801,23 +1851,58 @@ namespace MimeKit.Cryptography {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			using (var armored = new ArmoredInputStream (stream)) {
-				var imported = new PgpPublicKeyRingBundle (armored);
-				if (imported.Count == 0)
-					return;
+			using (var armored = new ArmoredInputStream (stream))
+				Import (new PgpPublicKeyRingBundle (armored));
+		}
 
-				int publicKeysAdded = 0;
+		/// <summary>
+		/// Imports a secret pgp keyring.
+		/// </summary>
+		/// <remarks>
+		/// Imports a secret pgp keyring.
+		/// </remarks>
+		/// <param name="keyring">The pgp keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		public void Import (PgpSecretKeyRing keyring)
+		{
+			if (keyring == null)
+				throw new ArgumentNullException ("keyring");
 
-				foreach (PgpPublicKeyRing pubring in imported.GetKeyRings ()) {
-					if (!PublicKeyRingBundle.Contains (pubring.GetPublicKey ().KeyId)) {
-						PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, pubring);
-						publicKeysAdded++;
-					}
+			if (SecretKeyRingBundle.Contains (keyring.GetSecretKey ().KeyId))
+				return;
+
+			SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, keyring);
+			SaveSecretKeyRingBundle ();
+		}
+
+		/// <summary>
+		/// Imports a secret pgp keyring bundle.
+		/// </summary>
+		/// <remarks>
+		/// Imports a secret pgp keyring bundle.
+		/// </remarks>
+		/// <param name="bundle">The pgp keyring bundle.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="bundle"/> is <c>null</c>.
+		/// </exception>
+		public void Import (PgpSecretKeyRingBundle bundle)
+		{
+			if (bundle == null)
+				throw new ArgumentNullException ("bundle");
+
+			int secretKeysAdded = 0;
+
+			foreach (PgpSecretKeyRing secring in bundle.GetKeyRings ()) {
+				if (!SecretKeyRingBundle.Contains (secring.GetSecretKey ().KeyId)) {
+					SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, secring);
+					secretKeysAdded++;
 				}
-
-				if (publicKeysAdded > 0)
-					SavePublicKeyRingBundle ();
 			}
+
+			if (secretKeysAdded > 0)
+				SaveSecretKeyRingBundle ();
 		}
 
 		/// <summary>
@@ -1826,7 +1911,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Imports secret pgp keys from the specified stream.</para>
 		/// <para>The stream should consist of an armored secret keyring bundle
-		/// containing 1 or more secret keys.</para>
+		/// containing 1 or more secret keyrings.</para>
 		/// </remarks>
 		/// <param name="rawData">The raw key data.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1837,28 +1922,14 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>An error occured while saving the public key-ring bundle.</para>
 		/// </exception>
+		[Obsolete ("Use Import(PgpSecretKeyRingBundle) or Import(PgpSecretKeyRing)")]
 		public virtual void ImportSecretKeys (Stream rawData)
 		{
 			if (rawData == null)
 				throw new ArgumentNullException ("rawData");
 
-			using (var armored = new ArmoredInputStream (rawData)) {
-				var imported = new PgpSecretKeyRingBundle (armored);
-				if (imported.Count == 0)
-					return;
-
-				int secretKeysAdded = 0;
-
-				foreach (PgpSecretKeyRing secring in imported.GetKeyRings ()) {
-					if (!SecretKeyRingBundle.Contains (secring.GetSecretKey ().KeyId)) {
-						SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, secring);
-						secretKeysAdded++;
-					}
-				}
-
-				if (secretKeysAdded > 0)
-					SaveSecretKeyRingBundle ();
-			}
+			using (var armored = new ArmoredInputStream (rawData))
+				Import (new PgpSecretKeyRingBundle (armored));
 		}
 
 		/// <summary>
