@@ -46,28 +46,17 @@ namespace UnitTests {
 
 			CryptographyContext.Register (typeof (DummyOpenPgpContext));
 
+			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~" }) {
+				if (File.Exists (name))
+					File.Delete (name);
+			}
+
 			using (var ctx = new DummyOpenPgpContext ()) {
 				using (var seckeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.sec")))
 					ctx.ImportSecretKeys (seckeys);
 
 				using (var pubkeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.pub")))
 					ctx.Import (pubkeys);
-			}
-		}
-
-		[TearDown]
-		public void TearDown ()
-		{
-			try {
-				File.Delete ("pubring.gpg~");
-				File.Delete ("pubring.gpg");
-			} catch {
-			}
-
-			try {
-				File.Delete ("secring.gpg~");
-				File.Delete ("secring.gpg");
-			} catch {
 			}
 		}
 
