@@ -1769,8 +1769,8 @@ namespace MimeKit.Cryptography {
 #else
 				if (File.Exists (bak))
 					File.Delete (bak);
-				File.Move (PublicKeyRingPath, bak);
-				File.Move (tmp, PublicKeyRingPath);
+				File.Move (SecretKeyRingPath, bak);
+				File.Move (tmp, SecretKeyRingPath);
 #endif
 			} else {
 				File.Move (tmp, SecretKeyRingPath);
