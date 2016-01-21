@@ -134,7 +134,7 @@ namespace MimeKit.Cryptography {
 			SecretKeyRingPath = secring;
 
 			if (File.Exists (pubring)) {
-				using (var file = File.OpenRead (pubring)) {
+				using (var file = File.Open (pubring, FileMode.Open, FileAccess.Read)) {
 					PublicKeyRingBundle = new PgpPublicKeyRingBundle (file);
 				}
 			} else {
@@ -142,7 +142,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (secring)) {
-				using (var file = File.OpenRead (secring)) {
+				using (var file = File.Open (secring, FileMode.Open, FileAccess.Read)) {
 					SecretKeyRingBundle = new PgpSecretKeyRingBundle (file);
 				}
 			} else {
@@ -1714,17 +1714,23 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (dirname))
 				Directory.CreateDirectory (dirname);
 
-			using (var file = File.OpenWrite (tmp)) {
+			using (var file = File.Open (tmp, FileMode.Create, FileAccess.Write)) {
 				PublicKeyRingBundle.Encode (file);
 				file.Flush ();
 			}
 
-			if (File.Exists (PublicKeyRingPath))
+			if (File.Exists (PublicKeyRingPath)) {
 #if !COREFX
 				File.Replace (tmp, PublicKeyRingPath, bak);
-			else
-#endif
+#else
+				if (File.Exists (bak))
+					File.Delete (bak);
+				File.Move (PublicKeyRingPath, bak);
 				File.Move (tmp, PublicKeyRingPath);
+#endif
+			} else {
+				File.Move (tmp, PublicKeyRingPath);
+			}
 #else
 			PublicKeyRingBundle.Encode (PublicKeyRing);
 			PublicKeyRing.Seek (0, SeekOrigin.Begin);
@@ -1752,17 +1758,23 @@ namespace MimeKit.Cryptography {
 			if (!Directory.Exists (dirname))
 				Directory.CreateDirectory (dirname);
 
-			using (var file = File.OpenWrite (tmp)) {
+			using (var file = File.Open (tmp, FileMode.Create, FileAccess.Write)) {
 				SecretKeyRingBundle.Encode (file);
 				file.Flush ();
 			}
 
-			if (File.Exists (SecretKeyRingPath))
+			if (File.Exists (SecretKeyRingPath)) {
 #if !COREFX
 				File.Replace (tmp, SecretKeyRingPath, bak);
-			else
+#else
+				if (File.Exists (bak))
+					File.Delete (bak);
+				File.Move (PublicKeyRingPath, bak);
+				File.Move (tmp, PublicKeyRingPath);
 #endif
+			} else {
 				File.Move (tmp, SecretKeyRingPath);
+			}
 #else
 			SecretKeyRingBundle.Encode (SecretKeyRing);
 			SecretKeyRing.Seek (0, SeekOrigin.Begin);
