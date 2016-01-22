@@ -1021,7 +1021,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe BoundaryType ScanContent (byte* inbuf, Stream content, bool trimNewLine)
+		unsafe BoundaryType ScanContent (byte* inbuf, Stream content, bool trimNewLine, out bool empty)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			BoundaryType found = BoundaryType.None;
@@ -1111,6 +1111,8 @@ namespace MimeKit {
 			if (contentIndex < inputIndex)
 				content.Write (input, contentIndex, inputIndex - contentIndex);
 
+			empty = content.Length == 0;
+
 			if (found != BoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (content.Length > 0) {
@@ -1128,24 +1130,26 @@ namespace MimeKit {
 		{
 			BoundaryType found;
 			Stream content;
+			bool empty;
 
 			if (persistent) {
 				long begin = GetOffset (inputIndex);
 				long end;
 
 				using (var measured = new MeasuringStream ()) {
-					found = ScanContent (inbuf, measured, true);
+					found = ScanContent (inbuf, measured, true, out empty);
 					end = begin + measured.Length;
 				}
 
 				content = new BoundStream (stream, begin, end, true);
 			} else {
 				content = new MemoryBlockStream ();
-				found = ScanContent (inbuf, content, true);
+				found = ScanContent (inbuf, content, true, out empty);
 				content.Seek (0, SeekOrigin.Begin);
 			}
 
-			part.ContentObject = new ContentObject (content, part.ContentTransferEncoding);
+			if (!empty)
+				part.ContentObject = new ContentObject (content, part.ContentTransferEncoding);
 
 			return found;
 		}
@@ -1214,7 +1218,9 @@ namespace MimeKit {
 		unsafe BoundaryType MultipartScanPreamble (Multipart multipart, byte* inbuf)
 		{
 			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (inbuf, memory, false);
+				bool empty;
+
+				var found = ScanContent (inbuf, memory, false, out empty);
 				multipart.RawPreamble = memory.ToArray ();
 				return found;
 			}
@@ -1223,7 +1229,9 @@ namespace MimeKit {
 		unsafe BoundaryType MultipartScanEpilogue (Multipart multipart, byte* inbuf)
 		{
 			using (var memory = new MemoryStream ()) {
-				var found = ScanContent (inbuf, memory, true);
+				bool empty;
+
+				var found = ScanContent (inbuf, memory, true, out empty);
 				multipart.RawEpilogue = memory.ToArray ();
 				return found;
 			}

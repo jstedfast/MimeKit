@@ -123,20 +123,18 @@ Just for fun....  -- Nathaniel<nl>
 		}
 
 		[Test]
-		public void TestReserializationEmptyPart ()
+		public void TestReserializationEmptyParts ()
 		{
-			string rawMessageText = @"Date: Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
-From: Nathaniel Borenstein <nsb>
-X-Andrew-Message-Size: 152+1
+			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
+From: MimeKit Unit Tests <unit.tests@mimekit.org>
+To: MimeKit Unit Tests <unit.tests@mimekit.org>
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
 	boundary=""Interpart.Boundary.IeCBvV20M2YtEoUA0A""
-To: Ned Freed <ned@innosoft.com>,
-    ysato@etl.go.jp (Yutaka Sato =?ISO-2022-JP?B?GyRAOjRGI0stGyhK?= )
-Subject: MIME & int'l mail
+Subject: Reserialization test of empty mime parts
 
-> THIS IS A MESSAGE IN 'MIME' FORMAT.  Your mail reader does not support MIME.
-> Please read the first section, which is plain text, and ignore the rest.
+THIS IS A MESSAGE IN 'MIME' FORMAT.  Your mail reader does not support MIME.
+Please read the first section, which is plain text, and ignore the rest.
 
 --Interpart.Boundary.IeCBvV20M2YtEoUA0A
 Content-type: text/plain; charset=US-ASCII
@@ -145,6 +143,12 @@ This is the body.
 
 --Interpart.Boundary.IeCBvV20M2YtEoUA0A
 Content-type: text/plain; charset=US-ASCII; name=empty.txt
+Content-Description: this part contains no content
+
+--Interpart.Boundary.IeCBvV20M2YtEoUA0A
+Content-type: text/plain; charset=US-ASCII; name=blank-line.txt
+Content-Description: this part contains a single blank line
+
 
 --Interpart.Boundary.IeCBvV20M2YtEoUA0A--
 ".Replace ("\r\n", "\n");

@@ -210,18 +210,5 @@ namespace MimeKit {
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Determines if the specified content is null or empty.
-		/// </summary>
-		/// <remarks>
-		/// Determines if the specified content is null or empty.
-		/// </remarks>
-		/// <returns><c>true</c> if the content is null or empty; otherwise, <c>false</c>.</returns>
-		/// <param name="content">The content.</param>
-		internal static bool IsNullOrEmpty (IContentObject content)
-		{
-			return content == null || content.Stream.Length == 0;
-		}
 	}
 }

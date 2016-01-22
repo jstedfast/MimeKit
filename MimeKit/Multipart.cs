@@ -443,7 +443,7 @@ namespace MimeKit {
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if ((part != null && ContentObject.IsNullOrEmpty (part.ContentObject)) ||
+					if ((part != null && part.ContentObject == null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -467,7 +467,7 @@ namespace MimeKit {
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if ((part != null && ContentObject.IsNullOrEmpty (part.ContentObject)) ||
+					if ((part != null && part.ContentObject == null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
