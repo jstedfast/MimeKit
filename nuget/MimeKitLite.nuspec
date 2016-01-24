@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKitLite</id>
-		<version>1.2.19</version>
+		<version>1.2.20</version>
 		<title>MimeKit Lite: A complete MIME library</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,18 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Handle illegal Content-Id headers that do not enclose their values in &lt;&gt;'s. (issue #215)
-* Fixed reserialization of MimeParts with empty content. (issue #213)
-* Improved parsing logic for malformed Content-Type headers.
-* Fixed HtmlTokenizer to work properly when some closing tags were not lowercase.
+		<releaseNotes>* Fixed serialization of mime parts with empty content. (issue #221)
+* Fixed a bug in the TnefPropertyReader that would break when not all properties were read by the consumer of the API.
+* Fixed the InternetAddress parser to throw a more informative error when parsing broken routes in mailboxes.
+* Added HeaderList.Add(*, Encoding, string) and .Insert(*, Encoding, string) methods.
+* Fixed HtmlUtils.HtmlAttributeEncode() to properly encode non-ascii characters as entities.
+* Fixed HtmlUtils.HtmlEncode() to properly encode non-ascii characters as entities.
+* Fixed MimeParser to track whether or not each multipart had an end boundary so that when they get reserialized, they match the original. (issue #218)
+* Implemented an optimized OrdinalIgnoreCase string comparer which improves the performance of the MimeParser slightly.
+* Fixed QuotedPrintableDecoder to properly handle "==" sequences.
+* Added a ContentDisposition.TryParse(ParserOptions,string) method.
+* Added a ContentType.TryParse(ParserOptions,string) method.
+* Fixed MimeParser to trim the CR from the mbox From marker.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

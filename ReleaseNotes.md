@@ -6,12 +6,14 @@
 
 ### MimeKit 1.2.20
 
+* Fixed serialization of mime parts with empty content. (issue #221)
 * Fixed a bug in the TnefPropertyReader that would break when not all properties were read
   by the consumer of the API.
 * Fixed the InternetAddress parser to throw a more informative error when parsing broken
   routes in mailboxes.
 * Added HeaderList.Add(*, Encoding, string) and .Insert(*, Encoding, string) methods.
 * Added more OpenPgpContext.Encrypt() overloads (and equivalent MultipartEncrypted overloads).
+* Added OpenPgpContext.Import(PgpSecretKeyRing) and OpenPgpContext.Import(PgpSecretKeyRingBundle).
 * Fixed HtmlUtils.HtmlAttributeEncode() to properly encode non-ascii characters as entities.
 * Fixed HtmlUtils.HtmlEncode() to properly encode non-ascii characters as entities.
 * Fixed MimeParser to track whether or not each multipart had an end boundary so that
