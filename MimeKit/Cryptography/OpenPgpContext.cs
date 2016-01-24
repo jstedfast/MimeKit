@@ -1698,7 +1698,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Atomically saves the public key-ring bundle to the path specified by <see cref="PublicKeyRingPath"/>.</para>
-		/// <para>Called by <see cref="Import"/> if any public keys were successfully imported.</para>
+		/// <para>Called by <see cref="Import(Stream)"/> if any public keys were successfully imported.</para>
 		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring bundle.
