@@ -200,13 +200,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Encode (inptr + startIndex, length, outptr);
-				}
-			}
+			return Encode (input, startIndex, length, output);
 		}
 
 		/// <summary>

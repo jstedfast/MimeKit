@@ -162,11 +162,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
-			ValidateArguments (input, startIndex, length, output);
-
-			Buffer.BlockCopy (input, startIndex, output, 0, length);
-
-			return length;
+			return Encode (input, startIndex, length, output);
 		}
 
 		/// <summary>
