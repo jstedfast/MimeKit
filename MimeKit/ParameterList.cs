@@ -793,12 +793,10 @@ namespace MimeKit {
 				return false;
 
 			if (index >= endIndex) {
-				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+				if (throwOnError)
+					throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
-					return false;
-				}
+				return false;
 			}
 
 			valueIndex = index;
