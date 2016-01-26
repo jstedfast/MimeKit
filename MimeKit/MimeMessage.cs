@@ -2679,6 +2679,9 @@ namespace MimeKit {
 			case System.Net.Mime.TransferEncoding.SevenBit:
 				part.ContentTransferEncoding = ContentEncoding.SevenBit;
 				break;
+			case System.Net.Mime.TransferEncoding.EightBit:
+				part.ContentTransferEncoding = ContentEncoding.EightBit;
+				break;
 			}
 
 			if (item.ContentId != null)
@@ -2742,6 +2745,12 @@ namespace MimeKit {
 				msg.Subject = message.Subject ?? string.Empty;
 
 			switch (message.Priority) {
+			case MailPriority.Normal:
+				msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
+				msg.Headers.RemoveAll (HeaderId.Importance);
+				msg.Headers.RemoveAll (HeaderId.XPriority);
+				msg.Headers.RemoveAll (HeaderId.Priority);
+				break;
 			case MailPriority.High:
 				msg.Headers.Replace (HeaderId.Priority, "urgent");
 				msg.Headers.Replace (HeaderId.Importance, "high");
