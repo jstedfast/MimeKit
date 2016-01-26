@@ -363,6 +363,7 @@ namespace MimeKit.Tnef {
 			case TnefComplianceStatus.NestingTooDeep:           message = "Nesting too deep."; break;
 			case TnefComplianceStatus.StreamTruncated:          message = "Truncated TNEF stream."; break;
 			case TnefComplianceStatus.UnsupportedPropertyType:  message = "Unsupported property type."; break;
+			case TnefComplianceStatus.Compliant: return;
 			}
 
 			if (innerException != null)
