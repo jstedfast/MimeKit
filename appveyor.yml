@@ -19,7 +19,7 @@ install:
 
 build:
   project: MimeKit.Net45.sln
-  verbosity: detailed
+  verbosity: minimal
 
 test_script:
 - ps: >-
