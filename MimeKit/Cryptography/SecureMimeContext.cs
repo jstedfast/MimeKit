@@ -575,6 +575,9 @@ namespace MimeKit.Cryptography {
 				case EncryptionAlgorithm.Des:
 					capabilities.AddCapability (SmimeCapabilities.DesCbc);
 					break;
+				case EncryptionAlgorithm.Blowfish:
+				case EncryptionAlgorithm.Twofish:
+					break;
 				}
 			}
 
