@@ -2679,9 +2679,9 @@ namespace MimeKit {
 			case System.Net.Mime.TransferEncoding.SevenBit:
 				part.ContentTransferEncoding = ContentEncoding.SevenBit;
 				break;
-			case System.Net.Mime.TransferEncoding.EightBit:
-				part.ContentTransferEncoding = ContentEncoding.EightBit;
-				break;
+			//case System.Net.Mime.TransferEncoding.EightBit:
+			//	part.ContentTransferEncoding = ContentEncoding.EightBit;
+			//	break;
 			}
 
 			if (item.ContentId != null)
