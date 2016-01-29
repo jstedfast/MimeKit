@@ -28,6 +28,8 @@ using System;
 using System.IO;
 using System.Threading;
 
+using MimeKit.IO;
+
 namespace MimeKit {
 	/// <summary>
 	/// A MIME part containing a <see cref="MimeKit.MimeMessage"/> as its content.
@@ -201,8 +203,22 @@ namespace MimeKit {
 		{
 			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
-			if (Message != null)
-				Message.WriteTo (options, stream, cancellationToken);
+			if (Message == null)
+				return;
+
+			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
+				var cancellable = stream as ICancellableStream;
+
+				if (cancellable != null) {
+					cancellable.Write (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken);
+					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+				} else {
+					stream.Write (Message.MboxMarker, 0, Message.MboxMarker.Length);
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+			}
+
+			Message.WriteTo (options, stream, cancellationToken);
 		}
 	}
 }

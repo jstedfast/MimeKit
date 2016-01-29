@@ -126,6 +126,10 @@ namespace MimeKit {
 		long mboxMarkerOffset;
 		int mboxMarkerLength;
 
+		// message/rfc822 mbox markers (shouldn't exist, but sometimes do)
+		byte[] preHeaderBuffer = new byte[128];
+		int preHeaderLength;
+
 		// header buffer
 		byte[] headerBuffer = new byte[512];
 		long headerOffset;
@@ -617,6 +621,7 @@ namespace MimeKit {
 
 		void ResetRawHeaderData ()
 		{
+			preHeaderLength = 0;
 			headerIndex = 0;
 		}
 
@@ -778,7 +783,7 @@ namespace MimeKit {
 						if (!valid) {
 							length = inptr - start;
 
-							if (format == MimeFormat.Mbox && length == 4 && IsMboxMarker (start)) {
+							if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (start)) {
 								// we've found the start of the next message...
 								inputIndex = (int) (start - inbuf);
 								state = MimeParserState.Complete;
@@ -789,6 +794,7 @@ namespace MimeKit {
 							if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
 								// ignore From-lines that might appear at the start of a message
 								if (length < 5 || !IsMboxMarker (start)) {
+									// not a From-line...
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
 									headerIndex = 0;
@@ -838,8 +844,23 @@ namespace MimeKit {
 
 					length = (inptr + 1) - start;
 
-					AppendRawHeaderData ((int) (start - inbuf), (int) length);
-					checkFolded = true;
+					if (!valid && headers.Count == 0 && length > 5 && IsMboxMarker (start)) {
+						if (inptr[-1] == (byte) '\r')
+							length--;
+						length--;
+
+						preHeaderLength = (int) length;
+
+						if (preHeaderLength > preHeaderBuffer.Length)
+							Array.Resize (ref preHeaderBuffer, NextAllocSize (preHeaderLength));
+
+						Buffer.BlockCopy (input, (int) (start - inbuf), preHeaderBuffer, 0, preHeaderLength);
+						checkFolded = false;
+					} else {
+						AppendRawHeaderData ((int) (start - inbuf), (int) length);
+						checkFolded = true;
+					}
+
 					midline = false;
 					inptr++;
 				}
@@ -1199,6 +1220,11 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers);
 			var type = GetContentType (null);
+
+			if (preHeaderBuffer.Length > 0) {
+				message.MboxMarker = new byte[preHeaderLength];
+				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
+			}
 
 			var entity = options.CreateEntity (type, headers, true);
 			message.Body = entity;

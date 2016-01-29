@@ -239,6 +239,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the mbox marker.
+		/// </summary>
+		/// <remarks>
+		/// Set by the <see cref="MimeParser"/> when parsing attached message/rfc822 parts
+		/// so that the message/rfc822 part can be reserialized back to its original form.
+		/// </remarks>
+		/// <value>The mbox marker.</value>
+		internal byte[] MboxMarker {
+			get; set;
+		}
+
+		/// <summary>
 		/// Gets the list of headers.
 		/// </summary>
 		/// <remarks>

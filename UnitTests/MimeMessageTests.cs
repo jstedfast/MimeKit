@@ -52,7 +52,7 @@ From: Nathaniel Borenstein <nsb>
 X-Andrew-Message-Size: 152+1
 MIME-Version: 1.0
 Content-Type: multipart/alternative; 
-	boundary=""Interpart.Boundary.IeCBvV20M2YtEoUA0A""
+	boundary=""Multipart.Alternative.IeCBvV20M2YtEoUA0A""
 To: Ned Freed <ned@innosoft.com>,
     ysato@etl.go.jp (Yutaka Sato =?ISO-2022-JP?B?GyRAOjRGI0stGyhK?= )
 Subject: MIME & int'l mail
@@ -60,7 +60,7 @@ Subject: MIME & int'l mail
 > THIS IS A MESSAGE IN 'MIME' FORMAT.  Your mail reader does not support MIME.
 > Please read the first section, which is plain text, and ignore the rest.
 
---Interpart.Boundary.IeCBvV20M2YtEoUA0A
+--Multipart.Alternative.IeCBvV20M2YtEoUA0A
 Content-type: text/plain; charset=US-ASCII
 
 In honor of the Communications Week error about MIME's ability to handle
@@ -70,11 +70,11 @@ international character sets. a screen dump:
 displayed.]
 Just for fun....  -- Nathaniel
 
---Interpart.Boundary.IeCBvV20M2YtEoUA0A
+--Multipart.Alternative.IeCBvV20M2YtEoUA0A
 Content-Type: multipart/mixed; 
-	boundary=""Alternative.Boundary.IeCBvV20M2Yt4oU=wd""
+	boundary=""Multipart.Mixed.IeCBvV20M2Yt4oU=wd""
 
---Alternative.Boundary.IeCBvV20M2Yt4oU=wd
+--Multipart.Mixed.IeCBvV20M2Yt4oU=wd
 Content-type: text/richtext; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
@@ -82,9 +82,8 @@ In honor of the <italic>Communications Week</italic> error about MIME's abilit=
 y to handle international character sets. a screen dump:<nl>
 <nl>
 
---Alternative.Boundary.IeCBvV20M2Yt4oU=wd
+--Multipart.Mixed.IeCBvV20M2Yt4oU=wd
 Content-type: image/gif
-Content-Description: Some international characters
 Content-Transfer-Encoding: base64
 
 R0lGODdhEgLiAKEAAAAAAP///wAA////4CwAAAAAEgLiAAAC/oSPqcvtD6OctNqLs968
@@ -93,7 +92,20 @@ R+mUIAiVUTmCU0mVJmiVV5mCfaiVQtaUXVlKXwmWZiSWY3lDZWmWIISWaalUWcmW+bWW
 b9lAcSmXCUSXdWlKbomX7HWXe4llXOmXQAmYgTmUg0mYRmmYh5mUscGYjemYjwmZkSmZ
 k0mZlWmZl4mZqVEAADs=
 
---Alternative.Boundary.IeCBvV20M2Yt4oU=wd
+--Multipart.Mixed.IeCBvV20M2Yt4oU=wd
+Content-type: message/rfc822
+Content-Description: a message with an mbox marker
+
+From mbox@localhost
+Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
+From: MimeKit Unit Tests <unit.tests@mimekit.org>
+To: MimeKit Unit Tests <unit.tests@mimekit.org>
+MIME-Version: 1.0
+Content-type: text/plain
+
+This is an attached message.
+
+--Multipart.Mixed.IeCBvV20M2Yt4oU=wd
 Content-type: text/richtext; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
@@ -101,7 +113,7 @@ Content-Transfer-Encoding: quoted-printable
 <nl>
 Just for fun....  -- Nathaniel<nl>
 
---Interpart.Boundary.IeCBvV20M2YtEoUA0A--
+--Multipart.Alternative.IeCBvV20M2YtEoUA0A--
 ".Replace ("\r\n", "\n");
 			string result;
 
