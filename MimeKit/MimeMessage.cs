@@ -1431,8 +1431,6 @@ namespace MimeKit {
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
-			Prepare (EncodingConstraint.SevenBit, 78);
-
 			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
 			var value = new StringBuilder ("v=1");
 			byte[] signature, hash;
