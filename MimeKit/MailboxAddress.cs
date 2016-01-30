@@ -135,6 +135,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Clone the mailbox address.
+		/// </summary>
+		/// <remarks>
+		/// Clones the mailbox address.
+		/// </remarks>
+		/// <returns>The cloned mailbox address.</returns>
+		public override InternetAddress Clone ()
+		{
+			return new MailboxAddress (Encoding, Name, Route, Address);
+		}
+
+		/// <summary>
 		/// Gets the mailbox route.
 		/// </summary>
 		/// <remarks>

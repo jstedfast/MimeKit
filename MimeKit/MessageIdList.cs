@@ -194,6 +194,27 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Add a collection of Message-Id items.
+		/// </summary>
+		/// <remarks>
+		/// Adds a collection of Message-Id items to append to the list.
+		/// </remarks>
+		/// <param name="items">The Message-Id items to add.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="items"/> is <c>null</c>.
+		/// </exception>
+		public void AddRange (IEnumerable<string> items)
+		{
+			if (items == null)
+				throw new ArgumentNullException ("items");
+
+			foreach (var msgid in items)
+				references.Add (ValidateMessageId (msgid));
+
+			OnChanged ();
+		}
+
+		/// <summary>
 		/// Clears the Message-Id list.
 		/// </summary>
 		/// <remarks>

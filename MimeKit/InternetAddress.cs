@@ -129,6 +129,15 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Clone the address.
+		/// </summary>
+		/// <remarks>
+		/// Clones the address.
+		/// </remarks>
+		/// <returns>The cloned address.</returns>
+		public abstract InternetAddress Clone ();
+
 		#region IComparable implementation
 
 		/// <summary>

@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
@@ -102,6 +103,18 @@ namespace MimeKit {
 		/// <param name="name">The name of the group.</param>
 		public GroupAddress (string name) : this (Encoding.UTF8, name)
 		{
+		}
+
+		/// <summary>
+		/// Clone the group address.
+		/// </summary>
+		/// <remarks>
+		/// Clones the group address.
+		/// </remarks>
+		/// <returns>The cloned group address.</returns>
+		public override InternetAddress Clone ()
+		{
+			return new GroupAddress (Encoding, Name, Members.Select (x => x.Clone ()));
 		}
 
 		/// <summary>
