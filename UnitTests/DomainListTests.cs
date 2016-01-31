@@ -59,6 +59,57 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestBasicListFunctionality ()
+		{
+			var list = new DomainList ();
+
+			Assert.IsFalse (list.IsReadOnly);
+			Assert.AreEqual (0, list.Count, "Initial count");
+
+			list.Add ("domain2");
+
+			Assert.AreEqual (1, list.Count);
+			Assert.AreEqual ("domain2", list[0]);
+
+			list.Insert (0, "domain0");
+			list.Insert (1, "domain1");
+
+			Assert.AreEqual (3, list.Count);
+			Assert.AreEqual ("domain0", list[0]);
+			Assert.AreEqual ("domain1", list[1]);
+			Assert.AreEqual ("domain2", list[2]);
+
+			Assert.IsTrue (list.Contains ("domain1"), "Contains");
+			Assert.AreEqual (1, list.IndexOf ("domain1"), "IndexOf");
+
+			var array = new string[list.Count];
+			list.CopyTo (array, 0);
+			list.Clear ();
+
+			Assert.AreEqual (0, list.Count);
+
+			foreach (var domain in array)
+				list.Add (domain);
+
+			Assert.AreEqual (array.Length, list.Count);
+
+			Assert.IsTrue (list.Remove ("domain2"));
+			Assert.AreEqual (2, list.Count);
+			Assert.AreEqual ("domain0", list[0]);
+			Assert.AreEqual ("domain1", list[1]);
+
+			list.RemoveAt (0);
+
+			Assert.AreEqual (1, list.Count);
+			Assert.AreEqual ("domain1", list[0]);
+
+			list[0] = "domain";
+
+			Assert.AreEqual (1, list.Count);
+			Assert.AreEqual ("domain", list[0]);
+		}
+
+		[Test]
 		public void TestParseEmpty ()
 		{
 			AssertParseFailure (string.Empty);

@@ -55,6 +55,13 @@ namespace UnitTests {
 			Assert.AreEqual ("id1@localhost", list[1]);
 			Assert.AreEqual ("id2@localhost", list[2]);
 
+			var clone = list.Clone ();
+
+			Assert.AreEqual (3, clone.Count);
+			Assert.AreEqual ("id0@localhost", clone[0]);
+			Assert.AreEqual ("id1@localhost", clone[1]);
+			Assert.AreEqual ("id2@localhost", clone[2]);
+
 			Assert.IsTrue (list.Contains ("id1@localhost"), "Contains");
 			Assert.AreEqual (1, list.IndexOf ("id1@localhost"), "IndexOf");
 
@@ -77,6 +84,11 @@ namespace UnitTests {
 
 			Assert.AreEqual (1, list.Count);
 			Assert.AreEqual ("id1@localhost", list[0]);
+
+			list[0] = "id@localhost";
+
+			Assert.AreEqual (1, list.Count);
+			Assert.AreEqual ("id@localhost", list[0]);
 		}
 	}
 }
