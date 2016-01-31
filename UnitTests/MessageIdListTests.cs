@@ -35,6 +35,23 @@ namespace UnitTests {
 	public class MessageIdListTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var list = new MessageIdList ();
+
+			Assert.Throws<ArgumentNullException> (() => list.Add (null));
+			Assert.Throws<ArgumentNullException> (() => list.AddRange (null));
+			Assert.Throws<ArgumentNullException> (() => list.Contains (null));
+			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new string[0], -1));
+			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "item"));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+			Assert.Throws<ArgumentNullException> (() => list.Remove (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
+		}
+
+		[Test]
 		public void TestBasicListFunctionality ()
 		{
 			var list = new MessageIdList ();
