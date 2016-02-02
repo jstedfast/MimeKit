@@ -63,6 +63,7 @@ namespace UnitTests {
 		{
 			var list = new DomainList ();
 
+			Assert.Throws<ArgumentNullException> (() => new DomainList (null));
 			Assert.Throws<ArgumentNullException> (() => list.Add (null));
 			Assert.Throws<ArgumentNullException> (() => list.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
@@ -70,6 +71,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "item"));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 			Assert.Throws<ArgumentNullException> (() => list.Remove (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
 		}

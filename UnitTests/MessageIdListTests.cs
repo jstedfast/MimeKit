@@ -47,6 +47,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "item"));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 			Assert.Throws<ArgumentNullException> (() => list.Remove (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
 		}
