@@ -52,6 +52,7 @@ namespace UnitTests {
 			"Tue, 21 Apr 15 14:44:51 GMT",
 			"Tue, 21 April 15 14:44:51 GMT",
 			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)",
+			"Tue, 12 Jun 2012 19:22:28 0200"
 		};
 
 		static readonly string[] expected = {
@@ -72,6 +73,7 @@ namespace UnitTests {
 			"Tue, 21 Apr 2015 14:44:51 +0000",
 			"Tue, 21 Apr 2015 14:44:51 +0000",
 			"Thu, 01 Oct 2015 14:40:57 +0200",
+			"Tue, 12 Jun 2012 19:22:28 +0200"
 		};
 
 		[Test]

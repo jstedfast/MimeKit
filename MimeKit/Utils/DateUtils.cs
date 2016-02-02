@@ -286,9 +286,6 @@ namespace MimeKit.Utils {
 			tzone = 0;
 
 			if (token.IsNumericZone) {
-				if ((token.Flags & DateTokenFlags.HasSign) == 0)
-					return false;
-
 				int endIndex = token.StartIndex + token.Length;
 				int index = token.StartIndex;
 				int sign;
@@ -314,8 +311,12 @@ namespace MimeKit.Utils {
 
 				if (!timezones.TryGetValue (name, out tzone))
 					return false;
-			} else {
-				return false;
+			} else if (token.IsNumeric) {
+				int endIndex = token.StartIndex + token.Length;
+				int index = token.StartIndex;
+
+				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out tzone) || index != endIndex)
+					return false;
 			}
 
 			return true;
@@ -464,8 +465,13 @@ namespace MimeKit.Utils {
 
 				if (tokens[i].IsNumeric) {
 					if (tokens[i].Length == 4) {
-						if (year == null && TryGetYear (tokens[i], text, out value))
-							year = value;
+						if (year == null) {
+							if (TryGetYear (tokens[i], text, out value))
+								year = value;
+						} else if (tzone == null) {
+							if (TryGetTimeZone (tokens[i], text, out value))
+								tzone = value;
+						}
 
 						continue;
 					}
