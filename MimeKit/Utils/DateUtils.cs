@@ -319,6 +319,9 @@ namespace MimeKit.Utils {
 					return false;
 			}
 
+			if (tzone < -1200 || tzone > 1400)
+				return false;
+
 			return true;
 		}
 
@@ -396,12 +399,6 @@ namespace MimeKit.Utils {
 
 			if (!TryGetTimeZone (tokens[n], text, out tzone))
 				tzone = 0;
-
-			while (tzone < -1400)
-				tzone += 2400;
-
-			while (tzone > 1400)
-				tzone -= 2400;
 
 			int minutes = tzone % 100;
 			int hours = tzone / 100;
